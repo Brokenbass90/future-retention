@@ -54,7 +54,7 @@ body {
 }
 
 .page-shell {
-  max-width: 1680px;
+  max-width: 1480px;
   margin: 0 auto;
   padding: 28px;
 }
@@ -83,9 +83,9 @@ body {
 
 .topbar h1 {
   margin: 0;
-  max-width: 980px;
-  font-size: clamp(2.6rem, 4vw, 4.6rem);
-  line-height: 0.95;
+  max-width: 880px;
+  font-size: clamp(2.2rem, 4vw, 3.8rem);
+  line-height: 1.02;
 }
 
 .subtitle {
@@ -138,21 +138,21 @@ body {
   line-height: 1.55;
 }
 
-.workspace {
+.main-grid {
   display: grid;
-  grid-template-columns: 1.18fr 1fr 0.92fr;
+  grid-template-columns: minmax(360px, 0.92fr) minmax(480px, 1.08fr);
   gap: 20px;
   align-items: start;
 }
 
-.column {
+.panel-stack,
+.detail-stack {
   display: grid;
   gap: 20px;
 }
 
-.center-column {
-  position: sticky;
-  top: 18px;
+.detail-stack {
+  margin-top: 20px;
 }
 
 .card {
@@ -190,7 +190,7 @@ body {
 }
 
 .chat-card {
-  min-height: 700px;
+  min-height: 620px;
   display: flex;
   flex-direction: column;
 }
@@ -333,7 +333,7 @@ body {
 
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   gap: 12px;
 }
 
@@ -363,7 +363,7 @@ body {
 }
 
 .preview-card {
-  min-height: 920px;
+  min-height: 860px;
 }
 
 #previewFrame {
@@ -381,7 +381,7 @@ body {
 }
 
 .code-card {
-  min-height: 760px;
+  min-height: 0;
 }
 
 .tabs {
@@ -615,16 +615,12 @@ body {
 }
 
 @media (max-width: 1360px) {
-  .workspace {
+  .main-grid {
     grid-template-columns: 1fr;
   }
 
   .upload-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .center-column {
-    position: static;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .chat-card,
@@ -648,7 +644,8 @@ body {
   }
 
   .summary-grid,
-  .field-grid {
+  .field-grid,
+  .upload-grid {
     grid-template-columns: 1fr;
   }
 

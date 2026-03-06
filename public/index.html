@@ -79,8 +79,8 @@
         </div>
       </section>
 
-      <div class="workspace">
-        <aside class="column">
+      <div class="main-grid">
+        <section class="panel-stack">
           <section class="card chat-card">
             <div class="card-header">
               <div>
@@ -164,9 +164,9 @@
               </label>
             </div>
           </section>
-        </aside>
+        </section>
 
-        <main class="column center-column">
+        <section class="panel-stack preview-stack">
           <section class="card summary-card">
             <div class="summary-grid">
               <div class="summary-item">
@@ -205,52 +205,52 @@
             </div>
             <iframe id="previewFrame" title="Email preview"></iframe>
           </section>
-        </main>
+        </section>
+      </div>
 
-        <aside class="column">
-          <section class="card code-card">
-            <div class="card-header">
-              <div>
-                <div class="card-kicker">04</div>
-                <h2>Код и данные</h2>
-              </div>
-              <p>HTML, Pug, locales, assets, spec и build log в одном месте.</p>
+      <div class="detail-stack">
+        <section class="card code-card">
+          <div class="card-header">
+            <div>
+              <div class="card-kicker">04</div>
+              <h2>Код и данные</h2>
             </div>
+            <p>HTML, Pug, locales, assets, spec и build log в одном месте.</p>
+          </div>
 
-            <div class="tabs">
-              <button class="tab is-active" data-tab="html" type="button">HTML</button>
-              <button class="tab" data-tab="pug" type="button">Pug</button>
-              <button class="tab" data-tab="locales" type="button">Locales</button>
-              <button class="tab" data-tab="assets" type="button">Assets</button>
-              <button class="tab" data-tab="spec" type="button">Mail spec</button>
-              <button class="tab" data-tab="buildLog" type="button">Build log</button>
+          <div class="tabs">
+            <button class="tab is-active" data-tab="html" type="button">HTML</button>
+            <button class="tab" data-tab="pug" type="button">Pug</button>
+            <button class="tab" data-tab="locales" type="button">Locales</button>
+            <button class="tab" data-tab="assets" type="button">Assets</button>
+            <button class="tab" data-tab="spec" type="button">Mail spec</button>
+            <button class="tab" data-tab="buildLog" type="button">Build log</button>
+          </div>
+
+          <pre class="code-output" id="codeOutput"></pre>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-kicker">05</div>
+              <h2>Assets in current preview</h2>
             </div>
+            <p>Это основа будущего asset registry и линковки с CDN.</p>
+          </div>
+          <div class="asset-list" id="assetList"></div>
+        </section>
 
-            <pre class="code-output" id="codeOutput"></pre>
-          </section>
-
-          <section class="card">
-            <div class="card-header">
-              <div>
-                <div class="card-kicker">05</div>
-                <h2>Assets in current preview</h2>
-              </div>
-              <p>Это основа будущего asset registry и линковки с CDN.</p>
+        <section class="card diagnostics-card">
+          <div class="card-header">
+            <div>
+              <div class="card-kicker">06</div>
+              <h2>Client diagnostics</h2>
             </div>
-            <div class="asset-list" id="assetList"></div>
-          </section>
-
-          <section class="card diagnostics-card">
-            <div class="card-header">
-              <div>
-                <div class="card-kicker">06</div>
-                <h2>Client diagnostics</h2>
-              </div>
-              <p>Не Litmus, а честный heuristic layer внутри тулзы.</p>
-            </div>
-            <div class="diagnostics-list" id="diagnosticsList"></div>
-          </section>
-        </aside>
+            <p>Не Litmus, а честный heuristic layer внутри тулзы.</p>
+          </div>
+          <div class="diagnostics-list" id="diagnosticsList"></div>
+        </section>
       </div>
     </div>
 
