@@ -104,6 +104,40 @@ body {
   justify-content: flex-end;
 }
 
+.upload-hub {
+  margin-bottom: 20px;
+}
+
+.upload-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  padding: 18px 22px 22px;
+}
+
+.upload-tile {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.68);
+  border: 1px solid rgba(19, 35, 26, 0.08);
+}
+
+:root[data-theme="dark"] .upload-tile {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.upload-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.upload-copy {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
 .workspace {
   display: grid;
   grid-template-columns: 1.18fr 1fr 0.92fr;
@@ -200,6 +234,12 @@ body {
   gap: 14px;
 }
 
+.chat-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
 .field-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -281,6 +321,10 @@ body {
 .ghost-button:hover,
 .tab:hover {
   transform: translateY(-1px);
+}
+
+.secondary-button {
+  padding-inline: 18px;
 }
 
 .summary-card {
@@ -380,6 +424,47 @@ body {
   padding: 0 22px 22px;
   display: grid;
   gap: 12px;
+}
+
+.asset-composer-list {
+  display: grid;
+  gap: 12px;
+}
+
+.asset-row {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(19, 35, 26, 0.08);
+}
+
+:root[data-theme="dark"] .asset-row {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.asset-row-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 0.9fr) minmax(0, 0.9fr);
+  gap: 10px;
+}
+
+.asset-row-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+.asset-row-meta {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.add-asset-button {
+  justify-self: start;
 }
 
 .asset-item,
@@ -534,6 +619,10 @@ body {
     grid-template-columns: 1fr;
   }
 
+  .upload-grid {
+    grid-template-columns: 1fr;
+  }
+
   .center-column {
     position: static;
   }
@@ -563,6 +652,11 @@ body {
     grid-template-columns: 1fr;
   }
 
+  .asset-row-grid,
+  .chat-actions {
+    grid-template-columns: 1fr;
+  }
+
   #previewFrame {
     width: calc(100% - 16px);
     margin: 12px 8px 8px;
@@ -572,5 +666,9 @@ body {
 
   .settings-drawer {
     width: 100vw;
+  }
+
+  .chat-actions {
+    display: grid;
   }
 }

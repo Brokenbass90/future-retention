@@ -1,4 +1,5 @@
-const storageKey = "email-studio-demo-state-v2";
+const storageKey = "email-studio-demo-state-v3";
+const assetPlacements = ["hero", "logo", "section", "feature", "footer", "background", "reference"];
 
 const initialState = {
   api: {
@@ -30,16 +31,16 @@ const initialState = {
     contentNotes: "",
     designUrl: ""
   },
-  assetLinksText: "",
   translationText: "",
   design: {
     name: "",
     dataUrl: ""
   },
+  assetInputs: [createEmptyAsset(1)],
   messages: [
     {
       role: "assistant",
-      content: "Опишите письмо или загрузите текущее из email-base. В настройках можно переключить тему, провайдера и profile симуляции email-клиента."
+      content: "Я в живом режиме. Можем обсуждать письмо, потом применять изменения к draft. Design, переводы и картинки лежат в Upload Hub наверху."
     }
   ],
   draft: null,
@@ -70,6 +71,8 @@ const refs = {
   settingsBackdrop: document.querySelector("#settingsBackdrop"),
   loadBaseBtn: document.querySelector("#loadBaseBtn"),
   buildBaseMailBtn: document.querySelector("#buildBaseMailBtn"),
+  addAssetBtn: document.querySelector("#addAssetBtn"),
+  assetComposerList: document.querySelector("#assetComposerList"),
   subjectValue: document.querySelector("#subjectValue"),
   preheaderValue: document.querySelector("#preheaderValue"),
   localeValue: document.querySelector("#localeValue"),
@@ -104,7 +107,6 @@ const refs = {
     primaryLink: document.querySelector("#primaryLink"),
     contentNotes: document.querySelector("#contentNotes"),
     designUrl: document.querySelector("#designUrl"),
-    assetLinks: document.querySelector("#assetLinks"),
     translationText: document.querySelector("#translationText")
   }
 };
@@ -119,6 +121,17 @@ function boot() {
   loadApiStatus();
 }
 
+function createEmptyAsset(index = 1) {
+  return {
+    id: `asset-${Date.now()}-${index}`,
+    key: index === 1 ? "hero_asset" : `asset_${index}`,
+    url: "",
+    alt: "",
+    placement: index === 1 ? "hero" : "section",
+    notes: ""
+  };
+}
+
 function bindEvents() {
   refs.chatForm.addEventListener("submit", handleChatSubmit);
   refs.fillDemoBtn.addEventListener("click", fillDemoScenario);
@@ -128,12 +141,11 @@ function bindEvents() {
   refs.settingsBackdrop.addEventListener("click", () => toggleSettings(false));
   refs.loadBaseBtn.addEventListener("click", handleLoadBaseEmail);
   refs.buildBaseMailBtn.addEventListener("click", handleLoadBaseEmail);
+  refs.addAssetBtn.addEventListener("click", addAssetRow);
 
   for (const [key, element] of Object.entries(refs.fields)) {
     element.addEventListener("input", () => {
-      if (key === "assetLinks") {
-        state.assetLinksText = element.value;
-      } else if (key === "translationText") {
+      if (key === "translationText") {
         state.translationText = element.value;
       } else {
         state.brief[key] = element.value;
@@ -234,6 +246,9 @@ function hydrateFromStorage() {
       design: {
         ...structuredClone(initialState.design)
       },
+      assetInputs: Array.isArray(saved.assetInputs) && saved.assetInputs.length > 0
+        ? saved.assetInputs
+        : [createEmptyAsset(1)],
       messages: Array.isArray(saved.messages) && saved.messages.length > 0
         ? saved.messages
         : structuredClone(initialState.messages),
@@ -257,8 +272,8 @@ function persistState() {
     previewSource: state.previewSource,
     settings: state.settings,
     brief: state.brief,
-    assetLinksText: state.assetLinksText,
     translationText: state.translationText,
+    assetInputs: state.assetInputs,
     messages: state.messages,
     draft
   };
@@ -301,10 +316,24 @@ function fillDemoScenario() {
     contentNotes: "Free shipping for 72 hours\nUse one clean hero\nMention 3 benefits before the CTA\nKeep footer simple",
     designUrl: ""
   };
-  state.assetLinksText = [
-    "https://placehold.co/1200x600/png",
-    "https://placehold.co/900x500/jpg"
-  ].join("\n");
+  state.assetInputs = [
+    {
+      id: "asset-demo-1",
+      key: "hero_offer",
+      url: "https://placehold.co/1200x600/png",
+      alt: "Hero offer",
+      placement: "hero",
+      notes: "Main hero visual"
+    },
+    {
+      id: "asset-demo-2",
+      key: "app_screen",
+      url: "https://placehold.co/900x500/jpg",
+      alt: "App screen",
+      placement: "section",
+      notes: "Use in body section"
+    }
+  ];
   state.translationText = JSON.stringify(
     {
       en: {
@@ -325,13 +354,33 @@ function fillDemoScenario() {
     { role: "assistant", content: initialState.messages[0].content },
     {
       role: "user",
-      content: "Собери win-back письмо по нашим email-технологиям: table-first mindset, одна основная CTA, и думай уже в сторону будущего Pug/Stylus шаблона."
+      content: "Давай обсудим письмо для возврата спящих клиентов. Hero-картинку поставь в первый экран, body image во вторую секцию."
     }
   ];
   state.draft = null;
   state.previewSource = "draft";
   state.design = { name: "", dataUrl: "" };
   renderAll();
+  persistState();
+}
+
+function addAssetRow() {
+  state.assetInputs.push(createEmptyAsset(state.assetInputs.length + 1));
+  renderAssetComposer();
+  persistState();
+}
+
+function updateAssetRow(id, patch) {
+  state.assetInputs = state.assetInputs.map((asset) => asset.id === id ? { ...asset, ...patch } : asset);
+  persistState();
+}
+
+function removeAssetRow(id) {
+  state.assetInputs = state.assetInputs.filter((asset) => asset.id !== id);
+  if (state.assetInputs.length === 0) {
+    state.assetInputs = [createEmptyAsset(1)];
+  }
+  renderAssetComposer();
   persistState();
 }
 
@@ -365,7 +414,11 @@ async function handleTranslationUpload(event) {
 async function handleChatSubmit(event) {
   event.preventDefault();
 
-  const message = refs.chatInput.value.trim() || "Собери первый драфт письма по текущему brief.";
+  const intent = event.submitter?.dataset.intent || "draft";
+  const message = refs.chatInput.value.trim() || (intent === "discuss"
+    ? "Давай обсудим текущее письмо."
+    : "Обнови текущий драфт по моим данным.");
+
   state.messages.push({ role: "user", content: message });
   refs.chatInput.value = "";
   state.busy = true;
@@ -379,12 +432,14 @@ async function handleChatSubmit(event) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
+        intent,
         messages: state.messages,
         brief: state.brief,
-        assetLinks: parseAssetLinks(state.assetLinksText),
+        assetInputs: state.assetInputs,
         translationText: state.translationText,
         design: state.design,
-        settings: state.settings
+        settings: state.settings,
+        currentDraft: state.draft?.mail ?? null
       })
     });
 
@@ -394,8 +449,10 @@ async function handleChatSubmit(event) {
     }
 
     state.mode = payload.mode;
-    state.previewSource = "draft";
-    state.draft = payload.draft;
+    if (payload.draft) {
+      state.previewSource = "draft";
+      state.draft = payload.draft;
+    }
     state.messages.push({
       role: "assistant",
       content: payload.assistantReply
@@ -464,6 +521,7 @@ function toggleSettings(isOpen) {
 function renderAll() {
   applyTheme();
   renderFields();
+  renderAssetComposer();
   renderMessages();
   renderStatus();
   renderSummary();
@@ -490,8 +548,76 @@ function renderFields() {
   refs.fields.primaryLink.value = state.brief.primaryLink;
   refs.fields.contentNotes.value = state.brief.contentNotes;
   refs.fields.designUrl.value = state.brief.designUrl;
-  refs.fields.assetLinks.value = state.assetLinksText;
   refs.fields.translationText.value = state.translationText;
+}
+
+function renderAssetComposer() {
+  refs.assetComposerList.innerHTML = "";
+
+  for (const asset of state.assetInputs) {
+    const row = document.createElement("div");
+    row.className = "asset-row";
+
+    const grid = document.createElement("div");
+    grid.className = "asset-row-grid";
+
+    const urlField = createAssetField("Image URL", "url", asset.url, asset.id);
+    const keyField = createAssetField("Key", "key", asset.key, asset.id);
+    const placementField = createAssetPlacementField(asset);
+
+    grid.append(urlField, keyField, placementField);
+
+    const meta = document.createElement("div");
+    meta.className = "asset-row-actions";
+
+    const noteField = document.createElement("label");
+    noteField.className = "field";
+    noteField.innerHTML = `<span>Notes / usage</span>`;
+    const noteInput = document.createElement("input");
+    noteInput.type = "text";
+    noteInput.value = asset.notes;
+    noteInput.placeholder = "Например: hero background / app screenshot";
+    noteInput.addEventListener("input", () => updateAssetRow(asset.id, { notes: noteInput.value }));
+    noteField.appendChild(noteInput);
+
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "ghost-button";
+    removeBtn.textContent = "Удалить";
+    removeBtn.addEventListener("click", () => removeAssetRow(asset.id));
+
+    meta.append(noteField, removeBtn);
+
+    row.append(grid, meta);
+    refs.assetComposerList.appendChild(row);
+  }
+}
+
+function createAssetField(labelText, field, value, assetId) {
+  const label = document.createElement("label");
+  label.className = "field";
+  label.innerHTML = `<span>${labelText}</span>`;
+  const input = document.createElement("input");
+  input.type = "text";
+  input.value = value;
+  input.addEventListener("input", () => updateAssetRow(assetId, { [field]: input.value }));
+  label.appendChild(input);
+  return label;
+}
+
+function createAssetPlacementField(asset) {
+  const label = document.createElement("label");
+  label.className = "field";
+  label.innerHTML = `<span>Placement</span>`;
+  const select = document.createElement("select");
+  select.className = "select-control";
+  select.innerHTML = assetPlacements
+    .map((placement) => `<option value="${placement}">${placement}</option>`)
+    .join("");
+  select.value = asset.placement;
+  select.addEventListener("change", () => updateAssetRow(asset.id, { placement: select.value }));
+  label.appendChild(select);
+  return label;
 }
 
 function renderMessages() {
@@ -525,7 +651,7 @@ function renderSummary() {
   refs.sourceValue.textContent = state.previewSource;
   refs.assistantReply.textContent = state.messages.at(-1)?.role === "assistant"
     ? state.messages.at(-1).content
-    : "Здесь появится краткое резюме от ассистента после генерации.";
+    : "Здесь появится краткое резюме от ассистента.";
 }
 
 function renderPreview() {
@@ -542,7 +668,7 @@ function renderTabs() {
 
 function renderCode() {
   const selectedKey = codeMap[state.activeTab];
-  refs.codeOutput.textContent = state.draft?.[selectedKey] || "Код появится после первой генерации или загрузки email-base.";
+  refs.codeOutput.textContent = state.draft?.[selectedKey] || "Код появится после первого draft или build.";
 }
 
 function renderAssets() {
@@ -550,7 +676,7 @@ function renderAssets() {
 
   const assets = state.draft?.mail?.assets ?? [];
   if (assets.length === 0) {
-    refs.assetList.appendChild(createTextCard("Пока нет asset-ов."));
+    refs.assetList.appendChild(createTextCard("Пока нет asset-ов в текущем preview."));
     return;
   }
 
@@ -559,17 +685,17 @@ function renderAssets() {
     item.className = "asset-item";
 
     const key = document.createElement("strong");
-    key.textContent = asset.key;
+    key.textContent = `${asset.key} (${asset.placement || "section"})`;
 
     const meta = document.createElement("div");
-    meta.textContent = `${asset.width}x${asset.height} | ${asset.alt}`;
+    meta.textContent = `${asset.width}x${asset.height} | ${asset.alt || "No alt"} | ${asset.notes || "No notes"}`;
 
     const link = document.createElement("a");
     link.href = asset.url;
     link.target = "_blank";
     link.rel = "noreferrer";
     link.textContent = asset.url.startsWith("data:")
-      ? `${asset.alt} (uploaded image)`
+      ? `${asset.alt || asset.key} (uploaded image)`
       : asset.url;
 
     item.append(key, meta, link);
@@ -612,9 +738,7 @@ function renderSettingsControls() {
   refs.themeSelect.value = state.settings.theme;
 
   refs.providerSelect.innerHTML = state.api.providers.length > 0
-    ? state.api.providers
-      .map((provider) => `<option value="${provider.id}">${provider.label}</option>`)
-      .join("")
+    ? state.api.providers.map((provider) => `<option value="${provider.id}">${provider.label}</option>`).join("")
     : `<option value="${state.settings.providerId}">${state.settings.providerId}</option>`;
   refs.providerSelect.value = state.settings.providerId;
 
@@ -664,7 +788,7 @@ function getDiagnostics() {
       {
         level: "ok",
         title: "Preview is empty",
-        body: "Сначала сгенерируйте draft или загрузите build из email-base."
+        body: "Сначала загрузи материалы в Upload Hub и либо обсуди письмо, либо обнови драфт."
       }
     ];
   }
@@ -673,26 +797,33 @@ function getDiagnostics() {
   const html = state.draft.html;
   const buildLog = state.draft.buildLog || "";
   const profileId = state.settings.clientProfileId;
+  const mappedAssets = state.assetInputs.filter((asset) => asset.url && asset.placement).length;
 
   if (state.previewSource === "draft") {
     items.push({
       level: "warning",
       title: "Concept preview",
-      body: "Текущий preview рендерится студией для быстрой оценки. Финальный production HTML должен идти через email-base build."
+      body: "Текущий preview рендерится студией для быстрой оценки. Production HTML должен идти через email-base build."
     });
   } else {
     items.push({
       level: "ok",
       title: "Real build loaded",
-      body: "Preview построен реальным email-base pipeline, а не только внутренним рендерером студии."
+      body: "Preview построен реальным email-base pipeline."
     });
   }
 
-  if (!/<table/i.test(html)) {
+  if (mappedAssets === 0) {
     items.push({
       level: "warning",
-      title: "Table layout warning",
-      body: "В preview не найден table-first layout. Для production-писем вашей базы это потенциальный риск."
+      title: "No image mapping",
+      body: "Картинки не размечены по ролям. Лучше назначить хотя бы hero или section, чтобы студия понимала, куда их ставить."
+    });
+  } else {
+    items.push({
+      level: "ok",
+      title: "Image mapping present",
+      body: `Размечено ${mappedAssets} asset(s). Студия видит, какие картинки hero, section или logo.`
     });
   }
 
@@ -716,15 +847,7 @@ function getDiagnostics() {
     items.push({
       level: "warning",
       title: "Shadow support",
-      body: "Тени ненадежны в старых desktop/webmail-средах. В email лучше считать их декоративным бонусом."
-    });
-  }
-
-  if (/data:image/i.test(html) && profileId !== "apple-mail") {
-    items.push({
-      level: "warning",
-      title: "Embedded image data",
-      body: "Data URL изображения могут вести себя непредсказуемо в некоторых webmail-клиентах."
+      body: "Тени ненадежны в старых desktop/webmail-средах."
     });
   }
 
@@ -733,14 +856,6 @@ function getDiagnostics() {
       level: "warning",
       title: "Missing locale keys",
       body: "В реальном build есть unresolved placeholders. Значит, локали для письма пока неполны."
-    });
-  }
-
-  if (items.length < 3) {
-    items.push({
-      level: "ok",
-      title: "Heuristic layer active",
-      body: `${getSelectedClientProfile().label} выбран как текущий client profile. Это не Litmus-клон, а внутренний симулятор и диагностический слой.`
     });
   }
 
@@ -773,7 +888,7 @@ function simulatePreviewHtml(html, profileId) {
   if (profileId === "yahoo-mail") {
     transformed = transformed
       .replace(/box-shadow:[^;]+;?/gi, "")
-      .replace(/font-family:[^;]+;?/gi, 'font-family: Arial, sans-serif;');
+      .replace(/font-family:[^;]+;?/gi, "font-family: Arial, sans-serif;");
     banner = createClientBanner("Yahoo Mail heuristic preview");
   }
 
@@ -781,11 +896,9 @@ function simulatePreviewHtml(html, profileId) {
     banner = createClientBanner("Apple Mail preview bias");
   }
 
-  if (!banner) {
-    return transformed;
-  }
-
-  return transformed.replace(/<body([^>]*)>/i, `<body$1>${banner}`);
+  return banner
+    ? transformed.replace(/<body([^>]*)>/i, `<body$1>${banner}`)
+    : transformed;
 }
 
 function createClientBanner(title) {
@@ -798,13 +911,6 @@ function createClientBanner(title) {
 
 function applyTheme() {
   document.documentElement.dataset.theme = state.settings.theme;
-}
-
-function parseAssetLinks(value) {
-  return value
-    .split(/\r?\n/)
-    .map((item) => item.trim())
-    .filter(Boolean);
 }
 
 function createPersistableDraft(draft) {
@@ -844,7 +950,7 @@ function emptyPreview() {
       }
 
       .placeholder {
-        max-width: 440px;
+        max-width: 460px;
         padding: 24px 28px;
         border-radius: 24px;
         background: rgba(255, 255, 255, 0.84);
@@ -865,7 +971,7 @@ function emptyPreview() {
   <body>
     <div class="placeholder">
       <strong>Email Studio</strong>
-      Слева заполните brief и напишите задачу в чат, либо загрузите реальный build из email-base.
+      Сначала положи материалы в Upload Hub, затем обсуди письмо или обнови драфт.
     </div>
   </body>
 </html>`;

@@ -110,6 +110,8 @@ const responseSchema = {
               key: { type: "string" },
               url: { type: "string" },
               alt: { type: "string" },
+              placement: { type: "string" },
+              notes: { type: "string" },
               width: { type: "number" },
               height: { type: "number" }
             },
@@ -477,10 +479,61 @@ function getDraftLocale(brief) {
   return cleanText(brief.locale) || "en";
 }
 
+function normalizeAssetInputs(payload) {
+  if (Array.isArray(payload?.assetInputs) && payload.assetInputs.length > 0) {
+    return payload.assetInputs
+      .map((asset, index) => ({
+        id: cleanText(asset?.id) || `asset-${index + 1}`,
+        key: cleanText(asset?.key) || `asset_${index + 1}`,
+        url: cleanText(asset?.url),
+        alt: cleanText(asset?.alt),
+        placement: cleanText(asset?.placement) || "section",
+        notes: cleanText(asset?.notes)
+      }))
+      .filter((asset) => asset.url || asset.key || asset.notes);
+  }
+
+  if (Array.isArray(payload?.assetLinks)) {
+    return payload.assetLinks
+      .map((url, index) => ({
+        id: `asset-${index + 1}`,
+        key: index === 0 ? "hero_asset" : `asset_${index + 1}`,
+        url: cleanText(url),
+        alt: "",
+        placement: index === 0 ? "hero" : "section",
+        notes: ""
+      }))
+      .filter((asset) => asset.url);
+  }
+
+  return [];
+}
+
+function describeAssetPlan(assetInputs) {
+  if (!Array.isArray(assetInputs) || assetInputs.length === 0) {
+    return "No structured assets";
+  }
+
+  return assetInputs
+    .filter((asset) => asset.url)
+    .map((asset) => `${asset.key} | placement=${asset.placement} | notes=${asset.notes || "-"} | url=${asset.url}`)
+    .join("\n");
+}
+
+function summarizeCurrentDraft(currentDraft) {
+  if (!currentDraft || typeof currentDraft !== "object") {
+    return "No current draft";
+  }
+
+  return JSON.stringify(currentDraft, null, 2).slice(0, 6000);
+}
+
 function normalizePayload(payload) {
   const brief = payload?.brief ?? {};
   const settings = payload?.settings ?? {};
+  const assetInputs = normalizeAssetInputs(payload);
   return {
+    intent: cleanText(payload?.intent) || "draft",
     messages: Array.isArray(payload?.messages) ? payload.messages.slice(-8) : [],
     brief: {
       campaignName: cleanText(brief.campaignName),
@@ -500,15 +553,17 @@ function normalizePayload(payload) {
       theme: cleanText(settings.theme) || "light",
       clientProfileId: cleanText(settings.clientProfileId) || "standard"
     },
-    assetLinks: Array.isArray(payload?.assetLinks)
-      ? payload.assetLinks.map(cleanText).filter(Boolean)
-      : [],
+    assetInputs,
+    assetLinks: assetInputs.map((asset) => asset.url).filter(Boolean),
     translationText: cleanText(payload?.translationText),
     design: payload?.design && cleanText(payload.design.dataUrl)
       ? {
           name: cleanText(payload.design.name) || "design-reference",
           dataUrl: cleanText(payload.design.dataUrl)
         }
+      : null,
+    currentDraft: payload?.currentDraft && typeof payload.currentDraft === "object"
+      ? payload.currentDraft
       : null
   };
 }
@@ -530,13 +585,42 @@ function buildUserContext(payload) {
     `Primary CTA href: ${payload.brief.primaryLink || "https://example.com"}`,
     `Content notes: ${payload.brief.contentNotes || "None"}`,
     `Design URL: ${payload.brief.designUrl || "None"}`,
-    `Image links: ${payload.assetLinks.length > 0 ? payload.assetLinks.join(", ") : "None"}`,
+    "Structured assets:",
+    describeAssetPlan(payload.assetInputs),
     `Translations source: ${payload.translationText || "None"}`,
     `Requested AI provider: ${payload.settings.providerId}`,
     `Email base contract: ${emailBaseSummary.available ? emailBaseSummary.technology.join(", ") : "Not attached"}`,
     `Current base mail: ${emailBaseSummary.currentMail?.folder || "None"}`,
+    "Current draft context:",
+    summarizeCurrentDraft(payload.currentDraft),
     "Conversation transcript:",
     transcript || "User: Please draft a strong retention email."
+  ].join("\n");
+}
+
+function buildDiscussionContext(payload) {
+  const emailBaseSummary = summarizeEmailBase();
+  const transcript = payload.messages
+    .map((message) => `${message.role === "assistant" ? "Assistant" : "User"}: ${cleanText(message.content)}`)
+    .join("\n");
+
+  return [
+    "You are discussing an email with a marketer inside an email studio.",
+    "Answer like a collaborative email strategist and implementation partner.",
+    "Be concise but concrete. Suggest improvements, ask for missing pieces implicitly by pointing them out, and reference the current draft when useful.",
+    `Campaign name: ${payload.brief.campaignName || "Untitled campaign"}`,
+    `Goal: ${payload.brief.goal || "Not specified"}`,
+    `Tone: ${payload.brief.tone || "Not specified"}`,
+    `Primary locale: ${payload.brief.locale}`,
+    `Current base mail: ${emailBaseSummary.currentMail?.folder || "None"}`,
+    "Structured assets:",
+    describeAssetPlan(payload.assetInputs),
+    "Current draft context:",
+    summarizeCurrentDraft(payload.currentDraft),
+    "Translations source:",
+    payload.translationText || "None",
+    "Conversation transcript:",
+    transcript || "User: Let's discuss the email direction."
   ].join("\n");
 }
 
@@ -586,31 +670,86 @@ function buildInputMessages(payload) {
   ];
 }
 
-function createAssetRecords(payload) {
-  const links = [...payload.assetLinks];
-  if (payload.brief.designUrl && !links.includes(payload.brief.designUrl)) {
-    links.unshift(payload.brief.designUrl);
+function buildDiscussionMessages(payload) {
+  const content = [
+    {
+      type: "input_text",
+      text: buildDiscussionContext(payload)
+    }
+  ];
+
+  if (payload.brief.designUrl && looksLikeImageUrl(payload.brief.designUrl)) {
+    content.push({
+      type: "input_image",
+      image_url: payload.brief.designUrl,
+      detail: "auto"
+    });
   }
 
-  const records = links.slice(0, 6).map((url, index) => ({
-    key: index === 0 ? "hero_asset" : `asset_${index + 1}`,
-    url,
-    alt: `Reference image ${index + 1}`,
-    width: 600,
-    height: 300
-  }));
+  if (payload.design?.dataUrl) {
+    content.push({
+      type: "input_image",
+      image_url: payload.design.dataUrl,
+      detail: "auto"
+    });
+  }
+
+  for (const asset of payload.assetInputs.slice(0, 4)) {
+    if (looksLikeImageUrl(asset.url)) {
+      content.push({
+        type: "input_image",
+        image_url: asset.url,
+        detail: asset.placement === "hero" ? "auto" : "low"
+      });
+    }
+  }
+
+  return [
+    {
+      role: "system",
+      content: [{
+        type: "input_text",
+        text: "You are a live email strategist inside a collaborative email-studio. Discuss ideas, critique drafts, and suggest implementation-minded next steps."
+      }]
+    },
+    {
+      role: "user",
+      content
+    }
+  ];
+}
+
+function createAssetRecords(payload) {
+  const records = payload.assetInputs
+    .filter((asset) => asset.url)
+    .slice(0, 8)
+    .map((asset, index) => ({
+      key: cleanText(asset.key) || (index === 0 ? "hero_asset" : `asset_${index + 1}`),
+      url: asset.url,
+      alt: cleanText(asset.alt) || `Reference image ${index + 1}`,
+      placement: cleanText(asset.placement) || (index === 0 ? "hero" : "section"),
+      notes: cleanText(asset.notes),
+      width: 600,
+      height: 300
+    }));
 
   if (payload.design?.dataUrl) {
     records.unshift({
       key: "uploaded_design",
       url: payload.design.dataUrl,
       alt: payload.design.name || "Uploaded design reference",
+      placement: "design-reference",
+      notes: "Uploaded design reference",
       width: 600,
       height: 300
     });
   }
 
   return records;
+}
+
+function getAssetByPlacement(assets, placements) {
+  return assets.find((asset) => placements.includes(cleanText(asset.placement)));
 }
 
 function defaultFeatureItems(payload) {
@@ -691,7 +830,8 @@ function createMockDraft(payload, warning = "") {
   const ctaLabel = payload.brief.primaryCta || "See the offer";
   const ctaHref = payload.brief.primaryLink || "https://example.com";
   const assets = createAssetRecords(payload);
-  const heroAsset = assets[0]?.key || "";
+  const heroAsset = getAssetByPlacement(assets, ["hero", "background", "logo"])?.key || assets[0]?.key || "";
+  const sectionAsset = getAssetByPlacement(assets, ["section", "feature", "body"])?.key || "";
   const locale = payload.brief.locale || "en";
   const featureItems = defaultFeatureItems(payload);
   const subject = `${campaignName} | ${ctaLabel}`;
@@ -728,7 +868,7 @@ function createMockDraft(payload, warning = "") {
         eyebrow: "Creative direction",
         title: "How I would build it next",
         body: "Turn this demo draft into a canonical mail spec, connect it to your real email base, and then let the assistant generate only from approved block definitions.",
-        image_key: "",
+        image_key: sectionAsset,
         cta_label: "",
         cta_href: "",
         items: []
@@ -764,6 +904,38 @@ function createMockDraft(payload, warning = "") {
   return {
     assistant_reply: `Собрал первый драфт письма и разложил его на блоки, preview и код.${suffix}`,
     mail
+  };
+}
+
+function createMockDiscussion(payload, warning = "") {
+  const lastUserMessage = [...payload.messages].reverse().find((message) => message.role === "user")?.content || "";
+  const draft = payload.currentDraft;
+  const hasDesign = Boolean(payload.design?.dataUrl || payload.brief.designUrl);
+  const hasTranslations = Boolean(payload.translationText);
+  const assetPlan = payload.assetInputs
+    .filter((asset) => asset.url)
+    .map((asset) => `${asset.key} -> ${asset.placement}`)
+    .join(", ");
+
+  if (!draft) {
+    return {
+      assistantReply: [
+        "Сейчас чат живой, но у нас еще нет рабочего draft.",
+        "Сначала дай мне контекст письма, потом загрузи design, переводы и картинки в Upload Hub, и после этого я смогу обсуждать уже конкретный draft.",
+        warning ? `Текущий режим: ${warning}.` : ""
+      ].filter(Boolean).join(" ")
+    };
+  }
+
+  return {
+    assistantReply: [
+      `Обсуждаю текущее письмо. Последний запрос: "${lastUserMessage || "без явного вопроса"}".`,
+      hasDesign ? "Design reference уже есть." : "Design reference пока не загружен.",
+      hasTranslations ? "Переводы уже приложены." : "Переводы пока не приложены.",
+      assetPlan ? `Картинки размечены так: ${assetPlan}.` : "Картинки пока не размечены по ролям.",
+      "Следующий рабочий шаг: либо обсуждаем изменения текста/структуры, либо жмем обновление draft и применяем их к письму.",
+      warning ? `Текущий режим: ${warning}.` : ""
+    ].join(" ")
   };
 }
 
@@ -821,6 +993,8 @@ function normalizeAsset(asset, index) {
     key: cleanText(asset?.key) || `asset_${index + 1}`,
     url: cleanText(asset?.url) || "https://placehold.co/600x300/png",
     alt: cleanText(asset?.alt) || `Asset ${index + 1}`,
+    placement: cleanText(asset?.placement) || "section",
+    notes: cleanText(asset?.notes),
     width: Number(asset?.width) || 600,
     height: Number(asset?.height) || 300
   };
@@ -1115,6 +1289,8 @@ function renderAssetsManifest(mail) {
     payload[asset.key] = {
       url: asset.url,
       alt: asset.alt,
+      placement: asset.placement || "section",
+      notes: asset.notes || "",
       width: asset.width,
       height: asset.height
     };
@@ -1203,6 +1379,29 @@ async function createOpenAiDraft(payload) {
   return JSON.parse(rawText);
 }
 
+async function createOpenAiDiscussion(payload) {
+  const response = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${openAiApiKey}`
+    },
+    body: JSON.stringify({
+      model: openAiModel,
+      input: buildDiscussionMessages(payload)
+    })
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data?.error?.message || "OpenAI discussion request failed");
+  }
+
+  return {
+    assistantReply: extractResponseText(data) || "Обсуждение готово."
+  };
+}
+
 async function serveStatic(request, response) {
   const requestPath = request.url === "/" ? "/index.html" : request.url;
   const sanitizedPath = path
@@ -1245,6 +1444,36 @@ const server = http.createServer(async (request, response) => {
     if (request.method === "POST" && request.url === "/api/chat") {
       const payload = normalizePayload(await readRequestBody(request));
       const providerId = payload.settings.providerId;
+
+      if (payload.intent === "discuss") {
+        let discussion;
+        let mode = providerId;
+
+        if (providerId === "openai" && openAiApiKey) {
+          try {
+            discussion = await createOpenAiDiscussion(payload);
+            mode = "openai-discuss";
+          } catch (error) {
+            discussion = createMockDiscussion(payload, error.message);
+            mode = "mock-discuss";
+          }
+        } else if (providerId === "mock") {
+          discussion = createMockDiscussion(payload, "Mock provider selected in settings");
+          mode = "mock-discuss";
+        } else if (providerId === "openai") {
+          discussion = createMockDiscussion(payload, "OPENAI_API_KEY is not configured on the server");
+          mode = "mock-discuss";
+        } else {
+          discussion = createMockDiscussion(payload, `${providerId} adapter is planned but not wired yet`);
+          mode = "mock-discuss";
+        }
+
+        sendJson(response, 200, {
+          assistantReply: discussion.assistantReply,
+          mode
+        });
+        return;
+      }
 
       let generated;
       let mode = providerId;
