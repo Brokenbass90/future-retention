@@ -401,12 +401,12 @@ async function handleDesignUpload(event) {
 }
 
 async function handleTranslationUpload(event) {
-  const file = event.target.files?.[0];
-  if (!file) {
+  const files = Array.from(event.target.files || []);
+  if (files.length === 0) {
     return;
   }
 
-  state.translationText = await readFileAsText(file);
+  state.translationText = await combineTranslationFiles(files);
   refs.fields.translationText.value = state.translationText;
   persistState();
 }
@@ -993,4 +993,18 @@ function readFileAsText(file) {
     reader.onerror = () => reject(new Error("Failed to read text file"));
     reader.readAsText(file);
   });
+}
+
+async function combineTranslationFiles(files) {
+  if (files.length === 1 && /\.json$/i.test(files[0].name)) {
+    return readFileAsText(files[0]);
+  }
+
+  const chunks = [];
+  for (const file of files) {
+    const content = await readFileAsText(file);
+    chunks.push(`=== FILE: ${file.name} ===\n${content.trim()}`);
+  }
+
+  return chunks.join("\n\n");
 }

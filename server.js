@@ -131,9 +131,14 @@ const responseSchema = {
                 type: "array",
                 items: { type: "string" }
               },
-              notes: { type: "string" }
+              notes: { type: "string" },
+              body_blocks: {
+                type: "array",
+                items: { type: "string" }
+              },
+              source_name: { type: "string" }
             },
-            required: ["locale", "subject", "preheader", "cta_labels", "notes"]
+            required: ["locale", "subject", "preheader", "cta_labels", "notes", "body_blocks", "source_name"]
           }
         }
       },
@@ -587,7 +592,8 @@ function buildUserContext(payload) {
     `Design URL: ${payload.brief.designUrl || "None"}`,
     "Structured assets:",
     describeAssetPlan(payload.assetInputs),
-    `Translations source: ${payload.translationText || "None"}`,
+    "Translations source:",
+    summarizeTranslationText(payload.translationText),
     `Requested AI provider: ${payload.settings.providerId}`,
     `Email base contract: ${emailBaseSummary.available ? emailBaseSummary.technology.join(", ") : "Not attached"}`,
     `Current base mail: ${emailBaseSummary.currentMail?.folder || "None"}`,
@@ -618,7 +624,7 @@ function buildDiscussionContext(payload) {
     "Current draft context:",
     summarizeCurrentDraft(payload.currentDraft),
     "Translations source:",
-    payload.translationText || "None",
+    summarizeTranslationText(payload.translationText),
     "Conversation transcript:",
     transcript || "User: Let's discuss the email direction."
   ].join("\n");
@@ -765,22 +771,90 @@ function defaultFeatureItems(payload) {
   ];
 }
 
-function parseTranslationSeed(translationText, mail) {
-  const fallbackLocale = mail.locale || "en";
-  const fallback = [
-    {
-      locale: fallbackLocale,
-      subject: mail.subject,
-      preheader: mail.preheader,
-      cta_labels: collectCtaLabels(mail),
-      notes: cleanText(translationText).slice(0, 240)
-    }
-  ];
+function normalizeBoldTokens(text) {
+  return cleanText(text).replace(/@@(.*?)@@/g, "**$1**");
+}
 
-  if (!translationText) {
-    return fallback;
+function unwrapTranslationBraces(text) {
+  return cleanText(text).replace(/^\{\{\s*/, "").replace(/\s*\}\}$/, "").trim();
+}
+
+function extractLocaleFromFilename(fileName) {
+  const match = cleanText(fileName).match(/_([a-z]{2}(?:[_-][A-Za-z]{2})?)(?:_|\.|$)/);
+  return match ? match[1].replace("-", "_") : "";
+}
+
+function splitTranslationDocuments(translationText) {
+  const raw = cleanText(translationText);
+  if (!raw) {
+    return [];
   }
 
+  const marker = /^=== FILE: (.+?) ===$/gm;
+  const matches = [...raw.matchAll(marker)];
+  if (matches.length === 0) {
+    return [{ name: "inline.txt", content: raw }];
+  }
+
+  const docs = [];
+  for (let index = 0; index < matches.length; index += 1) {
+    const current = matches[index];
+    const start = current.index + current[0].length;
+    const end = index + 1 < matches.length ? matches[index + 1].index : raw.length;
+    docs.push({
+      name: cleanText(current[1]) || `translation-${index + 1}.txt`,
+      content: raw.slice(start, end).trim()
+    });
+  }
+
+  return docs.filter((doc) => doc.content);
+}
+
+function parseTxtTranslationDoc(doc) {
+  const content = cleanText(doc.content);
+  if (!content) {
+    return null;
+  }
+
+  const subjectMatch = content.match(/^Subject:\s*(.+)$/im);
+  const snippetMatch = content.match(/^Snippet:\s*(.+)$/im);
+  const bodySource = content
+    .replace(/^Subject:\s*.+$/gim, "")
+    .replace(/^Snippet:\s*.+$/gim, "");
+  const blocks = [...bodySource.matchAll(/\{\{([\s\S]*?)\}\}/g)]
+    .map((match) => normalizeBoldTokens(unwrapTranslationBraces(match[1])))
+    .filter(Boolean);
+  const lines = content.split(/\r?\n/).map((line) => line.trim());
+  const pushIndex = lines.findIndex((line) => /^PUSH$/i.test(line));
+  const pushLines = pushIndex >= 0
+    ? lines.slice(pushIndex + 1).map(normalizeBoldTokens).filter(Boolean)
+    : [];
+  const localeFromName = extractLocaleFromFilename(doc.name);
+  const locale = localeFromName || "unknown";
+
+  if (!subjectMatch && !snippetMatch && blocks.length === 0) {
+    return null;
+  }
+
+  const notesParts = [
+    `file=${doc.name}`,
+    `blocks=${blocks.length}`,
+    pushLines.length > 0 ? `push=${pushLines.length}` : "",
+    blocks[0] ? `first=${blocks[0].slice(0, 90)}` : ""
+  ].filter(Boolean);
+
+  return {
+    locale,
+    subject: normalizeBoldTokens(unwrapTranslationBraces(subjectMatch?.[1] || "")),
+    preheader: normalizeBoldTokens(unwrapTranslationBraces(snippetMatch?.[1] || "")),
+    cta_labels: pushLines.slice(-2),
+    notes: notesParts.join(" | "),
+    body_blocks: blocks,
+    source_name: doc.name
+  };
+}
+
+function parseJsonTranslationEntries(translationText, mail) {
   try {
     const parsed = JSON.parse(translationText);
     if (Array.isArray(parsed)) {
@@ -798,7 +872,91 @@ function parseTranslationSeed(translationText, mail) {
       });
     }
   } catch {
+    return [];
+  }
+
+  return [];
+}
+
+function parseTranslationDoc(doc, mail) {
+  const extension = path.extname(cleanText(doc.name)).toLowerCase();
+
+  if (extension === ".json") {
+    return parseJsonTranslationEntries(doc.content, mail).map((entry) => ({
+      ...entry,
+      source_name: cleanText(entry.source_name) || doc.name
+    }));
+  }
+
+  const txtEntry = parseTxtTranslationDoc(doc);
+  return txtEntry ? [normalizeTranslationEntry(txtEntry, mail)] : [];
+}
+
+function parseTranslationEntries(translationText, mail) {
+  const docs = splitTranslationDocuments(translationText);
+  const docEntries = docs.flatMap((doc) => parseTranslationDoc(doc, mail));
+
+  if (docEntries.length > 0) {
+    return docEntries;
+  }
+
+  return parseJsonTranslationEntries(translationText, mail);
+}
+
+function summarizeTranslationText(translationText) {
+  const txtEntries = parseTranslationEntries(translationText, {
+    locale: "en",
+    subject: "",
+    preheader: "",
+    sections: []
+  });
+
+  if (txtEntries.length > 0) {
+    return txtEntries
+      .map((entry) => {
+        const sample = (entry.body_blocks || []).slice(0, 3).join(" | ").slice(0, 180);
+        const sourceName = entry.source_name || "inline";
+        return `${entry.locale} from ${sourceName}: subject="${entry.subject}" | snippet="${entry.preheader}" | blocks=${(entry.body_blocks || []).length} | sample=${sample}`;
+      })
+      .join("\n");
+  }
+
+  return cleanText(translationText) || "None";
+}
+
+function findPreferredTranslationEntry(translationText, preferredLocale, mail) {
+  const entries = parseTranslationEntries(translationText, mail);
+  if (entries.length === 0) {
+    return null;
+  }
+
+  const normalizedPreferred = cleanText(preferredLocale).toLowerCase();
+  return entries.find((entry) => cleanText(entry.locale).toLowerCase() === normalizedPreferred)
+    || entries.find((entry) => cleanText(entry.locale).toLowerCase().startsWith(normalizedPreferred.split(/[_-]/)[0] || ""))
+    || entries[0];
+}
+
+function parseTranslationSeed(translationText, mail) {
+  const fallbackLocale = mail.locale || "en";
+  const fallback = [
+    {
+      locale: fallbackLocale,
+      subject: mail.subject,
+      preheader: mail.preheader,
+      cta_labels: collectCtaLabels(mail),
+      notes: cleanText(translationText).slice(0, 240),
+      body_blocks: [],
+      source_name: ""
+    }
+  ];
+
+  if (!translationText) {
     return fallback;
+  }
+
+  const entries = parseTranslationEntries(translationText, mail);
+  if (entries.length > 0) {
+    return entries;
   }
 
   return fallback;
@@ -812,7 +970,11 @@ function normalizeTranslationEntry(entry, mail) {
     cta_labels: Array.isArray(entry?.cta_labels) && entry.cta_labels.length > 0
       ? entry.cta_labels.map(cleanText).filter(Boolean)
       : collectCtaLabels(mail),
-    notes: cleanText(entry?.notes)
+    notes: cleanText(entry?.notes),
+    body_blocks: Array.isArray(entry?.body_blocks)
+      ? entry.body_blocks.map(normalizeBoldTokens).filter(Boolean)
+      : [],
+    source_name: cleanText(entry?.source_name)
   };
 }
 
@@ -825,17 +987,30 @@ function collectCtaLabels(mail) {
 }
 
 function createMockDraft(payload, warning = "") {
+  const translationSeed = findPreferredTranslationEntry(payload.translationText, payload.brief.locale, {
+    locale: payload.brief.locale || "en",
+    subject: "",
+    preheader: "",
+    sections: [],
+    body_blocks: []
+  });
   const campaignName = payload.brief.campaignName || "Retention restart";
-  const headline = payload.brief.goal || "Bring inactive customers back with a clean, clear offer.";
-  const ctaLabel = payload.brief.primaryCta || "See the offer";
+  const translatedBlocks = Array.isArray(translationSeed?.body_blocks) ? translationSeed.body_blocks : [];
+  const translatedHeadline = translatedBlocks[0] || "";
+  const translatedBody = translatedBlocks[1] || "";
+  const headline = payload.brief.goal || translatedBody || "Bring inactive customers back with a clean, clear offer.";
+  const heroTitle = translatedHeadline || campaignName;
+  const ctaLabel = payload.brief.primaryCta || translationSeed?.cta_labels?.[0] || translatedBlocks[2] || "See the offer";
   const ctaHref = payload.brief.primaryLink || "https://example.com";
   const assets = createAssetRecords(payload);
   const heroAsset = getAssetByPlacement(assets, ["hero", "background", "logo"])?.key || assets[0]?.key || "";
   const sectionAsset = getAssetByPlacement(assets, ["section", "feature", "body"])?.key || "";
   const locale = payload.brief.locale || "en";
-  const featureItems = defaultFeatureItems(payload);
-  const subject = `${campaignName} | ${ctaLabel}`;
-  const preheader = headline.slice(0, 90);
+  const featureItems = translatedBlocks.length > 3
+    ? translatedBlocks.slice(3, 7)
+    : defaultFeatureItems(payload);
+  const subject = translationSeed?.subject || `${campaignName} | ${ctaLabel}`;
+  const preheader = translationSeed?.preheader || headline.slice(0, 90);
 
   const mail = {
     subject,
@@ -846,7 +1021,7 @@ function createMockDraft(payload, warning = "") {
       {
         kind: "hero",
         eyebrow: "Email Studio Demo",
-        title: campaignName,
+        title: heroTitle,
         body: headline,
         image_key: heroAsset,
         cta_label: ctaLabel,
@@ -1001,7 +1176,19 @@ function normalizeAsset(asset, index) {
 }
 
 function paragraphize(text) {
-  return extractLines(text).map((line) => `<p>${escapeHtml(line)}</p>`).join("");
+  return extractLines(text).map((line) => `<p>${formatInlineMarkup(line)}</p>`).join("");
+}
+
+function formatInlineMarkup(text) {
+  const content = cleanText(text);
+  if (!content) {
+    return "";
+  }
+
+  const segments = content.split(/\*\*/);
+  return segments.map((segment, index) => index % 2 === 1
+    ? `<strong>${escapeHtml(segment)}</strong>`
+    : escapeHtml(segment)).join("");
 }
 
 function getAssetByKey(mail, assetKey) {
@@ -1010,14 +1197,14 @@ function getAssetByKey(mail, assetKey) {
 
 function renderSectionHtml(section, mail) {
   const image = section.image_key ? getAssetByKey(mail, section.image_key) : null;
-  const eyebrow = section.eyebrow ? `<div class="eyebrow">${escapeHtml(section.eyebrow)}</div>` : "";
-  const title = section.title ? `<h2>${escapeHtml(section.title)}</h2>` : "";
+  const eyebrow = section.eyebrow ? `<div class="eyebrow">${formatInlineMarkup(section.eyebrow)}</div>` : "";
+  const title = section.title ? `<h2>${formatInlineMarkup(section.title)}</h2>` : "";
   const body = section.body ? `<div class="body-copy">${paragraphize(section.body)}</div>` : "";
   const button = section.cta_label && section.cta_href
-    ? `<a class="button" href="${escapeHtml(section.cta_href)}">${escapeHtml(section.cta_label)}</a>`
+    ? `<a class="button" href="${escapeHtml(section.cta_href)}">${formatInlineMarkup(section.cta_label)}</a>`
     : "";
   const items = section.items.length > 0
-    ? `<ul>${section.items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+    ? `<ul>${section.items.map((item) => `<li>${formatInlineMarkup(item)}</li>`).join("")}</ul>`
     : "";
   const imageMarkup = image
     ? `<img class="section-image" src="${escapeHtml(image.url)}" alt="${escapeHtml(image.alt)}" width="${image.width}" height="${image.height}" />`
@@ -1029,7 +1216,7 @@ function renderSectionHtml(section, mail) {
         ${imageMarkup}
         <div class="section-content">
           ${eyebrow}
-          <h1>${escapeHtml(section.title || mail.subject)}</h1>
+          <h1>${formatInlineMarkup(section.title || mail.subject)}</h1>
           ${body}
           ${button}
         </div>
@@ -1206,7 +1393,7 @@ function renderEmailHtml(mail) {
   </head>
   <body>
     <div class="canvas">
-      <div class="meta">Subject: ${escapeHtml(mail.subject)}<br />Preheader: ${escapeHtml(mail.preheader)}</div>
+      <div class="meta">Subject: ${formatInlineMarkup(mail.subject)}<br />Preheader: ${formatInlineMarkup(mail.preheader)}</div>
       ${sectionsHtml}
     </div>
   </body>
@@ -1275,7 +1462,9 @@ function renderLocalesJson(mail) {
       subject: entry.subject,
       preheader: entry.preheader,
       cta_labels: entry.cta_labels,
-      notes: entry.notes
+      notes: entry.notes,
+      body_blocks: entry.body_blocks,
+      source_name: entry.source_name
     };
   }
 

@@ -55,18 +55,18 @@
 
           <section class="upload-tile">
             <div class="upload-title">Translations</div>
-            <div class="upload-copy">Сюда загружаем JSON с локалями или сырой текст переводов. Позже это станет основой locale bundle.</div>
+            <div class="upload-copy">Сюда загружаем JSON или ваши `.txt`-файлы переводов с `Subject`, `Snippet`, блоками `{{...}}` и жирностью `@@...@@`. Можно грузить сразу несколько локалей.</div>
             <label class="field">
               <span>Translations JSON / raw text</span>
               <textarea
                 id="translationText"
                 rows="8"
-                placeholder='Например: {"de":{"subject":"...","preheader":"..."}}'
+                placeholder="Subject: ...&#10;Snippet: ...&#10;&#10;{{Первый блок}}&#10;{{Текст с @@жирным@@ акцентом}}"
               ></textarea>
             </label>
             <label class="field">
-              <span>Upload translation file</span>
-              <input id="translationFile" type="file" accept=".json,.txt,.md" />
+              <span>Upload translation files</span>
+              <input id="translationFile" type="file" accept=".json,.txt,.md" multiple />
             </label>
           </section>
 
