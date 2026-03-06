@@ -1,0 +1,19 @@
+{
+  "footer": {
+    "warn": "Alerta de riscos gerais:",
+    "warntext": "Os serviços financeiros prestados por este site possuem um alto nível de risco e podem resultar na perda dos seus fundos. Você nunca deve investir mais do que pode suportar perder.",
+    "conditions": "Termos e Condições",
+    "unsubscribe": "Desinscrever-se",
+    "address": "%%company_address%%",
+    "warnrobo": "Os investimentos envolvem um alto nível de risco e o uso de robôs não garante sucesso ou minimiza seus riscos. ",
+    "privacy":"Política de privacidade",
+    "otn": "A IQ Option é uma empresa de corretagem e não fornece Tokens OTN aos seus clientes. Todas as tokens são fornecidas pela Fundação OTN. A fundação OTN confirma que não vende tokens OTN e que a atividade não é comercial.",
+    "crypto": "Criptomoedas são altamente voláteis, e seus preços flutuam amplamente. Não há regulação específica na UE que governe o comércio deste produto. Por favor, conheça a",
+    "crypto-link": "Divulgação de Riscos"
+  },
+  "new": {
+    "text": "As operações de trading oferecidas neste site podem ser consideradas Operações de Trading de Alto Risco, e sua execução pode ser muito arriscada. <br><br>A compra de instrumentos financeiros utilizando os serviços oferecidos neste site pode resultar em perdas significativas ou mesmo na perda total dos fundos em sua conta. ",
+    "standart": "Os produtos financeiros oferecidos pela empresa possuem um alto nível de risco e podem resultar na perda de todos os seus fundos. Você nunca deve investir dinheiro que você não pode perder.",
+    "cfd": "CFDs são instrumentos complexos e trazem consigo um alto risco de perder dinheiro rapidamente devido à alavancagem. <b>84% das contas de investidores de varejo perdem dinheiro quando negociam CFDs com este provedor.</b> Você deve considerar se entende como os CFDs funcionam e se você pode correr o risco de perder seu dinheiro."
+  }
+}

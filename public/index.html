@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Email Studio Demo</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <div>
+          <div class="label">Email Studio Demo</div>
+          <h1>AI-редактор писем с настройками, preview и привязкой к email-base</h1>
+          <p class="subtitle">
+            Студия теперь знает про вашу базу, умеет переключать AI-провайдера,
+            симулировать email-клиенты и подтягивать реальный build текущего письма.
+          </p>
+        </div>
+        <div class="topbar-actions">
+          <span class="pill" id="apiStatus">Проверяю API...</span>
+          <button class="ghost-button" id="loadBaseBtn" type="button">Load base email</button>
+          <button class="ghost-button" id="settingsBtn" type="button">Settings</button>
+          <button class="ghost-button" id="fillDemoBtn" type="button">Заполнить демо</button>
+          <button class="ghost-button" id="clearStateBtn" type="button">Очистить</button>
+        </div>
+      </header>
+
+      <div class="workspace">
+        <aside class="column">
+          <section class="card chat-card">
+            <div class="card-header">
+              <div>
+                <div class="card-kicker">01</div>
+                <h2>Чат с ассистентом</h2>
+              </div>
+              <p>Ставите задачу, а студия собирает draft по brief и выбранному AI-провайдеру.</p>
+            </div>
+
+            <div class="messages" id="messages"></div>
+
+            <form class="chat-form" id="chatForm">
+              <label class="field">
+                <span>Сообщение</span>
+                <textarea
+                  id="chatInput"
+                  rows="5"
+                  placeholder="Например: Собери retention email в наших table-based паттернах, используй одну основную CTA и учти текущую email-base."
+                ></textarea>
+              </label>
+              <button class="primary-button" id="sendBtn" type="submit">Сгенерировать драфт</button>
+            </form>
+          </section>
+
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-kicker">02</div>
+                <h2>Brief</h2>
+              </div>
+              <p>Это будущий input для генератора и для реального сохранения писем в базе.</p>
+            </div>
+
+            <div class="field-grid">
+              <label class="field">
+                <span>Campaign name</span>
+                <input id="campaignName" type="text" />
+              </label>
+              <label class="field">
+                <span>Primary locale</span>
+                <input id="locale" type="text" placeholder="en, de, fr..." />
+              </label>
+              <label class="field">
+                <span>Email-base category</span>
+                <input id="category" type="text" placeholder="X_IQ" />
+              </label>
+              <label class="field">
+                <span>Email-base mail id</span>
+                <input id="mailId" type="text" placeholder="rfm-311" />
+              </label>
+              <label class="field">
+                <span>Audience</span>
+                <input id="audience" type="text" />
+              </label>
+              <label class="field">
+                <span>Tone</span>
+                <input id="tone" type="text" />
+              </label>
+              <label class="field field-wide">
+                <span>Goal</span>
+                <input id="goal" type="text" />
+              </label>
+              <label class="field">
+                <span>Primary CTA</span>
+                <input id="primaryCta" type="text" />
+              </label>
+              <label class="field">
+                <span>Primary link</span>
+                <input id="primaryLink" type="url" placeholder="https://..." />
+              </label>
+              <label class="field field-wide">
+                <span>Content notes</span>
+                <textarea
+                  id="contentNotes"
+                  rows="5"
+                  placeholder="Bullet ideas, campaign facts, product benefits, constraints"
+                ></textarea>
+              </label>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-kicker">03</div>
+                <h2>Assets, design, translations</h2>
+              </div>
+              <p>Ссылки на картинки, прямой URL дизайна, upload скрина и сырой текст локалей.</p>
+            </div>
+
+            <div class="field-grid">
+              <label class="field field-wide">
+                <span>Links to images / assets</span>
+                <textarea
+                  id="assetLinks"
+                  rows="5"
+                  placeholder="Каждая ссылка с новой строки"
+                ></textarea>
+              </label>
+              <label class="field field-wide">
+                <span>Direct design image URL</span>
+                <input id="designUrl" type="url" placeholder="https://..." />
+              </label>
+              <label class="field field-wide">
+                <span>Upload design reference</span>
+                <input id="designFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif" />
+              </label>
+              <div class="design-preview-wrap" id="designPreviewWrap" hidden>
+                <img id="designPreview" alt="Design preview" />
+                <div class="design-caption" id="designCaption"></div>
+              </div>
+              <label class="field field-wide">
+                <span>Translations JSON / raw text</span>
+                <textarea
+                  id="translationText"
+                  rows="7"
+                  placeholder='Например: {"de":{"subject":"...","preheader":"..."}}'
+                ></textarea>
+              </label>
+              <label class="field field-wide">
+                <span>Upload translation file</span>
+                <input id="translationFile" type="file" accept=".json,.txt,.md" />
+              </label>
+            </div>
+          </section>
+        </aside>
+
+        <main class="column center-column">
+          <section class="card summary-card">
+            <div class="summary-grid">
+              <div class="summary-item">
+                <div class="summary-label">Subject</div>
+                <div class="summary-value" id="subjectValue">Пока пусто</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-label">Preheader</div>
+                <div class="summary-value" id="preheaderValue">Сгенерируйте первый драфт</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-label">Locale</div>
+                <div class="summary-value" id="localeValue">-</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-label">Mode</div>
+                <div class="summary-value" id="modeValue">mock</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-label">Source</div>
+                <div class="summary-value" id="sourceValue">draft</div>
+              </div>
+            </div>
+            <div class="assistant-note" id="assistantReply">
+              Здесь появится краткое резюме от ассистента после генерации.
+            </div>
+          </section>
+
+          <section class="card preview-card">
+            <div class="card-header">
+              <div>
+                <div class="card-kicker">04</div>
+                <h2>Preview</h2>
+              </div>
+              <p>Preview учитывает выбранный client profile и может переключаться на реальный build из email-base.</p>
+            </div>
+            <iframe id="previewFrame" title="Email preview"></iframe>
+          </section>
+        </main>
+
+        <aside class="column">
+          <section class="card code-card">
+            <div class="card-header">
+              <div>
+                <div class="card-kicker">05</div>
+                <h2>Код и данные</h2>
+              </div>
+              <p>HTML, Pug, locales, assets, spec и build log в одном месте.</p>
+            </div>
+
+            <div class="tabs">
+              <button class="tab is-active" data-tab="html" type="button">HTML</button>
+              <button class="tab" data-tab="pug" type="button">Pug</button>
+              <button class="tab" data-tab="locales" type="button">Locales</button>
+              <button class="tab" data-tab="assets" type="button">Assets</button>
+              <button class="tab" data-tab="spec" type="button">Mail spec</button>
+              <button class="tab" data-tab="buildLog" type="button">Build log</button>
+            </div>
+
+            <pre class="code-output" id="codeOutput"></pre>
+          </section>
+
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-kicker">06</div>
+                <h2>Assets in current preview</h2>
+              </div>
+              <p>Это основа будущего asset registry и линковки с CDN.</p>
+            </div>
+            <div class="asset-list" id="assetList"></div>
+          </section>
+
+          <section class="card diagnostics-card">
+            <div class="card-header">
+              <div>
+                <div class="card-kicker">07</div>
+                <h2>Client diagnostics</h2>
+              </div>
+              <p>Не Litmus, а честный heuristic layer внутри тулзы.</p>
+            </div>
+            <div class="diagnostics-list" id="diagnosticsList"></div>
+          </section>
+        </aside>
+      </div>
+    </div>
+
+    <div class="settings-backdrop" id="settingsBackdrop" hidden></div>
+    <aside class="settings-drawer" id="settingsDrawer" aria-hidden="true">
+      <div class="settings-header">
+        <div>
+          <div class="card-kicker">Settings</div>
+          <h2>Tool configuration</h2>
+        </div>
+        <button class="ghost-button" id="closeSettingsBtn" type="button">Close</button>
+      </div>
+
+      <div class="settings-body">
+        <section class="settings-section">
+          <h3>Appearance</h3>
+          <label class="field">
+            <span>Theme</span>
+            <select id="themeSelect" class="select-control">
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </label>
+        </section>
+
+        <section class="settings-section">
+          <h3>AI provider</h3>
+          <label class="field">
+            <span>Provider</span>
+            <select id="providerSelect" class="select-control"></select>
+          </label>
+          <div class="settings-info" id="providerHelp"></div>
+        </section>
+
+        <section class="settings-section">
+          <h3>Email client testing</h3>
+          <label class="field">
+            <span>Preview client profile</span>
+            <select id="clientProfileSelect" class="select-control"></select>
+          </label>
+          <div class="settings-info" id="clientProfileHelp"></div>
+        </section>
+
+        <section class="settings-section">
+          <h3>Email-base</h3>
+          <div class="settings-info" id="emailBaseSummary"></div>
+          <button class="primary-button settings-build-button" id="buildBaseMailBtn" type="button">
+            Build current email-base mail
+          </button>
+        </section>
+      </div>
+    </aside>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

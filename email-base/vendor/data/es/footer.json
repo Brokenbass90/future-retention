@@ -1,0 +1,19 @@
+{
+  "footer": {
+    "warn": "Advertencia de riesgo:",
+    "warntext": "Producto difícil de entender, el CNMV ha determinado que no es apropiado para los inversores minoristas debido a su complejidad y el alto riesgo que involucra.",
+    "conditions": "Términos y condiciones",
+    "unsubscribe": "Cancelar la suscripción",
+    "address": "%%company_address%%",
+    "warnrobo": "Las inversiones implican un alto grado de riesgo y el uso de los robots no garantiza el éxito o minimiza los riesgos.",
+    "privacy":"Política Sobre Privacidad",
+    "otn": "IQ Option es una compañía de corretaje y no proporciona tokens OTN a los clientes. Todos los tokens son proporcionados por la fundación OTN. La fundación OTN confirma que no vende tokens OTN y que la actividad es no-comercial.",
+    "crypto": "Las criptomonedas son altamente volátiles y sus precios fluctúan ampliamente. No existe un marco regulatorio específico en la UE para el trading de este producto. Por favor familiaricese con la",
+    "crypto-link": "Advertencia de Riesgos"
+  },
+  "new": {
+    "text": "Las operaciones de trading ofrecidas por este sitio web pueden ser consideradas Operaciones de Trading de Alto Riesgo y su ejecución puede ser muy arriesgada. <br><br>Comprar instrumentos financieros o utilizar los servicios ofrecidos en este sitio web pueden tener como resultado pérdidas significativas o incluso una pérdida total de todos los fondos de su cuenta.",
+    "standart": "Los productos financieros ofrecidos por la compañía acarrean un alto nivel de riesgo y pueden tener como resultado la pérdida de todos sus fondos. Nunca debería invertir dinero que no pueda permitirse perder.",
+    "cfd": "Los CFD son instrumentos complejos y conllevan un alto riesgo de perder dinero rápidamente debido al apalancamiento. <b>El 84% de las cuentas de inversores minoristas pierden dinero al negociar CFD con este proveedor.</b> Debe considerar si entiende cómo funcionan los CFD y si puede permitirse asumir el alto riesgo de perder su dinero."
+  }
+}

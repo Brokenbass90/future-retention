@@ -1,0 +1,69 @@
+mixin one-tour(number)
+    table.header.row.one-tour
+        tr
+            td.center.text-pad-small
+                table.center
+                    tr
+                        td.wrapper.offset-by-two.pb0.pt0
+                            table.columns
+                                tr
+                                    td.pb0
+                                        table
+                                            tr
+                                                td.icon-cal.sub-columns.pb0
+                                                    img(src="https://images01.iqoption.com/65/2465/static-03688985781772222465.png")
+                                                td.sub-columns.pb0
+                                                    p.date ${{ battle.tour-#{number}.date}}$
+                        td.wrapper.last.pt0
+                            table.columns
+                                tr
+                                    td
+                                        p.date
+                                            span ${{ battle.tour-#{number}.duration}}$
+                table.center
+                    tr
+                        td.wrapper.last.offset-by-two.pt0
+                            table.eight.columns
+                                tr
+                                    td.left.pb0
+                                        p.title ${{ battle.tour-#{number}.title}}$
+                                        p.up-to ${{ battle.tour-#{number}.up-to }}$
+                table.center
+                    tr
+                        td.wrapper.offset-by-two.pt0.prize-left
+                            table.three.columns
+                                tr
+                                    td.left.pb0
+                                        p.prize ${{ battle.tour-#{number}.prize}}$
+                                        p.text ${{ battle.tour-#{number}.prize-text }}$
+                        td.wrapper.pt0.prize-center
+                            table.three.columns
+                                tr
+                                    td.pb0
+                                        p.prize ${{ battle.tour-#{number}.part}}$
+                                        p.text ${{ base.tour.part }}$
+                        td.wrapper.last.pt0.prize-right
+                            table.two.columns
+                                tr
+                                    td.pb0
+                                        p.prize ${{ battle.tour-#{number}.re}}$
+                                        p.text ${{ base.tour.re }}$
+
+                table.center
+                    tr
+                        td.wrapper.last.offset-by-two
+                            table.eight.columns
+                                tr
+                                    td.left.pb0
+                                        p.text ${{ battle.tour-#{number}.additional-prize }}$
+                table.center.m-center
+                    tr
+                        td.offset-by-three.wrapper.last
+                            table.six.columns.buttons
+                                tr
+                                    td
+                                        div.wrap-button
+                                            table.button
+                                                tr
+                                                    td
+                                                        a(href="https://iqoption.com/tournaments/${{ battle.tour-#{number}.number }}$?aff=7&afftrack=mail&retrack=${{ battle.retrack }}$", target="_blank") ${{ base.tour.join }}$

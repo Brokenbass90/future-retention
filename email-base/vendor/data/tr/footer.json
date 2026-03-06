@@ -1,0 +1,16 @@
+{
+  "footer": {
+    "warn": "RİSK UYARISI: ",
+    "warntext": "İkili opsiyon ticareti, yüksek riskli işlemler olarak kabul edilir ve bu işlemlerin sonucu ve performansı garanti edilemez. Finansal araçlarla yapılan alımlarda ve teklif edilen işlemlerin yapılması esnasında, hesabınızdaki tüm para da dahil olmak üzere, yatırımlarınızın önemli olanda zarara uğraması mümkündür.",
+    "conditions": "Hüküm ve Koşullar",
+    "unsubscribe": "Aboneliği kaldır",
+    "address": "%%company_address%%",
+    "privacy":"Gizlilik ve Politika",
+    "otn": "IQ Option bir brokerlik şirketidir ve müşterilere OTN jetonlar sağlamaz. Tüm jetonlar OTN vakfı tarafından sağlanır. OTN vakfı, OTN jeton satmadığını ve faaliyetlerinin ticari olmadığını teyit eder.",
+    "crypto": "Kripto paralar son derece oynaktır ve fiyatları büyük ölçüde dalgalanma gösterir. Bu ürünün alım satımını düzenleyen özel bir AB düzenleyici çerçevesi yoktur. Lütfen",
+    "crypto-link": "Risk Açıklamasını inceleyerek bilgi edinin"
+  },
+  "new": {
+    "text": "Bu website tarafından sunulan yatırım işlemleri Yüksek Riskli Yatırım İşlemleri olarak görülmekte ve uygulanmaları çok riskli olabilmektedir.<br><br>Websitede sunulan finansal araçları satın almak ya da hizmetleri kullanmak önemli kayıplara, hatta hesabınızdaki bütün parayı kaybetmenize neden olabilir."
+  }
+}

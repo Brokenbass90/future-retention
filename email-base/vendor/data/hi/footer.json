@@ -1,0 +1,18 @@
+{
+  "footer": {
+    "warn": "सामान्य जोखिम चेतावनी",
+    "warntext": "इस वेबसाइट द्वारा प्रदान की जाने वाली वित्तीय सेवाओं के उच्च स्तर के जोखिम होते हैं और परिणामस्वरूप आपके सभी निधियों का नुकसान हो सकता है. आपको पैसा कभी भी निवेश नहीं करना चाहिए,जिसे आप खोने का जोखिम नहीं उठा स",
+    "conditions": "नियम और शर्तें",
+    "unsubscribe": "सदस्यता रद्द",
+    "address": "%%company_address%%",
+    "warnrobo": "Investments involve a high degree of risk and the use of robots does not guarantee success or minimize your risk.",
+    "privacy":"Privacy and Policy",
+    "otn": "IQ Option is a brokerage company and does not provide OTN tokens to clients. All tokens are provided by the OTN foundation. The OTN foundation confirms that it does not sell OTN tokens and that the activity is non-commercial.",
+    "crypto": "Cryptocurrencies are highly volatile and their prices fluctuate widely. There is no specific EU regulatory framework governing the trading of this product. Please familiarise yourself with",
+    "crypto-link": "the Risk Disclosure"
+  },
+  "new": {
+    "text": "इस वेबसाइट पर होने वाले व्यापारिक संचालन, उच्च-खतरे के व्यापारिक संचालन को प्रस्तुत करते हैं और उनका क्रियान्वयन बहुत ही खतरनाक हो सकता है।<br><br>वेबसाइट पर उपलब्ध वित्तीय साधन या उपयुक्त सेवाओं का उपयोग करने से महत्वपूर्ण हानि या यहां तक कि आपके खाते के सम्पूर्ण कोष की कुल हानि भी हो सकती है।",
+    "risk": "इस वेबसाइट पर होने वाले व्यापारिक संचालन, उच्च-खतरे के व्यापारिक संचालन को प्रस्तुत करते हैं और उनका क्रियान्वयन बहुत ही खतरनाक हो सकता है।"
+  }
+}

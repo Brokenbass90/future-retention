@@ -1,0 +1,17 @@
+{
+  "footer": {
+    "warn": "风险提示",
+    "warntext": "本网站所提供的交易服务具有高度风险，在购买本网站所提供的金融交易工具或者金融服务时，有可能会对您的资金产生亏损，甚至损失所有的投资资金。",
+    "conditions": "条款和条件",
+    "privacy": "隐私政策",
+    "unsubscribe": "退订",
+    "address": "%%company_address%%",
+    "warnrobo": "Investments involve a high degree of risk and the use of robots does not guarantee success or minimize your risk.",
+    "otn": "IQ Option 是一家经纪公司，不向客户提供OTN令牌。 所有令牌由OTN基金会提供。 OTN基金会确认它不销售OTN令牌，并且该活动是非商业性的。"
+  },
+  "new": {
+    "text": "本网站提供的交易操作可视为高风险交易操作，其执行风险极高。<br><br>购买金融工具或利用网站上提供的服务可能会导致重大损失，甚至导致您帐户中所有资金的全部亏损。",
+    "standart": "本网站所提供的交易服务具有高度风险，在购买本网站所提供的金融交易工具或者金融服务时，有可能会对您的资金产生亏损，甚至损失所有的投资资金。",
+    "cfd": "CFD是复杂的工具，由于杠杆作用而迅速亏损的风险很高。<b>交易CFD时，84％的零售投资者账户亏损。</b> 您应该考虑是否了解CFD的工作方式以及您是否有承担亏损资金高风险的能力。"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "footer": {
+    "warn": "RISIKOADVARSEL:",
+    "warntext": "Binary Option Trading can be considered high-risk transactions, and the performance or outcome of these transactions cannot be guaranteed. It is possible that in the course of completing the proposed purchase of financial instruments and services you may incur significant losses of investments, possibly including the loss of all money on your Account.",
+    "conditions": "Vilkår og Betingelser",
+    "unsubscribe": "Avslutte abonnementet",
+    "address": "%%company_address%%"
+  },
+  "new": {
+    "text": "Handelsaktiviteter som tilbys på dette nettstedet kan betraktes som høyrisiketransaksjoner, og gjennomføringen av dem kan være svært risikabelt. <br><br>Innkjøp av økonomiske ressurser eller bruk av tjenester som tilbys på nettstedet kan føre til betydelige tap eller til og med i et totalt tap av alle midler i kontoen din."
+  }
+}

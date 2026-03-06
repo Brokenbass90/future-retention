@@ -1,0 +1,352 @@
+mixin btn(link, text, wrap_class)
+    table.row(class="#{wrap_class}")
+        tr
+            td.offset-by-three
+                table.six.columns.buttons
+                    tr
+                        td.text-pad-small
+                            div.wrap-button
+                                table.button
+                                    tr
+                                        td
+                                            table.table100
+                                                tr
+                                                    td(style="padding:0 15px !important;").center
+
+                                                        a(href="#{link}", target="_blank" style="text-decoration:none !important;") #{text} &nbsp;<span style="font-size:24px;line-height:24px;">&rarr;</span>
+
+
+mixin top_img_100(img_src,link,add_class)
+    table.row.center(class="#{add_class}")
+        tr
+            td.wrapper.last.p0
+                table.twelve.columns
+                    tr
+                        td.p0
+                            a(href="#{link}", target="_blank")
+                                img.img100(src="#{img_src}")
+
+mixin col3_icon_text(item_1_img,item_1_title,item_1_text,item_2_img,item_2_title,item_2_text,item_3_img,item_3_title,item_3_text)
+    table.row.section.items
+        tr
+            td.wrapper.offset-by-one
+                table.three.columns
+                    tr
+                        td.text-pad-small
+                            table
+                                tr
+                                    td.wrap-img
+                                        img.item-img-1(src="#{item_1_img}")
+                            p.item-title #{item_1_title}
+                            p.item-divider &mdash;
+                            p.item-text #{item_1_text}
+            td.wrapper
+                table.three.columns
+                    tr
+                        td.text-pad-small
+                            table
+                                tr
+                                    td.wrap-img
+                                        img.item-img-2(src="#{item_2_img}")
+                            p.item-title #{item_2_title}
+                            p.item-divider &mdash;
+                            p.item-text #{item_2_text}
+            td.wrapper.last
+                table.three.columns
+                    tr
+                        td.text-pad-small
+                            table
+                                tr
+                                    td.wrap-img
+                                        img.item-img-3(src="#{item_3_img}")
+                            p.item-title #{item_3_title}
+                            p.item-divider &mdash;
+                            p.item-text #{item_3_text}
+
+
+mixin changes(name,src,price,percent)
+    span.line__block
+        | #{name}
+        img.arrow(src="#{src}")
+        b #{price}&nbsp;&nbsp;
+        | #{percent}
+
+
+mixin weekly-block-title(title)
+    table.row.center.wrap-title
+        tr
+            td.wrapper.offset-by-one.last
+                table.ten.columns
+                    tr
+                        td.text-pad
+                            .title
+                                | #{title}
+
+
+mixin movers-line(color,img,name,subname,change,net,value)
+    tr(class="#{color}")
+        td.sub-columns.one.hide-for-small
+            img.movers-logo(src="#{img}")
+        td.sub-columns.five
+            p.title-2 #{name}
+            p.subtitle-2 #{subname}
+        td.sub-columns.two
+            p.numbers.has-color
+                if color == 'green'
+                    img.arrow-small(src="https://images01.iqoption.com/77/9777/static-00493024958822219777.png")
+                else
+                    img.arrow-small(src="https://images01.iqoption.com/37/3537/static-04283917970792513537.png")
+                | #{change}
+        td.sub-columns.two.hide-for-small
+            p.numbers.has-color #{net}
+        td.sub-columns.two.hide-for-small
+            p.numbers #{value}
+
+
+mixin events-line(color,name,date,img,active,actual,forecast,calendar,btn_text,importancy)
+    tr(class="#{color}")
+        td.sub-columns.two.hide-for-small
+            if importancy == '3'
+                img.imp-lvl(src="https://images01.iqoption.com/29/9729/static-04288608513166409729.png")
+            if importancy == '2'
+                img.imp-lvl(src="https://images01.iqoption.com/97/0897/static-04250258193982160897.png")
+            if importancy == '1'
+                img.imp-lvl(src="https://images01.iqoption.com/73/1473/static-00460986493511401473.png")
+        td.sub-columns.four
+            p.title-2 #{name}
+            table.table100.hide-for-small
+                tr
+                    td.sub-columns
+                        p.subtitle-2.date #{date}
+                    td.sub-columns
+                        p.subtitle-2
+                            img.active-img(src="#{img}")
+                            | #{active}
+        td.sub-columns.two.hide-for-small
+            p.numbers.numbers-actual #{actual}
+        td.sub-columns.two.hide-for-small
+            p.numbers.has-color #{forecast}
+        td.sub-columns.two
+            div.wrap-calendar-button
+                table.calendar-button
+                    tr
+                        td
+                            a(href="#{calendar}", target="_blank")
+                                img.calendar-img(src="https://images01.iqoption.com/61/9361/static-02949984747373199361.png" style="width:9px !important;display: inline !important;padding: 0 3px 0 0 !important")
+                                | #{btn_text}
+
+
+mixin btn-weekly-report(link, text)
+    table.center
+        tr
+            td.center
+                .wrap-report-button
+                    table.report-button
+                        tr
+                            td
+                                a(href="#{link}", target="_blank") #{text}
+mixin vestnik-title(text)
+    table.row.center.wrap-vestnik-title
+        tr
+            td.wrapper.last
+                table.columns.twelve
+                    tr
+                        td.text-pad.vestnik-title
+                            p.center #{text}
+mixin vestnik-block-title(text)
+    table.twelve.columns
+        tr
+            td.text-pad
+                table.table100
+                    tr
+                        td.vestnik-block-bb
+                            p.block-title
+                                | #{text}
+mixin person(photo,name,position,link)
+    tr
+        td.wrap-block
+            table.table100
+                tr
+                    td.photo
+                        img(src="#{photo}")
+                    td
+                        p.desc
+                            a(href="#{link}" target="_blank") #{name}
+                            br
+                            span #{position}
+mixin person-text(text)
+    tr
+        td.wrap-block
+            p.text-no-pt #{text}
+
+mixin person-bottom-text(photo,name,position,link, bottom_text)
+    tr
+        td.wrap-block
+            table.table100
+                tr
+                    td.photo
+                        img(src="#{photo}")
+                    td
+                        p.desc
+                            a(href="#{link}" target="_blank") #{name}
+                            br
+                            span #{position}
+            table.table100
+                tr
+                    td
+                        p.text #{bottom_text}
+mixin person-right-text(photo,name,position,link, bottom_text)
+    tr
+        td.wrap-block
+            table.table100
+                tr
+                    td.photo
+                        img(src="#{photo}")
+                    td
+                        p.desc
+                            a(href="#{link}" target="_blank") #{name}
+                            br
+                            span #{position}
+            table.table100
+                tr
+                    td
+                        p.text #{bottom_text}
+
+//- VML background helper (Outlook)
+//- Usage:
+//-   +vml-bg('https://img.jpg', '#101314', 580, 200)
+//-     //- your content
+mixin vml-bg(imageUrl, bgColor, width, height)
+    //- Outer wrapper with CSS background for non-Outlook clients
+    table(width=width, cellpadding="0", cellspacing="0", border="0", style=`width:${width}px; background:${bgColor}; background-image:url('${imageUrl}'); background-repeat:no-repeat; background-position:center; background-size:cover;`)
+        tr
+            td(style=`width:${width}px; height:${height}px;`)
+                //- Outlook VML background
+                | <!--[if gte mso 9]>
+                | <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:${width}px;height:${height}px;">
+                | <v:fill type="frame" src="${imageUrl}" color="${bgColor}" />
+                | <v:textbox inset="0,0,0,0">
+                | <![endif]-->
+                block
+                | <!--[if gte mso 9]>
+                | </v:textbox>
+                | </v:rect>
+                | <![endif]-->
+
+//- Safer VML background helper example.
+//- Main difference from vml-bg above:
+//- the Outlook conditional markup is emitted as a raw interpolated string,
+//- so width/height/src/color are resolved before HTML output.
+mixin vml-bg-fixed(imageUrl, bgColor, width, height)
+    table(width=width, cellpadding="0", cellspacing="0", border="0", style=`width:${width}px; background:${bgColor}; background-image:url('${imageUrl}'); background-repeat:no-repeat; background-position:center; background-size:cover;`)
+        tr
+            td(style=`width:${width}px; height:${height}px;`)
+                != `<!--[if gte mso 9]><v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:${width}px;height:${height}px;"><v:fill type="frame" src="${imageUrl}" color="${bgColor}" /><v:textbox inset="0,0,0,0"><![endif]-->`
+                block
+                != `<!--[if gte mso 9]></v:textbox></v:rect><![endif]-->`
+
+mixin cta-two-column-table(leftHref, leftText, rightHref, rightText)
+    table.w100(role="presentation")
+        tr
+            td.demo-cta-col.demo-cta-pad-right(style="vertical-align: top;")
+                table(align="left" style="width: 100%;")
+                    tr
+                        td.butt.pb0
+                            a.butt-link(href=leftHref, universal="true", target="_blank") #{leftText}
+            td.demo-cta-col.demo-cta-pad-left(style="vertical-align: top;")
+                table(align="left" style="width: 100%;")
+                    tr
+                        td.butt.butt-2.pb0
+                            a.butt-link-2(href=rightHref, universal="true", target="_blank") #{rightText}
+
+mixin cta-switch-table(leftHref, leftText, rightHref, rightText, desktopArrowSrc, mobileArrowSrc)
+    table.w100(role="presentation")
+        tr
+            td.demo-switch-col.demo-switch-pad-right(style="vertical-align: middle;")
+                table(align="left" style="width: 100%;")
+                    tr
+                        td.butt.butt-small.pb0
+                            a.butt-link-middle(href=leftHref, universal="true", target="_blank") #{leftText}
+            td.demo-switch-arrow-desktop(align="center", style="vertical-align: middle;")
+                img.demo-switch-arrow-desktop-img(src=desktopArrowSrc)
+            td.demo-switch-arrow-mobile(align="center", style="display:none; mso-hide:all; max-height:0; overflow:hidden; vertical-align: middle;")
+                img.demo-switch-arrow-mobile-img(src=mobileArrowSrc)
+            td.demo-switch-col.demo-switch-pad-left(style="vertical-align: middle;")
+                table(align="left" style="width: 100%;")
+                    tr
+                        td.butt.butt-small.pb0
+                            a.butt-link-middle(href=rightHref, universal="true", target="_blank") #{rightText}
+
+
+
+
+mixin vestnik-block-demo(title,link,author,author_link,bottom_line)
+    table.row.center
+        tr
+            td.wrapper
+                table.columns.seven
+                    tr
+                        td.wrap-demo.wrap-demo-img.sub-columns
+                            a(href="#" target="_blank")
+                                img(src="https://images01.iqoption.com/85/1185/static-03220320056386781185.png")
+                        td.wrap-demo.sub-columns
+                            p.demo-title
+                                a(href="#{link}" target="_blank") #{title}
+            td.wrapper.last
+                table.columns.five
+                    tr
+                        td.text-pad.wrap-demo
+                            p.demo-author
+                                a(href="#{author_link}" target="_blank") #{author}
+
+    if bottom_line == true
+        table.row.center
+            tr
+                td.wrapper.last
+                    table.columns.twelve
+                        tr
+                            td.text-pad
+                                div.line-demo
+
+
+mixin vestnik-block-demo-2(title,link,author,author_link,bottom_line)
+    table.row.center
+        tr
+            td.wrapper
+                table.columns.seven
+                    tr
+                        td.wrap-demo.wrap-demo-img.sub-columns
+                            a(href="#" target="_blank")
+                                img(src="https://images01.iqoption.com/65/4065/static-03756866021898584065.png")
+                        td.wrap-demo.sub-columns
+                            p.demo-title
+                                a(href="#{link}" target="_blank") #{title}
+            td.wrapper.last
+                table.columns.five
+                    tr
+                        td.text-pad.wrap-demo
+                            p.demo-author
+                                a(href="#{author_link}" target="_blank") #{author}
+
+    if bottom_line == true
+        table.row.center
+            tr
+                td.wrapper.last
+                    table.columns.twelve
+                        tr
+                            td.text-pad
+                                div.line-demo
+
+
+mixin general-btn(font_size,line_h,background_color, text_color,font_w,border,border_r,link, text, section_class_to_add)
+    table.row.center(class="#{section_class_to_add}")
+        tr
+            td.offset-by-three
+                table.six.columns.buttons
+                    tr
+                        td.text-pad-small
+                            div.wrap-button
+                                table(style="width:100%;overflow:hidden")
+                                    tr
+                                        td(style="display: block; width: auto !important; text-align: center; background: #{background_color}; padding: 13px 13px; -webkit-border-radius: #{border_r}; -moz-border-radius: #{border_r}; border-radius: #{border_r};#{border}")
+                                            a.btn-link(href="#{link}", target="_blank", style="font-weight: #{font_w} !important; text-decoration: none !important; font-family: Roboto, Helvetica, arial, sans-serif; color: #{text_color} !important; text-align: center; margin: 0; letter-spacing: 0.05em;line-height:#{line_h} !important; font-size: #{font_size} !important; display: block; width: 100%; padding: 0;") #{text}

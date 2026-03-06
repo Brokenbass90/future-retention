@@ -1,0 +1,43 @@
+form#regFrm.register-form.tab-form.js-active(autocomplete='off' data-validate data-invalid-class='invalid' data-invalid-class-target='closest/.input-wrap' data-empty-value-msg='${{ base.validation-required }}$' data-empty-msg-target='siblings/.js-vld-msg' data-invalid-value-msg='${{ base.validation-invalid }}$' data-invalid-msg-target='siblings/.js-vld-msg')
+
+    h4.social__title ${{ base.reg-form.h4 }}$
+    .social
+        button.social__btn.social__btn_vk.js-vk(type='button', title='vkontakte')
+        button.social__btn.social__btn_fb.js-fb(type='button', title='facebook')
+        button.social__btn.social__btn_mailru.js-mailru(type='button', title='@mail.ru')
+        button.social__btn.social__btn_google.js-google(type='button', title='Google, Gmail')
+
+    .inputs
+        h4.register-form__title ${{ base.reg-form.h4-form }}$
+
+        .input-wrap
+            input(type='text', placeholder='${{ base.register-placeholder-first-name }}$', name='first_name')
+            .input-form__valid.input-form__valid_left.js-vld-msg
+            .input-form__valid-circle
+
+        .input-wrap
+            input(type='text', placeholder='${{ base.register-placeholder-last-name }}$', name='last_name')
+            .input-form__valid.input-form__valid_left.js-vld-msg
+            .input-form__valid-circle
+
+        .input-wrap
+            input(type='email', placeholder='${{ base.register-placeholder-email }}$', name='email', required)
+            .input-form__valid.input-form__valid_left.js-vld-msg
+            .input-form__valid-circle
+
+        input(type='hidden', name='country_id', value='')
+        input(type='hidden', name='phone', value='')
+        input(type='hidden', name='phone_code', value='')
+
+        .input-wrap
+            input(type='password', placeholder='${{ base.register-placeholder-password }}$', name='password', required)
+            .input-form__valid.input-form__valid_left.js-vld-msg
+            .input-form__valid-circle
+
+        input#isDemo.isDemo(type='checkbox', name='is_demo', value='1', checked='' style='display:none;')
+
+    .register-form__choose ${{ base.register-choose }}$
+    .js-submit-btns
+        button.btn-submit.input-form__btn.input-form__btn_demo.btn-submit-orange(type='submit', data-name='demo') ${{ base.register-demo-account }}$
+        .input-form__valid.input-form__valid_left
+        button.btn-submit.input-form__btn.input-form__btn_green.input-form__btn_real(type='submit', data-name='real') ${{ base.register-real-account }}$

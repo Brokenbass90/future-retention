@@ -1,0 +1,31 @@
+{
+  "name": "auto-email-base",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Email-only build base (Pug + Stylus) with modern inlining pipeline.",
+  "engines": {
+    "node": ">=20.18.1"
+  },
+  "scripts": {
+    "mail": "node ./mail",
+    "build": "node tools/build-mail.js",
+    "serve": "node tools/serve-dist.js",
+    "dev": "node tools/dev.js",
+    "dev:rfm": "node tools/dev.js --category X_IQ --mail rfm-311 --port 3001",
+    "build:rfm": "node tools/build-mail.js --category X_IQ --mail rfm-311"
+  },
+  "devDependencies": {
+    "csso": "^5.0.5",
+    "fs-extra": "^11.2.0",
+    "glob": "^10.3.10",
+    "gulp": "^4.0.2",
+    "inline-css": "^4.0.0",
+    "minimist": "^1.2.8",
+    "postcss": "^8.4.38",
+    "postcss-safe-parser": "^7.0.0",
+    "pug": "^3.0.2",
+    "stylus": "^0.63.0",
+    "chokidar": "^3.6.0",
+    "js-beautify": "^1.15.1"
+  }
+}

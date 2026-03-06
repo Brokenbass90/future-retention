@@ -1,0 +1,18 @@
+{
+  "footer": {
+    "warn": "PERINGATAN RESIKO:",
+    "warntext": "Layanan keuangan yang disediakan di situs ini berisiko tinggi, dan bisa menyebabkan kehilangan semua dana anda. Anda harus tidak melakukan investasi yang lebih besar dari jumlah yang anda mampu kehilangan.",
+    "conditions": "Syarat dan Ketentuan",
+    "unsubscribe": "Berhenti berlangganan",
+    "address": "%%Berhenti berlangganan%%",
+    "privacy":"Privasi dan Kebijakan",
+    "otn": "IQ Option adalah perusahaan broker dan tidak menyediakan token OTN kepada para kliennya. Semua token disediakan oleh yayasan OTN. Yayasan OTN mengkonfirmasi bahwa dia tidak menjual token OTN dan kegiatannya non-komersial.",
+    "crypto": "Cryptocurrency sangat tidak stabil dan harganya berfluktuasi tajam. Tidak ada kerangka kerja undang-undang UE yang spesifik yang mengatur aktivitas trading produk ini. Pelajari",
+    "crypto-link": "Pengungkapan Risiko"
+  },
+  "new": {
+    "text": "Operasi trading yang disediakan di situs ini bisa dianggap Operasi Berisiko Tinggi dan eksekusinya bisa berisiko tinggi.<br><br>Pembelian instrumen keuangan atau pemakaian layanan disediakan oleh situs ini bisa menyebabkan kehilangan besar atau semua dana di akun anda.",
+    "standart": "Layanan keuangan yang disediakan di situs ini berisiko tinggi, dan bisa menyebabkan kehilangan semua dana anda. Anda harus tidak melakukan investasi yang lebih besar dari jumlah yang anda mampu kehilangan.",
+    "cfd": "CFD adalah instrument kompleks yang mempunyai resiko tinggi untuk kerugian uang karena cepatnya pergerakan yang disebabkan oleh pengalian <b>84% dari akun retail investor mengalami kerugian ketika trading CFD</b> Anda harus memastikan bahwa anda mengerti betul bagaimana CFD bekerja dan apabila anda rela untuk mengambil resiko tinggi kehilangan uang anda."
+  }
+}

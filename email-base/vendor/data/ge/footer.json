@@ -1,0 +1,19 @@
+{
+  "footer": {
+    "warn": "ზოგადი გაფრთხილება რისკის შესახებ:",
+    "warntext": "The financial services provided by this website carry a high level of risk and can result in the loss of all your funds. You should never invest money that you cannot afford to lose.",
+    "conditions": "ვადები და პირობები",
+    "unsubscribe": "გაუქმება",
+    "address": "%%company_address%%",
+    "warnrobo": "Investments involve a high degree of risk and the use of robots does not guarantee success or minimize your risk.",
+    "privacy":"Privacy and Policy",
+    "otn": "IQ Option is a brokerage company and does not provide OTN tokens to clients. All tokens are provided by the OTN foundation. The OTN foundation confirms that it does not sell OTN tokens and that the activity is non-commercial.",
+    "crypto": "Cryptocurrencies are highly volatile and their prices fluctuate widely. There is no specific EU regulatory framework governing the trading of this product. Please familiarise yourself with",
+    "crypto-link": "the Risk Disclosure",
+    "hodly-risk": "Cryptocurrency investments involve a high degree of risk. Please use discretion."
+  },
+  "new": {
+    "text": "ამ ვებ-გვერდზე განთავსებული სავაჭრო ოპერაციები შეიძლება ჩაითვალოს მაღალი რისკის სავაჭრო ოპერაციებად და მათი შესრულება შეიძლება ძალიან სარისკო იყოს.<br><br>ვებ-გვერდზე შეთავაზებული ფინანსური ინსტრუმენტების შეძენამ ან მომსახურების გამოყენებამ შეიძლება გამოიწვიოს მნიშვნელოვანი დანაკარგები ან თქვენს ანგარიშზე რიცხული თანხის მთლიანად დაკარგვა.",
+    "risk": "ამ ვებ-გვერდზე განთავსებული სავაჭრო ოპერაციები შეიძლება ჩაითვალოს მაღალი რისკის სავაჭრო ოპერაციებად და მათი შესრულება შეიძლება ძალიან სარისკო იყოს."
+  }
+}

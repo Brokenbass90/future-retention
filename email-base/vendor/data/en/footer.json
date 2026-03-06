@@ -1,0 +1,20 @@
+{
+  "footer": {
+    "warn": "General Risk Warning:",
+    "warntext": "The financial services provided by this website carry a high level of risk and can result in the loss of all your funds. You should never invest money that you cannot afford to lose.",
+    "conditions": "Terms and Conditions",
+    "unsubscribe": "Unsubscribe",
+    "address": "%%company_address%%",
+    "warnrobo": "Investments involve a high degree of risk and the use of robots does not guarantee success or minimize your risk.",
+    "privacy":"Privacy and Policy",
+    "otn": "IQ Option is a brokerage company and does not provide OTN tokens to clients. All tokens are provided by the OTN foundation. The OTN foundation confirms that it does not sell OTN tokens and that the activity is non-commercial.",
+    "crypto": "Cryptocurrencies are highly volatile and their prices fluctuate widely. There is no specific EU regulatory framework governing the trading of this product. Please familiarise yourself with",
+    "crypto-link": "the Risk Disclosure",
+    "hodly-risk": "Cryptocurrency investments involve a high degree of risk. Please use discretion."
+  },
+  "new": {
+    "text": "Trading operations offered on this website can be considered High-Risk Trading Operations and their execution can be very risky.<br><br>Purchasing financial instruments or utilising services offered on the website may result in significant losses or even in a total loss of all funds on your account.",
+    "standart": "The financial products offered by the company carry a high level of risk and can result in the loss of all your funds. You should never invest money that you cannot afford to lose.",
+    "cfd": "CFDs are complex instruments and come with a high risk of losing money rapidly due to leverage. <b>84% of retail investor accounts lose money when trading CFDs with this provider.</b> You should consider whether you understand how CFDs work and whether you can afford to take the high risk of losing your money."
+  }
+}

@@ -1,0 +1,41 @@
+# dependencies
+node_modules/
+
+# build output (usually not committed)
+dist/
+dist-*/
+**/dist/
+
+# legacy build outputs
+_legacy/dist-old/
+
+# system files
+.DS_Store
+Thumbs.db
+
+# env
+.env
+.env.*
+!.env.example
+
+# logs / temp
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+logs/
+tmp/
+.temp/
+.cache/
+
+# archives / exports
+*.zip
+*.7z
+*.tgz
+*.tar
+*.tar.gz
+
+# editor
+.vscode/
+.idea/
+*.swp

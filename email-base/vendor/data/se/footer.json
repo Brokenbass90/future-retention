@@ -1,0 +1,14 @@
+{
+  "footer": {
+    "warn": "Allmän riskvarning:",
+    "warntext": "De finansiella tjänsterna som tillhandahålls av denna webbplats har en hög risknivå och kan leda till förluster av alla dina tillgångar. Du bör aldrig investera pengar som du inte har råd att förlora",
+    "conditions": "Villkor",
+    "unsubscribe": "Avanmäla",
+    "address": "%%company_address%%",
+    "crypto": "Kryptovalutor är väldigt volatila och priserna fluktuerar radikalt. Det finns inget specifikt EU-regelverk som reglerar handeln av denna produkt. Läs noga igenom vår",
+    "crypto-link": "riskvarning"
+  },
+  "new": {
+    "text": "Handelsverksamhet som erbjuds på denna webbplats kan betraktas som högriskhandelstransaktioner och deras genomförande kan vara mycket riskabelt. <br><br>Inköp av finansiella medel eller utnyttjande av tjänster som erbjuds på webbplatsen kan leda till betydande förluster eller till och med i en total förlust av alla pengar på ditt konto. "
+  }
+}

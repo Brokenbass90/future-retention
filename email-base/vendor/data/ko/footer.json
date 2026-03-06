@@ -1,0 +1,15 @@
+{
+  "footer": {
+    "warn": "위험 경고:",
+    "warntext": "회사가 제공하는 금융 상품은 위험도가 높고 모든 자금이 손실되는 것의 이유가 될 수 있습니다. 당신은 잃을 수 없는 돈을 결코 투자해서는 안됩니다.",
+    "conditions": "조건 및 약관",
+    "unsubscribe": "수신 거부",
+    "address": "%%company_address%%",
+    "warnrobo": "Investments involve a high degree of risk and the use of robots does not guarantee success or minimize your risk.",
+    "crypto": "가상화폐는 변동성이 높으며 가격이 큰 폭으로 변경될 수 있습니다. 이러한 상품 거래를 규제하는 EU 규정은 아직 없습니다.",
+    "crypto-link": "위험 고지 사항을 잘 숙지하시기 바랍니다."
+  },
+  "new": {
+    "text": "이 웹사이트에서 제공하는 거래 활동은 고위험 거래 활동으로 간주될 수 있으며, 거래 활동을 수행하는 것은 매우 위험할 수 있습니다.<br><br>웹사이트에서 제공하는 금융 수단을 구매하거나 서비스를 이용함으로 인해 귀하의 계정 자본에 심각한 손실이 발생하거나 자금을 전부 잃을 수도 있습니다."
+  }
+}

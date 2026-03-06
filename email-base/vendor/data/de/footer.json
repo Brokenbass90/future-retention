@@ -1,0 +1,19 @@
+{
+  "footer": {
+    "warn": "Allgemeine Risikohinweise:",
+    "warntext": "Die von der Seite angebotenen Aktionen sind hochspekulativ und deren Ausführung kann zum Verlust Ihres gesamten Kapitals führen. Man muss nur die Summe investieren, deren Verlust man verschmerzen kann. ",
+    "conditions": "Regeln und Bedingungen",
+    "unsubscribe": "Entabonnieren",
+    "address": "%%company_address%%",
+    "warnrobo": "Investitionen sind mit einem hohen Risiko verbunden und der Einsatz von Robotern garantiert nicht den Erfolg oder minimiert Ihr Risiko. ",
+    "privacy":"Datenschutzrichtlinien",
+    "otn": "IQ Option ist ein brokerage-Unternehmen und bietet den Kunden keine OTN-Tokens an. Die Tokens werden von der OTN-Stiftung zur Verfügung gestellt. Die OTN-Stiftung bestätigt, dass es keine OTN-Tokens verkauft werden und dass solche Aktivität nicht kommerziell ist.",
+    "crypto": "Kryptowährungen sind sehr volatil und ihre Preise schwanken stark. Es gibt keinen speziellen EU-Rechtsrahmen für den Handel mit diesem Produkt. Bitte machen Sie sich mit den",
+    "crypto-link": "Risikohinweisen vertraut",
+    "hodly-risk": "Investitionen in Kryptowährungen sind mit einem hohen Risiko behaftet. Bitte wahren Sie Besonnenheit."
+  },
+  "new": {
+    "text": "Die angebotenen Handelsgeschäfte auf dieser Website können als Handelsgeschäfte mit hohem Risiko betrachtet werden, ihre Ausführung kann sehr riskant sein. <br><br>Der Kauf von Finanzinstrumenten oder die Nutzung, der auf der Website angebotenen Dienstleistungen, kann zu erheblichen Verlusten oder sogar zum Totalverlust aller Mittel auf Ihrem Konto führen.",
+    "risk": "Die angebotenen Handelsgeschäfte auf dieser Website können als Handelsgeschäfte mit hohem Risiko betrachtet werden, ihre Ausführung kann sehr riskant sein."
+  }
+}

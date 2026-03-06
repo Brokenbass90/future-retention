@@ -1,0 +1,18 @@
+{
+  "footer": {
+    "warn": "AVERTISSEMENT DE RISQUE:",
+    "warntext": "Les transactions proposées sur ce site peuvent être considérées comme des opérations de trading à haut risque et leur exécution peut être très risquée.",
+    "conditions": "Termes et conditions",
+    "unsubscribe": "Se désabonner",
+    "address": "%%company_address%%",
+    "warnrobo": "Investments involve a high degree of risk and the use of robots does not guarantee success or minimize your risk.",
+    "crypto": "Les cryptomonnaies sont très volatiles et leurs prix fluctuent considérablement. Il n’existe pas de cadre réglementaire communautaire spécifique régissant le commerce de ce produit. Veuillez vous familiariser avec la",
+    "crypto-link": "divulgation des risques."
+  },
+  "new": {
+    "text": "Les transactions proposées sur ce site peuvent être considérées comme des opérations de trading à haut risque et leur exécution peut être très risquée. <br><br>L'achat d'instruments financiers ou l'utilisation des services offerts sur le site Web peuvent entraîner des pertes importantes ou même la perte totale de tous les fonds sur votre compte.",
+    "risk": "Les transactions proposées sur ce site peuvent être considérées comme des opérations de trading à haut risque et leur exécution peut être très risquée.",
+    "cfd": "Les CFD sont des instruments complexes et comportent un risque élevé de perdre de l'argent rapidement en raison de l'effet de levier. <b>84 % des comptes des investisseurs particuliers enregistrent des pertes d'argent lors du trading de CFD avec ce fournisseur.</b> Vous devriez vous demander si vous comprenez le fonctionnement des CFD et si vous pouvez vous permettre de prendre le risque élevé de perdre votre argent.",
+    "standart": "Les produits financiers offerts par l’entreprise comportent un niveau de risque élevé et peuvent entraîner la perte de tous vos fonds. Vous ne devriez jamais investir de l’argent que vous ne pouvez pas vous permettre de perdre."
+  }
+}

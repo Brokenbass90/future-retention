@@ -1,0 +1,19 @@
+{
+  "footer": {
+    "warn": "Avviso Generale di Rischio:",
+    "warntext": "I servizi finanziari forniti da questo sito web comportano un elevato livello di rischio e possono condurre alla perdita di tutti i vostri fondi. Non dovreste mai investire denaro che non potete permettervi di perdere.",
+    "conditions": "Termini e condizioni",
+    "unsubscribe": "Annulla iscrizione",
+    "address": "%%company_address%%",
+    "warnrobo": "Gli investimenti comportano un elevato livello di rischio e l’uso dei robot non è garanzia di successo e non minimizza i rischi.",
+    "privacy":"Informativa sulla privacy",
+    "otn": "IQ Option è una società di intermediazione e non fornisce token OTN ai propri clienti. Tutti i token sono forniti dalla fondazione OTN. La fondazione OTN dichiara di non vendere token OTN, e che la propria attività non è di natura commerciale.",
+    "crypto": "Le criptovalute sono altamente volatili e il loro prezzo può subire ampie fluttuazioni. Non esiste un quadro legislativo europeo specifico che regoli il trading su questi prodotti. Ti invitiamo a prendere conoscenza",
+    "crypto-link": "dell'Informativa sui rischi",
+    "hodly-risk": "L'attività di investimento sulla criptovaluta comporta un elevato livello di rischio. Ti preghiamo di essere cauto."
+  },
+  "new": {
+    "text": "Le operazioni di trading offerte su questo sito web possono essere considerate Operazioni di Trading ad Elevato Rischio e la loro esecuzione può essere molto rischiosa. <br><br>L'acquisto di strumenti finanziari o l’utilizzo dei servizi offerti sul sito web potrebbe comportare perdite significative o anche la perdita totale di tutti i fondi presenti sul conto.",
+    "risk": "Le operazioni di trading offerte su questo sito web possono essere considerate Operazioni di Trading ad Elevato Rischio e la loro esecuzione può essere molto rischiosa."
+  }
+}

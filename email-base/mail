@@ -1,0 +1,57 @@
+#!/usr/bin/env node
+/*
+  Small convenience launcher so you don't have to remember npm "--" syntax.
+
+  Usage:
+    ./mail dev  X_IQ rfm-311
+    ./mail build-min X_IQ rfm-311
+    ./mail build-pretty X_IQ rfm-311
+    ./mail build X_IQ rfm-311
+    ./mail clean
+
+  You can append extra flags after the 3 required args; they will be forwarded.
+*/
+
+const { spawnSync } = require('child_process');
+const path = require('path');
+
+function usage(exitCode = 1) {
+  console.log(`\nUsage:\n  ./mail dev  <CATEGORY> <MAIL> [extra flags]\n  ./mail build-min <CATEGORY> <MAIL> [extra flags]\n  ./mail build-pretty <CATEGORY> <MAIL> [extra flags]\n  ./mail build <CATEGORY> <MAIL> [extra flags]\n  ./mail clean\n\nExamples:\n  ./mail dev X_IQ rfm-311\n  ./mail build-min X_IQ rfm-311\n  ./mail build-pretty X_IQ rfm-311\n`);
+  process.exit(exitCode);
+}
+
+const [mode, category, mail, ...rest] = process.argv.slice(2);
+if (!mode) usage();
+
+const allowed = new Set(['dev', 'build', 'build-min', 'build-pretty', 'clean']);
+if (!allowed.has(mode)) usage();
+
+if (mode === 'clean') {
+  const fs = require('fs');
+  const distPath = path.join(__dirname, 'dist');
+  try {
+    fs.rmSync(distPath, { recursive: true, force: true });
+    console.log('[clean] Removed dist/');
+  } catch (e) {
+    console.warn('[clean] Failed to remove dist:', e.message || e);
+  }
+  process.exit(0);
+}
+
+if (!category || !mail) usage();
+
+const tool = mode === 'dev' ? 'dev.js' : 'build-mail.js';
+const script = path.join(__dirname, 'tools', tool);
+
+const extraFlags = [];
+if (mode === 'build-pretty') {
+  extraFlags.push('--no-minifyCss', '--pretty');
+}
+if (mode === 'build-min') {
+  // explicit for clarity; build-min is the default build behavior
+  extraFlags.push('--minifyCss');
+}
+
+const args = [script, '--category', category, '--mail', mail, ...extraFlags, ...rest];
+const res = spawnSync(process.execPath, args, { stdio: 'inherit' });
+process.exit(res.status ?? 0);

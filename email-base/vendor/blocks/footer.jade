@@ -1,0 +1,15 @@
+table.row.footer
+    tr
+        td.wrapper.last
+            table.twelve.columns
+                tr
+                    td.text-pad
+                        .ramka
+                            p.warning-title.center ${{ footer.footer.warn }}$
+                            p.warning-text.center ${{ footer.footer.warntext }}$
+                        p(style='padding: 20px 0 0 !important;').warning-text.center {{embedded.company_address}}
+
+                        p.terms.center
+                            a(href='https://iqoption.com/terms-and-conditions')  ${{ footer.footer.privacy }}$
+                            span  &nbsp; |&nbsp;
+                            a(href='{{embedded.unsubscribe_link}}')  ${{ footer.footer.unsubscribe }}$

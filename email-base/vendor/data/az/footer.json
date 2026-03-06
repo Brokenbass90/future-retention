@@ -1,0 +1,16 @@
+{
+  "footer": {
+    "warn": "RİSK HAQQINDA ÜMUMİ XƏBƏRDARLIQ:",
+    "warntext": "Bu sayt tərəfindən təklif edilən maliyyə xidmətləri yüksək risk daşıyır və bütün pul vəsatinizi itirmənizə nəticələnə bilərlər. Heç vaxt itirilməsi yol verilməz olan pulla yatırım etməyin.",
+    "conditions": "Şərtlər və Qaydalar",
+    "unsubscribe": "Abunəlikdən imtina et",
+    "address": "%%company_address%%",
+    "warnrobo": "Investments involve a high degree of risk and the use of robots does not guarantee success or minimize your risk.",
+    "privacy":"Gizlilik və Siyasət",
+    "otn": "IQ Option is a brokerage company and does not provide OTN tokens to clients. All tokens are provided by the OTN foundation. The OTN foundation confirms that it does not sell OTN tokens and that the activity is non-commercial."
+  },
+  "new": {
+    "text": "Bu sitede sunulan ticaret işlemleri Yüksek Riskli Ticaret İşlemleri olarak kabul edilebilir ve gerçekleşmesi çok riskli olabilir.<br><br>Web sitesinde sunulan finansal araçları satın almak veya hizmetleri kullanmak, önemli kayıplara veya hatta hesabınızdaki tüm fonların tamamen kaybolmasının nedeni olabilir.",
+    "risk": "Bu sitede sunulan ticaret işlemleri Yüksek Riskli Ticaret İşlemleri olarak kabul edilebilir ve gerçekleşmesi çok riskli olabilir."
+  }
+}
