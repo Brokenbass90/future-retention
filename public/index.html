@@ -72,7 +72,7 @@
 
           <section class="upload-tile">
             <div class="upload-title">Images / Assets</div>
-            <div class="upload-copy">Каждой картинке даем ключ и роль: `hero`, `logo`, `section`, `feature`, `footer`, `background`, `reference`.</div>
+            <div class="upload-copy">Можно просто вставить ссылку и описать картинку. Если выбрать `auto`, студия сама предложит, это `hero`, `section`, `logo`, `footer`, `background` или `reference`.</div>
             <div class="asset-composer-list" id="assetComposerList"></div>
             <button class="ghost-button add-asset-button" id="addAssetBtn" type="button">Добавить картинку</button>
           </section>
@@ -87,7 +87,10 @@
                 <div class="card-kicker">01</div>
                 <h2>Живой чат с ассистентом</h2>
               </div>
-              <p>Можно обсуждать письмо без перегенерации или сразу применять изменения к draft.</p>
+              <div class="chat-header-side">
+                <p>Можно обсуждать письмо без перегенерации или сразу применять изменения к draft.</p>
+                <button class="ghost-button" id="clearChatBtn" type="button">Очистить чат</button>
+              </div>
             </div>
 
             <div class="messages" id="messages"></div>

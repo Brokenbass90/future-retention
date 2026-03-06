@@ -189,6 +189,16 @@ body {
   font-size: 0.95rem;
 }
 
+.chat-header-side {
+  display: grid;
+  justify-items: end;
+  gap: 10px;
+}
+
+.chat-header-side p {
+  text-align: right;
+}
+
 .chat-card {
   min-height: 620px;
   display: flex;
@@ -455,12 +465,27 @@ body {
   justify-content: space-between;
   gap: 10px;
   align-items: center;
+  flex-wrap: wrap;
+}
+
+.asset-row-controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .asset-row-meta {
   color: var(--muted);
   font-size: 0.9rem;
   line-height: 1.4;
+}
+
+.asset-suggestion {
+  margin-top: -2px;
+  padding: 0 2px;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.45;
 }
 
 .add-asset-button {
@@ -647,6 +672,14 @@ body {
   .field-grid,
   .upload-grid {
     grid-template-columns: 1fr;
+  }
+
+  .chat-header-side {
+    justify-items: start;
+  }
+
+  .chat-header-side p {
+    text-align: left;
   }
 
   .asset-row-grid,

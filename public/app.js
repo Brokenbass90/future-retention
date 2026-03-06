@@ -1,5 +1,5 @@
 const storageKey = "email-studio-demo-state-v3";
-const assetPlacements = ["hero", "logo", "section", "feature", "footer", "background", "reference"];
+const assetPlacements = ["auto", "hero", "logo", "section", "feature", "footer", "background", "reference"];
 
 const initialState = {
   api: {
@@ -64,6 +64,7 @@ const refs = {
   chatForm: document.querySelector("#chatForm"),
   chatInput: document.querySelector("#chatInput"),
   fillDemoBtn: document.querySelector("#fillDemoBtn"),
+  clearChatBtn: document.querySelector("#clearChatBtn"),
   clearStateBtn: document.querySelector("#clearStateBtn"),
   settingsBtn: document.querySelector("#settingsBtn"),
   closeSettingsBtn: document.querySelector("#closeSettingsBtn"),
@@ -127,7 +128,7 @@ function createEmptyAsset(index = 1) {
     key: index === 1 ? "hero_asset" : `asset_${index}`,
     url: "",
     alt: "",
-    placement: index === 1 ? "hero" : "section",
+    placement: "auto",
     notes: ""
   };
 }
@@ -135,6 +136,7 @@ function createEmptyAsset(index = 1) {
 function bindEvents() {
   refs.chatForm.addEventListener("submit", handleChatSubmit);
   refs.fillDemoBtn.addEventListener("click", fillDemoScenario);
+  refs.clearChatBtn.addEventListener("click", clearChatHistory);
   refs.clearStateBtn.addEventListener("click", resetState);
   refs.settingsBtn.addEventListener("click", () => toggleSettings(true));
   refs.closeSettingsBtn.addEventListener("click", () => toggleSettings(false));
@@ -300,6 +302,14 @@ function resetState() {
   applyTheme();
   renderAll();
   loadApiStatus();
+}
+
+function clearChatHistory() {
+  state.messages = structuredClone(initialState.messages);
+  refs.chatInput.value = "";
+  renderMessages();
+  renderSummary();
+  persistState();
 }
 
 function fillDemoScenario() {
@@ -554,9 +564,10 @@ function renderFields() {
 function renderAssetComposer() {
   refs.assetComposerList.innerHTML = "";
 
-  for (const asset of state.assetInputs) {
+  for (const [index, asset] of state.assetInputs.entries()) {
     const row = document.createElement("div");
     row.className = "asset-row";
+    const suggestion = inferAssetSuggestion(asset, index);
 
     const grid = document.createElement("div");
     grid.className = "asset-row-grid";
@@ -572,13 +583,32 @@ function renderAssetComposer() {
 
     const noteField = document.createElement("label");
     noteField.className = "field";
-    noteField.innerHTML = `<span>Notes / usage</span>`;
+    noteField.innerHTML = `<span>Description / usage</span>`;
     const noteInput = document.createElement("input");
     noteInput.type = "text";
     noteInput.value = asset.notes;
-    noteInput.placeholder = "Например: hero background / app screenshot";
+    noteInput.placeholder = "Например: hero banner for first screen / app screenshot for body";
     noteInput.addEventListener("input", () => updateAssetRow(asset.id, { notes: noteInput.value }));
+    noteInput.addEventListener("change", renderAssetComposer);
     noteField.appendChild(noteInput);
+
+    const controls = document.createElement("div");
+    controls.className = "asset-row-controls";
+
+    const applyAutoBtn = document.createElement("button");
+    applyAutoBtn.type = "button";
+    applyAutoBtn.className = "ghost-button";
+    applyAutoBtn.textContent = "Применить auto";
+    applyAutoBtn.addEventListener("click", () => {
+      const nextKey = shouldReplaceAssetKey(asset.key)
+        ? suggestion.key
+        : asset.key;
+      updateAssetRow(asset.id, {
+        placement: suggestion.placement,
+        key: nextKey
+      });
+      renderAssetComposer();
+    });
 
     const removeBtn = document.createElement("button");
     removeBtn.type = "button";
@@ -586,9 +616,16 @@ function renderAssetComposer() {
     removeBtn.textContent = "Удалить";
     removeBtn.addEventListener("click", () => removeAssetRow(asset.id));
 
-    meta.append(noteField, removeBtn);
+    controls.append(applyAutoBtn, removeBtn);
+    meta.append(noteField, controls);
 
-    row.append(grid, meta);
+    const hint = document.createElement("div");
+    hint.className = "asset-suggestion";
+    hint.textContent = cleanText(asset.placement) === "auto"
+      ? `Auto сейчас выберет ${suggestion.placement}. ${suggestion.reason}. Suggested key: ${suggestion.key}.`
+      : `Сейчас задано ${asset.placement}. Auto бы выбрал ${suggestion.placement}. Suggested key: ${suggestion.key}.`;
+
+    row.append(grid, meta, hint);
     refs.assetComposerList.appendChild(row);
   }
 }
@@ -601,6 +638,7 @@ function createAssetField(labelText, field, value, assetId) {
   input.type = "text";
   input.value = value;
   input.addEventListener("input", () => updateAssetRow(assetId, { [field]: input.value }));
+  input.addEventListener("change", renderAssetComposer);
   label.appendChild(input);
   return label;
 }
@@ -612,10 +650,13 @@ function createAssetPlacementField(asset) {
   const select = document.createElement("select");
   select.className = "select-control";
   select.innerHTML = assetPlacements
-    .map((placement) => `<option value="${placement}">${placement}</option>`)
+    .map((placement) => `<option value="${placement}">${placement === "auto" ? "auto (guess from notes)" : placement}</option>`)
     .join("");
   select.value = asset.placement;
-  select.addEventListener("change", () => updateAssetRow(asset.id, { placement: select.value }));
+  select.addEventListener("change", () => {
+    updateAssetRow(asset.id, { placement: select.value });
+    renderAssetComposer();
+  });
   label.appendChild(select);
   return label;
 }
@@ -797,7 +838,8 @@ function getDiagnostics() {
   const html = state.draft.html;
   const buildLog = state.draft.buildLog || "";
   const profileId = state.settings.clientProfileId;
-  const mappedAssets = state.assetInputs.filter((asset) => asset.url && asset.placement).length;
+  const mappedAssets = state.assetInputs.filter((asset, index) => asset.url && resolveAssetPlacement(asset, index)).length;
+  const autoAssets = state.assetInputs.filter((asset) => asset.url && cleanText(asset.placement) === "auto").length;
 
   if (state.previewSource === "draft") {
     items.push({
@@ -824,6 +866,14 @@ function getDiagnostics() {
       level: "ok",
       title: "Image mapping present",
       body: `Размечено ${mappedAssets} asset(s). Студия видит, какие картинки hero, section или logo.`
+    });
+  }
+
+  if (autoAssets > 0) {
+    items.push({
+      level: "ok",
+      title: "Auto asset mapping enabled",
+      body: `Для ${autoAssets} картинок placement будет выбран автоматически по описанию, key и URL.`
     });
   }
 
@@ -931,6 +981,92 @@ function createTextCard(text) {
   node.className = "asset-item";
   node.textContent = text;
   return node;
+}
+
+function cleanText(value) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function slugify(value) {
+  return cleanText(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "asset";
+}
+
+function extractNameFromUrl(url) {
+  const raw = cleanText(url);
+  if (!raw) {
+    return "";
+  }
+
+  try {
+    const parsed = new URL(raw);
+    const fileName = parsed.pathname.split("/").pop() || "";
+    return fileName.replace(/\.[a-z0-9]+$/i, "");
+  } catch {
+    return raw.split("/").pop()?.replace(/\.[a-z0-9]+$/i, "") || "";
+  }
+}
+
+function shouldReplaceAssetKey(key) {
+  const normalized = cleanText(key);
+  return !normalized || /^asset[_-]?\d+$/i.test(normalized) || normalized === "hero_asset";
+}
+
+function inferAssetSuggestion(asset, index = 0) {
+  const signal = [
+    asset.notes,
+    asset.key,
+    asset.alt,
+    extractNameFromUrl(asset.url)
+  ].map(cleanText).join(" ").toLowerCase();
+
+  let placement = index === 0 ? "hero" : "section";
+  let reason = index === 0
+    ? "Первая картинка без явных подсказок идет в hero."
+    : "Без явных подсказок картинка идет в обычную секцию.";
+
+  if (/(logo|brand|brandmark|wordmark|icon)/i.test(signal)) {
+    placement = "logo";
+    reason = "В описании есть сигналы logo/brand/icon.";
+  } else if (/(footer|legal|social|unsubscribe)/i.test(signal)) {
+    placement = "footer";
+    reason = "В описании есть сигналы footer/legal/social.";
+  } else if (/(background|bg|texture|pattern|wallpaper)/i.test(signal)) {
+    placement = "background";
+    reason = "В описании есть сигналы background/bg/pattern.";
+  } else if (/(hero|banner|cover|header|masthead|first screen|above the fold|main visual)/i.test(signal)) {
+    placement = "hero";
+    reason = "В описании есть сигналы hero/banner/header.";
+  } else if (/(feature|benefit|card|tile|product shot)/i.test(signal)) {
+    placement = "feature";
+    reason = "В описании есть сигналы feature/card/benefit.";
+  } else if (/(section|body|content|phone|screen|screenshot|app|device)/i.test(signal)) {
+    placement = "section";
+    reason = "В описании есть сигналы section/body/screenshot/app.";
+  } else if (/(reference|design|figma|wireframe|mockup|layout)/i.test(signal)) {
+    placement = "reference";
+    reason = "Похоже на reference asset, а не на production image.";
+  }
+
+  const sourceName = cleanText(asset.notes) || cleanText(asset.alt) || extractNameFromUrl(asset.url);
+  const key = shouldReplaceAssetKey(asset.key)
+    ? placement === "hero" && index === 0
+      ? "hero_asset"
+      : `${placement}_${slugify(sourceName || `${placement}-${index + 1}`)}`
+    : cleanText(asset.key);
+
+  return { placement, reason, key };
+}
+
+function resolveAssetPlacement(asset, index = 0) {
+  const explicit = cleanText(asset.placement);
+  if (explicit && explicit !== "auto") {
+    return explicit;
+  }
+
+  return inferAssetSuggestion(asset, index).placement;
 }
 
 function emptyPreview() {

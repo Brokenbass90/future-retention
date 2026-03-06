@@ -492,7 +492,7 @@ function normalizeAssetInputs(payload) {
         key: cleanText(asset?.key) || `asset_${index + 1}`,
         url: cleanText(asset?.url),
         alt: cleanText(asset?.alt),
-        placement: cleanText(asset?.placement) || "section",
+        placement: cleanText(asset?.placement) || "auto",
         notes: cleanText(asset?.notes)
       }))
       .filter((asset) => asset.url || asset.key || asset.notes);
@@ -514,6 +514,87 @@ function normalizeAssetInputs(payload) {
   return [];
 }
 
+function extractAssetNameFromUrl(url) {
+  const raw = cleanText(url);
+  if (!raw) {
+    return "";
+  }
+
+  try {
+    const parsed = new URL(raw);
+    return path.basename(parsed.pathname, path.extname(parsed.pathname));
+  } catch {
+    const fileName = raw.split("/").pop() || "";
+    return fileName.replace(/\.[a-z0-9]+$/i, "");
+  }
+}
+
+function isGenericAssetKey(key) {
+  const normalized = cleanText(key);
+  return !normalized || /^asset[_-]?\d+$/i.test(normalized) || normalized === "hero_asset";
+}
+
+function inferAssetPlacement(asset, index = 0) {
+  const signal = [
+    asset?.notes,
+    asset?.key,
+    asset?.alt,
+    extractAssetNameFromUrl(asset?.url)
+  ].map(cleanText).join(" ").toLowerCase();
+
+  if (/(logo|brand|brandmark|wordmark|icon)/i.test(signal)) {
+    return "logo";
+  }
+
+  if (/(footer|legal|social|unsubscribe)/i.test(signal)) {
+    return "footer";
+  }
+
+  if (/(background|bg|texture|pattern|wallpaper)/i.test(signal)) {
+    return "background";
+  }
+
+  if (/(hero|banner|cover|header|masthead|first screen|above the fold|main visual)/i.test(signal)) {
+    return "hero";
+  }
+
+  if (/(feature|benefit|card|tile|product shot)/i.test(signal)) {
+    return "feature";
+  }
+
+  if (/(section|body|content|phone|screen|screenshot|app|device)/i.test(signal)) {
+    return "section";
+  }
+
+  if (/(reference|design|figma|wireframe|mockup|layout)/i.test(signal)) {
+    return "reference";
+  }
+
+  return index === 0 ? "hero" : "section";
+}
+
+function resolveAssetPlacement(asset, index = 0) {
+  const explicit = cleanText(asset?.placement);
+  if (explicit && explicit !== "auto") {
+    return explicit;
+  }
+
+  return inferAssetPlacement(asset, index);
+}
+
+function resolveAssetKey(asset, index, placement) {
+  if (!isGenericAssetKey(asset?.key)) {
+    return cleanText(asset.key);
+  }
+
+  if (placement === "hero" && index === 0) {
+    return "hero_asset";
+  }
+
+  const source = cleanText(asset?.notes) || cleanText(asset?.alt) || extractAssetNameFromUrl(asset?.url);
+  return `${slugify(placement)}_${slugify(source || `${placement}-${index + 1}`)}`;
+}
+
 function describeAssetPlan(assetInputs) {
   if (!Array.isArray(assetInputs) || assetInputs.length === 0) {
     return "No structured assets";
@@ -521,7 +602,14 @@ function describeAssetPlan(assetInputs) {
 
   return assetInputs
     .filter((asset) => asset.url)
-    .map((asset) => `${asset.key} | placement=${asset.placement} | notes=${asset.notes || "-"} | url=${asset.url}`)
+    .map((asset, index) => {
+      const placement = resolveAssetPlacement(asset, index);
+      const key = resolveAssetKey(asset, index, placement);
+      const placementLabel = cleanText(asset.placement) === "auto"
+        ? `auto->${placement}`
+        : placement;
+      return `${key} | placement=${placementLabel} | notes=${asset.notes || "-"} | url=${asset.url}`;
+    })
     .join("\n");
 }
 
@@ -700,12 +788,13 @@ function buildDiscussionMessages(payload) {
     });
   }
 
-  for (const asset of payload.assetInputs.slice(0, 4)) {
+  for (const [index, asset] of payload.assetInputs.slice(0, 4).entries()) {
     if (looksLikeImageUrl(asset.url)) {
+      const placement = resolveAssetPlacement(asset, index);
       content.push({
         type: "input_image",
         image_url: asset.url,
-        detail: asset.placement === "hero" ? "auto" : "low"
+        detail: placement === "hero" ? "auto" : "low"
       });
     }
   }
@@ -729,15 +818,18 @@ function createAssetRecords(payload) {
   const records = payload.assetInputs
     .filter((asset) => asset.url)
     .slice(0, 8)
-    .map((asset, index) => ({
-      key: cleanText(asset.key) || (index === 0 ? "hero_asset" : `asset_${index + 1}`),
-      url: asset.url,
-      alt: cleanText(asset.alt) || `Reference image ${index + 1}`,
-      placement: cleanText(asset.placement) || (index === 0 ? "hero" : "section"),
-      notes: cleanText(asset.notes),
-      width: 600,
-      height: 300
-    }));
+    .map((asset, index) => {
+      const placement = resolveAssetPlacement(asset, index);
+      return {
+        key: resolveAssetKey(asset, index, placement),
+        url: asset.url,
+        alt: cleanText(asset.alt) || cleanText(asset.notes) || `Reference image ${index + 1}`,
+        placement,
+        notes: cleanText(asset.notes),
+        width: 600,
+        height: 300
+      };
+    });
 
   if (payload.design?.dataUrl) {
     records.unshift({
@@ -1089,7 +1181,7 @@ function createMockDiscussion(payload, warning = "") {
   const hasTranslations = Boolean(payload.translationText);
   const assetPlan = payload.assetInputs
     .filter((asset) => asset.url)
-    .map((asset) => `${asset.key} -> ${asset.placement}`)
+    .map((asset, index) => `${resolveAssetKey(asset, index, resolveAssetPlacement(asset, index))} -> ${resolveAssetPlacement(asset, index)}`)
     .join(", ");
 
   if (!draft) {
