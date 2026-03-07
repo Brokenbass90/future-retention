@@ -22,16 +22,18 @@ npm start
 
 Открыть: [http://localhost:3000](http://localhost:3000)
 
-Для live-режима OpenAI:
+Для live-режима OpenAI можно больше не делать `export` вручную. Достаточно создать `.env` рядом с [server.js](/Users/nikolay.bulgakov/Documents/retantion-future/server.js):
 
 ```bash
-export OPENAI_API_KEY="your_key_here"
-export OPENAI_MODEL="gpt-4.1-mini"
+cp .env.example .env
+# потом вписать ключ в .env
 npm start
 ```
 
 Без ключа приложение работает в `mock mode`.
 В `mock mode` чат, тесты и сохранение работают, но pixel-level разбор design reference и осмысленный vision-анализ недоступны.
+
+Если `OPENAI_API_KEY` загружен, в верхней панели увидишь `LIVE AI`. Если ключа нет, там будет `MOCK / FALLBACK`.
 
 ## Как пользоваться
 
@@ -44,6 +46,7 @@ npm start
 4. Жмите `Применить к письму`, если хотите применить решения к preview и коду.
 5. Пользуйтесь быстрыми кнопками `Локали`, `Картинки`, `Код`, `Тесты`.
 6. Сохраняйте результат в `email-base` кнопкой `Save as new email-base mail`.
+7. Для design reference можно открыть `Картинки` и нажать `Analyze design`. В live-режиме студия попробует разобрать макет на блоки и missing pieces.
 
 ## Основные директории
 

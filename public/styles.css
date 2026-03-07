@@ -853,6 +853,42 @@ body {
   color: var(--muted);
 }
 
+.design-analysis {
+  display: grid;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(19, 35, 26, 0.08);
+}
+
+:root[data-theme="dark"] .design-analysis {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.design-analysis-summary {
+  line-height: 1.6;
+}
+
+.design-analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.design-analysis-list {
+  display: grid;
+  gap: 10px;
+}
+
+.design-analysis-list strong {
+  font-size: 0.92rem;
+}
+
+.design-analysis-list .asset-item {
+  padding: 12px 14px;
+}
+
 .empty-helper {
   padding: 14px;
   border-radius: 18px;
@@ -947,6 +983,26 @@ body {
 
 :root[data-theme="dark"] .pill {
   background: rgba(255, 255, 255, 0.06);
+}
+
+.pill[data-state="live"] {
+  background: rgba(77, 166, 92, 0.14);
+  border-color: rgba(77, 166, 92, 0.34);
+  color: #1d5f2b;
+}
+
+.pill[data-state="mock"] {
+  background: rgba(255, 122, 47, 0.14);
+  border-color: rgba(255, 122, 47, 0.32);
+  color: #8a4418;
+}
+
+:root[data-theme="dark"] .pill[data-state="live"] {
+  color: #bfe6c2;
+}
+
+:root[data-theme="dark"] .pill[data-state="mock"] {
+  color: #ffbf98;
 }
 
 .settings-backdrop {
@@ -1279,6 +1335,10 @@ body {
   .workspace-shortcuts {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .design-analysis-grid {
+    grid-template-columns: 1fr;
   }
 
   .workspace-modal {

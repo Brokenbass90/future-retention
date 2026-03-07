@@ -161,6 +161,16 @@ CTA 2
 4. залили в ваше файловое хранилище;
 5. вставили CDN URL обратно в asset registry.
 
+### 8. Live AI and design ingest
+
+Теперь студия различает:
+- `LIVE AI` — когда `OPENAI_API_KEY` реально загружен;
+- `MOCK / FALLBACK` — когда ключа нет и работает только локальная заглушка.
+
+Также добавлен первый `Analyze design` flow:
+- в `mock mode` он честно говорит, что vision-разбора нет;
+- в live-режиме он может вернуть summary макета, suggested blocks, asset slots и missing content.
+
 ## Архитектура
 
 ### Frontend

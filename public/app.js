@@ -5,6 +5,7 @@ const initialState = {
   api: {
     openAiConfigured: false,
     model: "gpt-4.1-mini",
+    config: null,
     providers: [],
     clientProfiles: [],
     emailBase: null
@@ -39,6 +40,7 @@ const initialState = {
     name: "",
     dataUrl: ""
   },
+  designAnalysis: null,
   assetInputs: [createEmptyAsset(1)],
   messages: [
     {
@@ -80,6 +82,7 @@ const codeMap = {
 
 const refs = {
   apiStatus: document.querySelector("#apiStatus"),
+  aiModePill: document.querySelector("#aiModePill"),
   chatCard: document.querySelector("#chatCard"),
   messages: document.querySelector("#messages"),
   chatForm: document.querySelector("#chatForm"),
@@ -102,6 +105,7 @@ const refs = {
   attachTranslationFolderBtn: document.querySelector("#attachTranslationFolderBtn"),
   attachAssetsBtn: document.querySelector("#attachAssetsBtn"),
   replaceDesignBtn: document.querySelector("#replaceDesignBtn"),
+  analyzeDesignBtn: document.querySelector("#analyzeDesignBtn"),
   replaceAssetsBtn: document.querySelector("#replaceAssetsBtn"),
   assetFileInput: document.querySelector("#assetFileInput"),
   openLocalesBtn: document.querySelector("#openLocalesBtn"),
@@ -166,11 +170,18 @@ const refs = {
   designPreviewWrap: document.querySelector("#designPreviewWrap"),
   designPreview: document.querySelector("#designPreview"),
   designCaption: document.querySelector("#designCaption"),
+  designAnalysisCard: document.querySelector("#designAnalysisCard"),
+  designAnalysisSummary: document.querySelector("#designAnalysisSummary"),
+  designBlocksList: document.querySelector("#designBlocksList"),
+  designAssetsList: document.querySelector("#designAssetsList"),
+  designRequirementsList: document.querySelector("#designRequirementsList"),
+  designWarningsList: document.querySelector("#designWarningsList"),
   refreshCatalogBtn: document.querySelector("#refreshCatalogBtn"),
   generateLocalesBtn: document.querySelector("#generateLocalesBtn") || document.querySelector("#generateLocalesModalBtn"),
   themeSelect: document.querySelector("#themeSelect"),
   providerSelect: document.querySelector("#providerSelect"),
   providerHelp: document.querySelector("#providerHelp"),
+  runtimeConfigInfo: document.querySelector("#runtimeConfigInfo"),
   clientProfileSelect: document.querySelector("#clientProfileSelect"),
   clientProfileHelp: document.querySelector("#clientProfileHelp"),
   emailBaseSummary: document.querySelector("#emailBaseSummary"),
@@ -239,6 +250,7 @@ function bindEvents() {
   refs.attachTranslationsBtn.addEventListener("click", () => refs.translationFile.click());
   refs.attachTranslationFolderBtn.addEventListener("click", () => refs.translationFolderInput.click());
   refs.attachAssetsBtn.addEventListener("click", () => refs.assetFileInput.click());
+  refs.analyzeDesignBtn.addEventListener("click", handleAnalyzeDesign);
   refs.replaceDesignBtn.addEventListener("click", () => refs.designFile.click());
   refs.replaceAssetsBtn.addEventListener("click", () => refs.assetFileInput.click());
   refs.openLocalesBtn.addEventListener("click", openLocalesModal);
@@ -359,6 +371,7 @@ async function loadApiStatus() {
     state.api = {
       openAiConfigured: false,
       model: "unavailable",
+      config: null,
       providers: [],
       clientProfiles: [],
       emailBase: null,
@@ -443,6 +456,7 @@ function hydrateFromStorage() {
         ...structuredClone(initialState.design),
         ...(saved.design ?? {})
       },
+      designAnalysis: saved.designAnalysis ?? null,
       assetInputs: Array.isArray(saved.assetInputs) && saved.assetInputs.length > 0
         ? saved.assetInputs
         : [createEmptyAsset(1)],
@@ -470,6 +484,7 @@ function persistState() {
     settings: state.settings,
     brief: state.brief,
     design: state.design,
+    designAnalysis: state.designAnalysis,
     translationText: state.translationText,
     translationUploadStatus: state.translationUploadStatus,
     assetInputs: state.assetInputs,
@@ -599,6 +614,7 @@ async function handleDesignUpload(event) {
   const file = event.target.files?.[0];
   if (!file) {
     state.design = { name: "", dataUrl: "" };
+    state.designAnalysis = null;
     renderDesignPreview();
     return;
   }
@@ -628,6 +644,7 @@ async function applyDesignFile(file, sourceLabel = "") {
     dataUrl: getPreferredAssetUrl(entry),
     assetId: entry?.id || ""
   };
+  state.designAnalysis = null;
   state.translationUploadStatus = sourceLabel
     ? `Design attached from ${sourceLabel}.`
     : `${file.name} загружен как design reference.`;
@@ -799,6 +816,7 @@ function applyReferenceLinksFromText(text, options = {}) {
   const figmaUrl = urls.find((url) => /figma\.com/i.test(url));
   const chosen = imageUrl || figmaUrl || urls[0];
   state.brief.designUrl = chosen;
+  state.designAnalysis = null;
   state.translationUploadStatus = imageUrl
     ? "Сохранил ссылку на design/image reference из сообщения."
     : figmaUrl
@@ -875,6 +893,7 @@ function createChatRequestBody(intent) {
     assetRegistryItems: state.assetRegistry.items,
     translationText: state.translationText,
     design: state.design,
+    designAnalysis: state.designAnalysis,
     settings: state.settings,
     currentDraft: state.draft?.mail ?? null
   };
@@ -939,6 +958,9 @@ function applyChatPayload(payload, assistantMessage) {
   assistantMessage.streaming = false;
   assistantMessage.content = payload.assistantReply || assistantMessage.content || "Ответ готов.";
   state.mode = payload.mode;
+  if (payload.designAnalysis) {
+    state.designAnalysis = payload.designAnalysis;
+  }
   if (payload.draft) {
     state.previewSource = "draft";
     state.draft = payload.draft;
@@ -1019,6 +1041,7 @@ async function handleCreateBaseMail() {
         assetInputs: state.assetInputs,
         assetRegistryItems: state.assetRegistry.items,
         design: state.design,
+        designAnalysis: state.designAnalysis,
         messages: state.messages
       })
     });
@@ -1076,6 +1099,7 @@ async function handleGenerateMissingLocales() {
         assetInputs: state.assetInputs,
         assetRegistryItems: state.assetRegistry.items,
         design: state.design,
+        designAnalysis: state.designAnalysis,
         messages: state.messages
       })
     });
@@ -1100,6 +1124,54 @@ async function handleGenerateMissingLocales() {
     state.messages.push({
       role: "assistant",
       content: `Ошибка при генерации локалей: ${error.message}`
+    });
+  } finally {
+    state.busy = false;
+    renderAll();
+    persistState();
+  }
+}
+
+async function handleAnalyzeDesign() {
+  state.busy = true;
+  renderStatus();
+
+  try {
+    const response = await fetch("/api/design/analyze", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        brief: state.brief,
+        settings: state.settings,
+        draft: state.draft,
+        translationText: state.translationText,
+        assetInputs: state.assetInputs,
+        assetRegistryItems: state.assetRegistry.items,
+        design: state.design,
+        designAnalysis: state.designAnalysis,
+        messages: state.messages
+      })
+    });
+
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.error || "Design analysis failed");
+    }
+
+    state.mode = payload.mode || state.mode;
+    state.designAnalysis = payload.designAnalysis || null;
+    state.messages.push({
+      role: "assistant",
+      content: payload.assistantReply || "Design analysis updated."
+    });
+    await loadJournal();
+    openWorkspaceModal("assets");
+  } catch (error) {
+    state.messages.push({
+      role: "assistant",
+      content: `Ошибка при анализе дизайна: ${error.message}`
     });
   } finally {
     state.busy = false;
@@ -1312,6 +1384,7 @@ function renderAll() {
   renderBlocks();
   renderDiagnostics();
   renderDesignPreview();
+  renderDesignAnalysis();
   positionHelpTips();
 }
 
@@ -1623,6 +1696,7 @@ function renderMessages() {
 
 function renderStatus() {
   const providerLabel = getSelectedProvider()?.label || state.settings.providerId;
+  const isLive = state.settings.providerId === "openai" && state.api.openAiConfigured;
   let statusText = "Генерирую...";
   if (!state.busy) {
     if (state.settings.providerId === "openai" && !state.api.openAiConfigured) {
@@ -1635,6 +1709,8 @@ function renderStatus() {
   }
 
   refs.apiStatus.textContent = statusText;
+  refs.aiModePill.textContent = isLive ? "LIVE AI" : "MOCK / FALLBACK";
+  refs.aiModePill.dataset.state = isLive ? "live" : "mock";
   refs.modeValue.textContent = state.mode;
   refs.loadBaseBtn.disabled = state.busy;
   refs.createBaseMailBtn.disabled = state.busy;
@@ -1660,6 +1736,7 @@ function renderStatus() {
   refs.attachTranslationsBtn.disabled = state.busy;
   refs.attachTranslationFolderBtn.disabled = state.busy;
   refs.attachAssetsBtn.disabled = state.busy;
+  refs.analyzeDesignBtn.disabled = state.busy || (!state.design?.dataUrl && !cleanText(state.brief.designUrl));
   refs.saveLocaleEditsBtn.disabled = state.busy;
   refs.saveCodeBtn.disabled = state.busy;
   refs.createBaseMailFromCodeBtn.disabled = state.busy;
@@ -2113,6 +2190,39 @@ function renderDesignPreview() {
       : `Используется внешний design reference: ${cleanText(state.brief.designUrl)}`;
 }
 
+function renderDesignAnalysis() {
+  const analysis = state.designAnalysis;
+  refs.designAnalysisCard.hidden = !analysis;
+
+  if (!analysis) {
+    return;
+  }
+
+  const summaryBits = [
+    cleanText(analysis.summary),
+    cleanText(analysis.mode) ? `Mode: ${analysis.mode}` : "",
+    cleanText(analysis.updatedAt) ? `Updated: ${new Date(analysis.updatedAt).toLocaleString()}` : ""
+  ].filter(Boolean);
+  refs.designAnalysisSummary.textContent = summaryBits.join(" | ");
+  renderSimpleList(refs.designBlocksList, Array.isArray(analysis.suggested_blocks) ? analysis.suggested_blocks : [], "Нет block suggestions.");
+  renderSimpleList(refs.designAssetsList, Array.isArray(analysis.asset_slots) ? analysis.asset_slots : [], "Нет asset slots.");
+  renderSimpleList(refs.designRequirementsList, Array.isArray(analysis.content_requirements) ? analysis.content_requirements : [], "Не хватает design analysis.");
+  renderSimpleList(refs.designWarningsList, Array.isArray(analysis.warnings) ? analysis.warnings : [], "Warnings нет.");
+}
+
+function renderSimpleList(container, items, emptyText) {
+  container.innerHTML = "";
+  const values = Array.isArray(items) ? items.filter(Boolean) : [];
+  if (values.length === 0) {
+    container.appendChild(createTextCard(emptyText));
+    return;
+  }
+
+  for (const item of values) {
+    container.appendChild(createTextCard(item));
+  }
+}
+
 function renderSettingsControls() {
   refs.themeSelect.value = state.settings.theme;
 
@@ -2131,9 +2241,16 @@ function renderSettingsControls() {
 
 function renderSettingsInfo() {
   const provider = getSelectedProvider();
+  const config = state.api.config;
   refs.providerHelp.textContent = provider
     ? `${provider.status}. Возможности: ${provider.capabilities.join(", ")}.`
     : "Провайдер пока не определен.";
+
+  refs.runtimeConfigInfo.textContent = config
+    ? config.openAiConfigured
+      ? `Runtime: ${config.openAiModel} active. .env: ${config.envFileLoaded ? config.envFilePath : "not found"}.`
+      : `Runtime: OpenAI key not loaded. Создай ${config.envFilePath} с OPENAI_API_KEY=... и перезапусти сервер.`
+    : "Runtime config недоступен.";
 
   const profile = getSelectedClientProfile();
   refs.clientProfileHelp.textContent = profile

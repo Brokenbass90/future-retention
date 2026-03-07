@@ -14,6 +14,7 @@
         </div>
         <div class="topbar-actions">
           <span class="pill" id="apiStatus">Проверяю API...</span>
+          <span class="pill" id="aiModePill">AI mode</span>
           <button class="ghost-button" id="loadBaseBtn" type="button">Load base email</button>
           <button class="ghost-button" id="openJournalBtn" type="button">Journal</button>
           <button class="ghost-button" id="settingsBtn" type="button">Settings</button>
@@ -255,6 +256,7 @@
             <select id="providerSelect" class="select-control"></select>
           </label>
           <div class="settings-info" id="providerHelp"></div>
+          <div class="settings-info" id="runtimeConfigInfo"></div>
         </section>
 
         <section class="settings-section">
@@ -321,13 +323,37 @@
         <section class="modal-section">
           <div class="modal-section-head">
             <strong>Design reference</strong>
-            <button class="ghost-button" id="replaceDesignBtn" type="button">Replace design</button>
+            <div class="modal-inline-actions">
+              <button class="ghost-button" id="analyzeDesignBtn" type="button">Analyze design</button>
+              <button class="ghost-button" id="replaceDesignBtn" type="button">Replace design</button>
+            </div>
           </div>
           <div class="design-preview-wrap" id="designPreviewWrap" hidden>
             <img id="designPreview" alt="Design preview" />
             <div class="design-caption" id="designCaption"></div>
           </div>
           <div class="empty-helper" id="designEmptyState">Design пока не загружен. Можно вставить скрин прямо в чат или нажать Attach design.</div>
+          <div class="design-analysis" id="designAnalysisCard" hidden>
+            <div class="design-analysis-summary" id="designAnalysisSummary"></div>
+            <div class="design-analysis-grid">
+              <div class="design-analysis-list">
+                <strong>Suggested blocks</strong>
+                <div id="designBlocksList"></div>
+              </div>
+              <div class="design-analysis-list">
+                <strong>Asset slots</strong>
+                <div id="designAssetsList"></div>
+              </div>
+              <div class="design-analysis-list">
+                <strong>Missing content</strong>
+                <div id="designRequirementsList"></div>
+              </div>
+              <div class="design-analysis-list">
+                <strong>Warnings</strong>
+                <div id="designWarningsList"></div>
+              </div>
+            </div>
+          </div>
         </section>
 
         <section class="modal-section">

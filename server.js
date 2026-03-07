@@ -2,11 +2,13 @@ import http from "node:http";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const envFilePath = path.join(__dirname, ".env");
+const envRuntime = loadEnvFile(envFilePath);
 const publicDir = path.join(__dirname, "public");
 const emailBaseRoot = path.join(__dirname, "email-base");
 const studioDataDir = path.join(__dirname, "data");
@@ -18,6 +20,8 @@ const studioJournalPath = path.join(studioDataDir, "studio-journal.json");
 const port = Number(process.env.PORT || 3000);
 const openAiApiKey = process.env.OPENAI_API_KEY || "";
 const openAiModel = process.env.OPENAI_MODEL || "gpt-4.1-mini";
+const deepLApiKey = process.env.DEEPL_API_KEY || "";
+const deepLApiUrl = process.env.DEEPL_API_URL || "https://api-free.deepl.com";
 const categoryIgnoreList = new Set(["vendor", "docs", "dist", "tools", "node_modules", "_legacy"]);
 const localeDirPattern = /^[A-Za-z]{2}([_-][A-Za-z]{2})?$/;
 const clientProfiles = [
@@ -197,6 +201,48 @@ const translationResponseSchema = {
   required: ["assistant_reply", "translations"]
 };
 
+const designAnalysisSchema = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    assistant_reply: {
+      type: "string"
+    },
+    analysis: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        summary: { type: "string" },
+        section_kinds: {
+          type: "array",
+          items: {
+            type: "string",
+            enum: ["hero", "text", "feature-list", "image", "cta", "footer"]
+          }
+        },
+        suggested_blocks: {
+          type: "array",
+          items: { type: "string" }
+        },
+        asset_slots: {
+          type: "array",
+          items: { type: "string" }
+        },
+        content_requirements: {
+          type: "array",
+          items: { type: "string" }
+        },
+        warnings: {
+          type: "array",
+          items: { type: "string" }
+        }
+      },
+      required: ["summary", "section_kinds", "suggested_blocks", "asset_slots", "content_requirements", "warnings"]
+    }
+  },
+  required: ["assistant_reply", "analysis"]
+};
+
 const mimeTypes = {
   ".css": "text/css; charset=utf-8",
   ".gif": "image/gif",
@@ -209,6 +255,58 @@ const mimeTypes = {
   ".svg": "image/svg+xml",
   ".webp": "image/webp"
 };
+
+function loadEnvFile(filePath) {
+  if (!existsSync(filePath)) {
+    return {
+      loaded: false,
+      filePath,
+      keys: []
+    };
+  }
+
+  try {
+    const source = readFileSync(filePath, "utf8");
+    const keys = [];
+
+    for (const line of source.split(/\r?\n/)) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) {
+        continue;
+      }
+
+      const match = trimmed.match(/^(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/);
+      if (!match) {
+        continue;
+      }
+
+      const key = match[1];
+      let value = match[2] || "";
+
+      if ((value.startsWith("\"") && value.endsWith("\"")) || (value.startsWith("'") && value.endsWith("'"))) {
+        value = value.slice(1, -1);
+      }
+
+      value = value.replace(/\\n/g, "\n");
+      if (!process.env[key]) {
+        process.env[key] = value;
+      }
+      keys.push(key);
+    }
+
+    return {
+      loaded: true,
+      filePath,
+      keys
+    };
+  } catch {
+    return {
+      loaded: false,
+      filePath,
+      keys: []
+    };
+  }
+}
 
 function listDirectoryNames(rootPath, matcher = () => true) {
   if (!existsSync(rootPath)) {
@@ -930,7 +1028,7 @@ function getProviderCatalog() {
       label: "OpenAI",
       available: Boolean(openAiApiKey),
       status: openAiApiKey ? `Configured: ${openAiModel}` : "Needs OPENAI_API_KEY",
-      capabilities: ["chat", "vision", "structured output"]
+      capabilities: ["chat", "vision", "structured output", "design ingest"]
     },
     {
       id: "mock",
@@ -961,6 +1059,18 @@ function getProviderCatalog() {
       capabilities: ["classification", "cheap helpers"]
     }
   ];
+}
+
+function summarizeRuntimeConfig() {
+  return {
+    envFilePath: toStudioRelative(envFilePath),
+    envFileLoaded: Boolean(envRuntime.loaded),
+    envKeys: Array.isArray(envRuntime.keys) ? envRuntime.keys : [],
+    openAiConfigured: Boolean(openAiApiKey),
+    openAiModel,
+    deepLConfigured: Boolean(deepLApiKey),
+    deepLApiUrl
+  };
 }
 
 function summarizeEmailBase() {
@@ -2021,6 +2131,43 @@ function summarizeAssetLibraryForContext(payload) {
     .join("\n");
 }
 
+function normalizeDesignAnalysis(rawAnalysis) {
+  if (!rawAnalysis || typeof rawAnalysis !== "object") {
+    return null;
+  }
+
+  const normalizeKinds = (Array.isArray(rawAnalysis.section_kinds) ? rawAnalysis.section_kinds : [])
+    .map(cleanText)
+    .filter((value) => ["hero", "text", "feature-list", "image", "cta", "footer"].includes(value));
+
+  return {
+    summary: cleanText(rawAnalysis.summary),
+    section_kinds: normalizeKinds,
+    suggested_blocks: Array.isArray(rawAnalysis.suggested_blocks) ? rawAnalysis.suggested_blocks.map(cleanText).filter(Boolean) : [],
+    asset_slots: Array.isArray(rawAnalysis.asset_slots) ? rawAnalysis.asset_slots.map(cleanText).filter(Boolean) : [],
+    content_requirements: Array.isArray(rawAnalysis.content_requirements) ? rawAnalysis.content_requirements.map(cleanText).filter(Boolean) : [],
+    warnings: Array.isArray(rawAnalysis.warnings) ? rawAnalysis.warnings.map(cleanText).filter(Boolean) : [],
+    mode: cleanText(rawAnalysis.mode),
+    updatedAt: cleanText(rawAnalysis.updatedAt)
+  };
+}
+
+function summarizeDesignAnalysisForContext(analysis) {
+  const normalized = normalizeDesignAnalysis(analysis);
+  if (!normalized) {
+    return "No design analysis";
+  }
+
+  return [
+    `Summary: ${normalized.summary || "None"}`,
+    `Section kinds: ${normalized.section_kinds.join(", ") || "None"}`,
+    `Suggested blocks: ${normalized.suggested_blocks.join(" | ") || "None"}`,
+    `Asset slots: ${normalized.asset_slots.join(" | ") || "None"}`,
+    `Missing content: ${normalized.content_requirements.join(" | ") || "None"}`,
+    `Warnings: ${normalized.warnings.join(" | ") || "None"}`
+  ].join("\n");
+}
+
 function normalizePayload(payload) {
   const brief = payload?.brief ?? {};
   const settings = payload?.settings ?? {};
@@ -2058,6 +2205,7 @@ function normalizePayload(payload) {
           dataUrl: cleanText(payload.design.dataUrl)
         }
       : null,
+    designAnalysis: normalizeDesignAnalysis(payload?.designAnalysis),
     currentDraft: payload?.currentDraft && typeof payload.currentDraft === "object"
       ? payload.currentDraft
       : null
@@ -2082,6 +2230,8 @@ function buildUserContext(payload) {
     `Primary CTA href: ${payload.brief.primaryLink || "https://example.com"}`,
     `Content notes: ${payload.brief.contentNotes || "None"}`,
     `Design URL: ${payload.brief.designUrl || "None"}`,
+    "Design analysis:",
+    summarizeDesignAnalysisForContext(payload.designAnalysis),
     "Structured assets:",
     describeAssetPlan(payload.assetInputs),
     "Asset library in project:",
@@ -2115,6 +2265,8 @@ function buildDiscussionContext(payload) {
     `Primary locale: ${payload.brief.locale}`,
     `Requested locales: ${payload.brief.requestedLocales || payload.brief.locale}`,
     `Current base mail: ${emailBaseSummary.currentMail?.folder || "None"}`,
+    "Design analysis:",
+    summarizeDesignAnalysisForContext(payload.designAnalysis),
     "Structured assets:",
     describeAssetPlan(payload.assetInputs),
     "Asset library in project:",
@@ -2222,6 +2374,94 @@ function buildDiscussionMessages(payload) {
       content
     }
   ];
+}
+
+function buildDesignAnalysisMessages(payload) {
+  const emailBaseSummary = summarizeEmailBase();
+  const currentDraftSummary = summarizeCurrentDraft(payload.currentDraft);
+  const content = [
+    {
+      type: "input_text",
+      text: [
+        "Analyze the provided email design reference for an email studio.",
+        "Return only structural guidance that can be mapped to reusable email blocks.",
+        `Campaign name: ${payload.brief.campaignName || "Untitled campaign"}`,
+        `Goal: ${payload.brief.goal || "Not specified"}`,
+        `Audience: ${payload.brief.audience || "Not specified"}`,
+        `Primary locale: ${payload.brief.locale}`,
+        `Current base mail: ${emailBaseSummary.currentMail?.folder || "None"}`,
+        "Current draft context:",
+        currentDraftSummary,
+        "Available block system:",
+        emailBaseSummary.available ? emailBaseSummary.technology.join(", ") : "Not attached"
+      ].join("\n")
+    }
+  ];
+
+  if (payload.brief.designUrl && looksLikeImageUrl(payload.brief.designUrl)) {
+    content.push({
+      type: "input_image",
+      image_url: payload.brief.designUrl,
+      detail: "high"
+    });
+  }
+
+  if (payload.design?.dataUrl) {
+    content.push({
+      type: "input_image",
+      image_url: payload.design.dataUrl,
+      detail: "high"
+    });
+  }
+
+  return [
+    {
+      role: "system",
+      content: [{
+        type: "input_text",
+        text: "You analyze email design references for a reusable email block system. Describe layout structure, missing content needs, likely block mapping, and asset slots. Do not write HTML."
+      }]
+    },
+    {
+      role: "user",
+      content
+    }
+  ];
+}
+
+function createMockDesignAnalysis(payload, warning = "") {
+  const hasDesign = Boolean(payload.design?.dataUrl || payload.brief.designUrl);
+  const analysis = normalizeDesignAnalysis({
+    summary: hasDesign
+      ? "Есть design reference, но mock-режим не анализирует изображение по содержанию. Можно только использовать его как ориентир по структуре."
+      : "Design reference не приложен.",
+    section_kinds: payload.currentDraft?.sections?.map((section) => cleanText(section.kind)).filter(Boolean).slice(0, 6)
+      || ["hero", "text", "feature-list", "cta", "footer"],
+    suggested_blocks: hasDesign
+      ? ["Hero block", "Content block", "CTA block", "Footer block"]
+      : ["Нужен design reference для точного block mapping"],
+    asset_slots: hasDesign
+      ? ["Hero visual", "Optional section image", "Logo/social/footer icons"]
+      : ["Не хватает design reference"],
+    content_requirements: [
+      !payload.brief.primaryLink ? "Нужна основная CTA ссылка" : "",
+      !payload.brief.requestedLocales ? "Нужно указать requested locales" : "",
+      !payload.translationText ? "Нужен translation bundle или автогенерация локалей" : ""
+    ].filter(Boolean),
+    warnings: [
+      hasDesign ? "Mock mode: нет vision-разбора пиксельного макета" : "Design reference отсутствует",
+      warning || ""
+    ].filter(Boolean),
+    mode: "mock-design",
+    updatedAt: new Date().toISOString()
+  });
+
+  return {
+    assistantReply: hasDesign
+      ? `Design reference сохранен, но сейчас доступен только mock-анализ. Для реального разбора макета нужен OpenAI provider с ключом.${warning ? ` ${warning}` : ""}`
+      : "Сначала приложи design reference, потом можно запускать анализ макета.",
+    analysis
+  };
 }
 
 function createAssetRecords(payload) {
@@ -2469,11 +2709,16 @@ function buildFallbackMail(payload, options = {}) {
         return !(cleanText(section?.kind) === "image" && /logo|header logo/.test(signal));
       })
     : [];
+  const designDrivenSections = Array.isArray(payload.designAnalysis?.section_kinds) && payload.designAnalysis.section_kinds.length > 0
+    ? payload.designAnalysis.section_kinds.map((kind) => ({ kind }))
+    : [];
   const heroSections = rawTemplateSections.filter((section) => cleanText(section?.kind) === "hero");
   const footerSections = rawTemplateSections.filter((section) => cleanText(section?.kind) === "footer");
   const middleSections = rawTemplateSections.filter((section) => !["hero", "footer"].includes(cleanText(section?.kind)));
   const templateSections = rawTemplateSections.length > 0
     ? [...heroSections, ...middleSections, ...footerSections]
+    : designDrivenSections.length > 0
+      ? designDrivenSections
     : [
         { kind: "hero" },
         { kind: "text" },
@@ -3632,6 +3877,48 @@ async function createOpenAiDiscussion(payload) {
   };
 }
 
+async function createOpenAiDesignAnalysis(payload) {
+  const response = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${openAiApiKey}`
+    },
+    body: JSON.stringify({
+      model: openAiModel,
+      input: buildDesignAnalysisMessages(payload),
+      text: {
+        format: {
+          type: "json_schema",
+          name: "email_studio_design_analysis",
+          strict: true,
+          schema: designAnalysisSchema
+        }
+      }
+    })
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data?.error?.message || "OpenAI design analysis request failed");
+  }
+
+  const rawText = extractResponseText(data);
+  if (!rawText) {
+    throw new Error("OpenAI design analysis response did not contain output text");
+  }
+
+  const parsed = JSON.parse(rawText);
+  return {
+    assistantReply: cleanText(parsed.assistant_reply) || "Design analysis is ready.",
+    analysis: normalizeDesignAnalysis({
+      ...(parsed.analysis || {}),
+      mode: "openai-design",
+      updatedAt: new Date().toISOString()
+    })
+  };
+}
+
 async function createOpenAiTranslations(payload, mail, sourceEntry, targetLocales) {
   const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
@@ -3747,6 +4034,42 @@ async function resolveChatResponse(payload) {
   }
 
   return resolveDraftResponse(payload);
+}
+
+async function resolveDesignAnalysis(payload) {
+  const providerId = payload.settings.providerId;
+
+  if (providerId === "openai" && openAiApiKey) {
+    try {
+      const result = await createOpenAiDesignAnalysis(payload);
+      return {
+        assistantReply: result.assistantReply,
+        mode: "openai-design",
+        designAnalysis: result.analysis
+      };
+    } catch (error) {
+      const fallback = createMockDesignAnalysis(payload, error.message);
+      return {
+        assistantReply: fallback.assistantReply,
+        mode: "mock-design",
+        designAnalysis: fallback.analysis
+      };
+    }
+  }
+
+  const fallback = createMockDesignAnalysis(
+    payload,
+    providerId === "openai"
+      ? "OPENAI_API_KEY is not configured on the server."
+      : providerId === "mock"
+        ? "Mock provider selected in settings."
+        : `${providerId} adapter is planned but not wired yet.`
+  );
+  return {
+    assistantReply: fallback.assistantReply,
+    mode: "mock-design",
+    designAnalysis: fallback.analysis
+  };
 }
 
 async function wait(milliseconds) {
@@ -3956,6 +4279,7 @@ const server = http.createServer(async (request, response) => {
       sendJson(response, 200, {
         openAiConfigured: Boolean(openAiApiKey),
         model: openAiModel,
+        config: summarizeRuntimeConfig(),
         providers: getProviderCatalog(),
         clientProfiles,
         emailBase: summarizeEmailBase(),
@@ -4050,6 +4374,21 @@ const server = http.createServer(async (request, response) => {
     if (request.method === "POST" && request.url === "/api/chat/stream") {
       const payload = normalizePayload(await readRequestBody(request));
       await streamChatResponse(response, payload);
+      return;
+    }
+
+    if (request.method === "POST" && request.url === "/api/design/analyze") {
+      const payload = normalizePayload(await readRequestBody(request));
+      const result = await resolveDesignAnalysis(payload);
+      await appendStudioJournalEntry({
+        area: "design",
+        title: "Design analyzed",
+        message: cleanText(result.assistantReply),
+        meta: {
+          mode: cleanText(result.mode)
+        }
+      });
+      sendJson(response, 200, result);
       return;
     }
 
