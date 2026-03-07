@@ -427,7 +427,7 @@ body {
   transform: translateX(-50%);
   z-index: 80;
   min-width: 220px;
-  max-width: 280px;
+  max-width: min(280px, calc(100vw - 24px));
   padding: 10px 12px;
   border-radius: 14px;
   background: #13231a;
@@ -440,10 +440,39 @@ body {
   transition: opacity 150ms ease, transform 150ms ease;
 }
 
+.help-tip[data-tip-align="start"]::after {
+  left: 0;
+  right: auto;
+  transform: none;
+}
+
+.help-tip[data-tip-align="end"]::after {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+
+.help-tip[data-tip-vertical="bottom"]::after {
+  top: calc(100% + 10px);
+  bottom: auto;
+}
+
 .help-tip:hover::after,
 .help-tip:focus-visible::after {
   opacity: 1;
   transform: translateX(-50%) translateY(-2px);
+}
+
+.help-tip[data-tip-align="start"]:hover::after,
+.help-tip[data-tip-align="start"]:focus-visible::after,
+.help-tip[data-tip-align="end"]:hover::after,
+.help-tip[data-tip-align="end"]:focus-visible::after {
+  transform: translateY(-2px);
+}
+
+.help-tip[data-tip-vertical="bottom"]:hover::after,
+.help-tip[data-tip-vertical="bottom"]:focus-visible::after {
+  transform: translateY(2px);
 }
 
 .field input,

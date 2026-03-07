@@ -2241,18 +2241,6 @@ function createAssetRecords(payload) {
       };
     });
 
-  if (payload.design?.dataUrl) {
-    records.unshift({
-      key: "uploaded_design",
-      url: payload.design.dataUrl,
-      alt: payload.design.name || "Uploaded design reference",
-      placement: "design-reference",
-      notes: "Uploaded design reference",
-      width: 600,
-      height: 300
-    });
-  }
-
   return records;
 }
 
@@ -2408,9 +2396,11 @@ function buildMockSectionForKind(kind, index, context) {
 
 function buildFallbackMail(payload, options = {}) {
   const includeCurrentDraft = Boolean(options.includeCurrentDraft);
-  const templateMail = includeCurrentDraft && payload?.currentDraft && typeof payload.currentDraft === "object"
-    ? payload.currentDraft
-    : null;
+  const templateMail = options.templateMail && typeof options.templateMail === "object"
+    ? options.templateMail
+    : includeCurrentDraft && payload?.currentDraft && typeof payload.currentDraft === "object"
+      ? payload.currentDraft
+      : null;
   const translationSeed = findPreferredTranslationEntry(payload.translationText, payload.brief.locale, {
     locale: payload.brief.locale || templateMail?.locale || "en",
     subject: templateMail?.subject || "",
@@ -2430,26 +2420,30 @@ function buildFallbackMail(payload, options = {}) {
   const locale = payload.brief.locale || cleanText(templateMail?.locale) || "en";
   const heroTitle = cleanText(
     translatedBlocks[0]
-    || templateMail?.sections?.[0]?.title
     || payload.brief.campaignName
     || deriveTitleFromUserMessage(latestUserMessage)
+    || templateMail?.sections?.find((section) => cleanText(section?.kind) === "hero")?.title
+    || templateMail?.sections?.find((section) => cleanText(section?.title))?.title
     || "Новый email draft"
   );
   const heroBody = cleanText(
     translatedBlocks[1]
     || payload.brief.goal
     || payload.brief.contentNotes
-    || templateMail?.sections?.[0]?.body
+    || templateMail?.sections?.find((section) => cleanText(section?.kind) === "hero")?.body
+    || templateMail?.sections?.find((section) => cleanText(section?.body))?.body
     || "Собираем письмо на базе brief, текущих переводов и структуры из email-base."
   );
   const subject = cleanText(
     translationSeed?.subject
-    || templateMail?.subject
     || payload.brief.campaignName
+    || deriveTitleFromUserMessage(latestUserMessage)
+    || templateMail?.subject
     || heroTitle
   );
   const preheader = cleanText(
     translationSeed?.preheader
+    || payload.brief.goal
     || templateMail?.preheader
     || heroBody.slice(0, 120)
   );
@@ -2464,13 +2458,22 @@ function buildFallbackMail(payload, options = {}) {
     || templateCta.href
     || "https://example.com"
   );
-  const heroAssetKey = getAssetByPlacement(assets, ["hero", "background", "reference", "design-reference"])?.key
+  const heroAssetKey = getAssetByPlacement(assets, ["hero", "background"])?.key
     || assets[0]?.key
     || "";
-  const sectionAssetKey = getAssetByPlacement(assets, ["section", "feature", "reference", "design-reference"])?.key
+  const sectionAssetKey = getAssetByPlacement(assets, ["section", "feature"])?.key
     || heroAssetKey;
-  const templateSections = Array.isArray(templateMail?.sections) && templateMail.sections.length > 0
-    ? templateMail.sections
+  const rawTemplateSections = Array.isArray(templateMail?.sections) && templateMail.sections.length > 0
+    ? templateMail.sections.filter((section) => {
+        const signal = `${cleanText(section?.title)} ${cleanText(section?.body)}`.toLowerCase();
+        return !(cleanText(section?.kind) === "image" && /logo|header logo/.test(signal));
+      })
+    : [];
+  const heroSections = rawTemplateSections.filter((section) => cleanText(section?.kind) === "hero");
+  const footerSections = rawTemplateSections.filter((section) => cleanText(section?.kind) === "footer");
+  const middleSections = rawTemplateSections.filter((section) => !["hero", "footer"].includes(cleanText(section?.kind)));
+  const templateSections = rawTemplateSections.length > 0
+    ? [...heroSections, ...middleSections, ...footerSections]
     : [
         { kind: "hero" },
         { kind: "text" },
@@ -2926,6 +2929,35 @@ function createMockDraft(payload, warning = "") {
   };
 }
 
+async function createProjectAwareMockDraft(payload, warning = "") {
+  if (payload.currentDraft?.sections?.length) {
+    return createMockDraft(payload, warning);
+  }
+
+  const summary = summarizeEmailBase();
+  if (!summary.available || !summary.currentMail) {
+    return createMockDraft(payload, warning);
+  }
+
+  try {
+    const preview = await buildEmailBasePreview(
+      payload.brief.category || summary.currentMail.category,
+      payload.brief.mailId || summary.currentMail.mailId,
+      payload.brief.locale || "en"
+    );
+    const mail = buildFallbackMail(payload, {
+      templateMail: preview.draft?.mail || null
+    });
+    const suffix = warning ? ` Сейчас включен mock-режим: ${warning}.` : "";
+    return {
+      assistant_reply: `Собрал draft на базе текущего письма из email-base и ваших материалов.${suffix}`,
+      mail
+    };
+  } catch (error) {
+    return createMockDraft(payload, cleanText(error?.message) || warning);
+  }
+}
+
 function createMockDiscussion(payload, warning = "") {
   const lastUserMessage = [...payload.messages].reverse().find((message) => message.role === "user")?.content || "";
   const draft = payload.currentDraft;
@@ -2942,9 +2974,23 @@ function createMockDiscussion(payload, warning = "") {
     .find((entry) => entry.status === "needs-asset" && entry.matches.length > 0);
   const questions = collectDiscussionQuestions(payload, draft);
   const askedToBuildFromDesign = /(сверст|build|layout|design|дизайн|скрин|screenshot|figma)/i.test(lastUserMessage);
+  const capabilityQuestion = /(что ты умеешь|что ты можешь|какое письмо.*смож|какое письмо.*умеешь|what can you|what email)/i.test(lastUserMessage);
   const mockVisionWarning = warning && hasDesign && askedToBuildFromDesign
     ? "В текущем mock-режиме я вижу только факт приложенного design reference, но не разбираю картинку по пикселям. Для этого нужен live OpenAI provider с API key."
     : "";
+
+  if (capabilityQuestion) {
+    return {
+      assistantReply: [
+        "Сейчас я могу собрать draft из brief, переводов, картинок и структуры текущего письма из email-base.",
+        "Если сначала загрузить базовое письмо из email-base, я буду опираться на ваши блоки и текущую модель верстки.",
+        hasDesign ? "Design reference вижу." : "Design reference пока не приложен.",
+        hasTranslations ? `Переводы уже есть: ${translationCount} locale(s).` : "Переводы можно приложить txt/json bundle или целой папкой.",
+        warning ? `Текущий режим: ${warning}.` : "",
+        warning ? "Без OPENAI_API_KEY это mock-режим, а не настоящая vision-модель." : ""
+      ].filter(Boolean).join(" ")
+    };
+  }
 
   if (!draft) {
     return {
@@ -3678,17 +3724,17 @@ async function resolveDraftResponse(payload) {
       generated = await createOpenAiDraft(payload);
       mode = "openai";
     } catch (error) {
-      generated = createMockDraft(payload, error.message);
+      generated = await createProjectAwareMockDraft(payload, error.message);
       mode = "mock";
     }
   } else if (providerId === "mock") {
-    generated = createMockDraft(payload, "Mock provider selected in settings");
+    generated = await createProjectAwareMockDraft(payload, "Mock provider selected in settings");
     mode = "mock";
   } else if (providerId === "openai") {
-    generated = createMockDraft(payload, "OPENAI_API_KEY is not configured on the server");
+    generated = await createProjectAwareMockDraft(payload, "OPENAI_API_KEY is not configured on the server");
     mode = "mock";
   } else {
-    generated = createMockDraft(payload, `${providerId} adapter is planned but not wired yet`);
+    generated = await createProjectAwareMockDraft(payload, `${providerId} adapter is planned but not wired yet`);
     mode = "mock";
   }
 

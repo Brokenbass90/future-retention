@@ -43,7 +43,7 @@ const initialState = {
   messages: [
     {
       role: "assistant",
-      content: "Чат подключен к студии. Можешь обсуждать письмо, прикладывать design, локали и картинки, а потом сохранять результат в email-base."
+      content: "Чат подключен к студии. Если на сервере нет OPENAI_API_KEY, сейчас работает mock-режим: он помогает со структурой и workflow, но не заменяет живую нейросеть."
     }
   ],
   draft: null,
@@ -287,6 +287,7 @@ function bindEvents() {
   refs.localeEditor.addEventListener("input", handleLocaleEditorInput);
   refs.codeOutput.addEventListener("input", handleCodeEditorInput);
   bindChatDropTargets();
+  window.addEventListener("resize", positionHelpTips);
 
   refs.themeSelect.addEventListener("change", () => {
     state.settings.theme = refs.themeSelect.value;
@@ -1311,6 +1312,30 @@ function renderAll() {
   renderBlocks();
   renderDiagnostics();
   renderDesignPreview();
+  positionHelpTips();
+}
+
+function positionHelpTips() {
+  const tips = Array.from(document.querySelectorAll(".help-tip"));
+  for (const tip of tips) {
+    const rect = tip.getBoundingClientRect();
+    const minSpace = 180;
+    let align = "center";
+    let vertical = "top";
+
+    if (rect.left < minSpace) {
+      align = "start";
+    } else if (window.innerWidth - rect.right < minSpace) {
+      align = "end";
+    }
+
+    if (rect.top < 120) {
+      vertical = "bottom";
+    }
+
+    tip.dataset.tipAlign = align;
+    tip.dataset.tipVertical = vertical;
+  }
 }
 
 function renderFields() {
