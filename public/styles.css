@@ -207,7 +207,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow);
-  overflow: hidden;
+  overflow: visible;
 }
 
 :root[data-theme="dark"] .card {
@@ -259,6 +259,11 @@ body {
   min-height: 620px;
   display: flex;
   flex-direction: column;
+  position: relative;
+}
+
+.chat-card.is-dragover {
+  box-shadow: 0 0 0 2px rgba(255, 122, 47, 0.28), var(--shadow);
 }
 
 .chat-intake {
@@ -306,7 +311,7 @@ body {
   border: 1px solid rgba(19, 35, 26, 0.08);
   background: rgba(255, 255, 255, 0.72);
   color: var(--ink);
-  padding: 10px 14px;
+  padding: 11px 15px;
   border-radius: 999px;
   font: inherit;
   font-weight: 700;
@@ -400,6 +405,7 @@ body {
 
 .help-tip {
   position: relative;
+  z-index: 5;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -419,6 +425,7 @@ body {
   left: 50%;
   bottom: calc(100% + 10px);
   transform: translateX(-50%);
+  z-index: 80;
   min-width: 220px;
   max-width: 280px;
   padding: 10px 12px;
@@ -550,6 +557,17 @@ body {
   border-radius: 20px;
   background: linear-gradient(135deg, rgba(33, 66, 50, 0.09), rgba(255, 122, 47, 0.11));
   line-height: 1.6;
+}
+
+.workspace-shortcuts {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.shortcut-button {
+  min-width: 116px;
 }
 
 .preview-card {
@@ -1057,6 +1075,46 @@ body {
   gap: 12px;
 }
 
+.test-profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.test-profile-card {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(19, 35, 26, 0.08);
+}
+
+:root[data-theme="dark"] .test-profile-card {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.test-profile-card strong {
+  font-size: 0.95rem;
+}
+
+.test-profile-card .meta {
+  padding: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.88rem;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.test-profile-card.ok {
+  border-color: rgba(77, 166, 92, 0.35);
+}
+
+.test-profile-card.warning {
+  border-color: rgba(255, 122, 47, 0.38);
+}
+
 .modal-section-head {
   display: flex;
   justify-content: space-between;
@@ -1139,6 +1197,10 @@ body {
     flex-direction: column;
   }
 
+  .brand-mark {
+    font-size: clamp(1.45rem, 9vw, 2.1rem);
+  }
+
   .summary-grid,
   .field-grid {
     grid-template-columns: 1fr;
@@ -1183,6 +1245,11 @@ body {
 
   .chat-actions {
     display: grid;
+  }
+
+  .workspace-shortcuts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .workspace-modal {

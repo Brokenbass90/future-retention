@@ -52,6 +52,8 @@ const systemPrompt = [
   "You are the drafting brain for an email studio.",
   "Your job is to turn a marketer brief, design references, translations, and image links into a compact email draft.",
   "Return a practical marketing email structure with 3-5 sections.",
+  "When a current draft or current email-base mail exists, preserve that structure before inventing a new one.",
+  "When a design reference is attached, align the section ordering and image use to that reference as closely as possible.",
   "Prefer these section kinds only: hero, text, feature-list, image, cta, footer.",
   "Use empty strings or empty arrays for fields that do not apply.",
   "Do not mention implementation limits or that you are an AI assistant.",
@@ -2271,6 +2273,249 @@ function defaultFeatureItems(payload) {
   ];
 }
 
+function getLatestUserMessage(payload) {
+  return [...(Array.isArray(payload?.messages) ? payload.messages : [])]
+    .reverse()
+    .find((message) => message.role === "user")?.content || "";
+}
+
+function deriveTitleFromUserMessage(text) {
+  const candidate = cleanText(text)
+    .replace(/https?:\/\/\S+/gi, "")
+    .replace(/\s+/g, " ")
+    .replace(/[.?!].*$/, "");
+  return candidate.length >= 12 ? candidate.slice(0, 72) : "";
+}
+
+function mergeAssetRecords(primaryAssets = [], secondaryAssets = []) {
+  const merged = [];
+  const seen = new Set();
+
+  for (const asset of [...primaryAssets, ...secondaryAssets]) {
+    const key = cleanText(asset?.key) || cleanText(asset?.url);
+    if (!key || seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    merged.push({
+      key: cleanText(asset?.key),
+      url: cleanText(asset?.url),
+      alt: cleanText(asset?.alt),
+      placement: cleanText(asset?.placement),
+      notes: cleanText(asset?.notes),
+      width: Number(asset?.width) || 600,
+      height: Number(asset?.height) || 300
+    });
+  }
+
+  return merged.filter((asset) => asset.url);
+}
+
+function getPrimaryTemplateCta(templateMail = null) {
+  const ctaSection = Array.isArray(templateMail?.sections)
+    ? templateMail.sections.find((section) => cleanText(section?.cta_label) && cleanText(section?.cta_href))
+    : null;
+
+  return {
+    label: cleanText(ctaSection?.cta_label),
+    href: cleanText(ctaSection?.cta_href)
+  };
+}
+
+function buildMockSectionForKind(kind, index, context) {
+  const templateSection = context.templateSections[index] || {};
+  const detailLines = context.detailLines;
+  const detail = detailLines[index] || detailLines[0] || "";
+  const nextDetail = detailLines[index + 1] || "";
+  const sharedEyebrow = context.audience ? `Audience: ${context.audience}` : cleanText(templateSection.eyebrow);
+
+  if (kind === "hero") {
+    return {
+      kind: "hero",
+      eyebrow: sharedEyebrow || "Primary message",
+      title: context.heroTitle,
+      body: context.heroBody,
+      image_key: context.heroAssetKey || context.sectionAssetKey,
+      cta_label: context.ctaLabel,
+      cta_href: context.ctaHref,
+      items: []
+    };
+  }
+
+  if (kind === "feature-list") {
+    return {
+      kind: "feature-list",
+      eyebrow: cleanText(templateSection.eyebrow) || "Key points",
+      title: cleanText(templateSection.title) || "Что должно быть в письме",
+      body: cleanText(templateSection.body) || "Блок собран из brief, перевода и текущей структуры письма.",
+      image_key: "",
+      cta_label: "",
+      cta_href: "",
+      items: context.featureItems
+    };
+  }
+
+  if (kind === "image") {
+    return {
+      kind: "image",
+      eyebrow: cleanText(templateSection.eyebrow) || "Visual",
+      title: cleanText(templateSection.title) || detail || "Визуальный блок",
+      body: cleanText(templateSection.body) || nextDetail || context.supportBody,
+      image_key: context.sectionAssetKey || context.heroAssetKey,
+      cta_label: "",
+      cta_href: "",
+      items: []
+    };
+  }
+
+  if (kind === "cta") {
+    return {
+      kind: "cta",
+      eyebrow: cleanText(templateSection.eyebrow) || "Primary action",
+      title: cleanText(templateSection.title) || "Главное действие",
+      body: cleanText(templateSection.body) || context.ctaBody,
+      image_key: "",
+      cta_label: context.ctaLabel,
+      cta_href: context.ctaHref,
+      items: []
+    };
+  }
+
+  if (kind === "footer") {
+    return {
+      kind: "footer",
+      eyebrow: "",
+      title: cleanText(templateSection.title) || "Footer",
+      body: cleanText(templateSection.body) || context.footerBody,
+      image_key: "",
+      cta_label: "",
+      cta_href: "",
+      items: []
+    };
+  }
+
+  return {
+    kind: "text",
+    eyebrow: cleanText(templateSection.eyebrow) || "Details",
+    title: cleanText(templateSection.title) || detail || "Основной блок",
+    body: cleanText(templateSection.body) || nextDetail || context.supportBody,
+    image_key: context.sectionAssetKey,
+    cta_label: "",
+    cta_href: "",
+    items: []
+  };
+}
+
+function buildFallbackMail(payload, options = {}) {
+  const includeCurrentDraft = Boolean(options.includeCurrentDraft);
+  const templateMail = includeCurrentDraft && payload?.currentDraft && typeof payload.currentDraft === "object"
+    ? payload.currentDraft
+    : null;
+  const translationSeed = findPreferredTranslationEntry(payload.translationText, payload.brief.locale, {
+    locale: payload.brief.locale || templateMail?.locale || "en",
+    subject: templateMail?.subject || "",
+    preheader: templateMail?.preheader || "",
+    sections: Array.isArray(templateMail?.sections) ? templateMail.sections : [],
+    body_blocks: []
+  });
+  const translatedBlocks = Array.isArray(translationSeed?.body_blocks) ? translationSeed.body_blocks : [];
+  const detailLines = translatedBlocks.length > 0
+    ? translatedBlocks
+    : defaultFeatureItems(payload);
+  const latestUserMessage = getLatestUserMessage(payload);
+  const templateCta = getPrimaryTemplateCta(templateMail);
+  const uploadedAssets = createAssetRecords(payload);
+  const templateAssets = Array.isArray(templateMail?.assets) ? templateMail.assets : [];
+  const assets = mergeAssetRecords(uploadedAssets, templateAssets);
+  const locale = payload.brief.locale || cleanText(templateMail?.locale) || "en";
+  const heroTitle = cleanText(
+    translatedBlocks[0]
+    || templateMail?.sections?.[0]?.title
+    || payload.brief.campaignName
+    || deriveTitleFromUserMessage(latestUserMessage)
+    || "Новый email draft"
+  );
+  const heroBody = cleanText(
+    translatedBlocks[1]
+    || payload.brief.goal
+    || payload.brief.contentNotes
+    || templateMail?.sections?.[0]?.body
+    || "Собираем письмо на базе brief, текущих переводов и структуры из email-base."
+  );
+  const subject = cleanText(
+    translationSeed?.subject
+    || templateMail?.subject
+    || payload.brief.campaignName
+    || heroTitle
+  );
+  const preheader = cleanText(
+    translationSeed?.preheader
+    || templateMail?.preheader
+    || heroBody.slice(0, 120)
+  );
+  const ctaLabel = cleanText(
+    payload.brief.primaryCta
+    || translationSeed?.cta_labels?.[0]
+    || templateCta.label
+    || "Open email"
+  );
+  const ctaHref = cleanText(
+    payload.brief.primaryLink
+    || templateCta.href
+    || "https://example.com"
+  );
+  const heroAssetKey = getAssetByPlacement(assets, ["hero", "background", "reference", "design-reference"])?.key
+    || assets[0]?.key
+    || "";
+  const sectionAssetKey = getAssetByPlacement(assets, ["section", "feature", "reference", "design-reference"])?.key
+    || heroAssetKey;
+  const templateSections = Array.isArray(templateMail?.sections) && templateMail.sections.length > 0
+    ? templateMail.sections
+    : [
+        { kind: "hero" },
+        { kind: "text" },
+        { kind: "feature-list" },
+        { kind: "cta" },
+        { kind: "footer" }
+      ];
+  const featureItems = detailLines.slice(2, 6).length > 0
+    ? detailLines.slice(2, 6)
+    : defaultFeatureItems(payload);
+  const context = {
+    audience: payload.brief.audience,
+    templateSections,
+    detailLines,
+    heroTitle,
+    heroBody,
+    supportBody: detailLines[1] || payload.brief.contentNotes || heroBody,
+    ctaBody: payload.brief.goal || detailLines.at(-1) || "Пользователь должен получить один четкий CTA и перейти по основной ссылке.",
+    footerBody: cleanText(templateMail?.sections?.find((section) => cleanText(section.kind) === "footer")?.body)
+      || "Footer, legal и unsubscribe copy нужно подтвердить перед отправкой.",
+    featureItems,
+    ctaLabel,
+    ctaHref,
+    heroAssetKey,
+    sectionAssetKey
+  };
+
+  const sections = templateSections
+    .map((section, index) => buildMockSectionForKind(cleanText(section?.kind) || "text", index, context))
+    .filter((section, index, collection) => section.kind !== "image" || Boolean(section.image_key) || collection.length <= 3);
+
+  const mail = {
+    subject,
+    preheader,
+    locale,
+    summary: heroBody,
+    sections,
+    assets,
+    translations: []
+  };
+
+  mail.translations = parseTranslationSeed(payload.translationText, mail);
+  return mail;
+}
+
 function normalizeBoldTokens(text) {
   return cleanText(text).replace(/@@(.*?)@@/g, "**$1**");
 }
@@ -2670,97 +2915,13 @@ function buildSourceTranslationEntry(mail, payload) {
 }
 
 function createMockDraft(payload, warning = "") {
-  const translationSeed = findPreferredTranslationEntry(payload.translationText, payload.brief.locale, {
-    locale: payload.brief.locale || "en",
-    subject: "",
-    preheader: "",
-    sections: [],
-    body_blocks: []
-  });
-  const campaignName = payload.brief.campaignName || "Retention restart";
-  const translatedBlocks = Array.isArray(translationSeed?.body_blocks) ? translationSeed.body_blocks : [];
-  const translatedHeadline = translatedBlocks[0] || "";
-  const translatedBody = translatedBlocks[1] || "";
-  const headline = payload.brief.goal || translatedBody || "Bring inactive customers back with a clean, clear offer.";
-  const heroTitle = translatedHeadline || campaignName;
-  const ctaLabel = payload.brief.primaryCta || translationSeed?.cta_labels?.[0] || translatedBlocks[2] || "See the offer";
-  const ctaHref = payload.brief.primaryLink || "https://example.com";
-  const assets = createAssetRecords(payload);
-  const heroAsset = getAssetByPlacement(assets, ["hero", "background", "logo"])?.key || assets[0]?.key || "";
-  const sectionAsset = getAssetByPlacement(assets, ["section", "feature", "body"])?.key || "";
-  const locale = payload.brief.locale || "en";
-  const featureItems = translatedBlocks.length > 3
-    ? translatedBlocks.slice(3, 7)
-    : defaultFeatureItems(payload);
-  const subject = translationSeed?.subject || `${campaignName} | ${ctaLabel}`;
-  const preheader = translationSeed?.preheader || headline.slice(0, 90);
-
-  const mail = {
-    subject,
-    preheader,
-    locale,
-    summary: headline,
-    sections: [
-      {
-        kind: "hero",
-        eyebrow: "Email Studio Demo",
-        title: heroTitle,
-        body: headline,
-        image_key: heroAsset,
-        cta_label: ctaLabel,
-        cta_href: ctaHref,
-        items: []
-      },
-      {
-        kind: "feature-list",
-        eyebrow: "Why this email exists",
-        title: "Suggested block structure",
-        body: "These bullets come from your brief and show how the studio can turn raw notes into reusable email blocks.",
-        image_key: "",
-        cta_label: "",
-        cta_href: "",
-        items: featureItems
-      },
-      {
-        kind: "text",
-        eyebrow: "Creative direction",
-        title: "How I would build it next",
-        body: "Turn this demo draft into a canonical mail spec, connect it to your real email base, and then let the assistant generate only from approved block definitions.",
-        image_key: sectionAsset,
-        cta_label: "",
-        cta_href: "",
-        items: []
-      },
-      {
-        kind: "cta",
-        eyebrow: "Primary action",
-        title: "Ready for preview and code review",
-        body: "The preview, HTML, Pug sketch, locales JSON, and asset manifest are generated from the same structured draft.",
-        image_key: "",
-        cta_label: ctaLabel,
-        cta_href: ctaHref,
-        items: []
-      },
-      {
-        kind: "footer",
-        eyebrow: "",
-        title: "Footer",
-        body: "Future step: connect repository sync, canonical block catalog, and build/lint actions.",
-        image_key: "",
-        cta_label: "",
-        cta_href: "",
-        items: []
-      }
-    ],
-    assets,
-    translations: []
-  };
-
-  mail.translations = parseTranslationSeed(payload.translationText, mail);
-
+  const mail = buildFallbackMail(payload, { includeCurrentDraft: true });
+  const reusingStructure = Boolean(payload.currentDraft?.sections?.length);
   const suffix = warning ? ` Сейчас включен mock-режим: ${warning}.` : "";
   return {
-    assistant_reply: `Собрал первый драфт письма и разложил его на блоки, preview и код.${suffix}`,
+    assistant_reply: reusingStructure
+      ? `Обновил draft на базе текущей структуры письма и ваших материалов.${suffix}`
+      : `Собрал draft по brief, переводам, design reference и доступным блокам.${suffix}`,
     mail
   };
 }
@@ -2770,6 +2931,8 @@ function createMockDiscussion(payload, warning = "") {
   const draft = payload.currentDraft;
   const hasDesign = Boolean(payload.design?.dataUrl || payload.brief.designUrl);
   const hasTranslations = Boolean(payload.translationText);
+  const translationEntries = parseTranslationEntries(payload.translationText, draft || buildFallbackMail(payload));
+  const translationCount = translationEntries.length;
   const assetPlan = payload.assetInputs
     .filter((asset) => asset.url)
     .map((asset, index) => `${resolveAssetKey(asset, index, resolveAssetPlacement(asset, index))} -> ${resolveAssetPlacement(asset, index)}`)
@@ -2778,14 +2941,22 @@ function createMockDiscussion(payload, warning = "") {
   const libraryHint = assetRecommendations
     .find((entry) => entry.status === "needs-asset" && entry.matches.length > 0);
   const questions = collectDiscussionQuestions(payload, draft);
+  const askedToBuildFromDesign = /(сверст|build|layout|design|дизайн|скрин|screenshot|figma)/i.test(lastUserMessage);
+  const mockVisionWarning = warning && hasDesign && askedToBuildFromDesign
+    ? "В текущем mock-режиме я вижу только факт приложенного design reference, но не разбираю картинку по пикселям. Для этого нужен live OpenAI provider с API key."
+    : "";
 
   if (!draft) {
     return {
       assistantReply: [
-        "Сейчас чат живой, но у нас еще нет рабочего draft.",
+        "Рабочего draft пока нет, но контекст студии я уже вижу.",
+        hasDesign ? "Design reference уже приложен." : "Design reference пока не приложен.",
+        hasTranslations ? `В bundle сейчас ${translationCount} locale(s).` : "Переводы пока не приложены.",
+        assetPlan ? `Картинки уже размечены так: ${assetPlan}.` : "Картинки пока не размечены.",
+        mockVisionWarning,
         questions.length > 0
           ? `Чтобы собрать нормальный draft, мне нужны ответы на вопросы: ${formatDiscussionQuestions(questions)}`
-          : "Сначала дай мне контекст письма, потом загрузи design, переводы и картинки в чат, и после этого я смогу обсуждать уже конкретный draft.",
+          : "Контекста уже хватает, можно жать «Применить к письму» и собирать первый draft.",
         warning ? `Текущий режим: ${warning}.` : ""
       ].filter(Boolean).join(" ")
     };
@@ -2795,11 +2966,12 @@ function createMockDiscussion(payload, warning = "") {
     assistantReply: [
       `Обсуждаю текущее письмо. Последний запрос: "${lastUserMessage || "без явного вопроса"}".`,
       hasDesign ? "Design reference уже есть." : "Design reference пока не загружен.",
-      hasTranslations ? "Переводы уже приложены." : "Переводы пока не приложены.",
+      hasTranslations ? `Переводы уже приложены: ${translationCount} locale(s).` : "Переводы пока не приложены.",
       assetPlan ? `Картинки размечены так: ${assetPlan}.` : "Картинки пока не размечены по ролям.",
       libraryHint
         ? `В asset library уже есть кандидаты для блока "${libraryHint.sectionTitle}": ${libraryHint.matches.map((item) => item.label).join(", ")}.`
         : "",
+      mockVisionWarning,
       questions.length > 0
         ? `Сейчас мне еще нужны ответы на вопросы: ${formatDiscussionQuestions(questions)}`
         : "По текущему контексту уже можно либо обсуждать точечные правки, либо жать обновление draft.",
@@ -2931,7 +3103,7 @@ function buildTranslationMessages(payload, sourceEntry, targetLocales) {
 }
 
 function normalizeMail(rawMail, payload) {
-  const fallback = createMockDraft(payload).mail;
+  const fallback = buildFallbackMail(payload);
   const mail = rawMail && typeof rawMail === "object" ? rawMail : fallback;
 
   const normalized = {

@@ -1,4 +1,4 @@
-const storageKey = "email-studio-demo-state-v3";
+const storageKey = "email-studio-demo-state-v4";
 const assetPlacements = ["auto", "hero", "logo", "section", "feature", "footer", "background", "reference"];
 
 const initialState = {
@@ -43,7 +43,7 @@ const initialState = {
   messages: [
     {
       role: "assistant",
-      content: "Я в живом режиме. Можно вести диалог о письме, вставлять сюда design, локали и картинки, а потом сохранять результат в email-base."
+      content: "Чат подключен к студии. Можешь обсуждать письмо, прикладывать design, локали и картинки, а потом сохранять результат в email-base."
     }
   ],
   draft: null,
@@ -80,6 +80,7 @@ const codeMap = {
 
 const refs = {
   apiStatus: document.querySelector("#apiStatus"),
+  chatCard: document.querySelector("#chatCard"),
   messages: document.querySelector("#messages"),
   chatForm: document.querySelector("#chatForm"),
   chatSubmitButtons: Array.from(document.querySelectorAll("#chatForm button[type='submit']")),
@@ -107,6 +108,11 @@ const refs = {
   openAssetsBtn: document.querySelector("#openAssetsBtn"),
   openBlocksBtn: document.querySelector("#openBlocksBtn"),
   openCodeBtn: document.querySelector("#openCodeBtn"),
+  openLocalesQuickBtn: document.querySelector("#openLocalesQuickBtn"),
+  openAssetsQuickBtn: document.querySelector("#openAssetsQuickBtn"),
+  openCodeQuickBtn: document.querySelector("#openCodeQuickBtn"),
+  openTestsBtn: document.querySelector("#openTestsBtn"),
+  openTestsQuickBtn: document.querySelector("#openTestsQuickBtn"),
   openJournalBtn: document.querySelector("#openJournalBtn"),
   openJournalFromSettingsBtn: document.querySelector("#openJournalFromSettingsBtn"),
   designBadge: document.querySelector("#designBadge"),
@@ -115,6 +121,7 @@ const refs = {
   assetsModal: document.querySelector("#assetsModal"),
   codeModal: document.querySelector("#codeModal"),
   journalModal: document.querySelector("#journalModal"),
+  testsModal: document.querySelector("#testsModal"),
   closeLocalesModalBtn: document.querySelector("#closeLocalesModalBtn"),
   closeLocalesFooterBtn: document.querySelector("#closeLocalesFooterBtn"),
   closeAssetsModalBtn: document.querySelector("#closeAssetsModalBtn"),
@@ -122,6 +129,8 @@ const refs = {
   closeCodeFooterBtn: document.querySelector("#closeCodeFooterBtn"),
   closeJournalModalBtn: document.querySelector("#closeJournalModalBtn"),
   closeJournalFooterBtn: document.querySelector("#closeJournalFooterBtn"),
+  closeTestsModalBtn: document.querySelector("#closeTestsModalBtn"),
+  closeTestsFooterBtn: document.querySelector("#closeTestsFooterBtn"),
   saveLocaleEditsBtn: document.querySelector("#saveLocaleEditsBtn"),
   saveCodeBtn: document.querySelector("#saveCodeBtn"),
   createBaseMailFromCodeBtn: document.querySelector("#createBaseMailFromCodeBtn"),
@@ -168,6 +177,9 @@ const refs = {
   journalSummary: document.querySelector("#journalSummary"),
   clearJournalBtn: document.querySelector("#clearJournalBtn"),
   journalList: document.querySelector("#journalList"),
+  testsOverview: document.querySelector("#testsOverview"),
+  testsProfileGrid: document.querySelector("#testsProfileGrid"),
+  testsList: document.querySelector("#testsList"),
   fields: {
     campaignName: document.querySelector("#campaignName"),
     category: document.querySelector("#category"),
@@ -232,6 +244,11 @@ function bindEvents() {
   refs.openLocalesBtn.addEventListener("click", openLocalesModal);
   refs.openAssetsBtn.addEventListener("click", () => openWorkspaceModal("assets"));
   refs.openCodeBtn.addEventListener("click", openCodeModal);
+  refs.openLocalesQuickBtn.addEventListener("click", openLocalesModal);
+  refs.openAssetsQuickBtn.addEventListener("click", () => openWorkspaceModal("assets"));
+  refs.openCodeQuickBtn.addEventListener("click", openCodeModal);
+  refs.openTestsBtn.addEventListener("click", openTestsModal);
+  refs.openTestsQuickBtn.addEventListener("click", openTestsModal);
   refs.openJournalBtn.addEventListener("click", openJournalModal);
   refs.openJournalFromSettingsBtn.addEventListener("click", openJournalModal);
   refs.openBlocksBtn.addEventListener("click", scrollToBlocks);
@@ -243,6 +260,8 @@ function bindEvents() {
   refs.closeCodeFooterBtn.addEventListener("click", closeWorkspaceModal);
   refs.closeJournalModalBtn.addEventListener("click", closeWorkspaceModal);
   refs.closeJournalFooterBtn.addEventListener("click", closeWorkspaceModal);
+  refs.closeTestsModalBtn.addEventListener("click", closeWorkspaceModal);
+  refs.closeTestsFooterBtn.addEventListener("click", closeWorkspaceModal);
   refs.workspaceModalBackdrop.addEventListener("click", closeWorkspaceModal);
   refs.saveLocaleEditsBtn.addEventListener("click", saveLocaleEdits);
   refs.saveCodeBtn.addEventListener("click", saveCodeEdits);
@@ -267,7 +286,7 @@ function bindEvents() {
   refs.assetFileInput.addEventListener("change", handleAssetUpload);
   refs.localeEditor.addEventListener("input", handleLocaleEditorInput);
   refs.codeOutput.addEventListener("input", handleCodeEditorInput);
-  bindTranslationDropzone();
+  bindChatDropTargets();
 
   refs.themeSelect.addEventListener("change", () => {
     state.settings.theme = refs.themeSelect.value;
@@ -645,28 +664,42 @@ async function handleAssetUpload(event) {
   event.target.value = "";
 }
 
-function bindTranslationDropzone() {
-  const zone = refs.translationDropZone;
+function bindChatDropTargets() {
+  const targets = [
+    refs.chatCard,
+    refs.translationDropZone,
+    refs.messages,
+    refs.chatForm,
+    refs.chatInput
+  ].filter(Boolean);
+
   const activate = (event) => {
     event.preventDefault();
-    zone.classList.add("is-dragover");
-  };
-  const deactivate = (event) => {
-    event.preventDefault();
-    if (event.type === "dragleave" && zone.contains(event.relatedTarget)) {
-      return;
-    }
-    zone.classList.remove("is-dragover");
+    refs.chatCard.classList.add("is-dragover");
+    refs.translationDropZone.classList.add("is-dragover");
   };
 
-  zone.addEventListener("dragenter", activate);
-  zone.addEventListener("dragover", activate);
-  zone.addEventListener("dragleave", deactivate);
-  zone.addEventListener("drop", async (event) => {
+  const deactivate = (event) => {
     event.preventDefault();
-    zone.classList.remove("is-dragover");
-    await applyDroppedChatFiles(event.dataTransfer);
-  });
+    const related = event.relatedTarget;
+    if (related && refs.chatCard.contains(related)) {
+      return;
+    }
+    refs.chatCard.classList.remove("is-dragover");
+    refs.translationDropZone.classList.remove("is-dragover");
+  };
+
+  for (const target of targets) {
+    target.addEventListener("dragenter", activate);
+    target.addEventListener("dragover", activate);
+    target.addEventListener("dragleave", deactivate);
+    target.addEventListener("drop", async (event) => {
+      event.preventDefault();
+      refs.chatCard.classList.remove("is-dragover");
+      refs.translationDropZone.classList.remove("is-dragover");
+      await applyDroppedChatPayload(event.dataTransfer);
+    });
+  }
 }
 
 async function handleChatPaste(event) {
@@ -693,25 +726,37 @@ async function handleChatPaste(event) {
   }
 }
 
-async function applyDroppedChatFiles(dataTransfer) {
+async function applyDroppedChatPayload(dataTransfer) {
   const files = await extractFilesFromDrop(dataTransfer);
-  if (files.length === 0) {
-    state.translationUploadStatus = "В drop ничего полезного не нашел: нужны картинки или translation files.";
-    renderTranslationUploadStatus();
-    persistState();
-    return;
+  const droppedText = cleanText(dataTransfer?.getData?.("text/plain"));
+
+  if (files.length > 0) {
+    try {
+      await applyChatFiles(files, inferDropSourceLabel(files));
+      return;
+    } catch (error) {
+      state.messages.push({
+        role: "assistant",
+        content: `Ошибка при drop файлов: ${error.message}`
+      });
+      renderAll();
+      persistState();
+      return;
+    }
   }
 
-  try {
-    await applyChatFiles(files, inferDropSourceLabel(files));
-  } catch (error) {
-    state.messages.push({
-      role: "assistant",
-      content: `Ошибка при drop файлов: ${error.message}`
-    });
-    renderAll();
-    persistState();
+  if (droppedText) {
+    const applied = applyReferenceLinksFromText(droppedText);
+    if (applied) {
+      renderAll();
+      persistState();
+      return;
+    }
   }
+
+  state.translationUploadStatus = "В drop ничего полезного не нашел: нужны картинки, translation files или ссылка.";
+  renderTranslationUploadStatus();
+  persistState();
 }
 
 async function applyChatFiles(files, sourceLabel = "") {
@@ -743,6 +788,34 @@ async function applyChatFiles(files, sourceLabel = "") {
   }
 }
 
+function applyReferenceLinksFromText(text, options = {}) {
+  const urls = extractUrlsFromText(text);
+  if (urls.length === 0) {
+    return false;
+  }
+
+  const imageUrl = urls.find(looksLikeImageUrl);
+  const figmaUrl = urls.find((url) => /figma\.com/i.test(url));
+  const chosen = imageUrl || figmaUrl || urls[0];
+  state.brief.designUrl = chosen;
+  state.translationUploadStatus = imageUrl
+    ? "Сохранил ссылку на design/image reference из сообщения."
+    : figmaUrl
+      ? "Сохранил Figma link как design reference. Для vision нужен публичный доступ или экспорт скрина."
+      : "Сохранил ссылку как reference для письма.";
+  if (options.announce !== false) {
+    state.messages.push({
+      role: "assistant",
+      content: imageUrl
+        ? "Вижу ссылку на изображение. Сохранил ее как design reference."
+        : figmaUrl
+          ? "Вижу Figma link. Сохранил ее как reference, но для анализа макета надежнее прикладывать скрин или публичный image export."
+          : "Сохранил ссылку как reference."
+    });
+  }
+  return true;
+}
+
 async function handleChatSubmit(event) {
   event.preventDefault();
 
@@ -750,6 +823,8 @@ async function handleChatSubmit(event) {
   const message = refs.chatInput.value.trim() || (intent === "discuss"
     ? "Давай обсудим текущее письмо."
     : "Обнови текущий драфт по моим данным.");
+
+  applyReferenceLinksFromText(message, { announce: false });
 
   state.messages.push({ role: "user", content: message });
   const assistantMessage = {
@@ -1096,6 +1171,10 @@ async function openJournalModal() {
   openWorkspaceModal("journal");
 }
 
+function openTestsModal() {
+  openWorkspaceModal("tests");
+}
+
 function scrollToBlocks() {
   refs.blockList?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
@@ -1227,6 +1306,7 @@ function renderAll() {
   renderAssets();
   renderAssetLibrary();
   renderJournalSummary();
+  renderTests();
   renderBlockCatalogSummary();
   renderBlocks();
   renderDiagnostics();
@@ -1258,10 +1338,13 @@ function renderAttachmentSummary() {
   const translationDocs = getParsedLocaleEntries().length;
   const assetsCount = state.assetInputs.filter((asset) => asset.url).length;
   const blockCount = state.draft?.mail?.sections?.length || 0;
+  const hasDesignLink = cleanText(state.brief.designUrl);
 
   refs.designBadge.textContent = state.design.dataUrl
     ? `Design: ${state.design.name || "attached"}`
-    : "Design: none";
+    : hasDesignLink
+      ? "Design: link"
+      : "Design: none";
   refs.translationBadge.textContent = translationDocs > 0
     ? `Bundle: ${translationDocs} locale(s)`
     : "Bundle: empty";
@@ -1277,6 +1360,7 @@ function renderWorkspaceModals() {
   toggleModalVisibility(refs.assetsModal, active === "assets");
   toggleModalVisibility(refs.codeModal, active === "code");
   toggleModalVisibility(refs.journalModal, active === "journal");
+  toggleModalVisibility(refs.testsModal, active === "tests");
 
   if (active === "locales") {
     prepareLocaleEditor();
@@ -1289,6 +1373,10 @@ function renderWorkspaceModals() {
 
   if (active === "journal") {
     renderJournal();
+  }
+
+  if (active === "tests") {
+    renderTests();
   }
 }
 
@@ -1510,9 +1598,16 @@ function renderMessages() {
 
 function renderStatus() {
   const providerLabel = getSelectedProvider()?.label || state.settings.providerId;
-  const statusText = state.busy
-    ? "Генерирую..."
-    : `${providerLabel}: ${state.api.openAiConfigured ? state.api.model : "demo mode available"}`;
+  let statusText = "Генерирую...";
+  if (!state.busy) {
+    if (state.settings.providerId === "openai" && !state.api.openAiConfigured) {
+      statusText = `${providerLabel}: нет OPENAI_API_KEY, работает mock mode`;
+    } else if (state.settings.providerId === "mock") {
+      statusText = "Mock mode: без vision-разбора и без реального AI ответа";
+    } else {
+      statusText = `${providerLabel}: ${state.api.openAiConfigured ? state.api.model : "demo mode"}`;
+    }
+  }
 
   refs.apiStatus.textContent = statusText;
   refs.modeValue.textContent = state.mode;
@@ -1528,6 +1623,11 @@ function renderStatus() {
   refs.openAssetsBtn.disabled = state.busy;
   refs.openBlocksBtn.disabled = state.busy;
   refs.openCodeBtn.disabled = state.busy;
+  refs.openLocalesQuickBtn.disabled = state.busy;
+  refs.openAssetsQuickBtn.disabled = state.busy;
+  refs.openCodeQuickBtn.disabled = state.busy;
+  refs.openTestsBtn.disabled = state.busy;
+  refs.openTestsQuickBtn.disabled = state.busy;
   refs.openJournalBtn.disabled = state.busy;
   refs.openJournalFromSettingsBtn.disabled = state.busy;
   refs.refreshCatalogBtn.disabled = state.busy;
@@ -1539,6 +1639,8 @@ function renderStatus() {
   refs.saveCodeBtn.disabled = state.busy;
   refs.createBaseMailFromCodeBtn.disabled = state.busy;
   refs.clearJournalBtn.disabled = state.busy;
+  refs.closeTestsModalBtn.disabled = state.busy;
+  refs.closeTestsFooterBtn.disabled = state.busy;
   for (const button of refs.previewViewportButtons) {
     button.disabled = state.busy;
   }
@@ -1907,19 +2009,83 @@ function renderDiagnostics() {
   }
 }
 
+function renderTests() {
+  refs.testsList.innerHTML = "";
+  refs.testsProfileGrid.innerHTML = "";
+
+  const currentItems = getDiagnostics();
+  refs.testsOverview.textContent = state.draft?.html
+    ? `Heuristic test suite по ${state.api.clientProfiles.length || 1} client profile(s). Для production финальную проверку все равно лучше прогонять реальным билдом и внешним renderer.`
+    : "Сначала нужен draft или реальный build, потом здесь появятся client diagnostics.";
+
+  const profiles = state.api.clientProfiles.length > 0
+    ? state.api.clientProfiles
+    : [{ id: "standard", label: "Standard preview", description: "Базовый browser preview." }];
+
+  for (const profile of profiles) {
+    const items = getDiagnostics(profile.id);
+    const warningCount = items.filter((item) => item.level === "warning").length;
+    const okCount = items.filter((item) => item.level === "ok").length;
+    const card = document.createElement("article");
+    card.className = `test-profile-card ${warningCount > 0 ? "warning" : "ok"}`;
+
+    const title = document.createElement("strong");
+    title.textContent = profile.label;
+
+    const meta = document.createElement("div");
+    meta.className = "meta";
+    meta.textContent = `${warningCount} warning | ${okCount} ok`;
+
+    const body = document.createElement("div");
+    body.textContent = profile.description;
+
+    card.append(title, meta, body);
+    refs.testsProfileGrid.appendChild(card);
+  }
+
+  if (currentItems.length === 0) {
+    refs.testsList.appendChild(createTextCard("Проверки пока пустые."));
+    return;
+  }
+
+  for (const item of currentItems) {
+    const card = document.createElement("div");
+    card.className = `diagnostic-item ${item.level}`;
+
+    const title = document.createElement("strong");
+    title.textContent = item.title;
+
+    const body = document.createElement("div");
+    body.textContent = item.body;
+
+    card.append(title, body);
+    refs.testsList.appendChild(card);
+  }
+}
+
 function renderDesignPreview() {
-  const hasDesign = Boolean(state.design.dataUrl);
+  const designLink = cleanText(state.brief.designUrl);
+  const designSource = state.design.dataUrl || (looksLikeImageUrl(designLink) ? designLink : "");
+  const hasDesign = Boolean(designSource);
   refs.designPreviewWrap.hidden = !hasDesign;
   refs.designEmptyState.hidden = hasDesign;
 
   if (!hasDesign) {
+    if (designLink) {
+      refs.designEmptyState.hidden = false;
+      refs.designEmptyState.textContent = `Используется design reference link: ${designLink}. Для превью лучше приложить скрин или image export.`;
+    } else {
+      refs.designEmptyState.textContent = "Design пока не загружен. Можно вставить скрин прямо в чат или нажать Attach design.";
+    }
     return;
   }
 
-  refs.designPreview.src = state.design.dataUrl;
+  refs.designPreview.src = designSource;
   refs.designCaption.textContent = state.design.assetId
     ? `${state.design.name} сохранен в проекте и может переиспользоваться.`
-    : `${state.design.name} загружен только в текущую сессию браузера.`;
+    : state.design.dataUrl
+      ? `${state.design.name} загружен только в текущую сессию браузера.`
+      : `Используется внешний design reference: ${cleanText(state.brief.designUrl)}`;
 }
 
 function renderSettingsControls() {
@@ -2090,7 +2256,7 @@ function getSelectedClientProfile() {
     || { id: "standard", label: "Standard preview", description: "Базовый browser preview без симуляции клиента." };
 }
 
-function getDiagnostics() {
+function getDiagnostics(profileId = state.settings.clientProfileId) {
   if (!state.draft?.html) {
     return [
       {
@@ -2104,7 +2270,6 @@ function getDiagnostics() {
   const items = [];
   const html = state.draft.html;
   const buildLog = state.draft.buildLog || "";
-  const profileId = state.settings.clientProfileId;
   const mappedAssets = state.assetInputs.filter((asset, index) => asset.url && resolveAssetPlacement(asset, index)).length;
   const autoAssets = state.assetInputs.filter((asset) => asset.url && cleanText(asset.placement) === "auto").length;
 
@@ -2272,6 +2437,15 @@ function createTextCard(text) {
 
 function cleanText(value) {
   return typeof value === "string" ? value.trim() : "";
+}
+
+function extractUrlsFromText(text) {
+  return (cleanText(text).match(/https?:\/\/[^\s)]+/gi) || [])
+    .map((url) => url.replace(/[.,]+$/g, ""));
+}
+
+function looksLikeImageUrl(url) {
+  return /\.(png|jpe?g|gif|webp|svg)(\?.*)?$/i.test(cleanText(url));
 }
 
 function slugify(value) {

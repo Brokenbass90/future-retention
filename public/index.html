@@ -24,7 +24,7 @@
 
       <div class="main-grid">
         <section class="panel-stack">
-          <section class="card chat-card">
+        <section class="card chat-card" id="chatCard">
             <div class="card-header">
               <div>
                 <h2>
@@ -42,7 +42,7 @@
                 <div>
                   <h3>Вставляй design, локали и картинки прямо сюда</h3>
                 </div>
-                <p>Drop, paste или attach.</p>
+                <p>Drop, paste, attach или просто вставь ссылку в сообщение.</p>
               </div>
 
               <div class="chat-intake-actions">
@@ -178,6 +178,12 @@
             <div class="assistant-note" id="assistantReply">
               Здесь появится краткое резюме от ассистента после генерации.
             </div>
+            <div class="workspace-shortcuts">
+              <button class="ghost-button shortcut-button" id="openLocalesQuickBtn" type="button">Локали</button>
+              <button class="ghost-button shortcut-button" id="openAssetsQuickBtn" type="button">Картинки</button>
+              <button class="ghost-button shortcut-button" id="openCodeQuickBtn" type="button">Код</button>
+              <button class="ghost-button shortcut-button" id="openTestsQuickBtn" type="button">Тесты</button>
+            </div>
           </section>
 
           <section class="card preview-card">
@@ -189,6 +195,7 @@
                 </h2>
               </div>
               <div class="preview-toolbar">
+                <button class="ghost-button" id="openTestsBtn" type="button">Тесты</button>
                 <button class="ghost-button viewport-button" data-preview-viewport="fit" type="button">Fit</button>
                 <button class="ghost-button viewport-button" data-preview-viewport="desktop" type="button">Desktop</button>
                 <button class="ghost-button viewport-button" data-preview-viewport="mobile" type="button">Mobile</button>
@@ -393,6 +400,23 @@
       <div class="workspace-modal-footer">
         <button class="ghost-button" id="closeJournalFooterBtn" type="button">Close</button>
         <button class="ghost-button" id="clearJournalBtn" type="button">Clear journal</button>
+      </div>
+    </section>
+
+    <section class="workspace-modal" id="testsModal" aria-hidden="true">
+      <div class="workspace-modal-header">
+        <div>
+          <h2>Тесты и диагностика</h2>
+        </div>
+        <button class="ghost-button" id="closeTestsModalBtn" type="button">Close</button>
+      </div>
+      <div class="workspace-modal-body">
+        <div class="modal-meta" id="testsOverview">Проверки появятся после первого draft.</div>
+        <div class="test-profile-grid" id="testsProfileGrid"></div>
+        <div class="diagnostics-list" id="testsList"></div>
+      </div>
+      <div class="workspace-modal-footer">
+        <button class="ghost-button" id="closeTestsFooterBtn" type="button">Close</button>
       </div>
     </section>
 

@@ -7,6 +7,7 @@
 - chat-centric intake для design, локалей и картинок;
 - локальный asset registry с переиспользованием картинок внутри проекта;
 - preview + heuristic diagnostics по email clients;
+- отдельное окно `Тесты` с client profile summary и warnings;
 - viewport toggle `Fit / Desktop / Mobile` в preview;
 - редакторы локалей, assets и кода в попапах;
 - автогенерация missing locales;
@@ -30,6 +31,7 @@ npm start
 ```
 
 Без ключа приложение работает в `mock mode`.
+В `mock mode` чат, тесты и сохранение работают, но pixel-level разбор design reference и осмысленный vision-анализ недоступны.
 
 ## Как пользоваться
 
@@ -38,9 +40,9 @@ npm start
    - design screenshot,
    - translation files или целую папку,
    - картинки для письма.
-3. Жмите `Обсудить`, если хотите просто поговорить о письме.
-4. Жмите `Обновить драфт`, если хотите применить решения к preview и коду.
-5. Правьте тексты в `Locales`, assets в `Assets`, код и spec в `Code`.
+3. Жмите `Отправить в чат`, если хотите просто поговорить о письме.
+4. Жмите `Применить к письму`, если хотите применить решения к preview и коду.
+5. Пользуйтесь быстрыми кнопками `Локали`, `Картинки`, `Код`, `Тесты`.
 6. Сохраняйте результат в `email-base` кнопкой `Save as new email-base mail`.
 
 ## Основные директории
