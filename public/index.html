@@ -11,10 +11,10 @@
       <header class="topbar">
         <div>
           <div class="label">Email Studio Demo</div>
-          <h1>AI-редактор писем с живым чатом, Upload Hub и привязкой к email-base</h1>
+          <h1>AI-редактор писем с живым чатом, preview и привязкой к email-base</h1>
           <p class="subtitle">
-            Теперь студия умеет не только собирать draft, но и обсуждать письмо, принимать design,
-            переводы и картинки как отдельные входы и понимать, куда их логично применять.
+            Теперь главная точка входа это сам чат: сюда можно подгружать design, локали и картинки,
+            а редактирование текстов и кода вынесено в отдельные рабочие попапы.
           </p>
         </div>
         <div class="topbar-actions">
@@ -25,67 +25,6 @@
           <button class="ghost-button" id="clearStateBtn" type="button">Очистить</button>
         </div>
       </header>
-
-      <section class="card upload-hub">
-        <div class="card-header">
-          <div>
-            <div class="card-kicker">Upload Hub</div>
-            <h2>Куда загружаем дизайн, переводы и картинки</h2>
-          </div>
-          <p>Это главная точка входа для материалов. Каждую картинку можно не просто загрузить, а назначить ей роль.</p>
-        </div>
-
-        <div class="upload-grid">
-          <section class="upload-tile">
-            <div class="upload-title">Design</div>
-            <div class="upload-copy">Сюда кладем ссылку на дизайн или скрин, чтобы студия понимала композицию письма.</div>
-            <label class="field">
-              <span>Direct design image URL</span>
-              <input id="designUrl" type="url" placeholder="https://..." />
-            </label>
-            <label class="field">
-              <span>Upload design reference</span>
-              <input id="designFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif" />
-            </label>
-            <div class="design-preview-wrap" id="designPreviewWrap" hidden>
-              <img id="designPreview" alt="Design preview" />
-              <div class="design-caption" id="designCaption"></div>
-            </div>
-          </section>
-
-          <section class="upload-tile translation-tile" id="translationDropZone">
-            <div class="upload-title">Translations</div>
-            <div class="upload-copy">Сюда загружаем JSON или ваши `.txt`-файлы переводов с `Subject`, `Snippet`, блоками `{{...}}` и жирностью `@@...@@`. Можно грузить сразу несколько локалей, целую папку или просто перетащить ее сюда.</div>
-            <label class="field">
-              <span>Translations JSON / raw text</span>
-              <textarea
-                id="translationText"
-                rows="8"
-                placeholder="Subject: ...&#10;Snippet: ...&#10;&#10;{{Первый блок}}&#10;{{Текст с @@жирным@@ акцентом}}"
-              ></textarea>
-            </label>
-            <div class="drop-hint" id="translationUploadStatus">Можно выбрать файлы, выбрать папку или перетащить их прямо в этот блок.</div>
-            <label class="field">
-              <span>Upload translation files</span>
-              <input id="translationFile" type="file" accept=".json,.txt,.md" multiple />
-            </label>
-            <label class="field">
-              <span>Upload translation folder</span>
-              <input id="translationFolderInput" type="file" accept=".json,.txt,.md" webkitdirectory directory multiple />
-            </label>
-            <button class="ghost-button translation-generate-button" id="generateLocalesBtn" type="button">
-              Generate missing locales
-            </button>
-          </section>
-
-          <section class="upload-tile">
-            <div class="upload-title">Images / Assets</div>
-            <div class="upload-copy">Можно просто вставить ссылку и описать картинку. Если выбрать `auto`, студия сама предложит, это `hero`, `section`, `logo`, `footer`, `background` или `reference`.</div>
-            <div class="asset-composer-list" id="assetComposerList"></div>
-            <button class="ghost-button add-asset-button" id="addAssetBtn" type="button">Добавить картинку</button>
-          </section>
-        </div>
-      </section>
 
       <div class="main-grid">
         <section class="panel-stack">
@@ -101,6 +40,43 @@
               </div>
             </div>
 
+            <div class="chat-intake translation-tile" id="translationDropZone">
+              <div class="chat-intake-main">
+                <div>
+                  <div class="card-kicker">Chat Intake</div>
+                  <h3>Сюда можно вставлять design, локали и картинки</h3>
+                </div>
+                <p>Drop, paste или attach. Скрин из Figma можно просто вставить прямо в окно чата.</p>
+              </div>
+
+              <div class="chat-intake-actions">
+                <button class="ghost-button" id="attachDesignBtn" type="button">Attach design</button>
+                <button class="ghost-button" id="attachTranslationsBtn" type="button">Attach locales</button>
+                <button class="ghost-button" id="attachTranslationFolderBtn" type="button">Attach locale folder</button>
+                <button class="ghost-button" id="attachAssetsBtn" type="button">Attach images</button>
+              </div>
+
+              <div class="chat-attachments">
+                <button class="attachment-pill" id="openLocalesBtn" type="button">Locales: 0</button>
+                <button class="attachment-pill" id="openAssetsBtn" type="button">Assets: 0</button>
+                <button class="attachment-pill" id="openBlocksBtn" type="button">Blocks: 0</button>
+                <button class="attachment-pill" id="openCodeBtn" type="button">Code</button>
+                <div class="attachment-pill passive" id="designBadge">Design: none</div>
+                <div class="attachment-pill passive" id="translationBadge">Bundle: empty</div>
+              </div>
+
+              <div class="drop-hint" id="translationUploadStatus">
+                Можно выбрать файлы, выбрать папку, вставить картинку из буфера или перетащить все прямо в этот блок.
+              </div>
+
+              <input id="designUrl" type="hidden" />
+              <textarea id="translationText" hidden></textarea>
+              <input id="designFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden />
+              <input id="translationFile" type="file" accept=".json,.txt,.md" multiple hidden />
+              <input id="translationFolderInput" type="file" accept=".json,.txt,.md" webkitdirectory directory multiple hidden />
+              <input id="assetFileInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif, image/svg+xml" multiple hidden />
+            </div>
+
             <div class="messages" id="messages"></div>
 
             <form class="chat-form" id="chatForm">
@@ -109,7 +85,7 @@
                 <textarea
                   id="chatInput"
                   rows="5"
-                  placeholder="Например: Обсуди hero-блок и скажи, какую картинку лучше поставить в первый экран."
+                  placeholder="Например: Вставляю скрин дизайна, собери hero и скажи, каких локалей и ссылок еще не хватает."
                 ></textarea>
               </label>
               <div class="chat-actions">
@@ -220,51 +196,18 @@
             </div>
             <iframe id="previewFrame" title="Email preview"></iframe>
           </section>
-        </section>
-      </div>
 
-      <div class="detail-stack">
-        <section class="card code-card">
-          <div class="card-header">
-            <div>
-              <div class="card-kicker">04</div>
-              <h2>Код и данные</h2>
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-kicker">04</div>
+                <h2>Block outline</h2>
+              </div>
+              <p>Письмо уже разбирается на блоки. Это заготовка для будущего block catalog и повторного использования секций.</p>
             </div>
-            <p>HTML, Pug, locales, assets, spec и build log в одном месте.</p>
-          </div>
-
-          <div class="tabs">
-            <button class="tab is-active" data-tab="html" type="button">HTML</button>
-            <button class="tab" data-tab="pug" type="button">Pug</button>
-            <button class="tab" data-tab="locales" type="button">Locales</button>
-            <button class="tab" data-tab="assets" type="button">Assets</button>
-            <button class="tab" data-tab="spec" type="button">Mail spec</button>
-            <button class="tab" data-tab="buildLog" type="button">Build log</button>
-          </div>
-
-          <pre class="code-output" id="codeOutput"></pre>
-        </section>
-
-        <section class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-kicker">05</div>
-              <h2>Assets in current preview</h2>
-            </div>
-            <p>Это основа будущего asset registry и линковки с CDN.</p>
-          </div>
-          <div class="asset-list" id="assetList"></div>
-        </section>
-
-        <section class="card diagnostics-card">
-          <div class="card-header">
-            <div>
-              <div class="card-kicker">06</div>
-              <h2>Client diagnostics</h2>
-            </div>
-            <p>Не Litmus, а честный heuristic layer внутри тулзы.</p>
-          </div>
-          <div class="diagnostics-list" id="diagnosticsList"></div>
+            <div class="block-list" id="blockList"></div>
+            <div class="diagnostics-list compact" id="diagnosticsList"></div>
+          </section>
         </section>
       </div>
     </div>
@@ -321,6 +264,100 @@
         </section>
       </div>
     </aside>
+
+    <div class="modal-backdrop" id="workspaceModalBackdrop" hidden></div>
+
+    <section class="workspace-modal" id="localesModal" aria-hidden="true">
+      <div class="workspace-modal-header">
+        <div>
+          <div class="card-kicker">Locales</div>
+          <h2>Редактор локалей</h2>
+        </div>
+        <button class="ghost-button" id="closeLocalesModalBtn" type="button">Close</button>
+      </div>
+      <div class="workspace-modal-body">
+        <div class="modal-toolbar">
+          <div class="locale-tabs" id="localeTabs"></div>
+          <button class="ghost-button" id="generateLocalesModalBtn" type="button">Generate missing locales</button>
+        </div>
+        <div class="modal-meta" id="localeEditorMeta">Пока нет загруженных локалей.</div>
+        <textarea class="modal-editor" id="localeEditor" spellcheck="false"></textarea>
+      </div>
+      <div class="workspace-modal-footer">
+        <button class="ghost-button" id="closeLocalesFooterBtn" type="button">Close</button>
+        <button class="primary-button" id="saveLocaleEditsBtn" type="button">Save locale edits</button>
+      </div>
+    </section>
+
+    <section class="workspace-modal" id="assetsModal" aria-hidden="true">
+      <div class="workspace-modal-header">
+        <div>
+          <div class="card-kicker">Assets</div>
+          <h2>Design и картинки</h2>
+        </div>
+        <button class="ghost-button" id="closeAssetsModalBtn" type="button">Close</button>
+      </div>
+      <div class="workspace-modal-body assets-modal-body">
+        <section class="modal-section">
+          <div class="modal-section-head">
+            <strong>Design reference</strong>
+            <button class="ghost-button" id="replaceDesignBtn" type="button">Replace design</button>
+          </div>
+          <div class="design-preview-wrap" id="designPreviewWrap" hidden>
+            <img id="designPreview" alt="Design preview" />
+            <div class="design-caption" id="designCaption"></div>
+          </div>
+          <div class="empty-helper" id="designEmptyState">Design пока не загружен. Можно вставить скрин прямо в чат или нажать Attach design.</div>
+        </section>
+
+        <section class="modal-section">
+          <div class="modal-section-head">
+            <strong>Input assets</strong>
+            <div class="modal-inline-actions">
+              <button class="ghost-button" id="replaceAssetsBtn" type="button">Upload images</button>
+              <button class="ghost-button add-asset-button" id="addAssetBtn" type="button">Добавить картинку</button>
+            </div>
+          </div>
+          <div class="asset-composer-list" id="assetComposerList"></div>
+        </section>
+
+        <section class="modal-section">
+          <div class="modal-section-head">
+            <strong>Assets in current preview</strong>
+          </div>
+          <div class="asset-list" id="assetList"></div>
+        </section>
+      </div>
+    </section>
+
+    <section class="workspace-modal code-modal" id="codeModal" aria-hidden="true">
+      <div class="workspace-modal-header">
+        <div>
+          <div class="card-kicker">Code</div>
+          <h2>Редактор кода и данных</h2>
+        </div>
+        <button class="ghost-button" id="closeCodeModalBtn" type="button">Close</button>
+      </div>
+      <div class="workspace-modal-body">
+        <div class="modal-toolbar stacked">
+          <div class="tabs">
+            <button class="tab is-active" data-tab="html" type="button">HTML</button>
+            <button class="tab" data-tab="pug" type="button">Pug</button>
+            <button class="tab" data-tab="locales" type="button">Locales</button>
+            <button class="tab" data-tab="assets" type="button">Assets</button>
+            <button class="tab" data-tab="spec" type="button">Mail spec</button>
+            <button class="tab" data-tab="buildLog" type="button">Build log</button>
+          </div>
+          <div class="modal-meta" id="codeEditorMeta">Можно смотреть и править текущее представление драфта.</div>
+        </div>
+        <textarea class="modal-editor code-output" id="codeOutput" spellcheck="false"></textarea>
+      </div>
+      <div class="workspace-modal-footer">
+        <button class="ghost-button" id="closeCodeFooterBtn" type="button">Close</button>
+        <button class="ghost-button" id="saveCodeBtn" type="button">Save code edits</button>
+        <button class="primary-button" id="createBaseMailFromCodeBtn" type="button">Save as new email-base mail</button>
+      </div>
+    </section>
 
     <script type="module" src="/app.js"></script>
   </body>

@@ -42,11 +42,15 @@ const initialState = {
   messages: [
     {
       role: "assistant",
-      content: "Я в живом режиме. Можем обсуждать письмо, потом применять изменения к draft. Design, переводы и картинки лежат в Upload Hub наверху."
+      content: "Я в живом режиме. Можно вести диалог о письме, вставлять сюда design, локали и картинки, а потом сохранять результат в email-base."
     }
   ],
   draft: null,
-  settingsOpen: false
+  settingsOpen: false,
+  workspaceModal: "",
+  localeEditorDocs: [],
+  activeLocaleDoc: "",
+  codeEditorBuffer: ""
 };
 
 const state = structuredClone(initialState);
@@ -73,10 +77,41 @@ const refs = {
   closeSettingsBtn: document.querySelector("#closeSettingsBtn"),
   settingsDrawer: document.querySelector("#settingsDrawer"),
   settingsBackdrop: document.querySelector("#settingsBackdrop"),
+  workspaceModalBackdrop: document.querySelector("#workspaceModalBackdrop"),
   loadBaseBtn: document.querySelector("#loadBaseBtn"),
   createBaseMailBtn: document.querySelector("#createBaseMailBtn"),
   buildBaseMailBtn: document.querySelector("#buildBaseMailBtn"),
   addAssetBtn: document.querySelector("#addAssetBtn"),
+  attachDesignBtn: document.querySelector("#attachDesignBtn"),
+  attachTranslationsBtn: document.querySelector("#attachTranslationsBtn"),
+  attachTranslationFolderBtn: document.querySelector("#attachTranslationFolderBtn"),
+  attachAssetsBtn: document.querySelector("#attachAssetsBtn"),
+  replaceDesignBtn: document.querySelector("#replaceDesignBtn"),
+  replaceAssetsBtn: document.querySelector("#replaceAssetsBtn"),
+  assetFileInput: document.querySelector("#assetFileInput"),
+  openLocalesBtn: document.querySelector("#openLocalesBtn"),
+  openAssetsBtn: document.querySelector("#openAssetsBtn"),
+  openBlocksBtn: document.querySelector("#openBlocksBtn"),
+  openCodeBtn: document.querySelector("#openCodeBtn"),
+  designBadge: document.querySelector("#designBadge"),
+  translationBadge: document.querySelector("#translationBadge"),
+  localesModal: document.querySelector("#localesModal"),
+  assetsModal: document.querySelector("#assetsModal"),
+  codeModal: document.querySelector("#codeModal"),
+  closeLocalesModalBtn: document.querySelector("#closeLocalesModalBtn"),
+  closeLocalesFooterBtn: document.querySelector("#closeLocalesFooterBtn"),
+  closeAssetsModalBtn: document.querySelector("#closeAssetsModalBtn"),
+  closeCodeModalBtn: document.querySelector("#closeCodeModalBtn"),
+  closeCodeFooterBtn: document.querySelector("#closeCodeFooterBtn"),
+  saveLocaleEditsBtn: document.querySelector("#saveLocaleEditsBtn"),
+  saveCodeBtn: document.querySelector("#saveCodeBtn"),
+  createBaseMailFromCodeBtn: document.querySelector("#createBaseMailFromCodeBtn"),
+  localeTabs: document.querySelector("#localeTabs"),
+  localeEditor: document.querySelector("#localeEditor"),
+  localeEditorMeta: document.querySelector("#localeEditorMeta"),
+  generateLocalesModalBtn: document.querySelector("#generateLocalesModalBtn"),
+  codeEditorMeta: document.querySelector("#codeEditorMeta"),
+  designEmptyState: document.querySelector("#designEmptyState"),
   assetComposerList: document.querySelector("#assetComposerList"),
   subjectValue: document.querySelector("#subjectValue"),
   preheaderValue: document.querySelector("#preheaderValue"),
@@ -89,6 +124,7 @@ const refs = {
   codeTabs: Array.from(document.querySelectorAll(".tab")),
   assetList: document.querySelector("#assetList"),
   diagnosticsList: document.querySelector("#diagnosticsList"),
+  blockList: document.querySelector("#blockList"),
   designFile: document.querySelector("#designFile"),
   translationFile: document.querySelector("#translationFile"),
   translationFolderInput: document.querySelector("#translationFolderInput"),
@@ -97,7 +133,7 @@ const refs = {
   designPreviewWrap: document.querySelector("#designPreviewWrap"),
   designPreview: document.querySelector("#designPreview"),
   designCaption: document.querySelector("#designCaption"),
-  generateLocalesBtn: document.querySelector("#generateLocalesBtn"),
+  generateLocalesBtn: document.querySelector("#generateLocalesBtn") || document.querySelector("#generateLocalesModalBtn"),
   themeSelect: document.querySelector("#themeSelect"),
   providerSelect: document.querySelector("#providerSelect"),
   providerHelp: document.querySelector("#providerHelp"),
@@ -144,6 +180,7 @@ function createEmptyAsset(index = 1) {
 
 function bindEvents() {
   refs.chatForm.addEventListener("submit", handleChatSubmit);
+  refs.chatInput.addEventListener("paste", handleChatPaste);
   refs.fillDemoBtn.addEventListener("click", fillDemoScenario);
   refs.clearChatBtn.addEventListener("click", clearChatHistory);
   refs.clearStateBtn.addEventListener("click", resetState);
@@ -154,7 +191,29 @@ function bindEvents() {
   refs.createBaseMailBtn.addEventListener("click", handleCreateBaseMail);
   refs.buildBaseMailBtn.addEventListener("click", handleLoadBaseEmail);
   refs.generateLocalesBtn.addEventListener("click", handleGenerateMissingLocales);
+  if (refs.generateLocalesModalBtn !== refs.generateLocalesBtn) {
+    refs.generateLocalesModalBtn.addEventListener("click", handleGenerateMissingLocales);
+  }
   refs.addAssetBtn.addEventListener("click", addAssetRow);
+  refs.attachDesignBtn.addEventListener("click", () => refs.designFile.click());
+  refs.attachTranslationsBtn.addEventListener("click", () => refs.translationFile.click());
+  refs.attachTranslationFolderBtn.addEventListener("click", () => refs.translationFolderInput.click());
+  refs.attachAssetsBtn.addEventListener("click", () => refs.assetFileInput.click());
+  refs.replaceDesignBtn.addEventListener("click", () => refs.designFile.click());
+  refs.replaceAssetsBtn.addEventListener("click", () => refs.assetFileInput.click());
+  refs.openLocalesBtn.addEventListener("click", openLocalesModal);
+  refs.openAssetsBtn.addEventListener("click", () => openWorkspaceModal("assets"));
+  refs.openCodeBtn.addEventListener("click", openCodeModal);
+  refs.openBlocksBtn.addEventListener("click", scrollToBlocks);
+  refs.closeLocalesModalBtn.addEventListener("click", closeWorkspaceModal);
+  refs.closeLocalesFooterBtn.addEventListener("click", closeWorkspaceModal);
+  refs.closeAssetsModalBtn.addEventListener("click", closeWorkspaceModal);
+  refs.closeCodeModalBtn.addEventListener("click", closeWorkspaceModal);
+  refs.closeCodeFooterBtn.addEventListener("click", closeWorkspaceModal);
+  refs.workspaceModalBackdrop.addEventListener("click", closeWorkspaceModal);
+  refs.saveLocaleEditsBtn.addEventListener("click", saveLocaleEdits);
+  refs.saveCodeBtn.addEventListener("click", saveCodeEdits);
+  refs.createBaseMailFromCodeBtn.addEventListener("click", handleCreateBaseMail);
 
   for (const [key, element] of Object.entries(refs.fields)) {
     element.addEventListener("input", () => {
@@ -171,6 +230,9 @@ function bindEvents() {
   refs.designFile.addEventListener("change", handleDesignUpload);
   refs.translationFile.addEventListener("change", handleTranslationUpload);
   refs.translationFolderInput.addEventListener("change", handleTranslationUpload);
+  refs.assetFileInput.addEventListener("change", handleAssetUpload);
+  refs.localeEditor.addEventListener("input", handleLocaleEditorInput);
+  refs.codeOutput.addEventListener("input", handleCodeEditorInput);
   bindTranslationDropzone();
 
   refs.themeSelect.addEventListener("change", () => {
@@ -197,6 +259,7 @@ function bindEvents() {
   for (const tab of refs.codeTabs) {
     tab.addEventListener("click", () => {
       state.activeTab = tab.dataset.tab;
+      state.codeEditorBuffer = state.draft?.[codeMap[state.activeTab]] || "";
       renderTabs();
       renderCode();
       persistState();
@@ -313,6 +376,7 @@ function resetState() {
   refs.designFile.value = "";
   refs.translationFile.value = "";
   refs.translationFolderInput.value = "";
+  refs.assetFileInput.value = "";
   refs.chatInput.value = "";
   applyTheme();
   renderAll();
@@ -419,12 +483,22 @@ async function handleDesignUpload(event) {
     return;
   }
 
+  await applyDesignFile(file, file.name);
+  event.target.value = "";
+}
+
+async function applyDesignFile(file, sourceLabel = "") {
   const dataUrl = await readFileAsDataUrl(file);
   state.design = {
     name: file.name,
     dataUrl
   };
+  state.translationUploadStatus = sourceLabel
+    ? `Design attached from ${sourceLabel}.`
+    : `${file.name} загружен как design reference.`;
   renderDesignPreview();
+  renderAttachmentSummary();
+  persistState();
 }
 
 async function handleTranslationUpload(event) {
@@ -434,6 +508,16 @@ async function handleTranslationUpload(event) {
   }
 
   await applyTranslationFiles(files, files.length === 1 ? files[0].name : `${files.length} files`);
+  event.target.value = "";
+}
+
+async function handleAssetUpload(event) {
+  const files = Array.from(event.target.files || []);
+  if (files.length === 0) {
+    return;
+  }
+
+  await applyAssetFiles(files, files.length === 1 ? files[0].name : `${files.length} files`);
   event.target.value = "";
 }
 
@@ -457,16 +541,64 @@ function bindTranslationDropzone() {
   zone.addEventListener("drop", async (event) => {
     event.preventDefault();
     zone.classList.remove("is-dragover");
-    const files = await extractTranslationFilesFromDrop(event.dataTransfer);
-    if (files.length === 0) {
-      state.translationUploadStatus = "Не нашел .txt/.json/.md файлов в drop.";
-      renderTranslationUploadStatus();
-      persistState();
-      return;
+    await applyDroppedChatFiles(event.dataTransfer);
+  });
+}
+
+async function handleChatPaste(event) {
+  const items = Array.from(event.clipboardData?.items || []);
+  const files = items
+    .filter((item) => item.kind === "file")
+    .map((item) => item.getAsFile())
+    .filter(Boolean);
+
+  if (files.length === 0) {
+    return;
+  }
+
+  event.preventDefault();
+  await applyChatFiles(files, "clipboard");
+}
+
+async function applyDroppedChatFiles(dataTransfer) {
+  const files = await extractFilesFromDrop(dataTransfer);
+  if (files.length === 0) {
+    state.translationUploadStatus = "В drop ничего полезного не нашел: нужны картинки или translation files.";
+    renderTranslationUploadStatus();
+    persistState();
+    return;
+  }
+
+  await applyChatFiles(files, inferDropSourceLabel(files));
+}
+
+async function applyChatFiles(files, sourceLabel = "") {
+  const translationFiles = filterTranslationFiles(files);
+  const imageFiles = files.filter(isImageFile);
+
+  if (translationFiles.length > 0) {
+    await applyTranslationFiles(translationFiles, sourceLabel || "chat intake");
+  }
+
+  if (imageFiles.length > 0) {
+    const [designCandidate, ...assetCandidates] = shouldTreatFirstImageAsDesign()
+      ? imageFiles
+      : [null, ...imageFiles];
+
+    if (designCandidate) {
+      await applyDesignFile(designCandidate, sourceLabel || "chat intake");
     }
 
-    await applyTranslationFiles(files, inferDropSourceLabel(files));
-  });
+    if (assetCandidates.length > 0) {
+      await applyAssetFiles(assetCandidates, sourceLabel || "chat intake");
+    }
+  }
+
+  if (translationFiles.length === 0 && imageFiles.length === 0) {
+    state.translationUploadStatus = "Поддерживаются translation files и изображения.";
+    renderTranslationUploadStatus();
+    persistState();
+  }
 }
 
 async function handleChatSubmit(event) {
@@ -690,6 +822,7 @@ async function handleCreateBaseMail() {
     });
     await loadApiStatus();
     toggleSettings(false);
+    closeWorkspaceModal();
   } catch (error) {
     state.messages.push({
       role: "assistant",
@@ -750,6 +883,141 @@ async function handleGenerateMissingLocales() {
   }
 }
 
+function openWorkspaceModal(name) {
+  state.workspaceModal = name;
+
+  if (name === "locales") {
+    prepareLocaleEditor();
+  }
+
+  if (name === "code") {
+    state.codeEditorBuffer = state.draft?.[codeMap[state.activeTab]] || "";
+  }
+
+  renderWorkspaceModals();
+}
+
+function closeWorkspaceModal() {
+  state.workspaceModal = "";
+  renderWorkspaceModals();
+}
+
+function openLocalesModal() {
+  prepareLocaleEditor();
+  openWorkspaceModal("locales");
+}
+
+function openCodeModal() {
+  state.codeEditorBuffer = state.draft?.[codeMap[state.activeTab]] || "";
+  openWorkspaceModal("code");
+}
+
+function scrollToBlocks() {
+  refs.blockList?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function prepareLocaleEditor() {
+  const docs = buildLocaleEditorDocs();
+  state.localeEditorDocs = docs;
+  if (!docs.some((doc) => doc.locale === state.activeLocaleDoc)) {
+    state.activeLocaleDoc = docs[0]?.locale || "";
+  }
+}
+
+function handleLocaleEditorInput() {
+  const activeDoc = state.localeEditorDocs.find((doc) => doc.locale === state.activeLocaleDoc);
+  if (!activeDoc) {
+    return;
+  }
+
+  activeDoc.content = refs.localeEditor.value;
+}
+
+function handleCodeEditorInput() {
+  state.codeEditorBuffer = refs.codeOutput.value;
+}
+
+function saveLocaleEdits() {
+  if (state.localeEditorDocs.length === 0) {
+    return;
+  }
+
+  state.translationText = state.localeEditorDocs
+    .map((doc) => `=== FILE: ${doc.name} ===\n${cleanText(doc.content)}`)
+    .join("\n\n");
+  state.translationUploadStatus = `Locale bundle updated in editor. ${state.localeEditorDocs.length} locale file(s).`;
+  syncDraftTranslationsFromCurrentText();
+  closeWorkspaceModal();
+  renderAll();
+  persistState();
+}
+
+function saveCodeEdits() {
+  if (!state.draft) {
+    return;
+  }
+
+  const selectedKey = codeMap[state.activeTab];
+  const nextValue = refs.codeOutput.value;
+  state.draft[selectedKey] = nextValue;
+
+  if (state.activeTab === "spec") {
+    try {
+      const parsed = JSON.parse(nextValue);
+      if (parsed && typeof parsed === "object" && parsed.subject && parsed.sections) {
+        state.draft.mail = parsed;
+      }
+    } catch {
+      state.messages.push({
+        role: "assistant",
+        content: "Spec JSON не распарсился. Сохранил raw текст в code view, но mail spec не обновлял."
+      });
+    }
+  }
+
+  if (state.activeTab === "locales") {
+    const entries = parseJsonTranslationForEditor(nextValue, state.draft.mail, "locales-editor.json");
+    if (entries.length > 0) {
+      state.draft.mail.translations = entries;
+      state.translationText = entries
+        .map((entry) => `=== FILE: ${entry.source_name || `${entry.locale}.txt`} ===\n${renderLocaleDocFromEntry(entry)}`)
+        .join("\n\n");
+      state.translationUploadStatus = "Locale JSON updated from code editor.";
+      syncDraftTranslationsFromCurrentText();
+    }
+  }
+
+  if (state.activeTab === "assets") {
+    try {
+      const parsed = JSON.parse(nextValue);
+      if (parsed && typeof parsed === "object") {
+        state.draft.mail.assets = Object.entries(parsed).map(([key, value]) => ({
+          key,
+          url: cleanText(value?.url),
+          alt: cleanText(value?.alt),
+          placement: cleanText(value?.placement) || "section",
+          notes: cleanText(value?.notes),
+          width: Number(value?.width) || 600,
+          height: Number(value?.height) || 300
+        }));
+      }
+    } catch {
+      state.messages.push({
+        role: "assistant",
+        content: "Assets JSON не распарсился. Сохранил raw текст, но asset manifest не обновлял."
+      });
+    }
+  }
+
+  if (state.activeTab === "html") {
+    state.previewSource = "draft";
+  }
+
+  closeWorkspaceModal();
+  renderAll();
+  persistState();
+}
+
 function toggleSettings(isOpen) {
   state.settingsOpen = isOpen;
   renderSettingsDrawer();
@@ -759,6 +1027,7 @@ function renderAll() {
   applyTheme();
   renderFields();
   renderTranslationUploadStatus();
+  renderAttachmentSummary();
   renderAssetComposer();
   renderMessages();
   renderStatus();
@@ -766,10 +1035,12 @@ function renderAll() {
   renderSettingsControls();
   renderSettingsInfo();
   renderSettingsDrawer();
+  renderWorkspaceModals();
   renderPreview();
   renderTabs();
   renderCode();
   renderAssets();
+  renderBlocks();
   renderDiagnostics();
   renderDesignPreview();
 }
@@ -792,7 +1063,119 @@ function renderFields() {
 
 function renderTranslationUploadStatus() {
   refs.translationUploadStatus.textContent = state.translationUploadStatus
-    || "Можно выбрать файлы, выбрать папку или перетащить их прямо в этот блок.";
+    || "Можно выбрать файлы, папку, вставить скрин из буфера или перетащить материалы прямо в этот блок.";
+}
+
+function renderAttachmentSummary() {
+  const translationDocs = getParsedLocaleEntries().length;
+  const assetsCount = state.assetInputs.filter((asset) => asset.url).length;
+  const blockCount = state.draft?.mail?.sections?.length || 0;
+
+  refs.designBadge.textContent = state.design.dataUrl
+    ? `Design: ${state.design.name || "attached"}`
+    : "Design: none";
+  refs.translationBadge.textContent = translationDocs > 0
+    ? `Bundle: ${translationDocs} locale(s)`
+    : "Bundle: empty";
+  refs.openLocalesBtn.textContent = `Locales: ${translationDocs}`;
+  refs.openAssetsBtn.textContent = `Assets: ${assetsCount}`;
+  refs.openBlocksBtn.textContent = `Blocks: ${blockCount}`;
+}
+
+function renderWorkspaceModals() {
+  const active = state.workspaceModal;
+  refs.workspaceModalBackdrop.hidden = !active;
+  toggleModalVisibility(refs.localesModal, active === "locales");
+  toggleModalVisibility(refs.assetsModal, active === "assets");
+  toggleModalVisibility(refs.codeModal, active === "code");
+
+  if (active === "locales") {
+    prepareLocaleEditor();
+    renderLocaleEditor();
+  }
+
+  if (active === "code") {
+    renderCode();
+  }
+}
+
+function toggleModalVisibility(element, isOpen) {
+  element.classList.toggle("is-open", isOpen);
+  element.setAttribute("aria-hidden", String(!isOpen));
+}
+
+function renderLocaleEditor() {
+  const docs = state.localeEditorDocs;
+  refs.localeTabs.innerHTML = "";
+
+  if (docs.length === 0) {
+    refs.localeEditorMeta.textContent = "Пока нет локалей. Загрузите translation files или сгенерируйте missing locales.";
+    refs.localeEditor.value = "";
+    return;
+  }
+
+  for (const doc of docs) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `locale-tab ${doc.locale === state.activeLocaleDoc ? "is-active" : ""}`;
+    button.textContent = doc.locale;
+    button.addEventListener("click", () => {
+      state.activeLocaleDoc = doc.locale;
+      renderLocaleEditor();
+    });
+    refs.localeTabs.appendChild(button);
+  }
+
+  const activeDoc = docs.find((doc) => doc.locale === state.activeLocaleDoc) || docs[0];
+  if (activeDoc && activeDoc.locale !== state.activeLocaleDoc) {
+    state.activeLocaleDoc = activeDoc.locale;
+  }
+
+  refs.localeEditorMeta.textContent = activeDoc
+    ? `${activeDoc.name} | ${countLocaleBlocks(activeDoc.content)} blocks`
+    : "Пока нет локалей.";
+  refs.localeEditor.value = activeDoc?.content || "";
+}
+
+function renderBlocks() {
+  refs.blockList.innerHTML = "";
+  const sections = state.draft?.mail?.sections ?? [];
+
+  if (sections.length === 0) {
+    refs.blockList.appendChild(createTextCard("Пока нет block outline. Сначала собери draft или загрузите письмо из email-base."));
+    return;
+  }
+
+  for (const [index, section] of sections.entries()) {
+    const card = document.createElement("article");
+    card.className = "block-card";
+
+    const head = document.createElement("div");
+    head.className = "block-card-head";
+
+    const badge = document.createElement("span");
+    badge.className = "block-kind";
+    badge.textContent = `${String(index + 1).padStart(2, "0")} ${section.kind}`;
+
+    const title = document.createElement("strong");
+    title.textContent = section.title || section.eyebrow || "Untitled block";
+
+    head.append(badge, title);
+
+    const meta = document.createElement("div");
+    meta.className = "block-card-meta";
+    meta.textContent = [
+      section.image_key ? `image=${section.image_key}` : "no image",
+      section.cta_label ? `cta=${section.cta_label}` : "no cta",
+      Array.isArray(section.items) && section.items.length > 0 ? `items=${section.items.length}` : ""
+    ].filter(Boolean).join(" | ");
+
+    const body = document.createElement("p");
+    body.textContent = section.body || "Без body.";
+
+    card.append(head, meta, body);
+    refs.blockList.appendChild(card);
+  }
 }
 
 function renderAssetComposer() {
@@ -923,9 +1306,21 @@ function renderStatus() {
   refs.createBaseMailBtn.disabled = state.busy;
   refs.buildBaseMailBtn.disabled = state.busy;
   refs.generateLocalesBtn.disabled = state.busy;
+  refs.generateLocalesModalBtn.disabled = state.busy;
   refs.fillDemoBtn.disabled = state.busy;
   refs.clearChatBtn.disabled = state.busy;
   refs.clearStateBtn.disabled = state.busy;
+  refs.openLocalesBtn.disabled = state.busy;
+  refs.openAssetsBtn.disabled = state.busy;
+  refs.openBlocksBtn.disabled = state.busy;
+  refs.openCodeBtn.disabled = state.busy;
+  refs.attachDesignBtn.disabled = state.busy;
+  refs.attachTranslationsBtn.disabled = state.busy;
+  refs.attachTranslationFolderBtn.disabled = state.busy;
+  refs.attachAssetsBtn.disabled = state.busy;
+  refs.saveLocaleEditsBtn.disabled = state.busy;
+  refs.saveCodeBtn.disabled = state.busy;
+  refs.createBaseMailFromCodeBtn.disabled = state.busy;
   for (const button of refs.chatSubmitButtons) {
     button.disabled = state.busy;
   }
@@ -956,7 +1351,13 @@ function renderTabs() {
 
 function renderCode() {
   const selectedKey = codeMap[state.activeTab];
-  refs.codeOutput.textContent = state.draft?.[selectedKey] || "Код появится после первого draft или build.";
+  if (!state.codeEditorBuffer) {
+    state.codeEditorBuffer = state.draft?.[selectedKey] || "Код появится после первого draft или build.";
+  }
+  refs.codeOutput.value = state.codeEditorBuffer;
+  refs.codeEditorMeta.textContent = state.activeTab === "locales"
+    ? "Можно редактировать raw locales bundle. Для редактирования по языкам удобнее открыть Locales."
+    : `Текущая вкладка: ${state.activeTab}. Save code edits сохранит текущий текст в workspace.`;
 }
 
 function renderAssets() {
@@ -1013,6 +1414,7 @@ function renderDiagnostics() {
 function renderDesignPreview() {
   const hasDesign = Boolean(state.design.dataUrl);
   refs.designPreviewWrap.hidden = !hasDesign;
+  refs.designEmptyState.hidden = hasDesign;
 
   if (!hasDesign) {
     return;
@@ -1076,7 +1478,7 @@ function getDiagnostics() {
       {
         level: "ok",
         title: "Preview is empty",
-        body: "Сначала загрузи материалы в Upload Hub и либо обсуди письмо, либо обнови драфт."
+        body: "Сначала приложи материалы через chat intake и либо обсуди письмо, либо обнови драфт."
       }
     ];
   }
@@ -1354,7 +1756,7 @@ function emptyPreview() {
   <body>
     <div class="placeholder">
       <strong>Email Studio</strong>
-      Сначала положи материалы в Upload Hub, затем обсуди письмо или обнови драфт.
+      Сначала приложи материалы через chat intake, затем обсуди письмо или обнови драфт.
     </div>
   </body>
 </html>`;
@@ -1407,12 +1809,281 @@ async function applyTranslationFiles(files, sourceLabel = "") {
     ? `Загружено ${supported.length} translation file(s) из ${sourceLabel}.`
     : `Загружено ${supported.length} translation file(s).`;
   refs.fields.translationText.value = state.translationText;
+  syncDraftTranslationsFromCurrentText();
   renderTranslationUploadStatus();
+  renderAttachmentSummary();
   persistState();
 }
 
 function filterTranslationFiles(files) {
   return files.filter((file) => /\.(json|txt|md)$/i.test(file.name));
+}
+
+function looksLikeJsonBundle(text) {
+  const raw = cleanText(text);
+  return raw.startsWith("{") || raw.startsWith("[");
+}
+
+function isImageFile(file) {
+  return /^image\//i.test(file.type) || /\.(png|jpe?g|gif|webp|svg)$/i.test(file.name);
+}
+
+function shouldTreatFirstImageAsDesign() {
+  return !state.design?.dataUrl;
+}
+
+async function applyAssetFiles(files, sourceLabel = "") {
+  const supported = files.filter(isImageFile);
+  if (supported.length === 0) {
+    return;
+  }
+
+  const rows = [];
+  for (const [index, file] of supported.entries()) {
+    const dataUrl = await readFileAsDataUrl(file);
+    rows.push({
+      id: `asset-upload-${Date.now()}-${index + 1}`,
+      key: index === 0 && state.assetInputs.every((asset) => !asset.url) ? "hero_asset" : `asset_${state.assetInputs.length + index + 1}`,
+      url: dataUrl,
+      alt: file.name.replace(/\.[a-z0-9]+$/i, ""),
+      placement: index === 0 && state.assetInputs.every((asset) => !asset.url) ? "hero" : "auto",
+      notes: file.name
+    });
+  }
+
+  const meaningful = state.assetInputs.filter((asset) => asset.url || asset.notes || asset.key !== "hero_asset");
+  state.assetInputs = meaningful.length > 0 ? [...meaningful, ...rows] : rows;
+  state.translationUploadStatus = sourceLabel
+    ? `Добавлено ${rows.length} image asset(s) из ${sourceLabel}.`
+    : `Добавлено ${rows.length} image asset(s).`;
+  renderAssetComposer();
+  renderAttachmentSummary();
+  persistState();
+}
+
+function buildLocaleEditorDocs() {
+  if (looksLikeJsonBundle(state.translationText)) {
+    const entriesFromJson = parseTranslationEntriesForEditor(state.translationText, state.draft?.mail || null);
+    if (entriesFromJson.length > 0) {
+      return entriesFromJson.map((entry) => ({
+        locale: cleanText(entry.locale) || "en",
+        name: cleanText(entry.source_name) || `${cleanText(entry.locale) || "locale"}.json`,
+        content: renderLocaleDocFromEntry(entry)
+      }));
+    }
+  }
+
+  const docsFromText = splitTranslationDocumentsForEditor(state.translationText)
+    .map((doc) => ({
+      locale: extractLocaleFromEditorFileName(doc.name) || `locale_${Math.random().toString(36).slice(2, 6)}`,
+      name: doc.name,
+      content: doc.content.trim()
+    }))
+    .filter((doc) => doc.content);
+
+  if (docsFromText.length > 0) {
+    return docsFromText;
+  }
+
+  const translations = Array.isArray(state.draft?.mail?.translations) ? state.draft.mail.translations : [];
+  return translations.map((entry) => ({
+    locale: cleanText(entry.locale) || "en",
+    name: cleanText(entry.source_name) || `${cleanText(entry.locale) || "locale"}.txt`,
+    content: renderLocaleDocFromEntry(entry)
+  }));
+}
+
+function getParsedLocaleEntries() {
+  const parsed = parseTranslationEntriesForEditor(state.translationText, state.draft?.mail || null);
+  if (parsed.length > 0) {
+    return parsed;
+  }
+
+  return Array.isArray(state.draft?.mail?.translations) ? state.draft.mail.translations : [];
+}
+
+function syncDraftTranslationsFromCurrentText() {
+  if (!state.draft?.mail) {
+    return;
+  }
+
+  const entries = parseTranslationEntriesForEditor(state.translationText, state.draft.mail);
+  if (entries.length === 0) {
+    return;
+  }
+
+  state.draft.mail.translations = entries;
+  const primaryLocale = cleanText(state.brief.locale || state.draft.mail.locale || "en").toLowerCase();
+  const primaryEntry = entries.find((entry) => cleanText(entry.locale).toLowerCase() === primaryLocale)
+    || entries.find((entry) => cleanText(entry.locale).toLowerCase().startsWith(primaryLocale.split(/[_-]/)[0] || ""))
+    || entries[0];
+
+  if (primaryEntry) {
+    state.draft.mail.subject = primaryEntry.subject || state.draft.mail.subject;
+    state.draft.mail.preheader = primaryEntry.preheader || state.draft.mail.preheader;
+  }
+
+  state.draft.locales = buildLocalesJsonFromEntries(entries);
+  state.draft.spec = JSON.stringify(state.draft.mail, null, 2);
+}
+
+function splitTranslationDocumentsForEditor(translationText) {
+  const raw = cleanText(translationText);
+  if (!raw) {
+    return [];
+  }
+
+  const marker = /^=== FILE: (.+?) ===$/gm;
+  const matches = [...raw.matchAll(marker)];
+  if (matches.length === 0) {
+    return [{ name: "inline.txt", content: raw }];
+  }
+
+  const docs = [];
+  for (let index = 0; index < matches.length; index += 1) {
+    const current = matches[index];
+    const start = current.index + current[0].length;
+    const end = index + 1 < matches.length ? matches[index + 1].index : raw.length;
+    docs.push({
+      name: cleanText(current[1]) || `translation-${index + 1}.txt`,
+      content: raw.slice(start, end).trim()
+    });
+  }
+
+  return docs.filter((doc) => doc.content);
+}
+
+function extractLocaleFromEditorFileName(fileName) {
+  const match = cleanText(fileName).match(/_([a-z]{2}(?:[_-][A-Za-z]{2})?)(?:_|\.|$)/);
+  return match ? match[1].replace("-", "_") : "";
+}
+
+function normalizeEditorBoldTokens(text) {
+  return cleanText(text).replace(/@@(.*?)@@/g, "**$1**");
+}
+
+function formatEditorBoldTokens(text) {
+  return cleanText(text).replace(/\*\*(.*?)\*\*/g, "@@$1@@");
+}
+
+function parseTranslationEntriesForEditor(translationText, mail) {
+  const docs = splitTranslationDocumentsForEditor(translationText);
+  const entries = docs.flatMap((doc) => parseTranslationDocumentForEditor(doc, mail));
+  return entries.filter((entry) => entry.locale || entry.subject || entry.preheader || entry.body_blocks?.length > 0);
+}
+
+function parseTranslationDocumentForEditor(doc, mail) {
+  if (/\.json$/i.test(doc.name)) {
+    return parseJsonTranslationForEditor(doc.content, mail, doc.name);
+  }
+
+  const content = cleanText(doc.content);
+  if (!content) {
+    return [];
+  }
+
+  const subjectMatch = content.match(/^Subject:\s*(.+)$/im);
+  const snippetMatch = content.match(/^Snippet:\s*(.+)$/im);
+  const bodySource = content
+    .replace(/^Subject:\s*.+$/gim, "")
+    .replace(/^Snippet:\s*.+$/gim, "");
+  const bodyBlocks = [...bodySource.matchAll(/\{\{([\s\S]*?)\}\}/g)]
+    .map((match) => normalizeEditorBoldTokens(match[1]))
+    .filter(Boolean);
+  const lines = content.split(/\r?\n/).map((line) => line.trim());
+  const pushIndex = lines.findIndex((line) => /^PUSH$/i.test(line));
+  const ctaLabels = pushIndex >= 0
+    ? lines.slice(pushIndex + 1).map(normalizeEditorBoldTokens).filter(Boolean)
+    : [];
+  const locale = extractLocaleFromEditorFileName(doc.name) || cleanText(mail?.locale) || "en";
+
+  return [{
+    locale,
+    subject: normalizeEditorBoldTokens(subjectMatch?.[1] || "") || cleanText(mail?.subject),
+    preheader: normalizeEditorBoldTokens(snippetMatch?.[1] || "") || cleanText(mail?.preheader),
+    cta_labels: ctaLabels,
+    notes: `source=${doc.name}`,
+    body_blocks: bodyBlocks,
+    source_name: doc.name
+  }];
+}
+
+function parseJsonTranslationForEditor(content, mail, fileName = "bundle.json") {
+  try {
+    const parsed = JSON.parse(content);
+    if (Array.isArray(parsed)) {
+      return parsed.map((entry) => normalizeEditorTranslationEntry(entry, mail, fileName));
+    }
+    if (parsed && typeof parsed === "object") {
+      if ("locale" in parsed) {
+        return [normalizeEditorTranslationEntry(parsed, mail, fileName)];
+      }
+
+      return Object.entries(parsed).map(([locale, value]) => normalizeEditorTranslationEntry({
+        locale,
+        ...(value && typeof value === "object" ? value : {})
+      }, mail, fileName));
+    }
+  } catch {
+    return [];
+  }
+
+  return [];
+}
+
+function normalizeEditorTranslationEntry(entry, mail, fileName) {
+  return {
+    locale: cleanText(entry?.locale) || cleanText(mail?.locale) || "en",
+    subject: cleanText(entry?.subject) || cleanText(mail?.subject),
+    preheader: cleanText(entry?.preheader) || cleanText(mail?.preheader),
+    cta_labels: Array.isArray(entry?.cta_labels) ? entry.cta_labels.map(cleanText).filter(Boolean) : [],
+    notes: cleanText(entry?.notes),
+    body_blocks: Array.isArray(entry?.body_blocks) ? entry.body_blocks.map(normalizeEditorBoldTokens).filter(Boolean) : [],
+    source_name: cleanText(entry?.source_name) || fileName
+  };
+}
+
+function renderLocaleDocFromEntry(entry) {
+  const lines = [];
+  if (entry.subject) {
+    lines.push(`Subject: ${formatEditorBoldTokens(entry.subject)}`);
+  }
+  if (entry.preheader) {
+    lines.push(`Snippet: ${formatEditorBoldTokens(entry.preheader)}`);
+  }
+  if (lines.length > 0) {
+    lines.push("");
+  }
+  for (const block of entry.body_blocks || []) {
+    lines.push(`{{${formatEditorBoldTokens(block)}}}`);
+    lines.push("");
+  }
+  if (Array.isArray(entry.cta_labels) && entry.cta_labels.length > 0) {
+    lines.push("PUSH");
+    for (const label of entry.cta_labels) {
+      lines.push(formatEditorBoldTokens(label));
+    }
+  }
+  return lines.join("\n").trim();
+}
+
+function buildLocalesJsonFromEntries(entries) {
+  return JSON.stringify(
+    Object.fromEntries(entries.map((entry) => [entry.locale, {
+      subject: entry.subject,
+      preheader: entry.preheader,
+      cta_labels: entry.cta_labels || [],
+      notes: entry.notes || "",
+      body_blocks: entry.body_blocks || [],
+      source_name: entry.source_name || ""
+    }])),
+    null,
+    2
+  );
+}
+
+function countLocaleBlocks(content) {
+  return [...String(content || "").matchAll(/\{\{([\s\S]*?)\}\}/g)].length;
 }
 
 function inferDropSourceLabel(files) {
@@ -1428,7 +2099,7 @@ function inferDropSourceLabel(files) {
   return files.length === 1 ? files[0].name : "drag-and-drop";
 }
 
-async function extractTranslationFilesFromDrop(dataTransfer) {
+async function extractFilesFromDrop(dataTransfer) {
   const items = Array.from(dataTransfer?.items || []);
   if (items.length > 0 && items.some((item) => typeof item.webkitGetAsEntry === "function")) {
     const groups = await Promise.all(items.map(async (item) => {
@@ -1437,11 +2108,11 @@ async function extractTranslationFilesFromDrop(dataTransfer) {
     }));
     const droppedFiles = groups.flat();
     if (droppedFiles.length > 0) {
-      return filterTranslationFiles(droppedFiles);
+      return droppedFiles;
     }
   }
 
-  return filterTranslationFiles(Array.from(dataTransfer?.files || []));
+  return Array.from(dataTransfer?.files || []);
 }
 
 async function collectFilesFromEntry(entry) {
