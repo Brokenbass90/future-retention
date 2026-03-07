@@ -126,7 +126,7 @@ const responseSchema = {
               width: { type: "number" },
               height: { type: "number" }
             },
-            required: ["key", "url", "alt", "width", "height"]
+            required: ["key", "url", "alt", "placement", "notes", "width", "height"]
           }
         },
         translations: {
@@ -3798,6 +3798,72 @@ function materializeDraft(result, payload, mode) {
   };
 }
 
+function detectProviderIssue(message) {
+  const source = cleanText(message);
+  const lowered = source.toLowerCase();
+
+  if (!source) {
+    return {
+      code: "",
+      label: ""
+    };
+  }
+
+  if (lowered.includes("quota") || lowered.includes("billing")) {
+    return {
+      code: "quota",
+      label: "OpenAI quota or billing issue"
+    };
+  }
+
+  if (lowered.includes("invalid schema")) {
+    return {
+      code: "schema",
+      label: "Structured output schema issue"
+    };
+  }
+
+  if (lowered.includes("api key") || lowered.includes("authentication") || lowered.includes("unauthorized")) {
+    return {
+      code: "auth",
+      label: "Authentication issue"
+    };
+  }
+
+  if (lowered.includes("rate limit")) {
+    return {
+      code: "rate_limit",
+      label: "Rate limit reached"
+    };
+  }
+
+  return {
+    code: "provider_error",
+    label: source
+  };
+}
+
+function createProviderRuntime({
+  providerId,
+  mode,
+  liveAttempted = false,
+  liveUsed = false,
+  fallback = false,
+  errorMessage = ""
+}) {
+  const issue = detectProviderIssue(errorMessage);
+  return {
+    providerId: cleanText(providerId),
+    mode: cleanText(mode),
+    liveAttempted: Boolean(liveAttempted),
+    liveUsed: Boolean(liveUsed),
+    fallback: Boolean(fallback),
+    issueCode: issue.code,
+    issueLabel: issue.label,
+    errorMessage: cleanText(errorMessage)
+  };
+}
+
 function extractResponseText(apiResponse) {
   if (typeof apiResponse.output_text === "string" && apiResponse.output_text.trim()) {
     return apiResponse.output_text;
@@ -3967,13 +4033,26 @@ async function resolveDiscussionResponse(payload) {
       const discussion = await createOpenAiDiscussion(payload);
       return {
         assistantReply: discussion.assistantReply,
-        mode: "openai-discuss"
+        mode: "openai-discuss",
+        providerRuntime: createProviderRuntime({
+          providerId,
+          mode: "openai-discuss",
+          liveAttempted: true,
+          liveUsed: true
+        })
       };
     } catch (error) {
       const fallback = createMockDiscussion(payload, error.message);
       return {
         assistantReply: fallback.assistantReply,
-        mode: "mock-discuss"
+        mode: "mock-discuss",
+        providerRuntime: createProviderRuntime({
+          providerId,
+          mode: "mock-discuss",
+          liveAttempted: true,
+          fallback: true,
+          errorMessage: error.message
+        })
       };
     }
   }
@@ -3982,7 +4061,11 @@ async function resolveDiscussionResponse(payload) {
     const discussion = createMockDiscussion(payload, "Mock provider selected in settings");
     return {
       assistantReply: discussion.assistantReply,
-      mode: "mock-discuss"
+      mode: "mock-discuss",
+      providerRuntime: createProviderRuntime({
+        providerId,
+        mode: "mock-discuss"
+      })
     };
   }
 
@@ -3990,14 +4073,26 @@ async function resolveDiscussionResponse(payload) {
     const discussion = createMockDiscussion(payload, "OPENAI_API_KEY is not configured on the server");
     return {
       assistantReply: discussion.assistantReply,
-      mode: "mock-discuss"
+      mode: "mock-discuss",
+      providerRuntime: createProviderRuntime({
+        providerId,
+        mode: "mock-discuss",
+        fallback: true,
+        errorMessage: "OPENAI_API_KEY is not configured on the server"
+      })
     };
   }
 
   const discussion = createMockDiscussion(payload, `${providerId} adapter is planned but not wired yet`);
   return {
     assistantReply: discussion.assistantReply,
-    mode: "mock-discuss"
+    mode: "mock-discuss",
+    providerRuntime: createProviderRuntime({
+      providerId,
+      mode: "mock-discuss",
+      fallback: true,
+      errorMessage: `${providerId} adapter is planned but not wired yet`
+    })
   };
 }
 
@@ -4005,27 +4100,63 @@ async function resolveDraftResponse(payload) {
   const providerId = payload.settings.providerId;
   let generated;
   let mode = providerId;
+  let providerRuntime = createProviderRuntime({
+    providerId,
+    mode
+  });
 
   if (providerId === "openai" && openAiApiKey) {
     try {
       generated = await createOpenAiDraft(payload);
       mode = "openai";
+      providerRuntime = createProviderRuntime({
+        providerId,
+        mode,
+        liveAttempted: true,
+        liveUsed: true
+      });
     } catch (error) {
       generated = await createProjectAwareMockDraft(payload, error.message);
       mode = "mock";
+      providerRuntime = createProviderRuntime({
+        providerId,
+        mode,
+        liveAttempted: true,
+        fallback: true,
+        errorMessage: error.message
+      });
     }
   } else if (providerId === "mock") {
     generated = await createProjectAwareMockDraft(payload, "Mock provider selected in settings");
     mode = "mock";
+    providerRuntime = createProviderRuntime({
+      providerId,
+      mode
+    });
   } else if (providerId === "openai") {
     generated = await createProjectAwareMockDraft(payload, "OPENAI_API_KEY is not configured on the server");
     mode = "mock";
+    providerRuntime = createProviderRuntime({
+      providerId,
+      mode,
+      fallback: true,
+      errorMessage: "OPENAI_API_KEY is not configured on the server"
+    });
   } else {
     generated = await createProjectAwareMockDraft(payload, `${providerId} adapter is planned but not wired yet`);
     mode = "mock";
+    providerRuntime = createProviderRuntime({
+      providerId,
+      mode,
+      fallback: true,
+      errorMessage: `${providerId} adapter is planned but not wired yet`
+    });
   }
 
-  return materializeDraft(generated, payload, mode);
+  return {
+    ...materializeDraft(generated, payload, mode),
+    providerRuntime
+  };
 }
 
 async function resolveChatResponse(payload) {
@@ -4045,14 +4176,27 @@ async function resolveDesignAnalysis(payload) {
       return {
         assistantReply: result.assistantReply,
         mode: "openai-design",
-        designAnalysis: result.analysis
+        designAnalysis: result.analysis,
+        providerRuntime: createProviderRuntime({
+          providerId,
+          mode: "openai-design",
+          liveAttempted: true,
+          liveUsed: true
+        })
       };
     } catch (error) {
       const fallback = createMockDesignAnalysis(payload, error.message);
       return {
         assistantReply: fallback.assistantReply,
         mode: "mock-design",
-        designAnalysis: fallback.analysis
+        designAnalysis: fallback.analysis,
+        providerRuntime: createProviderRuntime({
+          providerId,
+          mode: "mock-design",
+          liveAttempted: true,
+          fallback: true,
+          errorMessage: error.message
+        })
       };
     }
   }
@@ -4068,7 +4212,17 @@ async function resolveDesignAnalysis(payload) {
   return {
     assistantReply: fallback.assistantReply,
     mode: "mock-design",
-    designAnalysis: fallback.analysis
+    designAnalysis: fallback.analysis,
+    providerRuntime: createProviderRuntime({
+      providerId,
+      mode: "mock-design",
+      fallback: true,
+      errorMessage: providerId === "openai"
+        ? "OPENAI_API_KEY is not configured on the server."
+        : providerId === "mock"
+          ? ""
+          : `${providerId} adapter is planned but not wired yet.`
+    })
   };
 }
 
@@ -4194,24 +4348,57 @@ async function generateMissingLocales(payload, existingDraft = null) {
   let generated;
   let mode = `${payload.settings.providerId}-translations`;
   const providerId = payload.settings.providerId;
+  let providerRuntime = createProviderRuntime({
+    providerId,
+    mode
+  });
 
   if (providerId === "openai" && openAiApiKey) {
     try {
       generated = await createOpenAiTranslations(payload, baseMail, sourceEntry, missingLocales);
       mode = "openai-translations";
+      providerRuntime = createProviderRuntime({
+        providerId,
+        mode,
+        liveAttempted: true,
+        liveUsed: true
+      });
     } catch (error) {
       generated = createMockTranslations(payload, baseMail, sourceEntry, missingLocales, error.message);
       mode = "mock-translations";
+      providerRuntime = createProviderRuntime({
+        providerId,
+        mode,
+        liveAttempted: true,
+        fallback: true,
+        errorMessage: error.message
+      });
     }
   } else if (providerId === "mock") {
     generated = createMockTranslations(payload, baseMail, sourceEntry, missingLocales, "Mock translation mode selected.");
     mode = "mock-translations";
+    providerRuntime = createProviderRuntime({
+      providerId,
+      mode
+    });
   } else if (providerId === "openai") {
     generated = createMockTranslations(payload, baseMail, sourceEntry, missingLocales, "OPENAI_API_KEY is not configured on the server.");
     mode = "mock-translations";
+    providerRuntime = createProviderRuntime({
+      providerId,
+      mode,
+      fallback: true,
+      errorMessage: "OPENAI_API_KEY is not configured on the server."
+    });
   } else {
     generated = createMockTranslations(payload, baseMail, sourceEntry, missingLocales, `${providerId} adapter is planned but not wired yet.`);
     mode = "mock-translations";
+    providerRuntime = createProviderRuntime({
+      providerId,
+      mode,
+      fallback: true,
+      errorMessage: `${providerId} adapter is planned but not wired yet.`
+    });
   }
 
   const mergedTranslations = sortTranslationEntries(
@@ -4230,6 +4417,7 @@ async function generateMissingLocales(payload, existingDraft = null) {
     assistantReply: cleanText(generated.assistant_reply)
       || `Generated missing locales: ${missingLocales.join(", ")}.`,
     mode,
+    providerRuntime,
     generatedLocales: missingLocales,
     translationText: renderTranslationBundle(mergedTranslations),
     uploadStatus: `Translation bundle now contains ${mergedTranslations.length} locale file(s). Generated: ${missingLocales.join(", ")}.`,

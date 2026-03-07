@@ -13,6 +13,7 @@ const initialState = {
   busy: false,
   activeTab: "html",
   mode: "mock",
+  providerRuntime: null,
   previewSource: "draft",
   previewViewport: "fit",
   settings: {
@@ -309,6 +310,7 @@ function bindEvents() {
 
   refs.providerSelect.addEventListener("change", () => {
     state.settings.providerId = refs.providerSelect.value;
+    state.providerRuntime = null;
     renderSettingsInfo();
     renderStatus();
     persistState();
@@ -456,6 +458,7 @@ function hydrateFromStorage() {
         ...structuredClone(initialState.design),
         ...(saved.design ?? {})
       },
+      providerRuntime: saved.providerRuntime ?? null,
       designAnalysis: saved.designAnalysis ?? null,
       assetInputs: Array.isArray(saved.assetInputs) && saved.assetInputs.length > 0
         ? saved.assetInputs
@@ -481,6 +484,7 @@ function persistState() {
     mode: state.mode,
     previewSource: state.previewSource,
     previewViewport: state.previewViewport,
+    providerRuntime: state.providerRuntime,
     settings: state.settings,
     brief: state.brief,
     design: state.design,
@@ -958,6 +962,7 @@ function applyChatPayload(payload, assistantMessage) {
   assistantMessage.streaming = false;
   assistantMessage.content = payload.assistantReply || assistantMessage.content || "Ответ готов.";
   state.mode = payload.mode;
+  state.providerRuntime = payload.providerRuntime || null;
   if (payload.designAnalysis) {
     state.designAnalysis = payload.designAnalysis;
   }
@@ -1110,6 +1115,7 @@ async function handleGenerateMissingLocales() {
     }
 
     state.mode = payload.mode;
+    state.providerRuntime = payload.providerRuntime || null;
     state.translationText = payload.translationText || state.translationText;
     state.translationUploadStatus = payload.uploadStatus || state.translationUploadStatus;
     if (payload.draft) {
@@ -1161,6 +1167,7 @@ async function handleAnalyzeDesign() {
     }
 
     state.mode = payload.mode || state.mode;
+    state.providerRuntime = payload.providerRuntime || null;
     state.designAnalysis = payload.designAnalysis || null;
     state.messages.push({
       role: "assistant",
@@ -1696,10 +1703,16 @@ function renderMessages() {
 
 function renderStatus() {
   const providerLabel = getSelectedProvider()?.label || state.settings.providerId;
-  const isLive = state.settings.providerId === "openai" && state.api.openAiConfigured;
+  const providerRuntime = getActiveProviderRuntime();
+  const hasProviderIssue = Boolean(providerRuntime?.fallback && providerRuntime?.issueCode);
+  const isLive = state.settings.providerId === "openai"
+    && state.api.openAiConfigured
+    && !hasProviderIssue;
   let statusText = "Генерирую...";
   if (!state.busy) {
-    if (state.settings.providerId === "openai" && !state.api.openAiConfigured) {
+    if (hasProviderIssue) {
+      statusText = `${providerLabel}: ${formatProviderIssue(providerRuntime)}`;
+    } else if (state.settings.providerId === "openai" && !state.api.openAiConfigured) {
       statusText = `${providerLabel}: нет OPENAI_API_KEY, работает mock mode`;
     } else if (state.settings.providerId === "mock") {
       statusText = "Mock mode: без vision-разбора и без реального AI ответа";
@@ -1709,8 +1722,14 @@ function renderStatus() {
   }
 
   refs.apiStatus.textContent = statusText;
-  refs.aiModePill.textContent = isLive ? "LIVE AI" : "MOCK / FALLBACK";
-  refs.aiModePill.dataset.state = isLive ? "live" : "mock";
+  refs.aiModePill.textContent = hasProviderIssue
+    ? providerRuntime.issueCode === "quota"
+      ? "AI BILLING"
+      : "AI FALLBACK"
+    : isLive
+      ? "LIVE AI"
+      : "MOCK / FALLBACK";
+  refs.aiModePill.dataset.state = hasProviderIssue ? "error" : isLive ? "live" : "mock";
   refs.modeValue.textContent = state.mode;
   refs.loadBaseBtn.disabled = state.busy;
   refs.createBaseMailBtn.disabled = state.busy;
@@ -2242,13 +2261,14 @@ function renderSettingsControls() {
 function renderSettingsInfo() {
   const provider = getSelectedProvider();
   const config = state.api.config;
+  const providerRuntime = getActiveProviderRuntime();
   refs.providerHelp.textContent = provider
     ? `${provider.status}. Возможности: ${provider.capabilities.join(", ")}.`
     : "Провайдер пока не определен.";
 
   refs.runtimeConfigInfo.textContent = config
     ? config.openAiConfigured
-      ? `Runtime: ${config.openAiModel} active. .env: ${config.envFileLoaded ? config.envFilePath : "not found"}.`
+      ? `Runtime: ${config.openAiModel} active. .env: ${config.envFileLoaded ? config.envFilePath : "not found"}.${providerRuntime?.fallback ? ` Last provider issue: ${formatProviderIssue(providerRuntime)}.` : ""}`
       : `Runtime: OpenAI key not loaded. Создай ${config.envFilePath} с OPENAI_API_KEY=... и перезапусти сервер.`
     : "Runtime config недоступен.";
 
@@ -2391,6 +2411,40 @@ function renderSettingsDrawer() {
 
 function getSelectedProvider() {
   return state.api.providers.find((provider) => provider.id === state.settings.providerId);
+}
+
+function getActiveProviderRuntime() {
+  if (!state.providerRuntime) {
+    return null;
+  }
+
+  return state.providerRuntime.providerId === state.settings.providerId
+    ? state.providerRuntime
+    : null;
+}
+
+function formatProviderIssue(providerRuntime) {
+  if (!providerRuntime) {
+    return "provider fallback";
+  }
+
+  if (providerRuntime.issueCode === "quota") {
+    return "ключ загружен, но API уперся в quota/billing. Проверь API billing в OpenAI.";
+  }
+
+  if (providerRuntime.issueCode === "schema") {
+    return "structured output schema отклонена OpenAI.";
+  }
+
+  if (providerRuntime.issueCode === "auth") {
+    return "ошибка авторизации OpenAI. Проверь API key.";
+  }
+
+  if (providerRuntime.issueCode === "rate_limit") {
+    return "превышен rate limit OpenAI. Попробуй повторить позже.";
+  }
+
+  return providerRuntime.errorMessage || providerRuntime.issueLabel || "provider fallback";
 }
 
 function getSelectedClientProfile() {

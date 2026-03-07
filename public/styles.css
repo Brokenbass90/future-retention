@@ -997,12 +997,22 @@ body {
   color: #8a4418;
 }
 
+.pill[data-state="error"] {
+  background: rgba(203, 71, 71, 0.14);
+  border-color: rgba(203, 71, 71, 0.34);
+  color: #8b2020;
+}
+
 :root[data-theme="dark"] .pill[data-state="live"] {
   color: #bfe6c2;
 }
 
 :root[data-theme="dark"] .pill[data-state="mock"] {
   color: #ffbf98;
+}
+
+:root[data-theme="dark"] .pill[data-state="error"] {
+  color: #ffb3b3;
 }
 
 .settings-backdrop {
