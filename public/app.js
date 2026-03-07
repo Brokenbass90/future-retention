@@ -23,6 +23,7 @@ const initialState = {
     category: "",
     mailId: "",
     locale: "en",
+    requestedLocales: "",
     audience: "",
     goal: "",
     tone: "",
@@ -63,6 +64,7 @@ const refs = {
   apiStatus: document.querySelector("#apiStatus"),
   messages: document.querySelector("#messages"),
   chatForm: document.querySelector("#chatForm"),
+  chatSubmitButtons: Array.from(document.querySelectorAll("#chatForm button[type='submit']")),
   chatInput: document.querySelector("#chatInput"),
   fillDemoBtn: document.querySelector("#fillDemoBtn"),
   clearChatBtn: document.querySelector("#clearChatBtn"),
@@ -95,6 +97,7 @@ const refs = {
   designPreviewWrap: document.querySelector("#designPreviewWrap"),
   designPreview: document.querySelector("#designPreview"),
   designCaption: document.querySelector("#designCaption"),
+  generateLocalesBtn: document.querySelector("#generateLocalesBtn"),
   themeSelect: document.querySelector("#themeSelect"),
   providerSelect: document.querySelector("#providerSelect"),
   providerHelp: document.querySelector("#providerHelp"),
@@ -106,6 +109,7 @@ const refs = {
     category: document.querySelector("#category"),
     mailId: document.querySelector("#mailId"),
     locale: document.querySelector("#locale"),
+    requestedLocales: document.querySelector("#requestedLocales"),
     audience: document.querySelector("#audience"),
     goal: document.querySelector("#goal"),
     tone: document.querySelector("#tone"),
@@ -149,6 +153,7 @@ function bindEvents() {
   refs.loadBaseBtn.addEventListener("click", handleLoadBaseEmail);
   refs.createBaseMailBtn.addEventListener("click", handleCreateBaseMail);
   refs.buildBaseMailBtn.addEventListener("click", handleLoadBaseEmail);
+  refs.generateLocalesBtn.addEventListener("click", handleGenerateMissingLocales);
   refs.addAssetBtn.addEventListener("click", addAssetRow);
 
   for (const [key, element] of Object.entries(refs.fields)) {
@@ -328,6 +333,7 @@ function fillDemoScenario() {
     category: state.api.emailBase?.currentMail?.category || "X_IQ",
     mailId: state.api.emailBase?.currentMail?.mailId || "rfm-311",
     locale: "en",
+    requestedLocales: "en, de, fr_FR, es_ES",
     audience: "Dormant customers inactive for 90 days",
     goal: "Bring inactive users back with a short-lived free shipping incentive and a strong benefit summary.",
     tone: "Warm, direct, conversion-focused",
@@ -472,53 +478,121 @@ async function handleChatSubmit(event) {
     : "Обнови текущий драфт по моим данным.");
 
   state.messages.push({ role: "user", content: message });
+  const assistantMessage = {
+    role: "assistant",
+    content: "",
+    streaming: true
+  };
+  state.messages.push(assistantMessage);
   refs.chatInput.value = "";
   state.busy = true;
   renderMessages();
   renderStatus();
 
   try {
-    const response = await fetch("/api/chat", {
+    const response = await fetch("/api/chat/stream", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        intent,
-        messages: state.messages,
-        brief: state.brief,
-        assetInputs: state.assetInputs,
-        translationText: state.translationText,
-        design: state.design,
-        settings: state.settings,
-        currentDraft: state.draft?.mail ?? null
-      })
+      body: JSON.stringify(createChatRequestBody(intent))
     });
 
-    const payload = await response.json();
     if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
       throw new Error(payload.error || "Request failed");
     }
 
-    state.mode = payload.mode;
-    if (payload.draft) {
-      state.previewSource = "draft";
-      state.draft = payload.draft;
-    }
-    state.messages.push({
-      role: "assistant",
-      content: payload.assistantReply
-    });
+    await consumeChatStream(response, assistantMessage);
   } catch (error) {
-    state.messages.push({
-      role: "assistant",
-      content: `Ошибка при генерации: ${error.message}`
-    });
+    assistantMessage.streaming = false;
+    assistantMessage.content = `Ошибка при генерации: ${error.message}`;
   } finally {
     state.busy = false;
     renderAll();
     persistState();
   }
+}
+
+function createChatRequestBody(intent) {
+  return {
+    intent,
+    messages: state.messages
+      .filter((message) => !message.streaming)
+      .map(({ role, content }) => ({ role, content })),
+    brief: state.brief,
+    assetInputs: state.assetInputs,
+    translationText: state.translationText,
+    design: state.design,
+    settings: state.settings,
+    currentDraft: state.draft?.mail ?? null
+  };
+}
+
+async function consumeChatStream(response, assistantMessage) {
+  const reader = response.body?.getReader();
+  if (!reader) {
+    const payload = await response.json();
+    applyChatPayload(payload, assistantMessage);
+    return;
+  }
+
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) {
+      break;
+    }
+
+    buffer += decoder.decode(value, { stream: true });
+    buffer = processChatStreamBuffer(buffer, assistantMessage);
+  }
+
+  buffer += decoder.decode();
+  processChatStreamBuffer(buffer, assistantMessage);
+}
+
+function processChatStreamBuffer(buffer, assistantMessage) {
+  let cursor = buffer.indexOf("\n");
+  let remainder = buffer;
+
+  while (cursor >= 0) {
+    const line = remainder.slice(0, cursor).trim();
+    remainder = remainder.slice(cursor + 1);
+    if (line) {
+      const frame = JSON.parse(line);
+      applyChatStreamFrame(frame, assistantMessage);
+    }
+    cursor = remainder.indexOf("\n");
+  }
+
+  return remainder;
+}
+
+function applyChatStreamFrame(frame, assistantMessage) {
+  if (frame.type === "assistant_delta") {
+    assistantMessage.content += frame.delta || "";
+    renderMessages();
+    renderSummary();
+    return;
+  }
+
+  if (frame.type === "final") {
+    applyChatPayload(frame.payload, assistantMessage);
+  }
+}
+
+function applyChatPayload(payload, assistantMessage) {
+  assistantMessage.streaming = false;
+  assistantMessage.content = payload.assistantReply || assistantMessage.content || "Ответ готов.";
+  state.mode = payload.mode;
+  if (payload.draft) {
+    state.previewSource = "draft";
+    state.draft = payload.draft;
+  }
+  renderAll();
 }
 
 async function handleLoadBaseEmail() {
@@ -628,6 +702,54 @@ async function handleCreateBaseMail() {
   }
 }
 
+async function handleGenerateMissingLocales() {
+  state.busy = true;
+  renderStatus();
+
+  try {
+    const response = await fetch("/api/translations/generate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        brief: state.brief,
+        settings: state.settings,
+        draft: state.draft,
+        translationText: state.translationText,
+        assetInputs: state.assetInputs,
+        design: state.design,
+        messages: state.messages
+      })
+    });
+
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.error || "Locale generation failed");
+    }
+
+    state.mode = payload.mode;
+    state.translationText = payload.translationText || state.translationText;
+    state.translationUploadStatus = payload.uploadStatus || state.translationUploadStatus;
+    if (payload.draft) {
+      state.draft = payload.draft;
+    }
+    state.messages.push({
+      role: "assistant",
+      content: payload.assistantReply
+    });
+  } catch (error) {
+    state.messages.push({
+      role: "assistant",
+      content: `Ошибка при генерации локалей: ${error.message}`
+    });
+  } finally {
+    state.busy = false;
+    renderAll();
+    persistState();
+  }
+}
+
 function toggleSettings(isOpen) {
   state.settingsOpen = isOpen;
   renderSettingsDrawer();
@@ -657,6 +779,7 @@ function renderFields() {
   refs.fields.category.value = state.brief.category;
   refs.fields.mailId.value = state.brief.mailId;
   refs.fields.locale.value = state.brief.locale;
+  refs.fields.requestedLocales.value = state.brief.requestedLocales;
   refs.fields.audience.value = state.brief.audience;
   refs.fields.goal.value = state.brief.goal;
   refs.fields.tone.value = state.brief.tone;
@@ -778,7 +901,10 @@ function renderMessages() {
   for (const message of state.messages) {
     const element = document.createElement("div");
     element.className = `message ${message.role}`;
-    element.textContent = message.content;
+    if (message.streaming) {
+      element.classList.add("is-streaming");
+    }
+    element.textContent = message.content || (message.streaming ? "Пишу..." : "");
     refs.messages.appendChild(element);
   }
 
@@ -793,6 +919,16 @@ function renderStatus() {
 
   refs.apiStatus.textContent = statusText;
   refs.modeValue.textContent = state.mode;
+  refs.loadBaseBtn.disabled = state.busy;
+  refs.createBaseMailBtn.disabled = state.busy;
+  refs.buildBaseMailBtn.disabled = state.busy;
+  refs.generateLocalesBtn.disabled = state.busy;
+  refs.fillDemoBtn.disabled = state.busy;
+  refs.clearChatBtn.disabled = state.busy;
+  refs.clearStateBtn.disabled = state.busy;
+  for (const button of refs.chatSubmitButtons) {
+    button.disabled = state.busy;
+  }
 }
 
 function renderSummary() {

@@ -156,6 +156,40 @@ const responseSchema = {
   required: ["assistant_reply", "mail"]
 };
 
+const translationResponseSchema = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    assistant_reply: {
+      type: "string"
+    },
+    translations: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          locale: { type: "string" },
+          subject: { type: "string" },
+          preheader: { type: "string" },
+          cta_labels: {
+            type: "array",
+            items: { type: "string" }
+          },
+          notes: { type: "string" },
+          body_blocks: {
+            type: "array",
+            items: { type: "string" }
+          },
+          source_name: { type: "string" }
+        },
+        required: ["locale", "subject", "preheader", "cta_labels", "notes", "body_blocks", "source_name"]
+      }
+    }
+  },
+  required: ["assistant_reply", "translations"]
+};
+
 const mimeTypes = {
   ".css": "text/css; charset=utf-8",
   ".html": "text/html; charset=utf-8",
@@ -751,8 +785,8 @@ async function createEmailBaseMailFromDraft(payload, rawDraft) {
   const mailId = resolveStudioMailId(payload.brief.mailId, payload.brief.campaignName);
   const mail = normalizeMail(rawDraft, payload);
   const translationFileKey = getStudioTranslationFileKey(mailId);
-  const locales = Array.from(new Set((mail.translations || []).map((entry) => cleanText(entry.locale)).filter(Boolean)));
-  const primaryLocale = cleanText(payload.brief.locale || mail.locale || locales[0] || "en");
+  const locales = Array.from(new Set((mail.translations || []).map((entry) => normalizeLocaleCode(entry.locale)).filter(Boolean)));
+  const primaryLocale = normalizeLocaleCode(payload.brief.locale || mail.locale || locales[0] || "en");
   const mailRoot = path.join(emailBaseRoot, category, `mail-${mailId}`);
   const templatesRoot = path.join(mailRoot, "app", "templates");
   const stylesRoot = path.join(mailRoot, "app", "styles");
@@ -844,7 +878,7 @@ async function createEmailBaseMailFromDraft(payload, rawDraft) {
     draft: {
       mail: {
         ...mail,
-        assets: assets.length > 0 ? assets : mail.assets,
+        assets: mail.assets?.length > 0 ? mail.assets : assets,
         translations: Array.from(localePayloads.entries()).map(([locale, localePayload]) => ({
           locale,
           subject: localePayload.subject,
@@ -941,7 +975,34 @@ function stripTags(value) {
 }
 
 function getDraftLocale(brief) {
-  return cleanText(brief.locale) || "en";
+  return normalizeLocaleCode(brief.locale) || "en";
+}
+
+function normalizeLocaleCode(value) {
+  const raw = cleanText(value).replaceAll("-", "_");
+  if (!raw) {
+    return "";
+  }
+
+  const parts = raw.split("_").filter(Boolean);
+  if (parts.length === 0) {
+    return "";
+  }
+
+  if (parts.length === 1) {
+    return parts[0].toLowerCase();
+  }
+
+  return [parts[0].toLowerCase(), ...parts.slice(1).map((part) => part.toUpperCase())].join("_");
+}
+
+function parseLocaleList(value) {
+  return Array.from(new Set(
+    cleanText(value)
+      .split(/[\s,;]+/)
+      .map(normalizeLocaleCode)
+      .filter(Boolean)
+  ));
 }
 
 function normalizeAssetInputs(payload) {
@@ -1093,6 +1154,7 @@ function normalizePayload(payload) {
       category: cleanText(brief.category),
       mailId: cleanText(brief.mailId),
       locale: getDraftLocale(brief),
+      requestedLocales: cleanText(brief.requestedLocales),
       audience: cleanText(brief.audience),
       goal: cleanText(brief.goal),
       tone: cleanText(brief.tone),
@@ -1131,6 +1193,7 @@ function buildUserContext(payload) {
     "Create a draft marketing email.",
     `Campaign name: ${payload.brief.campaignName || "Untitled campaign"}`,
     `Primary locale: ${payload.brief.locale}`,
+    `Requested locales: ${payload.brief.requestedLocales || payload.brief.locale}`,
     `Audience: ${payload.brief.audience || "Not specified"}`,
     `Goal: ${payload.brief.goal || "Not specified"}`,
     `Tone: ${payload.brief.tone || "Direct and clear"}`,
@@ -1167,6 +1230,7 @@ function buildDiscussionContext(payload) {
     `Goal: ${payload.brief.goal || "Not specified"}`,
     `Tone: ${payload.brief.tone || "Not specified"}`,
     `Primary locale: ${payload.brief.locale}`,
+    `Requested locales: ${payload.brief.requestedLocales || payload.brief.locale}`,
     `Current base mail: ${emailBaseSummary.currentMail?.folder || "None"}`,
     "Structured assets:",
     describeAssetPlan(payload.assetInputs),
@@ -1334,7 +1398,7 @@ function unwrapTranslationBraces(text) {
 
 function extractLocaleFromFilename(fileName) {
   const match = cleanText(fileName).match(/_([a-z]{2}(?:[_-][A-Za-z]{2})?)(?:_|\.|$)/);
-  return match ? match[1].replace("-", "_") : "";
+  return match ? normalizeLocaleCode(match[1]) : "";
 }
 
 function splitTranslationDocuments(translationText) {
@@ -1483,9 +1547,9 @@ function findPreferredTranslationEntry(translationText, preferredLocale, mail) {
     return null;
   }
 
-  const normalizedPreferred = cleanText(preferredLocale).toLowerCase();
-  return entries.find((entry) => cleanText(entry.locale).toLowerCase() === normalizedPreferred)
-    || entries.find((entry) => cleanText(entry.locale).toLowerCase().startsWith(normalizedPreferred.split(/[_-]/)[0] || ""))
+  const normalizedPreferred = normalizeLocaleCode(preferredLocale).toLowerCase();
+  return entries.find((entry) => normalizeLocaleCode(entry.locale).toLowerCase() === normalizedPreferred)
+    || entries.find((entry) => normalizeLocaleCode(entry.locale).toLowerCase().startsWith(normalizedPreferred.split(/[_-]/)[0] || ""))
     || entries[0];
 }
 
@@ -1517,7 +1581,7 @@ function parseTranslationSeed(translationText, mail) {
 
 function normalizeTranslationEntry(entry, mail) {
   return {
-    locale: cleanText(entry?.locale) || mail.locale || "en",
+    locale: normalizeLocaleCode(entry?.locale) || normalizeLocaleCode(mail.locale) || "en",
     subject: cleanText(entry?.subject) || mail.subject,
     preheader: cleanText(entry?.preheader) || mail.preheader,
     cta_labels: Array.isArray(entry?.cta_labels) && entry.cta_labels.length > 0
@@ -1537,6 +1601,189 @@ function collectCtaLabels(mail) {
     .map((section) => cleanText(section.cta_label))
     .filter(Boolean)
     : []));
+}
+
+function deriveBodyBlocksFromMail(mail) {
+  const blocks = [];
+
+  for (const section of Array.isArray(mail?.sections) ? mail.sections : []) {
+    if (section.kind === "footer") {
+      continue;
+    }
+
+    if (section.title) {
+      blocks.push(cleanText(section.title));
+    }
+
+    if (section.body) {
+      blocks.push(cleanText(section.body));
+    }
+
+    if (Array.isArray(section.items) && section.items.length > 0) {
+      for (const item of section.items) {
+        const text = cleanText(item);
+        if (text) {
+          blocks.push(text);
+        }
+      }
+    }
+  }
+
+  return blocks.filter(Boolean);
+}
+
+function dedupeTranslationEntries(entries, mail) {
+  const map = new Map();
+
+  for (const rawEntry of entries) {
+    const normalized = normalizeTranslationEntry(rawEntry, mail);
+    const locale = normalizeLocaleCode(normalized.locale) || mail.locale || "en";
+    map.set(locale, {
+      ...normalized,
+      locale,
+      source_name: cleanText(normalized.source_name) || `${locale}.txt`
+    });
+  }
+
+  return [...map.values()];
+}
+
+function localeMatchesRequest(existingLocale, requestedLocale) {
+  const existing = normalizeLocaleCode(existingLocale);
+  const requested = normalizeLocaleCode(requestedLocale);
+
+  if (!existing || !requested) {
+    return false;
+  }
+
+  if (existing === requested) {
+    return true;
+  }
+
+  const requestedParts = requested.split("_");
+  const existingParts = existing.split("_");
+  return requestedParts.length === 1 && existingParts[0] === requestedParts[0];
+}
+
+function collapseRedundantTranslationEntries(entries) {
+  return entries.filter((entry) => {
+    const locale = normalizeLocaleCode(entry.locale);
+    if (!locale || locale.includes("_")) {
+      return true;
+    }
+
+    return !entries.some((otherEntry) => {
+      const otherLocale = normalizeLocaleCode(otherEntry.locale);
+      return otherLocale.startsWith(`${locale}_`)
+        && cleanText(otherEntry.source_name) === cleanText(entry.source_name)
+        && cleanText(otherEntry.subject) === cleanText(entry.subject)
+        && cleanText(otherEntry.preheader) === cleanText(entry.preheader);
+    });
+  });
+}
+
+function sortTranslationEntries(entries, primaryLocale, requestedLocales = []) {
+  const requestedOrder = parseLocaleList(requestedLocales.join(" "));
+  const primary = normalizeLocaleCode(primaryLocale);
+
+  return [...entries].sort((left, right) => {
+    const leftLocale = normalizeLocaleCode(left.locale);
+    const rightLocale = normalizeLocaleCode(right.locale);
+
+    if (leftLocale === primary && rightLocale !== primary) {
+      return -1;
+    }
+    if (rightLocale === primary && leftLocale !== primary) {
+      return 1;
+    }
+
+    const leftRequested = requestedOrder.indexOf(leftLocale);
+    const rightRequested = requestedOrder.indexOf(rightLocale);
+    if (leftRequested !== rightRequested) {
+      return (leftRequested === -1 ? Number.MAX_SAFE_INTEGER : leftRequested)
+        - (rightRequested === -1 ? Number.MAX_SAFE_INTEGER : rightRequested);
+    }
+
+    return leftLocale.localeCompare(rightLocale);
+  });
+}
+
+function formatBoldTokensForTxt(value) {
+  return cleanText(value).replace(/\*\*(.*?)\*\*/g, "@@$1@@");
+}
+
+function renderTranslationEntryContent(entry) {
+  const lines = [];
+  const subject = formatBoldTokensForTxt(entry.subject);
+  const preheader = formatBoldTokensForTxt(entry.preheader);
+
+  if (subject) {
+    lines.push(`Subject: ${subject}`);
+  }
+
+  if (preheader) {
+    lines.push(`Snippet: ${preheader}`);
+  }
+
+  if (lines.length > 0 && Array.isArray(entry.body_blocks) && entry.body_blocks.length > 0) {
+    lines.push("");
+  }
+
+  for (const block of Array.isArray(entry.body_blocks) ? entry.body_blocks : []) {
+    lines.push(`{{${formatBoldTokensForTxt(block)}}}`);
+    lines.push("");
+  }
+
+  const ctaLabels = Array.isArray(entry.cta_labels)
+    ? entry.cta_labels.map(formatBoldTokensForTxt).filter(Boolean)
+    : [];
+
+  if (ctaLabels.length > 0) {
+    if (lines.length > 0 && lines.at(-1) !== "") {
+      lines.push("");
+    }
+    lines.push("PUSH");
+    lines.push(...ctaLabels);
+  }
+
+  return lines.join("\n").trim();
+}
+
+function renderTranslationBundle(entries) {
+  return entries
+    .map((entry, index) => {
+      const fileName = cleanText(entry.source_name)
+        || `generated_${normalizeLocaleCode(entry.locale) || `locale_${index + 1}`}.txt`;
+      return `=== FILE: ${fileName} ===\n${renderTranslationEntryContent(entry)}`;
+    })
+    .join("\n\n");
+}
+
+function buildSourceTranslationEntry(mail, payload) {
+  const preferred = findPreferredTranslationEntry(payload.translationText, payload.brief.locale, mail);
+  if (preferred) {
+    const normalized = normalizeTranslationEntry(preferred, mail);
+    if (normalized.body_blocks.length === 0) {
+      normalized.body_blocks = deriveBodyBlocksFromMail(mail);
+    }
+    if (normalized.cta_labels.length === 0) {
+      normalized.cta_labels = collectCtaLabels(mail);
+    }
+    if (!normalized.source_name) {
+      normalized.source_name = `derived_${normalized.locale}.txt`;
+    }
+    return normalized;
+  }
+
+  return normalizeTranslationEntry({
+    locale: normalizeLocaleCode(payload.brief.locale || mail.locale || "en"),
+    subject: mail.subject,
+    preheader: mail.preheader,
+    cta_labels: collectCtaLabels(mail),
+    notes: "Derived from current draft",
+    body_blocks: deriveBodyBlocksFromMail(mail),
+    source_name: `derived_${normalizeLocaleCode(payload.brief.locale || mail.locale || "en")}.txt`
+  }, mail);
 }
 
 function createMockDraft(payload, warning = "") {
@@ -1672,6 +1919,26 @@ function createMockDiscussion(payload, warning = "") {
   };
 }
 
+function createMockTranslations(payload, mail, sourceEntry, targetLocales, warning = "") {
+  const translations = targetLocales.map((locale) => normalizeTranslationEntry({
+    locale,
+    subject: sourceEntry.subject || mail.subject,
+    preheader: sourceEntry.preheader || mail.preheader,
+    cta_labels: sourceEntry.cta_labels?.length > 0 ? sourceEntry.cta_labels : collectCtaLabels(mail),
+    notes: `Mock placeholder copied from ${sourceEntry.locale || mail.locale}. Replace with reviewed translation before send.`,
+    body_blocks: sourceEntry.body_blocks?.length > 0 ? sourceEntry.body_blocks : deriveBodyBlocksFromMail(mail),
+    source_name: `mock-generated_${locale}.txt`
+  }, mail));
+
+  return {
+    assistant_reply: [
+      `Собрал ${translations.length} missing locale(s) как placeholder bundle.`,
+      warning || "Mock translation mode selected."
+    ].filter(Boolean).join(" "),
+    translations
+  };
+}
+
 function hasTrackingParams(url) {
   return /[?&](utm_[^=]+|click_id|sub\d*=|aff|ref=|cid=|pid=|gclid=|fbclid=|yclid=)/i.test(cleanText(url));
 }
@@ -1704,6 +1971,10 @@ function collectDiscussionQuestions(payload, draft) {
     questions.push(`На какие локали, кроме ${payload.brief.locale || "en"}, нужно собрать письмо? Если переводов нет, могу потом автогенерить missing locales.`);
   }
 
+  if (!payload.brief.requestedLocales) {
+    questions.push("Какие локали считаем обязательными для этого письма? Укажи Requested locales, чтобы я мог проверить missing locales и автогенерить их.");
+  }
+
   if (!heroAssetExists) {
     questions.push("Нужна ли hero-картинка для первого экрана, или делаем сильный текстовый hero без визуала?");
   }
@@ -1725,6 +1996,42 @@ function collectDiscussionQuestions(payload, draft) {
 
 function formatDiscussionQuestions(questions) {
   return questions.map((question, index) => `${index + 1}) ${question}`).join(" ");
+}
+
+function buildTranslationMessages(payload, sourceEntry, targetLocales) {
+  const sourceBlocks = (sourceEntry.body_blocks || [])
+    .map((block, index) => `${index + 1}. ${block}`)
+    .join("\n");
+  const sourceCtas = (sourceEntry.cta_labels || []).join(" | ");
+
+  return [
+    {
+      role: "system",
+      content: [{
+        type: "input_text",
+        text: "You translate marketing email copy into requested locales. Keep structure intact, preserve numbers, emojis, URLs, and **strong emphasis** markers. Translate naturally for each locale and do not add commentary outside the structured output."
+      }]
+    },
+    {
+      role: "user",
+      content: [{
+        type: "input_text",
+        text: [
+          `Campaign name: ${payload.brief.campaignName || "Untitled campaign"}`,
+          `Goal: ${payload.brief.goal || "Not specified"}`,
+          `Audience: ${payload.brief.audience || "Not specified"}`,
+          `Tone: ${payload.brief.tone || "Not specified"}`,
+          `Source locale: ${sourceEntry.locale}`,
+          `Target locales: ${targetLocales.join(", ")}`,
+          `Source subject: ${sourceEntry.subject}`,
+          `Source preheader: ${sourceEntry.preheader}`,
+          `Source CTA labels: ${sourceCtas || "None"}`,
+          "Source body blocks:",
+          sourceBlocks || "1. No explicit blocks provided"
+        ].join("\n")
+      }]
+    }
+  ];
 }
 
 function normalizeMail(rawMail, payload) {
@@ -2101,27 +2408,32 @@ function renderAssetsManifest(mail) {
   return JSON.stringify(payload, null, 2);
 }
 
+function createDraftSnapshot(mail, existingDraft = null) {
+  const emailBaseSummary = summarizeEmailBase();
+
+  return {
+    mail,
+    html: cleanText(existingDraft?.html) || renderEmailHtml(mail),
+    pug: cleanText(existingDraft?.pug) || renderEmailPug(mail),
+    locales: renderLocalesJson(mail),
+    assetsManifest: renderAssetsManifest(mail),
+    spec: JSON.stringify(mail, null, 2),
+    buildLog: cleanText(existingDraft?.buildLog) || [
+      "No email-base build executed yet.",
+      emailBaseSummary.currentMail
+        ? `Current base mail: ${emailBaseSummary.currentMail.folder}`
+        : "No current base mail detected."
+    ].join("\n")
+  };
+}
+
 function materializeDraft(result, payload, mode) {
   const mail = normalizeMail(result.mail, payload);
-  const emailBaseSummary = summarizeEmailBase();
 
   return {
     assistantReply: cleanText(result.assistant_reply) || "Черновик письма собран.",
     mode,
-    draft: {
-      mail,
-      html: renderEmailHtml(mail),
-      pug: renderEmailPug(mail),
-      locales: renderLocalesJson(mail),
-      assetsManifest: renderAssetsManifest(mail),
-      spec: JSON.stringify(mail, null, 2),
-      buildLog: [
-        "No email-base build executed yet.",
-        emailBaseSummary.currentMail
-          ? `Current base mail: ${emailBaseSummary.currentMail.folder}`
-          : "No current base mail detected."
-      ].join("\n")
-    }
+    draft: createDraftSnapshot(mail)
   };
 }
 
@@ -2204,6 +2516,286 @@ async function createOpenAiDiscussion(payload) {
   };
 }
 
+async function createOpenAiTranslations(payload, mail, sourceEntry, targetLocales) {
+  const response = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${openAiApiKey}`
+    },
+    body: JSON.stringify({
+      model: openAiModel,
+      input: buildTranslationMessages(payload, sourceEntry, targetLocales),
+      text: {
+        format: {
+          type: "json_schema",
+          name: "email_studio_translations",
+          strict: true,
+          schema: translationResponseSchema
+        }
+      }
+    })
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data?.error?.message || "OpenAI translation request failed");
+  }
+
+  const rawText = extractResponseText(data);
+  if (!rawText) {
+    throw new Error("OpenAI translation response did not contain output text");
+  }
+
+  const parsed = JSON.parse(rawText);
+  return {
+    assistant_reply: cleanText(parsed.assistant_reply) || `Сгенерировал ${targetLocales.length} locale(s).`,
+    translations: Array.isArray(parsed.translations)
+      ? parsed.translations.map((entry) => normalizeTranslationEntry(entry, mail))
+      : []
+  };
+}
+
+async function resolveDiscussionResponse(payload) {
+  const providerId = payload.settings.providerId;
+
+  if (providerId === "openai" && openAiApiKey) {
+    try {
+      const discussion = await createOpenAiDiscussion(payload);
+      return {
+        assistantReply: discussion.assistantReply,
+        mode: "openai-discuss"
+      };
+    } catch (error) {
+      const fallback = createMockDiscussion(payload, error.message);
+      return {
+        assistantReply: fallback.assistantReply,
+        mode: "mock-discuss"
+      };
+    }
+  }
+
+  if (providerId === "mock") {
+    const discussion = createMockDiscussion(payload, "Mock provider selected in settings");
+    return {
+      assistantReply: discussion.assistantReply,
+      mode: "mock-discuss"
+    };
+  }
+
+  if (providerId === "openai") {
+    const discussion = createMockDiscussion(payload, "OPENAI_API_KEY is not configured on the server");
+    return {
+      assistantReply: discussion.assistantReply,
+      mode: "mock-discuss"
+    };
+  }
+
+  const discussion = createMockDiscussion(payload, `${providerId} adapter is planned but not wired yet`);
+  return {
+    assistantReply: discussion.assistantReply,
+    mode: "mock-discuss"
+  };
+}
+
+async function resolveDraftResponse(payload) {
+  const providerId = payload.settings.providerId;
+  let generated;
+  let mode = providerId;
+
+  if (providerId === "openai" && openAiApiKey) {
+    try {
+      generated = await createOpenAiDraft(payload);
+      mode = "openai";
+    } catch (error) {
+      generated = createMockDraft(payload, error.message);
+      mode = "mock";
+    }
+  } else if (providerId === "mock") {
+    generated = createMockDraft(payload, "Mock provider selected in settings");
+    mode = "mock";
+  } else if (providerId === "openai") {
+    generated = createMockDraft(payload, "OPENAI_API_KEY is not configured on the server");
+    mode = "mock";
+  } else {
+    generated = createMockDraft(payload, `${providerId} adapter is planned but not wired yet`);
+    mode = "mock";
+  }
+
+  return materializeDraft(generated, payload, mode);
+}
+
+async function resolveChatResponse(payload) {
+  if (payload.intent === "discuss") {
+    return resolveDiscussionResponse(payload);
+  }
+
+  return resolveDraftResponse(payload);
+}
+
+async function wait(milliseconds) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, milliseconds);
+  });
+}
+
+function chunkAssistantReply(text) {
+  const words = cleanText(text).split(/\s+/).filter(Boolean);
+  if (words.length === 0) {
+    return [];
+  }
+
+  const chunks = [];
+  let current = "";
+
+  for (const word of words) {
+    const next = current ? `${current} ${word}` : word;
+    if (next.length > 42 && current) {
+      chunks.push(`${current} `);
+      current = word;
+      continue;
+    }
+    current = next;
+  }
+
+  if (current) {
+    chunks.push(current);
+  }
+
+  return chunks;
+}
+
+function sendNdjsonFrame(response, frame) {
+  response.write(`${JSON.stringify(frame)}\n`);
+}
+
+async function streamChatResponse(response, payload) {
+  response.writeHead(200, {
+    "Content-Type": "application/x-ndjson; charset=utf-8",
+    "Cache-Control": "no-store",
+    Connection: "keep-alive"
+  });
+
+  sendNdjsonFrame(response, { type: "start" });
+  let result;
+  try {
+    result = await resolveChatResponse(payload);
+  } catch (error) {
+    sendNdjsonFrame(response, {
+      type: "final",
+      payload: {
+        assistantReply: `Ошибка при генерации: ${error instanceof Error ? error.message : "Unknown error"}`,
+        mode: "error"
+      }
+    });
+    response.end();
+    return;
+  }
+
+  for (const chunk of chunkAssistantReply(result.assistantReply)) {
+    sendNdjsonFrame(response, {
+      type: "assistant_delta",
+      delta: chunk
+    });
+    await wait(18);
+  }
+
+  sendNdjsonFrame(response, {
+    type: "final",
+    payload: result
+  });
+  response.end();
+}
+
+async function generateMissingLocales(payload, existingDraft = null) {
+  const baseDraft = existingDraft && typeof existingDraft === "object" ? existingDraft : null;
+  const baseMail = normalizeMail(baseDraft?.mail || payload.currentDraft || null, payload);
+  const existingEntries = dedupeTranslationEntries(
+    [
+      ...(Array.isArray(baseMail.translations) ? baseMail.translations : []),
+      ...parseTranslationEntries(payload.translationText, baseMail)
+    ],
+    baseMail
+  );
+  const requestedLocales = Array.from(new Set([
+    normalizeLocaleCode(payload.brief.locale || baseMail.locale),
+    ...parseLocaleList(payload.brief.requestedLocales)
+  ].filter(Boolean)));
+
+  if (requestedLocales.length === 0) {
+    throw new Error("Requested locales are empty. Fill the Requested locales field first.");
+  }
+
+  const missingLocales = requestedLocales.filter((locale) => !existingEntries.some((entry) => localeMatchesRequest(entry.locale, locale)));
+
+  const sourceEntry = buildSourceTranslationEntry(baseMail, payload);
+  const sourceEntries = existingEntries.length > 0
+    ? existingEntries
+    : [sourceEntry];
+
+  if (missingLocales.length === 0) {
+    const mergedMail = {
+      ...baseMail,
+      translations: collapseRedundantTranslationEntries(
+        sortTranslationEntries(sourceEntries, payload.brief.locale, requestedLocales)
+      )
+    };
+
+    return {
+      assistantReply: `Все requested locales уже есть в bundle: ${requestedLocales.join(", ")}.`,
+      mode: `${payload.settings.providerId}-translations`,
+      translationText: renderTranslationBundle(mergedMail.translations),
+      uploadStatus: `Locales already complete: ${requestedLocales.join(", ")}.`,
+      draft: createDraftSnapshot(mergedMail, baseDraft)
+    };
+  }
+
+  let generated;
+  let mode = `${payload.settings.providerId}-translations`;
+  const providerId = payload.settings.providerId;
+
+  if (providerId === "openai" && openAiApiKey) {
+    try {
+      generated = await createOpenAiTranslations(payload, baseMail, sourceEntry, missingLocales);
+      mode = "openai-translations";
+    } catch (error) {
+      generated = createMockTranslations(payload, baseMail, sourceEntry, missingLocales, error.message);
+      mode = "mock-translations";
+    }
+  } else if (providerId === "mock") {
+    generated = createMockTranslations(payload, baseMail, sourceEntry, missingLocales, "Mock translation mode selected.");
+    mode = "mock-translations";
+  } else if (providerId === "openai") {
+    generated = createMockTranslations(payload, baseMail, sourceEntry, missingLocales, "OPENAI_API_KEY is not configured on the server.");
+    mode = "mock-translations";
+  } else {
+    generated = createMockTranslations(payload, baseMail, sourceEntry, missingLocales, `${providerId} adapter is planned but not wired yet.`);
+    mode = "mock-translations";
+  }
+
+  const mergedTranslations = sortTranslationEntries(
+    collapseRedundantTranslationEntries(
+      dedupeTranslationEntries([...sourceEntries, ...generated.translations], baseMail)
+    ),
+    payload.brief.locale,
+    requestedLocales
+  );
+  const mergedMail = {
+    ...baseMail,
+    translations: mergedTranslations
+  };
+
+  return {
+    assistantReply: cleanText(generated.assistant_reply)
+      || `Generated missing locales: ${missingLocales.join(", ")}.`,
+    mode,
+    generatedLocales: missingLocales,
+    translationText: renderTranslationBundle(mergedTranslations),
+    uploadStatus: `Translation bundle now contains ${mergedTranslations.length} locale file(s). Generated: ${missingLocales.join(", ")}.`,
+    draft: createDraftSnapshot(mergedMail, baseDraft)
+  };
+}
+
 async function serveStatic(request, response) {
   const requestPath = request.url === "/" ? "/index.html" : request.url;
   const sanitizedPath = path
@@ -2245,61 +2837,24 @@ const server = http.createServer(async (request, response) => {
 
     if (request.method === "POST" && request.url === "/api/chat") {
       const payload = normalizePayload(await readRequestBody(request));
-      const providerId = payload.settings.providerId;
+      sendJson(response, 200, await resolveChatResponse(payload));
+      return;
+    }
 
-      if (payload.intent === "discuss") {
-        let discussion;
-        let mode = providerId;
+    if (request.method === "POST" && request.url === "/api/chat/stream") {
+      const payload = normalizePayload(await readRequestBody(request));
+      await streamChatResponse(response, payload);
+      return;
+    }
 
-        if (providerId === "openai" && openAiApiKey) {
-          try {
-            discussion = await createOpenAiDiscussion(payload);
-            mode = "openai-discuss";
-          } catch (error) {
-            discussion = createMockDiscussion(payload, error.message);
-            mode = "mock-discuss";
-          }
-        } else if (providerId === "mock") {
-          discussion = createMockDiscussion(payload, "Mock provider selected in settings");
-          mode = "mock-discuss";
-        } else if (providerId === "openai") {
-          discussion = createMockDiscussion(payload, "OPENAI_API_KEY is not configured on the server");
-          mode = "mock-discuss";
-        } else {
-          discussion = createMockDiscussion(payload, `${providerId} adapter is planned but not wired yet`);
-          mode = "mock-discuss";
-        }
+    if (request.method === "POST" && request.url === "/api/translations/generate") {
+      const rawPayload = await readRequestBody(request);
+      const payload = normalizePayload(rawPayload);
+      const existingDraft = rawPayload?.draft && typeof rawPayload.draft === "object"
+        ? rawPayload.draft
+        : null;
 
-        sendJson(response, 200, {
-          assistantReply: discussion.assistantReply,
-          mode
-        });
-        return;
-      }
-
-      let generated;
-      let mode = providerId;
-
-      if (providerId === "openai" && openAiApiKey) {
-        try {
-          generated = await createOpenAiDraft(payload);
-          mode = "openai";
-        } catch (error) {
-          generated = createMockDraft(payload, error.message);
-          mode = "mock";
-        }
-      } else if (providerId === "mock") {
-        generated = createMockDraft(payload, "Mock provider selected in settings");
-        mode = "mock";
-      } else if (providerId === "openai") {
-        generated = createMockDraft(payload, "OPENAI_API_KEY is not configured on the server");
-        mode = "mock";
-      } else {
-        generated = createMockDraft(payload, `${providerId} adapter is planned but not wired yet`);
-        mode = "mock";
-      }
-
-      sendJson(response, 200, materializeDraft(generated, payload, mode));
+      sendJson(response, 200, await generateMissingLocales(payload, existingDraft));
       return;
     }
 
@@ -2335,6 +2890,10 @@ const server = http.createServer(async (request, response) => {
 
     sendJson(response, 404, { error: "Not found" });
   } catch (error) {
+    if (response.headersSent) {
+      response.end();
+      return;
+    }
     sendJson(response, 500, {
       error: error instanceof Error ? error.message : "Unknown server error"
     });

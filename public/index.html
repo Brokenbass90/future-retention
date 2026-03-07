@@ -73,6 +73,9 @@
               <span>Upload translation folder</span>
               <input id="translationFolderInput" type="file" accept=".json,.txt,.md" webkitdirectory directory multiple />
             </label>
+            <button class="ghost-button translation-generate-button" id="generateLocalesBtn" type="button">
+              Generate missing locales
+            </button>
           </section>
 
           <section class="upload-tile">
@@ -133,6 +136,10 @@
               <label class="field">
                 <span>Primary locale</span>
                 <input id="locale" type="text" placeholder="en, de, fr..." />
+              </label>
+              <label class="field">
+                <span>Requested locales</span>
+                <input id="requestedLocales" type="text" placeholder="en, de, fr_FR, es_ES" />
               </label>
               <label class="field">
                 <span>Email-base category</span>

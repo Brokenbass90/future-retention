@@ -256,6 +256,18 @@ body {
   border: 1px solid rgba(33, 66, 50, 0.1);
 }
 
+.message.is-streaming::after {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-left: 8px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.45;
+  animation: pulse-dot 1s ease-in-out infinite;
+}
+
 :root[data-theme="dark"] .message.assistant {
   background: #16241f;
   border-color: rgba(141, 179, 155, 0.12);
@@ -360,6 +372,14 @@ body {
 .ghost-button:hover,
 .tab:hover {
   transform: translateY(-1px);
+}
+
+.primary-button:disabled,
+.ghost-button:disabled,
+.tab:disabled {
+  cursor: default;
+  opacity: 0.55;
+  transform: none;
 }
 
 .secondary-button {
@@ -668,6 +688,10 @@ body {
   width: 100%;
 }
 
+.translation-generate-button {
+  justify-self: start;
+}
+
 @media (max-width: 1360px) {
   .main-grid {
     grid-template-columns: 1fr;
@@ -729,5 +753,18 @@ body {
 
   .chat-actions {
     display: grid;
+  }
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.8);
+  }
+
+  50% {
+    opacity: 0.75;
+    transform: scale(1);
   }
 }
