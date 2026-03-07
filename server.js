@@ -3,7 +3,7 @@ import path from "node:path";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { existsSync, readdirSync } from "node:fs";
-import { readFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -412,6 +412,466 @@ async function buildEmailBasePreview(category, mailId, locale) {
         2
       ),
       buildLog: [result.stdout, result.stderr].filter(Boolean).join("\n").trim() || "Build completed."
+    }
+  };
+}
+
+function ensureSafeCategoryName(value) {
+  const category = cleanText(value);
+  if (!category || !/^[A-Za-z0-9_-]+$/.test(category)) {
+    throw new Error("Invalid email-base category");
+  }
+  return category;
+}
+
+function resolveStudioMailId(rawMailId, campaignName) {
+  const explicit = slugify(cleanText(rawMailId).replace(/^mail-/, ""));
+  if (explicit && explicit !== "draft") {
+    return explicit;
+  }
+
+  const fromCampaign = slugify(campaignName);
+  if (fromCampaign && fromCampaign !== "draft") {
+    return fromCampaign;
+  }
+
+  return `studio-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}`;
+}
+
+function getStudioTranslationFileKey(mailId) {
+  return `studio-${slugify(mailId)}`;
+}
+
+function makeTranslationToken(fileKey, keyPath) {
+  return `\${{ ${fileKey}.${keyPath} }}$`;
+}
+
+function formatTextForLocaleJson(value) {
+  const text = cleanText(value);
+  if (!text) {
+    return "";
+  }
+
+  const withStrong = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+  return withStrong.replace(/\r?\n/g, "<br>");
+}
+
+function formatPlainLocaleText(value) {
+  return cleanText(value).replace(/\*\*(.*?)\*\*/g, "$1");
+}
+
+function getMailAssetMap(mail) {
+  return new Map((mail.assets || []).map((asset) => [asset.key, asset]));
+}
+
+function getSectionLocaleKey(index) {
+  return `section_${String(index + 1).padStart(2, "0")}`;
+}
+
+function buildLocaleSectionMap(mail, translationEntry) {
+  const sections = {};
+  const blocks = Array.isArray(translationEntry?.body_blocks) ? translationEntry.body_blocks : [];
+  const heroSectionIndex = mail.sections.findIndex((section) => section.kind === "hero");
+  const featureSectionIndex = mail.sections.findIndex((section) => section.kind === "feature-list");
+  const ctaSectionIndex = mail.sections.findIndex((section) => section.kind === "cta");
+
+  for (const [index, section] of mail.sections.entries()) {
+    const key = getSectionLocaleKey(index);
+    sections[key] = {
+      eyebrow: formatTextForLocaleJson(section.eyebrow),
+      title: formatTextForLocaleJson(section.title),
+      body: formatTextForLocaleJson(section.body),
+      cta_label: formatTextForLocaleJson(section.cta_label),
+      items: Array.isArray(section.items) ? section.items.map(formatTextForLocaleJson) : []
+    };
+  }
+
+  if (blocks.length > 0 && heroSectionIndex >= 0) {
+    const heroKey = getSectionLocaleKey(heroSectionIndex);
+    if (blocks[0]) {
+      sections[heroKey].title = formatTextForLocaleJson(blocks[0]);
+    }
+    if (blocks[1]) {
+      sections[heroKey].body = formatTextForLocaleJson(blocks[1]);
+    }
+    if (translationEntry?.cta_labels?.[0]) {
+      sections[heroKey].cta_label = formatTextForLocaleJson(translationEntry.cta_labels[0]);
+    }
+  }
+
+  if (blocks.length > 2 && featureSectionIndex >= 0) {
+    const featureKey = getSectionLocaleKey(featureSectionIndex);
+    const itemCount = Math.max(sections[featureKey].items.length, Math.min(4, blocks.length - 2));
+    const localizedItems = blocks.slice(2, 2 + itemCount).map(formatTextForLocaleJson).filter(Boolean);
+    if (localizedItems.length > 0) {
+      sections[featureKey].items = localizedItems;
+    }
+  }
+
+  if (translationEntry?.cta_labels?.[0] && ctaSectionIndex >= 0) {
+    const ctaKey = getSectionLocaleKey(ctaSectionIndex);
+    if (sections[ctaKey].cta_label) {
+      sections[ctaKey].cta_label = formatTextForLocaleJson(translationEntry.cta_labels[0]);
+    }
+  }
+
+  return sections;
+}
+
+function createLocalePayloadForEntry(mail, translationEntry) {
+  return {
+    subject: formatPlainLocaleText(translationEntry?.subject || mail.subject),
+    preheader: formatPlainLocaleText(translationEntry?.preheader || mail.preheader),
+    summary: formatPlainLocaleText(translationEntry?.notes || mail.summary),
+    sections: buildLocaleSectionMap(mail, translationEntry),
+    body_blocks: Array.isArray(translationEntry?.body_blocks)
+      ? translationEntry.body_blocks.map(formatTextForLocaleJson)
+      : [],
+    cta_labels: Array.isArray(translationEntry?.cta_labels)
+      ? translationEntry.cta_labels.map(formatTextForLocaleJson)
+      : [],
+    notes: cleanText(translationEntry?.notes),
+    source_name: cleanText(translationEntry?.source_name)
+  };
+}
+
+function renderStudioSectionPug(section, sectionIndex, assetMap, translationFileKey) {
+  const sectionKey = getSectionLocaleKey(sectionIndex);
+  const token = (field) => makeTranslationToken(translationFileKey, `sections.${sectionKey}.${field}`);
+  const lines = [
+    "                        tr",
+    `                            td.section.section-${section.kind}`
+  ];
+  const asset = section.image_key ? assetMap.get(section.image_key) : null;
+
+  if (asset) {
+    lines.push(
+      `                                img.section-image(src=${JSON.stringify(asset.url)} alt=${JSON.stringify(asset.alt || asset.key)} width=${JSON.stringify(String(asset.width || 580))} height=${JSON.stringify(String(asset.height || 280))})`
+    );
+  }
+
+  if (section.eyebrow) {
+    lines.push(`                                p.eyebrow!= ${JSON.stringify(token("eyebrow"))}`);
+  }
+
+  if (section.title) {
+    lines.push(`                                h1.section-title!= ${JSON.stringify(token("title"))}`);
+  }
+
+  if (section.body) {
+    lines.push(`                                p.section-body!= ${JSON.stringify(token("body"))}`);
+  }
+
+  if (Array.isArray(section.items) && section.items.length > 0) {
+    lines.push("                                table.feature-table(role=\"presentation\" width=\"100%\")");
+    for (let itemIndex = 0; itemIndex < section.items.length; itemIndex += 1) {
+      lines.push("                                    tr");
+      lines.push(`                                        td.feature-item!= ${JSON.stringify(makeTranslationToken(translationFileKey, `sections.${sectionKey}.items.${itemIndex}`))}`);
+    }
+  }
+
+  if (section.cta_label && section.cta_href) {
+    lines.push("                                table.button-wrap(role=\"presentation\")");
+    lines.push("                                    tr");
+    lines.push("                                        td");
+    lines.push(`                                            a.button-link(href=${JSON.stringify(section.cta_href)} universal="true" target="_blank")!= ${JSON.stringify(token("cta_label"))}`);
+  }
+
+  return lines.join("\n");
+}
+
+function renderStudioEmailBaseTemplate(mail, translationFileKey) {
+  const assetMap = getMailAssetMap(mail);
+  const sectionLines = mail.sections
+    .map((section, index) => renderStudioSectionPug(section, index, assetMap, translationFileKey))
+    .join("\n");
+
+  return [
+    "doctype html",
+    "html(xmlns=\"http://www.w3.org/1999/xhtml\")",
+    "",
+    "    include ../../../../vendor/helpers/head",
+    "    <u></u>",
+    "    body.email-body",
+    "        div.preheader",
+    `            != ${JSON.stringify(makeTranslationToken(translationFileKey, "preheader"))}`,
+    "            |  &nbsp;&raquo;&nbsp;&raquo;&nbsp;&raquo;&nbsp;&raquo;&nbsp;&raquo;&nbsp;&raquo;&nbsp;&raquo;&nbsp;&raquo;&nbsp;&raquo;",
+    "        table.email-bg(role=\"presentation\" width=\"100%\")",
+    "            tr",
+    "                td(align=\"center\")",
+    "                    table.email-canvas(role=\"presentation\" width=\"100%\")",
+    sectionLines,
+    "                        tr",
+    "                            td.section.section-footer-legal",
+    "                                p.footer-address {{embedded.company_address}}",
+    "                                p.footer-warning {{embedded.risk_warning}}",
+    "                                p.footer-links",
+    "                                    a(href=\"{{embedded.company_terms_link}}\" universal=\"true\" target=\"_blank\") ${{ footer.footer.conditions }}$",
+    "                                    |  | ",
+    "                                    a(href=\"{{embedded.unsubscribe_link}}\" universal=\"true\" target=\"_blank\") ${{ footer.footer.unsubscribe }}$",
+    "",
+    "        include ../../../../vendor/helpers/gmail-fix",
+    ""
+  ].join("\n");
+}
+
+function renderStudioCommonStylus() {
+  return `
+body
+  margin 0
+  padding 0
+  background #eef2e8
+  color #14281d
+  font-family 'Arial', sans-serif
+
+table
+  border-collapse collapse
+  border-spacing 0
+  mso-table-lspace 0pt
+  mso-table-rspace 0pt
+
+img
+  border 0
+  display block
+  line-height 100%
+  outline none
+  text-decoration none
+  max-width 100%
+
+.preheader
+  display none !important
+  visibility hidden
+  opacity 0
+  overflow hidden
+  mso-hide all
+  font-size 1px
+  line-height 1px
+  max-height 0
+  max-width 0
+  color transparent
+
+.email-bg
+  width 100%
+  background #eef2e8
+
+.email-canvas
+  width 100%
+  max-width 640px
+  margin 0 auto
+  background #fffdf7
+
+.section
+  padding 28px 24px
+  border-bottom 1px solid #dfe7db
+
+.section-hero
+  background #1f3b2c
+  color #fff8ef
+
+.section-cta
+  background #14281d
+  color #fff8ef
+
+.section-footer, .section-footer-legal
+  background #f3efe5
+  color #516253
+
+.section-image
+  width 100%
+  height auto
+  margin 0 0 18px
+
+.eyebrow
+  margin 0 0 10px
+  font-size 12px
+  line-height 18px
+  font-weight 700
+  text-transform uppercase
+  letter-spacing 1.5px
+
+.section-title
+  margin 0 0 12px
+  font-size 30px
+  line-height 36px
+  font-weight 700
+
+.section-body
+  margin 0
+  font-size 16px
+  line-height 24px
+
+.feature-table
+  width 100%
+  margin-top 16px
+
+.feature-item
+  padding 0 0 10px
+  font-size 16px
+  line-height 24px
+
+.button-wrap
+  margin-top 18px
+
+.button-link
+  display inline-block
+  padding 14px 22px
+  background #ff7a2f
+  color #fff8ef !important
+  text-decoration none
+  font-weight 700
+  border-radius 999px
+
+.footer-address, .footer-warning, .footer-links
+  margin 0 0 12px
+  font-size 12px
+  line-height 18px
+  color #516253
+
+.footer-links a
+  color #516253 !important
+  text-decoration underline
+
+@media only screen and (max-width: 640px)
+  .section
+    padding 22px 18px
+
+  .section-title
+    font-size 24px
+    line-height 30px
+`;
+}
+
+async function createEmailBaseMailFromDraft(payload, rawDraft) {
+  const summary = summarizeEmailBase();
+  if (!summary.available) {
+    throw new Error("email-base is not attached");
+  }
+
+  const category = ensureSafeCategoryName(payload.brief.category || summary.currentMail?.category || "X_IQ");
+  const mailId = resolveStudioMailId(payload.brief.mailId, payload.brief.campaignName);
+  const mail = normalizeMail(rawDraft, payload);
+  const translationFileKey = getStudioTranslationFileKey(mailId);
+  const locales = Array.from(new Set((mail.translations || []).map((entry) => cleanText(entry.locale)).filter(Boolean)));
+  const primaryLocale = cleanText(payload.brief.locale || mail.locale || locales[0] || "en");
+  const mailRoot = path.join(emailBaseRoot, category, `mail-${mailId}`);
+  const templatesRoot = path.join(mailRoot, "app", "templates");
+  const stylesRoot = path.join(mailRoot, "app", "styles");
+  const templatePath = path.join(templatesRoot, "index.pug");
+  const stylePath = path.join(stylesRoot, "common.styl");
+  const metaPath = path.join(mailRoot, "studio.mail.json");
+
+  if (existsSync(mailRoot)) {
+    throw new Error(`email-base target already exists: ${category}/mail-${mailId}`);
+  }
+
+  const localePayloads = new Map();
+  for (const entry of mail.translations) {
+    const locale = cleanText(entry.locale);
+    if (!locale) {
+      continue;
+    }
+    localePayloads.set(locale, createLocalePayloadForEntry(mail, entry));
+  }
+
+  if (!localePayloads.has(primaryLocale)) {
+    localePayloads.set(primaryLocale, createLocalePayloadForEntry(mail, {
+      locale: primaryLocale,
+      subject: mail.subject,
+      preheader: mail.preheader,
+      cta_labels: collectCtaLabels(mail),
+      body_blocks: [],
+      notes: "",
+      source_name: ""
+    }));
+  }
+
+  for (const locale of localePayloads.keys()) {
+    const targetPath = path.join(emailBaseRoot, "vendor", "data", locale, `${translationFileKey}.json`);
+    if (existsSync(targetPath)) {
+      throw new Error(`Translation file already exists: vendor/data/${locale}/${translationFileKey}.json`);
+    }
+  }
+
+  await mkdir(templatesRoot, { recursive: true });
+  await mkdir(stylesRoot, { recursive: true });
+  await writeFile(templatePath, renderStudioEmailBaseTemplate(mail, translationFileKey), "utf8");
+  await writeFile(stylePath, renderStudioCommonStylus().trimStart(), "utf8");
+  await writeFile(metaPath, JSON.stringify({
+    created_at: new Date().toISOString(),
+    source: "email-studio",
+    category,
+    mail_id: mailId,
+    translation_file: translationFileKey,
+    primary_locale: primaryLocale,
+    mail
+  }, null, 2), "utf8");
+
+  for (const [locale, localePayload] of localePayloads.entries()) {
+    const localeDir = path.join(emailBaseRoot, "vendor", "data", locale);
+    await mkdir(localeDir, { recursive: true });
+    await writeFile(
+      path.join(localeDir, `${translationFileKey}.json`),
+      JSON.stringify(localePayload, null, 2),
+      "utf8"
+    );
+  }
+
+  const buildResult = await runCommand(
+    process.execPath,
+    ["mail", "build-pretty", category, mailId, "--locales", primaryLocale],
+    emailBaseRoot
+  );
+
+  const distDir = path.join(emailBaseRoot, "dist", category, `mail-${mailId}`, primaryLocale);
+  const prettyPath = path.join(distDir, "index.pretty.html");
+  const compactPath = path.join(distDir, "index.html");
+  const htmlPath = existsSync(prettyPath) ? prettyPath : compactPath;
+  const html = await readFile(htmlPath, "utf8");
+  const templateSource = await readFile(templatePath, "utf8");
+  const localeSource = JSON.stringify(localePayloads.get(primaryLocale), null, 2);
+  const assets = extractAssetRecordsFromHtml(html);
+
+  return {
+    assistantReply: `Сохранил draft в email-base как ${category}/mail-${mailId}, записал ${localePayloads.size} locale file(s) и собрал ${primaryLocale} preview.`,
+    mode: "email-base",
+    saved: {
+      category,
+      mailId,
+      folder: `${category}/mail-${mailId}`,
+      translationFile: `${translationFileKey}.json`,
+      locales: Array.from(localePayloads.keys())
+    },
+    draft: {
+      mail: {
+        ...mail,
+        assets: assets.length > 0 ? assets : mail.assets,
+        translations: Array.from(localePayloads.entries()).map(([locale, localePayload]) => ({
+          locale,
+          subject: localePayload.subject,
+          preheader: localePayload.preheader,
+          cta_labels: localePayload.cta_labels || [],
+          notes: localePayload.notes || "",
+          body_blocks: localePayload.body_blocks || [],
+          source_name: localePayload.source_name || `${translationFileKey}.json`
+        }))
+      },
+      html,
+      pug: templateSource,
+      locales: localeSource,
+      assetsManifest: JSON.stringify(
+        Object.fromEntries((mail.assets || []).map((asset) => [asset.key, asset])),
+        null,
+        2
+      ),
+      spec: JSON.stringify({
+        source: "email-studio-save",
+        category,
+        mailId,
+        translationFileKey,
+        primaryLocale,
+        mail
+      }, null, 2),
+      buildLog: [buildResult.stdout, buildResult.stderr].filter(Boolean).join("\n").trim() || "Build completed."
     }
   };
 }
@@ -1851,6 +2311,20 @@ const server = http.createServer(async (request, response) => {
       const locale = cleanText(payload?.brief?.locale || payload?.locale) || payload.brief.locale || "en";
 
       sendJson(response, 200, await buildEmailBasePreview(category, mailId, locale));
+      return;
+    }
+
+    if (request.method === "POST" && request.url === "/api/email-base/create") {
+      const rawPayload = await readRequestBody(request);
+      const payload = normalizePayload(rawPayload);
+      const draftSource = rawPayload?.draft?.mail || rawPayload?.draft || rawPayload?.currentDraft;
+
+      if (!draftSource || typeof draftSource !== "object") {
+        sendJson(response, 400, { error: "Current draft is required to create a mail in email-base" });
+        return;
+      }
+
+      sendJson(response, 200, await createEmailBaseMailFromDraft(payload, draftSource));
       return;
     }
 

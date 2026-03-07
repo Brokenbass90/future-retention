@@ -72,6 +72,7 @@ const refs = {
   settingsDrawer: document.querySelector("#settingsDrawer"),
   settingsBackdrop: document.querySelector("#settingsBackdrop"),
   loadBaseBtn: document.querySelector("#loadBaseBtn"),
+  createBaseMailBtn: document.querySelector("#createBaseMailBtn"),
   buildBaseMailBtn: document.querySelector("#buildBaseMailBtn"),
   addAssetBtn: document.querySelector("#addAssetBtn"),
   assetComposerList: document.querySelector("#assetComposerList"),
@@ -146,6 +147,7 @@ function bindEvents() {
   refs.closeSettingsBtn.addEventListener("click", () => toggleSettings(false));
   refs.settingsBackdrop.addEventListener("click", () => toggleSettings(false));
   refs.loadBaseBtn.addEventListener("click", handleLoadBaseEmail);
+  refs.createBaseMailBtn.addEventListener("click", handleCreateBaseMail);
   refs.buildBaseMailBtn.addEventListener("click", handleLoadBaseEmail);
   refs.addAssetBtn.addEventListener("click", addAssetRow);
 
@@ -555,6 +557,69 @@ async function handleLoadBaseEmail() {
     state.messages.push({
       role: "assistant",
       content: `Ошибка при сборке email-base: ${error.message}`
+    });
+  } finally {
+    state.busy = false;
+    renderAll();
+    persistState();
+  }
+}
+
+async function handleCreateBaseMail() {
+  if (!state.draft?.mail) {
+    state.messages.push({
+      role: "assistant",
+      content: "Сначала собери draft, потом я смогу сохранить его в email-base как новый mail-*."
+    });
+    renderAll();
+    persistState();
+    return;
+  }
+
+  state.busy = true;
+  renderStatus();
+
+  try {
+    const response = await fetch("/api/email-base/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        brief: state.brief,
+        settings: state.settings,
+        draft: state.draft,
+        translationText: state.translationText,
+        assetInputs: state.assetInputs,
+        design: state.design,
+        messages: state.messages
+      })
+    });
+
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.error || "Save to email-base failed");
+    }
+
+    state.mode = payload.mode;
+    state.previewSource = "email-base";
+    state.draft = payload.draft;
+    if (payload.saved?.category) {
+      state.brief.category = payload.saved.category;
+    }
+    if (payload.saved?.mailId) {
+      state.brief.mailId = payload.saved.mailId;
+    }
+    state.messages.push({
+      role: "assistant",
+      content: payload.assistantReply
+    });
+    await loadApiStatus();
+    toggleSettings(false);
+  } catch (error) {
+    state.messages.push({
+      role: "assistant",
+      content: `Ошибка при сохранении в email-base: ${error.message}`
     });
   } finally {
     state.busy = false;
