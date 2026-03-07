@@ -1,80 +1,67 @@
-# Email Studio Demo
+# Future Retention Studio
 
-Локальная демка email-studio: чат с ассистентом, brief, загрузка design reference, links с картинками, translations, preview письма, настройки тулзы и привязка к реальной `email-base`.
+Локальная студия для сборки email-кампаний вокруг вашей `email-base`.
 
-## Что уже есть
+Сейчас это уже не просто демо, а рабочий MVP со следующими возможностями:
+- live chat со streaming-ответами;
+- chat-centric intake для design, локалей и картинок;
+- локальный asset registry с переиспользованием картинок внутри проекта;
+- preview + heuristic diagnostics по email clients;
+- viewport toggle `Fit / Desktop / Mobile` в preview;
+- редакторы локалей, assets и кода в попапах;
+- автогенерация missing locales;
+- сохранение нового письма в `email-base` как новый `mail-*`;
+- первый `block catalog`, собранный из реальных шаблонов в базе.
 
-- Чат-интерфейс для постановки задачи.
-- Панель brief: кампания, локаль, аудитория, goal, tone, CTA.
-- Поля для asset links, design image URL, upload дизайна и translations JSON/text.
-- Preview письма в `iframe`.
-- Вкладки с `HTML`, `Pug`, `Locales`, `Assets`, `Mail spec`.
-- Вкладка `Build log`.
-- `Mock mode`, если `OPENAI_API_KEY` не задан.
-- `Live mode` через OpenAI `Responses API`, если ключ задан.
-- Settings drawer: `theme`, `AI provider`, `client preview profile`.
-- Heuristic `client diagnostics` вместо внешнего Litmus-подобного сервиса.
-- Кнопка сборки реального письма из `email-base`.
-
-## Как запустить
+## Запуск
 
 ```bash
 npm start
 ```
 
-Сервер стартует на [http://localhost:3000](http://localhost:3000).
+Открыть: [http://localhost:3000](http://localhost:3000)
 
-Для live-режима задайте переменные окружения:
+Для live-режима OpenAI:
 
 ```bash
-export OPENAI_API_KEY=your_key_here
-export OPENAI_MODEL=gpt-4.1-mini
+export OPENAI_API_KEY="your_key_here"
+export OPENAI_MODEL="gpt-4.1-mini"
 npm start
 ```
 
-Если ключ не задан или запрос к API падает, демка автоматически уходит в `mock mode`.
+Без ключа приложение работает в `mock mode`.
 
-## Как это работает
+## Как пользоваться
 
-1. UI собирает brief, ссылки на картинки, design reference, translations и последние сообщения чата.
-2. Сервер либо вызывает OpenAI `Responses API`, либо генерирует mock draft.
-3. На выходе получается структурированный `mail spec`.
-4. Из `mail spec` локально рендерятся:
-   - preview HTML
-   - Pug sketch
-   - locales JSON
-   - assets manifest
-5. Отдельно можно собрать настоящее письмо из `email-base` и загрузить его preview/code прямо в UI.
+1. Вставляйте задачу в чат.
+2. Туда же attach/drop/paste:
+   - design screenshot,
+   - translation files или целую папку,
+   - картинки для письма.
+3. Жмите `Обсудить`, если хотите просто поговорить о письме.
+4. Жмите `Обновить драфт`, если хотите применить решения к preview и коду.
+5. Правьте тексты в `Locales`, assets в `Assets`, код и spec в `Code`.
+6. Сохраняйте результат в `email-base` кнопкой `Save as new email-base mail`.
 
-Это важно: preview и код строятся не из произвольного ответа модели, а из одного структурированного draft. Это правильная база для будущего production-продукта.
+## Основные директории
 
-## GitHub / GitLab
+- [public](/Users/nikolay.bulgakov/Documents/retantion-future/public) — frontend студии
+- [server.js](/Users/nikolay.bulgakov/Documents/retantion-future/server.js) — HTTP server, AI orchestration, email-base bridge
+- [email-base](/Users/nikolay.bulgakov/Documents/retantion-future/email-base) — локальная копия базы писем
+- [data](/Users/nikolay.bulgakov/Documents/retantion-future/data) — generated artifacts студии, включая `block-catalog.json`
+- [docs](/Users/nikolay.bulgakov/Documents/retantion-future/docs) — overview и журнал разработки
 
-Да, проект стоит хранить в Git, а не только локально.
+## Документация
 
-Рекомендованный базовый поток:
+- [PROJECT-OVERVIEW.md](/Users/nikolay.bulgakov/Documents/retantion-future/docs/PROJECT-OVERVIEW.md)
+- [DEVELOPMENT-JOURNAL.md](/Users/nikolay.bulgakov/Documents/retantion-future/docs/DEVELOPMENT-JOURNAL.md)
+- [AI-SANDBOX.md](/Users/nikolay.bulgakov/Documents/retantion-future/docs/AI-SANDBOX.md)
 
-```bash
-git init -b main
-git add .
-git commit -m "Initial email studio demo"
-git remote add origin <github-or-gitlab-repo-url>
-git push -u origin main
-```
+## Что дальше
 
-Что я бы делал дальше для реальной связки с GitHub/GitLab:
-
-- хранить `mail spec` драфты в репозитории, а не только в браузере;
-- делать отдельную ветку на каждый новый draft письма;
-- поднимать Pull Request / Merge Request после генерации;
-- складывать generated files рядом с canonical block catalog;
-- добавить серверные действия `save draft`, `create branch`, `open PR/MR`.
-
-## Следующий инженерный шаг
-
-После этой демки логично добавить 4 вещи:
-
-1. `Block catalog` и JSON-схемы блоков.
-2. `Asset registry` с ключами вместо сырых URL.
-3. `Email-base bridge` для генерации файлов в вашем формате.
-4. Git sync actions для branch / commit / PR(MR).
+Следующие сильные шаги:
+- связка asset registry с внешним CDN / файловым хранилищем;
+- более точный block catalog и reusable block definitions;
+- richer save-flow в `email-base` с редактированием generated файлов;
+- provider adapters для других моделей;
+- более сильный email-client lint и release-check pipeline.

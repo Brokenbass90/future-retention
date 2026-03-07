@@ -3,25 +3,21 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Email Studio Demo</title>
+    <title>retantion future</title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
     <div class="page-shell">
       <header class="topbar">
-        <div>
-          <div class="label">Email Studio Demo</div>
-          <h1>AI-редактор писем с живым чатом, preview и привязкой к email-base</h1>
-          <p class="subtitle">
-            Теперь главная точка входа это сам чат: сюда можно подгружать design, локали и картинки,
-            а редактирование текстов и кода вынесено в отдельные рабочие попапы.
-          </p>
+        <div class="brand-lockup">
+          <div class="brand-mark">retantion future</div>
         </div>
         <div class="topbar-actions">
           <span class="pill" id="apiStatus">Проверяю API...</span>
           <button class="ghost-button" id="loadBaseBtn" type="button">Load base email</button>
+          <button class="ghost-button" id="openJournalBtn" type="button">Journal</button>
           <button class="ghost-button" id="settingsBtn" type="button">Settings</button>
-          <button class="ghost-button" id="fillDemoBtn" type="button">Заполнить демо</button>
+          <button class="ghost-button dev-only" id="fillDemoBtn" type="button" hidden>Заполнить демо</button>
           <button class="ghost-button" id="clearStateBtn" type="button">Очистить</button>
         </div>
       </header>
@@ -31,11 +27,12 @@
           <section class="card chat-card">
             <div class="card-header">
               <div>
-                <div class="card-kicker">01</div>
-                <h2>Живой чат с ассистентом</h2>
+                <h2>
+                  Чат
+                  <span class="help-tip" data-tip="Обычная переписка как в рабочем чате. Можно просто обсуждать письмо, а можно отдельно применять изменения к текущему draft.">?</span>
+                </h2>
               </div>
               <div class="chat-header-side">
-                <p>Можно обсуждать письмо без перегенерации или сразу применять изменения к draft.</p>
                 <button class="ghost-button" id="clearChatBtn" type="button">Очистить чат</button>
               </div>
             </div>
@@ -43,10 +40,9 @@
             <div class="chat-intake translation-tile" id="translationDropZone">
               <div class="chat-intake-main">
                 <div>
-                  <div class="card-kicker">Chat Intake</div>
-                  <h3>Сюда можно вставлять design, локали и картинки</h3>
+                  <h3>Вставляй design, локали и картинки прямо сюда</h3>
                 </div>
-                <p>Drop, paste или attach. Скрин из Figma можно просто вставить прямо в окно чата.</p>
+                <p>Drop, paste или attach.</p>
               </div>
 
               <div class="chat-intake-actions">
@@ -89,8 +85,8 @@
                 ></textarea>
               </label>
               <div class="chat-actions">
-                <button class="ghost-button secondary-button" data-intent="discuss" type="submit">Обсудить</button>
-                <button class="primary-button" id="sendBtn" data-intent="draft" type="submit">Обновить драфт</button>
+                <button class="ghost-button secondary-button" data-intent="discuss" type="submit">Отправить в чат</button>
+                <button class="primary-button" id="sendBtn" data-intent="draft" type="submit">Применить к письму</button>
               </div>
             </form>
           </section>
@@ -98,10 +94,8 @@
           <section class="card">
             <div class="card-header">
               <div>
-                <div class="card-kicker">02</div>
                 <h2>Brief</h2>
               </div>
-              <p>Это будущий input для генератора и для сохранения писем в базе.</p>
             </div>
 
             <div class="field-grid">
@@ -130,19 +124,19 @@
                 <input id="audience" type="text" />
               </label>
               <label class="field">
-                <span>Tone</span>
+                <span>Tone <span class="help-tip" data-tip="Tone это характер текста: спокойный, агрессивный, премиальный, нейтральный, urgent, friendly.">?</span></span>
                 <input id="tone" type="text" />
               </label>
               <label class="field field-wide">
-                <span>Goal</span>
+                <span>Goal <span class="help-tip" data-tip="Что пользователь должен сделать после письма. Например: вернуться в продукт, сделать депозит, открыть оффер, пройти KYC.">?</span></span>
                 <input id="goal" type="text" />
               </label>
               <label class="field">
-                <span>Primary CTA</span>
+                <span>Primary CTA <span class="help-tip" data-tip="Текст главной кнопки письма. Например: Trade now, Reactivate now, Claim bonus.">?</span></span>
                 <input id="primaryCta" type="text" />
               </label>
               <label class="field">
-                <span>Primary link</span>
+                <span>Primary link <span class="help-tip" data-tip="Ссылка главной кнопки. Сюда же обычно входят трекинг-параметры, retrack, afftrack или utm.">?</span></span>
                 <input id="primaryLink" type="url" placeholder="https://..." />
               </label>
               <label class="field field-wide">
@@ -189,22 +183,35 @@
           <section class="card preview-card">
             <div class="card-header">
               <div>
-                <div class="card-kicker">03</div>
-                <h2>Preview</h2>
+                <h2>
+                  Preview
+                  <span class="help-tip" data-tip="Это быстрый просмотр письма. Для реальной проверки по вашей базе используй Load base email и client profile в Settings.">?</span>
+                </h2>
               </div>
-              <p>Preview учитывает выбранный client profile и может переключаться на реальный build из email-base.</p>
+              <div class="preview-toolbar">
+                <button class="ghost-button viewport-button" data-preview-viewport="fit" type="button">Fit</button>
+                <button class="ghost-button viewport-button" data-preview-viewport="desktop" type="button">Desktop</button>
+                <button class="ghost-button viewport-button" data-preview-viewport="mobile" type="button">Mobile</button>
+              </div>
             </div>
-            <iframe id="previewFrame" title="Email preview"></iframe>
+            <div class="preview-stage" id="previewStage" data-viewport="fit">
+              <iframe id="previewFrame" title="Email preview"></iframe>
+            </div>
           </section>
 
           <section class="card">
             <div class="card-header">
               <div>
-                <div class="card-kicker">04</div>
-                <h2>Block outline</h2>
+                <h2>
+                  Blocks
+                  <span class="help-tip" data-tip="Здесь видно, как письмо раскладывается на секции и совпадает ли секция с каноническим блоком из email-base.">?</span>
+                </h2>
               </div>
-              <p>Письмо уже разбирается на блоки. Это заготовка для будущего block catalog и повторного использования секций.</p>
+              <div class="card-header-actions">
+                <button class="ghost-button" id="refreshCatalogBtn" type="button">Refresh catalog</button>
+              </div>
             </div>
+            <div class="block-catalog-summary" id="blockCatalogSummary"></div>
             <div class="block-list" id="blockList"></div>
             <div class="diagnostics-list compact" id="diagnosticsList"></div>
           </section>
@@ -261,6 +268,12 @@
           <button class="primary-button settings-build-button" id="buildBaseMailBtn" type="button">
             Build current email-base mail
           </button>
+        </section>
+
+        <section class="settings-section">
+          <h3>Studio journal</h3>
+          <div class="settings-info" id="journalSummary"></div>
+          <button class="ghost-button settings-build-button" id="openJournalFromSettingsBtn" type="button">Open journal</button>
         </section>
       </div>
     </aside>
@@ -327,6 +340,14 @@
           </div>
           <div class="asset-list" id="assetList"></div>
         </section>
+
+        <section class="modal-section">
+          <div class="modal-section-head">
+            <strong>Asset library</strong>
+            <div class="modal-meta" id="assetRegistryMeta">Файлов пока нет.</div>
+          </div>
+          <div class="asset-library-list" id="assetLibraryList"></div>
+        </section>
       </div>
     </section>
 
@@ -356,6 +377,22 @@
         <button class="ghost-button" id="closeCodeFooterBtn" type="button">Close</button>
         <button class="ghost-button" id="saveCodeBtn" type="button">Save code edits</button>
         <button class="primary-button" id="createBaseMailFromCodeBtn" type="button">Save as new email-base mail</button>
+      </div>
+    </section>
+
+    <section class="workspace-modal" id="journalModal" aria-hidden="true">
+      <div class="workspace-modal-header">
+        <div>
+          <h2>Studio journal</h2>
+        </div>
+        <button class="ghost-button" id="closeJournalModalBtn" type="button">Close</button>
+      </div>
+      <div class="workspace-modal-body">
+        <div class="diagnostics-list" id="journalList"></div>
+      </div>
+      <div class="workspace-modal-footer">
+        <button class="ghost-button" id="closeJournalFooterBtn" type="button">Close</button>
+        <button class="ghost-button" id="clearJournalBtn" type="button">Clear journal</button>
       </div>
     </section>
 

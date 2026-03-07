@@ -13,6 +13,7 @@ const initialState = {
   activeTab: "html",
   mode: "mock",
   previewSource: "draft",
+  previewViewport: "fit",
   settings: {
     theme: "light",
     providerId: "mock",
@@ -50,7 +51,20 @@ const initialState = {
   workspaceModal: "",
   localeEditorDocs: [],
   activeLocaleDoc: "",
-  codeEditorBuffer: ""
+  codeEditorBuffer: "",
+  blockCatalog: {
+    generatedAt: "",
+    items: [],
+    summary: null
+  },
+  assetRegistry: {
+    items: [],
+    summary: null
+  },
+  journal: {
+    entries: [],
+    summary: null
+  }
 };
 
 const state = structuredClone(initialState);
@@ -93,16 +107,21 @@ const refs = {
   openAssetsBtn: document.querySelector("#openAssetsBtn"),
   openBlocksBtn: document.querySelector("#openBlocksBtn"),
   openCodeBtn: document.querySelector("#openCodeBtn"),
+  openJournalBtn: document.querySelector("#openJournalBtn"),
+  openJournalFromSettingsBtn: document.querySelector("#openJournalFromSettingsBtn"),
   designBadge: document.querySelector("#designBadge"),
   translationBadge: document.querySelector("#translationBadge"),
   localesModal: document.querySelector("#localesModal"),
   assetsModal: document.querySelector("#assetsModal"),
   codeModal: document.querySelector("#codeModal"),
+  journalModal: document.querySelector("#journalModal"),
   closeLocalesModalBtn: document.querySelector("#closeLocalesModalBtn"),
   closeLocalesFooterBtn: document.querySelector("#closeLocalesFooterBtn"),
   closeAssetsModalBtn: document.querySelector("#closeAssetsModalBtn"),
   closeCodeModalBtn: document.querySelector("#closeCodeModalBtn"),
   closeCodeFooterBtn: document.querySelector("#closeCodeFooterBtn"),
+  closeJournalModalBtn: document.querySelector("#closeJournalModalBtn"),
+  closeJournalFooterBtn: document.querySelector("#closeJournalFooterBtn"),
   saveLocaleEditsBtn: document.querySelector("#saveLocaleEditsBtn"),
   saveCodeBtn: document.querySelector("#saveCodeBtn"),
   createBaseMailFromCodeBtn: document.querySelector("#createBaseMailFromCodeBtn"),
@@ -113,18 +132,23 @@ const refs = {
   codeEditorMeta: document.querySelector("#codeEditorMeta"),
   designEmptyState: document.querySelector("#designEmptyState"),
   assetComposerList: document.querySelector("#assetComposerList"),
+  assetLibraryList: document.querySelector("#assetLibraryList"),
+  assetRegistryMeta: document.querySelector("#assetRegistryMeta"),
   subjectValue: document.querySelector("#subjectValue"),
   preheaderValue: document.querySelector("#preheaderValue"),
   localeValue: document.querySelector("#localeValue"),
   modeValue: document.querySelector("#modeValue"),
   sourceValue: document.querySelector("#sourceValue"),
   assistantReply: document.querySelector("#assistantReply"),
+  previewStage: document.querySelector("#previewStage"),
   previewFrame: document.querySelector("#previewFrame"),
+  previewViewportButtons: Array.from(document.querySelectorAll("[data-preview-viewport]")),
   codeOutput: document.querySelector("#codeOutput"),
   codeTabs: Array.from(document.querySelectorAll(".tab")),
   assetList: document.querySelector("#assetList"),
   diagnosticsList: document.querySelector("#diagnosticsList"),
   blockList: document.querySelector("#blockList"),
+  blockCatalogSummary: document.querySelector("#blockCatalogSummary"),
   designFile: document.querySelector("#designFile"),
   translationFile: document.querySelector("#translationFile"),
   translationFolderInput: document.querySelector("#translationFolderInput"),
@@ -133,6 +157,7 @@ const refs = {
   designPreviewWrap: document.querySelector("#designPreviewWrap"),
   designPreview: document.querySelector("#designPreview"),
   designCaption: document.querySelector("#designCaption"),
+  refreshCatalogBtn: document.querySelector("#refreshCatalogBtn"),
   generateLocalesBtn: document.querySelector("#generateLocalesBtn") || document.querySelector("#generateLocalesModalBtn"),
   themeSelect: document.querySelector("#themeSelect"),
   providerSelect: document.querySelector("#providerSelect"),
@@ -140,6 +165,9 @@ const refs = {
   clientProfileSelect: document.querySelector("#clientProfileSelect"),
   clientProfileHelp: document.querySelector("#clientProfileHelp"),
   emailBaseSummary: document.querySelector("#emailBaseSummary"),
+  journalSummary: document.querySelector("#journalSummary"),
+  clearJournalBtn: document.querySelector("#clearJournalBtn"),
+  journalList: document.querySelector("#journalList"),
   fields: {
     campaignName: document.querySelector("#campaignName"),
     category: document.querySelector("#category"),
@@ -181,7 +209,7 @@ function createEmptyAsset(index = 1) {
 function bindEvents() {
   refs.chatForm.addEventListener("submit", handleChatSubmit);
   refs.chatInput.addEventListener("paste", handleChatPaste);
-  refs.fillDemoBtn.addEventListener("click", fillDemoScenario);
+  refs.fillDemoBtn?.addEventListener("click", fillDemoScenario);
   refs.clearChatBtn.addEventListener("click", clearChatHistory);
   refs.clearStateBtn.addEventListener("click", resetState);
   refs.settingsBtn.addEventListener("click", () => toggleSettings(true));
@@ -204,16 +232,22 @@ function bindEvents() {
   refs.openLocalesBtn.addEventListener("click", openLocalesModal);
   refs.openAssetsBtn.addEventListener("click", () => openWorkspaceModal("assets"));
   refs.openCodeBtn.addEventListener("click", openCodeModal);
+  refs.openJournalBtn.addEventListener("click", openJournalModal);
+  refs.openJournalFromSettingsBtn.addEventListener("click", openJournalModal);
   refs.openBlocksBtn.addEventListener("click", scrollToBlocks);
+  refs.refreshCatalogBtn.addEventListener("click", handleRefreshBlockCatalog);
   refs.closeLocalesModalBtn.addEventListener("click", closeWorkspaceModal);
   refs.closeLocalesFooterBtn.addEventListener("click", closeWorkspaceModal);
   refs.closeAssetsModalBtn.addEventListener("click", closeWorkspaceModal);
   refs.closeCodeModalBtn.addEventListener("click", closeWorkspaceModal);
   refs.closeCodeFooterBtn.addEventListener("click", closeWorkspaceModal);
+  refs.closeJournalModalBtn.addEventListener("click", closeWorkspaceModal);
+  refs.closeJournalFooterBtn.addEventListener("click", closeWorkspaceModal);
   refs.workspaceModalBackdrop.addEventListener("click", closeWorkspaceModal);
   refs.saveLocaleEditsBtn.addEventListener("click", saveLocaleEdits);
   refs.saveCodeBtn.addEventListener("click", saveCodeEdits);
   refs.createBaseMailFromCodeBtn.addEventListener("click", handleCreateBaseMail);
+  refs.clearJournalBtn.addEventListener("click", handleClearJournal);
 
   for (const [key, element] of Object.entries(refs.fields)) {
     element.addEventListener("input", () => {
@@ -256,6 +290,15 @@ function bindEvents() {
     persistState();
   });
 
+  for (const button of refs.previewViewportButtons) {
+    button.addEventListener("click", () => {
+      state.previewViewport = button.dataset.previewViewport || "fit";
+      renderPreviewViewportButtons();
+      renderPreview();
+      persistState();
+    });
+  }
+
   for (const tab of refs.codeTabs) {
     tab.addEventListener("click", () => {
       state.activeTab = tab.dataset.tab;
@@ -288,18 +331,73 @@ async function loadApiStatus() {
     if (!state.brief.locale && payload.emailBase?.locales?.[0]) {
       state.brief.locale = payload.emailBase.locales[0];
     }
+
+    await loadBlockCatalog();
+    await loadAssetRegistry();
+    await loadJournal();
   } catch {
     state.api = {
       openAiConfigured: false,
       model: "unavailable",
       providers: [],
       clientProfiles: [],
-      emailBase: null
+      emailBase: null,
+      blockCatalog: null,
+      assetRegistry: null,
+      journal: null
     };
+    state.blockCatalog = structuredClone(initialState.blockCatalog);
+    state.assetRegistry = structuredClone(initialState.assetRegistry);
+    state.journal = structuredClone(initialState.journal);
   }
 
   renderAll();
   persistState();
+}
+
+async function loadBlockCatalog(forceRefresh = false) {
+  const response = await fetch(forceRefresh ? "/api/block-catalog/refresh" : "/api/block-catalog", {
+    method: forceRefresh ? "POST" : "GET"
+  });
+  const payload = await response.json();
+
+  if (!response.ok) {
+    throw new Error(payload.error || "Block catalog request failed");
+  }
+
+  state.blockCatalog = {
+    generatedAt: payload.generatedAt || "",
+    items: Array.isArray(payload.items) ? payload.items : [],
+    summary: payload.summary || null
+  };
+}
+
+async function loadAssetRegistry() {
+  const response = await fetch("/api/assets");
+  const payload = await response.json();
+
+  if (!response.ok) {
+    throw new Error(payload.error || "Asset registry request failed");
+  }
+
+  state.assetRegistry = {
+    items: Array.isArray(payload.items) ? payload.items : [],
+    summary: payload.summary || null
+  };
+}
+
+async function loadJournal() {
+  const response = await fetch("/api/journal");
+  const payload = await response.json();
+
+  if (!response.ok) {
+    throw new Error(payload.error || "Journal request failed");
+  }
+
+  state.journal = {
+    entries: Array.isArray(payload.entries) ? payload.entries : [],
+    summary: payload.summary || null
+  };
 }
 
 function hydrateFromStorage() {
@@ -322,7 +420,8 @@ function hydrateFromStorage() {
         ...(saved.brief ?? {})
       },
       design: {
-        ...structuredClone(initialState.design)
+        ...structuredClone(initialState.design),
+        ...(saved.design ?? {})
       },
       assetInputs: Array.isArray(saved.assetInputs) && saved.assetInputs.length > 0
         ? saved.assetInputs
@@ -336,7 +435,6 @@ function hydrateFromStorage() {
     state.api = { ...initialState.api };
     state.busy = false;
     state.settingsOpen = false;
-    state.design = { name: "", dataUrl: "" };
   } catch {
     localStorage.removeItem(storageKey);
   }
@@ -348,8 +446,10 @@ function persistState() {
     activeTab: state.activeTab,
     mode: state.mode,
     previewSource: state.previewSource,
+    previewViewport: state.previewViewport,
     settings: state.settings,
     brief: state.brief,
+    design: state.design,
     translationText: state.translationText,
     translationUploadStatus: state.translationUploadStatus,
     assetInputs: state.assetInputs,
@@ -483,15 +583,30 @@ async function handleDesignUpload(event) {
     return;
   }
 
-  await applyDesignFile(file, file.name);
+  try {
+    await applyDesignFile(file, file.name);
+  } catch (error) {
+    state.messages.push({
+      role: "assistant",
+      content: `Ошибка при загрузке design: ${error.message}`
+    });
+    renderAll();
+    persistState();
+  }
   event.target.value = "";
 }
 
 async function applyDesignFile(file, sourceLabel = "") {
-  const dataUrl = await readFileAsDataUrl(file);
+  const [entry] = await registerFilesInAssetRegistry([file], {
+    kind: "design",
+    placement: "reference",
+    notes: sourceLabel || "chat intake"
+  });
+
   state.design = {
-    name: file.name,
-    dataUrl
+    name: entry?.label || file.name,
+    dataUrl: getPreferredAssetUrl(entry),
+    assetId: entry?.id || ""
   };
   state.translationUploadStatus = sourceLabel
     ? `Design attached from ${sourceLabel}.`
@@ -517,7 +632,16 @@ async function handleAssetUpload(event) {
     return;
   }
 
-  await applyAssetFiles(files, files.length === 1 ? files[0].name : `${files.length} files`);
+  try {
+    await applyAssetFiles(files, files.length === 1 ? files[0].name : `${files.length} files`);
+  } catch (error) {
+    state.messages.push({
+      role: "assistant",
+      content: `Ошибка при загрузке картинок: ${error.message}`
+    });
+    renderAll();
+    persistState();
+  }
   event.target.value = "";
 }
 
@@ -557,7 +681,16 @@ async function handleChatPaste(event) {
   }
 
   event.preventDefault();
-  await applyChatFiles(files, "clipboard");
+  try {
+    await applyChatFiles(files, "clipboard");
+  } catch (error) {
+    state.messages.push({
+      role: "assistant",
+      content: `Ошибка при вставке файлов: ${error.message}`
+    });
+    renderAll();
+    persistState();
+  }
 }
 
 async function applyDroppedChatFiles(dataTransfer) {
@@ -569,7 +702,16 @@ async function applyDroppedChatFiles(dataTransfer) {
     return;
   }
 
-  await applyChatFiles(files, inferDropSourceLabel(files));
+  try {
+    await applyChatFiles(files, inferDropSourceLabel(files));
+  } catch (error) {
+    state.messages.push({
+      role: "assistant",
+      content: `Ошибка при drop файлов: ${error.message}`
+    });
+    renderAll();
+    persistState();
+  }
 }
 
 async function applyChatFiles(files, sourceLabel = "") {
@@ -654,6 +796,7 @@ function createChatRequestBody(intent) {
       .map(({ role, content }) => ({ role, content })),
     brief: state.brief,
     assetInputs: state.assetInputs,
+    assetRegistryItems: state.assetRegistry.items,
     translationText: state.translationText,
     design: state.design,
     settings: state.settings,
@@ -758,6 +901,7 @@ async function handleLoadBaseEmail() {
       role: "assistant",
       content: payload.assistantReply
     });
+    await loadJournal();
     toggleSettings(false);
   } catch (error) {
     state.messages.push({
@@ -797,6 +941,7 @@ async function handleCreateBaseMail() {
         draft: state.draft,
         translationText: state.translationText,
         assetInputs: state.assetInputs,
+        assetRegistryItems: state.assetRegistry.items,
         design: state.design,
         messages: state.messages
       })
@@ -821,6 +966,8 @@ async function handleCreateBaseMail() {
       content: payload.assistantReply
     });
     await loadApiStatus();
+    await loadBlockCatalog(true);
+    await loadJournal();
     toggleSettings(false);
     closeWorkspaceModal();
   } catch (error) {
@@ -851,6 +998,7 @@ async function handleGenerateMissingLocales() {
         draft: state.draft,
         translationText: state.translationText,
         assetInputs: state.assetInputs,
+        assetRegistryItems: state.assetRegistry.items,
         design: state.design,
         messages: state.messages
       })
@@ -871,10 +1019,34 @@ async function handleGenerateMissingLocales() {
       role: "assistant",
       content: payload.assistantReply
     });
+    await loadJournal();
   } catch (error) {
     state.messages.push({
       role: "assistant",
       content: `Ошибка при генерации локалей: ${error.message}`
+    });
+  } finally {
+    state.busy = false;
+    renderAll();
+    persistState();
+  }
+}
+
+async function handleRefreshBlockCatalog() {
+  state.busy = true;
+  renderStatus();
+
+  try {
+    await loadBlockCatalog(true);
+    await loadJournal();
+    state.messages.push({
+      role: "assistant",
+      content: `Обновил block catalog. Сейчас в нем ${state.blockCatalog.summary?.itemCount || state.blockCatalog.items.length} канонических блоков.`
+    });
+  } catch (error) {
+    state.messages.push({
+      role: "assistant",
+      content: `Ошибка при обновлении block catalog: ${error.message}`
     });
   } finally {
     state.busy = false;
@@ -910,6 +1082,18 @@ function openLocalesModal() {
 function openCodeModal() {
   state.codeEditorBuffer = state.draft?.[codeMap[state.activeTab]] || "";
   openWorkspaceModal("code");
+}
+
+async function openJournalModal() {
+  try {
+    await loadJournal();
+  } catch (error) {
+    state.messages.push({
+      role: "assistant",
+      content: `Ошибка при загрузке journal: ${error.message}`
+    });
+  }
+  openWorkspaceModal("journal");
 }
 
 function scrollToBlocks() {
@@ -1036,10 +1220,14 @@ function renderAll() {
   renderSettingsInfo();
   renderSettingsDrawer();
   renderWorkspaceModals();
+  renderPreviewViewportButtons();
   renderPreview();
   renderTabs();
   renderCode();
   renderAssets();
+  renderAssetLibrary();
+  renderJournalSummary();
+  renderBlockCatalogSummary();
   renderBlocks();
   renderDiagnostics();
   renderDesignPreview();
@@ -1088,6 +1276,7 @@ function renderWorkspaceModals() {
   toggleModalVisibility(refs.localesModal, active === "locales");
   toggleModalVisibility(refs.assetsModal, active === "assets");
   toggleModalVisibility(refs.codeModal, active === "code");
+  toggleModalVisibility(refs.journalModal, active === "journal");
 
   if (active === "locales") {
     prepareLocaleEditor();
@@ -1096,6 +1285,10 @@ function renderWorkspaceModals() {
 
   if (active === "code") {
     renderCode();
+  }
+
+  if (active === "journal") {
+    renderJournal();
   }
 }
 
@@ -1140,15 +1333,22 @@ function renderLocaleEditor() {
 function renderBlocks() {
   refs.blockList.innerHTML = "";
   const sections = state.draft?.mail?.sections ?? [];
+  const catalogItems = Array.isArray(state.blockCatalog?.items) ? state.blockCatalog.items : [];
 
   if (sections.length === 0) {
-    refs.blockList.appendChild(createTextCard("Пока нет block outline. Сначала собери draft или загрузите письмо из email-base."));
+    if (catalogItems.length > 0) {
+      refs.blockList.appendChild(createTextCard(`Draft пока пустой. В block catalog уже есть ${catalogItems.length} канонических секций из email-base.`));
+    } else {
+      refs.blockList.appendChild(createTextCard("Пока нет block outline. Сначала собери draft или загрузите письмо из email-base."));
+    }
     return;
   }
 
   for (const [index, section] of sections.entries()) {
     const card = document.createElement("article");
     card.className = "block-card";
+    const match = findCatalogMatchForSection(section);
+    const assetRecommendation = findAssetRecommendationForSection(index);
 
     const head = document.createElement("div");
     head.className = "block-card-head";
@@ -1165,15 +1365,29 @@ function renderBlocks() {
     const meta = document.createElement("div");
     meta.className = "block-card-meta";
     meta.textContent = [
+      match ? `catalog=${match.id}` : "catalog=candidate-new-block",
       section.image_key ? `image=${section.image_key}` : "no image",
       section.cta_label ? `cta=${section.cta_label}` : "no cta",
-      Array.isArray(section.items) && section.items.length > 0 ? `items=${section.items.length}` : ""
+      Array.isArray(section.items) && section.items.length > 0 ? `items=${section.items.length}` : "",
+      match?.helperMixins?.length ? `mixins=${match.helperMixins.join(", ")}` : ""
     ].filter(Boolean).join(" | ");
+
+    const catalogNote = document.createElement("div");
+    catalogNote.className = `block-catalog-match ${match ? "" : "is-missing"}`.trim();
+    catalogNote.textContent = match
+      ? `${match.label}. Источник: ${formatCatalogSources(match.sources)}.`
+      : "Для этой секции пока нет явного канонического блока. Это кандидат в новый block definition.";
 
     const body = document.createElement("p");
     body.textContent = section.body || "Без body.";
 
-    card.append(head, meta, body);
+    const assetNote = document.createElement("div");
+    assetNote.className = `block-catalog-match ${assetRecommendation?.status === "missing-library-match" ? "is-missing" : ""}`.trim();
+    assetNote.textContent = assetRecommendation
+      ? formatAssetRecommendation(assetRecommendation)
+      : "По assets пока нет подсказки.";
+
+    card.append(head, meta, catalogNote, assetNote, body);
     refs.blockList.appendChild(card);
   }
 }
@@ -1314,6 +1528,9 @@ function renderStatus() {
   refs.openAssetsBtn.disabled = state.busy;
   refs.openBlocksBtn.disabled = state.busy;
   refs.openCodeBtn.disabled = state.busy;
+  refs.openJournalBtn.disabled = state.busy;
+  refs.openJournalFromSettingsBtn.disabled = state.busy;
+  refs.refreshCatalogBtn.disabled = state.busy;
   refs.attachDesignBtn.disabled = state.busy;
   refs.attachTranslationsBtn.disabled = state.busy;
   refs.attachTranslationFolderBtn.disabled = state.busy;
@@ -1321,6 +1538,10 @@ function renderStatus() {
   refs.saveLocaleEditsBtn.disabled = state.busy;
   refs.saveCodeBtn.disabled = state.busy;
   refs.createBaseMailFromCodeBtn.disabled = state.busy;
+  refs.clearJournalBtn.disabled = state.busy;
+  for (const button of refs.previewViewportButtons) {
+    button.disabled = state.busy;
+  }
   for (const button of refs.chatSubmitButtons) {
     button.disabled = state.busy;
   }
@@ -1340,7 +1561,14 @@ function renderSummary() {
 function renderPreview() {
   const baseHtml = state.draft?.html || emptyPreview();
   const simulated = simulatePreviewHtml(baseHtml, state.settings.clientProfileId);
+  refs.previewStage.dataset.viewport = state.previewViewport || "fit";
   refs.previewFrame.srcdoc = simulated;
+}
+
+function renderPreviewViewportButtons() {
+  for (const button of refs.previewViewportButtons) {
+    button.classList.toggle("is-active", button.dataset.previewViewport === state.previewViewport);
+  }
 }
 
 function renderTabs() {
@@ -1392,6 +1620,274 @@ function renderAssets() {
   }
 }
 
+function renderAssetLibrary() {
+  refs.assetLibraryList.innerHTML = "";
+  const items = Array.isArray(state.assetRegistry?.items) ? state.assetRegistry.items : [];
+  const summary = state.assetRegistry?.summary;
+
+  refs.assetRegistryMeta.textContent = summary?.itemCount
+    ? `${summary.itemCount} file(s) in project | external links: ${summary.withExternalUrlCount || 0}`
+    : "Файлов пока нет.";
+
+  if (items.length === 0) {
+    refs.assetLibraryList.appendChild(createTextCard("Asset library пока пустая. Загрузи картинки или design, и они сохранятся в проекте."));
+    return;
+  }
+
+  for (const entry of items) {
+    const card = document.createElement("article");
+    card.className = "asset-library-card";
+
+    const preview = document.createElement("img");
+    preview.className = "asset-library-thumb";
+    preview.src = entry.localUrl || entry.preferredUrl;
+    preview.alt = entry.alt || entry.label;
+
+    const content = document.createElement("div");
+    content.className = "asset-library-content";
+
+    const head = document.createElement("div");
+    head.className = "asset-library-head";
+
+    const title = document.createElement("strong");
+    title.textContent = entry.label || entry.fileName || entry.id;
+
+    const badge = document.createElement("span");
+    badge.className = "block-kind";
+    badge.textContent = entry.kind || "asset";
+
+    head.append(title, badge);
+
+    const meta = document.createElement("div");
+    meta.className = "block-card-meta";
+    meta.textContent = [
+      cleanText(entry.placement) || "auto",
+      entry.externalUrl ? "cdn linked" : "local only",
+      entry.size ? `${Math.round(entry.size / 1024)} KB` : ""
+    ].filter(Boolean).join(" | ");
+
+    const linkRow = document.createElement("div");
+    linkRow.className = "asset-library-links";
+
+    const localLink = document.createElement("a");
+    localLink.href = entry.localUrl;
+    localLink.target = "_blank";
+    localLink.rel = "noreferrer";
+    localLink.textContent = "Open file";
+
+    const downloadLink = document.createElement("a");
+    downloadLink.href = entry.localUrl;
+    downloadLink.download = entry.fileName || entry.label || "asset";
+    downloadLink.textContent = "Download";
+
+    linkRow.append(localLink, downloadLink);
+
+    const cdnField = document.createElement("label");
+    cdnField.className = "field";
+    cdnField.innerHTML = "<span>External / CDN URL</span>";
+    const cdnInput = document.createElement("input");
+    cdnInput.type = "url";
+    cdnInput.value = entry.externalUrl || "";
+    cdnInput.placeholder = "https://cdn.company.com/...";
+    cdnField.appendChild(cdnInput);
+
+    const controls = document.createElement("div");
+    controls.className = "asset-row-controls";
+
+    const saveLinkBtn = document.createElement("button");
+    saveLinkBtn.type = "button";
+    saveLinkBtn.className = "ghost-button";
+    saveLinkBtn.textContent = "Save URL";
+    saveLinkBtn.addEventListener("click", async () => {
+      await updateAssetRegistryUrl(entry.id, cdnInput.value);
+    });
+
+    const useAsAssetBtn = document.createElement("button");
+    useAsAssetBtn.type = "button";
+    useAsAssetBtn.className = "ghost-button";
+    useAsAssetBtn.textContent = "Use in email";
+    useAsAssetBtn.addEventListener("click", () => {
+      useRegistryAsset(entry, "asset");
+    });
+
+    const useAsDesignBtn = document.createElement("button");
+    useAsDesignBtn.type = "button";
+    useAsDesignBtn.className = "ghost-button";
+    useAsDesignBtn.textContent = "Use as design";
+    useAsDesignBtn.addEventListener("click", () => {
+      useRegistryAsset(entry, "design");
+    });
+
+    controls.append(saveLinkBtn, useAsAssetBtn, useAsDesignBtn);
+    content.append(head, meta, linkRow, cdnField, controls);
+    card.append(preview, content);
+    refs.assetLibraryList.appendChild(card);
+  }
+}
+
+function renderJournalSummary() {
+  const summary = state.journal.summary || state.api.journal;
+  refs.journalSummary.textContent = summary?.entryCount
+    ? `${summary.entryCount} entries | errors: ${summary.errorCount || 0} | warnings: ${summary.warningCount || 0}`
+    : "Журнал пока пустой.";
+}
+
+function renderJournal() {
+  refs.journalList.innerHTML = "";
+  const entries = Array.isArray(state.journal.entries) ? state.journal.entries : [];
+
+  if (entries.length === 0) {
+    refs.journalList.appendChild(createTextCard("Журнал пока пустой. Когда студия будет собирать письма, обновлять блоки, локали и assets, события появятся здесь."));
+    return;
+  }
+
+  for (const entry of entries) {
+    const card = document.createElement("article");
+    card.className = `diagnostic-item ${entry.level || "ok"}`;
+
+    const title = document.createElement("strong");
+    title.textContent = `${entry.title} | ${entry.area} | ${formatJournalTimestamp(entry.timestamp)}`;
+
+    const body = document.createElement("div");
+    body.textContent = entry.message || "No details";
+
+    card.append(title, body);
+    refs.journalList.appendChild(card);
+  }
+}
+
+function formatJournalTimestamp(value) {
+  const raw = cleanText(value);
+  if (!raw) {
+    return "unknown time";
+  }
+
+  const date = new Date(raw);
+  if (Number.isNaN(date.getTime())) {
+    return raw;
+  }
+
+  return date.toLocaleString();
+}
+
+async function updateAssetRegistryUrl(id, externalUrl) {
+  state.busy = true;
+  renderStatus();
+
+  try {
+    const response = await fetch("/api/assets/update", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id,
+        patch: {
+          externalUrl
+        }
+      })
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.error || "Asset registry update failed");
+    }
+
+    setAssetRegistryState(payload.registry);
+    await loadJournal();
+    state.messages.push({
+      role: "assistant",
+      content: externalUrl
+        ? "Сохранил внешнюю ссылку для картинки. Теперь можно использовать CDN URL вместо локального файла."
+        : "Убрал внешнюю ссылку. Картинка снова использует локальный файл проекта."
+    });
+  } catch (error) {
+    state.messages.push({
+      role: "assistant",
+      content: `Ошибка при сохранении external URL: ${error.message}`
+    });
+  } finally {
+    state.busy = false;
+    renderAll();
+    persistState();
+  }
+}
+
+async function handleClearJournal() {
+  state.busy = true;
+  renderStatus();
+
+  try {
+    const response = await fetch("/api/journal/clear", {
+      method: "POST"
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.error || "Journal clear failed");
+    }
+
+    state.journal = {
+      entries: Array.isArray(payload.entries) ? payload.entries : [],
+      summary: payload.summary || null
+    };
+    state.messages.push({
+      role: "assistant",
+      content: "Studio journal очищен."
+    });
+  } catch (error) {
+    state.messages.push({
+      role: "assistant",
+      content: `Ошибка при очистке journal: ${error.message}`
+    });
+  } finally {
+    state.busy = false;
+    renderAll();
+    persistState();
+  }
+}
+
+function useRegistryAsset(entry, mode = "asset") {
+  if (mode === "design") {
+    state.design = {
+      name: entry.label || entry.fileName || "design",
+      dataUrl: getPreferredAssetUrl(entry),
+      assetId: entry.id
+    };
+    state.translationUploadStatus = `Design взят из asset library: ${entry.label || entry.fileName}.`;
+    renderAll();
+    persistState();
+    return;
+  }
+
+  const alreadyUsed = state.assetInputs.some((asset) => cleanText(asset.libraryId) === cleanText(entry.id));
+  if (alreadyUsed) {
+    state.messages.push({
+      role: "assistant",
+      content: `Картинка ${entry.label || entry.fileName} уже есть в текущем письме.`
+    });
+    renderAll();
+    persistState();
+    return;
+  }
+
+  const nextIndex = state.assetInputs.length + 1;
+  const nextRow = {
+    id: `asset-library-${Date.now()}-${nextIndex}`,
+    key: cleanText(entry.key) || `asset_${nextIndex}`,
+    url: getPreferredAssetUrl(entry),
+    alt: cleanText(entry.alt) || cleanText(entry.label),
+    placement: cleanText(entry.placement) || "auto",
+    notes: cleanText(entry.label) || cleanText(entry.notes),
+    libraryId: cleanText(entry.id),
+    downloadUrl: cleanText(entry.localUrl)
+  };
+
+  const meaningful = state.assetInputs.filter((asset) => asset.url || asset.notes || asset.key !== "hero_asset");
+  state.assetInputs = meaningful.length > 0 ? [...meaningful, nextRow] : [nextRow];
+  state.translationUploadStatus = `Картинка взята из asset library: ${entry.label || entry.fileName}.`;
+  renderAll();
+  persistState();
+}
+
 function renderDiagnostics() {
   refs.diagnosticsList.innerHTML = "";
   const items = getDiagnostics();
@@ -1421,7 +1917,9 @@ function renderDesignPreview() {
   }
 
   refs.designPreview.src = state.design.dataUrl;
-  refs.designCaption.textContent = `${state.design.name} загружен только в текущую сессию браузера.`;
+  refs.designCaption.textContent = state.design.assetId
+    ? `${state.design.name} сохранен в проекте и может переиспользоваться.`
+    : `${state.design.name} загружен только в текущую сессию браузера.`;
 }
 
 function renderSettingsControls() {
@@ -1452,9 +1950,129 @@ function renderSettingsInfo() {
     : "Выберите профиль клиента для heuristic preview.";
 
   const emailBase = state.api.emailBase;
+  const blockCatalogSummary = state.blockCatalog.summary || state.api.blockCatalog;
+  const assetRegistrySummary = state.assetRegistry.summary || state.api.assetRegistry;
   refs.emailBaseSummary.textContent = emailBase?.available
-    ? `Root: ${emailBase.root}. Current: ${emailBase.currentMail?.folder || "none"}. Locales: ${emailBase.localeCount}.`
+    ? `Root: ${emailBase.root}. Current: ${emailBase.currentMail?.folder || "none"}. Locales: ${emailBase.localeCount}. Catalog: ${blockCatalogSummary?.itemCount || 0} blocks. Assets: ${assetRegistrySummary?.itemCount || 0}.`
     : "email-base пока не подключена.";
+}
+
+function renderBlockCatalogSummary() {
+  refs.blockCatalogSummary.innerHTML = "";
+  const summary = state.blockCatalog.summary || state.api.blockCatalog;
+
+  if (!summary?.itemCount) {
+    refs.blockCatalogSummary.appendChild(createTextCard("Block catalog пока не собран. Нажми Refresh catalog или дождись первой инициализации email-base."));
+    return;
+  }
+
+  const parts = [
+    `${summary.itemCount} canonical block(s)`,
+    `${summary.sourceMailCount || 0} source mail(s)`,
+    summary.sectionKinds?.length ? `Kinds: ${summary.sectionKinds.join(", ")}` : "",
+    summary.helperMixins?.length ? `Mixins: ${summary.helperMixins.join(", ")}` : ""
+  ].filter(Boolean);
+
+  for (const part of parts) {
+    const pill = document.createElement("div");
+    pill.className = "pill";
+    pill.textContent = part;
+    refs.blockCatalogSummary.appendChild(pill);
+  }
+}
+
+function findCatalogMatchForSection(section) {
+  const catalogItems = Array.isArray(state.blockCatalog?.items) ? state.blockCatalog.items : [];
+  if (catalogItems.length === 0) {
+    return null;
+  }
+
+  const explicitId = cleanText(section?.catalog_id);
+  if (explicitId) {
+    const direct = catalogItems.find((item) => item.id === explicitId);
+    if (direct) {
+      return direct;
+    }
+  }
+
+  let bestMatch = null;
+  let bestScore = 0;
+
+  for (const item of catalogItems) {
+    const score = scoreCatalogMatch(section, item);
+    if (score > bestScore) {
+      bestScore = score;
+      bestMatch = item;
+    }
+  }
+
+  return bestScore >= 5 ? bestMatch : null;
+}
+
+function scoreCatalogMatch(section, item) {
+  let score = 0;
+  const sectionKind = cleanText(section?.kind);
+  const itemKind = cleanText(item?.sectionKind);
+  const hasImage = Boolean(cleanText(section?.image_key));
+  const hasCta = Boolean(cleanText(section?.cta_label));
+  const itemsCount = Array.isArray(section?.items) ? section.items.length : 0;
+
+  if (sectionKind && itemKind && sectionKind === itemKind) {
+    score += 5;
+  }
+
+  if (hasImage && item?.traits?.hasImage) {
+    score += 2;
+  } else if (!hasImage && !item?.traits?.hasImage) {
+    score += 1;
+  }
+
+  if (hasCta && item?.traits?.hasCta) {
+    score += 2;
+  } else if (!hasCta && !item?.traits?.hasCta) {
+    score += 1;
+  }
+
+  if (itemsCount > 1 && (item?.traits?.itemMode === "numbered" || Number(item?.traits?.minItems) > 1)) {
+    score += 2;
+  }
+
+  if (sectionKind === "hero" && item.id.includes("hero")) {
+    score += 1;
+  }
+
+  if (sectionKind === "footer" && item.id.includes("footer")) {
+    score += 1;
+  }
+
+  return score;
+}
+
+function formatCatalogSources(sources) {
+  const first = Array.isArray(sources) ? sources[0] : null;
+  if (!first) {
+    return "catalog";
+  }
+
+  const mailRef = first.category && first.mailId ? `${first.category}/mail-${first.mailId}` : "catalog";
+  return first.file ? `${mailRef} -> ${first.file}` : mailRef;
+}
+
+function findAssetRecommendationForSection(sectionIndex) {
+  const items = Array.isArray(state.draft?.assetRecommendations) ? state.draft.assetRecommendations : [];
+  return items.find((item) => Number(item.sectionIndex) === Number(sectionIndex)) || null;
+}
+
+function formatAssetRecommendation(recommendation) {
+  if (recommendation.status === "mapped") {
+    return "Asset note: в секции уже есть картинка или image mapping.";
+  }
+
+  if (recommendation.matches?.length > 0) {
+    return `Asset note: для секции подойдут ${recommendation.matches.map((item) => item.label).join(", ")}.`;
+  }
+
+  return "Asset note: в library пока нет явного кандидата под эту секцию.";
 }
 
 function renderSettingsDrawer() {
@@ -1478,7 +2096,7 @@ function getDiagnostics() {
       {
         level: "ok",
         title: "Preview is empty",
-        body: "Сначала приложи материалы через chat intake и либо обсуди письмо, либо обнови драфт."
+        body: "Сначала приложи материалы в чат, потом либо просто общайся, либо применяй изменения к письму."
       }
     ];
   }
@@ -1523,6 +2141,26 @@ function getDiagnostics() {
       level: "ok",
       title: "Auto asset mapping enabled",
       body: `Для ${autoAssets} картинок placement будет выбран автоматически по описанию, key и URL.`
+    });
+  }
+
+  const recommendationItems = Array.isArray(state.draft?.assetRecommendations) ? state.draft.assetRecommendations : [];
+  const reusableMatches = recommendationItems.filter((item) => item.status === "needs-asset" && item.matches?.length > 0);
+  const missingLibraryMatches = recommendationItems.filter((item) => item.status === "missing-library-match");
+
+  if (reusableMatches.length > 0) {
+    items.push({
+      level: "ok",
+      title: "Reusable library assets found",
+      body: `Для ${reusableMatches.length} block(s) уже есть кандидаты в asset library. Их можно быстро подставить без нового upload.`
+    });
+  }
+
+  if (missingLibraryMatches.length > 0) {
+    items.push({
+      level: "warning",
+      title: "Library gaps",
+      body: `Для ${missingLibraryMatches.length} block(s) в asset library пока нет явного кандидата. Возможно, нужен новый upload или другой дизайн.`
     });
   }
 
@@ -1755,8 +2393,8 @@ function emptyPreview() {
   </head>
   <body>
     <div class="placeholder">
-      <strong>Email Studio</strong>
-      Сначала приложи материалы через chat intake, затем обсуди письмо или обнови драфт.
+      <strong>retantion future</strong>
+      Сначала приложи материалы в чат, затем общайся с ассистентом или применяй изменения к письму.
     </div>
   </body>
 </html>`;
@@ -1839,15 +2477,22 @@ async function applyAssetFiles(files, sourceLabel = "") {
   }
 
   const rows = [];
-  for (const [index, file] of supported.entries()) {
-    const dataUrl = await readFileAsDataUrl(file);
+  const uploaded = await registerFilesInAssetRegistry(supported, {
+    kind: "asset",
+    placement: "auto",
+    notes: sourceLabel || "chat intake"
+  });
+
+  for (const [index, entry] of uploaded.entries()) {
     rows.push({
       id: `asset-upload-${Date.now()}-${index + 1}`,
-      key: index === 0 && state.assetInputs.every((asset) => !asset.url) ? "hero_asset" : `asset_${state.assetInputs.length + index + 1}`,
-      url: dataUrl,
-      alt: file.name.replace(/\.[a-z0-9]+$/i, ""),
-      placement: index === 0 && state.assetInputs.every((asset) => !asset.url) ? "hero" : "auto",
-      notes: file.name
+      key: index === 0 && state.assetInputs.every((asset) => !asset.url) ? "hero_asset" : cleanText(entry?.key) || `asset_${state.assetInputs.length + index + 1}`,
+      url: getPreferredAssetUrl(entry),
+      alt: cleanText(entry?.alt) || cleanText(entry?.label).replace(/\.[a-z0-9]+$/i, ""),
+      placement: index === 0 && state.assetInputs.every((asset) => !asset.url) ? "hero" : cleanText(entry?.placement) || "auto",
+      notes: cleanText(entry?.label) || cleanText(entry?.notes),
+      libraryId: cleanText(entry?.id),
+      downloadUrl: cleanText(entry?.localUrl)
     });
   }
 
@@ -1857,8 +2502,56 @@ async function applyAssetFiles(files, sourceLabel = "") {
     ? `Добавлено ${rows.length} image asset(s) из ${sourceLabel}.`
     : `Добавлено ${rows.length} image asset(s).`;
   renderAssetComposer();
+  renderAssetLibrary();
   renderAttachmentSummary();
   persistState();
+}
+
+async function registerFilesInAssetRegistry(files, defaults = {}) {
+  const payloadFiles = [];
+
+  for (const [index, file] of files.entries()) {
+    const dataUrl = await readFileAsDataUrl(file);
+    payloadFiles.push({
+      name: cleanText(file.name) || `${defaults.kind || "asset"}-${Date.now()}-${index + 1}.png`,
+      dataUrl,
+      kind: defaults.kind || "asset",
+      alt: defaults.alt || cleanText(file.name).replace(/\.[a-z0-9]+$/i, ""),
+      notes: defaults.notes || cleanText(file.name),
+      placement: defaults.placement || "auto",
+      key: defaults.key || cleanText(file.name).replace(/\.[a-z0-9]+$/i, "")
+    });
+  }
+
+  const response = await fetch("/api/assets/register", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      files: payloadFiles
+    })
+  });
+  const payload = await response.json();
+
+  if (!response.ok) {
+    throw new Error(payload.error || "Asset upload failed");
+  }
+
+  setAssetRegistryState(payload.registry);
+  await loadJournal();
+  return Array.isArray(payload.items) ? payload.items : [];
+}
+
+function setAssetRegistryState(registry) {
+  state.assetRegistry = {
+    items: Array.isArray(registry?.items) ? registry.items : [],
+    summary: registry?.summary || null
+  };
+}
+
+function getPreferredAssetUrl(entry) {
+  return cleanText(entry?.preferredUrl || entry?.externalUrl || entry?.localUrl || entry?.url);
 }
 
 function buildLocaleEditorDocs() {

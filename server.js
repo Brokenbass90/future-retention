@@ -9,6 +9,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const publicDir = path.join(__dirname, "public");
 const emailBaseRoot = path.join(__dirname, "email-base");
+const studioDataDir = path.join(__dirname, "data");
+const blockCatalogPath = path.join(studioDataDir, "block-catalog.json");
+const assetStorageDir = path.join(studioDataDir, "assets");
+const assetRegistryPath = path.join(studioDataDir, "asset-registry.json");
+const studioJournalPath = path.join(studioDataDir, "studio-journal.json");
 
 const port = Number(process.env.PORT || 3000);
 const openAiApiKey = process.env.OPENAI_API_KEY || "";
@@ -192,10 +197,15 @@ const translationResponseSchema = {
 
 const mimeTypes = {
   ".css": "text/css; charset=utf-8",
+  ".gif": "image/gif",
   ".html": "text/html; charset=utf-8",
+  ".jpg": "image/jpeg",
   ".js": "application/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
-  ".svg": "image/svg+xml"
+  ".jpeg": "image/jpeg",
+  ".png": "image/png",
+  ".svg": "image/svg+xml",
+  ".webp": "image/webp"
 };
 
 function listDirectoryNames(rootPath, matcher = () => true) {
@@ -207,6 +217,708 @@ function listDirectoryNames(rootPath, matcher = () => true) {
     .filter((entry) => entry.isDirectory() && matcher(entry.name))
     .map((entry) => entry.name)
     .sort();
+}
+
+function listFilesRecursive(rootPath, matcher = () => true) {
+  if (!existsSync(rootPath)) {
+    return [];
+  }
+
+  const files = [];
+  const visit = (currentPath) => {
+    const entries = readdirSync(currentPath, { withFileTypes: true });
+    for (const entry of entries) {
+      const entryPath = path.join(currentPath, entry.name);
+      if (entry.isDirectory()) {
+        visit(entryPath);
+        continue;
+      }
+
+      if (matcher(entryPath, entry.name)) {
+        files.push(entryPath);
+      }
+    }
+  };
+
+  visit(rootPath);
+  return files.sort();
+}
+
+function toStudioRelative(filePath) {
+  return path.relative(__dirname, filePath).split(path.sep).join("/");
+}
+
+function dedupeStrings(values) {
+  return Array.from(new Set((values || []).map((value) => cleanText(value)).filter(Boolean))).sort();
+}
+
+function dedupeCatalogSources(sources) {
+  const map = new Map();
+
+  for (const source of Array.isArray(sources) ? sources : []) {
+    const normalized = {
+      category: cleanText(source?.category),
+      mailId: cleanText(source?.mailId),
+      file: cleanText(source?.file),
+      evidence: cleanText(source?.evidence),
+      order: Number(source?.order) || 0
+    };
+    const key = [
+      normalized.category,
+      normalized.mailId,
+      normalized.file,
+      normalized.evidence
+    ].join("|");
+    map.set(key, normalized);
+  }
+
+  return [...map.values()].sort((left, right) => left.order - right.order || left.file.localeCompare(right.file));
+}
+
+function mergeCatalogTraits(left = {}, right = {}) {
+  return {
+    hasImage: Boolean(left.hasImage || right.hasImage),
+    hasCta: Boolean(left.hasCta || right.hasCta),
+    ctaCount: Math.max(Number(left.ctaCount) || 0, Number(right.ctaCount) || 0),
+    itemMode: cleanText(right.itemMode) || cleanText(left.itemMode) || "none",
+    minItems: Math.max(Number(left.minItems) || 0, Number(right.minItems) || 0),
+    outlookSafe: Boolean(left.outlookSafe || right.outlookSafe),
+    vml: Boolean(left.vml || right.vml)
+  };
+}
+
+function registerCatalogItem(map, item) {
+  const normalized = {
+    id: cleanText(item?.id),
+    label: cleanText(item?.label),
+    description: cleanText(item?.description),
+    sectionKind: cleanText(item?.sectionKind) || "text",
+    helperMixins: dedupeStrings(item?.helperMixins),
+    traits: mergeCatalogTraits({}, item?.traits),
+    usageCount: Number(item?.usageCount) || 1,
+    sources: dedupeCatalogSources(item?.sources)
+  };
+
+  if (!normalized.id) {
+    return;
+  }
+
+  const existing = map.get(normalized.id);
+  if (!existing) {
+    map.set(normalized.id, normalized);
+    return;
+  }
+
+  existing.label = existing.label || normalized.label;
+  existing.description = existing.description || normalized.description;
+  existing.sectionKind = existing.sectionKind || normalized.sectionKind;
+  existing.helperMixins = dedupeStrings([...existing.helperMixins, ...normalized.helperMixins]);
+  existing.traits = mergeCatalogTraits(existing.traits, normalized.traits);
+  existing.usageCount += normalized.usageCount;
+  existing.sources = dedupeCatalogSources([...existing.sources, ...normalized.sources]);
+}
+
+function getEvidenceOrder(content, evidenceNeedle) {
+  const index = cleanText(evidenceNeedle) ? content.indexOf(evidenceNeedle) : -1;
+  return index >= 0 ? index : Number.MAX_SAFE_INTEGER;
+}
+
+function createCatalogSource(category, mailId, filePath, evidenceNeedle) {
+  return {
+    category,
+    mailId,
+    file: toStudioRelative(filePath),
+    evidence: cleanText(evidenceNeedle),
+    order: 0
+  };
+}
+
+function createCatalogItem({
+  id,
+  label,
+  description,
+  sectionKind,
+  helperMixins = [],
+  traits = {},
+  usageCount = 1,
+  category,
+  mailId,
+  filePath,
+  evidence,
+  content
+}) {
+  const source = createCatalogSource(category, mailId, filePath, evidence);
+  source.order = getEvidenceOrder(content, evidence);
+
+  return {
+    id,
+    label,
+    description,
+    sectionKind,
+    helperMixins,
+    traits,
+    usageCount,
+    sources: [source]
+  };
+}
+
+async function extractCatalogItemsFromTemplate(category, mailId, filePath) {
+  const content = await readFile(filePath, "utf8");
+  const items = [];
+  const numberedSections = (content.match(/p\.number\b/g) || []).length;
+
+  if (/img\.logo\b/.test(content)) {
+    items.push(createCatalogItem({
+      id: "header-logo-row",
+      label: "Header logo row",
+      description: "Тонкая верхняя строка с логотипом и ссылкой на бренд.",
+      sectionKind: "image",
+      traits: {
+        hasImage: true,
+        hasCta: true,
+        ctaCount: 1,
+        itemMode: "none",
+        minItems: 0,
+        outlookSafe: true,
+        vml: false
+      },
+      category,
+      mailId,
+      filePath,
+      evidence: "img.logo",
+      content
+    }));
+  }
+
+  if (/\+cta-two-column-table\(/.test(content) || /Table-based CTA example/.test(content)) {
+    items.push(createCatalogItem({
+      id: "hero-image-two-cta",
+      label: "Hero image with two CTA",
+      description: "Первый экран с большой картинкой, hero copy и двухкнопочным table-based CTA.",
+      sectionKind: "hero",
+      helperMixins: ["cta-two-column-table"],
+      traits: {
+        hasImage: true,
+        hasCta: true,
+        ctaCount: 2,
+        itemMode: "none",
+        minItems: 0,
+        outlookSafe: true,
+        vml: false
+      },
+      category,
+      mailId,
+      filePath,
+      evidence: "Table-based CTA example",
+      content
+    }));
+  }
+
+  if (numberedSections > 0) {
+    items.push(createCatalogItem({
+      id: "numbered-feature-stack",
+      label: "Numbered feature stack",
+      description: "Секция с пронумерованными шагами/выгодами, где каждый блок может иметь текст, картинку и CTA.",
+      sectionKind: "feature-list",
+      traits: {
+        hasImage: true,
+        hasCta: true,
+        ctaCount: 1,
+        itemMode: "numbered",
+        minItems: numberedSections,
+        outlookSafe: true,
+        vml: false
+      },
+      usageCount: numberedSections,
+      category,
+      mailId,
+      filePath,
+      evidence: "p.number",
+      content
+    }));
+  }
+
+  if (/\+cta-switch-table\(/.test(content) || /Table-based switch row example/.test(content)) {
+    items.push(createCatalogItem({
+      id: "switch-cta-row",
+      label: "Switch CTA row",
+      description: "Двухкнопочный switch row с центральной стрелкой и явным сравнением двух действий.",
+      sectionKind: "cta",
+      helperMixins: ["cta-switch-table"],
+      traits: {
+        hasImage: true,
+        hasCta: true,
+        ctaCount: 2,
+        itemMode: "binary",
+        minItems: 2,
+        outlookSafe: true,
+        vml: false
+      },
+      category,
+      mailId,
+      filePath,
+      evidence: "Table-based switch row example",
+      content
+    }));
+  }
+
+  if (/\+vml-bg\(/.test(content)) {
+    items.push(createCatalogItem({
+      id: "vml-bottom-hero",
+      label: "VML background hero",
+      description: "Outlook-safe hero или CTA-блок на VML background helper.",
+      sectionKind: "cta",
+      helperMixins: ["vml-bg"],
+      traits: {
+        hasImage: true,
+        hasCta: true,
+        ctaCount: 1,
+        itemMode: "none",
+        minItems: 0,
+        outlookSafe: true,
+        vml: true
+      },
+      category,
+      mailId,
+      filePath,
+      evidence: "+vml-bg(",
+      content
+    }));
+  }
+
+  if (/\+vml-bg-fixed\(/.test(content) || /Fixed VML background example/.test(content)) {
+    items.push(createCatalogItem({
+      id: "vml-bottom-hero-fixed",
+      label: "Fixed VML background hero",
+      description: "Более безопасный фиксированный VML background helper для Outlook и тяжелых hero-блоков.",
+      sectionKind: "cta",
+      helperMixins: ["vml-bg-fixed"],
+      traits: {
+        hasImage: true,
+        hasCta: true,
+        ctaCount: 1,
+        itemMode: "none",
+        minItems: 0,
+        outlookSafe: true,
+        vml: true
+      },
+      category,
+      mailId,
+      filePath,
+      evidence: "Fixed VML background example",
+      content
+    }));
+  }
+
+  if (/img\.a-app\b/.test(content) || /img\.a-google\b/.test(content) || /apps\.apple\.com/.test(content) || /play\.google\.com/.test(content)) {
+    items.push(createCatalogItem({
+      id: "store-badges-row",
+      label: "Store badges row",
+      description: "Компактный футерный ряд с App Store и Google Play badges.",
+      sectionKind: "footer",
+      traits: {
+        hasImage: true,
+        hasCta: true,
+        ctaCount: 2,
+        itemMode: "none",
+        minItems: 0,
+        outlookSafe: true,
+        vml: false
+      },
+      category,
+      mailId,
+      filePath,
+      evidence: "img.a-app",
+      content
+    }));
+  }
+
+  return items;
+}
+
+async function generateBlockCatalog() {
+  const emailBase = summarizeEmailBase();
+  const catalogMap = new Map();
+
+  for (const category of emailBase.categories || []) {
+    for (const mail of category.mails || []) {
+      const mailRoot = path.join(emailBaseRoot, category.name, mail.folder, "app", "templates");
+      const templateFiles = [
+        path.join(mailRoot, "index.pug"),
+        ...listFilesRecursive(path.join(mailRoot, "blocks"), (filePath) => filePath.endsWith(".pug"))
+      ].filter((filePath) => existsSync(filePath));
+
+      for (const filePath of templateFiles) {
+        const items = await extractCatalogItemsFromTemplate(category.name, mail.id, filePath);
+        for (const item of items) {
+          registerCatalogItem(catalogMap, item);
+        }
+      }
+    }
+  }
+
+  const items = [...catalogMap.values()].sort((left, right) => {
+    const leftOrder = left.sources[0]?.order ?? Number.MAX_SAFE_INTEGER;
+    const rightOrder = right.sources[0]?.order ?? Number.MAX_SAFE_INTEGER;
+    return leftOrder - rightOrder || left.label.localeCompare(right.label);
+  });
+
+  return {
+    generatedAt: new Date().toISOString(),
+    root: toStudioRelative(emailBaseRoot),
+    items,
+    summary: summarizeBlockCatalog({
+      generatedAt: new Date().toISOString(),
+      items
+    })
+  };
+}
+
+function summarizeBlockCatalog(catalog) {
+  const items = Array.isArray(catalog?.items) ? catalog.items : [];
+  const sourceMails = dedupeStrings(items.flatMap((item) => item.sources.map((source) => {
+    if (!source.category || !source.mailId) {
+      return "";
+    }
+    return `${source.category}/mail-${source.mailId}`;
+  })));
+
+  return {
+    itemCount: items.length,
+    generatedAt: cleanText(catalog?.generatedAt),
+    path: toStudioRelative(blockCatalogPath),
+    sourceMailCount: sourceMails.length,
+    sourceMails,
+    sectionKinds: dedupeStrings(items.map((item) => item.sectionKind)),
+    helperMixins: dedupeStrings(items.flatMap((item) => item.helperMixins || []))
+  };
+}
+
+async function ensureBlockCatalog(options = {}) {
+  const force = Boolean(options.force);
+
+  if (!force && existsSync(blockCatalogPath)) {
+    try {
+      const raw = await readFile(blockCatalogPath, "utf8");
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed?.items)) {
+        return {
+          ...parsed,
+          summary: summarizeBlockCatalog(parsed)
+        };
+      }
+    } catch {
+      // Regenerate below.
+    }
+  }
+
+  const catalog = await generateBlockCatalog();
+  await mkdir(studioDataDir, { recursive: true });
+  await writeFile(blockCatalogPath, `${JSON.stringify(catalog, null, 2)}\n`);
+  return catalog;
+}
+
+function decodeDataUrl(dataUrl) {
+  const match = String(dataUrl).match(/^data:([^;]+);base64,(.+)$/);
+  if (!match) {
+    throw new Error("Unsupported upload payload. Expected base64 data URL.");
+  }
+
+  return {
+    mimeType: cleanText(match[1]) || "application/octet-stream",
+    buffer: Buffer.from(match[2], "base64")
+  };
+}
+
+function getExtensionForAssetUpload(mimeType, fileName = "") {
+  const byMime = {
+    "image/gif": ".gif",
+    "image/jpeg": ".jpg",
+    "image/png": ".png",
+    "image/svg+xml": ".svg",
+    "image/webp": ".webp"
+  };
+
+  if (byMime[mimeType]) {
+    return byMime[mimeType];
+  }
+
+  const fromName = path.extname(cleanText(fileName)).toLowerCase();
+  return fromName || ".bin";
+}
+
+function getSafeUploadStem(fileName, fallback = "asset") {
+  const rawStem = cleanText(fileName)
+    .replace(/\.[a-z0-9]+$/i, "")
+    .replace(/[^a-zA-Z0-9._-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return rawStem || fallback;
+}
+
+function getStoredAssetUrl(fileName) {
+  return `/studio-assets/${encodeURIComponent(fileName)}`;
+}
+
+function normalizeAssetRegistryEntry(entry) {
+  const fileName = cleanText(entry?.fileName);
+  return {
+    id: cleanText(entry?.id),
+    kind: cleanText(entry?.kind) || "asset",
+    label: cleanText(entry?.label) || fileName || "asset",
+    fileName,
+    localUrl: fileName ? getStoredAssetUrl(fileName) : "",
+    externalUrl: cleanText(entry?.externalUrl),
+    preferredUrl: cleanText(entry?.externalUrl) || (fileName ? getStoredAssetUrl(fileName) : ""),
+    alt: cleanText(entry?.alt),
+    notes: cleanText(entry?.notes),
+    placement: cleanText(entry?.placement) || "auto",
+    key: cleanText(entry?.key),
+    mimeType: cleanText(entry?.mimeType),
+    size: Number(entry?.size) || 0,
+    createdAt: cleanText(entry?.createdAt),
+    updatedAt: cleanText(entry?.updatedAt)
+  };
+}
+
+function summarizeAssetRegistry(registry) {
+  const items = Array.isArray(registry?.items) ? registry.items : [];
+  return {
+    itemCount: items.length,
+    designCount: items.filter((item) => item.kind === "design").length,
+    imageCount: items.filter((item) => item.kind !== "design").length,
+    withExternalUrlCount: items.filter((item) => cleanText(item.externalUrl)).length,
+    generatedAt: cleanText(registry?.updatedAt || registry?.generatedAt),
+    path: toStudioRelative(assetRegistryPath)
+  };
+}
+
+function summarizeStudioJournal(journal) {
+  const entries = Array.isArray(journal?.entries) ? journal.entries : [];
+  return {
+    entryCount: entries.length,
+    errorCount: entries.filter((entry) => cleanText(entry.level) === "error").length,
+    warningCount: entries.filter((entry) => cleanText(entry.level) === "warning").length,
+    updatedAt: cleanText(journal?.updatedAt),
+    lastEntryAt: cleanText(entries[0]?.timestamp),
+    path: toStudioRelative(studioJournalPath)
+  };
+}
+
+async function readAssetRegistry() {
+  if (!existsSync(assetRegistryPath)) {
+    return {
+      items: [],
+      updatedAt: ""
+    };
+  }
+
+  try {
+    const raw = await readFile(assetRegistryPath, "utf8");
+    const parsed = JSON.parse(raw);
+    return {
+      items: Array.isArray(parsed?.items) ? parsed.items.map(normalizeAssetRegistryEntry) : [],
+      updatedAt: cleanText(parsed?.updatedAt)
+    };
+  } catch {
+    return {
+      items: [],
+      updatedAt: ""
+    };
+  }
+}
+
+async function writeAssetRegistry(items) {
+  const normalizedItems = items.map(normalizeAssetRegistryEntry);
+  const payload = {
+    updatedAt: new Date().toISOString(),
+    items: normalizedItems
+  };
+  await mkdir(studioDataDir, { recursive: true });
+  await writeFile(assetRegistryPath, `${JSON.stringify(payload, null, 2)}\n`);
+  return payload;
+}
+
+async function readStudioJournal() {
+  if (!existsSync(studioJournalPath)) {
+    return {
+      updatedAt: "",
+      entries: []
+    };
+  }
+
+  try {
+    const raw = await readFile(studioJournalPath, "utf8");
+    const parsed = JSON.parse(raw);
+    return {
+      updatedAt: cleanText(parsed?.updatedAt),
+      entries: Array.isArray(parsed?.entries) ? parsed.entries : []
+    };
+  } catch {
+    return {
+      updatedAt: "",
+      entries: []
+    };
+  }
+}
+
+async function writeStudioJournal(entries) {
+  const payload = {
+    updatedAt: new Date().toISOString(),
+    entries: Array.isArray(entries) ? entries : []
+  };
+  await mkdir(studioDataDir, { recursive: true });
+  await writeFile(studioJournalPath, `${JSON.stringify(payload, null, 2)}\n`);
+  return payload;
+}
+
+async function appendStudioJournalEntry(entry) {
+  const journal = await readStudioJournal();
+  const nextEntry = {
+    id: `journal-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    timestamp: new Date().toISOString(),
+    level: cleanText(entry?.level) || "info",
+    area: cleanText(entry?.area) || "studio",
+    title: cleanText(entry?.title) || "Studio event",
+    message: cleanText(entry?.message),
+    meta: entry?.meta && typeof entry.meta === "object" ? entry.meta : {}
+  };
+  const entries = [nextEntry, ...(journal.entries || [])].slice(0, 250);
+  return writeStudioJournal(entries);
+}
+
+async function clearStudioJournal() {
+  return writeStudioJournal([]);
+}
+
+async function registerUploadedAssets(files) {
+  if (!Array.isArray(files) || files.length === 0) {
+    throw new Error("No asset files provided");
+  }
+
+  const registry = await readAssetRegistry();
+  const nextItems = [...registry.items];
+  const added = [];
+
+  await mkdir(assetStorageDir, { recursive: true });
+
+  for (const [index, file] of files.entries()) {
+    const name = cleanText(file?.name) || `upload-${Date.now()}-${index + 1}.png`;
+    const kind = cleanText(file?.kind) || "asset";
+    const { mimeType, buffer } = decodeDataUrl(file?.dataUrl || "");
+    const extension = getExtensionForAssetUpload(mimeType, name);
+    const stem = getSafeUploadStem(name, kind === "design" ? "design" : "asset");
+    const unique = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${stem}${extension}`;
+    const targetPath = path.join(assetStorageDir, unique);
+    await writeFile(targetPath, buffer);
+
+    const entry = normalizeAssetRegistryEntry({
+      id: `asset-${Date.now()}-${index + 1}-${Math.random().toString(36).slice(2, 7)}`,
+      kind,
+      label: name,
+      fileName: unique,
+      externalUrl: cleanText(file?.externalUrl),
+      alt: cleanText(file?.alt) || getSafeUploadStem(name, "asset"),
+      notes: cleanText(file?.notes),
+      placement: cleanText(file?.placement) || (kind === "design" ? "reference" : "auto"),
+      key: cleanText(file?.key) || getSafeUploadStem(name, "asset"),
+      mimeType,
+      size: buffer.byteLength,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+
+    nextItems.unshift(entry);
+    added.push(entry);
+  }
+
+  const savedRegistry = await writeAssetRegistry(nextItems);
+  return {
+    items: added,
+    registry: {
+      ...savedRegistry,
+      items: savedRegistry.items.map(normalizeAssetRegistryEntry),
+      summary: summarizeAssetRegistry(savedRegistry)
+    }
+  };
+}
+
+async function updateAssetRegistryEntry(id, patch) {
+  const registry = await readAssetRegistry();
+  const entryIndex = registry.items.findIndex((item) => item.id === cleanText(id));
+  if (entryIndex === -1) {
+    throw new Error("Asset registry entry not found");
+  }
+
+  const existing = registry.items[entryIndex];
+  const next = normalizeAssetRegistryEntry({
+    ...existing,
+    ...patch,
+    updatedAt: new Date().toISOString()
+  });
+  registry.items.splice(entryIndex, 1, next);
+  const savedRegistry = await writeAssetRegistry(registry.items);
+
+  return {
+    item: next,
+    registry: {
+      ...savedRegistry,
+      items: savedRegistry.items.map(normalizeAssetRegistryEntry),
+      summary: summarizeAssetRegistry(savedRegistry)
+    }
+  };
+}
+
+async function serveStudioAsset(request, response) {
+  const requestedFile = decodeURIComponent(request.url.replace(/^\/studio-assets\//, ""));
+  const safeName = path.basename(requestedFile);
+  const assetPath = path.join(assetStorageDir, safeName);
+
+  if (!assetPath.startsWith(assetStorageDir) || !existsSync(assetPath)) {
+    sendText(response, 404, "Not found");
+    return;
+  }
+
+  const data = await readFile(assetPath);
+  response.writeHead(200, {
+    "Content-Type": mimeTypes[path.extname(assetPath).toLowerCase()] || "application/octet-stream",
+    "Cache-Control": "no-store"
+  });
+  response.end(data);
+}
+
+function createOutlineSectionFromCatalogItem(item, index, assets = []) {
+  const imageAsset = item.traits?.hasImage ? assets[Math.min(index, Math.max(assets.length - 1, 0))] : null;
+  const itemCount = Math.min(Math.max(item.traits?.minItems || 0, 0), 5);
+
+  return {
+    kind: cleanText(item.sectionKind) || "text",
+    eyebrow: "email-base catalog block",
+    title: item.label,
+    body: item.description,
+    image_key: imageAsset?.key || "",
+    cta_label: item.traits?.hasCta
+      ? (item.traits?.ctaCount > 1 ? "CTA group" : "Primary CTA")
+      : "",
+    cta_href: "",
+    items: item.traits?.itemMode === "numbered"
+      ? Array.from({ length: itemCount || 3 }, (_, itemIndex) => `Step ${itemIndex + 1}`)
+      : [],
+    catalog_id: item.id
+  };
+}
+
+function buildCatalogOutlineForMail(catalog, category, mailId, assets = []) {
+  const items = Array.isArray(catalog?.items) ? catalog.items : [];
+
+  return items
+    .filter((item) => item.sources.some((source) => source.category === category && source.mailId === mailId))
+    .sort((left, right) => {
+      const leftOrder = left.sources.find((source) => source.category === category && source.mailId === mailId)?.order ?? Number.MAX_SAFE_INTEGER;
+      const rightOrder = right.sources.find((source) => source.category === category && source.mailId === mailId)?.order ?? Number.MAX_SAFE_INTEGER;
+      return leftOrder - rightOrder || left.label.localeCompare(right.label);
+    })
+    .map((item, index) => createOutlineSectionFromCatalogItem(item, index, assets));
 }
 
 function getProviderCatalog() {
@@ -404,49 +1116,57 @@ async function buildEmailBasePreview(category, mailId, locale) {
     ? await readFile(footerLocalePath, "utf8")
     : JSON.stringify({ note: "No locale footer file found" }, null, 2);
   const assets = extractAssetRecordsFromHtml(html);
-
-  return {
-    assistantReply: `Загрузил реальный build из email-base: ${selectedCategory}/mail-${selectedMail} (${selectedLocale}).`,
-    mode: "email-base",
-    draft: {
-      mail: {
+  const blockCatalog = await ensureBlockCatalog();
+  const assetRegistry = await readAssetRegistry();
+  const blockOutline = buildCatalogOutlineForMail(blockCatalog, selectedCategory, selectedMail, assets);
+  const assetRecommendations = buildAssetRecommendations({ sections: blockOutline }, {
+    assetInputs: [],
+    assetRegistryItems: assetRegistry.items
+  });
+  const draftSnapshot = createDraftSnapshot({
+    subject: `email-base/${selectedCategory}/mail-${selectedMail}`,
+    preheader: "Built from actual email-base template",
+    locale: selectedLocale,
+    summary: "Real HTML built by email-base pipeline",
+    sections: blockOutline,
+    assets,
+    translations: [
+      {
+        locale: selectedLocale,
         subject: `email-base/${selectedCategory}/mail-${selectedMail}`,
         preheader: "Built from actual email-base template",
-        locale: selectedLocale,
-        summary: "Real HTML built by email-base pipeline",
-        sections: [],
-        assets,
-        translations: [
-          {
-            locale: selectedLocale,
-            subject: `email-base/${selectedCategory}/mail-${selectedMail}`,
-            preheader: "Built from actual email-base template",
-            cta_labels: [],
-            notes: "Preview loaded from the real build pipeline."
-          }
-        ]
-      },
-      html,
-      pug: templateSource,
-      locales: localeSource,
-      assetsManifest: JSON.stringify(
-        Object.fromEntries(assets.map((asset) => [asset.key, asset])),
-        null,
-        2
-      ),
-      spec: JSON.stringify(
-        {
-          source: "email-base",
-          category: selectedCategory,
-          mailId: selectedMail,
-          locale: selectedLocale,
-          distPath: path.relative(__dirname, htmlPath)
-        },
-        null,
-        2
-      ),
-      buildLog: [result.stdout, result.stderr].filter(Boolean).join("\n").trim() || "Build completed."
-    }
+        cta_labels: [],
+        notes: "Preview loaded from the real build pipeline.",
+        body_blocks: blockOutline.map((section) => cleanText(section.title || section.body)).filter(Boolean),
+        source_name: `email-base_${selectedCategory}_mail-${selectedMail}_${selectedLocale}.txt`
+      }
+    ]
+  }, null, { assetRecommendations });
+  draftSnapshot.html = html;
+  draftSnapshot.pug = templateSource;
+  draftSnapshot.locales = localeSource;
+  draftSnapshot.assetsManifest = JSON.stringify(
+    Object.fromEntries(assets.map((asset) => [asset.key, asset])),
+    null,
+    2
+  );
+  draftSnapshot.spec = JSON.stringify(
+    {
+      source: "email-base",
+      category: selectedCategory,
+      mailId: selectedMail,
+      locale: selectedLocale,
+      distPath: path.relative(__dirname, htmlPath)
+    },
+    null,
+    2
+  );
+  draftSnapshot.buildLog = [result.stdout, result.stderr].filter(Boolean).join("\n").trim() || "Build completed.";
+
+  return {
+    assistantReply: `Загрузил реальный build из email-base: ${selectedCategory}/mail-${selectedMail} (${selectedLocale}). Block catalog нашел ${blockOutline.length} канонических секций.`,
+    mode: "email-base",
+    draft: draftSnapshot
   };
 }
 
@@ -864,6 +1584,43 @@ async function createEmailBaseMailFromDraft(payload, rawDraft) {
   const templateSource = await readFile(templatePath, "utf8");
   const localeSource = JSON.stringify(localePayloads.get(primaryLocale), null, 2);
   const assets = extractAssetRecordsFromHtml(html);
+  const assetRegistry = await readAssetRegistry();
+  const savedMail = {
+    ...mail,
+    assets: mail.assets?.length > 0 ? mail.assets : assets,
+    translations: Array.from(localePayloads.entries()).map(([locale, localePayload]) => ({
+      locale,
+      subject: localePayload.subject,
+      preheader: localePayload.preheader,
+      cta_labels: localePayload.cta_labels || [],
+      notes: localePayload.notes || "",
+      body_blocks: localePayload.body_blocks || [],
+      source_name: localePayload.source_name || `${translationFileKey}.json`
+    }))
+  };
+  const draftSnapshot = createDraftSnapshot(savedMail, null, {
+    assetRecommendations: buildAssetRecommendations(savedMail, {
+      assetInputs: payload.assetInputs,
+      assetRegistryItems: payload.assetRegistryItems.length > 0 ? payload.assetRegistryItems : assetRegistry.items
+    })
+  });
+  draftSnapshot.html = html;
+  draftSnapshot.pug = templateSource;
+  draftSnapshot.locales = localeSource;
+  draftSnapshot.assetsManifest = JSON.stringify(
+    Object.fromEntries((mail.assets || []).map((asset) => [asset.key, asset])),
+    null,
+    2
+  );
+  draftSnapshot.spec = JSON.stringify({
+    source: "email-studio-save",
+    category,
+    mailId,
+    translationFileKey,
+    primaryLocale,
+    mail
+  }, null, 2);
+  draftSnapshot.buildLog = [buildResult.stdout, buildResult.stderr].filter(Boolean).join("\n").trim() || "Build completed.";
 
   return {
     assistantReply: `Сохранил draft в email-base как ${category}/mail-${mailId}, записал ${localePayloads.size} locale file(s) и собрал ${primaryLocale} preview.`,
@@ -875,38 +1632,7 @@ async function createEmailBaseMailFromDraft(payload, rawDraft) {
       translationFile: `${translationFileKey}.json`,
       locales: Array.from(localePayloads.keys())
     },
-    draft: {
-      mail: {
-        ...mail,
-        assets: mail.assets?.length > 0 ? mail.assets : assets,
-        translations: Array.from(localePayloads.entries()).map(([locale, localePayload]) => ({
-          locale,
-          subject: localePayload.subject,
-          preheader: localePayload.preheader,
-          cta_labels: localePayload.cta_labels || [],
-          notes: localePayload.notes || "",
-          body_blocks: localePayload.body_blocks || [],
-          source_name: localePayload.source_name || `${translationFileKey}.json`
-        }))
-      },
-      html,
-      pug: templateSource,
-      locales: localeSource,
-      assetsManifest: JSON.stringify(
-        Object.fromEntries((mail.assets || []).map((asset) => [asset.key, asset])),
-        null,
-        2
-      ),
-      spec: JSON.stringify({
-        source: "email-studio-save",
-        category,
-        mailId,
-        translationFileKey,
-        primaryLocale,
-        mail
-      }, null, 2),
-      buildLog: [buildResult.stdout, buildResult.stderr].filter(Boolean).join("\n").trim() || "Build completed."
-    }
+    draft: draftSnapshot
   };
 }
 
@@ -1014,7 +1740,9 @@ function normalizeAssetInputs(payload) {
         url: cleanText(asset?.url),
         alt: cleanText(asset?.alt),
         placement: cleanText(asset?.placement) || "auto",
-        notes: cleanText(asset?.notes)
+        notes: cleanText(asset?.notes),
+        libraryId: cleanText(asset?.libraryId),
+        downloadUrl: cleanText(asset?.downloadUrl)
       }))
       .filter((asset) => asset.url || asset.key || asset.notes);
   }
@@ -1033,6 +1761,32 @@ function normalizeAssetInputs(payload) {
   }
 
   return [];
+}
+
+function normalizeAssetLibraryItems(payload) {
+  if (!Array.isArray(payload?.assetRegistryItems)) {
+    return [];
+  }
+
+  return payload.assetRegistryItems
+    .map((item, index) => normalizeAssetRegistryEntry({
+      id: cleanText(item?.id) || `library-${index + 1}`,
+      kind: cleanText(item?.kind) || "asset",
+      label: cleanText(item?.label),
+      fileName: cleanText(item?.fileName),
+      localUrl: cleanText(item?.localUrl),
+      externalUrl: cleanText(item?.externalUrl),
+      preferredUrl: cleanText(item?.preferredUrl) || cleanText(item?.externalUrl) || cleanText(item?.localUrl),
+      alt: cleanText(item?.alt),
+      notes: cleanText(item?.notes),
+      placement: cleanText(item?.placement) || "auto",
+      key: cleanText(item?.key),
+      mimeType: cleanText(item?.mimeType),
+      size: Number(item?.size) || 0,
+      createdAt: cleanText(item?.createdAt),
+      updatedAt: cleanText(item?.updatedAt)
+    }))
+    .filter((item) => item.preferredUrl || item.localUrl);
 }
 
 function extractAssetNameFromUrl(url) {
@@ -1142,10 +1896,134 @@ function summarizeCurrentDraft(currentDraft) {
   return JSON.stringify(currentDraft, null, 2).slice(0, 6000);
 }
 
+function getSectionDesiredPlacements(section) {
+  const kind = cleanText(section?.kind);
+
+  if (kind === "hero") {
+    return ["hero", "background", "reference"];
+  }
+
+  if (kind === "feature-list" || kind === "text" || kind === "image") {
+    return ["section", "feature", "reference"];
+  }
+
+  if (kind === "cta") {
+    return ["hero", "section", "background", "reference"];
+  }
+
+  if (kind === "footer") {
+    return ["footer", "logo", "reference"];
+  }
+
+  return ["section", "feature", "reference"];
+}
+
+function scoreLibraryAssetForSection(section, item) {
+  const desiredPlacements = getSectionDesiredPlacements(section);
+  const signal = [
+    cleanText(item?.label),
+    cleanText(item?.notes),
+    cleanText(item?.key),
+    cleanText(item?.alt)
+  ].join(" ").toLowerCase();
+  let score = 0;
+
+  if (desiredPlacements.includes(cleanText(item?.placement))) {
+    score += 6;
+  }
+
+  if (cleanText(item?.kind) === "design") {
+    score -= 2;
+  }
+
+  if (section.kind === "hero" && /(hero|banner|cover|header|offer)/i.test(signal)) {
+    score += 4;
+  }
+
+  if ((section.kind === "feature-list" || section.kind === "text" || section.kind === "image") && /(feature|body|section|screen|screenshot|app|phone|device|card)/i.test(signal)) {
+    score += 4;
+  }
+
+  if (section.kind === "footer" && /(footer|logo|badge|store|social)/i.test(signal)) {
+    score += 4;
+  }
+
+  if (section.kind === "cta" && /(cta|button|offer|hero|banner)/i.test(signal)) {
+    score += 3;
+  }
+
+  return score;
+}
+
+function buildAssetRecommendations(mail, payload) {
+  const registryItems = Array.isArray(payload?.assetRegistryItems) ? payload.assetRegistryItems : [];
+  const sections = Array.isArray(mail?.sections) ? mail.sections : [];
+  const usedLibraryIds = new Set(
+    (Array.isArray(payload?.assetInputs) ? payload.assetInputs : [])
+      .map((asset) => cleanText(asset.libraryId))
+      .filter(Boolean)
+  );
+  const usedUrls = new Set(
+    (Array.isArray(payload?.assetInputs) ? payload.assetInputs : [])
+      .map((asset) => cleanText(asset.url))
+      .filter(Boolean)
+  );
+  const libraryCandidates = registryItems.filter((item) => !usedLibraryIds.has(cleanText(item.id)) && !usedUrls.has(cleanText(item.preferredUrl)));
+  const recommendations = [];
+
+  for (const [index, section] of sections.entries()) {
+    const desiredPlacements = getSectionDesiredPlacements(section);
+    const hasMappedImage = Boolean(cleanText(section?.image_key));
+    const matches = libraryCandidates
+      .map((item) => ({
+        id: cleanText(item.id),
+        label: cleanText(item.label) || cleanText(item.fileName) || cleanText(item.key),
+        placement: cleanText(item.placement) || "auto",
+        preferredUrl: cleanText(item.preferredUrl) || cleanText(item.localUrl),
+        score: scoreLibraryAssetForSection(section, item),
+        kind: cleanText(item.kind) || "asset"
+      }))
+      .filter((item) => item.score > 0)
+      .sort((left, right) => right.score - left.score)
+      .slice(0, 3);
+
+    recommendations.push({
+      sectionIndex: index,
+      sectionTitle: cleanText(section?.title) || cleanText(section?.eyebrow) || `Section ${index + 1}`,
+      sectionKind: cleanText(section?.kind) || "text",
+      desiredPlacements,
+      hasMappedImage,
+      status: hasMappedImage ? "mapped" : matches.length > 0 ? "needs-asset" : "missing-library-match",
+      message: hasMappedImage
+        ? "В секции уже есть image mapping."
+        : matches.length > 0
+          ? `В library есть ${matches.length} подходящих asset candidate(s).`
+          : "В library пока нет явного кандидата под эту секцию.",
+      matches
+    });
+  }
+
+  return recommendations;
+}
+
+function summarizeAssetLibraryForContext(payload) {
+  const items = Array.isArray(payload?.assetRegistryItems) ? payload.assetRegistryItems : [];
+
+  if (items.length === 0) {
+    return "Asset library is empty";
+  }
+
+  return items
+    .slice(0, 8)
+    .map((item) => `${cleanText(item.key) || cleanText(item.label)} | placement=${cleanText(item.placement) || "auto"} | kind=${cleanText(item.kind) || "asset"} | url=${cleanText(item.preferredUrl) || cleanText(item.localUrl)}`)
+    .join("\n");
+}
+
 function normalizePayload(payload) {
   const brief = payload?.brief ?? {};
   const settings = payload?.settings ?? {};
   const assetInputs = normalizeAssetInputs(payload);
+  const assetRegistryItems = normalizeAssetLibraryItems(payload);
   return {
     intent: cleanText(payload?.intent) || "draft",
     messages: Array.isArray(payload?.messages) ? payload.messages.slice(-8) : [],
@@ -1169,6 +2047,7 @@ function normalizePayload(payload) {
       clientProfileId: cleanText(settings.clientProfileId) || "standard"
     },
     assetInputs,
+    assetRegistryItems,
     assetLinks: assetInputs.map((asset) => asset.url).filter(Boolean),
     translationText: cleanText(payload?.translationText),
     design: payload?.design && cleanText(payload.design.dataUrl)
@@ -1203,6 +2082,8 @@ function buildUserContext(payload) {
     `Design URL: ${payload.brief.designUrl || "None"}`,
     "Structured assets:",
     describeAssetPlan(payload.assetInputs),
+    "Asset library in project:",
+    summarizeAssetLibraryForContext(payload),
     "Translations source:",
     summarizeTranslationText(payload.translationText),
     `Requested AI provider: ${payload.settings.providerId}`,
@@ -1234,6 +2115,8 @@ function buildDiscussionContext(payload) {
     `Current base mail: ${emailBaseSummary.currentMail?.folder || "None"}`,
     "Structured assets:",
     describeAssetPlan(payload.assetInputs),
+    "Asset library in project:",
+    summarizeAssetLibraryForContext(payload),
     "Current draft context:",
     summarizeCurrentDraft(payload.currentDraft),
     "Translations source:",
@@ -1891,6 +2774,9 @@ function createMockDiscussion(payload, warning = "") {
     .filter((asset) => asset.url)
     .map((asset, index) => `${resolveAssetKey(asset, index, resolveAssetPlacement(asset, index))} -> ${resolveAssetPlacement(asset, index)}`)
     .join(", ");
+  const assetRecommendations = draft ? buildAssetRecommendations({ sections: draft.sections || [] }, payload) : [];
+  const libraryHint = assetRecommendations
+    .find((entry) => entry.status === "needs-asset" && entry.matches.length > 0);
   const questions = collectDiscussionQuestions(payload, draft);
 
   if (!draft) {
@@ -1899,7 +2785,7 @@ function createMockDiscussion(payload, warning = "") {
         "Сейчас чат живой, но у нас еще нет рабочего draft.",
         questions.length > 0
           ? `Чтобы собрать нормальный draft, мне нужны ответы на вопросы: ${formatDiscussionQuestions(questions)}`
-          : "Сначала дай мне контекст письма, потом загрузи design, переводы и картинки в Upload Hub, и после этого я смогу обсуждать уже конкретный draft.",
+          : "Сначала дай мне контекст письма, потом загрузи design, переводы и картинки в чат, и после этого я смогу обсуждать уже конкретный draft.",
         warning ? `Текущий режим: ${warning}.` : ""
       ].filter(Boolean).join(" ")
     };
@@ -1911,6 +2797,9 @@ function createMockDiscussion(payload, warning = "") {
       hasDesign ? "Design reference уже есть." : "Design reference пока не загружен.",
       hasTranslations ? "Переводы уже приложены." : "Переводы пока не приложены.",
       assetPlan ? `Картинки размечены так: ${assetPlan}.` : "Картинки пока не размечены по ролям.",
+      libraryHint
+        ? `В asset library уже есть кандидаты для блока "${libraryHint.sectionTitle}": ${libraryHint.matches.map((item) => item.label).join(", ")}.`
+        : "",
       questions.length > 0
         ? `Сейчас мне еще нужны ответы на вопросы: ${formatDiscussionQuestions(questions)}`
         : "По текущему контексту уже можно либо обсуждать точечные правки, либо жать обновление draft.",
@@ -1946,12 +2835,15 @@ function hasTrackingParams(url) {
 function collectDiscussionQuestions(payload, draft) {
   const questions = [];
   const assets = payload.assetInputs.filter((asset) => asset.url);
+  const libraryItems = Array.isArray(payload.assetRegistryItems) ? payload.assetRegistryItems : [];
   const hasDesign = Boolean(payload.design?.dataUrl || payload.brief.designUrl);
   const heroAssetExists = assets.some((asset, index) => resolveAssetPlacement(asset, index) === "hero");
   const sectionAssetExists = assets.some((asset, index) => {
     const placement = resolveAssetPlacement(asset, index);
     return placement === "section" || placement === "feature";
   });
+  const heroLibraryCandidate = libraryItems.some((item) => ["hero", "background"].includes(cleanText(item.placement)));
+  const sectionLibraryCandidate = libraryItems.some((item) => ["section", "feature"].includes(cleanText(item.placement)));
 
   if (!payload.brief.goal) {
     questions.push("Какое главное действие должен сделать пользователь после письма: депозит, trade, реактивация, апгрейд или что-то еще?");
@@ -1976,11 +2868,15 @@ function collectDiscussionQuestions(payload, draft) {
   }
 
   if (!heroAssetExists) {
-    questions.push("Нужна ли hero-картинка для первого экрана, или делаем сильный текстовый hero без визуала?");
+    questions.push(heroLibraryCandidate
+      ? "Hero-картинки в текущем письме нет, но в asset library уже есть кандидаты. Берем одну из них или делаем новый visual?"
+      : "Нужна ли hero-картинка для первого экрана, или делаем сильный текстовый hero без визуала?");
   }
 
   if (draft && draft.sections?.some((section) => section.kind === "text" || section.kind === "feature-list") && !sectionAssetExists) {
-    questions.push("Нужна ли отдельная body/section image для контентного блока, или оставляем письмо почти текстовым?");
+    questions.push(sectionLibraryCandidate
+      ? "Для body-блока в текущем письме нет картинки, но в library уже есть section/feature candidates. Подставляем одну из них?"
+      : "Нужна ли отдельная body/section image для контентного блока, или оставляем письмо почти текстовым?");
   }
 
   if (!hasDesign) {
@@ -2408,7 +3304,7 @@ function renderAssetsManifest(mail) {
   return JSON.stringify(payload, null, 2);
 }
 
-function createDraftSnapshot(mail, existingDraft = null) {
+function createDraftSnapshot(mail, existingDraft = null, metadata = {}) {
   const emailBaseSummary = summarizeEmailBase();
 
   return {
@@ -2418,6 +3314,7 @@ function createDraftSnapshot(mail, existingDraft = null) {
     locales: renderLocalesJson(mail),
     assetsManifest: renderAssetsManifest(mail),
     spec: JSON.stringify(mail, null, 2),
+    assetRecommendations: Array.isArray(metadata?.assetRecommendations) ? metadata.assetRecommendations : [],
     buildLog: cleanText(existingDraft?.buildLog) || [
       "No email-base build executed yet.",
       emailBaseSummary.currentMail
@@ -2429,11 +3326,12 @@ function createDraftSnapshot(mail, existingDraft = null) {
 
 function materializeDraft(result, payload, mode) {
   const mail = normalizeMail(result.mail, payload);
+  const assetRecommendations = buildAssetRecommendations(mail, payload);
 
   return {
     assistantReply: cleanText(result.assistant_reply) || "Черновик письма собран.",
     mode,
-    draft: createDraftSnapshot(mail)
+    draft: createDraftSnapshot(mail, null, { assetRecommendations })
   };
 }
 
@@ -2746,7 +3644,9 @@ async function generateMissingLocales(payload, existingDraft = null) {
       mode: `${payload.settings.providerId}-translations`,
       translationText: renderTranslationBundle(mergedMail.translations),
       uploadStatus: `Locales already complete: ${requestedLocales.join(", ")}.`,
-      draft: createDraftSnapshot(mergedMail, baseDraft)
+      draft: createDraftSnapshot(mergedMail, baseDraft, {
+        assetRecommendations: buildAssetRecommendations(mergedMail, payload)
+      })
     };
   }
 
@@ -2792,7 +3692,9 @@ async function generateMissingLocales(payload, existingDraft = null) {
     generatedLocales: missingLocales,
     translationText: renderTranslationBundle(mergedTranslations),
     uploadStatus: `Translation bundle now contains ${mergedTranslations.length} locale file(s). Generated: ${missingLocales.join(", ")}.`,
-    draft: createDraftSnapshot(mergedMail, baseDraft)
+    draft: createDraftSnapshot(mergedMail, baseDraft, {
+      assetRecommendations: buildAssetRecommendations(mergedMail, payload)
+    })
   };
 }
 
@@ -2824,13 +3726,99 @@ async function serveStatic(request, response) {
 
 const server = http.createServer(async (request, response) => {
   try {
+    if (request.method === "GET" && request.url.startsWith("/studio-assets/")) {
+      await serveStudioAsset(request, response);
+      return;
+    }
+
     if (request.method === "GET" && request.url === "/api/status") {
+      const blockCatalog = await ensureBlockCatalog();
+      const assetRegistry = await readAssetRegistry();
+      const journal = await readStudioJournal();
       sendJson(response, 200, {
         openAiConfigured: Boolean(openAiApiKey),
         model: openAiModel,
         providers: getProviderCatalog(),
         clientProfiles,
-        emailBase: summarizeEmailBase()
+        emailBase: summarizeEmailBase(),
+        blockCatalog: summarizeBlockCatalog(blockCatalog),
+        assetRegistry: summarizeAssetRegistry(assetRegistry),
+        journal: summarizeStudioJournal(journal)
+      });
+      return;
+    }
+
+    if (request.method === "GET" && request.url === "/api/block-catalog") {
+      sendJson(response, 200, await ensureBlockCatalog());
+      return;
+    }
+
+    if (request.method === "POST" && request.url === "/api/block-catalog/refresh") {
+      const catalog = await ensureBlockCatalog({ force: true });
+      await appendStudioJournalEntry({
+        area: "catalog",
+        title: "Block catalog refreshed",
+        message: `Catalog now contains ${catalog.summary?.itemCount || catalog.items.length} block(s).`
+      });
+      sendJson(response, 200, catalog);
+      return;
+    }
+
+    if (request.method === "GET" && request.url === "/api/assets") {
+      const registry = await readAssetRegistry();
+      sendJson(response, 200, {
+        items: registry.items,
+        summary: summarizeAssetRegistry(registry)
+      });
+      return;
+    }
+
+    if (request.method === "POST" && request.url === "/api/assets/register") {
+      const payload = await readRequestBody(request);
+      const result = await registerUploadedAssets(Array.isArray(payload?.files) ? payload.files : []);
+      await appendStudioJournalEntry({
+        area: "assets",
+        title: "Assets uploaded",
+        message: `Registered ${result.items.length} file(s) in asset library.`,
+        meta: {
+          count: result.items.length
+        }
+      });
+      sendJson(response, 200, result);
+      return;
+    }
+
+    if (request.method === "POST" && request.url === "/api/assets/update") {
+      const payload = await readRequestBody(request);
+      const result = await updateAssetRegistryEntry(payload?.id, payload?.patch || {});
+      await appendStudioJournalEntry({
+        area: "assets",
+        title: "Asset updated",
+        message: cleanText(payload?.patch?.externalUrl)
+          ? `Linked asset ${cleanText(result.item.label) || cleanText(result.item.id)} to external URL.`
+          : `Updated asset ${cleanText(result.item.label) || cleanText(result.item.id)}.`,
+        meta: {
+          assetId: cleanText(result.item.id)
+        }
+      });
+      sendJson(response, 200, result);
+      return;
+    }
+
+    if (request.method === "GET" && request.url === "/api/journal") {
+      const journal = await readStudioJournal();
+      sendJson(response, 200, {
+        entries: journal.entries,
+        summary: summarizeStudioJournal(journal)
+      });
+      return;
+    }
+
+    if (request.method === "POST" && request.url === "/api/journal/clear") {
+      const journal = await clearStudioJournal();
+      sendJson(response, 200, {
+        entries: journal.entries,
+        summary: summarizeStudioJournal(journal)
       });
       return;
     }
@@ -2854,7 +3842,16 @@ const server = http.createServer(async (request, response) => {
         ? rawPayload.draft
         : null;
 
-      sendJson(response, 200, await generateMissingLocales(payload, existingDraft));
+      const result = await generateMissingLocales(payload, existingDraft);
+      await appendStudioJournalEntry({
+        area: "translations",
+        title: "Locales generated",
+        message: cleanText(result.assistantReply),
+        meta: {
+          requested: cleanText(payload.brief.requestedLocales)
+        }
+      });
+      sendJson(response, 200, result);
       return;
     }
 
@@ -2865,7 +3862,13 @@ const server = http.createServer(async (request, response) => {
       const mailId = cleanText(payload?.brief?.mailId || payload?.mailId) || summary.currentMail?.mailId;
       const locale = cleanText(payload?.brief?.locale || payload?.locale) || payload.brief.locale || "en";
 
-      sendJson(response, 200, await buildEmailBasePreview(category, mailId, locale));
+      const result = await buildEmailBasePreview(category, mailId, locale);
+      await appendStudioJournalEntry({
+        area: "email-base",
+        title: "Base email built",
+        message: `Loaded preview for ${category}/mail-${mailId} (${locale}).`
+      });
+      sendJson(response, 200, result);
       return;
     }
 
@@ -2879,7 +3882,14 @@ const server = http.createServer(async (request, response) => {
         return;
       }
 
-      sendJson(response, 200, await createEmailBaseMailFromDraft(payload, draftSource));
+      const result = await createEmailBaseMailFromDraft(payload, draftSource);
+      await appendStudioJournalEntry({
+        area: "email-base",
+        title: "Draft saved to email-base",
+        message: `Saved ${cleanText(result.saved?.folder)} with ${Array.isArray(result.saved?.locales) ? result.saved.locales.length : 0} locale(s).`,
+        meta: result.saved || {}
+      });
+      sendJson(response, 200, result);
       return;
     }
 
@@ -2890,6 +3900,20 @@ const server = http.createServer(async (request, response) => {
 
     sendJson(response, 404, { error: "Not found" });
   } catch (error) {
+    try {
+      await appendStudioJournalEntry({
+        level: "error",
+        area: "server",
+        title: "Server error",
+        message: error instanceof Error ? error.message : "Unknown server error",
+        meta: {
+          method: request.method,
+          url: request.url
+        }
+      });
+    } catch {
+      // Ignore secondary journal failures.
+    }
     if (response.headersSent) {
       response.end();
       return;

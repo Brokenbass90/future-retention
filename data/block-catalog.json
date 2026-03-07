@@ -1,0 +1,218 @@
+{
+  "generatedAt": "2026-03-07T09:23:00.496Z",
+  "root": "email-base",
+  "items": [
+    {
+      "id": "header-logo-row",
+      "label": "Header logo row",
+      "description": "Тонкая верхняя строка с логотипом и ссылкой на бренд.",
+      "sectionKind": "image",
+      "helperMixins": [],
+      "traits": {
+        "hasImage": true,
+        "hasCta": true,
+        "ctaCount": 1,
+        "itemMode": "none",
+        "minItems": 0,
+        "outlookSafe": true,
+        "vml": false
+      },
+      "usageCount": 1,
+      "sources": [
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-311",
+          "file": "email-base/X_IQ/mail-rfm-311/app/templates/blocks/header.pug",
+          "evidence": "img.logo",
+          "order": 375
+        }
+      ]
+    },
+    {
+      "id": "hero-image-two-cta",
+      "label": "Hero image with two CTA",
+      "description": "Первый экран с большой картинкой, hero copy и двухкнопочным table-based CTA.",
+      "sectionKind": "hero",
+      "helperMixins": [
+        "cta-two-column-table"
+      ],
+      "traits": {
+        "hasImage": true,
+        "hasCta": true,
+        "ctaCount": 2,
+        "itemMode": "none",
+        "minItems": 0,
+        "outlookSafe": true,
+        "vml": false
+      },
+      "usageCount": 1,
+      "sources": [
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-311",
+          "file": "email-base/X_IQ/mail-rfm-311/app/templates/blocks/header.pug",
+          "evidence": "Table-based CTA example",
+          "order": 2210
+        }
+      ]
+    },
+    {
+      "id": "numbered-feature-stack",
+      "label": "Numbered feature stack",
+      "description": "Секция с пронумерованными шагами/выгодами, где каждый блок может иметь текст, картинку и CTA.",
+      "sectionKind": "feature-list",
+      "helperMixins": [],
+      "traits": {
+        "hasImage": true,
+        "hasCta": true,
+        "ctaCount": 1,
+        "itemMode": "numbered",
+        "minItems": 5,
+        "outlookSafe": true,
+        "vml": false
+      },
+      "usageCount": 5,
+      "sources": [
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-311",
+          "file": "email-base/X_IQ/mail-rfm-311/app/templates/blocks/header.pug",
+          "evidence": "p.number",
+          "order": 3133
+        }
+      ]
+    },
+    {
+      "id": "switch-cta-row",
+      "label": "Switch CTA row",
+      "description": "Двухкнопочный switch row с центральной стрелкой и явным сравнением двух действий.",
+      "sectionKind": "cta",
+      "helperMixins": [
+        "cta-switch-table"
+      ],
+      "traits": {
+        "hasImage": true,
+        "hasCta": true,
+        "ctaCount": 2,
+        "itemMode": "binary",
+        "minItems": 2,
+        "outlookSafe": true,
+        "vml": false
+      },
+      "usageCount": 1,
+      "sources": [
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-311",
+          "file": "email-base/X_IQ/mail-rfm-311/app/templates/blocks/header.pug",
+          "evidence": "Table-based switch row example",
+          "order": 4506
+        }
+      ]
+    },
+    {
+      "id": "vml-bottom-hero",
+      "label": "VML background hero",
+      "description": "Outlook-safe hero или CTA-блок на VML background helper.",
+      "sectionKind": "cta",
+      "helperMixins": [
+        "vml-bg"
+      ],
+      "traits": {
+        "hasImage": true,
+        "hasCta": true,
+        "ctaCount": 1,
+        "itemMode": "none",
+        "minItems": 0,
+        "outlookSafe": true,
+        "vml": true
+      },
+      "usageCount": 1,
+      "sources": [
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-311",
+          "file": "email-base/X_IQ/mail-rfm-311/app/templates/blocks/header.pug",
+          "evidence": "+vml-bg(",
+          "order": 12015
+        }
+      ]
+    },
+    {
+      "id": "vml-bottom-hero-fixed",
+      "label": "Fixed VML background hero",
+      "description": "Более безопасный фиксированный VML background helper для Outlook и тяжелых hero-блоков.",
+      "sectionKind": "cta",
+      "helperMixins": [
+        "vml-bg-fixed"
+      ],
+      "traits": {
+        "hasImage": true,
+        "hasCta": true,
+        "ctaCount": 1,
+        "itemMode": "none",
+        "minItems": 0,
+        "outlookSafe": true,
+        "vml": true
+      },
+      "usageCount": 1,
+      "sources": [
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-311",
+          "file": "email-base/X_IQ/mail-rfm-311/app/templates/blocks/header.pug",
+          "evidence": "Fixed VML background example",
+          "order": 12357
+        }
+      ]
+    },
+    {
+      "id": "store-badges-row",
+      "label": "Store badges row",
+      "description": "Компактный футерный ряд с App Store и Google Play badges.",
+      "sectionKind": "footer",
+      "helperMixins": [],
+      "traits": {
+        "hasImage": true,
+        "hasCta": true,
+        "ctaCount": 2,
+        "itemMode": "none",
+        "minItems": 0,
+        "outlookSafe": true,
+        "vml": false
+      },
+      "usageCount": 1,
+      "sources": [
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-311",
+          "file": "email-base/X_IQ/mail-rfm-311/app/templates/blocks/header.pug",
+          "evidence": "img.a-app",
+          "order": 12884
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "itemCount": 7,
+    "generatedAt": "2026-03-07T09:23:00.496Z",
+    "path": "data/block-catalog.json",
+    "sourceMailCount": 1,
+    "sourceMails": [
+      "X_IQ/mail-rfm-311"
+    ],
+    "sectionKinds": [
+      "cta",
+      "feature-list",
+      "footer",
+      "hero",
+      "image"
+    ],
+    "helperMixins": [
+      "cta-switch-table",
+      "cta-two-column-table",
+      "vml-bg",
+      "vml-bg-fixed"
+    ]
+  }
+}
