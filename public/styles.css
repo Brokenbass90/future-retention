@@ -128,6 +128,21 @@ body {
   background: rgba(255, 255, 255, 0.05);
 }
 
+.translation-tile {
+  position: relative;
+  transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
+}
+
+.translation-tile.is-dragover {
+  border-color: rgba(255, 122, 47, 0.55);
+  background: rgba(255, 247, 238, 0.92);
+  transform: translateY(-1px);
+}
+
+:root[data-theme="dark"] .translation-tile.is-dragover {
+  background: rgba(255, 140, 66, 0.08);
+}
+
 .upload-title {
   font-size: 1.15rem;
   font-weight: 800;
@@ -136,6 +151,20 @@ body {
 .upload-copy {
   color: var(--muted);
   line-height: 1.55;
+}
+
+.drop-hint {
+  padding: 12px 14px;
+  border-radius: 16px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.52);
+  border: 1px dashed rgba(19, 35, 26, 0.12);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+:root[data-theme="dark"] .drop-hint {
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .main-grid {

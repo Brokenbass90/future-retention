@@ -53,9 +53,9 @@
             </div>
           </section>
 
-          <section class="upload-tile">
+          <section class="upload-tile translation-tile" id="translationDropZone">
             <div class="upload-title">Translations</div>
-            <div class="upload-copy">Сюда загружаем JSON или ваши `.txt`-файлы переводов с `Subject`, `Snippet`, блоками `{{...}}` и жирностью `@@...@@`. Можно грузить сразу несколько локалей.</div>
+            <div class="upload-copy">Сюда загружаем JSON или ваши `.txt`-файлы переводов с `Subject`, `Snippet`, блоками `{{...}}` и жирностью `@@...@@`. Можно грузить сразу несколько локалей, целую папку или просто перетащить ее сюда.</div>
             <label class="field">
               <span>Translations JSON / raw text</span>
               <textarea
@@ -64,9 +64,14 @@
                 placeholder="Subject: ...&#10;Snippet: ...&#10;&#10;{{Первый блок}}&#10;{{Текст с @@жирным@@ акцентом}}"
               ></textarea>
             </label>
+            <div class="drop-hint" id="translationUploadStatus">Можно выбрать файлы, выбрать папку или перетащить их прямо в этот блок.</div>
             <label class="field">
               <span>Upload translation files</span>
               <input id="translationFile" type="file" accept=".json,.txt,.md" multiple />
+            </label>
+            <label class="field">
+              <span>Upload translation folder</span>
+              <input id="translationFolderInput" type="file" accept=".json,.txt,.md" webkitdirectory directory multiple />
             </label>
           </section>
 

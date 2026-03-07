@@ -32,6 +32,7 @@ const initialState = {
     designUrl: ""
   },
   translationText: "",
+  translationUploadStatus: "",
   design: {
     name: "",
     dataUrl: ""
@@ -87,6 +88,9 @@ const refs = {
   diagnosticsList: document.querySelector("#diagnosticsList"),
   designFile: document.querySelector("#designFile"),
   translationFile: document.querySelector("#translationFile"),
+  translationFolderInput: document.querySelector("#translationFolderInput"),
+  translationDropZone: document.querySelector("#translationDropZone"),
+  translationUploadStatus: document.querySelector("#translationUploadStatus"),
   designPreviewWrap: document.querySelector("#designPreviewWrap"),
   designPreview: document.querySelector("#designPreview"),
   designCaption: document.querySelector("#designCaption"),
@@ -159,6 +163,8 @@ function bindEvents() {
 
   refs.designFile.addEventListener("change", handleDesignUpload);
   refs.translationFile.addEventListener("change", handleTranslationUpload);
+  refs.translationFolderInput.addEventListener("change", handleTranslationUpload);
+  bindTranslationDropzone();
 
   refs.themeSelect.addEventListener("change", () => {
     state.settings.theme = refs.themeSelect.value;
@@ -275,6 +281,7 @@ function persistState() {
     settings: state.settings,
     brief: state.brief,
     translationText: state.translationText,
+    translationUploadStatus: state.translationUploadStatus,
     assetInputs: state.assetInputs,
     messages: state.messages,
     draft
@@ -298,6 +305,7 @@ function resetState() {
   Object.assign(state, structuredClone(initialState));
   refs.designFile.value = "";
   refs.translationFile.value = "";
+  refs.translationFolderInput.value = "";
   refs.chatInput.value = "";
   applyTheme();
   renderAll();
@@ -370,6 +378,7 @@ function fillDemoScenario() {
   state.draft = null;
   state.previewSource = "draft";
   state.design = { name: "", dataUrl: "" };
+  state.translationUploadStatus = "Демо bundle загружен вручную.";
   renderAll();
   persistState();
 }
@@ -416,9 +425,40 @@ async function handleTranslationUpload(event) {
     return;
   }
 
-  state.translationText = await combineTranslationFiles(files);
-  refs.fields.translationText.value = state.translationText;
-  persistState();
+  await applyTranslationFiles(files, files.length === 1 ? files[0].name : `${files.length} files`);
+  event.target.value = "";
+}
+
+function bindTranslationDropzone() {
+  const zone = refs.translationDropZone;
+  const activate = (event) => {
+    event.preventDefault();
+    zone.classList.add("is-dragover");
+  };
+  const deactivate = (event) => {
+    event.preventDefault();
+    if (event.type === "dragleave" && zone.contains(event.relatedTarget)) {
+      return;
+    }
+    zone.classList.remove("is-dragover");
+  };
+
+  zone.addEventListener("dragenter", activate);
+  zone.addEventListener("dragover", activate);
+  zone.addEventListener("dragleave", deactivate);
+  zone.addEventListener("drop", async (event) => {
+    event.preventDefault();
+    zone.classList.remove("is-dragover");
+    const files = await extractTranslationFilesFromDrop(event.dataTransfer);
+    if (files.length === 0) {
+      state.translationUploadStatus = "Не нашел .txt/.json/.md файлов в drop.";
+      renderTranslationUploadStatus();
+      persistState();
+      return;
+    }
+
+    await applyTranslationFiles(files, inferDropSourceLabel(files));
+  });
 }
 
 async function handleChatSubmit(event) {
@@ -531,6 +571,7 @@ function toggleSettings(isOpen) {
 function renderAll() {
   applyTheme();
   renderFields();
+  renderTranslationUploadStatus();
   renderAssetComposer();
   renderMessages();
   renderStatus();
@@ -559,6 +600,11 @@ function renderFields() {
   refs.fields.contentNotes.value = state.brief.contentNotes;
   refs.fields.designUrl.value = state.brief.designUrl;
   refs.fields.translationText.value = state.translationText;
+}
+
+function renderTranslationUploadStatus() {
+  refs.translationUploadStatus.textContent = state.translationUploadStatus
+    || "Можно выбрать файлы, выбрать папку или перетащить их прямо в этот блок.";
 }
 
 function renderAssetComposer() {
@@ -1139,8 +1185,100 @@ async function combineTranslationFiles(files) {
   const chunks = [];
   for (const file of files) {
     const content = await readFileAsText(file);
-    chunks.push(`=== FILE: ${file.name} ===\n${content.trim()}`);
+    const displayName = file.webkitRelativePath || file.name;
+    chunks.push(`=== FILE: ${displayName} ===\n${content.trim()}`);
   }
 
   return chunks.join("\n\n");
+}
+
+async function applyTranslationFiles(files, sourceLabel = "") {
+  const supported = filterTranslationFiles(files);
+  if (supported.length === 0) {
+    state.translationUploadStatus = "Не найдено поддерживаемых translation files.";
+    renderTranslationUploadStatus();
+    persistState();
+    return;
+  }
+
+  state.translationText = await combineTranslationFiles(supported);
+  state.translationUploadStatus = sourceLabel
+    ? `Загружено ${supported.length} translation file(s) из ${sourceLabel}.`
+    : `Загружено ${supported.length} translation file(s).`;
+  refs.fields.translationText.value = state.translationText;
+  renderTranslationUploadStatus();
+  persistState();
+}
+
+function filterTranslationFiles(files) {
+  return files.filter((file) => /\.(json|txt|md)$/i.test(file.name));
+}
+
+function inferDropSourceLabel(files) {
+  const paths = files
+    .map((file) => cleanText(file.webkitRelativePath))
+    .filter(Boolean);
+
+  if (paths.length > 0) {
+    const root = paths[0].split("/")[0];
+    return root || "drag-and-drop folder";
+  }
+
+  return files.length === 1 ? files[0].name : "drag-and-drop";
+}
+
+async function extractTranslationFilesFromDrop(dataTransfer) {
+  const items = Array.from(dataTransfer?.items || []);
+  if (items.length > 0 && items.some((item) => typeof item.webkitGetAsEntry === "function")) {
+    const groups = await Promise.all(items.map(async (item) => {
+      const entry = item.webkitGetAsEntry?.();
+      return entry ? collectFilesFromEntry(entry) : [];
+    }));
+    const droppedFiles = groups.flat();
+    if (droppedFiles.length > 0) {
+      return filterTranslationFiles(droppedFiles);
+    }
+  }
+
+  return filterTranslationFiles(Array.from(dataTransfer?.files || []));
+}
+
+async function collectFilesFromEntry(entry) {
+  if (!entry) {
+    return [];
+  }
+
+  if (entry.isFile) {
+    return new Promise((resolve) => {
+      entry.file((file) => resolve([file]), () => resolve([]));
+    });
+  }
+
+  if (!entry.isDirectory) {
+    return [];
+  }
+
+  const reader = entry.createReader();
+  const entries = await readDirectoryEntries(reader);
+  const groups = await Promise.all(entries.map((child) => collectFilesFromEntry(child)));
+  return groups.flat();
+}
+
+function readDirectoryEntries(reader) {
+  return new Promise((resolve) => {
+    const entries = [];
+    const readChunk = () => {
+      reader.readEntries((batch) => {
+        if (!batch.length) {
+          resolve(entries);
+          return;
+        }
+
+        entries.push(...batch);
+        readChunk();
+      }, () => resolve(entries));
+    };
+
+    readChunk();
+  });
 }

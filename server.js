@@ -701,7 +701,8 @@ function buildDiscussionContext(payload) {
   return [
     "You are discussing an email with a marketer inside an email studio.",
     "Answer like a collaborative email strategist and implementation partner.",
-    "Be concise but concrete. Suggest improvements, ask for missing pieces implicitly by pointing them out, and reference the current draft when useful.",
+    "Be concise but concrete. Reference the current draft when useful.",
+    "When important data is missing, ask direct follow-up questions about CTA links, tracking params, locales, visuals, legal/footer requirements, and missing content blocks.",
     `Campaign name: ${payload.brief.campaignName || "Untitled campaign"}`,
     `Goal: ${payload.brief.goal || "Not specified"}`,
     `Tone: ${payload.brief.tone || "Not specified"}`,
@@ -804,7 +805,7 @@ function buildDiscussionMessages(payload) {
       role: "system",
       content: [{
         type: "input_text",
-        text: "You are a live email strategist inside a collaborative email-studio. Discuss ideas, critique drafts, and suggest implementation-minded next steps."
+        text: "You are a live email strategist inside a collaborative email-studio. Discuss ideas, critique drafts, suggest implementation-minded next steps, and ask sharp follow-up questions when links, tracking, assets, locales, or mandatory copy are missing."
       }]
     },
     {
@@ -1183,12 +1184,15 @@ function createMockDiscussion(payload, warning = "") {
     .filter((asset) => asset.url)
     .map((asset, index) => `${resolveAssetKey(asset, index, resolveAssetPlacement(asset, index))} -> ${resolveAssetPlacement(asset, index)}`)
     .join(", ");
+  const questions = collectDiscussionQuestions(payload, draft);
 
   if (!draft) {
     return {
       assistantReply: [
         "Сейчас чат живой, но у нас еще нет рабочего draft.",
-        "Сначала дай мне контекст письма, потом загрузи design, переводы и картинки в Upload Hub, и после этого я смогу обсуждать уже конкретный draft.",
+        questions.length > 0
+          ? `Чтобы собрать нормальный draft, мне нужны ответы на вопросы: ${formatDiscussionQuestions(questions)}`
+          : "Сначала дай мне контекст письма, потом загрузи design, переводы и картинки в Upload Hub, и после этого я смогу обсуждать уже конкретный draft.",
         warning ? `Текущий режим: ${warning}.` : ""
       ].filter(Boolean).join(" ")
     };
@@ -1200,10 +1204,67 @@ function createMockDiscussion(payload, warning = "") {
       hasDesign ? "Design reference уже есть." : "Design reference пока не загружен.",
       hasTranslations ? "Переводы уже приложены." : "Переводы пока не приложены.",
       assetPlan ? `Картинки размечены так: ${assetPlan}.` : "Картинки пока не размечены по ролям.",
-      "Следующий рабочий шаг: либо обсуждаем изменения текста/структуры, либо жмем обновление draft и применяем их к письму.",
+      questions.length > 0
+        ? `Сейчас мне еще нужны ответы на вопросы: ${formatDiscussionQuestions(questions)}`
+        : "По текущему контексту уже можно либо обсуждать точечные правки, либо жать обновление draft.",
       warning ? `Текущий режим: ${warning}.` : ""
     ].join(" ")
   };
+}
+
+function hasTrackingParams(url) {
+  return /[?&](utm_[^=]+|click_id|sub\d*=|aff|ref=|cid=|pid=|gclid=|fbclid=|yclid=)/i.test(cleanText(url));
+}
+
+function collectDiscussionQuestions(payload, draft) {
+  const questions = [];
+  const assets = payload.assetInputs.filter((asset) => asset.url);
+  const hasDesign = Boolean(payload.design?.dataUrl || payload.brief.designUrl);
+  const heroAssetExists = assets.some((asset, index) => resolveAssetPlacement(asset, index) === "hero");
+  const sectionAssetExists = assets.some((asset, index) => {
+    const placement = resolveAssetPlacement(asset, index);
+    return placement === "section" || placement === "feature";
+  });
+
+  if (!payload.brief.goal) {
+    questions.push("Какое главное действие должен сделать пользователь после письма: депозит, trade, реактивация, апгрейд или что-то еще?");
+  }
+
+  if (!payload.brief.audience) {
+    questions.push("Для какого сегмента это письмо: inactive, churn-risk, VIP, first deposit, KYC pending или другой?");
+  }
+
+  if (!payload.brief.primaryLink) {
+    questions.push("Какой URL должен стоять на основной CTA и какие там нужны tracking / retargeting параметры?");
+  } else if (!hasTrackingParams(payload.brief.primaryLink)) {
+    questions.push("Нужны ли UTM, click id, subid или другие tracking-параметры? Сейчас основная ссылка выглядит без трекинга.");
+  }
+
+  if (!payload.translationText) {
+    questions.push(`На какие локали, кроме ${payload.brief.locale || "en"}, нужно собрать письмо? Если переводов нет, могу потом автогенерить missing locales.`);
+  }
+
+  if (!heroAssetExists) {
+    questions.push("Нужна ли hero-картинка для первого экрана, или делаем сильный текстовый hero без визуала?");
+  }
+
+  if (draft && draft.sections?.some((section) => section.kind === "text" || section.kind === "feature-list") && !sectionAssetExists) {
+    questions.push("Нужна ли отдельная body/section image для контентного блока, или оставляем письмо почти текстовым?");
+  }
+
+  if (!hasDesign) {
+    questions.push("Есть ли дизайн, референс или хотя бы скрин структуры письма, чтобы точнее собрать блоки?");
+  }
+
+  if (!payload.brief.contentNotes) {
+    questions.push("Есть ли обязательные тексты: оффер, дедлайн, legal, risk warning, footer copy, unsubscribe notes?");
+  }
+
+  return questions.slice(0, 4);
+}
+
+function formatDiscussionQuestions(questions) {
+  return questions.map((question, index) => `${index + 1}) ${question}`).join(" ");
 }
 
 function normalizeMail(rawMail, payload) {
