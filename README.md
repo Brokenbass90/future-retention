@@ -12,7 +12,8 @@
 - редакторы локалей, assets и кода в попапах;
 - автогенерация missing locales;
 - сохранение нового письма в `email-base` как новый `mail-*`;
-- первый `block catalog`, собранный из реальных шаблонов в базе.
+- первый `block catalog`, собранный из реальных шаблонов в базе;
+- `block candidate` flow для новых layout-паттернов, которых еще нет в каталоге.
 
 ## Запуск
 
@@ -42,11 +43,18 @@ npm start
    - design screenshot,
    - translation files или целую папку,
    - картинки для письма.
-3. Жмите `Отправить в чат`, если хотите просто поговорить о письме.
-4. Жмите `Применить к письму`, если хотите применить решения к preview и коду.
+3. Жмите `Отправить`.
+4. Вопросы останутся обычным диалогом, а команды вроде `добавь 3 колонки` студия трактует как изменение текущего draft.
 5. Пользуйтесь быстрыми кнопками `Локали`, `Картинки`, `Код`, `Тесты`.
-6. Сохраняйте результат в `email-base` кнопкой `Save as new email-base mail`.
-7. Для design reference можно открыть `Картинки` и нажать `Analyze design`. В live-режиме студия попробует разобрать макет на блоки и missing pieces.
+6. Открывайте `Block candidates`, если студия увидела новый layout, которого пока нет в каноническом catalog.
+7. Сохраняйте результат в `email-base` кнопкой `Save as new email-base mail`.
+8. Для design reference можно открыть `Картинки` и нажать `Analyze design`. В live-режиме студия попробует разобрать макет на блоки и missing pieces.
+
+## Что очищает что
+
+- `Очистить чат` — очищает только переписку.
+- `Очистить` — очищает текущий workspace: draft, brief, design, bundle локалей и attachments.
+- `Journal -> Clear journal` — очищает внутренний operational journal студии.
 
 ## Основные директории
 
@@ -61,6 +69,7 @@ npm start
 - [PROJECT-OVERVIEW.md](/Users/nikolay.bulgakov/Documents/retantion-future/docs/PROJECT-OVERVIEW.md)
 - [DEVELOPMENT-JOURNAL.md](/Users/nikolay.bulgakov/Documents/retantion-future/docs/DEVELOPMENT-JOURNAL.md)
 - [AI-SANDBOX.md](/Users/nikolay.bulgakov/Documents/retantion-future/docs/AI-SANDBOX.md)
+- [DESIGN-WORKSPACE-PLAN.md](/Users/nikolay.bulgakov/Documents/retantion-future/docs/DESIGN-WORKSPACE-PLAN.md)
 
 ## Что дальше
 

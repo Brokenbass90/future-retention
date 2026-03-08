@@ -171,6 +171,18 @@ CTA 2
 - в `mock mode` он честно говорит, что vision-разбора нет;
 - в live-режиме он может вернуть summary макета, suggested blocks, asset slots и missing content.
 
+### 9. Block candidates and studio learning
+
+Если текущий draft содержит layout, которого еще нет в `block catalog`, студия теперь показывает его как `new block candidate`.
+
+Это важно по двум причинам:
+- студия не должна скрыто изобретать произвольную верстку;
+- новые паттерны должны становиться явной частью вашей внутренней системы блоков.
+
+Такой flow и есть практическое "обучение" студии:
+- не fine-tuning модели,
+- а накопление явных правил, block definitions и проектных соглашений.
+
 ## Архитектура
 
 ### Frontend
@@ -243,6 +255,11 @@ Backend отвечает за:
 
 - provider adapters для разных AI;
 - design-to-block mapping по скрину/референсу;
+- отдельный `Design workspace` с controlled Figma import;
+- отдельный adapter slot под design-model;
 - controlled import публичных reference pages;
 - release pipeline с более сильным email-client lint;
 - блоки draft/new-candidate с review flow.
+
+Отдельный roadmap по design-side описан в:
+- [DESIGN-WORKSPACE-PLAN.md](/Users/nikolay.bulgakov/Documents/retantion-future/docs/DESIGN-WORKSPACE-PLAN.md)

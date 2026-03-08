@@ -46,6 +46,8 @@
 21. Добавлена загрузка `.env` на стороне сервера, чтобы live OpenAI можно было включать без ручного `export`.
 22. Добавлен явный индикатор `LIVE AI / MOCK / FALLBACK` в интерфейсе.
 23. Добавлен первый `Analyze design` endpoint и UI-блок для design analysis.
+24. Добавлен `Block candidates` flow: если секция draft не совпадает с catalog, студия показывает ее как кандидат в новый канонический блок с черновым контрактом.
+25. Зафиксирован roadmap по отдельному `Design workspace`, controlled Figma import и отдельному adapter slot под design-model.
 
 ## Текущие продуктовые принципы
 
@@ -123,6 +125,7 @@ Snippet: ...
 3. Больше вопросов от ассистента по missing data до генерации.
 4. Улучшение preview/test strategy для разных клиентов.
 5. Import свежих исторических писем как source для канонических блоков.
+6. Design workspace с zoning, mapping и review flow для новых макетов.
 
 ## Что открыть в новом чате в первую очередь
 

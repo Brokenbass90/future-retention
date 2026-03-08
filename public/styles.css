@@ -924,6 +924,13 @@ body {
   gap: 10px;
 }
 
+.block-candidate-summary {
+  padding: 0 22px 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .block-card {
   display: grid;
   gap: 8px;
@@ -985,6 +992,7 @@ body {
 .pill {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   min-height: 40px;
   padding: 0 14px;
   border-radius: 999px;
@@ -992,6 +1000,18 @@ body {
   border: 1px solid rgba(19, 35, 26, 0.08);
   color: var(--ink);
   font-weight: 700;
+}
+
+.candidate-pill {
+  appearance: none;
+  cursor: pointer;
+  font: inherit;
+  transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
+}
+
+.candidate-pill:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 122, 47, 0.3);
 }
 
 :root[data-theme="dark"] .pill {
@@ -1149,6 +1169,24 @@ body {
   padding: 18px 20px;
   resize: vertical;
   line-height: 1.6;
+}
+
+.candidate-field-list {
+  color: var(--green);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.candidate-schema {
+  margin: 0;
+  padding: 14px 16px;
+  border-radius: 18px;
+  overflow: auto;
+  background: linear-gradient(180deg, #14281d 0%, #102219 100%);
+  color: #d9eed3;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.55;
 }
 
 :root[data-theme="dark"] .modal-editor {

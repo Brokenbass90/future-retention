@@ -216,10 +216,12 @@
                 </h2>
               </div>
               <div class="card-header-actions">
+                <button class="ghost-button" id="openBlockCandidatesBtn" type="button">Block candidates</button>
                 <button class="ghost-button" id="refreshCatalogBtn" type="button">Refresh catalog</button>
               </div>
             </div>
             <div class="block-catalog-summary" id="blockCatalogSummary"></div>
+            <div class="block-candidate-summary" id="blockCandidateSummary"></div>
             <div class="block-list" id="blockList"></div>
             <div class="diagnostics-list compact" id="diagnosticsList"></div>
           </section>
@@ -443,6 +445,23 @@
       </div>
       <div class="workspace-modal-footer">
         <button class="ghost-button" id="closeTestsFooterBtn" type="button">Close</button>
+      </div>
+    </section>
+
+    <section class="workspace-modal" id="blockCandidatesModal" aria-hidden="true">
+      <div class="workspace-modal-header">
+        <div>
+          <div class="card-kicker">Block candidates</div>
+          <h2>Новые кандидаты в блоки</h2>
+        </div>
+        <button class="ghost-button" id="closeBlockCandidatesModalBtn" type="button">Close</button>
+      </div>
+      <div class="workspace-modal-body">
+        <div class="modal-meta" id="blockCandidatesMeta">Когда draft содержит новые layout-паттерны, студия покажет их здесь.</div>
+        <div class="block-list" id="blockCandidatesList"></div>
+      </div>
+      <div class="workspace-modal-footer">
+        <button class="ghost-button" id="closeBlockCandidatesFooterBtn" type="button">Close</button>
       </div>
     </section>
 

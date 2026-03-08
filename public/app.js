@@ -120,6 +120,7 @@ const refs = {
   openTestsQuickBtn: document.querySelector("#openTestsQuickBtn"),
   openJournalBtn: document.querySelector("#openJournalBtn"),
   openJournalFromSettingsBtn: document.querySelector("#openJournalFromSettingsBtn"),
+  openBlockCandidatesBtn: document.querySelector("#openBlockCandidatesBtn"),
   designBadge: document.querySelector("#designBadge"),
   translationBadge: document.querySelector("#translationBadge"),
   localesModal: document.querySelector("#localesModal"),
@@ -127,6 +128,7 @@ const refs = {
   codeModal: document.querySelector("#codeModal"),
   journalModal: document.querySelector("#journalModal"),
   testsModal: document.querySelector("#testsModal"),
+  blockCandidatesModal: document.querySelector("#blockCandidatesModal"),
   closeLocalesModalBtn: document.querySelector("#closeLocalesModalBtn"),
   closeLocalesFooterBtn: document.querySelector("#closeLocalesFooterBtn"),
   closeAssetsModalBtn: document.querySelector("#closeAssetsModalBtn"),
@@ -136,6 +138,8 @@ const refs = {
   closeJournalFooterBtn: document.querySelector("#closeJournalFooterBtn"),
   closeTestsModalBtn: document.querySelector("#closeTestsModalBtn"),
   closeTestsFooterBtn: document.querySelector("#closeTestsFooterBtn"),
+  closeBlockCandidatesModalBtn: document.querySelector("#closeBlockCandidatesModalBtn"),
+  closeBlockCandidatesFooterBtn: document.querySelector("#closeBlockCandidatesFooterBtn"),
   saveLocaleEditsBtn: document.querySelector("#saveLocaleEditsBtn"),
   saveCodeBtn: document.querySelector("#saveCodeBtn"),
   createBaseMailFromCodeBtn: document.querySelector("#createBaseMailFromCodeBtn"),
@@ -163,6 +167,9 @@ const refs = {
   diagnosticsList: document.querySelector("#diagnosticsList"),
   blockList: document.querySelector("#blockList"),
   blockCatalogSummary: document.querySelector("#blockCatalogSummary"),
+  blockCandidateSummary: document.querySelector("#blockCandidateSummary"),
+  blockCandidatesMeta: document.querySelector("#blockCandidatesMeta"),
+  blockCandidatesList: document.querySelector("#blockCandidatesList"),
   designFile: document.querySelector("#designFile"),
   translationFile: document.querySelector("#translationFile"),
   translationFolderInput: document.querySelector("#translationFolderInput"),
@@ -265,6 +272,7 @@ function bindEvents() {
   refs.openJournalBtn.addEventListener("click", openJournalModal);
   refs.openJournalFromSettingsBtn.addEventListener("click", openJournalModal);
   refs.openBlocksBtn.addEventListener("click", scrollToBlocks);
+  refs.openBlockCandidatesBtn.addEventListener("click", openBlockCandidatesModal);
   refs.refreshCatalogBtn.addEventListener("click", handleRefreshBlockCatalog);
   refs.closeLocalesModalBtn.addEventListener("click", closeWorkspaceModal);
   refs.closeLocalesFooterBtn.addEventListener("click", closeWorkspaceModal);
@@ -275,6 +283,8 @@ function bindEvents() {
   refs.closeJournalFooterBtn.addEventListener("click", closeWorkspaceModal);
   refs.closeTestsModalBtn.addEventListener("click", closeWorkspaceModal);
   refs.closeTestsFooterBtn.addEventListener("click", closeWorkspaceModal);
+  refs.closeBlockCandidatesModalBtn.addEventListener("click", closeWorkspaceModal);
+  refs.closeBlockCandidatesFooterBtn.addEventListener("click", closeWorkspaceModal);
   refs.workspaceModalBackdrop.addEventListener("click", closeWorkspaceModal);
   refs.saveLocaleEditsBtn.addEventListener("click", saveLocaleEdits);
   refs.saveCodeBtn.addEventListener("click", saveCodeEdits);
@@ -1284,6 +1294,10 @@ function openTestsModal() {
   openWorkspaceModal("tests");
 }
 
+function openBlockCandidatesModal() {
+  openWorkspaceModal("block-candidates");
+}
+
 function scrollToBlocks() {
   refs.blockList?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
@@ -1495,6 +1509,7 @@ function renderWorkspaceModals() {
   toggleModalVisibility(refs.codeModal, active === "code");
   toggleModalVisibility(refs.journalModal, active === "journal");
   toggleModalVisibility(refs.testsModal, active === "tests");
+  toggleModalVisibility(refs.blockCandidatesModal, active === "block-candidates");
 
   if (active === "locales") {
     prepareLocaleEditor();
@@ -1511,6 +1526,10 @@ function renderWorkspaceModals() {
 
   if (active === "tests") {
     renderTests();
+  }
+
+  if (active === "block-candidates") {
+    renderBlockCandidates();
   }
 }
 
@@ -1611,6 +1630,123 @@ function renderBlocks() {
 
     card.append(head, meta, catalogNote, assetNote, body);
     refs.blockList.appendChild(card);
+  }
+}
+
+function getBlockCandidates() {
+  const sections = state.draft?.mail?.sections ?? [];
+
+  return sections
+    .map((section, index) => {
+      const match = findCatalogMatchForSection(section);
+      if (match) {
+        return null;
+      }
+
+      const fields = [
+        section.title ? "title" : "",
+        section.body ? "body" : "",
+        section.image_key ? "image" : "",
+        section.cta_label ? "cta_label" : "",
+        section.cta_href ? "cta_href" : "",
+        Array.isArray(section.items) && section.items.length > 0 ? "items" : ""
+      ].filter(Boolean);
+
+      return {
+        index,
+        id: `candidate-${cleanText(section.kind) || "block"}-${slugify(section.title || section.eyebrow || `section-${index + 1}`)}`,
+        kind: cleanText(section.kind) || "text",
+        label: section.title || section.eyebrow || `Section ${index + 1}`,
+        body: cleanText(section.body),
+        fields,
+        hasImage: Boolean(section.image_key),
+        hasCta: Boolean(section.cta_label),
+        itemCount: Array.isArray(section.items) ? section.items.length : 0,
+        definition: {
+          id: `candidate-${cleanText(section.kind) || "block"}-${slugify(section.title || section.eyebrow || `section-${index + 1}`)}`,
+          label: section.title || section.eyebrow || `Section ${index + 1}`,
+          kind: cleanText(section.kind) || "text",
+          suggestedInputs: fields,
+          localizable: [
+            section.title ? "title" : "",
+            section.body ? "body" : "",
+            section.cta_label ? "cta_label" : ""
+          ].filter(Boolean),
+          traits: {
+            hasImage: Boolean(section.image_key),
+            hasCta: Boolean(section.cta_label),
+            itemCount: Array.isArray(section.items) ? section.items.length : 0
+          },
+          sourceSection: {
+            index,
+            title: section.title || "",
+            eyebrow: section.eyebrow || "",
+            imageKey: section.image_key || "",
+            ctaLabel: section.cta_label || ""
+          }
+        }
+      };
+    })
+    .filter(Boolean);
+}
+
+function renderBlockCandidates() {
+  refs.blockCandidatesList.innerHTML = "";
+  const candidates = getBlockCandidates();
+
+  refs.blockCandidatesMeta.textContent = candidates.length > 0
+    ? `${candidates.length} candidate block(s) found in current draft. Эти секции еще не имеют канонического блока в email-base.`
+    : "В текущем draft новых кандидатов в блоки нет.";
+
+  if (candidates.length === 0) {
+    refs.blockCandidatesList.appendChild(createTextCard("Сейчас все секции либо совпали с catalog, либо draft еще не собран."));
+    return;
+  }
+
+  for (const candidate of candidates) {
+    const card = document.createElement("article");
+    card.className = "block-card";
+
+    const head = document.createElement("div");
+    head.className = "block-card-head";
+
+    const badge = document.createElement("span");
+    badge.className = "block-kind";
+    badge.textContent = `${String(candidate.index + 1).padStart(2, "0")} ${candidate.kind}`;
+
+    const title = document.createElement("strong");
+    title.textContent = candidate.label;
+    head.append(badge, title);
+
+    const meta = document.createElement("div");
+    meta.className = "block-card-meta";
+    meta.textContent = [
+      `candidate_id=${candidate.id}`,
+      candidate.fields.length > 0 ? `fields=${candidate.fields.join(", ")}` : "fields=none",
+      candidate.hasImage ? "has_image" : "",
+      candidate.hasCta ? "has_cta" : "",
+      candidate.itemCount > 0 ? `items=${candidate.itemCount}` : ""
+    ].filter(Boolean).join(" | ");
+
+    const note = document.createElement("div");
+    note.className = "block-catalog-match is-missing";
+    note.textContent = "Нужен новый block definition. Эту секцию лучше превратить в переиспользуемый блок для каталога.";
+
+    const body = document.createElement("p");
+    body.textContent = candidate.body || "Без body.";
+
+    const fields = document.createElement("div");
+    fields.className = "candidate-field-list";
+    fields.textContent = candidate.fields.length > 0
+      ? `Suggested inputs: ${candidate.fields.join(", ")}`
+      : "Suggested inputs: none";
+
+    const schema = document.createElement("pre");
+    schema.className = "candidate-schema";
+    schema.textContent = JSON.stringify(candidate.definition, null, 2);
+
+    card.append(head, meta, note, body, fields, schema);
+    refs.blockCandidatesList.appendChild(card);
   }
 }
 
@@ -2316,7 +2452,9 @@ function renderSettingsInfo() {
 
 function renderBlockCatalogSummary() {
   refs.blockCatalogSummary.innerHTML = "";
+  refs.blockCandidateSummary.innerHTML = "";
   const summary = state.blockCatalog.summary || state.api.blockCatalog;
+  const candidates = getBlockCandidates();
 
   if (!summary?.itemCount) {
     refs.blockCatalogSummary.appendChild(createTextCard("Block catalog пока не собран. Нажми Refresh catalog или дождись первой инициализации email-base."));
@@ -2335,6 +2473,15 @@ function renderBlockCatalogSummary() {
     pill.className = "pill";
     pill.textContent = part;
     refs.blockCatalogSummary.appendChild(pill);
+  }
+
+  if (candidates.length > 0) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "pill candidate-pill";
+    button.textContent = `${candidates.length} new block candidate(s)`;
+    button.addEventListener("click", openBlockCandidatesModal);
+    refs.blockCandidateSummary.appendChild(button);
   }
 }
 
