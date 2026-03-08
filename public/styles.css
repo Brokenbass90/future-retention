@@ -195,6 +195,8 @@ body {
 .detail-stack {
   display: grid;
   gap: 20px;
+  min-height: 0;
+  align-content: start;
 }
 
 .detail-stack {
@@ -256,10 +258,14 @@ body {
 }
 
 .chat-card {
-  min-height: 620px;
+  min-height: 0;
+  height: calc(100vh - 126px);
+  max-height: calc(100vh - 126px);
   display: flex;
   flex-direction: column;
   position: relative;
+  position: sticky;
+  top: 16px;
 }
 
 .chat-card.is-dragover {
@@ -328,11 +334,12 @@ body {
 
 .messages {
   flex: 1;
+  min-height: 0;
   padding: 18px 22px;
   display: grid;
   gap: 12px;
   overflow: auto;
-  min-height: 300px;
+  overscroll-behavior: contain;
 }
 
 .message {
@@ -1275,6 +1282,9 @@ body {
   .chat-card,
   .preview-card,
   .code-card {
+    position: static;
+    height: auto;
+    max-height: none;
     min-height: auto;
   }
 

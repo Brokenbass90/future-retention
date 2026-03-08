@@ -2168,6 +2168,64 @@ function summarizeDesignAnalysisForContext(analysis) {
   ].join("\n");
 }
 
+function isVisionSupportedMimeType(mimeType) {
+  return [
+    "image/png",
+    "image/jpeg",
+    "image/webp",
+    "image/gif"
+  ].includes(cleanText(mimeType).toLowerCase());
+}
+
+async function resolveVisionImageUrl(source) {
+  const value = cleanText(source);
+  if (!value) {
+    return "";
+  }
+
+  if (/^data:image\//i.test(value)) {
+    return value;
+  }
+
+  if (/^https?:\/\//i.test(value)) {
+    return value;
+  }
+
+  if (value.startsWith("/studio-assets/")) {
+    const requestedFile = decodeURIComponent(value.replace(/^\/studio-assets\//, ""));
+    const safeName = path.basename(requestedFile);
+    const assetPath = path.join(assetStorageDir, safeName);
+
+    if (!assetPath.startsWith(assetStorageDir) || !existsSync(assetPath)) {
+      return "";
+    }
+
+    const mimeType = (mimeTypes[path.extname(assetPath).toLowerCase()] || "application/octet-stream").split(";")[0];
+    if (!isVisionSupportedMimeType(mimeType)) {
+      return "";
+    }
+
+    const buffer = await readFile(assetPath);
+    return `data:${mimeType};base64,${buffer.toString("base64")}`;
+  }
+
+  return "";
+}
+
+async function appendVisionInput(content, source, detail = "auto") {
+  const imageUrl = await resolveVisionImageUrl(source);
+  if (!imageUrl) {
+    return false;
+  }
+
+  content.push({
+    type: "input_image",
+    image_url: imageUrl,
+    detail
+  });
+  return true;
+}
+
 function normalizePayload(payload) {
   const brief = payload?.brief ?? {};
   const settings = payload?.settings ?? {};
@@ -2280,7 +2338,7 @@ function buildDiscussionContext(payload) {
   ].join("\n");
 }
 
-function buildInputMessages(payload) {
+async function buildInputMessages(payload) {
   const content = [
     {
       type: "input_text",
@@ -2289,28 +2347,16 @@ function buildInputMessages(payload) {
   ];
 
   if (payload.brief.designUrl && looksLikeImageUrl(payload.brief.designUrl)) {
-    content.push({
-      type: "input_image",
-      image_url: payload.brief.designUrl,
-      detail: "auto"
-    });
+    await appendVisionInput(content, payload.brief.designUrl, "auto");
   }
 
   if (payload.design?.dataUrl) {
-    content.push({
-      type: "input_image",
-      image_url: payload.design.dataUrl,
-      detail: "auto"
-    });
+    await appendVisionInput(content, payload.design.dataUrl, "auto");
   }
 
   for (const assetLink of payload.assetLinks.slice(0, 3)) {
     if (/\.(png|jpe?g|gif|webp|svg)(\?.*)?$/i.test(assetLink)) {
-      content.push({
-        type: "input_image",
-        image_url: assetLink,
-        detail: "low"
-      });
+      await appendVisionInput(content, assetLink, "low");
     }
   }
 
@@ -2326,7 +2372,7 @@ function buildInputMessages(payload) {
   ];
 }
 
-function buildDiscussionMessages(payload) {
+async function buildDiscussionMessages(payload) {
   const content = [
     {
       type: "input_text",
@@ -2335,29 +2381,17 @@ function buildDiscussionMessages(payload) {
   ];
 
   if (payload.brief.designUrl && looksLikeImageUrl(payload.brief.designUrl)) {
-    content.push({
-      type: "input_image",
-      image_url: payload.brief.designUrl,
-      detail: "auto"
-    });
+    await appendVisionInput(content, payload.brief.designUrl, "auto");
   }
 
   if (payload.design?.dataUrl) {
-    content.push({
-      type: "input_image",
-      image_url: payload.design.dataUrl,
-      detail: "auto"
-    });
+    await appendVisionInput(content, payload.design.dataUrl, "auto");
   }
 
   for (const [index, asset] of payload.assetInputs.slice(0, 4).entries()) {
     if (looksLikeImageUrl(asset.url)) {
       const placement = resolveAssetPlacement(asset, index);
-      content.push({
-        type: "input_image",
-        image_url: asset.url,
-        detail: placement === "hero" ? "auto" : "low"
-      });
+      await appendVisionInput(content, asset.url, placement === "hero" ? "auto" : "low");
     }
   }
 
@@ -2376,7 +2410,7 @@ function buildDiscussionMessages(payload) {
   ];
 }
 
-function buildDesignAnalysisMessages(payload) {
+async function buildDesignAnalysisMessages(payload) {
   const emailBaseSummary = summarizeEmailBase();
   const currentDraftSummary = summarizeCurrentDraft(payload.currentDraft);
   const content = [
@@ -2399,19 +2433,11 @@ function buildDesignAnalysisMessages(payload) {
   ];
 
   if (payload.brief.designUrl && looksLikeImageUrl(payload.brief.designUrl)) {
-    content.push({
-      type: "input_image",
-      image_url: payload.brief.designUrl,
-      detail: "high"
-    });
+    await appendVisionInput(content, payload.brief.designUrl, "high");
   }
 
   if (payload.design?.dataUrl) {
-    content.push({
-      type: "input_image",
-      image_url: payload.design.dataUrl,
-      detail: "high"
-    });
+    await appendVisionInput(content, payload.design.dataUrl, "high");
   }
 
   return [
@@ -3887,6 +3913,7 @@ function extractResponseText(apiResponse) {
 }
 
 async function createOpenAiDraft(payload) {
+  const effectivePayload = await ensureDesignAnalysis(payload);
   const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
@@ -3895,7 +3922,7 @@ async function createOpenAiDraft(payload) {
     },
     body: JSON.stringify({
       model: openAiModel,
-      input: buildInputMessages(payload),
+      input: await buildInputMessages(effectivePayload),
       text: {
         format: {
           type: "json_schema",
@@ -3917,10 +3944,14 @@ async function createOpenAiDraft(payload) {
     throw new Error("OpenAI response did not contain output text");
   }
 
-  return JSON.parse(rawText);
+  return {
+    ...JSON.parse(rawText),
+    design_analysis: effectivePayload.designAnalysis || null
+  };
 }
 
 async function createOpenAiDiscussion(payload) {
+  const effectivePayload = await ensureDesignAnalysis(payload, { optional: true });
   const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
@@ -3929,7 +3960,7 @@ async function createOpenAiDiscussion(payload) {
     },
     body: JSON.stringify({
       model: openAiModel,
-      input: buildDiscussionMessages(payload)
+      input: await buildDiscussionMessages(effectivePayload)
     })
   });
 
@@ -3952,7 +3983,7 @@ async function createOpenAiDesignAnalysis(payload) {
     },
     body: JSON.stringify({
       model: openAiModel,
-      input: buildDesignAnalysisMessages(payload),
+      input: await buildDesignAnalysisMessages(payload),
       text: {
         format: {
           type: "json_schema",
@@ -4023,6 +4054,28 @@ async function createOpenAiTranslations(payload, mail, sourceEntry, targetLocale
       ? parsed.translations.map((entry) => normalizeTranslationEntry(entry, mail))
       : []
   };
+}
+
+async function ensureDesignAnalysis(payload, options = {}) {
+  const optional = Boolean(options.optional);
+  const hasDesign = Boolean(payload.design?.dataUrl || payload.brief.designUrl);
+
+  if (!hasDesign || payload.designAnalysis) {
+    return payload;
+  }
+
+  try {
+    const result = await createOpenAiDesignAnalysis(payload);
+    return {
+      ...payload,
+      designAnalysis: result.analysis
+    };
+  } catch (error) {
+    if (optional) {
+      return payload;
+    }
+    throw error;
+  }
 }
 
 async function resolveDiscussionResponse(payload) {
@@ -4155,6 +4208,7 @@ async function resolveDraftResponse(payload) {
 
   return {
     ...materializeDraft(generated, payload, mode),
+    designAnalysis: normalizeDesignAnalysis(generated.design_analysis),
     providerRuntime
   };
 }
