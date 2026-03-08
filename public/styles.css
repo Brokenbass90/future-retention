@@ -879,6 +879,24 @@ body {
   background: rgba(255, 255, 255, 0.05);
 }
 
+.design-source-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.design-source-summary {
+  margin-top: 10px;
+  line-height: 1.55;
+}
+
+.design-source-pills {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .design-analysis-summary {
   line-height: 1.6;
 }
@@ -1352,6 +1370,11 @@ body {
 
   .summary-grid,
   .field-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .design-source-grid,
+  .design-analysis-grid {
     grid-template-columns: 1fr;
   }
 

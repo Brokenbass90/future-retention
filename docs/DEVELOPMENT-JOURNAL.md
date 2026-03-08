@@ -48,6 +48,7 @@
 23. Добавлен первый `Analyze design` endpoint и UI-блок для design analysis.
 24. Добавлен `Block candidates` flow: если секция draft не совпадает с catalog, студия показывает ее как кандидат в новый канонический блок с черновым контрактом.
 25. Зафиксирован roadmap по отдельному `Design workspace`, controlled Figma import и отдельному adapter slot под design-model.
+26. Добавлен первый рабочий `Design workspace` слой: студия различает upload скрина/export, public image URL, public Figma frame URL и generic reference URL как разные типы design input.
 
 ## Текущие продуктовые принципы
 

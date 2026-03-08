@@ -118,6 +118,7 @@ const refs = {
   openCodeQuickBtn: document.querySelector("#openCodeQuickBtn"),
   openTestsBtn: document.querySelector("#openTestsBtn"),
   openTestsQuickBtn: document.querySelector("#openTestsQuickBtn"),
+  openDesignQuickBtn: document.querySelector("#openDesignQuickBtn"),
   openJournalBtn: document.querySelector("#openJournalBtn"),
   openJournalFromSettingsBtn: document.querySelector("#openJournalFromSettingsBtn"),
   openBlockCandidatesBtn: document.querySelector("#openBlockCandidatesBtn"),
@@ -178,6 +179,12 @@ const refs = {
   designPreviewWrap: document.querySelector("#designPreviewWrap"),
   designPreview: document.querySelector("#designPreview"),
   designCaption: document.querySelector("#designCaption"),
+  designSourceSummary: document.querySelector("#designSourceSummary"),
+  designSourcePills: document.querySelector("#designSourcePills"),
+  designReferenceUrlInput: document.querySelector("#designReferenceUrlInput"),
+  saveDesignReferenceBtn: document.querySelector("#saveDesignReferenceBtn"),
+  clearDesignReferenceBtn: document.querySelector("#clearDesignReferenceBtn"),
+  designWorkspaceNote: document.querySelector("#designWorkspaceNote"),
   designAnalysisCard: document.querySelector("#designAnalysisCard"),
   designAnalysisSummary: document.querySelector("#designAnalysisSummary"),
   designBlocksList: document.querySelector("#designBlocksList"),
@@ -261,9 +268,11 @@ function bindEvents() {
   refs.analyzeDesignBtn.addEventListener("click", handleAnalyzeDesign);
   refs.replaceDesignBtn.addEventListener("click", () => refs.designFile.click());
   refs.replaceAssetsBtn.addEventListener("click", () => refs.assetFileInput.click());
+  refs.designBadge.addEventListener("click", openDesignWorkspaceModal);
   refs.openLocalesBtn.addEventListener("click", openLocalesModal);
   refs.openAssetsBtn.addEventListener("click", () => openWorkspaceModal("assets"));
   refs.openCodeBtn.addEventListener("click", openCodeModal);
+  refs.openDesignQuickBtn.addEventListener("click", openDesignWorkspaceModal);
   refs.openLocalesQuickBtn.addEventListener("click", openLocalesModal);
   refs.openAssetsQuickBtn.addEventListener("click", () => openWorkspaceModal("assets"));
   refs.openCodeQuickBtn.addEventListener("click", openCodeModal);
@@ -290,6 +299,8 @@ function bindEvents() {
   refs.saveCodeBtn.addEventListener("click", saveCodeEdits);
   refs.createBaseMailFromCodeBtn.addEventListener("click", handleCreateBaseMail);
   refs.clearJournalBtn.addEventListener("click", handleClearJournal);
+  refs.saveDesignReferenceBtn.addEventListener("click", handleSaveDesignReference);
+  refs.clearDesignReferenceBtn.addEventListener("click", handleClearDesignReference);
 
   for (const [key, element] of Object.entries(refs.fields)) {
     element.addEventListener("input", () => {
@@ -849,6 +860,37 @@ function applyReferenceLinksFromText(text, options = {}) {
   return true;
 }
 
+function handleSaveDesignReference() {
+  const nextUrl = cleanText(refs.designReferenceUrlInput.value);
+  state.brief.designUrl = nextUrl;
+  state.designAnalysis = null;
+  state.translationUploadStatus = nextUrl
+    ? "Design reference URL сохранен."
+    : "Design reference URL очищен.";
+
+  if (nextUrl) {
+    state.messages.push({
+      role: "assistant",
+      content: /figma\.com/i.test(nextUrl)
+        ? "Сохранил публичный Figma frame как design reference. Для точного vision лучше еще приложить export или скрин."
+        : looksLikeImageUrl(nextUrl)
+          ? "Сохранил public image export как design reference."
+          : "Сохранил reference URL как часть design context."
+    });
+  }
+
+  renderAll();
+  persistState();
+}
+
+function handleClearDesignReference() {
+  state.brief.designUrl = "";
+  state.designAnalysis = null;
+  state.translationUploadStatus = "Design reference URL очищен.";
+  renderAll();
+  persistState();
+}
+
 async function handleChatSubmit(event) {
   event.preventDefault();
 
@@ -1294,6 +1336,10 @@ function openTestsModal() {
   openWorkspaceModal("tests");
 }
 
+function openDesignWorkspaceModal() {
+  openWorkspaceModal("assets");
+}
+
 function openBlockCandidatesModal() {
   openWorkspaceModal("block-candidates");
 }
@@ -1433,9 +1479,91 @@ function renderAll() {
   renderBlockCatalogSummary();
   renderBlocks();
   renderDiagnostics();
+  renderDesignWorkspace();
   renderDesignPreview();
   renderDesignAnalysis();
   positionHelpTips();
+}
+
+function detectDesignInputKind() {
+  const designLink = cleanText(state.brief.designUrl);
+
+  if (state.design?.dataUrl) {
+    return state.design.assetId ? "project-upload" : "local-upload";
+  }
+
+  if (!designLink) {
+    return "none";
+  }
+
+  if (/figma\.com/i.test(designLink)) {
+    return "figma-frame";
+  }
+
+  if (looksLikeImageUrl(designLink)) {
+    return "image-url";
+  }
+
+  return "reference-url";
+}
+
+function getDesignSourceLabel(kind) {
+  switch (kind) {
+    case "project-upload":
+      return "project design asset";
+    case "local-upload":
+      return "local screenshot/export";
+    case "figma-frame":
+      return "public figma frame";
+    case "image-url":
+      return "public image export";
+    case "reference-url":
+      return "reference url";
+    default:
+      return "no design";
+  }
+}
+
+function renderDesignWorkspace() {
+  const kind = detectDesignInputKind();
+  const designLink = cleanText(state.brief.designUrl);
+  refs.designReferenceUrlInput.value = designLink;
+  refs.designSourcePills.innerHTML = "";
+
+  const pills = [];
+  if (state.design?.dataUrl) {
+    pills.push(getDesignSourceLabel(kind));
+  }
+  if (designLink) {
+    pills.push(getDesignSourceLabel(state.design?.dataUrl ? (/figma\.com/i.test(designLink) ? "figma-frame" : looksLikeImageUrl(designLink) ? "image-url" : "reference-url") : kind));
+  }
+
+  refs.designSourceSummary.textContent = state.design?.dataUrl
+    ? `Primary design input: ${state.design.name || "attached design"}.`
+    : designLink
+      ? `Primary design input: ${designLink}`
+      : "Design пока не приложен.";
+
+  for (const label of Array.from(new Set(pills))) {
+    const pill = document.createElement("div");
+    pill.className = "pill";
+    pill.textContent = label;
+    refs.designSourcePills.appendChild(pill);
+  }
+
+  if (state.design?.dataUrl && designLink) {
+    refs.designWorkspaceNote.textContent = "Сейчас у студии есть и image-based design, и внешний reference URL. Для vision основным будет приложенный скрин/export, а ссылка останется как дополнительный контекст.";
+  } else if (kind === "figma-frame") {
+    refs.designWorkspaceNote.textContent = "Публичный Figma frame сохранен как design reference. Для pixel-level анализа надежнее добавить скрин или image export этого frame.";
+  } else if (kind === "image-url") {
+    refs.designWorkspaceNote.textContent = "Публичный image export сохранен как design input. Такой источник уже подходит для vision-анализа без локального upload.";
+  } else if (kind === "reference-url") {
+    refs.designWorkspaceNote.textContent = "Сохранен reference URL. Студия может учитывать его как контекст, но для точного design mapping лучше прикладывать скрин или image export.";
+  } else if (kind === "project-upload" || kind === "local-upload") {
+    refs.designWorkspaceNote.textContent = "Приложенный скрин/export считается основным design input. При желании можно добавить еще и публичный reference URL.";
+  } else {
+    refs.designWorkspaceNote.textContent = "Сюда можно положить публичный Figma frame, public image export или просто reference URL. Для pixel-level vision надежнее всего скрин или image export.";
+  }
 }
 
 function positionHelpTips() {
@@ -1486,13 +1614,17 @@ function renderAttachmentSummary() {
   const translationDocs = getParsedLocaleEntries().length;
   const assetsCount = state.assetInputs.filter((asset) => asset.url).length;
   const blockCount = state.draft?.mail?.sections?.length || 0;
-  const hasDesignLink = cleanText(state.brief.designUrl);
+  const designKind = detectDesignInputKind();
 
-  refs.designBadge.textContent = state.design.dataUrl
+  refs.designBadge.textContent = designKind === "project-upload" || designKind === "local-upload"
     ? `Design: ${state.design.name || "attached"}`
-    : hasDesignLink
-      ? "Design: link"
-      : "Design: none";
+    : designKind === "figma-frame"
+      ? "Design: Figma"
+      : designKind === "image-url"
+        ? "Design: image URL"
+        : designKind === "reference-url"
+          ? "Design: reference"
+          : "Design: none";
   refs.translationBadge.textContent = translationDocs > 0
     ? `Bundle: ${translationDocs} locale(s)`
     : "Bundle: empty";
@@ -1904,10 +2036,12 @@ function renderStatus() {
   refs.fillDemoBtn.disabled = state.busy;
   refs.clearChatBtn.disabled = state.busy;
   refs.clearStateBtn.disabled = state.busy;
+  refs.designBadge.disabled = state.busy;
   refs.openLocalesBtn.disabled = state.busy;
   refs.openAssetsBtn.disabled = state.busy;
   refs.openBlocksBtn.disabled = state.busy;
   refs.openCodeBtn.disabled = state.busy;
+  refs.openDesignQuickBtn.disabled = state.busy;
   refs.openLocalesQuickBtn.disabled = state.busy;
   refs.openAssetsQuickBtn.disabled = state.busy;
   refs.openCodeQuickBtn.disabled = state.busy;
@@ -1921,6 +2055,9 @@ function renderStatus() {
   refs.attachTranslationFolderBtn.disabled = state.busy;
   refs.attachAssetsBtn.disabled = state.busy;
   refs.analyzeDesignBtn.disabled = state.busy || (!state.design?.dataUrl && !cleanText(state.brief.designUrl));
+  refs.saveDesignReferenceBtn.disabled = state.busy;
+  refs.clearDesignReferenceBtn.disabled = state.busy;
+  refs.designReferenceUrlInput.disabled = state.busy;
   refs.saveLocaleEditsBtn.disabled = state.busy;
   refs.saveCodeBtn.disabled = state.busy;
   refs.createBaseMailFromCodeBtn.disabled = state.busy;

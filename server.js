@@ -2176,6 +2176,37 @@ function summarizeDesignAnalysisForContext(analysis) {
   ].join("\n");
 }
 
+function summarizeDesignInputForContext(payload) {
+  const link = cleanText(payload?.brief?.designUrl);
+  const hasUpload = Boolean(cleanText(payload?.design?.dataUrl));
+
+  if (hasUpload && link) {
+    return /figma\.com/i.test(link)
+      ? "Uploaded design image plus public Figma frame URL reference."
+      : looksLikeImageUrl(link)
+        ? "Uploaded design image plus public image export URL."
+        : "Uploaded design image plus external reference URL.";
+  }
+
+  if (hasUpload) {
+    return "Uploaded screenshot or image export.";
+  }
+
+  if (/figma\.com/i.test(link)) {
+    return "Public Figma frame URL reference only.";
+  }
+
+  if (looksLikeImageUrl(link)) {
+    return "Public image export URL only.";
+  }
+
+  if (link) {
+    return "External reference URL only.";
+  }
+
+  return "No design input.";
+}
+
 function isVisionSupportedMimeType(mimeType) {
   return [
     "image/png",
@@ -2295,6 +2326,7 @@ function buildUserContext(payload) {
     `Primary CTA label: ${payload.brief.primaryCta || "Learn more"}`,
     `Primary CTA href: ${payload.brief.primaryLink || "Not specified yet"}`,
     `Content notes: ${payload.brief.contentNotes || "None"}`,
+    `Design input type: ${summarizeDesignInputForContext(payload)}`,
     `Design URL: ${payload.brief.designUrl || "None"}`,
     "Design analysis:",
     summarizeDesignAnalysisForContext(payload.designAnalysis),
@@ -2331,6 +2363,7 @@ function buildDiscussionContext(payload) {
     `Primary locale: ${payload.brief.locale}`,
     `Requested locales: ${payload.brief.requestedLocales || payload.brief.locale}`,
     `Current base mail: ${emailBaseSummary.currentMail?.folder || "None"}`,
+    `Design input type: ${summarizeDesignInputForContext(payload)}`,
     "Design analysis:",
     summarizeDesignAnalysisForContext(payload.designAnalysis),
     "Structured assets:",
@@ -2432,6 +2465,7 @@ async function buildDesignAnalysisMessages(payload) {
         `Audience: ${payload.brief.audience || "Not specified"}`,
         `Primary locale: ${payload.brief.locale}`,
         `Current base mail: ${emailBaseSummary.currentMail?.folder || "None"}`,
+        `Design input type: ${summarizeDesignInputForContext(payload)}`,
         "Current draft context:",
         currentDraftSummary,
         "Available block system:",
@@ -2465,9 +2499,10 @@ async function buildDesignAnalysisMessages(payload) {
 
 function createMockDesignAnalysis(payload, warning = "") {
   const hasDesign = Boolean(payload.design?.dataUrl || payload.brief.designUrl);
+  const designInputType = summarizeDesignInputForContext(payload);
   const analysis = normalizeDesignAnalysis({
     summary: hasDesign
-      ? "Есть design reference, но mock-режим не анализирует изображение по содержанию. Можно только использовать его как ориентир по структуре."
+      ? `Есть design reference (${designInputType}), но mock-режим не анализирует изображение по содержанию. Можно только использовать его как ориентир по структуре.`
       : "Design reference не приложен.",
     section_kinds: payload.currentDraft?.sections?.map((section) => cleanText(section.kind)).filter(Boolean).slice(0, 6)
       || ["hero", "text", "feature-list", "cta", "footer"],

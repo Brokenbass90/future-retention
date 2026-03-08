@@ -5,6 +5,7 @@
 Сейчас это уже не просто демо, а рабочий MVP со следующими возможностями:
 - live chat со streaming-ответами;
 - chat-centric intake для design, локалей и картинок;
+- первый `design workspace` слой: upload скрина/export, public image URL, public Figma frame URL, reference URL;
 - локальный asset registry с переиспользованием картинок внутри проекта;
 - preview + heuristic diagnostics по email clients;
 - отдельное окно `Тесты` с client profile summary и warnings;

@@ -58,7 +58,7 @@
                 <button class="attachment-pill" id="openAssetsBtn" type="button">Assets: 0</button>
                 <button class="attachment-pill" id="openBlocksBtn" type="button">Blocks: 0</button>
                 <button class="attachment-pill" id="openCodeBtn" type="button">Code</button>
-                <div class="attachment-pill passive" id="designBadge">Design: none</div>
+                <button class="attachment-pill" id="designBadge" type="button">Design: none</button>
                 <div class="attachment-pill passive" id="translationBadge">Bundle: empty</div>
               </div>
 
@@ -180,6 +180,7 @@
               Здесь появится краткое резюме от ассистента после генерации.
             </div>
             <div class="workspace-shortcuts">
+              <button class="ghost-button shortcut-button" id="openDesignQuickBtn" type="button">Design</button>
               <button class="ghost-button shortcut-button" id="openLocalesQuickBtn" type="button">Локали</button>
               <button class="ghost-button shortcut-button" id="openAssetsQuickBtn" type="button">Картинки</button>
               <button class="ghost-button shortcut-button" id="openCodeQuickBtn" type="button">Код</button>
@@ -317,17 +318,37 @@
       <div class="workspace-modal-header">
         <div>
           <div class="card-kicker">Assets</div>
-          <h2>Design и картинки</h2>
+          <h2>Design workspace и картинки</h2>
         </div>
         <button class="ghost-button" id="closeAssetsModalBtn" type="button">Close</button>
       </div>
       <div class="workspace-modal-body assets-modal-body">
         <section class="modal-section">
           <div class="modal-section-head">
-            <strong>Design reference</strong>
+            <strong>Design workspace</strong>
             <div class="modal-inline-actions">
               <button class="ghost-button" id="analyzeDesignBtn" type="button">Analyze design</button>
               <button class="ghost-button" id="replaceDesignBtn" type="button">Replace design</button>
+            </div>
+          </div>
+          <div class="design-source-grid">
+            <div class="settings-info">
+              <strong>Current design input</strong>
+              <div class="design-source-summary" id="designSourceSummary">Design пока не приложен.</div>
+              <div class="design-source-pills" id="designSourcePills"></div>
+            </div>
+            <div class="settings-info">
+              <label class="field">
+                <span>Public Figma frame / image export / reference URL</span>
+                <input id="designReferenceUrlInput" type="url" placeholder="https://www.figma.com/... or https://cdn.example.com/layout.png" />
+              </label>
+              <div class="modal-inline-actions">
+                <button class="ghost-button" id="saveDesignReferenceBtn" type="button">Save reference</button>
+                <button class="ghost-button" id="clearDesignReferenceBtn" type="button">Clear reference</button>
+              </div>
+              <div class="modal-meta" id="designWorkspaceNote">
+                Сюда можно положить публичный Figma frame, public image export или просто reference URL. Для pixel-level vision надежнее всего скрин или image export.
+              </div>
             </div>
           </div>
           <div class="design-preview-wrap" id="designPreviewWrap" hidden>
