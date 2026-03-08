@@ -842,7 +842,8 @@ function applyReferenceLinksFromText(text, options = {}) {
 async function handleChatSubmit(event) {
   event.preventDefault();
 
-  const intent = event.submitter?.dataset.intent || "draft";
+  const typedMessage = refs.chatInput.value.trim();
+  const intent = inferChatIntent(typedMessage);
   const message = refs.chatInput.value.trim() || (intent === "discuss"
     ? "Давай обсудим текущее письмо."
     : "Обнови текущий драфт по моим данным.");
@@ -884,6 +885,34 @@ async function handleChatSubmit(event) {
     renderAll();
     persistState();
   }
+}
+
+function inferChatIntent(message) {
+  const text = cleanText(message).toLowerCase();
+
+  if (!text) {
+    return state.draft?.mail ? "draft" : "discuss";
+  }
+
+  const applyPatterns = [
+    /\b(сверстай|переверстай|собери|сделай|добавь|измени|обнови|убери|замени|подставь|примени)\b/i,
+    /\b(build|apply|update|change|add|remove|replace|generate|layout)\b/i,
+    /\b\d+\s*(колонк|колонки|колонки|columns?|картинк|изображени|images?)\b/i
+  ];
+  if (applyPatterns.some((pattern) => pattern.test(text))) {
+    return "draft";
+  }
+
+  const discussPatterns = [
+    /[?]\s*$/i,
+    /^(что|как|почему|зачем|где|когда|чем|можно|подскажи|расскажи|какие)\b/i,
+    /\b(обсудим|объясни|explain|why|what|how)\b/i
+  ];
+  if (discussPatterns.some((pattern) => pattern.test(text))) {
+    return "discuss";
+  }
+
+  return state.draft?.mail ? "draft" : "discuss";
 }
 
 function createChatRequestBody(intent) {
