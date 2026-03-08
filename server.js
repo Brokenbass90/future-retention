@@ -1441,6 +1441,11 @@ function renderStudioSectionPug(section, sectionIndex, assetMap, translationFile
     lines.push("                                    tr");
     lines.push("                                        td");
     lines.push(`                                            a.button-link(href=${JSON.stringify(section.cta_href)} universal="true" target="_blank")!= ${JSON.stringify(token("cta_label"))}`);
+  } else if (section.cta_label) {
+    lines.push("                                table.button-wrap(role=\"presentation\")");
+    lines.push("                                    tr");
+    lines.push("                                        td");
+    lines.push(`                                            span.button-link.button-link-disabled!= ${JSON.stringify(token("cta_label"))}`);
   }
 
   return lines.join("\n");
@@ -1586,6 +1591,9 @@ img
   text-decoration none
   font-weight 700
   border-radius 999px
+
+.button-link-disabled
+  opacity 0.72
 
 .footer-address, .footer-warning, .footer-links
   margin 0 0 12px
@@ -2285,7 +2293,7 @@ function buildUserContext(payload) {
     `Goal: ${payload.brief.goal || "Not specified"}`,
     `Tone: ${payload.brief.tone || "Direct and clear"}`,
     `Primary CTA label: ${payload.brief.primaryCta || "Learn more"}`,
-    `Primary CTA href: ${payload.brief.primaryLink || "https://example.com"}`,
+    `Primary CTA href: ${payload.brief.primaryLink || "Not specified yet"}`,
     `Content notes: ${payload.brief.contentNotes || "None"}`,
     `Design URL: ${payload.brief.designUrl || "None"}`,
     "Design analysis:",
@@ -2722,7 +2730,7 @@ function buildFallbackMail(payload, options = {}) {
   const ctaHref = cleanText(
     payload.brief.primaryLink
     || templateCta.href
-    || "https://example.com"
+    || ""
   );
   const heroAssetKey = getAssetByPlacement(assets, ["hero", "background"])?.key
     || assets[0]?.key
@@ -3334,28 +3342,6 @@ function collectDiscussionQuestions(payload, draft) {
   const heroLibraryCandidate = libraryItems.some((item) => ["hero", "background"].includes(cleanText(item.placement)));
   const sectionLibraryCandidate = libraryItems.some((item) => ["section", "feature"].includes(cleanText(item.placement)));
 
-  if (!payload.brief.goal) {
-    questions.push("Какое главное действие должен сделать пользователь после письма: депозит, trade, реактивация, апгрейд или что-то еще?");
-  }
-
-  if (!payload.brief.audience) {
-    questions.push("Для какого сегмента это письмо: inactive, churn-risk, VIP, first deposit, KYC pending или другой?");
-  }
-
-  if (!payload.brief.primaryLink) {
-    questions.push("Какой URL должен стоять на основной CTA и какие там нужны tracking / retargeting параметры?");
-  } else if (!hasTrackingParams(payload.brief.primaryLink)) {
-    questions.push("Нужны ли UTM, click id, subid или другие tracking-параметры? Сейчас основная ссылка выглядит без трекинга.");
-  }
-
-  if (!payload.translationText) {
-    questions.push(`На какие локали, кроме ${payload.brief.locale || "en"}, нужно собрать письмо? Если переводов нет, могу потом автогенерить missing locales.`);
-  }
-
-  if (!payload.brief.requestedLocales) {
-    questions.push("Какие локали считаем обязательными для этого письма? Укажи Requested locales, чтобы я мог проверить missing locales и автогенерить их.");
-  }
-
   if (!heroAssetExists) {
     questions.push(heroLibraryCandidate
       ? "Hero-картинки в текущем письме нет, но в asset library уже есть кандидаты. Берем одну из них или делаем новый visual?"
@@ -3372,11 +3358,11 @@ function collectDiscussionQuestions(payload, draft) {
     questions.push("Есть ли дизайн, референс или хотя бы скрин структуры письма, чтобы точнее собрать блоки?");
   }
 
-  if (!payload.brief.contentNotes) {
-    questions.push("Есть ли обязательные тексты: оффер, дедлайн, legal, risk warning, footer copy, unsubscribe notes?");
+  if (!draft && !payload.brief.contentNotes && !payload.translationText) {
+    questions.push("Если уже есть готовый текст письма или ключевые блоки копирайта, скинь их в чат или приложи locale bundle.");
   }
 
-  return questions.slice(0, 4);
+  return questions.slice(0, 2);
 }
 
 function formatDiscussionQuestions(questions) {
@@ -3505,8 +3491,10 @@ function renderSectionHtml(section, mail) {
   const eyebrow = section.eyebrow ? `<div class="eyebrow">${formatInlineMarkup(section.eyebrow)}</div>` : "";
   const title = section.title ? `<h2>${formatInlineMarkup(section.title)}</h2>` : "";
   const body = section.body ? `<div class="body-copy">${paragraphize(section.body)}</div>` : "";
-  const button = section.cta_label && section.cta_href
-    ? `<a class="button" href="${escapeHtml(section.cta_href)}">${formatInlineMarkup(section.cta_label)}</a>`
+  const button = section.cta_label
+    ? section.cta_href
+      ? `<a class="button" href="${escapeHtml(section.cta_href)}">${formatInlineMarkup(section.cta_label)}</a>`
+      : `<span class="button is-disabled" aria-disabled="true">${formatInlineMarkup(section.cta_label)}</span>`
     : "";
   const items = section.items.length > 0
     ? `<ul>${section.items.map((item) => `<li>${formatInlineMarkup(item)}</li>`).join("")}</ul>`
@@ -3685,6 +3673,12 @@ function renderEmailHtml(mail) {
         font-weight: 700;
       }
 
+      .button.is-disabled {
+        opacity: 0.72;
+        cursor: default;
+        pointer-events: none;
+      }
+
       .cta {
         background: #14281d;
         color: #fff7eb;
@@ -3734,6 +3728,8 @@ function renderSectionPug(section) {
 
   if (section.cta_label && section.cta_href) {
     lines.push(`  a.button(href="${section.cta_href}")= locale.${slugify(section.cta_label)}`);
+  } else if (section.cta_label) {
+    lines.push(`  span.button.button-disabled= locale.${slugify(section.cta_label)}`);
   }
 
   return lines.join("\n");
