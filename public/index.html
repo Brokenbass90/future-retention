@@ -41,19 +41,23 @@
             <div class="chat-intake translation-tile" id="translationDropZone">
               <div class="chat-intake-main">
                 <div>
-                  <h3>Вставляй design, локали и картинки прямо сюда</h3>
+                  <h3>Вставляй макет, локали и картинки прямо сюда</h3>
                 </div>
-                <p>Drop, paste, attach или просто вставь ссылку в сообщение.</p>
+                <p>Скрин из Figma можно просто вставить сюда через `Cmd/Ctrl + V`.</p>
               </div>
 
-              <div class="chat-intake-actions">
+              <div class="chat-intake-toolbar">
+                <button class="ghost-button" id="toggleAttachMenuBtn" type="button">Добавить файлы</button>
+              </div>
+
+              <div class="chat-intake-actions" id="chatIntakeActions" hidden>
                 <button class="ghost-button" id="attachDesignBtn" type="button">Attach design</button>
                 <button class="ghost-button" id="attachTranslationsBtn" type="button">Attach locales</button>
                 <button class="ghost-button" id="attachTranslationFolderBtn" type="button">Attach locale folder</button>
                 <button class="ghost-button" id="attachAssetsBtn" type="button">Attach images</button>
               </div>
 
-              <div class="chat-attachments">
+              <div class="chat-attachments" id="chatAttachmentsRow">
                 <button class="attachment-pill" id="openLocalesBtn" type="button">Locales: 0</button>
                 <button class="attachment-pill" id="openAssetsBtn" type="button">Assets: 0</button>
                 <button class="attachment-pill" id="openBlocksBtn" type="button">Blocks: 0</button>
@@ -87,68 +91,10 @@
               </label>
               <div class="chat-mode-hint">Вопросы останутся в чате. Команды вроде «добавь 3 колонки» применяются к письму автоматически.</div>
               <div class="chat-actions">
+                <button class="ghost-button secondary-button" id="openContextBtn" type="button">Контекст</button>
                 <button class="primary-button" id="sendBtn" type="submit">Отправить</button>
               </div>
             </form>
-          </section>
-
-          <section class="card">
-            <div class="card-header">
-              <div>
-                <h2>Brief</h2>
-              </div>
-            </div>
-
-            <div class="field-grid">
-              <label class="field">
-                <span>Campaign name</span>
-                <input id="campaignName" type="text" />
-              </label>
-              <label class="field">
-                <span>Primary locale</span>
-                <input id="locale" type="text" placeholder="en, de, fr..." />
-              </label>
-              <label class="field">
-                <span>Requested locales</span>
-                <input id="requestedLocales" type="text" placeholder="en, de, fr_FR, es_ES" />
-              </label>
-              <label class="field">
-                <span>Email-base category</span>
-                <input id="category" type="text" placeholder="X_IQ" />
-              </label>
-              <label class="field">
-                <span>Email-base mail id</span>
-                <input id="mailId" type="text" placeholder="rfm-311" />
-              </label>
-              <label class="field">
-                <span>Audience</span>
-                <input id="audience" type="text" />
-              </label>
-              <label class="field">
-                <span>Tone <span class="help-tip" data-tip="Tone это характер текста: спокойный, агрессивный, премиальный, нейтральный, urgent, friendly.">?</span></span>
-                <input id="tone" type="text" />
-              </label>
-              <label class="field field-wide">
-                <span>Goal <span class="help-tip" data-tip="Что пользователь должен сделать после письма. Например: вернуться в продукт, сделать депозит, открыть оффер, пройти KYC.">?</span></span>
-                <input id="goal" type="text" />
-              </label>
-              <label class="field">
-                <span>Primary CTA <span class="help-tip" data-tip="Текст главной кнопки письма. Например: Trade now, Reactivate now, Claim bonus.">?</span></span>
-                <input id="primaryCta" type="text" />
-              </label>
-              <label class="field">
-                <span>Primary link <span class="help-tip" data-tip="Ссылка главной кнопки. Сюда же обычно входят трекинг-параметры, retrack, afftrack или utm.">?</span></span>
-                <input id="primaryLink" type="url" placeholder="https://..." />
-              </label>
-              <label class="field field-wide">
-                <span>Content notes</span>
-                <textarea
-                  id="contentNotes"
-                  rows="5"
-                  placeholder="Bullet ideas, campaign facts, product benefits, constraints"
-                ></textarea>
-              </label>
-            </div>
           </section>
         </section>
 
@@ -314,32 +260,99 @@
       </div>
     </section>
 
+    <section class="workspace-modal" id="contextModal" aria-hidden="true">
+      <div class="workspace-modal-header">
+        <div>
+          <div class="card-kicker">Context</div>
+          <h2>Контекст письма</h2>
+        </div>
+        <button class="ghost-button" id="closeContextModalBtn" type="button">Close</button>
+      </div>
+      <div class="workspace-modal-body">
+        <div class="modal-meta">Это необязательные поля. Если не хочется заполнять вручную, можно просто обсуждать их с ассистентом в чате.</div>
+        <div class="field-grid modal-field-grid">
+          <label class="field">
+            <span>Campaign name</span>
+            <input id="campaignName" type="text" />
+          </label>
+          <label class="field">
+            <span>Primary locale</span>
+            <input id="locale" type="text" placeholder="en, de, fr..." />
+          </label>
+          <label class="field">
+            <span>Requested locales</span>
+            <input id="requestedLocales" type="text" placeholder="en, de, fr_FR, es_ES" />
+          </label>
+          <label class="field">
+            <span>Email-base category</span>
+            <input id="category" type="text" placeholder="X_IQ" />
+          </label>
+          <label class="field">
+            <span>Email-base mail id</span>
+            <input id="mailId" type="text" placeholder="rfm-311" />
+          </label>
+          <label class="field">
+            <span>Audience</span>
+            <input id="audience" type="text" />
+          </label>
+          <label class="field">
+            <span>Tone <span class="help-tip" data-tip="Tone это характер текста: спокойный, агрессивный, премиальный, нейтральный, urgent, friendly.">?</span></span>
+            <input id="tone" type="text" />
+          </label>
+          <label class="field field-wide">
+            <span>Goal <span class="help-tip" data-tip="Что пользователь должен сделать после письма. Например: вернуться в продукт, сделать депозит, открыть оффер, пройти KYC.">?</span></span>
+            <input id="goal" type="text" />
+          </label>
+          <label class="field">
+            <span>Primary CTA <span class="help-tip" data-tip="Текст главной кнопки письма. Например: Trade now, Reactivate now, Claim bonus.">?</span></span>
+            <input id="primaryCta" type="text" />
+          </label>
+          <label class="field">
+            <span>Primary link <span class="help-tip" data-tip="Ссылка главной кнопки. Сюда же обычно входят трекинг-параметры, retrack, afftrack или utm.">?</span></span>
+            <input id="primaryLink" type="url" placeholder="https://..." />
+          </label>
+          <label class="field field-wide">
+            <span>Content notes</span>
+            <textarea
+              id="contentNotes"
+              rows="5"
+              placeholder="Bullet ideas, campaign facts, product benefits, constraints"
+            ></textarea>
+          </label>
+        </div>
+      </div>
+      <div class="workspace-modal-footer">
+        <button class="ghost-button" id="closeContextFooterBtn" type="button">Close</button>
+      </div>
+    </section>
+
     <section class="workspace-modal" id="assetsModal" aria-hidden="true">
       <div class="workspace-modal-header">
         <div>
           <div class="card-kicker">Assets</div>
-          <h2>Design workspace и картинки</h2>
+          <h2 id="assetsModalTitle">Design</h2>
         </div>
         <button class="ghost-button" id="closeAssetsModalBtn" type="button">Close</button>
       </div>
       <div class="workspace-modal-body assets-modal-body">
-        <section class="modal-section">
+        <section class="modal-section" id="designWorkspaceSection">
           <div class="modal-section-head">
-            <strong>Design workspace</strong>
+            <strong>Макет письма</strong>
             <div class="modal-inline-actions">
               <button class="ghost-button" id="analyzeDesignBtn" type="button">Analyze design</button>
               <button class="ghost-button" id="replaceDesignBtn" type="button">Replace design</button>
+              <button class="ghost-button" id="clearDesignBtn" type="button">Clear design</button>
             </div>
           </div>
           <div class="design-source-grid">
             <div class="settings-info">
-              <strong>Current design input</strong>
+              <strong>Текущий макет</strong>
               <div class="design-source-summary" id="designSourceSummary">Design пока не приложен.</div>
               <div class="design-source-pills" id="designSourcePills"></div>
             </div>
             <div class="settings-info">
               <label class="field">
-                <span>Public Figma frame / image export / reference URL</span>
+                <span>Публичная ссылка на Figma / export / reference</span>
                 <input id="designReferenceUrlInput" type="url" placeholder="https://www.figma.com/... or https://cdn.example.com/layout.png" />
               </label>
               <div class="modal-inline-actions">
@@ -355,7 +368,7 @@
             <img id="designPreview" alt="Design preview" />
             <div class="design-caption" id="designCaption"></div>
           </div>
-          <div class="empty-helper" id="designEmptyState">Design пока не загружен. Можно вставить скрин прямо в чат или нажать Attach design.</div>
+          <div class="empty-helper" id="designEmptyState">Макет пока не загружен. Можно просто вставить скрин прямо в чат.</div>
           <div class="design-analysis" id="designAnalysisCard" hidden>
             <div class="design-analysis-summary" id="designAnalysisSummary"></div>
             <div class="design-analysis-grid">
@@ -379,7 +392,7 @@
           </div>
         </section>
 
-        <section class="modal-section">
+        <section class="modal-section" id="inputAssetsSection">
           <div class="modal-section-head">
             <strong>Input assets</strong>
             <div class="modal-inline-actions">
@@ -390,14 +403,14 @@
           <div class="asset-composer-list" id="assetComposerList"></div>
         </section>
 
-        <section class="modal-section">
+        <section class="modal-section" id="previewAssetsSection">
           <div class="modal-section-head">
             <strong>Assets in current preview</strong>
           </div>
           <div class="asset-list" id="assetList"></div>
         </section>
 
-        <section class="modal-section">
+        <section class="modal-section" id="assetLibrarySection">
           <div class="modal-section-head">
             <strong>Asset library</strong>
             <div class="modal-meta" id="assetRegistryMeta">Файлов пока нет.</div>

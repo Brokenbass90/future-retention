@@ -186,7 +186,7 @@ body {
 
 .main-grid {
   display: grid;
-  grid-template-columns: minmax(360px, 0.92fr) minmax(480px, 1.08fr);
+  grid-template-columns: minmax(520px, 1.08fr) minmax(420px, 0.92fr);
   gap: 20px;
   align-items: start;
 }
@@ -305,6 +305,11 @@ body {
   line-height: 1.5;
 }
 
+.chat-intake-toolbar {
+  display: flex;
+  justify-content: flex-start;
+}
+
 .chat-intake-actions,
 .chat-attachments {
   display: flex;
@@ -317,9 +322,10 @@ body {
   border: 1px solid rgba(19, 35, 26, 0.08);
   background: rgba(255, 255, 255, 0.72);
   color: var(--ink);
-  padding: 11px 15px;
+  padding: 9px 13px;
   border-radius: 999px;
   font: inherit;
+  font-size: 0.92rem;
   font-weight: 700;
   cursor: pointer;
 }
@@ -335,18 +341,19 @@ body {
 .messages {
   flex: 1;
   min-height: 0;
-  padding: 18px 22px;
+  padding: 22px 22px 18px;
   display: grid;
-  gap: 12px;
+  gap: 14px;
   overflow: auto;
   overscroll-behavior: contain;
 }
 
 .message {
-  max-width: 92%;
-  padding: 14px 16px;
+  max-width: 100%;
+  padding: 16px 18px;
   border-radius: 18px;
-  line-height: 1.5;
+  font-size: 1rem;
+  line-height: 1.6;
   white-space: pre-wrap;
 }
 
@@ -374,6 +381,7 @@ body {
 
 .message.user {
   margin-left: auto;
+  max-width: 78%;
   background: #1c3a2a;
   color: #fef7ed;
 }
@@ -388,6 +396,7 @@ body {
   display: flex;
   gap: 10px;
   justify-content: flex-end;
+  align-items: center;
 }
 
 .chat-mode-hint {
@@ -401,6 +410,10 @@ body {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
   padding: 18px 22px 22px;
+}
+
+.modal-field-grid {
+  padding: 0;
 }
 
 .field {

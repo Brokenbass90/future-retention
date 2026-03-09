@@ -21,6 +21,8 @@ const initialState = {
     providerId: "mock",
     clientProfileId: "standard"
   },
+  chatAttachMenuOpen: false,
+  assetsWorkspaceView: "design",
   brief: {
     campaignName: "",
     category: "",
@@ -92,6 +94,7 @@ const refs = {
   fillDemoBtn: document.querySelector("#fillDemoBtn"),
   clearChatBtn: document.querySelector("#clearChatBtn"),
   clearStateBtn: document.querySelector("#clearStateBtn"),
+  toggleAttachMenuBtn: document.querySelector("#toggleAttachMenuBtn"),
   settingsBtn: document.querySelector("#settingsBtn"),
   closeSettingsBtn: document.querySelector("#closeSettingsBtn"),
   settingsDrawer: document.querySelector("#settingsDrawer"),
@@ -106,6 +109,7 @@ const refs = {
   attachTranslationFolderBtn: document.querySelector("#attachTranslationFolderBtn"),
   attachAssetsBtn: document.querySelector("#attachAssetsBtn"),
   replaceDesignBtn: document.querySelector("#replaceDesignBtn"),
+  clearDesignBtn: document.querySelector("#clearDesignBtn"),
   analyzeDesignBtn: document.querySelector("#analyzeDesignBtn"),
   replaceAssetsBtn: document.querySelector("#replaceAssetsBtn"),
   assetFileInput: document.querySelector("#assetFileInput"),
@@ -113,6 +117,7 @@ const refs = {
   openAssetsBtn: document.querySelector("#openAssetsBtn"),
   openBlocksBtn: document.querySelector("#openBlocksBtn"),
   openCodeBtn: document.querySelector("#openCodeBtn"),
+  openContextBtn: document.querySelector("#openContextBtn"),
   openLocalesQuickBtn: document.querySelector("#openLocalesQuickBtn"),
   openAssetsQuickBtn: document.querySelector("#openAssetsQuickBtn"),
   openCodeQuickBtn: document.querySelector("#openCodeQuickBtn"),
@@ -124,6 +129,9 @@ const refs = {
   openBlockCandidatesBtn: document.querySelector("#openBlockCandidatesBtn"),
   designBadge: document.querySelector("#designBadge"),
   translationBadge: document.querySelector("#translationBadge"),
+  chatIntakeActions: document.querySelector("#chatIntakeActions"),
+  chatAttachmentsRow: document.querySelector("#chatAttachmentsRow"),
+  contextModal: document.querySelector("#contextModal"),
   localesModal: document.querySelector("#localesModal"),
   assetsModal: document.querySelector("#assetsModal"),
   codeModal: document.querySelector("#codeModal"),
@@ -141,6 +149,8 @@ const refs = {
   closeTestsFooterBtn: document.querySelector("#closeTestsFooterBtn"),
   closeBlockCandidatesModalBtn: document.querySelector("#closeBlockCandidatesModalBtn"),
   closeBlockCandidatesFooterBtn: document.querySelector("#closeBlockCandidatesFooterBtn"),
+  closeContextModalBtn: document.querySelector("#closeContextModalBtn"),
+  closeContextFooterBtn: document.querySelector("#closeContextFooterBtn"),
   saveLocaleEditsBtn: document.querySelector("#saveLocaleEditsBtn"),
   saveCodeBtn: document.querySelector("#saveCodeBtn"),
   createBaseMailFromCodeBtn: document.querySelector("#createBaseMailFromCodeBtn"),
@@ -150,6 +160,11 @@ const refs = {
   generateLocalesModalBtn: document.querySelector("#generateLocalesModalBtn"),
   codeEditorMeta: document.querySelector("#codeEditorMeta"),
   designEmptyState: document.querySelector("#designEmptyState"),
+  assetsModalTitle: document.querySelector("#assetsModalTitle"),
+  designWorkspaceSection: document.querySelector("#designWorkspaceSection"),
+  inputAssetsSection: document.querySelector("#inputAssetsSection"),
+  previewAssetsSection: document.querySelector("#previewAssetsSection"),
+  assetLibrarySection: document.querySelector("#assetLibrarySection"),
   assetComposerList: document.querySelector("#assetComposerList"),
   assetLibraryList: document.querySelector("#assetLibraryList"),
   assetRegistryMeta: document.querySelector("#assetRegistryMeta"),
@@ -250,6 +265,7 @@ function bindEvents() {
   refs.fillDemoBtn?.addEventListener("click", fillDemoScenario);
   refs.clearChatBtn.addEventListener("click", clearChatHistory);
   refs.clearStateBtn.addEventListener("click", resetState);
+  refs.toggleAttachMenuBtn.addEventListener("click", toggleAttachMenu);
   refs.settingsBtn.addEventListener("click", () => toggleSettings(true));
   refs.closeSettingsBtn.addEventListener("click", () => toggleSettings(false));
   refs.settingsBackdrop.addEventListener("click", () => toggleSettings(false));
@@ -267,14 +283,16 @@ function bindEvents() {
   refs.attachAssetsBtn.addEventListener("click", () => refs.assetFileInput.click());
   refs.analyzeDesignBtn.addEventListener("click", handleAnalyzeDesign);
   refs.replaceDesignBtn.addEventListener("click", () => refs.designFile.click());
+  refs.clearDesignBtn.addEventListener("click", clearDesignWorkspace);
   refs.replaceAssetsBtn.addEventListener("click", () => refs.assetFileInput.click());
   refs.designBadge.addEventListener("click", openDesignWorkspaceModal);
   refs.openLocalesBtn.addEventListener("click", openLocalesModal);
-  refs.openAssetsBtn.addEventListener("click", () => openWorkspaceModal("assets"));
+  refs.openAssetsBtn.addEventListener("click", openImageWorkspaceModal);
   refs.openCodeBtn.addEventListener("click", openCodeModal);
+  refs.openContextBtn.addEventListener("click", openContextModal);
   refs.openDesignQuickBtn.addEventListener("click", openDesignWorkspaceModal);
   refs.openLocalesQuickBtn.addEventListener("click", openLocalesModal);
-  refs.openAssetsQuickBtn.addEventListener("click", () => openWorkspaceModal("assets"));
+  refs.openAssetsQuickBtn.addEventListener("click", openImageWorkspaceModal);
   refs.openCodeQuickBtn.addEventListener("click", openCodeModal);
   refs.openTestsBtn.addEventListener("click", openTestsModal);
   refs.openTestsQuickBtn.addEventListener("click", openTestsModal);
@@ -294,6 +312,8 @@ function bindEvents() {
   refs.closeTestsFooterBtn.addEventListener("click", closeWorkspaceModal);
   refs.closeBlockCandidatesModalBtn.addEventListener("click", closeWorkspaceModal);
   refs.closeBlockCandidatesFooterBtn.addEventListener("click", closeWorkspaceModal);
+  refs.closeContextModalBtn.addEventListener("click", closeWorkspaceModal);
+  refs.closeContextFooterBtn.addEventListener("click", closeWorkspaceModal);
   refs.workspaceModalBackdrop.addEventListener("click", closeWorkspaceModal);
   refs.saveLocaleEditsBtn.addEventListener("click", saveLocaleEdits);
   refs.saveCodeBtn.addEventListener("click", saveCodeEdits);
@@ -551,6 +571,21 @@ function clearChatHistory() {
   persistState();
 }
 
+function toggleAttachMenu() {
+  state.chatAttachMenuOpen = !state.chatAttachMenuOpen;
+  renderChatIntake();
+  persistState();
+}
+
+function clearDesignWorkspace() {
+  state.design = { name: "", dataUrl: "" };
+  state.brief.designUrl = "";
+  state.designAnalysis = null;
+  state.translationUploadStatus = "Макет очищен.";
+  renderAll();
+  persistState();
+}
+
 function fillDemoScenario() {
   state.brief = {
     campaignName: "Spring comeback offer",
@@ -670,6 +705,7 @@ async function applyDesignFile(file, sourceLabel = "") {
     assetId: entry?.id || ""
   };
   state.designAnalysis = null;
+  state.chatAttachMenuOpen = false;
   state.translationUploadStatus = sourceLabel
     ? `Design attached from ${sourceLabel}.`
     : `${file.name} загружен как design reference.`;
@@ -1255,6 +1291,7 @@ async function handleAnalyzeDesign() {
       content: payload.assistantReply || "Design analysis updated."
     });
     await loadJournal();
+    state.assetsWorkspaceView = "design";
     openWorkspaceModal("assets");
   } catch (error) {
     state.messages.push({
@@ -1337,7 +1374,17 @@ function openTestsModal() {
 }
 
 function openDesignWorkspaceModal() {
+  state.assetsWorkspaceView = "design";
   openWorkspaceModal("assets");
+}
+
+function openImageWorkspaceModal() {
+  state.assetsWorkspaceView = "assets";
+  openWorkspaceModal("assets");
+}
+
+function openContextModal() {
+  openWorkspaceModal("context");
 }
 
 function openBlockCandidatesModal() {
@@ -1458,6 +1505,7 @@ function toggleSettings(isOpen) {
 function renderAll() {
   applyTheme();
   renderFields();
+  renderChatIntake();
   renderTranslationUploadStatus();
   renderAttachmentSummary();
   renderAssetComposer();
@@ -1479,10 +1527,25 @@ function renderAll() {
   renderBlockCatalogSummary();
   renderBlocks();
   renderDiagnostics();
+  renderAssetsWorkspaceView();
   renderDesignWorkspace();
   renderDesignPreview();
   renderDesignAnalysis();
   positionHelpTips();
+}
+
+function renderChatIntake() {
+  refs.chatIntakeActions.hidden = !state.chatAttachMenuOpen;
+  refs.toggleAttachMenuBtn.textContent = state.chatAttachMenuOpen ? "Скрыть загрузку" : "Добавить файлы";
+}
+
+function renderAssetsWorkspaceView() {
+  const isDesignView = state.assetsWorkspaceView !== "assets";
+  refs.assetsModalTitle.textContent = isDesignView ? "Design" : "Картинки";
+  refs.designWorkspaceSection.hidden = !isDesignView;
+  refs.inputAssetsSection.hidden = isDesignView;
+  refs.previewAssetsSection.hidden = isDesignView;
+  refs.assetLibrarySection.hidden = isDesignView;
 }
 
 function detectDesignInputKind() {
@@ -1615,6 +1678,11 @@ function renderAttachmentSummary() {
   const assetsCount = state.assetInputs.filter((asset) => asset.url).length;
   const blockCount = state.draft?.mail?.sections?.length || 0;
   const designKind = detectDesignInputKind();
+  const hasTranslationBundle = translationDocs > 0;
+  const hasAssets = assetsCount > 0;
+  const hasBlocks = blockCount > 0;
+  const hasDesign = designKind !== "none";
+  const hasDraft = Boolean(state.draft);
 
   refs.designBadge.textContent = designKind === "project-upload" || designKind === "local-upload"
     ? `Design: ${state.design.name || "attached"}`
@@ -1631,11 +1699,20 @@ function renderAttachmentSummary() {
   refs.openLocalesBtn.textContent = `Locales: ${translationDocs}`;
   refs.openAssetsBtn.textContent = `Assets: ${assetsCount}`;
   refs.openBlocksBtn.textContent = `Blocks: ${blockCount}`;
+
+  refs.openLocalesBtn.hidden = !hasTranslationBundle;
+  refs.translationBadge.hidden = !hasTranslationBundle;
+  refs.openAssetsBtn.hidden = !hasAssets;
+  refs.openBlocksBtn.hidden = !hasBlocks;
+  refs.openCodeBtn.hidden = !hasDraft;
+  refs.designBadge.hidden = !hasDesign;
+  refs.chatAttachmentsRow.hidden = ![hasTranslationBundle, hasAssets, hasBlocks, hasDesign, hasDraft].some(Boolean);
 }
 
 function renderWorkspaceModals() {
   const active = state.workspaceModal;
   refs.workspaceModalBackdrop.hidden = !active;
+  toggleModalVisibility(refs.contextModal, active === "context");
   toggleModalVisibility(refs.localesModal, active === "locales");
   toggleModalVisibility(refs.assetsModal, active === "assets");
   toggleModalVisibility(refs.codeModal, active === "code");
@@ -1650,6 +1727,10 @@ function renderWorkspaceModals() {
 
   if (active === "code") {
     renderCode();
+  }
+
+  if (active === "assets") {
+    renderAssetsWorkspaceView();
   }
 
   if (active === "journal") {
@@ -2036,11 +2117,13 @@ function renderStatus() {
   refs.fillDemoBtn.disabled = state.busy;
   refs.clearChatBtn.disabled = state.busy;
   refs.clearStateBtn.disabled = state.busy;
+  refs.toggleAttachMenuBtn.disabled = state.busy;
   refs.designBadge.disabled = state.busy;
   refs.openLocalesBtn.disabled = state.busy;
   refs.openAssetsBtn.disabled = state.busy;
   refs.openBlocksBtn.disabled = state.busy;
   refs.openCodeBtn.disabled = state.busy;
+  refs.openContextBtn.disabled = state.busy;
   refs.openDesignQuickBtn.disabled = state.busy;
   refs.openLocalesQuickBtn.disabled = state.busy;
   refs.openAssetsQuickBtn.disabled = state.busy;
@@ -2055,6 +2138,7 @@ function renderStatus() {
   refs.attachTranslationFolderBtn.disabled = state.busy;
   refs.attachAssetsBtn.disabled = state.busy;
   refs.analyzeDesignBtn.disabled = state.busy || (!state.design?.dataUrl && !cleanText(state.brief.designUrl));
+  refs.clearDesignBtn.disabled = state.busy;
   refs.saveDesignReferenceBtn.disabled = state.busy;
   refs.clearDesignReferenceBtn.disabled = state.busy;
   refs.designReferenceUrlInput.disabled = state.busy;
@@ -2062,6 +2146,8 @@ function renderStatus() {
   refs.saveCodeBtn.disabled = state.busy;
   refs.createBaseMailFromCodeBtn.disabled = state.busy;
   refs.clearJournalBtn.disabled = state.busy;
+  refs.closeContextModalBtn.disabled = state.busy;
+  refs.closeContextFooterBtn.disabled = state.busy;
   refs.closeTestsModalBtn.disabled = state.busy;
   refs.closeTestsFooterBtn.disabled = state.busy;
   for (const button of refs.previewViewportButtons) {
@@ -3126,6 +3212,7 @@ async function applyTranslationFiles(files, sourceLabel = "") {
   }
 
   state.translationText = await combineTranslationFiles(supported);
+  state.chatAttachMenuOpen = false;
   state.translationUploadStatus = sourceLabel
     ? `Загружено ${supported.length} translation file(s) из ${sourceLabel}.`
     : `Загружено ${supported.length} translation file(s).`;
@@ -3181,6 +3268,7 @@ async function applyAssetFiles(files, sourceLabel = "") {
 
   const meaningful = state.assetInputs.filter((asset) => asset.url || asset.notes || asset.key !== "hero_asset");
   state.assetInputs = meaningful.length > 0 ? [...meaningful, ...rows] : rows;
+  state.chatAttachMenuOpen = false;
   state.translationUploadStatus = sourceLabel
     ? `Добавлено ${rows.length} image asset(s) из ${sourceLabel}.`
     : `Добавлено ${rows.length} image asset(s).`;
