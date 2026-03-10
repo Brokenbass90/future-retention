@@ -16,6 +16,7 @@ const initialState = {
   providerRuntime: null,
   previewSource: "draft",
   previewViewport: "fit",
+  previewLocale: "",
   settings: {
     theme: "light",
     providerId: "mock",
@@ -48,7 +49,7 @@ const initialState = {
   messages: [
     {
       role: "assistant",
-      content: "Чат подключен к студии. Если на сервере нет OPENAI_API_KEY, сейчас работает mock-режим: он помогает со структурой и workflow, но не заменяет живую нейросеть."
+      content: "Чат подключен к студии. Прикладывай макет, локали и картинки, а я буду собирать письмо и подсказывать, чего не хватает."
     }
   ],
   draft: null,
@@ -63,6 +64,10 @@ const initialState = {
     summary: null
   },
   assetRegistry: {
+    items: [],
+    summary: null
+  },
+  projectRules: {
     items: [],
     summary: null
   },
@@ -101,6 +106,7 @@ const refs = {
   settingsBackdrop: document.querySelector("#settingsBackdrop"),
   workspaceModalBackdrop: document.querySelector("#workspaceModalBackdrop"),
   loadBaseBtn: document.querySelector("#loadBaseBtn"),
+  openRulesBtn: document.querySelector("#openRulesBtn"),
   createBaseMailBtn: document.querySelector("#createBaseMailBtn"),
   buildBaseMailBtn: document.querySelector("#buildBaseMailBtn"),
   addAssetBtn: document.querySelector("#addAssetBtn"),
@@ -135,6 +141,7 @@ const refs = {
   localesModal: document.querySelector("#localesModal"),
   assetsModal: document.querySelector("#assetsModal"),
   codeModal: document.querySelector("#codeModal"),
+  rulesModal: document.querySelector("#rulesModal"),
   journalModal: document.querySelector("#journalModal"),
   testsModal: document.querySelector("#testsModal"),
   blockCandidatesModal: document.querySelector("#blockCandidatesModal"),
@@ -143,6 +150,8 @@ const refs = {
   closeAssetsModalBtn: document.querySelector("#closeAssetsModalBtn"),
   closeCodeModalBtn: document.querySelector("#closeCodeModalBtn"),
   closeCodeFooterBtn: document.querySelector("#closeCodeFooterBtn"),
+  closeRulesModalBtn: document.querySelector("#closeRulesModalBtn"),
+  closeRulesFooterBtn: document.querySelector("#closeRulesFooterBtn"),
   closeJournalModalBtn: document.querySelector("#closeJournalModalBtn"),
   closeJournalFooterBtn: document.querySelector("#closeJournalFooterBtn"),
   closeTestsModalBtn: document.querySelector("#closeTestsModalBtn"),
@@ -174,6 +183,9 @@ const refs = {
   modeValue: document.querySelector("#modeValue"),
   sourceValue: document.querySelector("#sourceValue"),
   assistantReply: document.querySelector("#assistantReply"),
+  previewLocaleRow: document.querySelector("#previewLocaleRow"),
+  previewLocaleTabs: document.querySelector("#previewLocaleTabs"),
+  copyPreviewHtmlBtn: document.querySelector("#copyPreviewHtmlBtn"),
   previewStage: document.querySelector("#previewStage"),
   previewFrame: document.querySelector("#previewFrame"),
   previewViewportButtons: Array.from(document.querySelectorAll("[data-preview-viewport]")),
@@ -216,6 +228,11 @@ const refs = {
   clientProfileHelp: document.querySelector("#clientProfileHelp"),
   emailBaseSummary: document.querySelector("#emailBaseSummary"),
   journalSummary: document.querySelector("#journalSummary"),
+  rulesMeta: document.querySelector("#rulesMeta"),
+  rulesList: document.querySelector("#rulesList"),
+  ruleInput: document.querySelector("#ruleInput"),
+  saveRuleBtn: document.querySelector("#saveRuleBtn"),
+  clearRulesBtn: document.querySelector("#clearRulesBtn"),
   clearJournalBtn: document.querySelector("#clearJournalBtn"),
   journalList: document.querySelector("#journalList"),
   testsOverview: document.querySelector("#testsOverview"),
@@ -270,6 +287,7 @@ function bindEvents() {
   refs.closeSettingsBtn.addEventListener("click", () => toggleSettings(false));
   refs.settingsBackdrop.addEventListener("click", () => toggleSettings(false));
   refs.loadBaseBtn.addEventListener("click", handleLoadBaseEmail);
+  refs.openRulesBtn.addEventListener("click", openRulesModal);
   refs.createBaseMailBtn.addEventListener("click", handleCreateBaseMail);
   refs.buildBaseMailBtn.addEventListener("click", handleLoadBaseEmail);
   refs.generateLocalesBtn.addEventListener("click", handleGenerateMissingLocales);
@@ -298,6 +316,7 @@ function bindEvents() {
   refs.openTestsQuickBtn.addEventListener("click", openTestsModal);
   refs.openJournalBtn.addEventListener("click", openJournalModal);
   refs.openJournalFromSettingsBtn.addEventListener("click", openJournalModal);
+  refs.copyPreviewHtmlBtn.addEventListener("click", handleCopyPreviewHtml);
   refs.openBlocksBtn.addEventListener("click", scrollToBlocks);
   refs.openBlockCandidatesBtn.addEventListener("click", openBlockCandidatesModal);
   refs.refreshCatalogBtn.addEventListener("click", handleRefreshBlockCatalog);
@@ -306,6 +325,8 @@ function bindEvents() {
   refs.closeAssetsModalBtn.addEventListener("click", closeWorkspaceModal);
   refs.closeCodeModalBtn.addEventListener("click", closeWorkspaceModal);
   refs.closeCodeFooterBtn.addEventListener("click", closeWorkspaceModal);
+  refs.closeRulesModalBtn.addEventListener("click", closeWorkspaceModal);
+  refs.closeRulesFooterBtn.addEventListener("click", closeWorkspaceModal);
   refs.closeJournalModalBtn.addEventListener("click", closeWorkspaceModal);
   refs.closeJournalFooterBtn.addEventListener("click", closeWorkspaceModal);
   refs.closeTestsModalBtn.addEventListener("click", closeWorkspaceModal);
@@ -318,6 +339,8 @@ function bindEvents() {
   refs.saveLocaleEditsBtn.addEventListener("click", saveLocaleEdits);
   refs.saveCodeBtn.addEventListener("click", saveCodeEdits);
   refs.createBaseMailFromCodeBtn.addEventListener("click", handleCreateBaseMail);
+  refs.saveRuleBtn.addEventListener("click", handleSaveRule);
+  refs.clearRulesBtn.addEventListener("click", handleClearRules);
   refs.clearJournalBtn.addEventListener("click", handleClearJournal);
   refs.saveDesignReferenceBtn.addEventListener("click", handleSaveDesignReference);
   refs.clearDesignReferenceBtn.addEventListener("click", handleClearDesignReference);
@@ -370,6 +393,7 @@ function bindEvents() {
       state.previewViewport = button.dataset.previewViewport || "fit";
       renderPreviewViewportButtons();
       renderPreview();
+      renderCode();
       persistState();
     });
   }
@@ -377,7 +401,13 @@ function bindEvents() {
   for (const tab of refs.codeTabs) {
     tab.addEventListener("click", () => {
       state.activeTab = tab.dataset.tab;
-      state.codeEditorBuffer = state.draft?.[codeMap[state.activeTab]] || "";
+      state.codeEditorBuffer = state.activeTab === "html"
+        ? getCurrentPreviewHtml()
+        : state.activeTab === "locales"
+          ? getCurrentLocalePayload()
+          : state.activeTab === "buildLog"
+            ? getCurrentLocaleBuildLog()
+            : (state.draft?.[codeMap[state.activeTab]] || "");
       renderTabs();
       renderCode();
       persistState();
@@ -409,6 +439,7 @@ async function loadApiStatus() {
 
     await loadBlockCatalog();
     await loadAssetRegistry();
+    await loadProjectRules();
     await loadJournal();
   } catch {
     state.api = {
@@ -420,10 +451,12 @@ async function loadApiStatus() {
       emailBase: null,
       blockCatalog: null,
       assetRegistry: null,
+      projectRules: null,
       journal: null
     };
     state.blockCatalog = structuredClone(initialState.blockCatalog);
     state.assetRegistry = structuredClone(initialState.assetRegistry);
+    state.projectRules = structuredClone(initialState.projectRules);
     state.journal = structuredClone(initialState.journal);
   }
 
@@ -457,6 +490,20 @@ async function loadAssetRegistry() {
   }
 
   state.assetRegistry = {
+    items: Array.isArray(payload.items) ? payload.items : [],
+    summary: payload.summary || null
+  };
+}
+
+async function loadProjectRules() {
+  const response = await fetch("/api/project-rules");
+  const payload = await response.json();
+
+  if (!response.ok) {
+    throw new Error(payload.error || "Project rules request failed");
+  }
+
+  state.projectRules = {
     items: Array.isArray(payload.items) ? payload.items : [],
     summary: payload.summary || null
   };
@@ -501,6 +548,7 @@ function hydrateFromStorage() {
       },
       providerRuntime: saved.providerRuntime ?? null,
       designAnalysis: saved.designAnalysis ?? null,
+      previewLocale: cleanText(saved.previewLocale),
       assetInputs: Array.isArray(saved.assetInputs) && saved.assetInputs.length > 0
         ? saved.assetInputs
         : [createEmptyAsset(1)],
@@ -525,6 +573,7 @@ function persistState() {
     mode: state.mode,
     previewSource: state.previewSource,
     previewViewport: state.previewViewport,
+    previewLocale: state.previewLocale,
     providerRuntime: state.providerRuntime,
     settings: state.settings,
     brief: state.brief,
@@ -550,6 +599,55 @@ function persistState() {
   }
 }
 
+function getAvailableDraftLocales() {
+  const actualLocales = [
+    ...Object.keys(state.draft?.previewLocales || {}),
+    ...Object.keys(state.draft?.localePayloads || {}),
+    ...(Array.isArray(state.draft?.mail?.translations) ? state.draft.mail.translations.map((entry) => cleanText(entry.locale)) : [])
+  ].filter(Boolean);
+  const dedupedActualLocales = Array.from(new Set(actualLocales));
+  const requestedLocales = [
+    cleanText(state.previewLocale),
+    cleanText(state.brief.locale),
+    cleanText(state.draft?.mail?.locale)
+  ].filter(Boolean);
+
+  const extras = requestedLocales.filter((locale) => !hasLocaleMatch(dedupedActualLocales, locale));
+  return Array.from(new Set([...dedupedActualLocales, ...extras]));
+}
+
+function ensurePreviewLocale() {
+  const locales = getAvailableDraftLocales();
+  const current = cleanText(state.previewLocale);
+  if (!current || !hasLocaleMatch(locales, current)) {
+    state.previewLocale = locales[0] || cleanText(state.brief.locale || state.draft?.mail?.locale || "");
+  }
+}
+
+function getCurrentPreviewLocale() {
+  ensurePreviewLocale();
+  const requested = cleanText(state.previewLocale || state.brief.locale || state.draft?.mail?.locale || "");
+  return resolveMatchingLocale(getAvailableDraftLocales(), requested);
+}
+
+function getCurrentPreviewHtml() {
+  const locale = getCurrentPreviewLocale();
+  return cleanText(state.draft?.previewLocales?.[locale]) || cleanText(state.draft?.html) || emptyPreview();
+}
+
+function getCurrentLocalePayload() {
+  const locale = getCurrentPreviewLocale();
+  const payload = state.draft?.localePayloads?.[locale];
+  return payload
+    ? JSON.stringify({ locale, ...payload }, null, 2)
+    : (state.draft?.locales || "Код появится после первого draft или build.");
+}
+
+function getCurrentLocaleBuildLog() {
+  const locale = getCurrentPreviewLocale();
+  return cleanText(state.draft?.localeBuildLogs?.[locale]) || cleanText(state.draft?.buildLog) || "Build log появится после первого build.";
+}
+
 function resetState() {
   localStorage.removeItem(storageKey);
   Object.assign(state, structuredClone(initialState));
@@ -571,9 +669,68 @@ function clearChatHistory() {
   persistState();
 }
 
+function normalizeLocaleTag(locale) {
+  return cleanText(locale).replaceAll("-", "_").toLowerCase();
+}
+
+function localeMatchesRequest(existingLocale, requestedLocale) {
+  const existing = normalizeLocaleTag(existingLocale);
+  const requested = normalizeLocaleTag(requestedLocale);
+
+  if (!existing || !requested) {
+    return false;
+  }
+
+  if (existing === requested) {
+    return true;
+  }
+
+  const existingParts = existing.split("_");
+  const requestedParts = requested.split("_");
+  return requestedParts.length === 1 && existingParts[0] === requestedParts[0];
+}
+
+function hasLocaleMatch(locales, requestedLocale) {
+  return locales.some((locale) => localeMatchesRequest(locale, requestedLocale));
+}
+
+function resolveMatchingLocale(locales, requestedLocale) {
+  const requested = cleanText(requestedLocale);
+  if (!requested) {
+    return locales[0] || "";
+  }
+
+  return locales.find((locale) => normalizeLocaleTag(locale) === normalizeLocaleTag(requested))
+    || locales.find((locale) => localeMatchesRequest(locale, requested))
+    || requested;
+}
+
 function toggleAttachMenu() {
   state.chatAttachMenuOpen = !state.chatAttachMenuOpen;
   renderChatIntake();
+  persistState();
+}
+
+async function handleCopyPreviewHtml() {
+  const html = getCurrentPreviewHtml();
+  if (!cleanText(html)) {
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(html);
+    state.messages.push({
+      role: "assistant",
+      content: `Скопировал HTML для локали ${getCurrentPreviewLocale() || cleanText(state.brief.locale || "en")} в буфер обмена.`
+    });
+  } catch (error) {
+    state.messages.push({
+      role: "assistant",
+      content: `Не смог скопировать HTML: ${error.message}`
+    });
+  }
+
+  renderAll();
   persistState();
 }
 
@@ -692,7 +849,7 @@ async function handleDesignUpload(event) {
   event.target.value = "";
 }
 
-async function applyDesignFile(file, sourceLabel = "") {
+async function applyDesignFile(file, sourceLabel = "", options = {}) {
   const [entry] = await registerFilesInAssetRegistry([file], {
     kind: "design",
     placement: "reference",
@@ -706,6 +863,10 @@ async function applyDesignFile(file, sourceLabel = "") {
   };
   state.designAnalysis = null;
   state.chatAttachMenuOpen = false;
+  if (options.resetAssetInputs) {
+    state.assetInputs = [createEmptyAsset(1)];
+  }
+  removeDesignFromAssetInputs();
   state.translationUploadStatus = sourceLabel
     ? `Design attached from ${sourceLabel}.`
     : `${file.name} загружен как design reference.`;
@@ -847,6 +1008,13 @@ async function applyChatFiles(files, sourceLabel = "") {
   }
 
   if (imageFiles.length > 0) {
+    if (translationFiles.length === 0 && imageFiles.length === 1) {
+      await applyDesignFile(imageFiles[0], sourceLabel || "chat intake", {
+        resetAssetInputs: true
+      });
+      return;
+    }
+
     const [designCandidate, ...assetCandidates] = shouldTreatFirstImageAsDesign()
       ? imageFiles
       : [null, ...imageFiles];
@@ -931,6 +1099,13 @@ async function handleChatSubmit(event) {
   event.preventDefault();
 
   const typedMessage = refs.chatInput.value.trim();
+  applyChatHintsFromMessage(typedMessage);
+  if (await handleRuleCommand(typedMessage)) {
+    refs.chatInput.value = "";
+    renderAll();
+    persistState();
+    return;
+  }
   const intent = inferChatIntent(typedMessage);
   const message = refs.chatInput.value.trim() || (intent === "discuss"
     ? "Давай обсудим текущее письмо."
@@ -975,6 +1150,69 @@ async function handleChatSubmit(event) {
   }
 }
 
+function extractRuleCommand(text) {
+  const source = cleanText(text);
+  if (!source) {
+    return "";
+  }
+
+  const patterns = [
+    /^запомни правило:\s*(.+)$/i,
+    /^rule:\s*(.+)$/i,
+    /^remember rule:\s*(.+)$/i
+  ];
+
+  for (const pattern of patterns) {
+    const match = source.match(pattern);
+    if (match?.[1]) {
+      return cleanText(match[1]);
+    }
+  }
+
+  return "";
+}
+
+async function handleRuleCommand(text) {
+  const ruleText = extractRuleCommand(text);
+  if (!ruleText) {
+    return false;
+  }
+
+  state.messages.push({ role: "user", content: text });
+  try {
+    const response = await fetch("/api/project-rules", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        text: ruleText,
+        source: "chat"
+      })
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.error || "Rule save failed");
+    }
+
+    state.projectRules = {
+      items: Array.isArray(payload.items) ? payload.items : [],
+      summary: payload.summary || null
+    };
+    state.messages.push({
+      role: "assistant",
+      content: `Сохранил правило проекта: ${ruleText}`
+    });
+  } catch (error) {
+    state.messages.push({
+      role: "assistant",
+      content: `Не смог сохранить правило: ${error.message}`
+    });
+  }
+
+  return true;
+}
+
 function inferChatIntent(message) {
   const text = cleanText(message).toLowerCase();
 
@@ -982,12 +1220,23 @@ function inferChatIntent(message) {
     return state.draft?.mail ? "draft" : "discuss";
   }
 
+  const previousAssistantMessage = [...state.messages]
+    .reverse()
+    .find((entry) => entry.role === "assistant")?.content || "";
+  const containsDraftSignal = [
+    "сверстай", "сверстаем", "сверстать", "верстай", "переверстай", "собери", "соберем", "собрать",
+    "сделай", "сделаем", "добавь", "добавим", "измени", "обнови", "убери", "замени", "подставь",
+    "примени", "начинай", "начнем", "поехали", "делай", "build", "apply", "update", "generate", "layout", "draft"
+  ].some((token) => text.includes(token));
+  const isDraftConfirmation = /^(да|ага|ок|окей|хорошо|верно|подтверждаю|можешь|начинай|делай|поехали|вперед|yes|go ahead)/i.test(text)
+    && /(собер|сдела|сверст|черновик|draft|верстк|код|макет|письм)/i.test(previousAssistantMessage);
+
   const applyPatterns = [
-    /\b(сверстай|переверстай|собери|сделай|добавь|измени|обнови|убери|замени|подставь|примени)\b/i,
+    /(нужно|надо)\s+(собрать|сделать|сверстать|обновить|добавить|переверстать)/i,
     /\b(build|apply|update|change|add|remove|replace|generate|layout)\b/i,
     /\b\d+\s*(колонк|колонки|колонки|columns?|картинк|изображени|images?)\b/i
   ];
-  if (applyPatterns.some((pattern) => pattern.test(text))) {
+  if (isDraftConfirmation || containsDraftSignal || applyPatterns.some((pattern) => pattern.test(text))) {
     return "draft";
   }
 
@@ -1003,6 +1252,77 @@ function inferChatIntent(message) {
   return state.draft?.mail ? "draft" : "discuss";
 }
 
+function extractRequestedLocalesFromMessage(text) {
+  const source = cleanText(text).replaceAll("-", "_");
+  if (!source) {
+    return [];
+  }
+
+  const knownLocales = new Map();
+  const supportedLocales = [
+    ...(Array.isArray(state.api.emailBase?.locales) ? state.api.emailBase.locales : []),
+    "en", "ru", "pt", "pt_BR", "de", "fr", "fr_FR", "es", "es_ES", "it", "id", "ja", "ko", "th", "tr", "uk", "vi", "ar", "az", "bn", "cn", "ge", "hi", "hl", "ms", "nl", "no", "se", "tl", "ur"
+  ];
+
+  for (const locale of supportedLocales) {
+    const normalized = cleanText(locale).replaceAll("-", "_");
+    if (!normalized) {
+      continue;
+    }
+    knownLocales.set(normalized.toLowerCase(), normalized);
+  }
+
+  const matches = source.match(/\b[a-z]{2}(?:_[A-Za-z]{2})?\b/gi) || [];
+  const locales = matches
+    .map((token) => knownLocales.get(token.toLowerCase()))
+    .filter(Boolean);
+
+  return Array.from(new Set(locales));
+}
+
+function mergeRequestedLocales(nextLocales = []) {
+  const merged = Array.from(new Set([
+    ...cleanText(state.brief.requestedLocales).split(/[\s,;]+/).map((locale) => locale.trim()).filter(Boolean),
+    ...nextLocales
+  ]));
+
+  state.brief.requestedLocales = merged.join(", ");
+}
+
+function setBriefCategoryDefaults(categoryName) {
+  const categories = Array.isArray(state.api.emailBase?.categories) ? state.api.emailBase.categories : [];
+  const category = categories.find((entry) => cleanText(entry.name) === cleanText(categoryName));
+  if (!category) {
+    return;
+  }
+
+  state.brief.category = category.name;
+  if (cleanText(state.brief.mailId)) {
+    return;
+  }
+
+  const preferredMail = category.mails.find((mail) => /payment|success|welcome|confirm|docs/i.test(cleanText(mail.id)))
+    || category.mails[0];
+
+  if (preferredMail?.id) {
+    state.brief.mailId = preferredMail.id;
+  }
+}
+
+function applyChatHintsFromMessage(text) {
+  const lowered = cleanText(text).toLowerCase();
+  const requestedLocales = extractRequestedLocalesFromMessage(text)
+    .filter((locale) => locale.toLowerCase() !== cleanText(state.brief.locale || "en").toLowerCase());
+
+  if (requestedLocales.length > 0) {
+    mergeRequestedLocales(requestedLocales);
+  }
+
+  if (!cleanText(state.brief.category) && /(системн|technical|transactional|service email|system email)/i.test(lowered)) {
+    setBriefCategoryDefaults("X_System");
+  }
+}
+
 function createChatRequestBody(intent) {
   return {
     intent,
@@ -1010,14 +1330,41 @@ function createChatRequestBody(intent) {
       .filter((message) => !message.streaming)
       .map(({ role, content }) => ({ role, content })),
     brief: state.brief,
-    assetInputs: state.assetInputs,
+    assetInputs: getPayloadAssetInputs(),
     assetRegistryItems: state.assetRegistry.items,
     translationText: state.translationText,
+    projectRules: state.projectRules.items,
     design: state.design,
     designAnalysis: state.designAnalysis,
     settings: state.settings,
     currentDraft: state.draft?.mail ?? null
   };
+}
+
+function getPayloadAssetInputs() {
+  return state.assetInputs.filter((asset) => !isDesignAssetInput(asset));
+}
+
+function isDesignAssetInput(asset) {
+  if (!asset) {
+    return false;
+  }
+
+  const designUrl = cleanText(state.design?.dataUrl);
+  const designAssetId = cleanText(state.design?.assetId);
+  const assetUrl = cleanText(asset.url);
+  const assetLibraryId = cleanText(asset.libraryId);
+
+  return Boolean(
+    (designUrl && assetUrl && designUrl === assetUrl)
+    || (designAssetId && assetLibraryId && designAssetId === assetLibraryId)
+  );
+}
+
+function removeDesignFromAssetInputs() {
+  const filtered = state.assetInputs.filter((asset) => !isDesignAssetInput(asset));
+  state.assetInputs = filtered.length > 0 ? filtered : [createEmptyAsset(1)];
+  renderAssetComposer();
 }
 
 async function consumeChatStream(response, assistantMessage) {
@@ -1080,12 +1427,19 @@ function applyChatPayload(payload, assistantMessage) {
   assistantMessage.content = payload.assistantReply || assistantMessage.content || "Ответ готов.";
   state.mode = payload.mode;
   state.providerRuntime = payload.providerRuntime || null;
+  if (payload.translationText) {
+    state.translationText = payload.translationText;
+  }
+  if (payload.uploadStatus) {
+    state.translationUploadStatus = payload.uploadStatus;
+  }
   if (payload.designAnalysis) {
     state.designAnalysis = payload.designAnalysis;
   }
   if (payload.draft) {
-    state.previewSource = "draft";
+    state.previewSource = payload.previewSource || "draft";
     state.draft = payload.draft;
+    state.previewLocale = cleanText(payload.draft?.mail?.locale || state.brief.locale);
   }
   renderAll();
 }
@@ -1117,6 +1471,7 @@ async function handleLoadBaseEmail() {
     state.mode = payload.mode;
     state.previewSource = "email-base";
     state.draft = payload.draft;
+    state.previewLocale = cleanText(payload.draft?.mail?.locale || state.brief.locale);
     state.messages.push({
       role: "assistant",
       content: payload.assistantReply
@@ -1176,6 +1531,7 @@ async function handleCreateBaseMail() {
     state.mode = payload.mode;
     state.previewSource = "email-base";
     state.draft = payload.draft;
+    state.previewLocale = cleanText(payload.draft?.mail?.locale || state.brief.locale);
     if (payload.saved?.category) {
       state.brief.category = payload.saved.category;
     }
@@ -1237,6 +1593,7 @@ async function handleGenerateMissingLocales() {
     state.translationUploadStatus = payload.uploadStatus || state.translationUploadStatus;
     if (payload.draft) {
       state.draft = payload.draft;
+      state.previewLocale = cleanText(payload.draft?.mail?.locale || state.brief.locale);
     }
     state.messages.push({
       role: "assistant",
@@ -1357,6 +1714,18 @@ function openCodeModal() {
   openWorkspaceModal("code");
 }
 
+async function openRulesModal() {
+  try {
+    await loadProjectRules();
+  } catch (error) {
+    state.messages.push({
+      role: "assistant",
+      content: `Ошибка при загрузке project rules: ${error.message}`
+    });
+  }
+  openWorkspaceModal("rules");
+}
+
 async function openJournalModal() {
   try {
     await loadJournal();
@@ -1457,8 +1826,18 @@ function saveCodeEdits() {
   if (state.activeTab === "locales") {
     const entries = parseJsonTranslationForEditor(nextValue, state.draft.mail, "locales-editor.json");
     if (entries.length > 0) {
-      state.draft.mail.translations = entries;
-      state.translationText = entries
+      const existing = Array.isArray(state.draft.mail.translations) ? state.draft.mail.translations : [];
+      const merged = [...existing];
+      for (const entry of entries) {
+        const index = merged.findIndex((candidate) => cleanText(candidate.locale).toLowerCase() === cleanText(entry.locale).toLowerCase());
+        if (index >= 0) {
+          merged[index] = entry;
+        } else {
+          merged.push(entry);
+        }
+      }
+      state.draft.mail.translations = merged;
+      state.translationText = merged
         .map((entry) => `=== FILE: ${entry.source_name || `${entry.locale}.txt`} ===\n${renderLocaleDocFromEntry(entry)}`)
         .join("\n\n");
       state.translationUploadStatus = "Locale JSON updated from code editor.";
@@ -1489,6 +1868,10 @@ function saveCodeEdits() {
   }
 
   if (state.activeTab === "html") {
+    const locale = getCurrentPreviewLocale();
+    if (locale && state.draft.previewLocales && typeof state.draft.previewLocales === "object") {
+      state.draft.previewLocales[locale] = nextValue;
+    }
     state.previewSource = "draft";
   }
 
@@ -1517,11 +1900,13 @@ function renderAll() {
   renderSettingsDrawer();
   renderWorkspaceModals();
   renderPreviewViewportButtons();
+  renderPreviewLocaleTabs();
   renderPreview();
   renderTabs();
   renderCode();
   renderAssets();
   renderAssetLibrary();
+  renderProjectRules();
   renderJournalSummary();
   renderTests();
   renderBlockCatalogSummary();
@@ -1535,8 +1920,9 @@ function renderAll() {
 }
 
 function renderChatIntake() {
-  refs.chatIntakeActions.hidden = !state.chatAttachMenuOpen;
-  refs.toggleAttachMenuBtn.textContent = state.chatAttachMenuOpen ? "Скрыть загрузку" : "Добавить файлы";
+  refs.chatIntakeActions.hidden = false;
+  refs.chatIntakeActions.style.display = state.chatAttachMenuOpen ? "flex" : "none";
+  refs.toggleAttachMenuBtn.textContent = state.chatAttachMenuOpen ? "Скрыть" : "Прикрепить";
 }
 
 function renderAssetsWorkspaceView() {
@@ -1716,6 +2102,7 @@ function renderWorkspaceModals() {
   toggleModalVisibility(refs.localesModal, active === "locales");
   toggleModalVisibility(refs.assetsModal, active === "assets");
   toggleModalVisibility(refs.codeModal, active === "code");
+  toggleModalVisibility(refs.rulesModal, active === "rules");
   toggleModalVisibility(refs.journalModal, active === "journal");
   toggleModalVisibility(refs.testsModal, active === "tests");
   toggleModalVisibility(refs.blockCandidatesModal, active === "block-candidates");
@@ -1735,6 +2122,10 @@ function renderWorkspaceModals() {
 
   if (active === "journal") {
     renderJournal();
+  }
+
+  if (active === "rules") {
+    renderProjectRules();
   }
 
   if (active === "tests") {
@@ -2130,6 +2521,7 @@ function renderStatus() {
   refs.openCodeQuickBtn.disabled = state.busy;
   refs.openTestsBtn.disabled = state.busy;
   refs.openTestsQuickBtn.disabled = state.busy;
+  refs.openRulesBtn.disabled = state.busy;
   refs.openJournalBtn.disabled = state.busy;
   refs.openJournalFromSettingsBtn.disabled = state.busy;
   refs.refreshCatalogBtn.disabled = state.busy;
@@ -2145,11 +2537,17 @@ function renderStatus() {
   refs.saveLocaleEditsBtn.disabled = state.busy;
   refs.saveCodeBtn.disabled = state.busy;
   refs.createBaseMailFromCodeBtn.disabled = state.busy;
+  refs.saveRuleBtn.disabled = state.busy;
+  refs.clearRulesBtn.disabled = state.busy;
+  refs.ruleInput.disabled = state.busy;
   refs.clearJournalBtn.disabled = state.busy;
+  refs.closeRulesModalBtn.disabled = state.busy;
+  refs.closeRulesFooterBtn.disabled = state.busy;
   refs.closeContextModalBtn.disabled = state.busy;
   refs.closeContextFooterBtn.disabled = state.busy;
   refs.closeTestsModalBtn.disabled = state.busy;
   refs.closeTestsFooterBtn.disabled = state.busy;
+  refs.copyPreviewHtmlBtn.disabled = state.busy || !state.draft?.html;
   for (const button of refs.previewViewportButtons) {
     button.disabled = state.busy;
   }
@@ -2160,17 +2558,48 @@ function renderStatus() {
 
 function renderSummary() {
   const mail = state.draft?.mail;
+  const previewLocale = getCurrentPreviewLocale();
   refs.subjectValue.textContent = mail?.subject || "Пока пусто";
   refs.preheaderValue.textContent = mail?.preheader || "Сгенерируйте первый драфт";
-  refs.localeValue.textContent = mail?.locale || state.brief.locale || "-";
+  refs.localeValue.textContent = previewLocale || mail?.locale || state.brief.locale || "-";
   refs.sourceValue.textContent = state.previewSource;
-  refs.assistantReply.textContent = state.messages.at(-1)?.role === "assistant"
-    ? state.messages.at(-1).content
-    : "Здесь появится краткое резюме от ассистента.";
+  const note = buildAssistantNote();
+  refs.assistantReply.hidden = !note;
+  refs.assistantReply.textContent = note;
+}
+
+function buildAssistantNote() {
+  if (state.providerRuntime?.issueCode === "quota") {
+    return "OpenAI подключен, но сейчас упирается в billing/quota. Подробности в чате слева.";
+  }
+
+  if (state.providerRuntime?.issueCode === "auth") {
+    return "Есть проблема с API-ключом OpenAI. Подробности в чате слева.";
+  }
+
+  if (String(state.mode || "").includes("discuss")) {
+    return "";
+  }
+
+  if (String(state.previewSource || "").startsWith("email-base")) {
+    if (state.previewSource === "email-base-draft") {
+      return "Сейчас в preview показан временный build черновика через реальный email-base pipeline.";
+    }
+    return "Сейчас в preview показан реальный build из email-base.";
+  }
+
+  if (state.draft?.mail) {
+    const localesCount = getParsedLocaleEntries().length;
+    return localesCount > 0
+      ? `Черновик обновлен. В bundle сейчас ${localesCount} локалей. Открой Локали, Код или Тесты.`
+      : "Черновик обновлен. Открой Локали, Код или Тесты.";
+  }
+
+  return "";
 }
 
 function renderPreview() {
-  const baseHtml = state.draft?.html || emptyPreview();
+  const baseHtml = getCurrentPreviewHtml();
   const simulated = simulatePreviewHtml(baseHtml, state.settings.clientProfileId);
   refs.previewStage.dataset.viewport = state.previewViewport || "fit";
   refs.previewFrame.srcdoc = simulated;
@@ -2182,6 +2611,41 @@ function renderPreviewViewportButtons() {
   }
 }
 
+function renderPreviewLocaleTabs() {
+  const locales = getAvailableDraftLocales();
+  refs.previewLocaleTabs.innerHTML = "";
+  refs.previewLocaleRow.hidden = locales.length <= 1 && !state.draft?.html;
+  refs.copyPreviewHtmlBtn.hidden = !state.draft?.html;
+
+  if (locales.length <= 1) {
+    return;
+  }
+
+  const activeLocale = getCurrentPreviewLocale();
+  for (const locale of locales) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `locale-tab${locale === activeLocale ? " is-active" : ""}`;
+    button.textContent = locale;
+    button.addEventListener("click", () => {
+      state.previewLocale = locale;
+      state.codeEditorBuffer = state.activeTab === "html"
+        ? getCurrentPreviewHtml()
+        : state.activeTab === "locales"
+          ? getCurrentLocalePayload()
+          : state.activeTab === "buildLog"
+            ? getCurrentLocaleBuildLog()
+            : (state.draft?.[codeMap[state.activeTab]] || "");
+      renderSummary();
+      renderPreviewLocaleTabs();
+      renderPreview();
+      renderCode();
+      persistState();
+    });
+    refs.previewLocaleTabs.appendChild(button);
+  }
+}
+
 function renderTabs() {
   for (const tab of refs.codeTabs) {
     tab.classList.toggle("is-active", tab.dataset.tab === state.activeTab);
@@ -2190,13 +2654,27 @@ function renderTabs() {
 
 function renderCode() {
   const selectedKey = codeMap[state.activeTab];
-  if (!state.codeEditorBuffer) {
-    state.codeEditorBuffer = state.draft?.[selectedKey] || "Код появится после первого draft или build.";
+  let currentValue = state.draft?.[selectedKey] || "Код появится после первого draft или build.";
+
+  if (state.activeTab === "html") {
+    currentValue = getCurrentPreviewHtml();
+  } else if (state.activeTab === "locales") {
+    currentValue = getCurrentLocalePayload();
+  } else if (state.activeTab === "buildLog") {
+    currentValue = getCurrentLocaleBuildLog();
+  }
+
+  if (!state.codeEditorBuffer || refs.codeModal.getAttribute("aria-hidden") !== "false") {
+    state.codeEditorBuffer = currentValue;
   }
   refs.codeOutput.value = state.codeEditorBuffer;
   refs.codeEditorMeta.textContent = state.activeTab === "locales"
-    ? "Можно редактировать raw locales bundle. Для редактирования по языкам удобнее открыть Locales."
-    : `Текущая вкладка: ${state.activeTab}. Save code edits сохранит текущий текст в workspace.`;
+    ? `Показана locale payload для ${getCurrentPreviewLocale() || cleanText(state.brief.locale || "en")}. Для редактирования по языкам удобнее открыть Locales.`
+    : state.activeTab === "html"
+      ? `Показан HTML для локали ${getCurrentPreviewLocale() || cleanText(state.brief.locale || "en")}.`
+      : state.activeTab === "buildLog"
+        ? `Показан build log для локали ${getCurrentPreviewLocale() || cleanText(state.brief.locale || "en")}.`
+        : `Текущая вкладка: ${state.activeTab}. Save code edits сохранит текущий текст в workspace.`;
 }
 
 function renderAssets() {
@@ -2343,6 +2821,36 @@ function renderJournalSummary() {
     : "Журнал пока пустой.";
 }
 
+function renderProjectRules() {
+  refs.rulesList.innerHTML = "";
+  const summary = state.projectRules.summary || state.api.projectRules;
+  const items = Array.isArray(state.projectRules.items) ? state.projectRules.items : [];
+
+  refs.rulesMeta.textContent = summary?.itemCount
+    ? `Активных правил: ${summary.activeCount || summary.itemCount}. Эти правила попадают в AI-контекст при обсуждении, анализе дизайна и сборке письма.`
+    : "Правил пока нет. Можно добавить вручную или написать в чате: «запомни правило: ...».";
+
+  if (items.length === 0) {
+    refs.rulesList.appendChild(createTextCard("Пока нет project rules. Сохрани первое правило вручную или через чат-команду."));
+    return;
+  }
+
+  for (const item of items) {
+    const card = document.createElement("article");
+    card.className = "asset-item";
+
+    const title = document.createElement("strong");
+    title.textContent = item.text;
+
+    const meta = document.createElement("div");
+    meta.className = "settings-info";
+    meta.textContent = `source=${item.source || "manual"} | updated=${formatJournalTimestamp(item.updatedAt || item.createdAt)}`;
+
+    card.append(title, meta);
+    refs.rulesList.appendChild(card);
+  }
+}
+
 function renderJournal() {
   refs.journalList.innerHTML = "";
   const entries = Array.isArray(state.journal.entries) ? state.journal.entries : [];
@@ -2448,6 +2956,86 @@ async function handleClearJournal() {
     state.messages.push({
       role: "assistant",
       content: `Ошибка при очистке journal: ${error.message}`
+    });
+  } finally {
+    state.busy = false;
+    renderAll();
+    persistState();
+  }
+}
+
+async function handleSaveRule() {
+  const text = cleanText(refs.ruleInput.value);
+  if (!text) {
+    return;
+  }
+
+  state.busy = true;
+  renderStatus();
+
+  try {
+    const response = await fetch("/api/project-rules", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        text,
+        source: "rules-modal"
+      })
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.error || "Rule save failed");
+    }
+
+    state.projectRules = {
+      items: Array.isArray(payload.items) ? payload.items : [],
+      summary: payload.summary || null
+    };
+    refs.ruleInput.value = "";
+    state.messages.push({
+      role: "assistant",
+      content: `Сохранил правило проекта: ${text}`
+    });
+  } catch (error) {
+    state.messages.push({
+      role: "assistant",
+      content: `Ошибка при сохранении правила: ${error.message}`
+    });
+  } finally {
+    state.busy = false;
+    renderAll();
+    persistState();
+  }
+}
+
+async function handleClearRules() {
+  state.busy = true;
+  renderStatus();
+
+  try {
+    const response = await fetch("/api/project-rules/clear", {
+      method: "POST"
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.error || "Rules clear failed");
+    }
+
+    state.projectRules = {
+      items: Array.isArray(payload.items) ? payload.items : [],
+      summary: payload.summary || null
+    };
+    refs.ruleInput.value = "";
+    state.messages.push({
+      role: "assistant",
+      content: "Project rules очищены."
+    });
+  } catch (error) {
+    state.messages.push({
+      role: "assistant",
+      content: `Ошибка при очистке project rules: ${error.message}`
     });
   } finally {
     state.busy = false;
@@ -3126,6 +3714,9 @@ function resolveAssetPlacement(asset, index = 0) {
 }
 
 function emptyPreview() {
+  const message = String(state.mode || "").includes("discuss")
+    ? "Сейчас был только диалог. Чтобы письмо появилось здесь, дай команду вроде «собери письмо по скрину» или «начинай верстать»."
+    : "Сначала приложи материалы в чат, затем общайся с ассистентом или применяй изменения к письму.";
   return `<!DOCTYPE html>
 <html lang="ru">
   <head>
@@ -3163,7 +3754,7 @@ function emptyPreview() {
   <body>
     <div class="placeholder">
       <strong>retantion future</strong>
-      Сначала приложи материалы в чат, затем общайся с ассистентом или применяй изменения к письму.
+      ${message}
     </div>
   </body>
 </html>`;

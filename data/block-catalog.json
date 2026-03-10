@@ -1,7 +1,1279 @@
 {
-  "generatedAt": "2026-03-07T09:23:00.496Z",
+  "generatedAt": "2026-03-09T08:47:24.315Z",
   "root": "email-base",
   "items": [
+    {
+      "id": "legal-unsubscribe-footer",
+      "label": "Legal unsubscribe footer",
+      "description": "Юридический footer с address, legal copy, terms и unsubscribe ссылками.",
+      "sectionKind": "footer",
+      "helperMixins": [],
+      "traits": {
+        "hasImage": false,
+        "hasCta": true,
+        "ctaCount": 2,
+        "itemMode": "none",
+        "minItems": 0,
+        "outlookSafe": true,
+        "vml": false
+      },
+      "usageCount": 179,
+      "sources": [
+        {
+          "category": "X_Exnova",
+          "mailId": "ton",
+          "file": "email-base/X_Exnova/mail-ton/app/templates/blocks/third.jade",
+          "evidence": "footer-text",
+          "order": 153
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-1",
+          "file": "email-base/X_Exnova/mail-Teaser-1/app/templates/blocks/third.jade",
+          "evidence": "footer-text",
+          "order": 157
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-2",
+          "file": "email-base/X_Exnova/mail-Teaser-2/app/templates/blocks/third.jade",
+          "evidence": "footer-text",
+          "order": 157
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-3",
+          "file": "email-base/X_Exnova/mail-Teaser-3/app/templates/blocks/third.jade",
+          "evidence": "footer-text",
+          "order": 157
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-1",
+          "file": "email-base/X_Exnova/mail-Teaser-email-1/app/templates/blocks/third.jade",
+          "evidence": "footer-text",
+          "order": 157
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-2",
+          "file": "email-base/X_Exnova/mail-Teaser-email-2/app/templates/blocks/third.jade",
+          "evidence": "footer-text",
+          "order": 157
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-4",
+          "file": "email-base/X_Exnova/mail-Teaser-email-4/app/templates/blocks/third.jade",
+          "evidence": "footer-text",
+          "order": 157
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-5",
+          "file": "email-base/X_Exnova/mail-Teaser-email-5/app/templates/blocks/third.jade",
+          "evidence": "footer-text",
+          "order": 157
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "sus-geo",
+          "file": "email-base/X_Exnova/mail-sus-geo/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 185
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "suspicious-geo",
+          "file": "email-base/X_Exnova/mail-suspicious-geo/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 185
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "aff-non-movers",
+          "file": "email-base/X_AffSystem/mail-aff-non-movers/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 201
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "aff-registration-affiliate",
+          "file": "email-base/X_AffSystem/mail-aff-registration-affiliate/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 201
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "affiliate-kyc-doc-status-changed",
+          "file": "email-base/X_AffSystem/mail-affiliate-kyc-doc-status-changed/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 201
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "email-activation-affiliate",
+          "file": "email-base/X_AffSystem/mail-email-activation-affiliate/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 201
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "ib-affiliate-termination",
+          "file": "email-base/X_AffSystem/mail-ib-affiliate-termination/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 201
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "iq-affiliate-termination",
+          "file": "email-base/X_AffSystem/mail-iq-affiliate-termination/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 201
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "iq-affiliate-termination040124-IB",
+          "file": "email-base/X_AffSystem/mail-iq-affiliate-termination040124-IB/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 201
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "iq-affiliate-termination040124",
+          "file": "email-base/X_AffSystem/mail-iq-affiliate-termination040124/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 201
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "iq-affiliate-termination24-IB",
+          "file": "email-base/X_AffSystem/mail-iq-affiliate-termination24-IB/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 201
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "iq-affiliate-termination24",
+          "file": "email-base/X_AffSystem/mail-iq-affiliate-termination24/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 201
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "new-ticket-reply-affiliate",
+          "file": "email-base/X_AffSystem/mail-new-ticket-reply-affiliate/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 201
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "onboarding-survey-affiliate",
+          "file": "email-base/X_AffSystem/mail-onboarding-survey-affiliate/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 201
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "password-retrieving-affiliate",
+          "file": "email-base/X_AffSystem/mail-password-retrieving-affiliate/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 201
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "payment-activation-affiliate",
+          "file": "email-base/X_AffSystem/mail-payment-activation-affiliate/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 201
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "verification-reminder-affiliate",
+          "file": "email-base/X_AffSystem/mail-verification-reminder-affiliate/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 201
+        },
+        {
+          "category": "X_CasaTradeAffiliate",
+          "mailId": "2nd-Newsletter 2",
+          "file": "email-base/X_CasaTradeAffiliate/mail-2nd-Newsletter 2/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 201
+        },
+        {
+          "category": "X_CasaTradeAffiliate",
+          "mailId": "2nd-Newsletter",
+          "file": "email-base/X_CasaTradeAffiliate/mail-2nd-Newsletter/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 201
+        },
+        {
+          "category": "X_CasaTradeAffiliate",
+          "mailId": "Contest",
+          "file": "email-base/X_CasaTradeAffiliate/mail-Contest/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 201
+        },
+        {
+          "category": "X_CasaTradeAffiliate",
+          "mailId": "First-Contest",
+          "file": "email-base/X_CasaTradeAffiliate/mail-First-Contest/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 201
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "trade-rush-2",
+          "file": "email-base/X_Exnova/mail-trade-rush-2/app/templates/blocks/header.jade",
+          "evidence": "footer-text",
+          "order": 6268
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "trade-rush",
+          "file": "email-base/X_Exnova/mail-trade-rush/app/templates/blocks/header.jade",
+          "evidence": "footer-text",
+          "order": 7407
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "aff-non-movers",
+          "file": "email-base/X_AffSystem/mail-aff-non-movers/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "aff-registration-affiliate",
+          "file": "email-base/X_AffSystem/mail-aff-registration-affiliate/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "affiliate-kyc-doc-status-changed",
+          "file": "email-base/X_AffSystem/mail-affiliate-kyc-doc-status-changed/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "email-activation-affiliate",
+          "file": "email-base/X_AffSystem/mail-email-activation-affiliate/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "ib-affiliate-termination",
+          "file": "email-base/X_AffSystem/mail-ib-affiliate-termination/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "iq-affiliate-termination",
+          "file": "email-base/X_AffSystem/mail-iq-affiliate-termination/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "iq-affiliate-termination040124-IB",
+          "file": "email-base/X_AffSystem/mail-iq-affiliate-termination040124-IB/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "iq-affiliate-termination040124",
+          "file": "email-base/X_AffSystem/mail-iq-affiliate-termination040124/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "iq-affiliate-termination24-IB",
+          "file": "email-base/X_AffSystem/mail-iq-affiliate-termination24-IB/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "iq-affiliate-termination24",
+          "file": "email-base/X_AffSystem/mail-iq-affiliate-termination24/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "new-ticket-reply-affiliate",
+          "file": "email-base/X_AffSystem/mail-new-ticket-reply-affiliate/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "onboarding-survey-affiliate",
+          "file": "email-base/X_AffSystem/mail-onboarding-survey-affiliate/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "password-retrieving-affiliate",
+          "file": "email-base/X_AffSystem/mail-password-retrieving-affiliate/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "payment-activation-affiliate",
+          "file": "email-base/X_AffSystem/mail-payment-activation-affiliate/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "verification-reminder-affiliate",
+          "file": "email-base/X_AffSystem/mail-verification-reminder-affiliate/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_CasaTradeAffiliate",
+          "mailId": "2nd-Newsletter 2",
+          "file": "email-base/X_CasaTradeAffiliate/mail-2nd-Newsletter 2/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_CasaTradeAffiliate",
+          "mailId": "2nd-Newsletter",
+          "file": "email-base/X_CasaTradeAffiliate/mail-2nd-Newsletter/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_CasaTradeAffiliate",
+          "mailId": "Contest",
+          "file": "email-base/X_CasaTradeAffiliate/mail-Contest/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_CasaTradeAffiliate",
+          "mailId": "First-Contest",
+          "file": "email-base/X_CasaTradeAffiliate/mail-First-Contest/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Short-E-mail",
+          "file": "email-base/X_Exnova/mail-Short-E-mail/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Short-E-mail",
+          "file": "email-base/X_Exnova/mail-Short-E-mail/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Strategy-bonus_Exnova-250825",
+          "file": "email-base/X_Exnova/mail-Strategy-bonus_Exnova-250825/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Strategy-bonus_Exnova-250825",
+          "file": "email-base/X_Exnova/mail-Strategy-bonus_Exnova-250825/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Strategy-bonus_Exnova-3",
+          "file": "email-base/X_Exnova/mail-Strategy-bonus_Exnova-3/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Strategy-bonus_Exnova-3",
+          "file": "email-base/X_Exnova/mail-Strategy-bonus_Exnova-3/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Strategy-bonus_Exnova",
+          "file": "email-base/X_Exnova/mail-Strategy-bonus_Exnova/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Strategy-bonus_Exnova",
+          "file": "email-base/X_Exnova/mail-Strategy-bonus_Exnova/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "sus-geo",
+          "file": "email-base/X_Exnova/mail-sus-geo/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "suspicious-geo",
+          "file": "email-base/X_Exnova/mail-suspicious-geo/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-1",
+          "file": "email-base/X_Exnova/mail-Teaser-1/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-1",
+          "file": "email-base/X_Exnova/mail-Teaser-1/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-2",
+          "file": "email-base/X_Exnova/mail-Teaser-2/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-2",
+          "file": "email-base/X_Exnova/mail-Teaser-2/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-3",
+          "file": "email-base/X_Exnova/mail-Teaser-3/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-3",
+          "file": "email-base/X_Exnova/mail-Teaser-3/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-1",
+          "file": "email-base/X_Exnova/mail-Teaser-email-1/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-1",
+          "file": "email-base/X_Exnova/mail-Teaser-email-1/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-2",
+          "file": "email-base/X_Exnova/mail-Teaser-email-2/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-2",
+          "file": "email-base/X_Exnova/mail-Teaser-email-2/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-4",
+          "file": "email-base/X_Exnova/mail-Teaser-email-4/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-4",
+          "file": "email-base/X_Exnova/mail-Teaser-email-4/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-5",
+          "file": "email-base/X_Exnova/mail-Teaser-email-5/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-5",
+          "file": "email-base/X_Exnova/mail-Teaser-email-5/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Telegram-signals",
+          "file": "email-base/X_Exnova/mail-Telegram-signals/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Telegram-signals",
+          "file": "email-base/X_Exnova/mail-Telegram-signals/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "ton",
+          "file": "email-base/X_Exnova/mail-ton/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "ton",
+          "file": "email-base/X_Exnova/mail-ton/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "tournament",
+          "file": "email-base/X_Exnova/mail-tournament/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "tournament",
+          "file": "email-base/X_Exnova/mail-tournament/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Trade-on-weekend-B",
+          "file": "email-base/X_Exnova/mail-Trade-on-weekend-B/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Trade-on-weekend-B",
+          "file": "email-base/X_Exnova/mail-Trade-on-weekend-B/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Trade-on-weekend",
+          "file": "email-base/X_Exnova/mail-Trade-on-weekend/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Trade-on-weekend",
+          "file": "email-base/X_Exnova/mail-Trade-on-weekend/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "trade-rush-2",
+          "file": "email-base/X_Exnova/mail-trade-rush-2/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "trade-rush-2",
+          "file": "email-base/X_Exnova/mail-trade-rush-2/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "trade-rush",
+          "file": "email-base/X_Exnova/mail-trade-rush/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "trade-rush",
+          "file": "email-base/X_Exnova/mail-trade-rush/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Trading-Challenge",
+          "file": "email-base/X_Exnova/mail-Trading-Challenge/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Trading-Challenge",
+          "file": "email-base/X_Exnova/mail-Trading-Challenge/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-311",
+          "file": "email-base/X_IQ/mail-rfm-311/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-311",
+          "file": "email-base/X_IQ/mail-rfm-311/app/templates/helpers/footer.pug",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-311",
+          "file": "email-base/X_IQ/mail-rfm-311/app/templates/index.pug",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-312",
+          "file": "email-base/X_IQ/mail-rfm-312/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-312",
+          "file": "email-base/X_IQ/mail-rfm-312/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-313",
+          "file": "email-base/X_IQ/mail-rfm-313/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-313",
+          "file": "email-base/X_IQ/mail-rfm-313/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-314",
+          "file": "email-base/X_IQ/mail-rfm-314/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-314",
+          "file": "email-base/X_IQ/mail-rfm-314/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-321",
+          "file": "email-base/X_IQ/mail-rfm-321/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-321",
+          "file": "email-base/X_IQ/mail-rfm-321/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-322",
+          "file": "email-base/X_IQ/mail-rfm-322/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-322",
+          "file": "email-base/X_IQ/mail-rfm-322/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-323",
+          "file": "email-base/X_IQ/mail-rfm-323/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-323",
+          "file": "email-base/X_IQ/mail-rfm-323/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-324",
+          "file": "email-base/X_IQ/mail-rfm-324/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-324",
+          "file": "email-base/X_IQ/mail-rfm-324/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-331",
+          "file": "email-base/X_IQ/mail-rfm-331/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-331",
+          "file": "email-base/X_IQ/mail-rfm-331/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-332",
+          "file": "email-base/X_IQ/mail-rfm-332/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-332",
+          "file": "email-base/X_IQ/mail-rfm-332/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-333",
+          "file": "email-base/X_IQ/mail-rfm-333/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-333",
+          "file": "email-base/X_IQ/mail-rfm-333/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-334",
+          "file": "email-base/X_IQ/mail-rfm-334/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-334",
+          "file": "email-base/X_IQ/mail-rfm-334/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "15-days-general-termination",
+          "file": "email-base/X_IQBroker/mail-15-days-general-termination/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "blacklisted-chargeback-termination",
+          "file": "email-base/X_IQBroker/mail-blacklisted-chargeback-termination/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "blacklisted-general-termination",
+          "file": "email-base/X_IQBroker/mail-blacklisted-general-termination/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "epq_update",
+          "file": "email-base/X_IQBroker/mail-epq_update/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "FAQ",
+          "file": "email-base/X_IQBroker/mail-FAQ/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "FAQ",
+          "file": "email-base/X_IQBroker/mail-FAQ/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "fraud-front-running-termination",
+          "file": "email-base/X_IQBroker/mail-fraud-front-running-termination/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "fraud-high-frequency-trading-termination",
+          "file": "email-base/X_IQBroker/mail-fraud-high-frequency-trading-termination/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "fraud-scheme-termination",
+          "file": "email-base/X_IQBroker/mail-fraud-scheme-termination/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "fraud-termination",
+          "file": "email-base/X_IQBroker/mail-fraud-termination/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "multiple-account-termination",
+          "file": "email-base/X_IQBroker/mail-multiple-account-termination/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "payment-verification-request-ewallet",
+          "file": "email-base/X_IQBroker/mail-payment-verification-request-ewallet/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "payment-verification-request-nequi",
+          "file": "email-base/X_IQBroker/mail-payment-verification-request-nequi/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "payment-verification-request-pix",
+          "file": "email-base/X_IQBroker/mail-payment-verification-request-pix/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "payment-verification-request-pop",
+          "file": "email-base/X_IQBroker/mail-payment-verification-request-pop/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "payment-verification-request-selfie",
+          "file": "email-base/X_IQBroker/mail-payment-verification-request-selfie/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "restricted-country-termination",
+          "file": "email-base/X_IQBroker/mail-restricted-country-termination/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "s-confirm",
+          "file": "email-base/X_IQBroker/mail-s-confirm/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "strategies",
+          "file": "email-base/X_IQBroker/mail-strategies/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "strategies",
+          "file": "email-base/X_IQBroker/mail-strategies/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "success",
+          "file": "email-base/X_IQBroker/mail-success/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "success",
+          "file": "email-base/X_IQBroker/mail-success/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "tools",
+          "file": "email-base/X_IQBroker/mail-tools/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "tools",
+          "file": "email-base/X_IQBroker/mail-tools/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "welcome",
+          "file": "email-base/X_IQBroker/mail-welcome/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "welcome",
+          "file": "email-base/X_IQBroker/mail-welcome/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "annual-investment",
+          "file": "email-base/X_System/mail-annual-investment/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "annual-investment",
+          "file": "email-base/X_System/mail-annual-investment/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "asap",
+          "file": "email-base/X_System/mail-asap/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "asap",
+          "file": "email-base/X_System/mail-asap/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "chinese-manager",
+          "file": "email-base/X_System/mail-chinese-manager/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "chinese-manager",
+          "file": "email-base/X_System/mail-chinese-manager/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "crypto",
+          "file": "email-base/X_System/mail-crypto/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "crypto",
+          "file": "email-base/X_System/mail-crypto/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "demo-positions",
+          "file": "email-base/X_System/mail-demo-positions/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "demo-positions",
+          "file": "email-base/X_System/mail-demo-positions/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "docs-1-2",
+          "file": "email-base/X_System/mail-docs-1-2/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "docs-1-2",
+          "file": "email-base/X_System/mail-docs-1-2/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "docs-1-3",
+          "file": "email-base/X_System/mail-docs-1-3/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "docs-1-3",
+          "file": "email-base/X_System/mail-docs-1-3/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "docs-2-3",
+          "file": "email-base/X_System/mail-docs-2-3/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "docs-2-3",
+          "file": "email-base/X_System/mail-docs-2-3/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "es",
+          "file": "email-base/X_System/mail-es/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "es",
+          "file": "email-base/X_System/mail-es/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "esma-restrict",
+          "file": "email-base/X_System/mail-esma-restrict/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "esma-restrict",
+          "file": "email-base/X_System/mail-esma-restrict/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "gdrp",
+          "file": "email-base/X_System/mail-gdrp/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "gdrp",
+          "file": "email-base/X_System/mail-gdrp/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "jake",
+          "file": "email-base/X_System/mail-jake/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "jake",
+          "file": "email-base/X_System/mail-jake/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "net-wealth",
+          "file": "email-base/X_System/mail-net-wealth/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "net-wealth",
+          "file": "email-base/X_System/mail-net-wealth/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "overnight",
+          "file": "email-base/X_System/mail-overnight/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "overnight",
+          "file": "email-base/X_System/mail-overnight/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "payment",
+          "file": "email-base/X_System/mail-payment/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "payment",
+          "file": "email-base/X_System/mail-payment/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "source-of-funds",
+          "file": "email-base/X_System/mail-source-of-funds/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "source-of-funds",
+          "file": "email-base/X_System/mail-source-of-funds/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "sowwy",
+          "file": "email-base/X_System/mail-sowwy/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "sowwy",
+          "file": "email-base/X_System/mail-sowwy/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "terms-change",
+          "file": "email-base/X_System/mail-terms-change/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "terms-change",
+          "file": "email-base/X_System/mail-terms-change/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "x1000",
+          "file": "email-base/X_System/mail-x1000/app/templates/helpers/footer.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_System",
+          "mailId": "x1000",
+          "file": "email-base/X_System/mail-x1000/app/templates/index.jade",
+          "evidence": "footer-text",
+          "order": 9007199254740991
+        }
+      ]
+    },
     {
       "id": "header-logo-row",
       "label": "Header logo row",
@@ -17,14 +1289,2244 @@
         "outlookSafe": true,
         "vml": false
       },
-      "usageCount": 1,
+      "usageCount": 93,
       "sources": [
+        {
+          "category": "X_IQBroker",
+          "mailId": "15-days-general-termination",
+          "file": "email-base/X_IQBroker/mail-15-days-general-termination/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 205
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "blacklisted-chargeback-termination",
+          "file": "email-base/X_IQBroker/mail-blacklisted-chargeback-termination/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 205
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "blacklisted-general-termination",
+          "file": "email-base/X_IQBroker/mail-blacklisted-general-termination/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 205
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "epq_update",
+          "file": "email-base/X_IQBroker/mail-epq_update/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 205
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "fraud-front-running-termination",
+          "file": "email-base/X_IQBroker/mail-fraud-front-running-termination/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 205
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "fraud-high-frequency-trading-termination",
+          "file": "email-base/X_IQBroker/mail-fraud-high-frequency-trading-termination/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 205
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "fraud-scheme-termination",
+          "file": "email-base/X_IQBroker/mail-fraud-scheme-termination/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 205
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "fraud-termination",
+          "file": "email-base/X_IQBroker/mail-fraud-termination/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 205
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "multiple-account-termination",
+          "file": "email-base/X_IQBroker/mail-multiple-account-termination/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 205
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "payment-verification-request-ewallet",
+          "file": "email-base/X_IQBroker/mail-payment-verification-request-ewallet/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 205
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "payment-verification-request-nequi",
+          "file": "email-base/X_IQBroker/mail-payment-verification-request-nequi/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 205
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "payment-verification-request-pix",
+          "file": "email-base/X_IQBroker/mail-payment-verification-request-pix/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 205
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "payment-verification-request-pop",
+          "file": "email-base/X_IQBroker/mail-payment-verification-request-pop/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 205
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "payment-verification-request-selfie",
+          "file": "email-base/X_IQBroker/mail-payment-verification-request-selfie/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 205
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "restricted-country-termination",
+          "file": "email-base/X_IQBroker/mail-restricted-country-termination/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 205
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "s-confirm",
+          "file": "email-base/X_IQBroker/mail-s-confirm/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 205
+        },
+        {
+          "category": "X_System",
+          "mailId": "es",
+          "file": "email-base/X_System/mail-es/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 262
+        },
+        {
+          "category": "X_System",
+          "mailId": "asap",
+          "file": "email-base/X_System/mail-asap/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 264
+        },
+        {
+          "category": "X_System",
+          "mailId": "jake",
+          "file": "email-base/X_System/mail-jake/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 264
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "aff-non-movers",
+          "file": "email-base/X_AffSystem/mail-aff-non-movers/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 266
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "ib-affiliate-termination",
+          "file": "email-base/X_AffSystem/mail-ib-affiliate-termination/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 266
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "iq-affiliate-termination",
+          "file": "email-base/X_AffSystem/mail-iq-affiliate-termination/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 266
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "iq-affiliate-termination040124-IB",
+          "file": "email-base/X_AffSystem/mail-iq-affiliate-termination040124-IB/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 266
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "iq-affiliate-termination040124",
+          "file": "email-base/X_AffSystem/mail-iq-affiliate-termination040124/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 266
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "iq-affiliate-termination24-IB",
+          "file": "email-base/X_AffSystem/mail-iq-affiliate-termination24-IB/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 266
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "iq-affiliate-termination24",
+          "file": "email-base/X_AffSystem/mail-iq-affiliate-termination24/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 266
+        },
+        {
+          "category": "X_System",
+          "mailId": "chinese-manager",
+          "file": "email-base/X_System/mail-chinese-manager/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 266
+        },
+        {
+          "category": "X_System",
+          "mailId": "crypto",
+          "file": "email-base/X_System/mail-crypto/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 266
+        },
+        {
+          "category": "X_System",
+          "mailId": "payment",
+          "file": "email-base/X_System/mail-payment/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 267
+        },
+        {
+          "category": "X_System",
+          "mailId": "docs-1-2",
+          "file": "email-base/X_System/mail-docs-1-2/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 268
+        },
+        {
+          "category": "X_System",
+          "mailId": "docs-1-3",
+          "file": "email-base/X_System/mail-docs-1-3/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 268
+        },
+        {
+          "category": "X_System",
+          "mailId": "docs-2-3",
+          "file": "email-base/X_System/mail-docs-2-3/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 268
+        },
+        {
+          "category": "X_System",
+          "mailId": "sowwy",
+          "file": "email-base/X_System/mail-sowwy/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 269
+        },
+        {
+          "category": "X_System",
+          "mailId": "terms-change",
+          "file": "email-base/X_System/mail-terms-change/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 269
+        },
+        {
+          "category": "X_System",
+          "mailId": "net-wealth",
+          "file": "email-base/X_System/mail-net-wealth/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 270
+        },
+        {
+          "category": "X_System",
+          "mailId": "x1000",
+          "file": "email-base/X_System/mail-x1000/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 272
+        },
+        {
+          "category": "X_System",
+          "mailId": "esma-restrict",
+          "file": "email-base/X_System/mail-esma-restrict/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 273
+        },
+        {
+          "category": "X_System",
+          "mailId": "demo-positions",
+          "file": "email-base/X_System/mail-demo-positions/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 274
+        },
+        {
+          "category": "X_System",
+          "mailId": "gdrp",
+          "file": "email-base/X_System/mail-gdrp/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 274
+        },
+        {
+          "category": "X_System",
+          "mailId": "source-of-funds",
+          "file": "email-base/X_System/mail-source-of-funds/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 275
+        },
+        {
+          "category": "X_System",
+          "mailId": "annual-investment",
+          "file": "email-base/X_System/mail-annual-investment/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 277
+        },
+        {
+          "category": "X_System",
+          "mailId": "overnight",
+          "file": "email-base/X_System/mail-overnight/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 277
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "aff-registration-affiliate",
+          "file": "email-base/X_AffSystem/mail-aff-registration-affiliate/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 281
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "affiliate-kyc-doc-status-changed",
+          "file": "email-base/X_AffSystem/mail-affiliate-kyc-doc-status-changed/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 281
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "email-activation-affiliate",
+          "file": "email-base/X_AffSystem/mail-email-activation-affiliate/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 281
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "new-ticket-reply-affiliate",
+          "file": "email-base/X_AffSystem/mail-new-ticket-reply-affiliate/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 281
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "onboarding-survey-affiliate",
+          "file": "email-base/X_AffSystem/mail-onboarding-survey-affiliate/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 281
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "password-retrieving-affiliate",
+          "file": "email-base/X_AffSystem/mail-password-retrieving-affiliate/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 281
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "payment-activation-affiliate",
+          "file": "email-base/X_AffSystem/mail-payment-activation-affiliate/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 281
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "verification-reminder-affiliate",
+          "file": "email-base/X_AffSystem/mail-verification-reminder-affiliate/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 281
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "sus-geo",
+          "file": "email-base/X_Exnova/mail-sus-geo/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 296
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "suspicious-geo",
+          "file": "email-base/X_Exnova/mail-suspicious-geo/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 296
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "FAQ",
+          "file": "email-base/X_IQBroker/mail-FAQ/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 362
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "tools",
+          "file": "email-base/X_IQBroker/mail-tools/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 366
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "success",
+          "file": "email-base/X_IQBroker/mail-success/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 370
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-311",
+          "file": "email-base/X_IQ/mail-rfm-311/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 374
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-312",
+          "file": "email-base/X_IQ/mail-rfm-312/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 374
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-313",
+          "file": "email-base/X_IQ/mail-rfm-313/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 374
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-314",
+          "file": "email-base/X_IQ/mail-rfm-314/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 374
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-321",
+          "file": "email-base/X_IQ/mail-rfm-321/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 374
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-322",
+          "file": "email-base/X_IQ/mail-rfm-322/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 374
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-323",
+          "file": "email-base/X_IQ/mail-rfm-323/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 374
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-324",
+          "file": "email-base/X_IQ/mail-rfm-324/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 374
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-331",
+          "file": "email-base/X_IQ/mail-rfm-331/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 374
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-332",
+          "file": "email-base/X_IQ/mail-rfm-332/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 374
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-333",
+          "file": "email-base/X_IQ/mail-rfm-333/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 374
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-334",
+          "file": "email-base/X_IQ/mail-rfm-334/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 374
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "welcome",
+          "file": "email-base/X_IQBroker/mail-welcome/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 374
+        },
         {
           "category": "X_IQ",
           "mailId": "rfm-311",
           "file": "email-base/X_IQ/mail-rfm-311/app/templates/blocks/header.pug",
           "evidence": "img.logo",
           "order": 375
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "strategies",
+          "file": "email-base/X_IQBroker/mail-strategies/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 376
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Short-E-mail",
+          "file": "email-base/X_Exnova/mail-Short-E-mail/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 386
+        },
+        {
+          "category": "X_CasaTradeAffiliate",
+          "mailId": "2nd-Newsletter 2",
+          "file": "email-base/X_CasaTradeAffiliate/mail-2nd-Newsletter 2/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 406
+        },
+        {
+          "category": "X_CasaTradeAffiliate",
+          "mailId": "2nd-Newsletter",
+          "file": "email-base/X_CasaTradeAffiliate/mail-2nd-Newsletter/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 406
+        },
+        {
+          "category": "X_CasaTradeAffiliate",
+          "mailId": "Contest",
+          "file": "email-base/X_CasaTradeAffiliate/mail-Contest/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 406
+        },
+        {
+          "category": "X_CasaTradeAffiliate",
+          "mailId": "First-Contest",
+          "file": "email-base/X_CasaTradeAffiliate/mail-First-Contest/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 406
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "tournament",
+          "file": "email-base/X_Exnova/mail-tournament/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 452
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Telegram-signals",
+          "file": "email-base/X_Exnova/mail-Telegram-signals/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 459
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-2",
+          "file": "email-base/X_Exnova/mail-Teaser-2/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 472
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-3",
+          "file": "email-base/X_Exnova/mail-Teaser-3/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 472
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-1",
+          "file": "email-base/X_Exnova/mail-Teaser-1/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 473
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "ton",
+          "file": "email-base/X_Exnova/mail-ton/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 477
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-1",
+          "file": "email-base/X_Exnova/mail-Teaser-email-1/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 500
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-2",
+          "file": "email-base/X_Exnova/mail-Teaser-email-2/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 500
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-4",
+          "file": "email-base/X_Exnova/mail-Teaser-email-4/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 500
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-5",
+          "file": "email-base/X_Exnova/mail-Teaser-email-5/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 500
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "trade-rush",
+          "file": "email-base/X_Exnova/mail-trade-rush/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 522
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Strategy-bonus_Exnova-250825",
+          "file": "email-base/X_Exnova/mail-Strategy-bonus_Exnova-250825/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 523
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "trade-rush-2",
+          "file": "email-base/X_Exnova/mail-trade-rush-2/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 524
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Strategy-bonus_Exnova-3",
+          "file": "email-base/X_Exnova/mail-Strategy-bonus_Exnova-3/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 543
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Strategy-bonus_Exnova",
+          "file": "email-base/X_Exnova/mail-Strategy-bonus_Exnova/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 543
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Trading-Challenge",
+          "file": "email-base/X_Exnova/mail-Trading-Challenge/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 550
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Trade-on-weekend",
+          "file": "email-base/X_Exnova/mail-Trade-on-weekend/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 556
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Trade-on-weekend-B",
+          "file": "email-base/X_Exnova/mail-Trade-on-weekend-B/app/templates/blocks/header.jade",
+          "evidence": "img.logo",
+          "order": 560
+        }
+      ]
+    },
+    {
+      "id": "single-button-cta-card",
+      "label": "Single CTA card",
+      "description": "Простой однокнопочный CTA-блок на стандартном medium-button паттерне.",
+      "sectionKind": "cta",
+      "helperMixins": [],
+      "traits": {
+        "hasImage": false,
+        "hasCta": true,
+        "ctaCount": 1,
+        "itemMode": "none",
+        "minItems": 0,
+        "outlookSafe": true,
+        "vml": false
+      },
+      "usageCount": 111,
+      "sources": [
+        {
+          "category": "X_AffSystem",
+          "mailId": "aff-non-movers",
+          "file": "email-base/X_AffSystem/mail-aff-non-movers/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "aff-registration-affiliate",
+          "file": "email-base/X_AffSystem/mail-aff-registration-affiliate/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "affiliate-kyc-doc-status-changed",
+          "file": "email-base/X_AffSystem/mail-affiliate-kyc-doc-status-changed/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "email-activation-affiliate",
+          "file": "email-base/X_AffSystem/mail-email-activation-affiliate/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "ib-affiliate-termination",
+          "file": "email-base/X_AffSystem/mail-ib-affiliate-termination/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "iq-affiliate-termination",
+          "file": "email-base/X_AffSystem/mail-iq-affiliate-termination/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "iq-affiliate-termination040124-IB",
+          "file": "email-base/X_AffSystem/mail-iq-affiliate-termination040124-IB/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "iq-affiliate-termination040124",
+          "file": "email-base/X_AffSystem/mail-iq-affiliate-termination040124/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "iq-affiliate-termination24-IB",
+          "file": "email-base/X_AffSystem/mail-iq-affiliate-termination24-IB/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "iq-affiliate-termination24",
+          "file": "email-base/X_AffSystem/mail-iq-affiliate-termination24/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "new-ticket-reply-affiliate",
+          "file": "email-base/X_AffSystem/mail-new-ticket-reply-affiliate/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "onboarding-survey-affiliate",
+          "file": "email-base/X_AffSystem/mail-onboarding-survey-affiliate/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "password-retrieving-affiliate",
+          "file": "email-base/X_AffSystem/mail-password-retrieving-affiliate/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "payment-activation-affiliate",
+          "file": "email-base/X_AffSystem/mail-payment-activation-affiliate/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "verification-reminder-affiliate",
+          "file": "email-base/X_AffSystem/mail-verification-reminder-affiliate/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_CasaTradeAffiliate",
+          "mailId": "2nd-Newsletter 2",
+          "file": "email-base/X_CasaTradeAffiliate/mail-2nd-Newsletter 2/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_CasaTradeAffiliate",
+          "mailId": "2nd-Newsletter",
+          "file": "email-base/X_CasaTradeAffiliate/mail-2nd-Newsletter/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_CasaTradeAffiliate",
+          "mailId": "Contest",
+          "file": "email-base/X_CasaTradeAffiliate/mail-Contest/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_CasaTradeAffiliate",
+          "mailId": "First-Contest",
+          "file": "email-base/X_CasaTradeAffiliate/mail-First-Contest/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Short-E-mail",
+          "file": "email-base/X_Exnova/mail-Short-E-mail/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Strategy-bonus_Exnova-250825",
+          "file": "email-base/X_Exnova/mail-Strategy-bonus_Exnova-250825/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Strategy-bonus_Exnova-3",
+          "file": "email-base/X_Exnova/mail-Strategy-bonus_Exnova-3/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Strategy-bonus_Exnova",
+          "file": "email-base/X_Exnova/mail-Strategy-bonus_Exnova/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-1",
+          "file": "email-base/X_Exnova/mail-Teaser-1/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-2",
+          "file": "email-base/X_Exnova/mail-Teaser-2/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-3",
+          "file": "email-base/X_Exnova/mail-Teaser-3/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-1",
+          "file": "email-base/X_Exnova/mail-Teaser-email-1/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-2",
+          "file": "email-base/X_Exnova/mail-Teaser-email-2/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-4",
+          "file": "email-base/X_Exnova/mail-Teaser-email-4/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-5",
+          "file": "email-base/X_Exnova/mail-Teaser-email-5/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Telegram-signals",
+          "file": "email-base/X_Exnova/mail-Telegram-signals/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "ton",
+          "file": "email-base/X_Exnova/mail-ton/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Trade-on-weekend-B",
+          "file": "email-base/X_Exnova/mail-Trade-on-weekend-B/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Trade-on-weekend",
+          "file": "email-base/X_Exnova/mail-Trade-on-weekend/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "trade-rush-2",
+          "file": "email-base/X_Exnova/mail-trade-rush-2/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "trade-rush",
+          "file": "email-base/X_Exnova/mail-trade-rush/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Trading-Challenge",
+          "file": "email-base/X_Exnova/mail-Trading-Challenge/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-311",
+          "file": "email-base/X_IQ/mail-rfm-311/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-311",
+          "file": "email-base/X_IQ/mail-rfm-311/app/templates/helpers/button.pug",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-312",
+          "file": "email-base/X_IQ/mail-rfm-312/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-313",
+          "file": "email-base/X_IQ/mail-rfm-313/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-314",
+          "file": "email-base/X_IQ/mail-rfm-314/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-321",
+          "file": "email-base/X_IQ/mail-rfm-321/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-322",
+          "file": "email-base/X_IQ/mail-rfm-322/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-323",
+          "file": "email-base/X_IQ/mail-rfm-323/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-324",
+          "file": "email-base/X_IQ/mail-rfm-324/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-331",
+          "file": "email-base/X_IQ/mail-rfm-331/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-332",
+          "file": "email-base/X_IQ/mail-rfm-332/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-333",
+          "file": "email-base/X_IQ/mail-rfm-333/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-334",
+          "file": "email-base/X_IQ/mail-rfm-334/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "FAQ",
+          "file": "email-base/X_IQBroker/mail-FAQ/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "strategies",
+          "file": "email-base/X_IQBroker/mail-strategies/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "success",
+          "file": "email-base/X_IQBroker/mail-success/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "tools",
+          "file": "email-base/X_IQBroker/mail-tools/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "welcome",
+          "file": "email-base/X_IQBroker/mail-welcome/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_System",
+          "mailId": "annual-investment",
+          "file": "email-base/X_System/mail-annual-investment/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_System",
+          "mailId": "asap",
+          "file": "email-base/X_System/mail-asap/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_System",
+          "mailId": "chinese-manager",
+          "file": "email-base/X_System/mail-chinese-manager/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_System",
+          "mailId": "crypto",
+          "file": "email-base/X_System/mail-crypto/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_System",
+          "mailId": "demo-positions",
+          "file": "email-base/X_System/mail-demo-positions/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_System",
+          "mailId": "docs-1-2",
+          "file": "email-base/X_System/mail-docs-1-2/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_System",
+          "mailId": "docs-1-3",
+          "file": "email-base/X_System/mail-docs-1-3/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_System",
+          "mailId": "docs-2-3",
+          "file": "email-base/X_System/mail-docs-2-3/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_System",
+          "mailId": "es",
+          "file": "email-base/X_System/mail-es/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_System",
+          "mailId": "esma-restrict",
+          "file": "email-base/X_System/mail-esma-restrict/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_System",
+          "mailId": "gdrp",
+          "file": "email-base/X_System/mail-gdrp/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_System",
+          "mailId": "jake",
+          "file": "email-base/X_System/mail-jake/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_System",
+          "mailId": "net-wealth",
+          "file": "email-base/X_System/mail-net-wealth/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_System",
+          "mailId": "overnight",
+          "file": "email-base/X_System/mail-overnight/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_System",
+          "mailId": "payment",
+          "file": "email-base/X_System/mail-payment/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_System",
+          "mailId": "source-of-funds",
+          "file": "email-base/X_System/mail-source-of-funds/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_System",
+          "mailId": "sowwy",
+          "file": "email-base/X_System/mail-sowwy/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_System",
+          "mailId": "terms-change",
+          "file": "email-base/X_System/mail-terms-change/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_System",
+          "mailId": "x1000",
+          "file": "email-base/X_System/mail-x1000/app/templates/helpers/button.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 205
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "s-confirm",
+          "file": "email-base/X_IQBroker/mail-s-confirm/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 893
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "epq_update",
+          "file": "email-base/X_IQBroker/mail-epq_update/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 965
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "new-ticket-reply-affiliate",
+          "file": "email-base/X_AffSystem/mail-new-ticket-reply-affiliate/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 1021
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "payment-activation-affiliate",
+          "file": "email-base/X_AffSystem/mail-payment-activation-affiliate/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 1087
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "email-activation-affiliate",
+          "file": "email-base/X_AffSystem/mail-email-activation-affiliate/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 1089
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "affiliate-kyc-doc-status-changed",
+          "file": "email-base/X_AffSystem/mail-affiliate-kyc-doc-status-changed/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 1105
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "aff-registration-affiliate",
+          "file": "email-base/X_AffSystem/mail-aff-registration-affiliate/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 1156
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "password-retrieving-affiliate",
+          "file": "email-base/X_AffSystem/mail-password-retrieving-affiliate/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 1167
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Short-E-mail",
+          "file": "email-base/X_Exnova/mail-Short-E-mail/app/templates/blocks/second.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 1206
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "aff-non-movers",
+          "file": "email-base/X_AffSystem/mail-aff-non-movers/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 1271
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "ton",
+          "file": "email-base/X_Exnova/mail-ton/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 1651
+        },
+        {
+          "category": "X_System",
+          "mailId": "payment",
+          "file": "email-base/X_System/mail-payment/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 1658
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-2",
+          "file": "email-base/X_Exnova/mail-Teaser-2/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 1727
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-1",
+          "file": "email-base/X_Exnova/mail-Teaser-1/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 1730
+        },
+        {
+          "category": "X_System",
+          "mailId": "crypto",
+          "file": "email-base/X_System/mail-crypto/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 1738
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-3",
+          "file": "email-base/X_Exnova/mail-Teaser-3/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 1760
+        },
+        {
+          "category": "X_System",
+          "mailId": "demo-positions",
+          "file": "email-base/X_System/mail-demo-positions/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 1840
+        },
+        {
+          "category": "X_System",
+          "mailId": "chinese-manager",
+          "file": "email-base/X_System/mail-chinese-manager/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 1924
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-4",
+          "file": "email-base/X_Exnova/mail-Teaser-email-4/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 1957
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-1",
+          "file": "email-base/X_Exnova/mail-Teaser-email-1/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 2020
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-2",
+          "file": "email-base/X_Exnova/mail-Teaser-email-2/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 2020
+        },
+        {
+          "category": "X_System",
+          "mailId": "x1000",
+          "file": "email-base/X_System/mail-x1000/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 2145
+        },
+        {
+          "category": "X_System",
+          "mailId": "asap",
+          "file": "email-base/X_System/mail-asap/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 2261
+        },
+        {
+          "category": "X_System",
+          "mailId": "source-of-funds",
+          "file": "email-base/X_System/mail-source-of-funds/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 2263
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "tournament",
+          "file": "email-base/X_Exnova/mail-tournament/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 2283
+        },
+        {
+          "category": "X_System",
+          "mailId": "sowwy",
+          "file": "email-base/X_System/mail-sowwy/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 2292
+        },
+        {
+          "category": "X_System",
+          "mailId": "terms-change",
+          "file": "email-base/X_System/mail-terms-change/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 2292
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "verification-reminder-affiliate",
+          "file": "email-base/X_AffSystem/mail-verification-reminder-affiliate/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 2358
+        },
+        {
+          "category": "X_System",
+          "mailId": "net-wealth",
+          "file": "email-base/X_System/mail-net-wealth/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 2372
+        },
+        {
+          "category": "X_System",
+          "mailId": "annual-investment",
+          "file": "email-base/X_System/mail-annual-investment/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 2416
+        },
+        {
+          "category": "X_System",
+          "mailId": "overnight",
+          "file": "email-base/X_System/mail-overnight/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 2416
+        },
+        {
+          "category": "X_System",
+          "mailId": "es",
+          "file": "email-base/X_System/mail-es/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 2453
+        },
+        {
+          "category": "X_System",
+          "mailId": "gdrp",
+          "file": "email-base/X_System/mail-gdrp/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 2525
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "onboarding-survey-affiliate",
+          "file": "email-base/X_AffSystem/mail-onboarding-survey-affiliate/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 2668
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-5",
+          "file": "email-base/X_Exnova/mail-Teaser-email-5/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 2802
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Telegram-signals",
+          "file": "email-base/X_Exnova/mail-Telegram-signals/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 2804
+        },
+        {
+          "category": "X_System",
+          "mailId": "esma-restrict",
+          "file": "email-base/X_System/mail-esma-restrict/app/templates/blocks/header.jade",
+          "evidence": "table.medium-button.radius",
+          "order": 4120
+        }
+      ]
+    },
+    {
+      "id": "store-badges-row",
+      "label": "Store badges row",
+      "description": "Компактный футерный ряд с App Store и Google Play badges.",
+      "sectionKind": "footer",
+      "helperMixins": [],
+      "traits": {
+        "hasImage": true,
+        "hasCta": true,
+        "ctaCount": 2,
+        "itemMode": "none",
+        "minItems": 0,
+        "outlookSafe": true,
+        "vml": false
+      },
+      "usageCount": 35,
+      "sources": [
+        {
+          "category": "X_Exnova",
+          "mailId": "Trade-on-weekend",
+          "file": "email-base/X_Exnova/mail-Trade-on-weekend/app/templates/blocks/third.jade",
+          "evidence": "img.a-app",
+          "order": 374
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "trade-rush-2",
+          "file": "email-base/X_Exnova/mail-trade-rush-2/app/templates/blocks/third.jade",
+          "evidence": "img.a-app",
+          "order": 374
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "trade-rush",
+          "file": "email-base/X_Exnova/mail-trade-rush/app/templates/blocks/third.jade",
+          "evidence": "img.a-app",
+          "order": 374
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Trading-Challenge",
+          "file": "email-base/X_Exnova/mail-Trading-Challenge/app/templates/blocks/third.jade",
+          "evidence": "img.a-app",
+          "order": 374
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "ton",
+          "file": "email-base/X_Exnova/mail-ton/app/templates/blocks/third.jade",
+          "evidence": "img.a-app",
+          "order": 1313
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-1",
+          "file": "email-base/X_Exnova/mail-Teaser-1/app/templates/blocks/third.jade",
+          "evidence": "img.a-app",
+          "order": 1317
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-2",
+          "file": "email-base/X_Exnova/mail-Teaser-2/app/templates/blocks/third.jade",
+          "evidence": "img.a-app",
+          "order": 1317
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-3",
+          "file": "email-base/X_Exnova/mail-Teaser-3/app/templates/blocks/third.jade",
+          "evidence": "img.a-app",
+          "order": 1317
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-1",
+          "file": "email-base/X_Exnova/mail-Teaser-email-1/app/templates/blocks/third.jade",
+          "evidence": "img.a-app",
+          "order": 1317
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-2",
+          "file": "email-base/X_Exnova/mail-Teaser-email-2/app/templates/blocks/third.jade",
+          "evidence": "img.a-app",
+          "order": 1317
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-4",
+          "file": "email-base/X_Exnova/mail-Teaser-email-4/app/templates/blocks/third.jade",
+          "evidence": "img.a-app",
+          "order": 1317
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-5",
+          "file": "email-base/X_Exnova/mail-Teaser-email-5/app/templates/blocks/third.jade",
+          "evidence": "img.a-app",
+          "order": 1317
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-323",
+          "file": "email-base/X_IQ/mail-rfm-323/app/templates/blocks/header.jade",
+          "evidence": "img.a-app",
+          "order": 4283
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Trade-on-weekend-B",
+          "file": "email-base/X_Exnova/mail-Trade-on-weekend-B/app/templates/blocks/header.jade",
+          "evidence": "img.a-app",
+          "order": 4499
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-321",
+          "file": "email-base/X_IQ/mail-rfm-321/app/templates/blocks/header.jade",
+          "evidence": "img.a-app",
+          "order": 4531
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-333",
+          "file": "email-base/X_IQ/mail-rfm-333/app/templates/blocks/header.jade",
+          "evidence": "img.a-app",
+          "order": 4609
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-332",
+          "file": "email-base/X_IQ/mail-rfm-332/app/templates/blocks/header.jade",
+          "evidence": "img.a-app",
+          "order": 4908
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-324",
+          "file": "email-base/X_IQ/mail-rfm-324/app/templates/blocks/header.jade",
+          "evidence": "img.a-app",
+          "order": 5331
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-334",
+          "file": "email-base/X_IQ/mail-rfm-334/app/templates/blocks/header.jade",
+          "evidence": "img.a-app",
+          "order": 5539
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "success",
+          "file": "email-base/X_IQBroker/mail-success/app/templates/blocks/header.jade",
+          "evidence": "img.a-app",
+          "order": 5752
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-314",
+          "file": "email-base/X_IQ/mail-rfm-314/app/templates/blocks/header.jade",
+          "evidence": "img.a-app",
+          "order": 5877
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-313",
+          "file": "email-base/X_IQ/mail-rfm-313/app/templates/blocks/header.jade",
+          "evidence": "img.a-app",
+          "order": 6775
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-322",
+          "file": "email-base/X_IQ/mail-rfm-322/app/templates/blocks/header.jade",
+          "evidence": "img.a-app",
+          "order": 7488
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-311",
+          "file": "email-base/X_IQ/mail-rfm-311/app/templates/blocks/header.jade",
+          "evidence": "img.a-app",
+          "order": 7501
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-331",
+          "file": "email-base/X_IQ/mail-rfm-331/app/templates/blocks/header.jade",
+          "evidence": "img.a-app",
+          "order": 7591
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "strategies",
+          "file": "email-base/X_IQBroker/mail-strategies/app/templates/blocks/header.jade",
+          "evidence": "img.a-app",
+          "order": 8666
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "tools",
+          "file": "email-base/X_IQBroker/mail-tools/app/templates/blocks/header.jade",
+          "evidence": "img.a-app",
+          "order": 8690
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Strategy-bonus_Exnova-3",
+          "file": "email-base/X_Exnova/mail-Strategy-bonus_Exnova-3/app/templates/blocks/header.jade",
+          "evidence": "img.a-app",
+          "order": 9004
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Strategy-bonus_Exnova",
+          "file": "email-base/X_Exnova/mail-Strategy-bonus_Exnova/app/templates/blocks/header.jade",
+          "evidence": "img.a-app",
+          "order": 10501
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-312",
+          "file": "email-base/X_IQ/mail-rfm-312/app/templates/blocks/header.jade",
+          "evidence": "img.a-app",
+          "order": 11073
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "welcome",
+          "file": "email-base/X_IQBroker/mail-welcome/app/templates/blocks/header.jade",
+          "evidence": "img.a-app",
+          "order": 11160
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-311",
+          "file": "email-base/X_IQ/mail-rfm-311/app/templates/blocks/header.pug",
+          "evidence": "img.a-app",
+          "order": 12884
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "FAQ",
+          "file": "email-base/X_IQBroker/mail-FAQ/app/templates/blocks/header.jade",
+          "evidence": "img.a-app",
+          "order": 12908
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Short-E-mail",
+          "file": "email-base/X_Exnova/mail-Short-E-mail/app/templates/blocks/third.jade",
+          "evidence": "img.a-app",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Strategy-bonus_Exnova-250825",
+          "file": "email-base/X_Exnova/mail-Strategy-bonus_Exnova-250825/app/templates/blocks/header.jade",
+          "evidence": "img.a-app",
+          "order": 9007199254740991
+        }
+      ]
+    },
+    {
+      "id": "plain-copy-text-card",
+      "label": "Plain copy text card",
+      "description": "Базовый текстовый блок с title + body copy без сложной графики.",
+      "sectionKind": "text",
+      "helperMixins": [],
+      "traits": {
+        "hasImage": false,
+        "hasCta": false,
+        "ctaCount": 0,
+        "itemMode": "none",
+        "minItems": 0,
+        "outlookSafe": true,
+        "vml": false
+      },
+      "usageCount": 54,
+      "sources": [
+        {
+          "category": "X_IQBroker",
+          "mailId": "15-days-general-termination",
+          "file": "email-base/X_IQBroker/mail-15-days-general-termination/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 486
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "blacklisted-chargeback-termination",
+          "file": "email-base/X_IQBroker/mail-blacklisted-chargeback-termination/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 486
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "blacklisted-general-termination",
+          "file": "email-base/X_IQBroker/mail-blacklisted-general-termination/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 486
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "fraud-front-running-termination",
+          "file": "email-base/X_IQBroker/mail-fraud-front-running-termination/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 486
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "fraud-high-frequency-trading-termination",
+          "file": "email-base/X_IQBroker/mail-fraud-high-frequency-trading-termination/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 486
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "fraud-scheme-termination",
+          "file": "email-base/X_IQBroker/mail-fraud-scheme-termination/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 486
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "fraud-termination",
+          "file": "email-base/X_IQBroker/mail-fraud-termination/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 486
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "multiple-account-termination",
+          "file": "email-base/X_IQBroker/mail-multiple-account-termination/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 486
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "restricted-country-termination",
+          "file": "email-base/X_IQBroker/mail-restricted-country-termination/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 486
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "s-confirm",
+          "file": "email-base/X_IQBroker/mail-s-confirm/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 501
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "suspicious-geo",
+          "file": "email-base/X_Exnova/mail-suspicious-geo/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 579
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "sus-geo",
+          "file": "email-base/X_Exnova/mail-sus-geo/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 582
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "email-activation-affiliate",
+          "file": "email-base/X_AffSystem/mail-email-activation-affiliate/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 627
+        },
+        {
+          "category": "X_CasaTradeAffiliate",
+          "mailId": "First-Contest",
+          "file": "email-base/X_CasaTradeAffiliate/mail-First-Contest/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 703
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Short-E-mail",
+          "file": "email-base/X_Exnova/mail-Short-E-mail/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 729
+        },
+        {
+          "category": "X_CasaTradeAffiliate",
+          "mailId": "2nd-Newsletter 2",
+          "file": "email-base/X_CasaTradeAffiliate/mail-2nd-Newsletter 2/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1063
+        },
+        {
+          "category": "X_CasaTradeAffiliate",
+          "mailId": "2nd-Newsletter",
+          "file": "email-base/X_CasaTradeAffiliate/mail-2nd-Newsletter/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1063
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-4",
+          "file": "email-base/X_Exnova/mail-Teaser-email-4/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1140
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-5",
+          "file": "email-base/X_Exnova/mail-Teaser-email-5/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1140
+        },
+        {
+          "category": "X_System",
+          "mailId": "es",
+          "file": "email-base/X_System/mail-es/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1155
+        },
+        {
+          "category": "X_System",
+          "mailId": "asap",
+          "file": "email-base/X_System/mail-asap/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1157
+        },
+        {
+          "category": "X_System",
+          "mailId": "jake",
+          "file": "email-base/X_System/mail-jake/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1157
+        },
+        {
+          "category": "X_System",
+          "mailId": "chinese-manager",
+          "file": "email-base/X_System/mail-chinese-manager/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1159
+        },
+        {
+          "category": "X_System",
+          "mailId": "crypto",
+          "file": "email-base/X_System/mail-crypto/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1160
+        },
+        {
+          "category": "X_System",
+          "mailId": "payment",
+          "file": "email-base/X_System/mail-payment/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1160
+        },
+        {
+          "category": "X_System",
+          "mailId": "docs-1-2",
+          "file": "email-base/X_System/mail-docs-1-2/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1161
+        },
+        {
+          "category": "X_System",
+          "mailId": "docs-1-3",
+          "file": "email-base/X_System/mail-docs-1-3/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1161
+        },
+        {
+          "category": "X_System",
+          "mailId": "docs-2-3",
+          "file": "email-base/X_System/mail-docs-2-3/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1161
+        },
+        {
+          "category": "X_System",
+          "mailId": "sowwy",
+          "file": "email-base/X_System/mail-sowwy/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1162
+        },
+        {
+          "category": "X_System",
+          "mailId": "terms-change",
+          "file": "email-base/X_System/mail-terms-change/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1162
+        },
+        {
+          "category": "X_System",
+          "mailId": "net-wealth",
+          "file": "email-base/X_System/mail-net-wealth/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1163
+        },
+        {
+          "category": "X_System",
+          "mailId": "x1000",
+          "file": "email-base/X_System/mail-x1000/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1165
+        },
+        {
+          "category": "X_System",
+          "mailId": "esma-restrict",
+          "file": "email-base/X_System/mail-esma-restrict/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1166
+        },
+        {
+          "category": "X_System",
+          "mailId": "demo-positions",
+          "file": "email-base/X_System/mail-demo-positions/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1167
+        },
+        {
+          "category": "X_System",
+          "mailId": "gdrp",
+          "file": "email-base/X_System/mail-gdrp/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1167
+        },
+        {
+          "category": "X_System",
+          "mailId": "source-of-funds",
+          "file": "email-base/X_System/mail-source-of-funds/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1168
+        },
+        {
+          "category": "X_System",
+          "mailId": "annual-investment",
+          "file": "email-base/X_System/mail-annual-investment/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1170
+        },
+        {
+          "category": "X_System",
+          "mailId": "overnight",
+          "file": "email-base/X_System/mail-overnight/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1170
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-2",
+          "file": "email-base/X_Exnova/mail-Teaser-2/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1191
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-3",
+          "file": "email-base/X_Exnova/mail-Teaser-3/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1191
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-1",
+          "file": "email-base/X_Exnova/mail-Teaser-1/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1194
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "ton",
+          "file": "email-base/X_Exnova/mail-ton/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1200
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Strategy-bonus_Exnova-250825",
+          "file": "email-base/X_Exnova/mail-Strategy-bonus_Exnova-250825/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1202
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-1",
+          "file": "email-base/X_Exnova/mail-Teaser-email-1/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1240
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Teaser-email-2",
+          "file": "email-base/X_Exnova/mail-Teaser-email-2/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1240
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Strategy-bonus_Exnova",
+          "file": "email-base/X_Exnova/mail-Strategy-bonus_Exnova/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1241
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Strategy-bonus_Exnova-3",
+          "file": "email-base/X_Exnova/mail-Strategy-bonus_Exnova-3/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1242
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Trading-Challenge",
+          "file": "email-base/X_Exnova/mail-Trading-Challenge/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1260
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Trade-on-weekend-B",
+          "file": "email-base/X_Exnova/mail-Trade-on-weekend-B/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1274
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "trade-rush-2",
+          "file": "email-base/X_Exnova/mail-trade-rush-2/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1314
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "trade-rush",
+          "file": "email-base/X_Exnova/mail-trade-rush/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1322
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Trade-on-weekend",
+          "file": "email-base/X_Exnova/mail-Trade-on-weekend/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1379
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "tournament",
+          "file": "email-base/X_Exnova/mail-tournament/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1741
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "Telegram-signals",
+          "file": "email-base/X_Exnova/mail-Telegram-signals/app/templates/blocks/header.jade",
+          "evidence": "p.title",
+          "order": 1951
+        }
+      ]
+    },
+    {
+      "id": "bullet-proof-list-card",
+      "label": "Bullet proof list card",
+      "description": "Текстовый блок со списком выгод, шагов или требований через list-item паттерн.",
+      "sectionKind": "feature-list",
+      "helperMixins": [],
+      "traits": {
+        "hasImage": false,
+        "hasCta": false,
+        "ctaCount": 0,
+        "itemMode": "bullets",
+        "minItems": 5,
+        "outlookSafe": true,
+        "vml": false
+      },
+      "usageCount": 9,
+      "sources": [
+        {
+          "category": "X_AffSystem",
+          "mailId": "iq-affiliate-termination24",
+          "file": "email-base/X_AffSystem/mail-iq-affiliate-termination24/app/templates/blocks/header.jade",
+          "evidence": "p.text.list-item",
+          "order": 1570
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "iq-affiliate-termination24-IB",
+          "file": "email-base/X_AffSystem/mail-iq-affiliate-termination24-IB/app/templates/blocks/header.jade",
+          "evidence": "p.text.list-item",
+          "order": 1594
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "ib-affiliate-termination",
+          "file": "email-base/X_AffSystem/mail-ib-affiliate-termination/app/templates/blocks/header.jade",
+          "evidence": "p.text.list-item",
+          "order": 1658
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "verification-reminder-affiliate",
+          "file": "email-base/X_AffSystem/mail-verification-reminder-affiliate/app/templates/blocks/header.jade",
+          "evidence": "p.text.list-item",
+          "order": 1658
+        },
+        {
+          "category": "X_AffSystem",
+          "mailId": "iq-affiliate-termination",
+          "file": "email-base/X_AffSystem/mail-iq-affiliate-termination/app/templates/blocks/header.jade",
+          "evidence": "p.text.list-item",
+          "order": 1706
+        }
+      ]
+    },
+    {
+      "id": "numbered-feature-stack",
+      "label": "Numbered feature stack",
+      "description": "Секция с пронумерованными шагами/выгодами, где каждый блок может иметь текст, картинку и CTA.",
+      "sectionKind": "feature-list",
+      "helperMixins": [],
+      "traits": {
+        "hasImage": true,
+        "hasCta": true,
+        "ctaCount": 1,
+        "itemMode": "numbered",
+        "minItems": 5,
+        "outlookSafe": true,
+        "vml": false
+      },
+      "usageCount": 29,
+      "sources": [
+        {
+          "category": "X_Exnova",
+          "mailId": "Trading-Challenge",
+          "file": "email-base/X_Exnova/mail-Trading-Challenge/app/templates/blocks/header.jade",
+          "evidence": "p.number",
+          "order": 2124
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-331",
+          "file": "email-base/X_IQ/mail-rfm-331/app/templates/blocks/header.jade",
+          "evidence": "p.number",
+          "order": 2302
+        },
+        {
+          "category": "X_Exnova",
+          "mailId": "trade-rush",
+          "file": "email-base/X_Exnova/mail-trade-rush/app/templates/blocks/header.jade",
+          "evidence": "p.number",
+          "order": 2608
+        },
+        {
+          "category": "X_IQBroker",
+          "mailId": "welcome",
+          "file": "email-base/X_IQBroker/mail-welcome/app/templates/blocks/header.jade",
+          "evidence": "p.number",
+          "order": 2612
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-313",
+          "file": "email-base/X_IQ/mail-rfm-313/app/templates/blocks/header.jade",
+          "evidence": "p.number",
+          "order": 2629
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-334",
+          "file": "email-base/X_IQ/mail-rfm-334/app/templates/blocks/header.jade",
+          "evidence": "p.number",
+          "order": 2630
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-311",
+          "file": "email-base/X_IQ/mail-rfm-311/app/templates/blocks/header.pug",
+          "evidence": "p.number",
+          "order": 3133
+        },
+        {
+          "category": "X_IQ",
+          "mailId": "rfm-312",
+          "file": "email-base/X_IQ/mail-rfm-312/app/templates/blocks/header.jade",
+          "evidence": "p.number",
+          "order": 8518
         }
       ]
     },
@@ -57,28 +3559,42 @@
       ]
     },
     {
-      "id": "numbered-feature-stack",
-      "label": "Numbered feature stack",
-      "description": "Секция с пронумерованными шагами/выгодами, где каждый блок может иметь текст, картинку и CTA.",
+      "id": "three-promo-column-row",
+      "label": "Three promo column row",
+      "description": "Трехколоночный ряд с короткими promo или feature-блоками.",
       "sectionKind": "feature-list",
       "helperMixins": [],
       "traits": {
-        "hasImage": true,
+        "hasImage": false,
         "hasCta": true,
-        "ctaCount": 1,
-        "itemMode": "numbered",
-        "minItems": 5,
+        "ctaCount": 3,
+        "itemMode": "grid",
+        "minItems": 3,
         "outlookSafe": true,
         "vml": false
       },
-      "usageCount": 5,
+      "usageCount": 9,
       "sources": [
         {
-          "category": "X_IQ",
-          "mailId": "rfm-311",
-          "file": "email-base/X_IQ/mail-rfm-311/app/templates/blocks/header.pug",
-          "evidence": "p.number",
-          "order": 3133
+          "category": "X_CasaTradeAffiliate",
+          "mailId": "First-Contest",
+          "file": "email-base/X_CasaTradeAffiliate/mail-First-Contest/app/templates/blocks/header.jade",
+          "evidence": "three-colums",
+          "order": 3606
+        },
+        {
+          "category": "X_CasaTradeAffiliate",
+          "mailId": "2nd-Newsletter 2",
+          "file": "email-base/X_CasaTradeAffiliate/mail-2nd-Newsletter 2/app/templates/blocks/header.jade",
+          "evidence": "three-colums",
+          "order": 9007199254740991
+        },
+        {
+          "category": "X_CasaTradeAffiliate",
+          "mailId": "2nd-Newsletter",
+          "file": "email-base/X_CasaTradeAffiliate/mail-2nd-Newsletter/app/templates/blocks/header.jade",
+          "evidence": "three-colums",
+          "order": 9007199254740991
         }
       ]
     },
@@ -165,48 +3681,114 @@
           "order": 12357
         }
       ]
-    },
-    {
-      "id": "store-badges-row",
-      "label": "Store badges row",
-      "description": "Компактный футерный ряд с App Store и Google Play badges.",
-      "sectionKind": "footer",
-      "helperMixins": [],
-      "traits": {
-        "hasImage": true,
-        "hasCta": true,
-        "ctaCount": 2,
-        "itemMode": "none",
-        "minItems": 0,
-        "outlookSafe": true,
-        "vml": false
-      },
-      "usageCount": 1,
-      "sources": [
-        {
-          "category": "X_IQ",
-          "mailId": "rfm-311",
-          "file": "email-base/X_IQ/mail-rfm-311/app/templates/blocks/header.pug",
-          "evidence": "img.a-app",
-          "order": 12884
-        }
-      ]
     }
   ],
   "summary": {
-    "itemCount": 7,
-    "generatedAt": "2026-03-07T09:23:00.496Z",
+    "itemCount": 12,
+    "generatedAt": "2026-03-09T08:47:24.315Z",
     "path": "data/block-catalog.json",
-    "sourceMailCount": 1,
+    "sourceMailCount": 92,
     "sourceMails": [
-      "X_IQ/mail-rfm-311"
+      "X_AffSystem/mail-aff-non-movers",
+      "X_AffSystem/mail-aff-registration-affiliate",
+      "X_AffSystem/mail-affiliate-kyc-doc-status-changed",
+      "X_AffSystem/mail-email-activation-affiliate",
+      "X_AffSystem/mail-ib-affiliate-termination",
+      "X_AffSystem/mail-iq-affiliate-termination",
+      "X_AffSystem/mail-iq-affiliate-termination040124",
+      "X_AffSystem/mail-iq-affiliate-termination040124-IB",
+      "X_AffSystem/mail-iq-affiliate-termination24",
+      "X_AffSystem/mail-iq-affiliate-termination24-IB",
+      "X_AffSystem/mail-new-ticket-reply-affiliate",
+      "X_AffSystem/mail-onboarding-survey-affiliate",
+      "X_AffSystem/mail-password-retrieving-affiliate",
+      "X_AffSystem/mail-payment-activation-affiliate",
+      "X_AffSystem/mail-verification-reminder-affiliate",
+      "X_CasaTradeAffiliate/mail-2nd-Newsletter",
+      "X_CasaTradeAffiliate/mail-2nd-Newsletter 2",
+      "X_CasaTradeAffiliate/mail-Contest",
+      "X_CasaTradeAffiliate/mail-First-Contest",
+      "X_Exnova/mail-Short-E-mail",
+      "X_Exnova/mail-Strategy-bonus_Exnova",
+      "X_Exnova/mail-Strategy-bonus_Exnova-250825",
+      "X_Exnova/mail-Strategy-bonus_Exnova-3",
+      "X_Exnova/mail-Teaser-1",
+      "X_Exnova/mail-Teaser-2",
+      "X_Exnova/mail-Teaser-3",
+      "X_Exnova/mail-Teaser-email-1",
+      "X_Exnova/mail-Teaser-email-2",
+      "X_Exnova/mail-Teaser-email-4",
+      "X_Exnova/mail-Teaser-email-5",
+      "X_Exnova/mail-Telegram-signals",
+      "X_Exnova/mail-Trade-on-weekend",
+      "X_Exnova/mail-Trade-on-weekend-B",
+      "X_Exnova/mail-Trading-Challenge",
+      "X_Exnova/mail-sus-geo",
+      "X_Exnova/mail-suspicious-geo",
+      "X_Exnova/mail-ton",
+      "X_Exnova/mail-tournament",
+      "X_Exnova/mail-trade-rush",
+      "X_Exnova/mail-trade-rush-2",
+      "X_IQ/mail-rfm-311",
+      "X_IQ/mail-rfm-312",
+      "X_IQ/mail-rfm-313",
+      "X_IQ/mail-rfm-314",
+      "X_IQ/mail-rfm-321",
+      "X_IQ/mail-rfm-322",
+      "X_IQ/mail-rfm-323",
+      "X_IQ/mail-rfm-324",
+      "X_IQ/mail-rfm-331",
+      "X_IQ/mail-rfm-332",
+      "X_IQ/mail-rfm-333",
+      "X_IQ/mail-rfm-334",
+      "X_IQBroker/mail-15-days-general-termination",
+      "X_IQBroker/mail-FAQ",
+      "X_IQBroker/mail-blacklisted-chargeback-termination",
+      "X_IQBroker/mail-blacklisted-general-termination",
+      "X_IQBroker/mail-epq_update",
+      "X_IQBroker/mail-fraud-front-running-termination",
+      "X_IQBroker/mail-fraud-high-frequency-trading-termination",
+      "X_IQBroker/mail-fraud-scheme-termination",
+      "X_IQBroker/mail-fraud-termination",
+      "X_IQBroker/mail-multiple-account-termination",
+      "X_IQBroker/mail-payment-verification-request-ewallet",
+      "X_IQBroker/mail-payment-verification-request-nequi",
+      "X_IQBroker/mail-payment-verification-request-pix",
+      "X_IQBroker/mail-payment-verification-request-pop",
+      "X_IQBroker/mail-payment-verification-request-selfie",
+      "X_IQBroker/mail-restricted-country-termination",
+      "X_IQBroker/mail-s-confirm",
+      "X_IQBroker/mail-strategies",
+      "X_IQBroker/mail-success",
+      "X_IQBroker/mail-tools",
+      "X_IQBroker/mail-welcome",
+      "X_System/mail-annual-investment",
+      "X_System/mail-asap",
+      "X_System/mail-chinese-manager",
+      "X_System/mail-crypto",
+      "X_System/mail-demo-positions",
+      "X_System/mail-docs-1-2",
+      "X_System/mail-docs-1-3",
+      "X_System/mail-docs-2-3",
+      "X_System/mail-es",
+      "X_System/mail-esma-restrict",
+      "X_System/mail-gdrp",
+      "X_System/mail-jake",
+      "X_System/mail-net-wealth",
+      "X_System/mail-overnight",
+      "X_System/mail-payment",
+      "X_System/mail-source-of-funds",
+      "X_System/mail-sowwy",
+      "X_System/mail-terms-change",
+      "X_System/mail-x1000"
     ],
     "sectionKinds": [
       "cta",
       "feature-list",
       "footer",
       "hero",
-      "image"
+      "image",
+      "text"
     ],
     "helperMixins": [
       "cta-switch-table",

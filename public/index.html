@@ -16,6 +16,7 @@
           <span class="pill" id="apiStatus">Проверяю API...</span>
           <span class="pill" id="aiModePill">AI mode</span>
           <button class="ghost-button" id="loadBaseBtn" type="button">Load base email</button>
+          <button class="ghost-button" id="openRulesBtn" type="button">Rules</button>
           <button class="ghost-button" id="openJournalBtn" type="button">Journal</button>
           <button class="ghost-button" id="settingsBtn" type="button">Settings</button>
           <button class="ghost-button dev-only" id="fillDemoBtn" type="button" hidden>Заполнить демо</button>
@@ -44,17 +45,6 @@
                   <h3>Вставляй макет, локали и картинки прямо сюда</h3>
                 </div>
                 <p>Скрин из Figma можно просто вставить сюда через `Cmd/Ctrl + V`.</p>
-              </div>
-
-              <div class="chat-intake-toolbar">
-                <button class="ghost-button" id="toggleAttachMenuBtn" type="button">Добавить файлы</button>
-              </div>
-
-              <div class="chat-intake-actions" id="chatIntakeActions" hidden>
-                <button class="ghost-button" id="attachDesignBtn" type="button">Attach design</button>
-                <button class="ghost-button" id="attachTranslationsBtn" type="button">Attach locales</button>
-                <button class="ghost-button" id="attachTranslationFolderBtn" type="button">Attach locale folder</button>
-                <button class="ghost-button" id="attachAssetsBtn" type="button">Attach images</button>
               </div>
 
               <div class="chat-attachments" id="chatAttachmentsRow">
@@ -90,7 +80,14 @@
                 ></textarea>
               </label>
               <div class="chat-mode-hint">Вопросы останутся в чате. Команды вроде «добавь 3 колонки» применяются к письму автоматически.</div>
+              <div class="chat-intake-actions chat-intake-actions-inline" id="chatIntakeActions" hidden>
+                <button class="ghost-button" id="attachDesignBtn" type="button">Attach design</button>
+                <button class="ghost-button" id="attachTranslationsBtn" type="button">Attach locales</button>
+                <button class="ghost-button" id="attachTranslationFolderBtn" type="button">Attach locale folder</button>
+                <button class="ghost-button" id="attachAssetsBtn" type="button">Attach images</button>
+              </div>
               <div class="chat-actions">
+                <button class="ghost-button secondary-button" id="toggleAttachMenuBtn" type="button">Прикрепить</button>
                 <button class="ghost-button secondary-button" id="openContextBtn" type="button">Контекст</button>
                 <button class="primary-button" id="sendBtn" type="submit">Отправить</button>
               </div>
@@ -148,6 +145,10 @@
                 <button class="ghost-button viewport-button" data-preview-viewport="desktop" type="button">Desktop</button>
                 <button class="ghost-button viewport-button" data-preview-viewport="mobile" type="button">Mobile</button>
               </div>
+            </div>
+            <div class="preview-locale-row" id="previewLocaleRow" hidden>
+              <div class="locale-tabs" id="previewLocaleTabs"></div>
+              <button class="ghost-button" id="copyPreviewHtmlBtn" type="button">Копировать HTML</button>
             </div>
             <div class="preview-stage" id="previewStage" data-viewport="fit">
               <iframe id="previewFrame" title="Email preview"></iframe>
@@ -462,6 +463,28 @@
       <div class="workspace-modal-footer">
         <button class="ghost-button" id="closeJournalFooterBtn" type="button">Close</button>
         <button class="ghost-button" id="clearJournalBtn" type="button">Clear journal</button>
+      </div>
+    </section>
+
+    <section class="workspace-modal" id="rulesModal" aria-hidden="true">
+      <div class="workspace-modal-header">
+        <div>
+          <h2>Project rules</h2>
+        </div>
+        <button class="ghost-button" id="closeRulesModalBtn" type="button">Close</button>
+      </div>
+      <div class="workspace-modal-body">
+        <div class="modal-meta" id="rulesMeta">Здесь живут правила проекта, которые студия добавляет в контекст при обсуждении и сборке письма.</div>
+        <label class="field">
+          <span>Новое правило</span>
+          <textarea id="ruleInput" rows="3" placeholder="Например: Не подставляй фиктивные ссылки, если URL не дали."></textarea>
+        </label>
+        <div class="diagnostics-list" id="rulesList"></div>
+      </div>
+      <div class="workspace-modal-footer">
+        <button class="ghost-button" id="closeRulesFooterBtn" type="button">Close</button>
+        <button class="ghost-button" id="clearRulesBtn" type="button">Clear rules</button>
+        <button class="primary-button" id="saveRuleBtn" type="button">Save rule</button>
       </div>
     </section>
 

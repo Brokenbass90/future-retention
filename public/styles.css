@@ -317,6 +317,19 @@ body {
   gap: 10px;
 }
 
+.chat-intake-actions-inline {
+  padding-top: 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.72);
+  align-items: center;
+}
+
+:root[data-theme="dark"] .chat-intake-actions-inline {
+  background: rgba(255, 255, 255, 0.05);
+}
+
 .attachment-pill {
   appearance: none;
   border: 1px solid rgba(19, 35, 26, 0.08);
@@ -633,6 +646,19 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.preview-locale-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.preview-locale-row .locale-tabs {
+  flex: 1 1 320px;
 }
 
 .viewport-button.is-active {
