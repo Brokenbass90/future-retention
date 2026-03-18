@@ -1,4 +1,319 @@
 {
-  "updatedAt": "2026-03-07T09:23:31.175Z",
-  "entries": []
+  "updatedAt": "2026-03-11T09:05:31.022Z",
+  "entries": [
+    {
+      "id": "journal-1773219931022-p70dg",
+      "timestamp": "2026-03-11T09:05:31.022Z",
+      "level": "info",
+      "area": "assets",
+      "title": "Assets uploaded",
+      "message": "Registered 1 file(s) in asset library.",
+      "meta": {
+        "count": 1
+      }
+    },
+    {
+      "id": "journal-1773216275194-kxqf2",
+      "timestamp": "2026-03-11T08:04:35.194Z",
+      "level": "info",
+      "area": "ai-lessons",
+      "title": "AI lesson saved",
+      "message": "Lesson: AI генерировал generic hero без logo row вверху...",
+      "meta": {}
+    },
+    {
+      "id": "journal-1773210037082-vu5xs",
+      "timestamp": "2026-03-11T06:20:37.082Z",
+      "level": "info",
+      "area": "email-base",
+      "title": "Base email built",
+      "message": "Loaded preview for X_AffSystem/mail-password-retrieving-affiliate (en_US).",
+      "meta": {}
+    },
+    {
+      "id": "journal-1773208714356-x862a",
+      "timestamp": "2026-03-11T05:58:34.356Z",
+      "level": "info",
+      "area": "assets",
+      "title": "Assets uploaded",
+      "message": "Registered 1 file(s) in asset library.",
+      "meta": {
+        "count": 1
+      }
+    },
+    {
+      "id": "journal-1773179533974-402du",
+      "timestamp": "2026-03-10T21:52:13.974Z",
+      "level": "info",
+      "area": "email-base",
+      "title": "Base email built",
+      "message": "Loaded preview for X_AffSystem/mail-password-retrieving-affiliate (en_US).",
+      "meta": {}
+    },
+    {
+      "id": "journal-1773179059156-2aa3t",
+      "timestamp": "2026-03-10T21:44:19.156Z",
+      "level": "info",
+      "area": "email-base",
+      "title": "Base email built",
+      "message": "Loaded preview for X_AffSystem/mail-password-retrieving-affiliate (en_US).",
+      "meta": {}
+    },
+    {
+      "id": "journal-1773174004386-44zy1",
+      "timestamp": "2026-03-10T20:20:04.386Z",
+      "level": "info",
+      "area": "design",
+      "title": "Design analyzed",
+      "message": "This email design reference is a typical password reset notification structured for reusability with defined content blocks.\n\nThe layout structure can be mapped as follows:\n- Hero block: featuring the affstore logo centered at the top.\n- Text block: main heading \"Set your new password\" followed by explanatory paragraphs and a dynamic URL placeholder.\n- CTA block: a prominent button \"Set new password\" in bright green.\n- Text block: a cautionary note for ignoring the email if unrequested.\n- Text block: additional support info with an email link.\n- Footer block: physical address and terms and conditions link.\n\nThere are no visible template family or variant labels in the screenshot. Brand hint is \"affstore\" as visible in the logo.\n\nSuggested reusable blocks: hero (logo), text (heading and paragraphs), cta (button), footer (address and terms link).\n\nKey asset slots: logo image, button URL, support email link.\n\nContent requirements include:\n- Dynamic insertion of affiliate embedded admin domain URL.\n- Clear heading and informative paragraphs.\n- Clickable CTA button with link.\n- Support email link.\n- Footer details with address and terms link.\n\nWarnings:\n- Ensure all dynamic link placeholders are correctly replaced at send time.\n- Confirm that the email link uses safe, valid URLs.\n- Accessibility considerations for button colors and text clarity.\n\nReference family: \"\"\nReference variant: \"\"\nBrand hint: \"affstore\"\nSection kinds: [\"hero\", \"text\", \"cta\", \"text\", \"text\", \"footer\"]\nSuggested blocks: [\"hero\", \"text\", \"cta\", \"text\", \"text\", \"footer\"]\nAsset slots: [\"logo image\", \"affiliate embedded admin domain URL\", \"button URL\", \"support email\"]\nContent requirements: [\"main heading\", \"introductory text with dynamic URL\", \"CTA button text and URL\", \"cautionary text\", \"support contact email\", \"footer address and links\"]\nWarnings: [\"Dynamic URL placeholders must be replaced before sending\", \"Validate all URLs for safety\", \"Ensure color contrast and accessibility\"]",
+      "meta": {
+        "mode": "openai-design"
+      }
+    },
+    {
+      "id": "journal-1773172504065-0vdrx",
+      "timestamp": "2026-03-10T19:55:04.065Z",
+      "level": "info",
+      "area": "assets",
+      "title": "Assets uploaded",
+      "message": "Registered 1 file(s) in asset library.",
+      "meta": {
+        "count": 1
+      }
+    },
+    {
+      "id": "journal-1773171269256-7ekz9",
+      "timestamp": "2026-03-10T19:34:29.256Z",
+      "level": "info",
+      "area": "catalog",
+      "title": "Mail structure profiles refreshed",
+      "message": "Mail structure profiles now contain 92 mail profile(s).",
+      "meta": {}
+    },
+    {
+      "id": "journal-1773168639650-d3djv",
+      "timestamp": "2026-03-10T18:50:39.650Z",
+      "level": "info",
+      "area": "design",
+      "title": "Design analyzed",
+      "message": "Данный дизайн письма представляет собой структурированную последовательность блоков, удобную для построения из переиспользуемых компонентов шаблона. Основная структура основана на типичной схеме RFM 1-3-3, что подтверждается ярлыком \"RFM 1-3-3\" в верхней части дизайна. Бренд явно ассоциируется с IQ Option.",
+      "meta": {
+        "mode": "openai-design"
+      }
+    },
+    {
+      "id": "journal-1773167041128-53lw4",
+      "timestamp": "2026-03-10T18:24:01.128Z",
+      "level": "info",
+      "area": "email-base",
+      "title": "Base email built",
+      "message": "Loaded preview for X_IQ/mail-rfm-331 (en).",
+      "meta": {}
+    },
+    {
+      "id": "journal-1773166578548-qmykb",
+      "timestamp": "2026-03-10T18:16:18.548Z",
+      "level": "info",
+      "area": "assets",
+      "title": "Assets uploaded",
+      "message": "Registered 1 file(s) in asset library.",
+      "meta": {
+        "count": 1
+      }
+    },
+    {
+      "id": "journal-1773166220401-1be3k",
+      "timestamp": "2026-03-10T18:10:20.403Z",
+      "level": "info",
+      "area": "design",
+      "title": "Design analyzed",
+      "message": "Сейчас у меня есть только ссылка на приватный Figma frame, самого макета я не вижу. Чтобы собрать письмо по вашей базе, пришли либо open draft/share link на этот frame, либо PNG/JPG export этого frame. Тексты и ссылки можно пока оставить пустыми: сначала соберу структуру, потом добьем локали и картинки.",
+      "meta": {
+        "mode": "figma-access-blocked"
+      }
+    },
+    {
+      "id": "journal-1773159884886-nhoqi",
+      "timestamp": "2026-03-10T16:24:44.886Z",
+      "level": "info",
+      "area": "design",
+      "title": "Figma intake received",
+      "message": "Mode: frame-link + structured push. Selection: System Verification. Next step: attach a screenshot/export too if you want pixel-level vision and visual preview.",
+      "meta": {
+        "mode": "frame-link + structured push",
+        "hasLink": true,
+        "hasVisual": false,
+        "hasStructured": true,
+        "fileKey": "AbCdEf123456",
+        "nodeId": "12:34"
+      }
+    },
+    {
+      "id": "journal-1773159873861-13r9p",
+      "timestamp": "2026-03-10T16:24:33.861Z",
+      "level": "info",
+      "area": "design",
+      "title": "Figma intake received",
+      "message": "Mode: frame-link only. Selection: System Verification. Next step: if the frame is private, send an open draft/share link or attach a screenshot/export.",
+      "meta": {
+        "mode": "frame-link only",
+        "hasLink": true,
+        "hasVisual": false,
+        "hasStructured": false,
+        "fileKey": "AbCdEf123456",
+        "nodeId": "12:34"
+      }
+    },
+    {
+      "id": "journal-1773159786340-vb422",
+      "timestamp": "2026-03-10T16:23:06.340Z",
+      "level": "info",
+      "area": "design",
+      "title": "Figma intake received",
+      "message": "Mode: frame-link + structured push. Selection: System Verification. Next step: attach a screenshot/export too if you want pixel-level vision and visual preview.",
+      "meta": {
+        "mode": "frame-link + structured push",
+        "hasLink": true,
+        "hasVisual": false,
+        "hasStructured": true,
+        "fileKey": "AbCdEf123456",
+        "nodeId": "12:34"
+      }
+    },
+    {
+      "id": "journal-1773140873242-yh0jn",
+      "timestamp": "2026-03-10T11:07:53.242Z",
+      "level": "info",
+      "area": "email-base",
+      "title": "Base email built",
+      "message": "Loaded preview for X_AffSystem/mail-password-retrieving-affiliate (en).",
+      "meta": {}
+    },
+    {
+      "id": "journal-1773135508429-edqd6",
+      "timestamp": "2026-03-10T09:38:28.429Z",
+      "level": "error",
+      "area": "server",
+      "title": "Server error",
+      "message": "[build] Both templates exist. Keep only ONE:\n- X_AffSystem/mail-password-retrieving-affiliate/app/templates/index.pug\n- X_AffSystem/mail-password-retrieving-affiliate/app/templates/index.jade\nTip: we recommend index.pug (new) or index.jade (legacy), but not both.",
+      "meta": {
+        "method": "POST",
+        "url": "/api/email-base/build"
+      }
+    },
+    {
+      "id": "journal-1773135322448-x9aul",
+      "timestamp": "2026-03-10T09:35:22.448Z",
+      "level": "error",
+      "area": "server",
+      "title": "Server error",
+      "message": "[build] Both templates exist. Keep only ONE:\n- X_AffSystem/mail-password-retrieving-affiliate/app/templates/index.pug\n- X_AffSystem/mail-password-retrieving-affiliate/app/templates/index.jade\nTip: we recommend index.pug (new) or index.jade (legacy), but not both.",
+      "meta": {
+        "method": "POST",
+        "url": "/api/email-base/build"
+      }
+    },
+    {
+      "id": "journal-1773125810256-3gxnz",
+      "timestamp": "2026-03-10T06:56:50.256Z",
+      "level": "info",
+      "area": "assets",
+      "title": "Assets uploaded",
+      "message": "Registered 1 file(s) in asset library.",
+      "meta": {
+        "count": 1
+      }
+    },
+    {
+      "id": "journal-1773077886769-nd78e",
+      "timestamp": "2026-03-09T17:38:06.769Z",
+      "level": "info",
+      "area": "assets",
+      "title": "Assets uploaded",
+      "message": "Registered 1 file(s) in asset library.",
+      "meta": {
+        "count": 1
+      }
+    },
+    {
+      "id": "journal-1773072722054-51lq9",
+      "timestamp": "2026-03-09T16:12:02.054Z",
+      "level": "info",
+      "area": "assets",
+      "title": "Assets uploaded",
+      "message": "Registered 1 file(s) in asset library.",
+      "meta": {
+        "count": 1
+      }
+    },
+    {
+      "id": "journal-1773068517931-dqyjd",
+      "timestamp": "2026-03-09T15:01:57.931Z",
+      "level": "info",
+      "area": "assets",
+      "title": "Assets uploaded",
+      "message": "Registered 1 file(s) in asset library.",
+      "meta": {
+        "count": 1
+      }
+    },
+    {
+      "id": "journal-1773062113424-595bp",
+      "timestamp": "2026-03-09T13:15:13.424Z",
+      "level": "error",
+      "area": "server",
+      "title": "Server error",
+      "message": "[build] Both templates exist. Keep only ONE:\n- X_AffSystem/mail-aff-non-movers/app/templates/index.pug\n- X_AffSystem/mail-aff-non-movers/app/templates/index.jade\nTip: we recommend index.pug (new) or index.jade (legacy), but not both.",
+      "meta": {
+        "method": "POST",
+        "url": "/api/email-base/build"
+      }
+    },
+    {
+      "id": "journal-1773061744512-pe701",
+      "timestamp": "2026-03-09T13:09:04.515Z",
+      "level": "error",
+      "area": "server",
+      "title": "Server error",
+      "message": "[build] Both templates exist. Keep only ONE:\n- X_System/mail-docs-1-2/app/templates/index.pug\n- X_System/mail-docs-1-2/app/templates/index.jade\nTip: we recommend index.pug (new) or index.jade (legacy), but not both.",
+      "meta": {
+        "method": "POST",
+        "url": "/api/email-base/build"
+      }
+    },
+    {
+      "id": "journal-1773061684150-oxr0z",
+      "timestamp": "2026-03-09T13:08:04.150Z",
+      "level": "error",
+      "area": "server",
+      "title": "Server error",
+      "message": "[build] Both templates exist. Keep only ONE:\n- X_System/mail-docs-1-2/app/templates/index.pug\n- X_System/mail-docs-1-2/app/templates/index.jade\nTip: we recommend index.pug (new) or index.jade (legacy), but not both.",
+      "meta": {
+        "method": "POST",
+        "url": "/api/email-base/build"
+      }
+    },
+    {
+      "id": "journal-1773060408917-rqirq",
+      "timestamp": "2026-03-09T12:46:48.917Z",
+      "level": "info",
+      "area": "assets",
+      "title": "Assets uploaded",
+      "message": "Registered 1 file(s) in asset library.",
+      "meta": {
+        "count": 1
+      }
+    },
+    {
+      "id": "journal-1773058847221-nnhht",
+      "timestamp": "2026-03-09T12:20:47.221Z",
+      "level": "info",
+      "area": "assets",
+      "title": "Assets uploaded",
+      "message": "Registered 1 file(s) in asset library.",
+      "meta": {
+        "count": 1
+      }
+    }
+  ]
 }

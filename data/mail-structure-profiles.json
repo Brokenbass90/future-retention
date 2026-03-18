@@ -1,0 +1,6331 @@
+{
+  "updatedAt": "2026-03-14T11:31:59.241Z",
+  "items": [
+    {
+      "category": "X_AffSystem",
+      "mailId": "aff-non-movers",
+      "folder": "mail-aff-non-movers",
+      "familyKey": "aff-non",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "social-links-row",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affiliate-social-legal-footer",
+      "styleFamily": "affiliate-system-card",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 12,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 10
+      }
+    },
+    {
+      "category": "X_AffSystem",
+      "mailId": "aff-registration-affiliate",
+      "folder": "mail-aff-registration-affiliate",
+      "familyKey": "aff-registration",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "social-links-row",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affiliate-social-legal-footer",
+      "styleFamily": "affiliate-system-card",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 4
+      }
+    },
+    {
+      "category": "X_AffSystem",
+      "mailId": "affiliate-kyc-doc-status-changed",
+      "folder": "mail-affiliate-kyc-doc-status-changed",
+      "familyKey": "affiliate-kyc-doc",
+      "visibleVariant": "",
+      "structureSignature": "image>cta>text>footer>footer",
+      "sectionKinds": [
+        "image",
+        "cta",
+        "text",
+        "footer",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "single-button-cta-card",
+        "plain-copy-text-card",
+        "social-links-row",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affiliate-social-legal-footer",
+      "styleFamily": "affiliate-system-card",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 4
+      }
+    },
+    {
+      "category": "X_AffSystem",
+      "mailId": "email-activation-affiliate",
+      "folder": "mail-email-activation-affiliate",
+      "familyKey": "email-activation",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "social-links-row",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affiliate-social-legal-footer",
+      "styleFamily": "affiliate-system-card",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 4
+      }
+    },
+    {
+      "category": "X_AffSystem",
+      "mailId": "ib-affiliate-termination",
+      "folder": "mail-ib-affiliate-termination",
+      "familyKey": "ib-affiliate",
+      "visibleVariant": "",
+      "structureSignature": "image>text>feature-list>footer>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "feature-list",
+        "footer",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "bullet-proof-list-card",
+        "social-links-row",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "bullet-list",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affstore-legal-footer",
+      "styleFamily": "affiliate-system-card",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 3,
+        "numberedCount": 0,
+        "bulletCount": 1,
+        "imageCount": 5
+      }
+    },
+    {
+      "category": "X_AffSystem",
+      "mailId": "iq-affiliate-termination",
+      "folder": "mail-iq-affiliate-termination",
+      "familyKey": "iq-affiliate",
+      "visibleVariant": "",
+      "structureSignature": "image>text>feature-list>footer>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "feature-list",
+        "footer",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "bullet-proof-list-card",
+        "social-links-row",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "bullet-list",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affstore-legal-footer",
+      "styleFamily": "affiliate-system-card",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 3,
+        "numberedCount": 0,
+        "bulletCount": 1,
+        "imageCount": 5
+      }
+    },
+    {
+      "category": "X_AffSystem",
+      "mailId": "iq-affiliate-termination040124",
+      "folder": "mail-iq-affiliate-termination040124",
+      "familyKey": "iq-affiliate",
+      "visibleVariant": "",
+      "structureSignature": "image>text>footer>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "footer",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "social-links-row",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affiliate-social-legal-footer",
+      "styleFamily": "affiliate-system-card",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 3,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 5
+      }
+    },
+    {
+      "category": "X_AffSystem",
+      "mailId": "iq-affiliate-termination040124-IB",
+      "folder": "mail-iq-affiliate-termination040124-IB",
+      "familyKey": "iq-affiliate-termination040124",
+      "visibleVariant": "",
+      "structureSignature": "image>text>footer>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "footer",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "social-links-row",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affiliate-social-legal-footer",
+      "styleFamily": "affiliate-system-card",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 3,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 5
+      }
+    },
+    {
+      "category": "X_AffSystem",
+      "mailId": "iq-affiliate-termination24",
+      "folder": "mail-iq-affiliate-termination24",
+      "familyKey": "iq-affiliate",
+      "visibleVariant": "",
+      "structureSignature": "image>text>feature-list>footer>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "feature-list",
+        "footer",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "bullet-proof-list-card",
+        "social-links-row",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "bullet-list",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affstore-legal-footer",
+      "styleFamily": "affiliate-system-card",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 3,
+        "numberedCount": 0,
+        "bulletCount": 1,
+        "imageCount": 5
+      }
+    },
+    {
+      "category": "X_AffSystem",
+      "mailId": "iq-affiliate-termination24-IB",
+      "folder": "mail-iq-affiliate-termination24-IB",
+      "familyKey": "iq-affiliate-termination24",
+      "visibleVariant": "",
+      "structureSignature": "image>text>feature-list>footer>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "feature-list",
+        "footer",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "bullet-proof-list-card",
+        "social-links-row",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "bullet-list",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affstore-legal-footer",
+      "styleFamily": "affiliate-system-card",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 3,
+        "numberedCount": 0,
+        "bulletCount": 1,
+        "imageCount": 5
+      }
+    },
+    {
+      "category": "X_AffSystem",
+      "mailId": "new-ticket-reply-affiliate",
+      "folder": "mail-new-ticket-reply-affiliate",
+      "familyKey": "new-ticket-reply",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "social-links-row",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affiliate-social-legal-footer",
+      "styleFamily": "affiliate-system-card",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 4
+      }
+    },
+    {
+      "category": "X_AffSystem",
+      "mailId": "onboarding-survey-affiliate",
+      "folder": "mail-onboarding-survey-affiliate",
+      "familyKey": "onboarding-survey",
+      "visibleVariant": "",
+      "structureSignature": "image>cta>text>footer>footer",
+      "sectionKinds": [
+        "image",
+        "cta",
+        "text",
+        "footer",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "single-button-cta-card",
+        "plain-copy-text-card",
+        "social-links-row",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affiliate-social-legal-footer",
+      "styleFamily": "affiliate-system-card",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 9,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 4
+      }
+    },
+    {
+      "category": "X_AffSystem",
+      "mailId": "password-retrieving-affiliate",
+      "folder": "mail-password-retrieving-affiliate",
+      "familyKey": "password-retrieving",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "social-links-row",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affiliate-social-legal-footer",
+      "styleFamily": "affiliate-system-card",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 12,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 8
+      }
+    },
+    {
+      "category": "X_AffSystem",
+      "mailId": "payment-activation-affiliate",
+      "folder": "mail-payment-activation-affiliate",
+      "familyKey": "payment-activation",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "social-links-row",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affstore-legal-footer",
+      "styleFamily": "affiliate-system-card",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 12,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 8
+      }
+    },
+    {
+      "category": "X_AffSystem",
+      "mailId": "verification-reminder-affiliate",
+      "folder": "mail-verification-reminder-affiliate",
+      "familyKey": "verification-reminder",
+      "visibleVariant": "",
+      "structureSignature": "image>feature-list>cta>text>footer>footer",
+      "sectionKinds": [
+        "image",
+        "feature-list",
+        "cta",
+        "text",
+        "footer",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "bullet-proof-list-card",
+        "single-button-cta-card",
+        "plain-copy-text-card",
+        "social-links-row",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "bullet-list",
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affiliate-social-legal-footer",
+      "styleFamily": "affiliate-system-card",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 5,
+        "imageCount": 4
+      }
+    },
+    {
+      "category": "X_CasaTradeAffiliate",
+      "mailId": "2nd-Newsletter",
+      "folder": "mail-2nd-Newsletter",
+      "familyKey": "2nd-newsletter",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer>feature-list",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer",
+        "feature-list"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer",
+        "three-promo-column-row"
+      ],
+      "layoutTraits": [
+        "3-column",
+        "callout-box",
+        "legal-footer",
+        "logo-row",
+        "single-cta"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": true,
+        "hasFramedCard": false,
+        "columnCount": 3,
+        "ctaButtonCount": 5,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 10
+      }
+    },
+    {
+      "category": "X_CasaTradeAffiliate",
+      "mailId": "2nd-Newsletter 2",
+      "folder": "mail-2nd-Newsletter 2",
+      "familyKey": "2nd-newsletter 2",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer>feature-list",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer",
+        "feature-list"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer",
+        "three-promo-column-row"
+      ],
+      "layoutTraits": [
+        "3-column",
+        "callout-box",
+        "legal-footer",
+        "logo-row",
+        "single-cta"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": true,
+        "hasFramedCard": false,
+        "columnCount": 3,
+        "ctaButtonCount": 5,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 10
+      }
+    },
+    {
+      "category": "X_CasaTradeAffiliate",
+      "mailId": "Contest",
+      "folder": "mail-Contest",
+      "familyKey": "contest",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 4,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 6
+      }
+    },
+    {
+      "category": "X_CasaTradeAffiliate",
+      "mailId": "First-Contest",
+      "folder": "mail-First-Contest",
+      "familyKey": "first-contest",
+      "visibleVariant": "",
+      "structureSignature": "image>text>feature-list>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "feature-list",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "three-promo-column-row",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "3-column",
+        "callout-box",
+        "legal-footer",
+        "logo-row",
+        "single-cta"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": true,
+        "hasFramedCard": false,
+        "columnCount": 3,
+        "ctaButtonCount": 4,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 4
+      }
+    },
+    {
+      "category": "X_Exnova",
+      "mailId": "Short-E-mail",
+      "folder": "mail-Short-E-mail",
+      "familyKey": "short-e",
+      "visibleVariant": "",
+      "structureSignature": "image>text>hero>footer>cta>footer>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "hero",
+        "footer",
+        "cta",
+        "footer",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "dark-banner-cta-block",
+        "social-links-row",
+        "single-button-cta-card",
+        "store-badges-row",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "dark-background",
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "hero-promo-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": true,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 11
+      }
+    },
+    {
+      "category": "X_Exnova",
+      "mailId": "Strategy-bonus_Exnova",
+      "folder": "mail-Strategy-bonus_Exnova",
+      "familyKey": "strategy-bonus_exnova",
+      "visibleVariant": "",
+      "structureSignature": "image>text>footer>footer>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "footer",
+        "footer",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "social-links-row",
+        "store-badges-row",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 21
+      }
+    },
+    {
+      "category": "X_Exnova",
+      "mailId": "Strategy-bonus_Exnova-250825",
+      "folder": "mail-Strategy-bonus_Exnova-250825",
+      "familyKey": "strategy-bonus_exnova",
+      "visibleVariant": "",
+      "structureSignature": "image>text>footer>cta>footer>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "footer",
+        "cta",
+        "footer",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "social-links-row",
+        "single-button-cta-card",
+        "store-badges-row",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 5,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 15
+      }
+    },
+    {
+      "category": "X_Exnova",
+      "mailId": "Strategy-bonus_Exnova-3",
+      "folder": "mail-Strategy-bonus_Exnova-3",
+      "familyKey": "strategy-bonus_exnova",
+      "visibleVariant": "",
+      "structureSignature": "image>text>footer>footer>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "footer",
+        "footer",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "social-links-row",
+        "store-badges-row",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "bullet-list",
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 13,
+        "imageCount": 17
+      }
+    },
+    {
+      "category": "X_Exnova",
+      "mailId": "sus-geo",
+      "folder": "mail-sus-geo",
+      "familyKey": "sus-geo",
+      "visibleVariant": "",
+      "structureSignature": "image>text>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 0,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 1
+      }
+    },
+    {
+      "category": "X_Exnova",
+      "mailId": "suspicious-geo",
+      "folder": "mail-suspicious-geo",
+      "familyKey": "suspicious-geo",
+      "visibleVariant": "",
+      "structureSignature": "image>text>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 0,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 1
+      }
+    },
+    {
+      "category": "X_Exnova",
+      "mailId": "Teaser-1",
+      "folder": "mail-Teaser-1",
+      "familyKey": "teaser-1",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer>footer>footer>hero",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer",
+        "footer",
+        "footer",
+        "hero"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer",
+        "social-links-row",
+        "store-badges-row",
+        "hero-image-block"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "hero-promo-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 5,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 8
+      }
+    },
+    {
+      "category": "X_Exnova",
+      "mailId": "Teaser-2",
+      "folder": "mail-Teaser-2",
+      "familyKey": "teaser-2",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer>footer>footer>hero",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer",
+        "footer",
+        "footer",
+        "hero"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer",
+        "social-links-row",
+        "store-badges-row",
+        "hero-image-block"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "hero-promo-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 5,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 8
+      }
+    },
+    {
+      "category": "X_Exnova",
+      "mailId": "Teaser-3",
+      "folder": "mail-Teaser-3",
+      "familyKey": "teaser-3",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer>footer>footer>hero",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer",
+        "footer",
+        "footer",
+        "hero"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer",
+        "social-links-row",
+        "store-badges-row",
+        "hero-image-block"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "hero-promo-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 5,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 8
+      }
+    },
+    {
+      "category": "X_Exnova",
+      "mailId": "Teaser-email-1",
+      "folder": "mail-Teaser-email-1",
+      "familyKey": "teaser-email",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer>footer>footer>hero",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer",
+        "footer",
+        "footer",
+        "hero"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "social-links-row",
+        "legal-unsubscribe-footer",
+        "store-badges-row",
+        "hero-image-block"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "hero-promo-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 9,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 17
+      }
+    },
+    {
+      "category": "X_Exnova",
+      "mailId": "Teaser-email-2",
+      "folder": "mail-Teaser-email-2",
+      "familyKey": "teaser-email",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer>footer>footer>hero",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer",
+        "footer",
+        "footer",
+        "hero"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "social-links-row",
+        "legal-unsubscribe-footer",
+        "store-badges-row",
+        "hero-image-block"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "hero-promo-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 9,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 17
+      }
+    },
+    {
+      "category": "X_Exnova",
+      "mailId": "Teaser-email-4",
+      "folder": "mail-Teaser-email-4",
+      "familyKey": "teaser-email",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer>footer>footer>hero",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer",
+        "footer",
+        "footer",
+        "hero"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "social-links-row",
+        "legal-unsubscribe-footer",
+        "store-badges-row",
+        "hero-image-block"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "hero-promo-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 9,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 14
+      }
+    },
+    {
+      "category": "X_Exnova",
+      "mailId": "Teaser-email-5",
+      "folder": "mail-Teaser-email-5",
+      "familyKey": "teaser-email",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer>footer>footer>hero",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer",
+        "footer",
+        "footer",
+        "hero"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer",
+        "social-links-row",
+        "store-badges-row",
+        "hero-image-block"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "hero-promo-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 5,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 8
+      }
+    },
+    {
+      "category": "X_Exnova",
+      "mailId": "Telegram-signals",
+      "folder": "mail-Telegram-signals",
+      "familyKey": "telegram-signals",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "social-links-row",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "exnova-legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 9,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 14
+      }
+    },
+    {
+      "category": "X_Exnova",
+      "mailId": "ton",
+      "folder": "mail-ton",
+      "familyKey": "ton",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer>footer>footer>hero",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer",
+        "footer",
+        "footer",
+        "hero"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer",
+        "social-links-row",
+        "store-badges-row",
+        "hero-image-block"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "hero-promo-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 9,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 9
+      }
+    },
+    {
+      "category": "X_Exnova",
+      "mailId": "tournament",
+      "folder": "mail-tournament",
+      "familyKey": "tournament",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "hero-promo-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 16
+      }
+    },
+    {
+      "category": "X_Exnova",
+      "mailId": "Trade-on-weekend",
+      "folder": "mail-Trade-on-weekend",
+      "familyKey": "trade-on",
+      "visibleVariant": "",
+      "structureSignature": "image>text>footer>footer>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "footer",
+        "footer",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 5,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 13
+      }
+    },
+    {
+      "category": "X_Exnova",
+      "mailId": "Trade-on-weekend-B",
+      "folder": "mail-Trade-on-weekend-B",
+      "familyKey": "trade-on-weekend",
+      "visibleVariant": "",
+      "structureSignature": "image>text>footer>footer>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "footer",
+        "footer",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 5,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 13
+      }
+    },
+    {
+      "category": "X_Exnova",
+      "mailId": "trade-rush",
+      "folder": "mail-trade-rush",
+      "familyKey": "trade-rush",
+      "visibleVariant": "",
+      "structureSignature": "image>text>feature-list>footer>footer>footer>cta",
+      "sectionKinds": [
+        "image",
+        "text",
+        "feature-list",
+        "footer",
+        "footer",
+        "footer",
+        "cta"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "numbered-feature-stack",
+        "legal-unsubscribe-footer",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card"
+      ],
+      "layoutTraits": [
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "numbered-content",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 7,
+        "numberedCount": 1,
+        "bulletCount": 0,
+        "imageCount": 17
+      }
+    },
+    {
+      "category": "X_Exnova",
+      "mailId": "trade-rush-2",
+      "folder": "mail-trade-rush-2",
+      "familyKey": "trade-rush",
+      "visibleVariant": "",
+      "structureSignature": "image>text>footer>footer>footer>cta",
+      "sectionKinds": [
+        "image",
+        "text",
+        "footer",
+        "footer",
+        "footer",
+        "cta"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "legal-unsubscribe-footer",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card"
+      ],
+      "layoutTraits": [
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 5,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 18
+      }
+    },
+    {
+      "category": "X_Exnova",
+      "mailId": "Trading-Challenge",
+      "folder": "mail-Trading-Challenge",
+      "familyKey": "trading-challenge",
+      "visibleVariant": "",
+      "structureSignature": "image>text>feature-list>footer>footer>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "feature-list",
+        "footer",
+        "footer",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "numbered-feature-stack",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "numbered-content",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 5,
+        "numberedCount": 5,
+        "bulletCount": 0,
+        "imageCount": 13
+      }
+    },
+    {
+      "category": "X_IQ",
+      "mailId": "rfm-311",
+      "folder": "mail-rfm-311",
+      "familyKey": "rfm",
+      "visibleVariant": "3-1-1",
+      "structureSignature": "image>hero>feature-list>cta>footer>footer>cta>cta>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "hero",
+        "feature-list",
+        "cta",
+        "footer",
+        "footer",
+        "cta",
+        "cta",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [
+        "cta-switch-table",
+        "cta-two-column-table",
+        "vml-bg",
+        "vml-bg-fixed"
+      ],
+      "blockIds": [
+        "header-logo-row",
+        "hero-image-two-cta",
+        "numbered-feature-stack",
+        "switch-cta-row",
+        "store-badges-row",
+        "social-links-row",
+        "vml-bottom-hero",
+        "vml-bottom-hero-fixed",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "2-column",
+        "background-image",
+        "legal-footer",
+        "logo-row",
+        "multi-cta",
+        "numbered-content",
+        "social-row",
+        "store-badges",
+        "switch-cta",
+        "two-column-cta",
+        "vml-background",
+        "vml-background-fixed"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "promo-rfm-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 2,
+        "ctaButtonCount": 20,
+        "numberedCount": 5,
+        "bulletCount": 0,
+        "imageCount": 35
+      }
+    },
+    {
+      "category": "X_IQ",
+      "mailId": "rfm-312",
+      "folder": "mail-rfm-312",
+      "familyKey": "rfm",
+      "visibleVariant": "3-1-2",
+      "structureSignature": "image>feature-list>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "feature-list",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "numbered-feature-stack",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "legal-footer",
+        "logo-row",
+        "numbered-content",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "promo-rfm-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 3,
+        "bulletCount": 0,
+        "imageCount": 18
+      }
+    },
+    {
+      "category": "X_IQ",
+      "mailId": "rfm-313",
+      "folder": "mail-rfm-313",
+      "familyKey": "rfm",
+      "visibleVariant": "3-1-3",
+      "structureSignature": "image>feature-list>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "feature-list",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "numbered-feature-stack",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "bullet-list",
+        "legal-footer",
+        "logo-row",
+        "numbered-content",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "promo-rfm-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 3,
+        "bulletCount": 10,
+        "imageCount": 11
+      }
+    },
+    {
+      "category": "X_IQ",
+      "mailId": "rfm-314",
+      "folder": "mail-rfm-314",
+      "familyKey": "rfm",
+      "visibleVariant": "3-1-4",
+      "structureSignature": "image>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "bullet-list",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "promo-rfm-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 7,
+        "numberedCount": 0,
+        "bulletCount": 3,
+        "imageCount": 13
+      }
+    },
+    {
+      "category": "X_IQ",
+      "mailId": "rfm-321",
+      "folder": "mail-rfm-321",
+      "familyKey": "rfm",
+      "visibleVariant": "3-2-1",
+      "structureSignature": "image>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "promo-rfm-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 5,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 10
+      }
+    },
+    {
+      "category": "X_IQ",
+      "mailId": "rfm-322",
+      "folder": "mail-rfm-322",
+      "familyKey": "rfm",
+      "visibleVariant": "3-2-2",
+      "structureSignature": "image>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "promo-rfm-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 19
+      }
+    },
+    {
+      "category": "X_IQ",
+      "mailId": "rfm-323",
+      "folder": "mail-rfm-323",
+      "familyKey": "rfm",
+      "visibleVariant": "3-2-3",
+      "structureSignature": "image>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "bullet-list",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "promo-rfm-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 5,
+        "numberedCount": 0,
+        "bulletCount": 5,
+        "imageCount": 12
+      }
+    },
+    {
+      "category": "X_IQ",
+      "mailId": "rfm-324",
+      "folder": "mail-rfm-324",
+      "familyKey": "rfm",
+      "visibleVariant": "3-2-4",
+      "structureSignature": "image>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "promo-rfm-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 17
+      }
+    },
+    {
+      "category": "X_IQ",
+      "mailId": "rfm-331",
+      "folder": "mail-rfm-331",
+      "familyKey": "rfm",
+      "visibleVariant": "3-3-1",
+      "structureSignature": "image>feature-list>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "feature-list",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "numbered-feature-stack",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "legal-footer",
+        "logo-row",
+        "numbered-content",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "promo-rfm-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 16,
+        "numberedCount": 8,
+        "bulletCount": 0,
+        "imageCount": 28
+      }
+    },
+    {
+      "category": "X_IQ",
+      "mailId": "rfm-332",
+      "folder": "mail-rfm-332",
+      "familyKey": "rfm",
+      "visibleVariant": "3-3-2",
+      "structureSignature": "image>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "promo-rfm-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 5,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 14
+      }
+    },
+    {
+      "category": "X_IQ",
+      "mailId": "rfm-333",
+      "folder": "mail-rfm-333",
+      "familyKey": "rfm",
+      "visibleVariant": "3-3-3",
+      "structureSignature": "image>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "promo-rfm-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 4,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 14
+      }
+    },
+    {
+      "category": "X_IQ",
+      "mailId": "rfm-334",
+      "folder": "mail-rfm-334",
+      "familyKey": "rfm",
+      "visibleVariant": "3-3-4",
+      "structureSignature": "image>feature-list>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "feature-list",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "numbered-feature-stack",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "bullet-list",
+        "legal-footer",
+        "logo-row",
+        "numbered-content",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "promo-rfm-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 5,
+        "numberedCount": 3,
+        "bulletCount": 10,
+        "imageCount": 11
+      }
+    },
+    {
+      "category": "X_IQBroker",
+      "mailId": "15-days-general-termination",
+      "folder": "mail-15-days-general-termination",
+      "familyKey": "15-days-general",
+      "visibleVariant": "",
+      "structureSignature": "image>text>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "legal-footer",
+        "logo-row",
+        "single-column"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 0,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 1
+      }
+    },
+    {
+      "category": "X_IQBroker",
+      "mailId": "blacklisted-chargeback-termination",
+      "folder": "mail-blacklisted-chargeback-termination",
+      "familyKey": "blacklisted-chargeback",
+      "visibleVariant": "",
+      "structureSignature": "image>text>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "legal-footer",
+        "logo-row",
+        "single-column"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 0,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 1
+      }
+    },
+    {
+      "category": "X_IQBroker",
+      "mailId": "blacklisted-general-termination",
+      "folder": "mail-blacklisted-general-termination",
+      "familyKey": "blacklisted-general",
+      "visibleVariant": "",
+      "structureSignature": "image>text>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "legal-footer",
+        "logo-row",
+        "single-column"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 0,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 1
+      }
+    },
+    {
+      "category": "X_IQBroker",
+      "mailId": "epq_update",
+      "folder": "mail-epq_update",
+      "familyKey": "epq_update",
+      "visibleVariant": "",
+      "structureSignature": "image>cta>footer",
+      "sectionKinds": [
+        "image",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 3,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 1
+      }
+    },
+    {
+      "category": "X_IQBroker",
+      "mailId": "FAQ",
+      "folder": "mail-FAQ",
+      "familyKey": "faq",
+      "visibleVariant": "",
+      "structureSignature": "image>footer>footer>cta>footer",
+      "sectionKinds": [
+        "image",
+        "footer",
+        "footer",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "bullet-list",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 5,
+        "numberedCount": 0,
+        "bulletCount": 10,
+        "imageCount": 22
+      }
+    },
+    {
+      "category": "X_IQBroker",
+      "mailId": "fraud-front-running-termination",
+      "folder": "mail-fraud-front-running-termination",
+      "familyKey": "fraud-front-running",
+      "visibleVariant": "",
+      "structureSignature": "image>text>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "legal-footer",
+        "logo-row",
+        "single-column"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 0,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 1
+      }
+    },
+    {
+      "category": "X_IQBroker",
+      "mailId": "fraud-high-frequency-trading-termination",
+      "folder": "mail-fraud-high-frequency-trading-termination",
+      "familyKey": "fraud-high-frequency",
+      "visibleVariant": "",
+      "structureSignature": "image>text>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "legal-footer",
+        "logo-row",
+        "single-column"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 0,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 1
+      }
+    },
+    {
+      "category": "X_IQBroker",
+      "mailId": "fraud-scheme-termination",
+      "folder": "mail-fraud-scheme-termination",
+      "familyKey": "fraud-scheme",
+      "visibleVariant": "",
+      "structureSignature": "image>text>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "legal-footer",
+        "logo-row",
+        "single-column"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 0,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 1
+      }
+    },
+    {
+      "category": "X_IQBroker",
+      "mailId": "fraud-termination",
+      "folder": "mail-fraud-termination",
+      "familyKey": "fraud-termination",
+      "visibleVariant": "",
+      "structureSignature": "image>text>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "legal-footer",
+        "logo-row",
+        "single-column"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 0,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 1
+      }
+    },
+    {
+      "category": "X_IQBroker",
+      "mailId": "multiple-account-termination",
+      "folder": "mail-multiple-account-termination",
+      "familyKey": "multiple-account",
+      "visibleVariant": "",
+      "structureSignature": "image>text>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "legal-footer",
+        "logo-row",
+        "single-column"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 0,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 1
+      }
+    },
+    {
+      "category": "X_IQBroker",
+      "mailId": "payment-verification-request-ewallet",
+      "folder": "mail-payment-verification-request-ewallet",
+      "familyKey": "payment-verification-request",
+      "visibleVariant": "",
+      "structureSignature": "image>footer",
+      "sectionKinds": [
+        "image",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "bullet-list",
+        "legal-footer",
+        "logo-row",
+        "single-column"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 0,
+        "numberedCount": 0,
+        "bulletCount": 1,
+        "imageCount": 1
+      }
+    },
+    {
+      "category": "X_IQBroker",
+      "mailId": "payment-verification-request-nequi",
+      "folder": "mail-payment-verification-request-nequi",
+      "familyKey": "payment-verification-request",
+      "visibleVariant": "",
+      "structureSignature": "image>footer",
+      "sectionKinds": [
+        "image",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "bullet-list",
+        "legal-footer",
+        "logo-row",
+        "single-column"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 0,
+        "numberedCount": 0,
+        "bulletCount": 2,
+        "imageCount": 1
+      }
+    },
+    {
+      "category": "X_IQBroker",
+      "mailId": "payment-verification-request-pix",
+      "folder": "mail-payment-verification-request-pix",
+      "familyKey": "payment-verification-request",
+      "visibleVariant": "",
+      "structureSignature": "image>footer",
+      "sectionKinds": [
+        "image",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "bullet-list",
+        "legal-footer",
+        "logo-row",
+        "single-column"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 0,
+        "numberedCount": 0,
+        "bulletCount": 1,
+        "imageCount": 1
+      }
+    },
+    {
+      "category": "X_IQBroker",
+      "mailId": "payment-verification-request-pop",
+      "folder": "mail-payment-verification-request-pop",
+      "familyKey": "payment-verification-request",
+      "visibleVariant": "",
+      "structureSignature": "image>footer",
+      "sectionKinds": [
+        "image",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "bullet-list",
+        "legal-footer",
+        "logo-row",
+        "single-column"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 0,
+        "numberedCount": 0,
+        "bulletCount": 2,
+        "imageCount": 2
+      }
+    },
+    {
+      "category": "X_IQBroker",
+      "mailId": "payment-verification-request-selfie",
+      "folder": "mail-payment-verification-request-selfie",
+      "familyKey": "payment-verification-request",
+      "visibleVariant": "",
+      "structureSignature": "image>footer",
+      "sectionKinds": [
+        "image",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "bullet-list",
+        "legal-footer",
+        "logo-row",
+        "single-column"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 0,
+        "numberedCount": 0,
+        "bulletCount": 1,
+        "imageCount": 1
+      }
+    },
+    {
+      "category": "X_IQBroker",
+      "mailId": "restricted-country-termination",
+      "folder": "mail-restricted-country-termination",
+      "familyKey": "restricted-country",
+      "visibleVariant": "",
+      "structureSignature": "image>text>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "legal-footer",
+        "logo-row",
+        "single-column"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 0,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 1
+      }
+    },
+    {
+      "category": "X_IQBroker",
+      "mailId": "s-confirm",
+      "folder": "mail-s-confirm",
+      "familyKey": "s-confirm",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 3,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 1
+      }
+    },
+    {
+      "category": "X_IQBroker",
+      "mailId": "strategies",
+      "folder": "mail-strategies",
+      "familyKey": "strategies",
+      "visibleVariant": "",
+      "structureSignature": "image>footer>footer>cta>footer",
+      "sectionKinds": [
+        "image",
+        "footer",
+        "footer",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "bullet-list",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 7,
+        "numberedCount": 0,
+        "bulletCount": 8,
+        "imageCount": 14
+      }
+    },
+    {
+      "category": "X_IQBroker",
+      "mailId": "success",
+      "folder": "mail-success",
+      "familyKey": "success",
+      "visibleVariant": "",
+      "structureSignature": "image>footer>footer>cta>footer",
+      "sectionKinds": [
+        "image",
+        "footer",
+        "footer",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 5,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 10
+      }
+    },
+    {
+      "category": "X_IQBroker",
+      "mailId": "tools",
+      "folder": "mail-tools",
+      "familyKey": "tools",
+      "visibleVariant": "",
+      "structureSignature": "image>footer>footer>cta>footer",
+      "sectionKinds": [
+        "image",
+        "footer",
+        "footer",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 9,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 18
+      }
+    },
+    {
+      "category": "X_IQBroker",
+      "mailId": "welcome",
+      "folder": "mail-welcome",
+      "familyKey": "welcome",
+      "visibleVariant": "",
+      "structureSignature": "image>feature-list>footer>footer>cta>footer",
+      "sectionKinds": [
+        "image",
+        "feature-list",
+        "footer",
+        "footer",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "numbered-feature-stack",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "legal-footer",
+        "logo-row",
+        "numbered-content",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 14,
+        "numberedCount": 5,
+        "bulletCount": 0,
+        "imageCount": 21
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "Post-IGB-party-email",
+      "folder": "mail-Post-IGB-party-email",
+      "familyKey": "post-igb-party",
+      "visibleVariant": "",
+      "structureSignature": "image>hero>text>cta>footer>footer",
+      "sectionKinds": [
+        "image",
+        "hero",
+        "text",
+        "cta",
+        "footer",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "hero-image-block",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "social-links-row",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affstore-legal-footer",
+      "styleFamily": "x-new-simple-system-card",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 9,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 7
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "postback-101",
+      "folder": "mail-postback-101",
+      "familyKey": "postback-101",
+      "visibleVariant": "",
+      "structureSignature": "image>hero>text>footer>feature-list>cta>footer",
+      "sectionKinds": [
+        "image",
+        "hero",
+        "text",
+        "footer",
+        "feature-list",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "hero-image-block",
+        "plain-copy-text-card",
+        "social-links-row",
+        "bullet-proof-list-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "bullet-list",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affstore-legal-footer",
+      "styleFamily": "promo-rfm-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 3,
+        "imageCount": 10
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "PWA",
+      "folder": "mail-PWA",
+      "familyKey": "pwa",
+      "visibleVariant": "",
+      "structureSignature": "image>hero>text>cta>footer>footer",
+      "sectionKinds": [
+        "image",
+        "hero",
+        "text",
+        "cta",
+        "footer",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "hero-image-block",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "social-links-row",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affstore-legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 9,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 7
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "PWA-2",
+      "folder": "mail-PWA-2",
+      "familyKey": "pwa-2",
+      "visibleVariant": "",
+      "structureSignature": "image>hero>text>cta>footer>footer",
+      "sectionKinds": [
+        "image",
+        "hero",
+        "text",
+        "cta",
+        "footer",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "hero-image-block",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "social-links-row",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affstore-legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 9,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 7
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "QCM-Offer",
+      "folder": "mail-QCM-Offer",
+      "familyKey": "qcm-offer",
+      "visibleVariant": "",
+      "structureSignature": "image>cta>text>footer>footer",
+      "sectionKinds": [
+        "image",
+        "cta",
+        "text",
+        "footer",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "single-button-cta-card",
+        "plain-copy-text-card",
+        "social-links-row",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affstore-legal-footer",
+      "styleFamily": "x-new-simple-system-card",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 8
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "QCM-Offer-2",
+      "folder": "mail-QCM-Offer-2",
+      "familyKey": "qcm-offer",
+      "visibleVariant": "",
+      "structureSignature": "image>hero>text>footer>feature-list>cta>footer",
+      "sectionKinds": [
+        "image",
+        "hero",
+        "text",
+        "footer",
+        "feature-list",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "hero-image-block",
+        "plain-copy-text-card",
+        "social-links-row",
+        "bullet-proof-list-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "bullet-list",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affstore-legal-footer",
+      "styleFamily": "promo-rfm-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 9,
+        "numberedCount": 0,
+        "bulletCount": 4,
+        "imageCount": 20
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "Raffle-Exnova",
+      "folder": "mail-Raffle-Exnova",
+      "familyKey": "raffle-exnova",
+      "visibleVariant": "",
+      "structureSignature": "image>hero>text>footer>cta>footer",
+      "sectionKinds": [
+        "image",
+        "hero",
+        "text",
+        "footer",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "hero-image-block",
+        "plain-copy-text-card",
+        "social-links-row",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affstore-legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 4,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 18
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "Rate-change",
+      "folder": "mail-Rate-change",
+      "familyKey": "rate-change",
+      "visibleVariant": "",
+      "structureSignature": "image>cta>text>footer>footer",
+      "sectionKinds": [
+        "image",
+        "cta",
+        "text",
+        "footer",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "single-button-cta-card",
+        "plain-copy-text-card",
+        "social-links-row",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affstore-legal-footer",
+      "styleFamily": "x-new-simple-system-card",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 4
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "recap-2025",
+      "folder": "mail-recap-2025",
+      "familyKey": "recap-2025",
+      "visibleVariant": "",
+      "structureSignature": "image>hero>text>footer>cta>footer",
+      "sectionKinds": [
+        "image",
+        "hero",
+        "text",
+        "footer",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "hero-image-block",
+        "plain-copy-text-card",
+        "social-links-row",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affstore-legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 4,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 13
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "registration-affstore",
+      "folder": "mail-registration-affstore",
+      "familyKey": "registration-affstore",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "social-links-row",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affstore-legal-footer",
+      "styleFamily": "x-new-simple-system-card",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 7
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "rfm-311",
+      "folder": "mail-rfm-311",
+      "familyKey": "rfm",
+      "visibleVariant": "3-1-1",
+      "structureSignature": "image>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "promo-rfm-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 12
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "rfm-312",
+      "folder": "mail-rfm-312",
+      "familyKey": "rfm",
+      "visibleVariant": "3-1-2",
+      "structureSignature": "image>feature-list>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "feature-list",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "numbered-feature-stack",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "legal-footer",
+        "logo-row",
+        "numbered-content",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "promo-rfm-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 3,
+        "bulletCount": 0,
+        "imageCount": 18
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "rfm-313",
+      "folder": "mail-rfm-313",
+      "familyKey": "rfm",
+      "visibleVariant": "3-1-3",
+      "structureSignature": "image>feature-list>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "feature-list",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "numbered-feature-stack",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "bullet-list",
+        "legal-footer",
+        "logo-row",
+        "numbered-content",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "promo-rfm-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 3,
+        "bulletCount": 10,
+        "imageCount": 11
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "rfm-314",
+      "folder": "mail-rfm-314",
+      "familyKey": "rfm",
+      "visibleVariant": "3-1-4",
+      "structureSignature": "image>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "bullet-list",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "promo-rfm-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 7,
+        "numberedCount": 0,
+        "bulletCount": 3,
+        "imageCount": 13
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "rfm-321",
+      "folder": "mail-rfm-321",
+      "familyKey": "rfm",
+      "visibleVariant": "3-2-1",
+      "structureSignature": "image>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "promo-rfm-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 5,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 10
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "rfm-322",
+      "folder": "mail-rfm-322",
+      "familyKey": "rfm",
+      "visibleVariant": "3-2-2",
+      "structureSignature": "image>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "promo-rfm-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 19
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "rfm-323",
+      "folder": "mail-rfm-323",
+      "familyKey": "rfm",
+      "visibleVariant": "3-2-3",
+      "structureSignature": "image>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "bullet-list",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "promo-rfm-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 5,
+        "numberedCount": 0,
+        "bulletCount": 5,
+        "imageCount": 12
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "rfm-324",
+      "folder": "mail-rfm-324",
+      "familyKey": "rfm",
+      "visibleVariant": "3-2-4",
+      "structureSignature": "image>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "promo-rfm-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 17
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "rfm-331",
+      "folder": "mail-rfm-331",
+      "familyKey": "rfm",
+      "visibleVariant": "3-3-1",
+      "structureSignature": "image>feature-list>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "feature-list",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "numbered-feature-stack",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "legal-footer",
+        "logo-row",
+        "numbered-content",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "promo-rfm-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 8,
+        "numberedCount": 4,
+        "bulletCount": 0,
+        "imageCount": 14
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "rfm-332",
+      "folder": "mail-rfm-332",
+      "familyKey": "rfm",
+      "visibleVariant": "3-3-2",
+      "structureSignature": "image>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "promo-rfm-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 5,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 14
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "rfm-333",
+      "folder": "mail-rfm-333",
+      "familyKey": "rfm",
+      "visibleVariant": "3-3-3",
+      "structureSignature": "image>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "promo-rfm-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 4,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 14
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "rfm-334",
+      "folder": "mail-rfm-334",
+      "familyKey": "rfm",
+      "visibleVariant": "3-3-4",
+      "structureSignature": "image>feature-list>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "feature-list",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "numbered-feature-stack",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "bullet-list",
+        "legal-footer",
+        "logo-row",
+        "numbered-content",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "promo-rfm-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 5,
+        "numberedCount": 3,
+        "bulletCount": 10,
+        "imageCount": 11
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "RFM-dep",
+      "folder": "mail-RFM-dep",
+      "familyKey": "rfm-dep",
+      "visibleVariant": "",
+      "structureSignature": "image>text>footer>footer>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "footer",
+        "footer",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 4,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 8
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "rfm-segmentation-2-125",
+      "folder": "mail-rfm-segmentation-2-125",
+      "familyKey": "rfm-segmentation-2",
+      "visibleVariant": "",
+      "structureSignature": "image>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "bullet-list",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "hero-promo-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 5,
+        "numberedCount": 0,
+        "bulletCount": 3,
+        "imageCount": 12
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "rfm-segmentation-2-133",
+      "folder": "mail-rfm-segmentation-2-133",
+      "familyKey": "rfm-segmentation-2",
+      "visibleVariant": "",
+      "structureSignature": "image>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "bullet-list",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "hero-promo-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 4,
+        "imageCount": 11
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "rfm-segmentation-2-134",
+      "folder": "mail-rfm-segmentation-2-134",
+      "familyKey": "rfm-segmentation-2",
+      "visibleVariant": "",
+      "structureSignature": "image>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "bullet-list",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "hero-promo-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 3,
+        "imageCount": 12
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "rfm-segmentation-2-135",
+      "folder": "mail-rfm-segmentation-2-135",
+      "familyKey": "rfm-segmentation-2",
+      "visibleVariant": "",
+      "structureSignature": "image>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "hero-promo-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 5,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 15
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "rfm-segmentation-2-211",
+      "folder": "mail-rfm-segmentation-2-211",
+      "familyKey": "rfm-segmentation-2",
+      "visibleVariant": "",
+      "structureSignature": "image>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "hero-promo-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 8,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 13
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "rfm-segmentation-2-212",
+      "folder": "mail-rfm-segmentation-2-212",
+      "familyKey": "rfm-segmentation-2",
+      "visibleVariant": "",
+      "structureSignature": "image>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "bullet-list",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "hero-promo-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 6,
+        "imageCount": 13
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "rfm-segmentation-2-213",
+      "folder": "mail-rfm-segmentation-2-213",
+      "familyKey": "rfm-segmentation-2",
+      "visibleVariant": "",
+      "structureSignature": "image>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "hero-promo-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 16
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "rfm-segmentation-2-214",
+      "folder": "mail-rfm-segmentation-2-214",
+      "familyKey": "rfm-segmentation-2",
+      "visibleVariant": "",
+      "structureSignature": "image>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "hero-promo-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 14
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "rfm-segmentation-2-215",
+      "folder": "mail-rfm-segmentation-2-215",
+      "familyKey": "rfm-segmentation-2",
+      "visibleVariant": "",
+      "structureSignature": "image>footer>footer>cta>hero>footer",
+      "sectionKinds": [
+        "image",
+        "footer",
+        "footer",
+        "cta",
+        "hero",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "store-badges-row",
+        "social-links-row",
+        "single-button-cta-card",
+        "hero-image-block",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "background-image",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row",
+        "store-badges"
+      ],
+      "footerFamily": "store-social-legal-footer",
+      "styleFamily": "hero-promo-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": true,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": true,
+        "hasDarkBackground": false,
+        "hasCalloutBox": false,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 5,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 21
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "Risk-warning-061025",
+      "folder": "mail-Risk-warning-061025",
+      "familyKey": "risk-warning",
+      "visibleVariant": "",
+      "structureSignature": "image>cta>text>footer>footer",
+      "sectionKinds": [
+        "image",
+        "cta",
+        "text",
+        "footer",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "single-button-cta-card",
+        "plain-copy-text-card",
+        "social-links-row",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "callout-box",
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affstore-legal-footer",
+      "styleFamily": "x-new-simple-system-card",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": true,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 4
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "Risk-warning-061223",
+      "folder": "mail-Risk-warning-061223",
+      "familyKey": "risk-warning",
+      "visibleVariant": "",
+      "structureSignature": "image>cta>text>footer>footer",
+      "sectionKinds": [
+        "image",
+        "cta",
+        "text",
+        "footer",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "single-button-cta-card",
+        "plain-copy-text-card",
+        "social-links-row",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "callout-box",
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affstore-legal-footer",
+      "styleFamily": "x-new-simple-system-card",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": true,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 4
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "Risk-warning-070923",
+      "folder": "mail-Risk-warning-070923",
+      "familyKey": "risk-warning",
+      "visibleVariant": "",
+      "structureSignature": "image>cta>text>footer>footer",
+      "sectionKinds": [
+        "image",
+        "cta",
+        "text",
+        "footer",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "single-button-cta-card",
+        "plain-copy-text-card",
+        "social-links-row",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "callout-box",
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affstore-legal-footer",
+      "styleFamily": "x-new-simple-system-card",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": true,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 4
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "Risk-warning-compliance-020724",
+      "folder": "mail-Risk-warning-compliance-020724",
+      "familyKey": "risk-warning-compliance",
+      "visibleVariant": "",
+      "structureSignature": "image>cta>text>footer>footer",
+      "sectionKinds": [
+        "image",
+        "cta",
+        "text",
+        "footer",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "single-button-cta-card",
+        "plain-copy-text-card",
+        "social-links-row",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "callout-box",
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affstore-legal-footer",
+      "styleFamily": "x-new-simple-system-card",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": true,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 5
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "Risk-warning-compliance-061025",
+      "folder": "mail-Risk-warning-compliance-061025",
+      "familyKey": "risk-warning-compliance",
+      "visibleVariant": "",
+      "structureSignature": "image>cta>text>footer>footer",
+      "sectionKinds": [
+        "image",
+        "cta",
+        "text",
+        "footer",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "single-button-cta-card",
+        "plain-copy-text-card",
+        "social-links-row",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "callout-box",
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affstore-legal-footer",
+      "styleFamily": "x-new-simple-system-card",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": true,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 5
+      }
+    },
+    {
+      "category": "X_new",
+      "mailId": "Risk-warning-compliance-071024",
+      "folder": "mail-Risk-warning-compliance-071024",
+      "familyKey": "risk-warning-compliance",
+      "visibleVariant": "",
+      "structureSignature": "image>cta>text>footer>footer",
+      "sectionKinds": [
+        "image",
+        "cta",
+        "text",
+        "footer",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "single-button-cta-card",
+        "plain-copy-text-card",
+        "social-links-row",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "callout-box",
+        "framed-card",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta",
+        "social-row"
+      ],
+      "footerFamily": "affstore-legal-footer",
+      "styleFamily": "x-new-simple-system-card",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": true,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": true,
+        "hasFramedCard": true,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 5
+      }
+    },
+    {
+      "category": "X_System",
+      "mailId": "annual-investment",
+      "folder": "mail-annual-investment",
+      "familyKey": "annual-investment",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "callout-box",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": true,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 3
+      }
+    },
+    {
+      "category": "X_System",
+      "mailId": "asap",
+      "folder": "mail-asap",
+      "familyKey": "asap",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "callout-box",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": true,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 3
+      }
+    },
+    {
+      "category": "X_System",
+      "mailId": "chinese-manager",
+      "folder": "mail-chinese-manager",
+      "familyKey": "chinese-manager",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "callout-box",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": true,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 3
+      }
+    },
+    {
+      "category": "X_System",
+      "mailId": "crypto",
+      "folder": "mail-crypto",
+      "familyKey": "crypto",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "callout-box",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": true,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 3
+      }
+    },
+    {
+      "category": "X_System",
+      "mailId": "demo-positions",
+      "folder": "mail-demo-positions",
+      "familyKey": "demo-positions",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "callout-box",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": true,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 3
+      }
+    },
+    {
+      "category": "X_System",
+      "mailId": "docs-1-2",
+      "folder": "mail-docs-1-2",
+      "familyKey": "docs-1",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "callout-box",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": true,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 6
+      }
+    },
+    {
+      "category": "X_System",
+      "mailId": "docs-1-3",
+      "folder": "mail-docs-1-3",
+      "familyKey": "docs-1",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "callout-box",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": true,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 3,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 3
+      }
+    },
+    {
+      "category": "X_System",
+      "mailId": "docs-2-3",
+      "folder": "mail-docs-2-3",
+      "familyKey": "docs-2",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "callout-box",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": true,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 3,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 3
+      }
+    },
+    {
+      "category": "X_System",
+      "mailId": "es",
+      "folder": "mail-es",
+      "familyKey": "es",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "callout-box",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": true,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 3
+      }
+    },
+    {
+      "category": "X_System",
+      "mailId": "esma-restrict",
+      "folder": "mail-esma-restrict",
+      "familyKey": "esma-restrict",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "callout-box",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": true,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 3
+      }
+    },
+    {
+      "category": "X_System",
+      "mailId": "gdrp",
+      "folder": "mail-gdrp",
+      "familyKey": "gdrp",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "callout-box",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": true,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 3
+      }
+    },
+    {
+      "category": "X_System",
+      "mailId": "jake",
+      "folder": "mail-jake",
+      "familyKey": "jake",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "callout-box",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": true,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 3,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 3
+      }
+    },
+    {
+      "category": "X_System",
+      "mailId": "net-wealth",
+      "folder": "mail-net-wealth",
+      "familyKey": "net-wealth",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "callout-box",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": true,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 3
+      }
+    },
+    {
+      "category": "X_System",
+      "mailId": "overnight",
+      "folder": "mail-overnight",
+      "familyKey": "overnight",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "callout-box",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": true,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 3
+      }
+    },
+    {
+      "category": "X_System",
+      "mailId": "payment",
+      "folder": "mail-payment",
+      "familyKey": "payment",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "callout-box",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": true,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 12,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 6
+      }
+    },
+    {
+      "category": "X_System",
+      "mailId": "source-of-funds",
+      "folder": "mail-source-of-funds",
+      "familyKey": "source-of",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "callout-box",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": true,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 3
+      }
+    },
+    {
+      "category": "X_System",
+      "mailId": "sowwy",
+      "folder": "mail-sowwy",
+      "familyKey": "sowwy",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "callout-box",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": true,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 3
+      }
+    },
+    {
+      "category": "X_System",
+      "mailId": "terms-change",
+      "folder": "mail-terms-change",
+      "familyKey": "terms-change",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "callout-box",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": true,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 12,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 6
+      }
+    },
+    {
+      "category": "X_System",
+      "mailId": "x1000",
+      "folder": "mail-x1000",
+      "familyKey": "x1000",
+      "visibleVariant": "",
+      "structureSignature": "image>text>cta>footer",
+      "sectionKinds": [
+        "image",
+        "text",
+        "cta",
+        "footer"
+      ],
+      "helperMixins": [],
+      "blockIds": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "layoutTraits": [
+        "callout-box",
+        "legal-footer",
+        "logo-row",
+        "single-column",
+        "single-cta"
+      ],
+      "footerFamily": "legal-footer",
+      "styleFamily": "simple-transactional-layout",
+      "metrics": {
+        "hasLogo": true,
+        "hasStoreBadges": false,
+        "hasSocialRow": false,
+        "hasLegalFooter": true,
+        "hasBackgroundImage": false,
+        "hasDarkBackground": false,
+        "hasCalloutBox": true,
+        "hasFramedCard": false,
+        "columnCount": 1,
+        "ctaButtonCount": 6,
+        "numberedCount": 0,
+        "bulletCount": 0,
+        "imageCount": 3
+      }
+    }
+  ]
+}

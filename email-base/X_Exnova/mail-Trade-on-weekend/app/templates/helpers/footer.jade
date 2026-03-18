@@ -1,0 +1,12 @@
+table.row
+    tr
+        td.pb30
+            table.twelve.columns
+                tr
+                    td.pt0
+                        .mobile-paddding
+                            p.address-text.pb20 {{embedded.risk_warning}}
+                            p.address-text {{embedded.company_address}}
+                            p.subscribe
+                                a.left(href='{{embedded.company_terms_link}}')  ${{ footer.footer.conditions }}$
+                                a.right(href='{{embedded.unsubscribe_link}}')  ${{ footer.footer.unsubscribe }}$

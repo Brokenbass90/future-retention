@@ -1,0 +1,228 @@
+{
+  "updatedAt": "2026-03-14T08:30:00.000Z",
+  "items": [
+    {
+      "id": "x-iq-rfm",
+      "label": "IQ Option RFM",
+      "category": "X_IQ",
+      "brand": "IQ Option",
+      "aliases": ["iq option", "iqoption", "rfm"],
+      "defaultMailId": "rfm-333",
+      "canonicalStructure": ["hero", "feature-list", "text", "cta", "footer"],
+      "blockHints": [
+        "header-logo-row",
+        "numbered-feature-stack",
+        "single-button-cta-card",
+        "store-badges-row",
+        "legal-unsubscribe-footer"
+      ],
+      "notes": "Imported IQ retention family. Use as the primary base for RFM-style promo letters and map screenshot-driven drafts onto these real reference templates before falling back to generic catalog sections.",
+      "variants": [
+        {
+          "mailId": "rfm-331",
+          "visibleVariant": "3-3-1",
+          "label": "RFM 3-3-1",
+          "notes": "Hero plus numbered stack with multiple numbered subsections."
+        },
+        {
+          "mailId": "rfm-332",
+          "visibleVariant": "3-3-2",
+          "label": "RFM 3-3-2",
+          "notes": "Hero, stacked asset cards, bottom CTA and standard footer."
+        },
+        {
+          "mailId": "rfm-333",
+          "visibleVariant": "3-3-3",
+          "label": "RFM 3-3-3",
+          "notes": "Hero, asset-card stack, text/CTA block and footer. Current default closest imported IQ RFM reference."
+        },
+        {
+          "mailId": "rfm-334",
+          "visibleVariant": "3-3-4",
+          "label": "RFM 3-3-4",
+          "notes": "Hero, middle image/text block, numbered gray cards, CTA and footer."
+        }
+      ]
+    },
+    {
+      "id": "x-system-verification",
+      "label": "System Verification",
+      "category": "X_IQBroker",
+      "brand": "IQ Option",
+      "aliases": ["verification", "documents", "passbook", "kyc"],
+      "defaultMailId": "payment-verification-request-pop",
+      "canonicalStructure": ["text", "feature-list", "cta", "footer"],
+      "blockHints": [
+        "plain-copy-text-card",
+        "bullet-proof-list-card",
+        "legal-unsubscribe-footer"
+      ],
+      "notes": "Transactional/system family for document and payment verification flows."
+    },
+    {
+      "id": "x-affsystem-password-reset",
+      "label": "Affiliate Password Reset",
+      "category": "X_AffSystem",
+      "brand": "Affstore",
+      "aliases": ["affiliate", "password reset", "reset password", "affstore"],
+      "defaultMailId": "password-retrieving-affiliate",
+      "canonicalStructure": ["text", "cta", "text", "text", "footer"],
+      "blockHints": [
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "legal-unsubscribe-footer"
+      ],
+      "notes": "Affiliate account/password reset flow with real base structure."
+    },
+    {
+      "id": "x-new-affstore-risk-warning",
+      "label": "Affstore Risk Warning",
+      "category": "X_new",
+      "brand": "Affstore",
+      "aliases": [
+        "affstore",
+        "risk warning",
+        "risk-warning",
+        "risk percentage",
+        "warning percentage",
+        "compliance warning"
+      ],
+      "defaultMailId": "Risk-warning-061223",
+      "matchMailIds": [
+        "Risk-warning-070923",
+        "Risk-warning-061025",
+        "Risk-warning-compliance-020724",
+        "Risk-warning-compliance-071024",
+        "Risk-warning-compliance-061025"
+      ],
+      "matchFamilyKeys": [
+        "risk-warning",
+        "risk-warning-compliance"
+      ],
+      "canonicalStructure": [
+        "text",
+        "feature-list",
+        "cta",
+        "footer"
+      ],
+      "blockHints": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "social-links-row",
+        "legal-unsubscribe-footer"
+      ],
+      "footerFamily": "affstore-legal-footer",
+      "layoutTraits": [
+        "single-column card",
+        "brand logo row",
+        "highlighted callouts",
+        "single cta row",
+        "support and social band"
+      ],
+      "localeNotes": [
+        "Keep RTL compatible for Arabic and Urdu.",
+        "Footer text and legal links usually stay in the same family."
+      ],
+      "styleNotes": "White content card on light gray canvas, lime CTA buttons, centered support/social band and legal footer.",
+      "notes": "Simple/system-style Affstore warning family from X_new. Useful when the user asks for risk or compliance notices on the Affstore visual language.",
+      "variants": [
+        {
+          "mailId": "Risk-warning-061223",
+          "visibleVariant": "06-12-23",
+          "label": "Risk warning 06-12-23",
+          "notes": "Baseline warning layout with classic Affstore social row."
+        },
+        {
+          "mailId": "Risk-warning-compliance-020724",
+          "visibleVariant": "02-07-24 compliance",
+          "label": "Risk warning compliance 02-07-24",
+          "notes": "Compliance variation with updated social set and footer link."
+        }
+      ]
+    },
+    {
+      "id": "x-new-affstore-rate-change",
+      "label": "Affstore Rate Change",
+      "category": "X_new",
+      "brand": "Affstore",
+      "aliases": [
+        "affstore",
+        "rate change",
+        "commission change",
+        "payout change",
+        "partner rate change"
+      ],
+      "defaultMailId": "Rate-change",
+      "matchFamilyKeys": [
+        "rate-change"
+      ],
+      "canonicalStructure": [
+        "text",
+        "cta",
+        "footer"
+      ],
+      "blockHints": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "social-links-row",
+        "legal-unsubscribe-footer"
+      ],
+      "footerFamily": "affstore-legal-footer",
+      "layoutTraits": [
+        "single-column card",
+        "logo row",
+        "single cta",
+        "support and social band"
+      ],
+      "localeNotes": [
+        "Locale-specific legal/footer strings can be swapped without changing the layout."
+      ],
+      "styleNotes": "Affstore simple announcement layout with the same visual skeleton as registration and warning mails.",
+      "notes": "Simple one-column transactional/informational family for rate or commission updates."
+    },
+    {
+      "id": "x-new-affstore-registration",
+      "label": "Affstore Registration",
+      "category": "X_new",
+      "brand": "Affstore",
+      "aliases": [
+        "affstore",
+        "registration",
+        "affiliate registration",
+        "activation link",
+        "welcome affiliate"
+      ],
+      "defaultMailId": "registration-affstore",
+      "matchFamilyKeys": [
+        "registration-affstore"
+      ],
+      "canonicalStructure": [
+        "text",
+        "cta",
+        "text",
+        "footer"
+      ],
+      "blockHints": [
+        "header-logo-row",
+        "plain-copy-text-card",
+        "single-button-cta-card",
+        "social-links-row",
+        "legal-unsubscribe-footer"
+      ],
+      "footerFamily": "affstore-legal-footer",
+      "layoutTraits": [
+        "single-column card",
+        "activation cta",
+        "support line",
+        "support and social band"
+      ],
+      "localeNotes": [
+        "Keep account placeholders intact across locales."
+      ],
+      "styleNotes": "Affstore simple registration/activation layout with a clean card, single button, support line and legal footer.",
+      "notes": "Simple registration and activation family from X_new. Good default for account creation and onboarding notices."
+    }
+  ]
+}

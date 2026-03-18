@@ -4,6 +4,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>retantion future</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" />
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
@@ -11,16 +14,33 @@
       <header class="topbar">
         <div class="brand-lockup">
           <div class="brand-mark">retantion future</div>
+          <p class="brand-caption">AI-студия для сборки писем на вашей email-base.</p>
+          <div class="brand-flow" aria-label="Основной workflow">
+            <span class="flow-pill">1. Figma link или скрин</span>
+            <span class="flow-pill">2. Опиши задачу обычным языком</span>
+            <span class="flow-pill">3. Проверь preview и скопируй HTML</span>
+          </div>
         </div>
-        <div class="topbar-actions">
-          <span class="pill" id="apiStatus">Проверяю API...</span>
-          <span class="pill" id="aiModePill">AI mode</span>
-          <button class="ghost-button" id="loadBaseBtn" type="button">Load base email</button>
-          <button class="ghost-button" id="openRulesBtn" type="button">Rules</button>
-          <button class="ghost-button" id="openJournalBtn" type="button">Journal</button>
-          <button class="ghost-button" id="settingsBtn" type="button">Settings</button>
-          <button class="ghost-button dev-only" id="fillDemoBtn" type="button" hidden>Заполнить демо</button>
-          <button class="ghost-button" id="clearStateBtn" type="button">Очистить</button>
+        <div class="topbar-meta">
+          <div class="status-cluster">
+            <span class="pill" id="apiStatus">Проверяю API...</span>
+            <span class="pill" id="aiModePill">AI mode</span>
+          </div>
+          <div class="topbar-actions">
+            <!-- Primary: Templates (replaces old "Load base email") -->
+            <button class="ghost-button topbar-primary-action" id="openTemplateBrowserBtn" type="button">📂 Templates</button>
+            <!-- Secondary: History + Settings -->
+            <button class="ghost-button utility-button" id="openHistoryBtn" type="button">🕐 История</button>
+            <button class="ghost-button utility-button" id="settingsBtn" type="button">⚙ Settings</button>
+            <!-- Danger: Clear -->
+            <button class="ghost-button utility-button topbar-danger-btn" id="clearStateBtn" type="button" title="Очистить всё состояние">Очистить</button>
+            <!-- Hidden but keep IDs for JS compatibility -->
+            <button id="loadBaseBtn" type="button" hidden></button>
+            <button id="openLessonsBtn" type="button" hidden><span id="lessonsCountBadge" hidden></span></button>
+            <button id="openRulesBtn" type="button" hidden></button>
+            <button id="openJournalBtn" type="button" hidden></button>
+            <button id="fillDemoBtn" type="button" hidden></button>
+          </div>
         </div>
       </header>
 
@@ -42,18 +62,25 @@
             <div class="chat-intake translation-tile" id="translationDropZone">
               <div class="chat-intake-main">
                 <div>
-                  <h3>Вставляй макет, локали и картинки прямо сюда</h3>
+                  <div class="card-kicker">Start here</div>
+                  <h3>Добавь макет и скажи, что собрать</h3>
                 </div>
-                <p>Скрин из Figma можно просто вставить сюда через `Cmd/Ctrl + V`.</p>
+                <p>Минимальный flow: вставь Figma link или просто скрин. Остальное студия должна спросить сама.</p>
+              </div>
+
+              <div class="chat-intake-primary-actions">
+                <button class="ghost-button figma-link-button" id="pasteFigmaLinkBtn" type="button">Paste Figma link</button>
+                <div class="chat-intake-mini-note">Скрин из Figma можно вставить сюда через `Cmd/Ctrl + V`. Если frame приватный: `Share` → `Anyone with the link can view` или `Copy as PNG`.</div>
               </div>
 
               <div class="chat-attachments" id="chatAttachmentsRow">
                 <button class="attachment-pill" id="openLocalesBtn" type="button">Locales: 0</button>
                 <button class="attachment-pill" id="openAssetsBtn" type="button">Assets: 0</button>
                 <button class="attachment-pill" id="openBlocksBtn" type="button">Blocks: 0</button>
+                <button class="attachment-pill" id="openBaseEmailBtn" type="button">📧 Письмо</button>
                 <button class="attachment-pill" id="openCodeBtn" type="button">Code</button>
                 <button class="attachment-pill" id="designBadge" type="button">Design: none</button>
-                <div class="attachment-pill passive" id="translationBadge">Bundle: empty</div>
+                <button class="attachment-pill passive" id="translationBadge" type="button">Bundle: empty</button>
               </div>
 
               <div class="drop-hint" id="translationUploadStatus">
@@ -71,69 +98,42 @@
             <div class="messages" id="messages"></div>
 
             <form class="chat-form" id="chatForm">
-              <label class="field">
-                <span>Сообщение</span>
-                <textarea
-                  id="chatInput"
-                  rows="5"
-                  placeholder="Например: Вставляю скрин дизайна, собери hero и скажи, каких локалей и ссылок еще не хватает."
-                ></textarea>
-              </label>
-              <div class="chat-mode-hint">Вопросы останутся в чате. Команды вроде «добавь 3 колонки» применяются к письму автоматически.</div>
-              <div class="chat-intake-actions chat-intake-actions-inline" id="chatIntakeActions" hidden>
-                <button class="ghost-button" id="attachDesignBtn" type="button">Attach design</button>
-                <button class="ghost-button" id="attachTranslationsBtn" type="button">Attach locales</button>
-                <button class="ghost-button" id="attachTranslationFolderBtn" type="button">Attach locale folder</button>
-                <button class="ghost-button" id="attachAssetsBtn" type="button">Attach images</button>
-              </div>
-              <div class="chat-actions">
-                <button class="ghost-button secondary-button" id="toggleAttachMenuBtn" type="button">Прикрепить</button>
-                <button class="ghost-button secondary-button" id="openContextBtn" type="button">Контекст</button>
-                <button class="primary-button" id="sendBtn" type="submit">Отправить</button>
+              <div class="composer-shell">
+                <label class="field message-field">
+                  <span>Сообщение</span>
+                  <textarea
+                    id="chatInput"
+                    rows="5"
+                    placeholder="Напиши задачу или сразу вставь скрин из Figma (Cmd+V). Можно drag & drop картинку, вставить HTML-код письма, или просто написать что нужно сделать."
+                  ></textarea>
+                </label>
+                <div class="chat-mode-hint">В Figma: правой кнопкой → <strong>Copy/Paste as → Copy as PNG</strong>, затем Cmd+V сюда. HTML письма: вставь код — тулза сама предложит редактирование. Отправить: <strong>Cmd+Enter</strong>.</div>
+                <div class="chat-intake-actions chat-intake-actions-inline" id="chatIntakeActions" hidden>
+                  <button class="ghost-button" id="attachDesignBtn" type="button">Attach design</button>
+                  <button class="ghost-button" id="attachTranslationsBtn" type="button">Attach locales</button>
+                  <button class="ghost-button" id="attachTranslationFolderBtn" type="button">Attach locale folder</button>
+                  <button class="ghost-button" id="attachAssetsBtn" type="button">Attach images</button>
+                </div>
+                <div class="chat-actions">
+                  <button class="ghost-button secondary-button" id="toggleAttachMenuBtn" type="button">Прикрепить</button>
+                  <button class="ghost-button secondary-button" id="openContextBtn" type="button">Опц. поля</button>
+                  <button class="ghost-button secondary-button remember-btn" id="rememberLastBtn" type="button" title="Сохранить последнюю ошибку AI как урок">🧠 Запомни</button>
+                  <button class="primary-button" id="sendBtn" type="submit">Отправить</button>
+                </div>
               </div>
             </form>
           </section>
         </section>
 
-        <section class="panel-stack preview-stack">
-          <section class="card summary-card">
-            <div class="summary-grid">
-              <div class="summary-item">
-                <div class="summary-label">Subject</div>
-                <div class="summary-value" id="subjectValue">Пока пусто</div>
-              </div>
-              <div class="summary-item">
-                <div class="summary-label">Preheader</div>
-                <div class="summary-value" id="preheaderValue">Сгенерируйте первый драфт</div>
-              </div>
-              <div class="summary-item">
-                <div class="summary-label">Locale</div>
-                <div class="summary-value" id="localeValue">-</div>
-              </div>
-              <div class="summary-item">
-                <div class="summary-label">Mode</div>
-                <div class="summary-value" id="modeValue">mock</div>
-              </div>
-              <div class="summary-item">
-                <div class="summary-label">Source</div>
-                <div class="summary-value" id="sourceValue">draft</div>
-              </div>
-            </div>
-            <div class="assistant-note" id="assistantReply">
-              Здесь появится краткое резюме от ассистента после генерации.
-            </div>
-            <div class="workspace-shortcuts">
-              <button class="ghost-button shortcut-button" id="openDesignQuickBtn" type="button">Design</button>
-              <button class="ghost-button shortcut-button" id="openLocalesQuickBtn" type="button">Локали</button>
-              <button class="ghost-button shortcut-button" id="openAssetsQuickBtn" type="button">Картинки</button>
-              <button class="ghost-button shortcut-button" id="openCodeQuickBtn" type="button">Код</button>
-              <button class="ghost-button shortcut-button" id="openTestsQuickBtn" type="button">Тесты</button>
-            </div>
-          </section>
+        <!-- Hidden technical fields kept for JS compatibility -->
+        <span id="modeValue" hidden></span>
+        <span id="sourceValue" hidden></span>
+        <span id="assistantReply" hidden></span>
 
+        <section class="panel-stack preview-stack">
           <section class="card preview-card">
             <div class="card-header">
-              <div>
+              <div class="preview-header-left">
                 <h2>
                   Preview
                   <span class="help-tip" data-tip="Это быстрый просмотр письма. Для реальной проверки по вашей базе используй Load base email и client profile в Settings.">?</span>
@@ -141,21 +141,67 @@
               </div>
               <div class="preview-toolbar">
                 <button class="ghost-button" id="openTestsBtn" type="button">Тесты</button>
-                <button class="ghost-button viewport-button" data-preview-viewport="fit" type="button">Fit</button>
-                <button class="ghost-button viewport-button" data-preview-viewport="desktop" type="button">Desktop</button>
-                <button class="ghost-button viewport-button" data-preview-viewport="mobile" type="button">Mobile</button>
+                <div class="preview-viewport-group">
+                  <button class="ghost-button viewport-button" data-preview-viewport="fit" type="button">Fit</button>
+                  <button class="ghost-button viewport-button" data-preview-viewport="desktop" type="button">Desktop</button>
+                  <button class="ghost-button viewport-button" data-preview-viewport="mobile" type="button">Mobile</button>
+                </div>
+                <button class="ghost-button" id="copyPreviewHtmlBtn" type="button" disabled>Copy HTML</button>
               </div>
+            </div>
+
+            <!-- Compact summary bar — shows subject/preheader once draft exists -->
+            <div class="preview-summary-bar" id="previewSummaryBar">
+              <div class="preview-summary-subject" id="subjectValue">Сгенерируйте первый драфт</div>
+              <div class="preview-summary-meta">
+                <span class="preview-summary-preheader" id="preheaderValue"></span>
+                <span class="preview-summary-chip" id="localeValue"></span>
+                <span class="preview-summary-chip" id="mailIdValue"></span>
+              </div>
+            </div>
+
+            <!-- Image slot panel — appears when draft has assets needing URLs -->
+            <div class="image-slot-panel" id="imageSlotPanel" hidden>
+              <div class="image-slot-panel-header">
+                <span class="image-slot-panel-title">🖼 Нужны ссылки на картинки</span>
+                <button class="image-slot-panel-dismiss" id="dismissImageSlotPanel" type="button" title="Скрыть">✕</button>
+              </div>
+              <div class="image-slot-list" id="imageSlotList"></div>
+            </div>
+
+            <!-- Scaffold context banner — appears when a new mail was cloned and needs copy -->
+            <div class="scaffold-banner" id="scaffoldBanner" hidden>
+              <span class="scaffold-banner-icon">🪄</span>
+              <span class="scaffold-banner-text" id="scaffoldBannerText">Scaffold mode</span>
+              <button class="scaffold-banner-dismiss" id="dismissScaffoldBanner" type="button" title="Сбросить">✕</button>
+            </div>
+
+            <!-- Quick nav shortcuts -->
+            <div class="workspace-shortcuts">
+              <button class="ghost-button shortcut-button" id="openDesignQuickBtn" type="button">Design</button>
+              <button class="ghost-button shortcut-button" id="openLocalesQuickBtn" type="button">Локали</button>
+              <button class="ghost-button shortcut-button" id="openAssetsQuickBtn" type="button">Картинки</button>
+              <button class="ghost-button shortcut-button" id="openCodeQuickBtn" type="button">Код</button>
+              <button class="ghost-button shortcut-button" id="openTestsQuickBtn" type="button">Тесты</button>
+              <button class="ghost-button shortcut-button" id="toggleBlocksBtn" type="button">Blocks</button>
             </div>
             <div class="preview-locale-row" id="previewLocaleRow" hidden>
               <div class="locale-tabs" id="previewLocaleTabs"></div>
-              <button class="ghost-button" id="copyPreviewHtmlBtn" type="button">Копировать HTML</button>
             </div>
             <div class="preview-stage" id="previewStage" data-viewport="fit">
+              <div class="preview-skeleton" id="previewSkeleton" hidden>
+                <div class="preview-skeleton-bar preview-skeleton-bar--header"></div>
+                <div class="preview-skeleton-bar preview-skeleton-bar--hero"></div>
+                <div class="preview-skeleton-bar preview-skeleton-bar--text"></div>
+                <div class="preview-skeleton-bar preview-skeleton-bar--text preview-skeleton-bar--short"></div>
+                <div class="preview-skeleton-bar preview-skeleton-bar--cta"></div>
+                <div class="preview-skeleton-bar preview-skeleton-bar--text preview-skeleton-bar--short"></div>
+              </div>
               <iframe id="previewFrame" title="Email preview"></iframe>
             </div>
           </section>
 
-          <section class="card">
+          <section class="card blocks-catalog-card" id="blocksCatalogSection" hidden>
             <div class="card-header">
               <div>
                 <h2>
@@ -166,6 +212,7 @@
               <div class="card-header-actions">
                 <button class="ghost-button" id="openBlockCandidatesBtn" type="button">Block candidates</button>
                 <button class="ghost-button" id="refreshCatalogBtn" type="button">Refresh catalog</button>
+                <button class="ghost-button" id="hideBlocksBtn" type="button">Скрыть ↑</button>
               </div>
             </div>
             <div class="block-catalog-summary" id="blockCatalogSummary"></div>
@@ -210,6 +257,16 @@
         </section>
 
         <section class="settings-section">
+          <h3>Figma intake</h3>
+          <div class="settings-info" id="figmaRuntimeInfo"></div>
+          <div class="settings-info" style="margin-top:6px;font-size:12px;color:rgba(255,255,255,.4);line-height:1.5">
+            Чтобы подключить приватный файл и нарезать фреймы:<br>
+            Figma → Settings → Personal access tokens → Create new token<br>
+            Вставь токен в <code>.env</code> → <code>FIGMA_API_TOKEN=figd_…</code> → перезапусти сервер.
+          </div>
+        </section>
+
+        <section class="settings-section">
           <h3>Email client testing</h3>
           <label class="field">
             <span>Preview client profile</span>
@@ -230,9 +287,13 @@
         </section>
 
         <section class="settings-section">
-          <h3>Studio journal</h3>
+          <h3>Studio tools</h3>
+          <div class="settings-tools-row">
+            <button class="ghost-button settings-build-button" id="openJournalFromSettingsBtn" type="button">📋 Journal</button>
+            <button class="ghost-button settings-build-button" id="openRulesFromSettingsBtn" type="button">📏 Rules</button>
+            <button class="ghost-button settings-build-button" id="openLessonsFromSettingsBtn" type="button">🧠 Lessons <span class="lessons-count-badge" id="lessonsCountBadgeSettings" hidden></span></button>
+          </div>
           <div class="settings-info" id="journalSummary"></div>
-          <button class="ghost-button settings-build-button" id="openJournalFromSettingsBtn" type="button">Open journal</button>
         </section>
       </div>
     </aside>
@@ -251,6 +312,7 @@
         <div class="modal-toolbar">
           <div class="locale-tabs" id="localeTabs"></div>
           <button class="ghost-button" id="generateLocalesModalBtn" type="button">Generate missing locales</button>
+          <button class="ghost-button deepl-translate-btn" id="deeplAutoTranslateBtn" type="button" hidden>🌐 DeepL auto-translate</button>
         </div>
         <div class="modal-meta" id="localeEditorMeta">Пока нет загруженных локалей.</div>
         <textarea class="modal-editor" id="localeEditor" spellcheck="false"></textarea>
@@ -270,12 +332,8 @@
         <button class="ghost-button" id="closeContextModalBtn" type="button">Close</button>
       </div>
       <div class="workspace-modal-body">
-        <div class="modal-meta">Это необязательные поля. Если не хочется заполнять вручную, можно просто обсуждать их с ассистентом в чате.</div>
+        <div class="modal-meta">Это опциональный short brief. Основной сценарий все равно через чат: кинул макет, написал задачу, студия задала пару уточнений и собрала draft.</div>
         <div class="field-grid modal-field-grid">
-          <label class="field">
-            <span>Campaign name</span>
-            <input id="campaignName" type="text" />
-          </label>
           <label class="field">
             <span>Primary locale</span>
             <input id="locale" type="text" placeholder="en, de, fr..." />
@@ -288,38 +346,47 @@
             <span>Email-base category</span>
             <input id="category" type="text" placeholder="X_IQ" />
           </label>
-          <label class="field">
-            <span>Email-base mail id</span>
-            <input id="mailId" type="text" placeholder="rfm-311" />
-          </label>
-          <label class="field">
-            <span>Audience</span>
-            <input id="audience" type="text" />
-          </label>
-          <label class="field">
-            <span>Tone <span class="help-tip" data-tip="Tone это характер текста: спокойный, агрессивный, премиальный, нейтральный, urgent, friendly.">?</span></span>
-            <input id="tone" type="text" />
-          </label>
           <label class="field field-wide">
-            <span>Goal <span class="help-tip" data-tip="Что пользователь должен сделать после письма. Например: вернуться в продукт, сделать депозит, открыть оффер, пройти KYC.">?</span></span>
-            <input id="goal" type="text" />
-          </label>
-          <label class="field">
-            <span>Primary CTA <span class="help-tip" data-tip="Текст главной кнопки письма. Например: Trade now, Reactivate now, Claim bonus.">?</span></span>
-            <input id="primaryCta" type="text" />
-          </label>
-          <label class="field">
-            <span>Primary link <span class="help-tip" data-tip="Ссылка главной кнопки. Сюда же обычно входят трекинг-параметры, retrack, afftrack или utm.">?</span></span>
-            <input id="primaryLink" type="url" placeholder="https://..." />
-          </label>
-          <label class="field field-wide">
-            <span>Content notes</span>
+            <span>Content notes / задачи для студии</span>
             <textarea
               id="contentNotes"
               rows="5"
-              placeholder="Bullet ideas, campaign facts, product benefits, constraints"
+              placeholder="Например: оставь ссылки пустыми, тексты возьми с дизайна, сделай 3 локали, не меняй структуру hero."
             ></textarea>
           </label>
+          <details class="context-advanced field-wide">
+            <summary>Advanced поля</summary>
+            <div class="field-grid modal-field-grid compact">
+              <label class="field">
+                <span>Campaign name</span>
+                <input id="campaignName" type="text" />
+              </label>
+              <label class="field">
+                <span>Email-base mail id</span>
+                <input id="mailId" type="text" placeholder="rfm-311" />
+              </label>
+              <label class="field">
+                <span>Audience</span>
+                <input id="audience" type="text" />
+              </label>
+              <label class="field">
+                <span>Tone</span>
+                <input id="tone" type="text" />
+              </label>
+              <label class="field field-wide">
+                <span>Goal</span>
+                <input id="goal" type="text" />
+              </label>
+              <label class="field">
+                <span>Primary CTA</span>
+                <input id="primaryCta" type="text" />
+              </label>
+              <label class="field">
+                <span>Primary link</span>
+                <input id="primaryLink" type="url" placeholder="https://..." />
+              </label>
+            </div>
+          </details>
         </div>
       </div>
       <div class="workspace-modal-footer">
@@ -340,36 +407,90 @@
           <div class="modal-section-head">
             <strong>Макет письма</strong>
             <div class="modal-inline-actions">
-              <button class="ghost-button" id="analyzeDesignBtn" type="button">Analyze design</button>
-              <button class="ghost-button" id="replaceDesignBtn" type="button">Replace design</button>
-              <button class="ghost-button" id="clearDesignBtn" type="button">Clear design</button>
+              <button class="ghost-button" id="analyzeDesignBtn" type="button">Analyze</button>
+              <button class="ghost-button" id="clearDesignBtn" type="button">Clear</button>
             </div>
           </div>
-          <div class="design-source-grid">
-            <div class="settings-info">
-              <strong>Текущий макет</strong>
-              <div class="design-source-summary" id="designSourceSummary">Design пока не приложен.</div>
-              <div class="design-source-pills" id="designSourcePills"></div>
+
+          <!-- Design source tabs: Figma | Screenshot -->
+          <div class="design-source-tabs">
+            <button class="design-tab-btn is-active" data-design-tab="figma" type="button">Figma URL</button>
+            <button class="design-tab-btn" data-design-tab="screenshot" type="button">Screenshot / PNG</button>
+          </div>
+
+          <!-- Tab: Figma URL -->
+          <div class="design-tab-panel" id="designTabFigma">
+            <div class="figma-scan-row">
+              <input id="designReferenceUrlInput" class="figma-url-input" type="url"
+                placeholder="https://www.figma.com/design/XYZ/Name?node-id=1:2" />
+              <button class="ghost-button figma-scan-btn" id="scanFigmaBtn" type="button">Scan →</button>
             </div>
-            <div class="settings-info">
+            <div class="modal-meta figma-url-hint">
+              Figma → Share → Copy link. Нужен "Anyone with the link can view" или personal token в .env.
+            </div>
+            <div id="figmaScanResult" class="figma-scan-result" hidden>
+              <div class="figma-scan-status" id="figmaScanStatus"></div>
+              <div class="figma-scan-body" id="figmaScanBody"></div>
+            </div>
+
+            <!-- Figma Browse & Export panel -->
+            <div class="figma-browse-section" id="figmaBrowseSection">
+              <div class="figma-browse-header">
+                <span class="figma-browse-title">Нарезка фреймов</span>
+                <button class="ghost-button figma-browse-btn" id="browseFigmaBtn" type="button">Browse file →</button>
+              </div>
+              <div class="figma-browse-status" id="figmaBrowseStatus" hidden></div>
+              <div class="figma-browse-body" id="figmaBrowseBody" hidden></div>
+            </div>
+
+            <!-- Advanced JSON (collapsed by default) -->
+            <details class="figma-advanced-details" style="margin-top:12px">
+              <summary>Advanced: paste Figma JSON</summary>
+              <div class="modal-meta" style="margin:8px 0">
+                Для dev-флоу: скопируй JSON из Figma Plugin и вставь сюда. Обычному пользователю не нужно.
+              </div>
               <label class="field">
-                <span>Публичная ссылка на Figma / export / reference</span>
-                <input id="designReferenceUrlInput" type="url" placeholder="https://www.figma.com/... or https://cdn.example.com/layout.png" />
+                <span>Plugin / API JSON</span>
+                <textarea id="figmaPayloadInput" rows="5"
+                  placeholder='{"fileKey":"AbCd","nodeId":"123:456","layers":[...]}'></textarea>
               </label>
+              <input id="figmaPayloadFileInput" type="file" accept=".json,application/json" hidden />
               <div class="modal-inline-actions">
-                <button class="ghost-button" id="saveDesignReferenceBtn" type="button">Save reference</button>
-                <button class="ghost-button" id="clearDesignReferenceBtn" type="button">Clear reference</button>
+                <button class="ghost-button" id="importFigmaPayloadBtn" type="button">Import JSON</button>
+                <button class="ghost-button" id="loadFigmaPayloadFileBtn" type="button">Load file</button>
+                <button class="ghost-button" id="clearFigmaPayloadBtn" type="button">Clear</button>
               </div>
-              <div class="modal-meta" id="designWorkspaceNote">
-                Сюда можно положить публичный Figma frame, public image export или просто reference URL. Для pixel-level vision надежнее всего скрин или image export.
+              <div class="modal-meta" id="figmaImportNote"></div>
+            </details>
+          </div>
+
+          <!-- Tab: Screenshot / PNG -->
+          <div class="design-tab-panel" id="designTabScreenshot" hidden>
+            <div class="screenshot-paste-zone" id="screenshotPasteZone">
+              <div class="screenshot-paste-icon">🖼</div>
+              <div class="screenshot-paste-text">
+                <strong>Вставь скрин сюда (Cmd/Ctrl+V)</strong>
+                <span>или загрузи файл — PNG, JPG, WebP</span>
               </div>
+              <button class="ghost-button" id="uploadScreenshotBtn" type="button">Загрузить файл</button>
+            </div>
+            <div class="modal-meta" style="margin-top:8px">
+              Скрин можно скопировать прямо из Figma: выдели frame → Cmd+C → вернись сюда → Cmd+V.
+              Или через Export: ПКМ на frame → Copy as PNG.
             </div>
           </div>
+
+          <!-- Current design status (always visible) -->
+          <div class="design-status-bar" id="designStatusBar">
+            <div class="design-source-summary" id="designSourceSummary">Макет не приложен.</div>
+            <div class="design-source-pills" id="designSourcePills"></div>
+          </div>
+
           <div class="design-preview-wrap" id="designPreviewWrap" hidden>
             <img id="designPreview" alt="Design preview" />
             <div class="design-caption" id="designCaption"></div>
           </div>
-          <div class="empty-helper" id="designEmptyState">Макет пока не загружен. Можно просто вставить скрин прямо в чат.</div>
+          <div class="empty-helper" id="designEmptyState">Макет пока не загружен. Можно вставить скрин прямо в чат (Cmd+V).</div>
           <div class="design-analysis" id="designAnalysisCard" hidden>
             <div class="design-analysis-summary" id="designAnalysisSummary"></div>
             <div class="design-analysis-grid">
@@ -393,6 +514,57 @@
           </div>
         </section>
 
+        <!-- ── Base email: Clone & Edit ─────────────────────────────── -->
+        <section class="modal-section" id="baseEmailSection">
+          <div class="modal-section-head">
+            <strong>Базовое письмо</strong>
+            <span class="help-tip" data-tip="Загрузи готовый HTML email — студия заменит текст, ссылки и картинки сохранив вёрстку.">?</span>
+            <div class="modal-inline-actions">
+              <button class="ghost-button" id="clearBaseEmailBtn" type="button" hidden>Clear</button>
+            </div>
+          </div>
+          <div class="modal-meta">
+            Загрузи или вставь HTML существующего письма. AI заменит нужный контент — текст, ссылки, картинки — сохранив HTML-структуру и инлайн-стили.
+          </div>
+
+          <div class="base-email-drop-zone" id="baseEmailDropZone">
+            <div id="baseEmailEmptyState" class="base-email-empty">
+              <div class="base-email-empty-icon">📧</div>
+              <strong>Перетащи .html файл сюда</strong>
+              <span>или загрузи / вставь HTML текст</span>
+              <div class="base-email-actions">
+                <button class="ghost-button" id="uploadBaseEmailBtn" type="button">Загрузить .html</button>
+                <button class="ghost-button" id="pasteBaseEmailBtn" type="button">Вставить HTML</button>
+              </div>
+            </div>
+            <div id="baseEmailLoadedState" class="base-email-loaded" hidden>
+              <div class="base-email-loaded-header">
+                <div>
+                  <strong id="baseEmailFileName"></strong>
+                  <span class="base-email-stats" id="baseEmailStats"></span>
+                </div>
+                <button class="ghost-button" id="clearBaseEmailInlineBtn" type="button">Удалить</button>
+              </div>
+              <div class="base-email-content-map" id="baseEmailContentMap">
+                <!-- Extracted sections: texts, images, links -->
+              </div>
+            </div>
+          </div>
+          <input id="baseEmailFileInput" type="file" accept=".html,text/html" hidden />
+
+          <!-- Paste HTML textarea (shown when "Вставить HTML" clicked) -->
+          <div id="baseEmailPasteZone" hidden>
+            <label class="field">
+              <span>Вставь HTML письма</span>
+              <textarea id="baseEmailPasteInput" rows="8" placeholder="&lt;!DOCTYPE html&gt;..."></textarea>
+            </label>
+            <div class="modal-inline-actions">
+              <button class="ghost-button" id="confirmBaseEmailPasteBtn" type="button">Загрузить →</button>
+              <button class="ghost-button" id="cancelBaseEmailPasteBtn" type="button">Отмена</button>
+            </div>
+          </div>
+        </section>
+
         <section class="modal-section" id="inputAssetsSection">
           <div class="modal-section-head">
             <strong>Input assets</strong>
@@ -400,6 +572,9 @@
               <button class="ghost-button" id="replaceAssetsBtn" type="button">Upload images</button>
               <button class="ghost-button add-asset-button" id="addAssetBtn" type="button">Добавить картинку</button>
             </div>
+          </div>
+          <div class="modal-meta">
+            Это рабочий набор картинок для текущего письма. Здесь задаются роли вроде `logo`, `hero`, `section`, чтобы студия понимала, куда ставить файл в этом конкретном draft.
           </div>
           <div class="asset-composer-list" id="assetComposerList"></div>
         </section>
@@ -415,6 +590,9 @@
           <div class="modal-section-head">
             <strong>Asset library</strong>
             <div class="modal-meta" id="assetRegistryMeta">Файлов пока нет.</div>
+          </div>
+          <div class="modal-meta">
+            Это уже общая библиотека проекта. Сюда попадают загруженные файлы и внешние CDN-ссылки, чтобы потом переиспользовать их в следующих письмах.
           </div>
           <div class="asset-library-list" id="assetLibraryList"></div>
         </section>
@@ -434,6 +612,7 @@
           <div class="tabs">
             <button class="tab is-active" data-tab="html" type="button">HTML</button>
             <button class="tab" data-tab="pug" type="button">Pug</button>
+            <button class="tab" data-tab="stylus" type="button">Stylus</button>
             <button class="tab" data-tab="locales" type="button">Locales</button>
             <button class="tab" data-tab="assets" type="button">Assets</button>
             <button class="tab" data-tab="spec" type="button">Mail spec</button>
@@ -441,11 +620,34 @@
           </div>
           <div class="modal-meta" id="codeEditorMeta">Можно смотреть и править текущее представление драфта.</div>
         </div>
-        <textarea class="modal-editor code-output" id="codeOutput" spellcheck="false"></textarea>
+        <div class="code-workspace">
+          <aside class="code-sidebar">
+            <div class="code-sidebar-head">
+              <strong>Файлы</strong>
+              <div class="modal-meta" id="codeFileMeta">После первого real build здесь появится дерево частей письма.</div>
+            </div>
+            <div class="locale-tabs code-locale-tabs" id="codeLocaleTabs"></div>
+            <div class="code-file-list" id="codeFileList"></div>
+          </aside>
+          <div class="code-editor-stack">
+            <section class="code-pane-card">
+              <div class="code-pane-head">
+                <strong id="codeViewLabel">Код</strong>
+                <!-- toggle and save kept hidden for JS compatibility -->
+                <button id="toggleCodeEditBtn" type="button" hidden></button>
+                <span class="code-autosave-badge" id="codeAutosaveBadge" hidden>✓ сохранено</span>
+              </div>
+              <div class="code-editor-overlay">
+                <pre class="code-highlight" id="codeHighlight" aria-hidden="true"></pre>
+                <textarea class="code-output code-output-editor" id="codeOutput" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+              </div>
+            </section>
+          </div>
+        </div>
       </div>
       <div class="workspace-modal-footer">
         <button class="ghost-button" id="closeCodeFooterBtn" type="button">Close</button>
-        <button class="ghost-button" id="saveCodeBtn" type="button">Save code edits</button>
+        <button id="saveCodeBtn" type="button" hidden></button>
         <button class="primary-button" id="createBaseMailFromCodeBtn" type="button">Save as new email-base mail</button>
       </div>
     </section>
@@ -497,6 +699,9 @@
       </div>
       <div class="workspace-modal-body">
         <div class="modal-meta" id="testsOverview">Проверки появятся после первого draft.</div>
+        <div class="modal-meta">
+          Сейчас это не полный эмулятор всех почтовых клиентов. Тут живут heuristic-профили и build diagnostics. Финальную production-проверку все равно лучше подтверждать реальным email-base build и внешним renderer.
+        </div>
         <div class="test-profile-grid" id="testsProfileGrid"></div>
         <div class="diagnostics-list" id="testsList"></div>
       </div>
@@ -521,6 +726,193 @@
         <button class="ghost-button" id="closeBlockCandidatesFooterBtn" type="button">Close</button>
       </div>
     </section>
+
+    <!-- AI Lessons Modal -->
+    <section class="workspace-modal" id="lessonsModal" aria-hidden="true">
+      <div class="workspace-modal-header">
+        <div>
+          <div class="card-kicker">AI Memory</div>
+          <h2>Уроки студии</h2>
+        </div>
+        <button class="ghost-button" id="closeLessonsModalBtn" type="button">Close</button>
+      </div>
+      <div class="workspace-modal-body">
+        <div class="modal-meta">
+          Здесь хранятся исправления, которые ты дал AI. В каждой сессии они автоматически добавляются в контекст — AI не повторяет одни и те же ошибки.
+        </div>
+        <div class="lesson-add-form">
+          <label class="field">
+            <span>Ошибка AI (что было не так)</span>
+            <textarea id="lessonMistakeInput" rows="2" placeholder="Например: AI ставил generic заголовок без переменной токена"></textarea>
+          </label>
+          <label class="field">
+            <span>Как должно быть (правильно)</span>
+            <textarea id="lessonCorrectionInput" rows="2" placeholder="Например: Заголовок должен быть ${{ namespace.block_01 }}$ — реальный токен из базы"></textarea>
+          </label>
+          <label class="field">
+            <span>Категория</span>
+            <select id="lessonCategorySelect" class="select-control">
+              <option value="general">general</option>
+              <option value="layout">layout</option>
+              <option value="translation">translation</option>
+              <option value="copy">copy</option>
+              <option value="technical">technical</option>
+            </select>
+          </label>
+        </div>
+        <div class="diagnostics-list" id="lessonsList"></div>
+      </div>
+      <div class="workspace-modal-footer">
+        <button class="ghost-button" id="closeLessonsFooterBtn" type="button">Close</button>
+        <button class="ghost-button" id="clearLessonsBtn" type="button">Clear all</button>
+        <button class="primary-button" id="saveLessonBtn" type="button">Сохранить урок</button>
+      </div>
+    </section>
+
+    <!-- Remember last AI reply modal -->
+    <section class="workspace-modal" id="rememberModal" aria-hidden="true">
+      <div class="workspace-modal-header">
+        <div>
+          <div class="card-kicker">Запомни ошибку</div>
+          <h2>Сохранить урок</h2>
+        </div>
+        <button class="ghost-button" id="closeRememberModalBtn" type="button">Close</button>
+      </div>
+      <div class="workspace-modal-body">
+        <div class="modal-meta">Опиши что AI сделал неправильно и как должно быть. Урок сохранится в памяти студии.</div>
+        <label class="field">
+          <span>Что AI сделал не так</span>
+          <textarea id="rememberMistakeInput" rows="3" placeholder="Опиши конкретную ошибку..."></textarea>
+        </label>
+        <label class="field">
+          <span>Как правильно</span>
+          <textarea id="rememberCorrectionInput" rows="3" placeholder="Опиши правильный вариант..."></textarea>
+        </label>
+        <label class="field">
+          <span>Категория</span>
+          <select id="rememberCategorySelect" class="select-control">
+            <option value="layout">layout</option>
+            <option value="translation">translation</option>
+            <option value="copy">copy</option>
+            <option value="technical">technical</option>
+            <option value="general">general</option>
+          </select>
+        </label>
+      </div>
+      <div class="workspace-modal-footer">
+        <button class="ghost-button" id="closeRememberFooterBtn" type="button">Отмена</button>
+        <button class="primary-button" id="saveRememberBtn" type="button">Запомнить</button>
+      </div>
+    </section>
+
+    <!-- ─── Diff View Modal ──────────────────────────────────────── -->
+    <section class="workspace-modal diff-modal" id="diffModal" aria-hidden="true">
+      <div class="workspace-modal-header">
+        <div>
+          <div class="card-kicker">Diff</div>
+          <h2 id="diffModalTitle">Изменения перед сохранением</h2>
+        </div>
+        <button class="ghost-button" id="closeDiffModalBtn" type="button">✕</button>
+      </div>
+      <div class="workspace-modal-body diff-modal-body">
+        <div class="modal-meta" id="diffModalMeta">Сравнение текущего черновика с существующим шаблоном.</div>
+        <div class="diff-stats" id="diffStats"></div>
+        <div class="diff-view" id="diffView"></div>
+      </div>
+      <div class="workspace-modal-footer">
+        <button class="ghost-button" id="closeDiffFooterBtn" type="button">Отмена</button>
+        <button class="primary-button" id="confirmSaveDiffBtn" type="button">Сохранить в email-base →</button>
+      </div>
+    </section>
+
+    <!-- ─── Generation History Modal ────────────────────────────── -->
+    <section class="workspace-modal" id="historyModal" aria-hidden="true">
+      <div class="workspace-modal-header">
+        <div>
+          <div class="card-kicker">История</div>
+          <h2>Генерации</h2>
+        </div>
+        <button class="ghost-button" id="closeHistoryModalBtn" type="button">✕</button>
+      </div>
+      <div class="workspace-modal-body" id="historyModalBody">
+        <div class="modal-meta">Последние 50 сгенерированных вариантов. Можно восстановить brief и загрузить черновик обратно.</div>
+        <div id="historyList" class="history-list"></div>
+      </div>
+      <div class="workspace-modal-footer">
+        <button class="ghost-button" id="clearHistoryBtn" type="button">Очистить историю</button>
+        <button class="ghost-button" id="closeHistoryFooterBtn" type="button">Закрыть</button>
+      </div>
+    </section>
+
+    <!-- ─── Template Browser ─────────────────────────────────────── -->
+    <div class="settings-backdrop" id="templateBrowserBackdrop" hidden></div>
+    <aside class="settings-drawer template-browser-drawer" id="templateBrowserDrawer" aria-hidden="true">
+      <div class="settings-header">
+        <div>
+          <div class="card-kicker">Email Base</div>
+          <h2>Template Browser</h2>
+        </div>
+        <button class="ghost-button" id="closeTemplateBrowserBtn" type="button">Close</button>
+      </div>
+      <div class="template-browser-search">
+        <input
+          id="templateSearchInput"
+          class="template-search-field"
+          type="text"
+          placeholder="Поиск по mail ID или бренду…"
+          autocomplete="off"
+        />
+      </div>
+      <div class="template-browser-body" id="templateBrowserBody">
+        <div class="template-browser-loading" id="templateBrowserLoading">Загрузка…</div>
+      </div>
+    </aside>
+
+    <!-- ── Figma Assets Modal ──────────────────────────────────── -->
+    <div class="figma-assets-overlay" id="figmaAssetsOverlay" hidden aria-modal="true" role="dialog">
+      <div class="figma-assets-modal">
+        <div class="figma-assets-modal-header">
+          <span class="figma-assets-modal-title" id="figmaAssetsModalTitle">Figma — выбери фреймы для экспорта</span>
+          <button class="figma-assets-modal-close" id="closeFigmaAssetsModal" type="button" title="Закрыть">✕</button>
+        </div>
+
+        <div class="figma-assets-modal-toolbar">
+          <select id="figmaAssetsPageSelect" class="figma-page-select">
+            <option value="">— страница —</option>
+          </select>
+          <label class="figma-assets-scale-label">
+            Масштаб:
+            <select id="figmaAssetsScale">
+              <option value="1">1×</option>
+              <option value="2" selected>2× (рекомендуется)</option>
+              <option value="3">3×</option>
+            </select>
+          </label>
+          <label class="figma-assets-scale-label">
+            Формат:
+            <select id="figmaAssetsFormat">
+              <option value="png" selected>PNG</option>
+              <option value="jpg">JPG</option>
+              <option value="svg">SVG</option>
+            </select>
+          </label>
+          <button class="ghost-button" id="figmaSelectAllBtn" type="button">Выбрать все</button>
+          <button class="ghost-button" id="figmaDeselectAllBtn" type="button">Снять</button>
+        </div>
+
+        <div class="figma-assets-frame-grid" id="figmaAssetsFrameGrid">
+          <!-- frame cards rendered by JS -->
+        </div>
+
+        <div class="figma-assets-modal-footer">
+          <span class="figma-assets-selected-count" id="figmaAssetsSelectedCount">Выбрано: 0</span>
+          <button class="primary-button" id="exportFigmaAssetsBtn" type="button" disabled>
+            Экспортировать выбранные →
+          </button>
+          <div class="figma-assets-export-status" id="figmaAssetsExportStatus"></div>
+        </div>
+      </div>
+    </div>
 
     <script type="module" src="/app.js"></script>
   </body>

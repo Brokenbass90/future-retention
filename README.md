@@ -6,6 +6,8 @@
 - live chat со streaming-ответами;
 - chat-centric intake для design, локалей и картинок;
 - первый `design workspace` слой: upload скрина/export, public image URL, public Figma frame URL, reference URL;
+- `link-first` Figma flow: менеджеру достаточно frame link или скрина, а студия сама подсказывает, нужен ли open draft/share link;
+- подготовленный server endpoint `/api/figma/import` под будущий `Send to Studio` plugin/push;
 - локальный asset registry с переиспользованием картинок внутри проекта;
 - preview + heuristic diagnostics по email clients;
 - отдельное окно `Тесты` с client profile summary и warnings;
@@ -32,6 +34,16 @@ cp .env.example .env
 npm start
 ```
 
+Для следующего шага по Figma можно дополнительно настроить:
+
+```bash
+FIGMA_API_TOKEN=...
+FIGMA_IMPORT_SECRET=...
+```
+
+- `FIGMA_API_TOKEN` нужен для будущего server-side fetch из приватной Figma.
+- `FIGMA_IMPORT_SECRET` защищает `POST /api/figma/import`, если будете слать данные из plugin/push flow.
+
 Без ключа приложение работает в `mock mode`.
 В `mock mode` чат, тесты и сохранение работают, но pixel-level разбор design reference и осмысленный vision-анализ недоступны.
 
@@ -50,6 +62,13 @@ npm start
 6. Открывайте `Block candidates`, если студия увидела новый layout, которого пока нет в каноническом catalog.
 7. Сохраняйте результат в `email-base` кнопкой `Save as new email-base mail`.
 8. Для design reference можно открыть `Картинки` и нажать `Analyze design`. В live-режиме студия попробует разобрать макет на блоки и missing pieces.
+
+### Figma flow сейчас
+
+- Для обычного пользователя лучший путь: вставить `Figma frame link` или приложить `скрин/export`.
+- Если frame приватный, студия должна просить `open draft/share link` или `скрин/export` этого frame.
+- Пользователь не должен руками готовить JSON.
+- `JSON/plugin import` оставлен как advanced/internal bridge до полноценного `Send to Studio`.
 
 ## Что очищает что
 

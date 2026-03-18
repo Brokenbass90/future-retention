@@ -1,0 +1,14 @@
+table.row
+    tr
+        td.pb30
+            table.twelve.columns
+                tr
+                    td.pt60
+                        .mobile-paddding
+                            p.address-text.pb20 {{embedded.risk_warning}}
+                            //p.address-text {{embedded.company_address}}
+                            p.address-text ${{ Telegram-signals.block_21 }}$
+                            p.subscribe
+                                a.left(href='https://iqoption.com/terms-and-conditions')  ${{ footer.footer.conditions }}$
+                                a.right(href='{{embedded.unsubscribe_link}}')  ${{ footer.footer.unsubscribe }}$
+

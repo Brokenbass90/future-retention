@@ -8,6 +8,7 @@ const initialState = {
     config: null,
     providers: [],
     clientProfiles: [],
+    figma: null,
     emailBase: null
   },
   busy: false,
@@ -42,14 +43,27 @@ const initialState = {
   translationUploadStatus: "",
   design: {
     name: "",
-    dataUrl: ""
+    dataUrl: "",
+    assetId: "",
+    figmaFileKey: "",
+    figmaNodeId: "",
+    figmaSelectionName: "",
+    figmaImport: null
   },
   designAnalysis: null,
+  designTab: "figma", // "figma" | "screenshot"
+  figmaScanResult: null, // last scan result from /api/figma/inspect
+  // Clone & Edit: base email HTML attachment
+  baseEmailHtml: null,
+  baseEmailFileName: "",
+  baseEmailContentMap: null,
+  // Scaffold mode: context from POST /api/email-base/scaffold
+  scaffoldContext: null,
   assetInputs: [createEmptyAsset(1)],
   messages: [
     {
       role: "assistant",
-      content: "Чат подключен к студии. Прикладывай макет, локали и картинки, а я буду собирать письмо и подсказывать, чего не хватает."
+      content: "Привет! Три способа начать:\n\n**Из Figma** — правой кнопкой на фрейм → Copy/Paste as → **Copy as PNG**, затем Cmd+V сюда. Обычный Cmd+C копирует текст слоёв, а не картинку.\n\n**Готовое письмо** — вставь HTML-код сюда, тулза его подхватит и спросит что поменять.\n\n**Текстом** — просто опиши что нужно: тема, аудитория, CTA, и я соберу письмо по базе.\n\nОтправить: Cmd+Enter."
     }
   ],
   draft: null,
@@ -58,6 +72,7 @@ const initialState = {
   localeEditorDocs: [],
   activeLocaleDoc: "",
   codeEditorBuffer: "",
+  codeFileSelection: {},
   blockCatalog: {
     generatedAt: "",
     items: [],
@@ -82,6 +97,7 @@ const state = structuredClone(initialState);
 const codeMap = {
   html: "html",
   pug: "pug",
+  stylus: "stylus",
   locales: "locales",
   assets: "assetsManifest",
   spec: "spec",
@@ -100,6 +116,7 @@ const refs = {
   clearChatBtn: document.querySelector("#clearChatBtn"),
   clearStateBtn: document.querySelector("#clearStateBtn"),
   toggleAttachMenuBtn: document.querySelector("#toggleAttachMenuBtn"),
+  pasteFigmaLinkBtn: document.querySelector("#pasteFigmaLinkBtn"),
   settingsBtn: document.querySelector("#settingsBtn"),
   closeSettingsBtn: document.querySelector("#closeSettingsBtn"),
   settingsDrawer: document.querySelector("#settingsDrawer"),
@@ -117,6 +134,31 @@ const refs = {
   replaceDesignBtn: document.querySelector("#replaceDesignBtn"),
   clearDesignBtn: document.querySelector("#clearDesignBtn"),
   analyzeDesignBtn: document.querySelector("#analyzeDesignBtn"),
+  // Design tabs
+  scanFigmaBtn: document.querySelector("#scanFigmaBtn"),
+  figmaScanResult: document.querySelector("#figmaScanResult"),
+  figmaScanStatus: document.querySelector("#figmaScanStatus"),
+  figmaScanBody: document.querySelector("#figmaScanBody"),
+  screenshotPasteZone: document.querySelector("#screenshotPasteZone"),
+  uploadScreenshotBtn: document.querySelector("#uploadScreenshotBtn"),
+  designStatusBar: document.querySelector("#designStatusBar"),
+  // Base email: clone & edit
+  openBaseEmailBtn: document.querySelector("#openBaseEmailBtn"),
+  baseEmailFileInput: document.querySelector("#baseEmailFileInput"),
+  uploadBaseEmailBtn: document.querySelector("#uploadBaseEmailBtn"),
+  pasteBaseEmailBtn: document.querySelector("#pasteBaseEmailBtn"),
+  clearBaseEmailBtn: document.querySelector("#clearBaseEmailBtn"),
+  clearBaseEmailInlineBtn: document.querySelector("#clearBaseEmailInlineBtn"),
+  baseEmailDropZone: document.querySelector("#baseEmailDropZone"),
+  baseEmailEmptyState: document.querySelector("#baseEmailEmptyState"),
+  baseEmailLoadedState: document.querySelector("#baseEmailLoadedState"),
+  baseEmailFileName: document.querySelector("#baseEmailFileName"),
+  baseEmailStats: document.querySelector("#baseEmailStats"),
+  baseEmailContentMap: document.querySelector("#baseEmailContentMap"),
+  baseEmailPasteZone: document.querySelector("#baseEmailPasteZone"),
+  baseEmailPasteInput: document.querySelector("#baseEmailPasteInput"),
+  confirmBaseEmailPasteBtn: document.querySelector("#confirmBaseEmailPasteBtn"),
+  cancelBaseEmailPasteBtn: document.querySelector("#cancelBaseEmailPasteBtn"),
   replaceAssetsBtn: document.querySelector("#replaceAssetsBtn"),
   assetFileInput: document.querySelector("#assetFileInput"),
   openLocalesBtn: document.querySelector("#openLocalesBtn"),
@@ -132,7 +174,13 @@ const refs = {
   openDesignQuickBtn: document.querySelector("#openDesignQuickBtn"),
   openJournalBtn: document.querySelector("#openJournalBtn"),
   openJournalFromSettingsBtn: document.querySelector("#openJournalFromSettingsBtn"),
+  openRulesFromSettingsBtn: document.querySelector("#openRulesFromSettingsBtn"),
+  openLessonsFromSettingsBtn: document.querySelector("#openLessonsFromSettingsBtn"),
+  lessonsCountBadgeSettings: document.querySelector("#lessonsCountBadgeSettings"),
   openBlockCandidatesBtn: document.querySelector("#openBlockCandidatesBtn"),
+  toggleBlocksBtn: document.querySelector("#toggleBlocksBtn"),
+  hideBlocksBtn: document.querySelector("#hideBlocksBtn"),
+  blocksCatalogSection: document.querySelector("#blocksCatalogSection"),
   designBadge: document.querySelector("#designBadge"),
   translationBadge: document.querySelector("#translationBadge"),
   chatIntakeActions: document.querySelector("#chatIntakeActions"),
@@ -167,7 +215,14 @@ const refs = {
   localeEditor: document.querySelector("#localeEditor"),
   localeEditorMeta: document.querySelector("#localeEditorMeta"),
   generateLocalesModalBtn: document.querySelector("#generateLocalesModalBtn"),
+  deeplAutoTranslateBtn: document.querySelector("#deeplAutoTranslateBtn"),
   codeEditorMeta: document.querySelector("#codeEditorMeta"),
+  codeFileMeta: document.querySelector("#codeFileMeta"),
+  codeLocaleTabs: document.querySelector("#codeLocaleTabs"),
+  codeFileList: document.querySelector("#codeFileList"),
+  codeHighlight: document.querySelector("#codeHighlight"),
+  toggleCodeEditBtn: document.querySelector("#toggleCodeEditBtn"),
+  codeViewLabel: document.querySelector("#codeViewLabel"),
   designEmptyState: document.querySelector("#designEmptyState"),
   assetsModalTitle: document.querySelector("#assetsModalTitle"),
   designWorkspaceSection: document.querySelector("#designWorkspaceSection"),
@@ -180,6 +235,7 @@ const refs = {
   subjectValue: document.querySelector("#subjectValue"),
   preheaderValue: document.querySelector("#preheaderValue"),
   localeValue: document.querySelector("#localeValue"),
+  mailIdValue: document.querySelector("#mailIdValue"),
   modeValue: document.querySelector("#modeValue"),
   sourceValue: document.querySelector("#sourceValue"),
   assistantReply: document.querySelector("#assistantReply"),
@@ -187,6 +243,7 @@ const refs = {
   previewLocaleTabs: document.querySelector("#previewLocaleTabs"),
   copyPreviewHtmlBtn: document.querySelector("#copyPreviewHtmlBtn"),
   previewStage: document.querySelector("#previewStage"),
+  previewSkeleton: document.querySelector("#previewSkeleton"),
   previewFrame: document.querySelector("#previewFrame"),
   previewViewportButtons: Array.from(document.querySelectorAll("[data-preview-viewport]")),
   codeOutput: document.querySelector("#codeOutput"),
@@ -211,6 +268,13 @@ const refs = {
   designReferenceUrlInput: document.querySelector("#designReferenceUrlInput"),
   saveDesignReferenceBtn: document.querySelector("#saveDesignReferenceBtn"),
   clearDesignReferenceBtn: document.querySelector("#clearDesignReferenceBtn"),
+  figmaImportSummary: document.querySelector("#figmaImportSummary"),
+  figmaPayloadInput: document.querySelector("#figmaPayloadInput"),
+  figmaPayloadFileInput: document.querySelector("#figmaPayloadFileInput"),
+  importFigmaPayloadBtn: document.querySelector("#importFigmaPayloadBtn"),
+  loadFigmaPayloadFileBtn: document.querySelector("#loadFigmaPayloadFileBtn"),
+  clearFigmaPayloadBtn: document.querySelector("#clearFigmaPayloadBtn"),
+  figmaImportNote: document.querySelector("#figmaImportNote"),
   designWorkspaceNote: document.querySelector("#designWorkspaceNote"),
   designAnalysisCard: document.querySelector("#designAnalysisCard"),
   designAnalysisSummary: document.querySelector("#designAnalysisSummary"),
@@ -224,6 +288,7 @@ const refs = {
   providerSelect: document.querySelector("#providerSelect"),
   providerHelp: document.querySelector("#providerHelp"),
   runtimeConfigInfo: document.querySelector("#runtimeConfigInfo"),
+  figmaRuntimeInfo: document.querySelector("#figmaRuntimeInfo"),
   clientProfileSelect: document.querySelector("#clientProfileSelect"),
   clientProfileHelp: document.querySelector("#clientProfileHelp"),
   emailBaseSummary: document.querySelector("#emailBaseSummary"),
@@ -235,9 +300,61 @@ const refs = {
   clearRulesBtn: document.querySelector("#clearRulesBtn"),
   clearJournalBtn: document.querySelector("#clearJournalBtn"),
   journalList: document.querySelector("#journalList"),
+  // AI Lessons
+  openLessonsBtn: document.querySelector("#openLessonsBtn"),
+  lessonsCountBadge: document.querySelector("#lessonsCountBadge"),
+  closeLessonsModalBtn: document.querySelector("#closeLessonsModalBtn"),
+  closeLessonsFooterBtn: document.querySelector("#closeLessonsFooterBtn"),
+  lessonsModal: document.querySelector("#lessonsModal"),
+  lessonsList: document.querySelector("#lessonsList"),
+  lessonMistakeInput: document.querySelector("#lessonMistakeInput"),
+  lessonCorrectionInput: document.querySelector("#lessonCorrectionInput"),
+  lessonCategorySelect: document.querySelector("#lessonCategorySelect"),
+  saveLessonBtn: document.querySelector("#saveLessonBtn"),
+  clearLessonsBtn: document.querySelector("#clearLessonsBtn"),
+  // Remember last reply
+  rememberLastBtn: document.querySelector("#rememberLastBtn"),
+  rememberModal: document.querySelector("#rememberModal"),
+  closeRememberModalBtn: document.querySelector("#closeRememberModalBtn"),
+  closeRememberFooterBtn: document.querySelector("#closeRememberFooterBtn"),
+  rememberMistakeInput: document.querySelector("#rememberMistakeInput"),
+  rememberCorrectionInput: document.querySelector("#rememberCorrectionInput"),
+  rememberCategorySelect: document.querySelector("#rememberCategorySelect"),
+  saveRememberBtn: document.querySelector("#saveRememberBtn"),
+  // Diff modal
+  diffModal: document.querySelector("#diffModal"),
+  diffModalTitle: document.querySelector("#diffModalTitle"),
+  diffModalMeta: document.querySelector("#diffModalMeta"),
+  diffStats: document.querySelector("#diffStats"),
+  diffView: document.querySelector("#diffView"),
+  closeDiffModalBtn: document.querySelector("#closeDiffModalBtn"),
+  closeDiffFooterBtn: document.querySelector("#closeDiffFooterBtn"),
+  confirmSaveDiffBtn: document.querySelector("#confirmSaveDiffBtn"),
+  // Generation History
+  openHistoryBtn: document.querySelector("#openHistoryBtn"),
+  historyModal: document.querySelector("#historyModal"),
+  historyList: document.querySelector("#historyList"),
+  closeHistoryModalBtn: document.querySelector("#closeHistoryModalBtn"),
+  closeHistoryFooterBtn: document.querySelector("#closeHistoryFooterBtn"),
+  clearHistoryBtn: document.querySelector("#clearHistoryBtn"),
+  // Template Browser
+  openTemplateBrowserBtn: document.querySelector("#openTemplateBrowserBtn"),
+  templateBrowserDrawer: document.querySelector("#templateBrowserDrawer"),
+  templateBrowserBackdrop: document.querySelector("#templateBrowserBackdrop"),
+  closeTemplateBrowserBtn: document.querySelector("#closeTemplateBrowserBtn"),
+  templateBrowserBody: document.querySelector("#templateBrowserBody"),
+  templateSearchInput: document.querySelector("#templateSearchInput"),
   testsOverview: document.querySelector("#testsOverview"),
   testsProfileGrid: document.querySelector("#testsProfileGrid"),
   testsList: document.querySelector("#testsList"),
+  // Image slot panel
+  imageSlotPanel: document.querySelector("#imageSlotPanel"),
+  imageSlotList: document.querySelector("#imageSlotList"),
+  dismissImageSlotPanel: document.querySelector("#dismissImageSlotPanel"),
+  // Scaffold banner
+  scaffoldBanner: document.querySelector("#scaffoldBanner"),
+  scaffoldBannerText: document.querySelector("#scaffoldBannerText"),
+  dismissScaffoldBanner: document.querySelector("#dismissScaffoldBanner"),
   fields: {
     campaignName: document.querySelector("#campaignName"),
     category: document.querySelector("#category"),
@@ -279,14 +396,46 @@ function createEmptyAsset(index = 1) {
 function bindEvents() {
   refs.chatForm.addEventListener("submit", handleChatSubmit);
   refs.chatInput.addEventListener("paste", handleChatPaste);
+  refs.chatInput.addEventListener("keydown", (e) => {
+    // Cmd+Enter (Mac) or Ctrl+Enter → submit
+    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      refs.chatForm.requestSubmit();
+    }
+  });
   refs.fillDemoBtn?.addEventListener("click", fillDemoScenario);
   refs.clearChatBtn.addEventListener("click", clearChatHistory);
   refs.clearStateBtn.addEventListener("click", resetState);
   refs.toggleAttachMenuBtn.addEventListener("click", toggleAttachMenu);
+  refs.pasteFigmaLinkBtn.addEventListener("click", handlePasteFigmaLink);
   refs.settingsBtn.addEventListener("click", () => toggleSettings(true));
   refs.closeSettingsBtn.addEventListener("click", () => toggleSettings(false));
   refs.settingsBackdrop.addEventListener("click", () => toggleSettings(false));
   refs.loadBaseBtn.addEventListener("click", handleLoadBaseEmail);
+  refs.closeDiffModalBtn.addEventListener("click", () => closeWorkspaceModal());
+  refs.closeDiffFooterBtn.addEventListener("click", () => closeWorkspaceModal());
+  refs.confirmSaveDiffBtn.addEventListener("click", executeSaveToEmailBase);
+  refs.openHistoryBtn.addEventListener("click", openHistoryModal);
+  refs.closeHistoryModalBtn.addEventListener("click", closeHistoryModal);
+  refs.closeHistoryFooterBtn.addEventListener("click", closeHistoryModal);
+  refs.clearHistoryBtn.addEventListener("click", handleClearHistory);
+  refs.dismissImageSlotPanel?.addEventListener("click", () => {
+    state.imageSlotPanelDismissed = true;
+    renderImageSlotPanel();
+  });
+  refs.dismissScaffoldBanner?.addEventListener("click", () => {
+    state.scaffoldContext = null;
+    persistState();
+    renderScaffoldBanner();
+  });
+  // Figma browse button (inside design modal Figma URL tab)
+  document.getElementById("browseFigmaBtn")?.addEventListener("click", handleBrowseFigmaBtn);
+  // Figma assets modal events
+  bindFigmaAssetEvents();
+  refs.openTemplateBrowserBtn.addEventListener("click", openTemplateBrowser);
+  refs.closeTemplateBrowserBtn.addEventListener("click", closeTemplateBrowser);
+  refs.templateBrowserBackdrop.addEventListener("click", closeTemplateBrowser);
+  refs.templateSearchInput.addEventListener("input", renderTemplateBrowserFiltered);
   refs.openRulesBtn.addEventListener("click", openRulesModal);
   refs.createBaseMailBtn.addEventListener("click", handleCreateBaseMail);
   refs.buildBaseMailBtn.addEventListener("click", handleLoadBaseEmail);
@@ -294,18 +443,20 @@ function bindEvents() {
   if (refs.generateLocalesModalBtn !== refs.generateLocalesBtn) {
     refs.generateLocalesModalBtn.addEventListener("click", handleGenerateMissingLocales);
   }
+  refs.deeplAutoTranslateBtn.addEventListener("click", handleDeepLAutoTranslate);
   refs.addAssetBtn.addEventListener("click", addAssetRow);
   refs.attachDesignBtn.addEventListener("click", () => refs.designFile.click());
   refs.attachTranslationsBtn.addEventListener("click", () => refs.translationFile.click());
   refs.attachTranslationFolderBtn.addEventListener("click", () => refs.translationFolderInput.click());
   refs.attachAssetsBtn.addEventListener("click", () => refs.assetFileInput.click());
   refs.analyzeDesignBtn.addEventListener("click", handleAnalyzeDesign);
-  refs.replaceDesignBtn.addEventListener("click", () => refs.designFile.click());
+  if (refs.replaceDesignBtn) refs.replaceDesignBtn.addEventListener("click", () => refs.designFile.click());
   refs.clearDesignBtn.addEventListener("click", clearDesignWorkspace);
   refs.replaceAssetsBtn.addEventListener("click", () => refs.assetFileInput.click());
-  refs.designBadge.addEventListener("click", openDesignWorkspaceModal);
-  refs.openLocalesBtn.addEventListener("click", openLocalesModal);
-  refs.openAssetsBtn.addEventListener("click", openImageWorkspaceModal);
+  refs.designBadge.addEventListener("click", handleDesignBadgeClick);
+  refs.translationBadge.addEventListener("click", handleTranslationBadgeClick);
+  refs.openLocalesBtn.addEventListener("click", handleLocalesBadgeClick);
+  refs.openAssetsBtn.addEventListener("click", handleAssetsBadgeClick);
   refs.openCodeBtn.addEventListener("click", openCodeModal);
   refs.openContextBtn.addEventListener("click", openContextModal);
   refs.openDesignQuickBtn.addEventListener("click", openDesignWorkspaceModal);
@@ -316,8 +467,12 @@ function bindEvents() {
   refs.openTestsQuickBtn.addEventListener("click", openTestsModal);
   refs.openJournalBtn.addEventListener("click", openJournalModal);
   refs.openJournalFromSettingsBtn.addEventListener("click", openJournalModal);
+  if (refs.openRulesFromSettingsBtn) refs.openRulesFromSettingsBtn.addEventListener("click", openRulesModal);
+  if (refs.openLessonsFromSettingsBtn) refs.openLessonsFromSettingsBtn.addEventListener("click", openLessonsModal);
   refs.copyPreviewHtmlBtn.addEventListener("click", handleCopyPreviewHtml);
   refs.openBlocksBtn.addEventListener("click", scrollToBlocks);
+  refs.toggleBlocksBtn.addEventListener("click", toggleBlocksSection);
+  refs.hideBlocksBtn.addEventListener("click", toggleBlocksSection);
   refs.openBlockCandidatesBtn.addEventListener("click", openBlockCandidatesModal);
   refs.refreshCatalogBtn.addEventListener("click", handleRefreshBlockCatalog);
   refs.closeLocalesModalBtn.addEventListener("click", closeWorkspaceModal);
@@ -338,12 +493,65 @@ function bindEvents() {
   refs.workspaceModalBackdrop.addEventListener("click", closeWorkspaceModal);
   refs.saveLocaleEditsBtn.addEventListener("click", saveLocaleEdits);
   refs.saveCodeBtn.addEventListener("click", saveCodeEdits);
+  refs.toggleCodeEditBtn.addEventListener("click", handleToggleCodeEdit);
   refs.createBaseMailFromCodeBtn.addEventListener("click", handleCreateBaseMail);
   refs.saveRuleBtn.addEventListener("click", handleSaveRule);
   refs.clearRulesBtn.addEventListener("click", handleClearRules);
   refs.clearJournalBtn.addEventListener("click", handleClearJournal);
-  refs.saveDesignReferenceBtn.addEventListener("click", handleSaveDesignReference);
-  refs.clearDesignReferenceBtn.addEventListener("click", handleClearDesignReference);
+  // AI Lessons
+  if (refs.openLessonsBtn) refs.openLessonsBtn.addEventListener("click", openLessonsModal);
+  if (refs.closeLessonsModalBtn) refs.closeLessonsModalBtn.addEventListener("click", closeWorkspaceModal);
+  if (refs.closeLessonsFooterBtn) refs.closeLessonsFooterBtn.addEventListener("click", closeWorkspaceModal);
+  if (refs.saveLessonBtn) refs.saveLessonBtn.addEventListener("click", handleSaveLesson);
+  if (refs.clearLessonsBtn) refs.clearLessonsBtn.addEventListener("click", handleClearLessons);
+  if (refs.rememberLastBtn) refs.rememberLastBtn.addEventListener("click", openRememberModal);
+  if (refs.closeRememberModalBtn) refs.closeRememberModalBtn.addEventListener("click", closeWorkspaceModal);
+  if (refs.closeRememberFooterBtn) refs.closeRememberFooterBtn.addEventListener("click", closeWorkspaceModal);
+  if (refs.saveRememberBtn) refs.saveRememberBtn.addEventListener("click", handleSaveRememberLesson);
+  if (refs.saveDesignReferenceBtn) refs.saveDesignReferenceBtn.addEventListener("click", handleSaveDesignReference);
+  if (refs.clearDesignReferenceBtn) refs.clearDesignReferenceBtn.addEventListener("click", handleClearDesignReference);
+  refs.importFigmaPayloadBtn.addEventListener("click", handleImportFigmaPayload);
+  refs.loadFigmaPayloadFileBtn.addEventListener("click", () => refs.figmaPayloadFileInput.click());
+  refs.clearFigmaPayloadBtn.addEventListener("click", handleClearFigmaPayload);
+  refs.figmaPayloadFileInput.addEventListener("change", handleFigmaPayloadFileUpload);
+
+  // Design tab switching
+  document.querySelectorAll(".design-tab-btn").forEach((btn) => {
+    btn.addEventListener("click", () => switchDesignTab(btn.dataset.designTab));
+  });
+
+  // Figma scan
+  if (refs.scanFigmaBtn) refs.scanFigmaBtn.addEventListener("click", handleScanFigma);
+
+  // Screenshot tab paste zone - listens for paste when inside modal
+  if (refs.screenshotPasteZone) {
+    refs.screenshotPasteZone.addEventListener("click", () => refs.screenshotPasteZone.focus());
+  }
+  if (refs.uploadScreenshotBtn) {
+    refs.uploadScreenshotBtn.addEventListener("click", () => refs.designFile && refs.designFile.click());
+  }
+
+  // Base email: clone & edit
+  if (refs.openBaseEmailBtn) refs.openBaseEmailBtn.addEventListener("click", openBaseEmailModal);
+  if (refs.uploadBaseEmailBtn) refs.uploadBaseEmailBtn.addEventListener("click", () => refs.baseEmailFileInput && refs.baseEmailFileInput.click());
+  if (refs.baseEmailFileInput) refs.baseEmailFileInput.addEventListener("change", handleBaseEmailFileUpload);
+  if (refs.pasteBaseEmailBtn) refs.pasteBaseEmailBtn.addEventListener("click", showBaseEmailPasteZone);
+  if (refs.confirmBaseEmailPasteBtn) refs.confirmBaseEmailPasteBtn.addEventListener("click", handleBaseEmailPasteConfirm);
+  if (refs.cancelBaseEmailPasteBtn) refs.cancelBaseEmailPasteBtn.addEventListener("click", hideBaseEmailPasteZone);
+  if (refs.clearBaseEmailBtn) refs.clearBaseEmailBtn.addEventListener("click", clearBaseEmail);
+  if (refs.clearBaseEmailInlineBtn) refs.clearBaseEmailInlineBtn.addEventListener("click", clearBaseEmail);
+
+  // Base email drag & drop
+  if (refs.baseEmailDropZone) {
+    refs.baseEmailDropZone.addEventListener("dragover", (e) => { e.preventDefault(); refs.baseEmailDropZone.classList.add("is-dragover"); });
+    refs.baseEmailDropZone.addEventListener("dragleave", () => refs.baseEmailDropZone.classList.remove("is-dragover"));
+    refs.baseEmailDropZone.addEventListener("drop", (e) => {
+      e.preventDefault();
+      refs.baseEmailDropZone.classList.remove("is-dragover");
+      const file = e.dataTransfer?.files?.[0];
+      if (file) loadBaseEmailFile(file);
+    });
+  }
 
   for (const [key, element] of Object.entries(refs.fields)) {
     element.addEventListener("input", () => {
@@ -363,6 +571,13 @@ function bindEvents() {
   refs.assetFileInput.addEventListener("change", handleAssetUpload);
   refs.localeEditor.addEventListener("input", handleLocaleEditorInput);
   refs.codeOutput.addEventListener("input", handleCodeEditorInput);
+  // Sync scroll: keep highlight aligned with textarea
+  refs.codeOutput.addEventListener("scroll", () => {
+    if (refs.codeHighlight) {
+      refs.codeHighlight.scrollTop = refs.codeOutput.scrollTop;
+      refs.codeHighlight.scrollLeft = refs.codeOutput.scrollLeft;
+    }
+  });
   bindChatDropTargets();
   window.addEventListener("resize", positionHelpTips);
 
@@ -401,13 +616,8 @@ function bindEvents() {
   for (const tab of refs.codeTabs) {
     tab.addEventListener("click", () => {
       state.activeTab = tab.dataset.tab;
-      state.codeEditorBuffer = state.activeTab === "html"
-        ? getCurrentPreviewHtml()
-        : state.activeTab === "locales"
-          ? getCurrentLocalePayload()
-          : state.activeTab === "buildLog"
-            ? getCurrentLocaleBuildLog()
-            : (state.draft?.[codeMap[state.activeTab]] || "");
+      syncCodeSelectionWithPreviewLocale();
+      syncCodeEditorBufferForActiveContext(true);
       renderTabs();
       renderCode();
       persistState();
@@ -448,6 +658,7 @@ async function loadApiStatus() {
       config: null,
       providers: [],
       clientProfiles: [],
+      figma: null,
       emailBase: null,
       blockCatalog: null,
       assetRegistry: null,
@@ -548,6 +759,11 @@ function hydrateFromStorage() {
       },
       providerRuntime: saved.providerRuntime ?? null,
       designAnalysis: saved.designAnalysis ?? null,
+      figmaScanResult: saved.figmaScanResult ?? null,
+      baseEmailHtml: saved.baseEmailHtml ?? null,
+      baseEmailFileName: saved.baseEmailFileName ?? "",
+      baseEmailContentMap: saved.baseEmailContentMap ?? null,
+      scaffoldContext: saved.scaffoldContext ?? null,
       previewLocale: cleanText(saved.previewLocale),
       assetInputs: Array.isArray(saved.assetInputs) && saved.assetInputs.length > 0
         ? saved.assetInputs
@@ -583,7 +799,8 @@ function persistState() {
     translationUploadStatus: state.translationUploadStatus,
     assetInputs: state.assetInputs,
     messages: state.messages,
-    draft
+    draft,
+    scaffoldContext: state.scaffoldContext || null
   };
 
   try {
@@ -648,9 +865,382 @@ function getCurrentLocaleBuildLog() {
   return cleanText(state.draft?.localeBuildLogs?.[locale]) || cleanText(state.draft?.buildLog) || "Build log появится после первого build.";
 }
 
+function isCodeLocaleAwareTab(tab) {
+  return ["html", "locales", "buildLog"].includes(cleanText(tab));
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function getCodeFileBaseName(filePath) {
+  return cleanText(filePath).split("/").pop() || "file";
+}
+
+function inferCodeFileLanguage(file) {
+  const tab = cleanText(file?.tab);
+  const explicit = cleanText(file?.language);
+  const filePath = cleanText(file?.path).toLowerCase();
+
+  if (explicit) {
+    return explicit;
+  }
+  if (tab === "pug") {
+    return "pug";
+  }
+  if (tab === "stylus") {
+    return filePath.endsWith(".css") ? "css" : "stylus";
+  }
+  if (tab === "html") {
+    return "html";
+  }
+  if (tab === "locales" || tab === "assets" || tab === "spec") {
+    return "json";
+  }
+  if (tab === "buildLog") {
+    return "log";
+  }
+  return "text";
+}
+
+function createVirtualCodeFile(entry, index = 0) {
+  const tab = cleanText(entry?.tab) || "spec";
+  const locale = cleanText(entry?.locale);
+  const path = cleanText(entry?.path) || `${tab}/file-${index + 1}.txt`;
+  return {
+    id: cleanText(entry?.id) || `${tab}:${locale || "default"}:${path}`,
+    tab,
+    locale,
+    path,
+    label: cleanText(entry?.label) || getCodeFileBaseName(path),
+    language: inferCodeFileLanguage(entry),
+    editable: entry?.editable !== false,
+    mailRelativePath: cleanText(entry?.mailRelativePath),
+    sourcePath: cleanText(entry?.sourcePath),
+    content: typeof entry?.content === "string" ? entry.content : JSON.stringify(entry?.content || {}, null, 2)
+  };
+}
+
+function getDraftWorkspaceFiles() {
+  return Array.isArray(state.draft?.workspaceFiles)
+    ? state.draft.workspaceFiles.map((file, index) => createVirtualCodeFile(file, index))
+    : [];
+}
+
+function buildFallbackCodeFilesForTab(tab) {
+  if (!state.draft) {
+    return [];
+  }
+
+  if (tab === "html") {
+    const previewLocales = state.draft.previewLocales && typeof state.draft.previewLocales === "object"
+      ? Object.entries(state.draft.previewLocales)
+      : [];
+    if (previewLocales.length > 0) {
+      return previewLocales.map(([locale, content], index) => createVirtualCodeFile({
+        tab: "html",
+        locale,
+        path: `preview/${locale}.html`,
+        label: `${locale}.html`,
+        content
+      }, index));
+    }
+    return [createVirtualCodeFile({
+      tab: "html",
+      locale: getCurrentPreviewLocale(),
+      path: "preview/current.html",
+      label: "current.html",
+      content: getCurrentPreviewHtml()
+    })];
+  }
+
+  if (tab === "locales") {
+    const localePayloads = state.draft.localePayloads && typeof state.draft.localePayloads === "object"
+      ? Object.entries(state.draft.localePayloads)
+      : [];
+    if (localePayloads.length > 0) {
+      return localePayloads.map(([locale, content], index) => createVirtualCodeFile({
+        tab: "locales",
+        locale,
+        path: `locales/${locale}.json`,
+        label: `${locale}.json`,
+        content
+      }, index));
+    }
+    return [createVirtualCodeFile({
+      tab: "locales",
+      locale: getCurrentPreviewLocale(),
+      path: "locales/bundle.json",
+      label: "bundle.json",
+      content: state.draft.locales || "Локали появятся после первого build."
+    })];
+  }
+
+  if (tab === "buildLog") {
+    const buildLogs = state.draft.localeBuildLogs && typeof state.draft.localeBuildLogs === "object"
+      ? Object.entries(state.draft.localeBuildLogs)
+      : [];
+    if (buildLogs.length > 0) {
+      return buildLogs.map(([locale, content], index) => createVirtualCodeFile({
+        tab: "buildLog",
+        locale,
+        path: `logs/${locale}.log`,
+        label: `${locale}.log`,
+        editable: false,
+        content
+      }, index));
+    }
+    return [createVirtualCodeFile({
+      tab: "buildLog",
+      locale: getCurrentPreviewLocale(),
+      path: "logs/build.log",
+      label: "build.log",
+      editable: false,
+      content: getCurrentLocaleBuildLog()
+    })];
+  }
+
+  if (tab === "pug") {
+    return [createVirtualCodeFile({
+      tab: "pug",
+      path: "app/templates/index.pug",
+      label: "index.pug",
+      mailRelativePath: "app/templates/index.pug",
+      content: state.draft.pug || "Pug появится после первого build."
+    })];
+  }
+
+  if (tab === "stylus") {
+    return [createVirtualCodeFile({
+      tab: "stylus",
+      path: "app/styles/common.styl",
+      label: "common.styl",
+      mailRelativePath: "app/styles/common.styl",
+      content: state.draft.stylus || "Stylus пока не загружен. Он появится после реального email-base build."
+    })];
+  }
+
+  if (tab === "assets") {
+    return [createVirtualCodeFile({
+      tab: "assets",
+      path: "studio/assets.json",
+      label: "assets.json",
+      content: state.draft.assetsManifest || "{}"
+    })];
+  }
+
+  return [createVirtualCodeFile({
+    tab: "spec",
+    path: "studio/mail-spec.json",
+    label: "mail-spec.json",
+    content: state.draft.spec || "{}"
+  })];
+}
+
+function getCodeFilesForTab(tab = state.activeTab) {
+  const workspaceFiles = getDraftWorkspaceFiles().filter((file) => file.tab === tab);
+  if (workspaceFiles.length > 0) {
+    return workspaceFiles;
+  }
+  return buildFallbackCodeFilesForTab(tab);
+}
+
+function getPreferredCodeFileId(tab = state.activeTab) {
+  const files = getCodeFilesForTab(tab);
+  if (files.length === 0) {
+    return "";
+  }
+
+  const remembered = cleanText(state.codeFileSelection?.[tab]);
+  if (remembered && files.some((file) => file.id === remembered)) {
+    return remembered;
+  }
+
+  if (isCodeLocaleAwareTab(tab)) {
+    const locale = getCurrentPreviewLocale();
+    const localeFile = files.find((file) => cleanText(file.locale) === locale);
+    if (localeFile) {
+      return localeFile.id;
+    }
+  }
+
+  const indexFile = files.find((file) => /(^|\/)index\.(pug|jade|html)$/i.test(cleanText(file.path)));
+  if (indexFile) {
+    return indexFile.id;
+  }
+
+  const commonStyleFile = files.find((file) => /(^|\/)common\.(styl|css)$/i.test(cleanText(file.path)));
+  if (commonStyleFile) {
+    return commonStyleFile.id;
+  }
+
+  return files[0].id;
+}
+
+function getCurrentCodeFile(tab = state.activeTab) {
+  const files = getCodeFilesForTab(tab);
+  if (files.length === 0) {
+    return null;
+  }
+
+  const selectedId = getPreferredCodeFileId(tab);
+  state.codeFileSelection[tab] = selectedId;
+  return files.find((file) => file.id === selectedId) || files[0];
+}
+
+function syncCodeSelectionWithPreviewLocale() {
+  if (!isCodeLocaleAwareTab(state.activeTab)) {
+    return;
+  }
+
+  const files = getCodeFilesForTab(state.activeTab);
+  const locale = getCurrentPreviewLocale();
+  const localeFile = files.find((file) => cleanText(file.locale) === locale);
+  if (localeFile) {
+    state.codeFileSelection[state.activeTab] = localeFile.id;
+  }
+}
+
+function syncCodeEditorBufferForActiveContext(force = false) {
+  const activeFile = getCurrentCodeFile();
+  const nextValue = cleanText(activeFile?.content) || "Код появится после первого draft или build.";
+
+  if (force || !state.codeEditorBuffer || refs.codeModal.getAttribute("aria-hidden") !== "false") {
+    state.codeEditorBuffer = nextValue;
+  }
+}
+
+function resetCodeWorkspaceSelection() {
+  state.codeFileSelection = {};
+  state.codeEditorBuffer = "";
+}
+
+function setPreviewLocale(locale) {
+  state.previewLocale = locale;
+  syncCodeSelectionWithPreviewLocale();
+  syncCodeEditorBufferForActiveContext(true);
+  renderSummary();
+  renderPreviewLocaleTabs();
+  renderPreview();
+  renderCode();
+  persistState();
+}
+
+function highlightJsonCode(source) {
+  return escapeHtml(source)
+    .split("\n")
+    .map((line) => {
+      let html = line;
+      html = html.replace(/("(?:\\.|[^"\\])*")(\s*:)/g, '<span class="code-token key">$1</span>$2');
+      html = html.replace(/:\s*("(?:\\.|[^"\\])*")/g, ': <span class="code-token string">$1</span>');
+      html = html.replace(/\b(true|false|null)\b/g, '<span class="code-token atom">$1</span>');
+      html = html.replace(/\b(-?\d+(?:\.\d+)?)\b/g, '<span class="code-token number">$1</span>');
+      return `<span class="code-line">${html}</span>`;
+    })
+    .join("");
+}
+
+function highlightHtmlCode(source) {
+  return source
+    .split("\n")
+    .map((line) => {
+      const trimmed = line.trim();
+      if (trimmed.startsWith("<!--") && trimmed.endsWith("-->")) {
+        return `<span class="code-line"><span class="code-token comment">${escapeHtml(line)}</span></span>`;
+      }
+
+      const escaped = escapeHtml(line).replace(/&lt;[^&]*?&gt;/g, (tag) => {
+        let nextTag = tag.replace(/^(&lt;\/?)([A-Za-z0-9:-]+)/, '$1<span class="code-token tag">$2</span>');
+        nextTag = nextTag.replace(/\s([A-Za-z-:]+)(=)/g, ' <span class="code-token attr">$1</span>$2');
+        nextTag = nextTag.replace(/=(&quot;[^"]*?&quot;)/g, '=<span class="code-token string">$1</span>');
+        return nextTag;
+      });
+
+      return `<span class="code-line">${escaped || "&nbsp;"}</span>`;
+    })
+    .join("");
+}
+
+function highlightPugLikeCode(source) {
+  return source
+    .split("\n")
+    .map((line) => {
+      let html = escapeHtml(line);
+      if (/^\s*\/\/-?/.test(line)) {
+        return `<span class="code-line"><span class="code-token comment">${html}</span></span>`;
+      }
+
+      html = html.replace(/("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')/g, '<span class="code-token string">$1</span>');
+      html = html.replace(/^(\s*)(include|extends|block|append|prepend|mixin|each|if|else|doctype|case|when|default)\b/, '$1<span class="code-token keyword">$2</span>');
+      html = html.replace(/(^|\s)(\.[A-Za-z0-9_-]+|#[A-Za-z0-9_-]+)/g, '$1<span class="code-token selector">$2</span>');
+      return `<span class="code-line">${html || "&nbsp;"}</span>`;
+    })
+    .join("");
+}
+
+function highlightStylusLikeCode(source) {
+  return source
+    .split("\n")
+    .map((line) => {
+      let html = escapeHtml(line);
+      if (/^\s*\/\//.test(line)) {
+        return `<span class="code-line"><span class="code-token comment">${html}</span></span>`;
+      }
+
+      html = html.replace(/("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')/g, '<span class="code-token string">$1</span>');
+      html = html.replace(/\b(@media|@supports|@import|@font-face|@require)\b/g, '<span class="code-token keyword">$1</span>');
+      html = html.replace(/^(\s*[.#@]?[A-Za-z0-9_-][^{;]*)$/, (full) => /:\s/.test(full) ? full : `<span class="code-token selector">${full}</span>`);
+      html = html.replace(/^(\s*)([A-Za-z-]+)(?=\s*:)/, '$1<span class="code-token attr">$2</span>');
+      html = html.replace(/\b(-?\d+(?:\.\d+)?(?:px|rem|em|%|vh|vw)?)\b/g, '<span class="code-token number">$1</span>');
+      return `<span class="code-line">${html || "&nbsp;"}</span>`;
+    })
+    .join("");
+}
+
+function highlightLogCode(source) {
+  return escapeHtml(source)
+    .split("\n")
+    .map((line) => {
+      if (/\berror|failed|exception\b/i.test(line)) {
+        return `<span class="code-line"><span class="code-token danger">${line}</span></span>`;
+      }
+      if (/\bwarning|warn|missing|gap\b/i.test(line)) {
+        return `<span class="code-line"><span class="code-token warning">${line}</span></span>`;
+      }
+      if (/\bok|success|built|completed|loaded\b/i.test(line)) {
+        return `<span class="code-line"><span class="code-token success">${line}</span></span>`;
+      }
+      return `<span class="code-line">${line || "&nbsp;"}</span>`;
+    })
+    .join("");
+}
+
+function renderHighlightedCode(source, language) {
+  if (language === "json") {
+    return highlightJsonCode(source);
+  }
+  if (language === "html") {
+    return highlightHtmlCode(source);
+  }
+  if (language === "pug") {
+    return highlightPugLikeCode(source);
+  }
+  if (language === "stylus" || language === "css") {
+    return highlightStylusLikeCode(source);
+  }
+  if (language === "log") {
+    return highlightLogCode(source);
+  }
+  return escapeHtml(source);
+}
+
 function resetState() {
   localStorage.removeItem(storageKey);
   Object.assign(state, structuredClone(initialState));
+  resetCodeWorkspaceSelection();
   refs.designFile.value = "";
   refs.translationFile.value = "";
   refs.translationFolderInput.value = "";
@@ -711,6 +1301,77 @@ function toggleAttachMenu() {
   persistState();
 }
 
+function handleDesignBadgeClick() {
+  if (detectDesignInputKind() === "none") {
+    refs.designFile.click();
+    return;
+  }
+
+  openDesignWorkspaceModal();
+}
+
+function handleTranslationBadgeClick() {
+  if (getParsedLocaleEntries().length === 0) {
+    refs.translationFile.click();
+    return;
+  }
+
+  openLocalesModal();
+}
+
+function handleLocalesBadgeClick() {
+  if (getParsedLocaleEntries().length === 0) {
+    refs.translationFile.click();
+    return;
+  }
+
+  openLocalesModal();
+}
+
+function handleAssetsBadgeClick() {
+  const assetsCount = state.assetInputs.filter((asset) => asset.url).length;
+  if (assetsCount === 0) {
+    refs.assetFileInput.click();
+    return;
+  }
+
+  openImageWorkspaceModal();
+}
+
+async function handlePasteFigmaLink() {
+  let candidate = "";
+
+  try {
+    candidate = extractFigmaLinkFromText(await navigator.clipboard.readText());
+  } catch {
+    candidate = "";
+  }
+
+  if (!candidate) {
+    candidate = extractFigmaLinkFromText(window.prompt("Вставь ссылку на Figma frame", "") || "");
+  }
+
+  if (!candidate) {
+    return;
+  }
+
+  if (!parseFigmaReferenceUrl(candidate)) {
+    state.translationUploadStatus = "Это не похоже на Figma frame link.";
+    renderTranslationUploadStatus();
+    return;
+  }
+
+  setDesignReferenceUrl(candidate);
+  state.designAnalysis = null;
+  state.translationUploadStatus = "Figma frame link сохранен. Если frame приватный, следующий шаг: open draft/share link или скрин/export.";
+  state.messages.push({
+    role: "assistant",
+    content: "Сохранил Figma frame link. Если frame приватный, пришли open draft/share link или просто скрин/export выбранного frame."
+  });
+  renderAll();
+  persistState();
+}
+
 async function handleCopyPreviewHtml() {
   const html = getCurrentPreviewHtml();
   if (!cleanText(html)) {
@@ -735,7 +1396,7 @@ async function handleCopyPreviewHtml() {
 }
 
 function clearDesignWorkspace() {
-  state.design = { name: "", dataUrl: "" };
+  state.design = structuredClone(initialState.design);
   state.brief.designUrl = "";
   state.designAnalysis = null;
   state.translationUploadStatus = "Макет очищен.";
@@ -801,7 +1462,7 @@ function fillDemoScenario() {
   ];
   state.draft = null;
   state.previewSource = "draft";
-  state.design = { name: "", dataUrl: "" };
+  state.design = structuredClone(initialState.design);
   state.translationUploadStatus = "Демо bundle загружен вручную.";
   renderAll();
   persistState();
@@ -857,6 +1518,7 @@ async function applyDesignFile(file, sourceLabel = "", options = {}) {
   });
 
   state.design = {
+    ...state.design,
     name: entry?.label || file.name,
     dataUrl: getPreferredAssetUrl(entry),
     assetId: entry?.id || ""
@@ -867,9 +1529,11 @@ async function applyDesignFile(file, sourceLabel = "", options = {}) {
     state.assetInputs = [createEmptyAsset(1)];
   }
   removeDesignFromAssetInputs();
-  state.translationUploadStatus = sourceLabel
-    ? `Design attached from ${sourceLabel}.`
-    : `${file.name} загружен как design reference.`;
+  if (!options.skipStatus) {
+    state.translationUploadStatus = sourceLabel
+      ? `Design attached from ${sourceLabel}.`
+      : `${file.name} загружен как design reference.`;
+  }
   renderDesignPreview();
   renderAttachmentSummary();
   persistState();
@@ -944,25 +1608,67 @@ function bindChatDropTargets() {
 
 async function handleChatPaste(event) {
   const items = Array.from(event.clipboardData?.items || []);
+
+  // 1. Image files — e.g. Figma "Copy as PNG" (Shift+Cmd+C)
   const files = items
     .filter((item) => item.kind === "file")
     .map((item) => item.getAsFile())
     .filter(Boolean);
 
-  if (files.length === 0) {
+  if (files.length > 0) {
+    event.preventDefault();
+    try {
+      await applyChatFiles(files, "clipboard");
+    } catch (error) {
+      state.messages.push({
+        role: "assistant",
+        content: `Ошибка при вставке файлов: ${error.message}`
+      });
+      renderAll();
+      persistState();
+    }
     return;
   }
 
-  event.preventDefault();
-  try {
-    await applyChatFiles(files, "clipboard");
-  } catch (error) {
-    state.messages.push({
-      role: "assistant",
-      content: `Ошибка при вставке файлов: ${error.message}`
+  // 2. Detect pasted text — Figma URL or HTML email
+  const textItem = items.find((item) => item.kind === "string" && item.type === "text/plain");
+  if (textItem) {
+    textItem.getAsString((text) => {
+      const trimmed = text.trim();
+
+      // 2a. HTML email code → offer Clone & Edit
+      const looksLikeHtml = /^<!doctype\s+html|^<html[\s>]|<table[\s>].*<\/table>/is.test(trimmed)
+        && trimmed.length > 200;
+      if (looksLikeHtml) {
+        event.preventDefault();
+        processBaseEmailHtml(trimmed, "pasted-email.html");
+        state.messages.push({
+          role: "assistant",
+          content: "📧 Вижу HTML письма — загружаю как base email. Напиши что нужно поменять: текст, ссылки, картинки, добавить/убрать блоки."
+        });
+        renderAll();
+        persistState();
+        return;
+      }
+
+      // 2b. Pure Figma URL (nothing else in clipboard) → auto-open browse modal
+      const isFigmaUrl = /^https?:\/\/(www\.)?figma\.com\/(design|file|proto)\//.test(trimmed)
+        && !trimmed.includes("\n")
+        && trimmed === trimmed.trim();
+      if (isFigmaUrl) {
+        event.preventDefault();
+        // Save as design reference
+        setDesignReferenceUrl(trimmed);
+        // Populate the URL input in the design modal so Browse can read it
+        const urlInput = document.getElementById("designReferenceUrlInput");
+        if (urlInput) urlInput.value = trimmed;
+        // Trigger browse flow — opens the frames modal automatically
+        handleBrowseFigmaBtn();
+        return;
+      }
+
+      // Otherwise let default text paste work normally
     });
-    renderAll();
-    persistState();
   }
 }
 
@@ -999,32 +1705,74 @@ async function applyDroppedChatPayload(dataTransfer) {
   persistState();
 }
 
+function buildChatFileIntakeStatus({
+  sourceLabel = "",
+  translationCount = 0,
+  designCount = 0,
+  assetCount = 0,
+  singleImageBecameAsset = false
+} = {}) {
+  const source = cleanText(sourceLabel) || "chat intake";
+  const parts = [];
+
+  if (translationCount > 0) {
+    parts.push(`${translationCount} locale file(s)`);
+  }
+
+  if (designCount > 0 && assetCount > 0) {
+    parts.push(`1 design reference + ${assetCount} image asset(s)`);
+  } else if (designCount > 0) {
+    parts.push("1 design reference");
+  } else if (assetCount > 0) {
+    parts.push(`${assetCount} image asset(s)`);
+  }
+
+  if (parts.length === 0) {
+    return "Поддерживаются translation files и изображения.";
+  }
+
+  if (singleImageBecameAsset) {
+    return `Из ${source} добавил ${parts.join(" и ")}. Действующий design уже был загружен, поэтому картинка ушла в assets, а не заменила макет.`;
+  }
+
+  return `Из ${source} распознал и сохранил: ${parts.join(" и ")}.`;
+}
+
 async function applyChatFiles(files, sourceLabel = "") {
   const translationFiles = filterTranslationFiles(files);
   const imageFiles = files.filter(isImageFile);
+  const designShouldBeCaptured = shouldTreatFirstImageAsDesign();
+  let designCount = 0;
+  let assetCount = 0;
 
   if (translationFiles.length > 0) {
-    await applyTranslationFiles(translationFiles, sourceLabel || "chat intake");
+    await applyTranslationFiles(translationFiles, sourceLabel || "chat intake", { skipStatus: true });
   }
 
   if (imageFiles.length > 0) {
-    if (translationFiles.length === 0 && imageFiles.length === 1) {
+    if (translationFiles.length === 0 && imageFiles.length === 1 && designShouldBeCaptured) {
       await applyDesignFile(imageFiles[0], sourceLabel || "chat intake", {
-        resetAssetInputs: true
+        resetAssetInputs: true,
+        skipStatus: true
       });
-      return;
-    }
+      designCount = 1;
+    } else if (translationFiles.length === 0 && imageFiles.length === 1) {
+      await applyAssetFiles(imageFiles, sourceLabel || "chat intake", { skipStatus: true });
+      assetCount = 1;
+    } else {
+      const [designCandidate, ...assetCandidates] = designShouldBeCaptured
+        ? imageFiles
+        : [null, ...imageFiles];
 
-    const [designCandidate, ...assetCandidates] = shouldTreatFirstImageAsDesign()
-      ? imageFiles
-      : [null, ...imageFiles];
+      if (designCandidate) {
+        await applyDesignFile(designCandidate, sourceLabel || "chat intake", { skipStatus: true });
+        designCount = 1;
+      }
 
-    if (designCandidate) {
-      await applyDesignFile(designCandidate, sourceLabel || "chat intake");
-    }
-
-    if (assetCandidates.length > 0) {
-      await applyAssetFiles(assetCandidates, sourceLabel || "chat intake");
+      if (assetCandidates.length > 0) {
+        await applyAssetFiles(assetCandidates, sourceLabel || "chat intake", { skipStatus: true });
+        assetCount = assetCandidates.length;
+      }
     }
   }
 
@@ -1032,7 +1780,19 @@ async function applyChatFiles(files, sourceLabel = "") {
     state.translationUploadStatus = "Поддерживаются translation files и изображения.";
     renderTranslationUploadStatus();
     persistState();
+    return;
   }
+
+  state.translationUploadStatus = buildChatFileIntakeStatus({
+    sourceLabel,
+    translationCount: translationFiles.length,
+    designCount,
+    assetCount,
+    singleImageBecameAsset: imageFiles.length === 1 && designCount === 0 && assetCount === 1
+  });
+  renderTranslationUploadStatus();
+  renderAttachmentSummary();
+  persistState();
 }
 
 function applyReferenceLinksFromText(text, options = {}) {
@@ -1044,12 +1804,12 @@ function applyReferenceLinksFromText(text, options = {}) {
   const imageUrl = urls.find(looksLikeImageUrl);
   const figmaUrl = urls.find((url) => /figma\.com/i.test(url));
   const chosen = imageUrl || figmaUrl || urls[0];
-  state.brief.designUrl = chosen;
+  setDesignReferenceUrl(chosen);
   state.designAnalysis = null;
   state.translationUploadStatus = imageUrl
     ? "Сохранил ссылку на design/image reference из сообщения."
     : figmaUrl
-      ? "Сохранил Figma link как design reference. Для vision нужен публичный доступ или экспорт скрина."
+      ? "Сохранил Figma link как design reference."
       : "Сохранил ссылку как reference для письма.";
   if (options.announce !== false) {
     state.messages.push({
@@ -1057,7 +1817,7 @@ function applyReferenceLinksFromText(text, options = {}) {
       content: imageUrl
         ? "Вижу ссылку на изображение. Сохранил ее как design reference."
         : figmaUrl
-          ? "Вижу Figma link. Сохранил ее как reference, но для анализа макета надежнее прикладывать скрин или публичный image export."
+          ? "Вижу Figma link — сохранил как design reference. Можешь описать задачу, или вставь ссылку отдельной строкой чтобы сразу открыть нарезку фреймов."
           : "Сохранил ссылку как reference."
     });
   }
@@ -1066,7 +1826,7 @@ function applyReferenceLinksFromText(text, options = {}) {
 
 function handleSaveDesignReference() {
   const nextUrl = cleanText(refs.designReferenceUrlInput.value);
-  state.brief.designUrl = nextUrl;
+  setDesignReferenceUrl(nextUrl);
   state.designAnalysis = null;
   state.translationUploadStatus = nextUrl
     ? "Design reference URL сохранен."
@@ -1076,7 +1836,7 @@ function handleSaveDesignReference() {
     state.messages.push({
       role: "assistant",
       content: /figma\.com/i.test(nextUrl)
-        ? "Сохранил публичный Figma frame как design reference. Для точного vision лучше еще приложить export или скрин."
+        ? "Сохранил Figma frame как design reference. Если это приватный frame, для надежного разбора пришли open draft link или скрин/export."
         : looksLikeImageUrl(nextUrl)
           ? "Сохранил public image export как design reference."
           : "Сохранил reference URL как часть design context."
@@ -1087,12 +1847,300 @@ function handleSaveDesignReference() {
   persistState();
 }
 
+function handleImportFigmaPayload() {
+  const rawText = cleanText(refs.figmaPayloadInput.value);
+  if (!rawText) {
+    state.translationUploadStatus = "Вставь JSON export из Figma plugin/API перед импортом.";
+    renderTranslationUploadStatus();
+    return;
+  }
+
+  try {
+    const imported = summarizeFigmaImportPayload(rawText, state.brief.designUrl);
+    state.design = {
+      ...state.design,
+      figmaFileKey: imported.fileKey,
+      figmaNodeId: imported.nodeId,
+      figmaSelectionName: imported.selectionName,
+      figmaImport: imported
+    };
+    if (!cleanText(state.brief.designUrl) && imported.fileKey) {
+      const nodeParam = imported.nodeId ? `?node-id=${encodeURIComponent(imported.nodeId.replace(/:/g, "-"))}` : "";
+      state.brief.designUrl = `https://www.figma.com/file/${imported.fileKey}/${slugify(imported.selectionName || "frame")}${nodeParam}`;
+    } else {
+      updateDesignFigmaReference(state.brief.designUrl);
+    }
+    state.designAnalysis = null;
+    state.translationUploadStatus = "Structured Figma payload imported. Studio can now use file/frame/layer/text context.";
+    refs.figmaPayloadInput.value = "";
+    renderAll();
+    persistState();
+  } catch (error) {
+    state.translationUploadStatus = `Не смог распарсить Figma JSON: ${error.message}`;
+    renderTranslationUploadStatus();
+  }
+}
+
+async function handleFigmaPayloadFileUpload(event) {
+  const file = event.target.files?.[0];
+  if (!file) {
+    return;
+  }
+
+  try {
+    refs.figmaPayloadInput.value = await readFileAsText(file);
+    handleImportFigmaPayload();
+  } catch (error) {
+    state.translationUploadStatus = `Не смог прочитать Figma JSON: ${error.message}`;
+    renderTranslationUploadStatus();
+  }
+
+  event.target.value = "";
+}
+
+function handleClearFigmaPayload() {
+  state.design = {
+    ...state.design,
+    figmaImport: null,
+    figmaSelectionName: cleanText(parseFigmaReferenceUrl(state.brief.designUrl)?.selectionName),
+    figmaFileKey: cleanText(parseFigmaReferenceUrl(state.brief.designUrl)?.fileKey),
+    figmaNodeId: cleanText(parseFigmaReferenceUrl(state.brief.designUrl)?.nodeId)
+  };
+  state.designAnalysis = null;
+  state.translationUploadStatus = "Structured Figma payload cleared.";
+  renderAll();
+  persistState();
+}
+
 function handleClearDesignReference() {
-  state.brief.designUrl = "";
+  setDesignReferenceUrl("");
   state.designAnalysis = null;
   state.translationUploadStatus = "Design reference URL очищен.";
   renderAll();
   persistState();
+}
+
+// ── Design tabs ──────────────────────────────────────────────────
+
+function switchDesignTab(tab) {
+  state.designTab = tab || "figma";
+  const tabFigma = document.querySelector("#designTabFigma");
+  const tabScreenshot = document.querySelector("#designTabScreenshot");
+  if (tabFigma) tabFigma.hidden = (tab !== "figma");
+  if (tabScreenshot) tabScreenshot.hidden = (tab !== "screenshot");
+  document.querySelectorAll(".design-tab-btn").forEach((btn) => {
+    btn.classList.toggle("is-active", btn.dataset.designTab === tab);
+  });
+}
+
+async function handleScanFigma() {
+  const url = cleanText(refs.designReferenceUrlInput?.value);
+  if (!url || !/figma\.com/i.test(url)) {
+    if (refs.figmaScanStatus) refs.figmaScanStatus.textContent = "Вставь Figma URL выше.";
+    if (refs.figmaScanResult) refs.figmaScanResult.hidden = false;
+    return;
+  }
+
+  if (refs.figmaScanStatus) refs.figmaScanStatus.textContent = "Сканирую Figma...";
+  if (refs.figmaScanBody) refs.figmaScanBody.innerHTML = "";
+  if (refs.figmaScanResult) refs.figmaScanResult.hidden = false;
+  if (refs.scanFigmaBtn) refs.scanFigmaBtn.disabled = true;
+
+  try {
+    const resp = await fetch("/api/figma/inspect", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url })
+    });
+    const data = await resp.json();
+
+    if (!resp.ok || data.error) {
+      if (refs.figmaScanStatus) refs.figmaScanStatus.textContent = `Ошибка: ${data.error || "Не удалось получить данные"}`;
+      if (refs.figmaScanBody) refs.figmaScanBody.textContent = "Убедись что ссылка публичная (Share → Anyone with the link can view) или что FIGMA_API_TOKEN задан в .env";
+      return;
+    }
+
+    state.figmaScanResult = data;
+    // Save the URL as design reference
+    setDesignReferenceUrl(url);
+
+    const { summary, texts, components } = data;
+    if (refs.figmaScanStatus) {
+      refs.figmaScanStatus.textContent = `✓ Найдено: ${summary.layerCount} слоёв, ${summary.textCount} текстов, ${summary.componentCount} компонентов`;
+    }
+
+    if (refs.figmaScanBody) {
+      const lines = [];
+      if (components?.length) {
+        lines.push(`<div class="figma-scan-section">Компоненты (${components.length})</div>`);
+        components.slice(0, 8).forEach((c) => {
+          lines.push(`<div class="figma-scan-item">${escHtml(c)}</div>`);
+        });
+      }
+      if (texts?.length) {
+        lines.push(`<div class="figma-scan-section">Тексты (${texts.length})</div>`);
+        texts.slice(0, 12).forEach((t) => {
+          lines.push(`<div class="figma-scan-item">${escHtml(String(t).slice(0, 120))}</div>`);
+        });
+      }
+      if (!lines.length) lines.push('<div class="figma-scan-item">Данные получены, но слои не распознаны. Попробуй "Copy as PNG" и переключись на вкладку Screenshot.</div>');
+      refs.figmaScanBody.innerHTML = lines.join("");
+    }
+
+    state.messages.push({
+      role: "assistant",
+      content: `Просканировал Figma frame: нашёл ${summary.layerCount} слоёв, ${summary.textCount} текстов, ${summary.componentCount} компонентов. Данные добавлены в контекст — теперь говори что собрать.`
+    });
+    renderAll();
+    persistState();
+  } catch (err) {
+    if (refs.figmaScanStatus) refs.figmaScanStatus.textContent = `Ошибка: ${err.message}`;
+  } finally {
+    if (refs.scanFigmaBtn) refs.scanFigmaBtn.disabled = false;
+  }
+}
+
+// ── Base email: Clone & Edit ─────────────────────────────────────
+
+function openBaseEmailModal() {
+  state.assetsWorkspaceView = "design";
+  openWorkspaceModal("assets");
+  // Scroll to base email section
+  setTimeout(() => {
+    document.querySelector("#baseEmailSection")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, 150);
+}
+
+async function loadBaseEmailFile(file) {
+  if (!file) return;
+  const html = await readFileAsText(file);
+  await processBaseEmailHtml(html, file.name);
+}
+
+async function handleBaseEmailFileUpload() {
+  const file = refs.baseEmailFileInput?.files?.[0];
+  if (!file) return;
+  await loadBaseEmailFile(file);
+  if (refs.baseEmailFileInput) refs.baseEmailFileInput.value = "";
+}
+
+function showBaseEmailPasteZone() {
+  if (refs.baseEmailPasteZone) refs.baseEmailPasteZone.hidden = false;
+  if (refs.baseEmailPasteInput) refs.baseEmailPasteInput.focus();
+}
+
+function hideBaseEmailPasteZone() {
+  if (refs.baseEmailPasteZone) refs.baseEmailPasteZone.hidden = true;
+  if (refs.baseEmailPasteInput) refs.baseEmailPasteInput.value = "";
+}
+
+async function handleBaseEmailPasteConfirm() {
+  const html = refs.baseEmailPasteInput?.value?.trim() || "";
+  if (!html) return;
+  await processBaseEmailHtml(html, "pasted-email.html");
+  hideBaseEmailPasteZone();
+}
+
+async function processBaseEmailHtml(html, filename) {
+  if (!html || html.length < 50) return;
+
+  // Extract content map via server
+  let contentMap = null;
+  try {
+    const resp = await fetch("/api/email/extract-content", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ html })
+    });
+    const data = await resp.json();
+    if (data.ok) contentMap = data.contentMap;
+  } catch { /* fallback: no content map */ }
+
+  state.baseEmailHtml = html;
+  state.baseEmailFileName = filename || "email.html";
+  state.baseEmailContentMap = contentMap;
+
+  renderBaseEmailState();
+  persistState();
+
+  state.messages.push({
+    role: "assistant",
+    content: contentMap
+      ? `Загрузил базовое письмо "${filename}" — нашёл ${contentMap.sectionCount} текстовых блоков, ${contentMap.images?.length || 0} картинок, ${contentMap.links?.length || 0} ссылок. Скажи что нужно изменить — заменю текст, ссылки или картинки, сохранив вёрстку.`
+      : `Загрузил базовое письмо "${filename}". Скажи что нужно изменить.`
+  });
+  renderMessages();
+}
+
+function clearBaseEmail() {
+  state.baseEmailHtml = null;
+  state.baseEmailFileName = "";
+  state.baseEmailContentMap = null;
+  renderBaseEmailState();
+  persistState();
+}
+
+function renderBaseEmailState() {
+  const hasEmail = Boolean(state.baseEmailHtml);
+  if (refs.baseEmailEmptyState) refs.baseEmailEmptyState.hidden = hasEmail;
+  if (refs.baseEmailLoadedState) refs.baseEmailLoadedState.hidden = !hasEmail;
+  if (refs.clearBaseEmailBtn) refs.clearBaseEmailBtn.hidden = !hasEmail;
+  if (refs.openBaseEmailBtn) refs.openBaseEmailBtn.classList.toggle("has-content", hasEmail);
+
+  if (!hasEmail) return;
+
+  if (refs.baseEmailFileName) refs.baseEmailFileName.textContent = state.baseEmailFileName || "email.html";
+
+  const map = state.baseEmailContentMap;
+  if (refs.baseEmailStats) {
+    refs.baseEmailStats.textContent = map
+      ? `${map.sectionCount} блоков · ${map.images?.length || 0} картинок · ${map.links?.length || 0} ссылок · ${Math.round((state.baseEmailHtml?.length || 0) / 1024)}KB`
+      : `${Math.round((state.baseEmailHtml?.length || 0) / 1024)}KB`;
+  }
+
+  if (refs.baseEmailContentMap && map) {
+    const groups = [];
+
+    if (map.subject) {
+      groups.push(`<div class="base-email-section-group">
+        <div class="base-email-section-label">Тема</div>
+        <div class="base-email-section-item">${escHtml(map.subject)}</div>
+      </div>`);
+    }
+
+    if (map.sections?.length) {
+      const items = map.sections.slice(0, 8).map((s) =>
+        `<div class="base-email-section-item">${escHtml(s.slice(0, 100))}</div>`
+      ).join("");
+      groups.push(`<div class="base-email-section-group">
+        <div class="base-email-section-label">Текст (${map.sections.length})</div>
+        ${items}
+      </div>`);
+    }
+
+    if (map.images?.length) {
+      const items = map.images.slice(0, 4).map((src) => {
+        const short = src.replace(/^https?:\/\/[^/]+/, "").slice(0, 60);
+        return `<div class="base-email-section-item" title="${escHtml(src)}">🖼 ${escHtml(short)}</div>`;
+      }).join("");
+      groups.push(`<div class="base-email-section-group">
+        <div class="base-email-section-label">Картинки (${map.images.length})</div>
+        ${items}
+      </div>`);
+    }
+
+    if (map.links?.length) {
+      const items = map.links.slice(0, 4).map((l) =>
+        `<div class="base-email-section-item" title="${escHtml(l.href)}">🔗 ${escHtml(l.text)}</div>`
+      ).join("");
+      groups.push(`<div class="base-email-section-group">
+        <div class="base-email-section-label">Ссылки (${map.links.length})</div>
+        ${items}
+      </div>`);
+    }
+
+    refs.baseEmailContentMap.innerHTML = groups.join("") || "<div style='color:var(--muted);font-size:.9rem'>Структура загружена.</div>";
+  }
 }
 
 async function handleChatSubmit(event) {
@@ -1337,7 +2385,10 @@ function createChatRequestBody(intent) {
     design: state.design,
     designAnalysis: state.designAnalysis,
     settings: state.settings,
-    currentDraft: state.draft?.mail ?? null
+    currentDraft: state.draft?.mail ?? null,
+    baseEmailHtml: state.baseEmailHtml || null,
+    baseEmailContentMap: state.baseEmailContentMap || null,
+    scaffoldContext: state.scaffoldContext || null
   };
 }
 
@@ -1427,6 +2478,12 @@ function applyChatPayload(payload, assistantMessage) {
   assistantMessage.content = payload.assistantReply || assistantMessage.content || "Ответ готов.";
   state.mode = payload.mode;
   state.providerRuntime = payload.providerRuntime || null;
+  if (payload.clearDraft) {
+    state.previewSource = "draft";
+    state.draft = null;
+    state.previewLocale = cleanText(state.brief.locale || "en");
+    resetCodeWorkspaceSelection();
+  }
   if (payload.translationText) {
     state.translationText = payload.translationText;
   }
@@ -1440,9 +2497,688 @@ function applyChatPayload(payload, assistantMessage) {
     state.previewSource = payload.previewSource || "draft";
     state.draft = payload.draft;
     state.previewLocale = cleanText(payload.draft?.mail?.locale || state.brief.locale);
+    state.imageSlotPanelDismissed = false; // reset panel dismiss on new draft
+    resetCodeWorkspaceSelection();
   }
+
+  // Scaffold mode: handle locale_entries and/or brand_theme from AI response
+  if (state.scaffoldContext) {
+    const mailId   = payload.scaffoldMailId   || state.scaffoldContext.newMailId;
+    const category = payload.scaffoldCategory || state.scaffoldContext.category;
+    const lc       = payload.localeContent    || null;
+
+    if (payload.brandTheme) {
+      // Server already patched styl files in-process → rebuild (+ resolve tokens if we have them)
+      triggerScaffoldRebuildAfterTheme(mailId, category, lc);
+    } else if (lc && mailId) {
+      // No theme change — just rebuild and resolve tokens in the result
+      applyScaffoldLocaleContent(mailId, category, lc);
+    }
+  }
+
   renderAll();
 }
+
+async function triggerScaffoldRebuildAfterTheme(mailId, category, localeContent = null) {
+  if (!mailId || !category) return;
+  try {
+    // Server already patched styl files in-process; rebuild to get updated HTML.
+    // Optionally resolve scaffold tokens in the result if localeContent provided.
+    const res = await fetch("/api/email-base/rebuild", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ category, mailId, ...(localeContent ? { localeContent } : {}) })
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.previewHtml) {
+      if (!state.draft) state.draft = {};
+      state.draft.html = data.previewHtml;
+      state.previewSource = "scaffold";
+      if (localeContent) state.scaffoldContext = null; // tokens resolved — context no longer needed
+      persistState();
+      renderAll();
+    }
+  } catch (err) {
+    console.warn("[theme] rebuild after patch failed:", err.message);
+  }
+}
+
+async function applyScaffoldLocaleContent(mailId, category, localeContent) {
+  // Rebuild the mail with token resolution — server reads the existing built HTML,
+  // resolves ${{ ns.key }} tokens using localeContent, and returns the final preview.
+  try {
+    const res = await fetch("/api/email-base/rebuild", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        category: category || state.scaffoldContext?.category,
+        mailId,
+        localeContent
+      })
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.previewHtml) {
+      if (!state.draft) state.draft = {};
+      state.draft.html = data.previewHtml;
+      state.previewSource = "scaffold";
+      state.scaffoldContext = null; // tokens resolved — context done
+      persistState();
+      renderAll();
+    }
+  } catch (err) {
+    console.warn("[scaffold] token resolve failed:", err.message);
+  }
+}
+
+// ─── Figma Assets Browser ────────────────────────────────────────────────────
+
+const figmaAssets = {
+  overlay:      document.getElementById("figmaAssetsOverlay"),
+  title:        document.getElementById("figmaAssetsModalTitle"),
+  closeBtn:     document.getElementById("closeFigmaAssetsModal"),
+  pageSelect:   document.getElementById("figmaAssetsPageSelect"),
+  scaleSelect:  document.getElementById("figmaAssetsScale"),
+  formatSelect: document.getElementById("figmaAssetsFormat"),
+  selectAllBtn: document.getElementById("figmaSelectAllBtn"),
+  deselectBtn:  document.getElementById("figmaDeselectAllBtn"),
+  frameGrid:    document.getElementById("figmaAssetsFrameGrid"),
+  selectedCount:document.getElementById("figmaAssetsSelectedCount"),
+  exportBtn:    document.getElementById("exportFigmaAssetsBtn"),
+  exportStatus: document.getElementById("figmaAssetsExportStatus"),
+};
+
+let figmaBrowseData = null; // { fileName, pages: [...] }
+let figmaSelectedIds = new Set();
+let figmaFileKey = null;
+
+function openFigmaAssetsModal(fileKey, browseData) {
+  figmaFileKey    = fileKey;
+  figmaBrowseData = browseData;
+  figmaSelectedIds.clear();
+  figmaAssets.title.textContent = `Figma — ${browseData.fileName}`;
+
+  // Populate page selector
+  figmaAssets.pageSelect.innerHTML = browseData.pages
+    .map((p) => `<option value="${p.id}">${escapeHtml(p.name)}</option>`)
+    .join("");
+
+  renderFigmaFrameGrid();
+  updateFigmaSelectionCount();
+  figmaAssets.overlay.hidden = false;
+}
+
+function closeFigmaAssetsModal() {
+  figmaAssets.overlay.hidden = true;
+}
+
+function renderFigmaFrameGrid() {
+  if (!figmaBrowseData) return;
+  const pageId = figmaAssets.pageSelect.value;
+  const page   = figmaBrowseData.pages.find((p) => p.id === pageId) || figmaBrowseData.pages[0];
+  if (!page) { figmaAssets.frameGrid.innerHTML = "<p style='color:rgba(255,255,255,.4);padding:20px'>Нет фреймов на этой странице.</p>"; return; }
+
+  figmaAssets.frameGrid.innerHTML = page.frames.map((frame) => {
+    const sel = figmaSelectedIds.has(frame.id);
+    const exp = frame.assetUrl ? "is-exported" : "";
+    return `<div class="figma-frame-card ${sel ? "is-selected" : ""} ${exp}"
+                  data-frame-id="${escapeHtml(frame.id)}"
+                  data-frame-name="${escapeHtml(frame.name)}"
+                  title="${escapeHtml(frame.name)}">
+      <div class="figma-frame-preview-placeholder">▢</div>
+      <div class="figma-frame-name">${escapeHtml(frame.name)}</div>
+      <div class="figma-frame-dims">${frame.width} × ${frame.height}</div>
+      ${frame.assetUrl ? `<a class="figma-frame-asset-link" href="${escapeHtml(frame.assetUrl)}" target="_blank">✓ В ассетах</a>` : ""}
+    </div>`;
+  }).join("");
+}
+
+function updateFigmaSelectionCount() {
+  const n = figmaSelectedIds.size;
+  figmaAssets.selectedCount.textContent = `Выбрано: ${n}`;
+  figmaAssets.exportBtn.disabled = n === 0;
+}
+
+function bindFigmaAssetEvents() {
+  figmaAssets.closeBtn.addEventListener("click", closeFigmaAssetsModal);
+  figmaAssets.overlay.addEventListener("click", (e) => { if (e.target === figmaAssets.overlay) closeFigmaAssetsModal(); });
+
+  figmaAssets.pageSelect.addEventListener("change", () => {
+    figmaSelectedIds.clear();
+    renderFigmaFrameGrid();
+    updateFigmaSelectionCount();
+  });
+
+  figmaAssets.frameGrid.addEventListener("click", (e) => {
+    const card = e.target.closest(".figma-frame-card");
+    if (!card) return;
+    const id = card.dataset.frameId;
+    if (figmaSelectedIds.has(id)) figmaSelectedIds.delete(id);
+    else figmaSelectedIds.add(id);
+    card.classList.toggle("is-selected", figmaSelectedIds.has(id));
+    updateFigmaSelectionCount();
+  });
+
+  figmaAssets.selectAllBtn.addEventListener("click", () => {
+    if (!figmaBrowseData) return;
+    const pageId = figmaAssets.pageSelect.value;
+    const page   = figmaBrowseData.pages.find((p) => p.id === pageId) || figmaBrowseData.pages[0];
+    page?.frames.forEach((f) => figmaSelectedIds.add(f.id));
+    renderFigmaFrameGrid();
+    updateFigmaSelectionCount();
+  });
+
+  figmaAssets.deselectBtn.addEventListener("click", () => {
+    figmaSelectedIds.clear();
+    renderFigmaFrameGrid();
+    updateFigmaSelectionCount();
+  });
+
+  figmaAssets.exportBtn.addEventListener("click", exportSelectedFigmaFrames);
+}
+
+async function exportSelectedFigmaFrames() {
+  if (!figmaFileKey || !figmaSelectedIds.size) return;
+  const nodeIds = [...figmaSelectedIds];
+  const scale   = Number(figmaAssets.scaleSelect.value) || 2;
+  const format  = figmaAssets.formatSelect.value || "png";
+
+  figmaAssets.exportBtn.disabled = true;
+  figmaAssets.exportStatus.textContent = `Экспортируем ${nodeIds.length} фреймов…`;
+
+  try {
+    const res = await fetch("/api/figma/export-images", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fileKey: figmaFileKey, nodeIds, scale, format, save: true })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || res.statusText);
+
+    const ok    = data.images.filter((i) => i.assetUrl);
+    const fails = data.images.filter((i) => i.error);
+
+    // Mark exported frames in browse data
+    if (figmaBrowseData) {
+      for (const img of ok) {
+        for (const page of figmaBrowseData.pages) {
+          const f = page.frames.find((fr) => fr.id === img.nodeId);
+          if (f) f.assetUrl = img.assetUrl;
+        }
+      }
+    }
+
+    figmaAssets.exportStatus.textContent =
+      `✓ Сохранено: ${ok.length}` + (fails.length ? ` | Ошибок: ${fails.length}` : "");
+
+    figmaSelectedIds.clear();
+    renderFigmaFrameGrid();
+    updateFigmaSelectionCount();
+
+    // Refresh asset panel if open
+    if (typeof refreshAssetPanel === "function") refreshAssetPanel();
+
+  } catch (err) {
+    figmaAssets.exportStatus.textContent = `Ошибка: ${err.message}`;
+    figmaAssets.exportBtn.disabled = false;
+  }
+}
+
+async function handleBrowseFigmaBtn() {
+  const urlInput = document.getElementById("designReferenceUrlInput");
+  const url = urlInput?.value?.trim() || state.brief?.designReferenceUrl || "";
+  const statusEl = document.getElementById("figmaBrowseStatus");
+  const bodyEl   = document.getElementById("figmaBrowseBody");
+
+  if (!url) {
+    statusEl.textContent = "Сначала вставь Figma URL в поле выше.";
+    statusEl.hidden = false;
+    bodyEl.hidden = true;
+    return;
+  }
+
+  statusEl.textContent = "Загружаем список фреймов…";
+  statusEl.hidden = false;
+  bodyEl.hidden = true;
+
+  try {
+    const res = await fetch("/api/figma/browse", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || res.statusText);
+
+    // Extract fileKey from URL for export step
+    const match = url.match(/figma\.com\/(?:design|file|proto)\/([A-Za-z0-9_-]+)/);
+    const fileKey = match ? match[1] : null;
+
+    statusEl.hidden = true;
+    openFigmaAssetsModal(fileKey, data);
+
+  } catch (err) {
+    statusEl.textContent = `Ошибка: ${err.message}`;
+    statusEl.hidden = false;
+  }
+}
+
+// ─── Generation History ───────────────────────────────────────────────────────
+
+async function openHistoryModal() {
+  openWorkspaceModal("history");
+  await loadAndRenderHistory();
+}
+
+function closeHistoryModal() {
+  closeWorkspaceModal();
+}
+
+async function loadAndRenderHistory() {
+  refs.historyList.innerHTML = '<div class="history-empty">Загрузка…</div>';
+  try {
+    const res = await fetch("/api/history?limit=50");
+    if (!res.ok) throw new Error("Failed");
+    const { items } = await res.json();
+    renderHistoryList(items);
+  } catch (err) {
+    refs.historyList.innerHTML = `<div class="history-empty">Ошибка: ${escHtml(err.message)}</div>`;
+  }
+}
+
+function renderHistoryList(items) {
+  if (!items || items.length === 0) {
+    refs.historyList.innerHTML = '<div class="history-empty">История пуста. Генерации будут сохраняться автоматически.</div>';
+    return;
+  }
+
+  refs.historyList.innerHTML = items.map((item) => {
+    const time = formatHistoryTime(item.createdAt);
+    const subj = item.subject || "(без темы)";
+    const pre = item.preheader || "";
+    const pills = [item.category, item.mailId, item.locale, item.mode]
+      .filter(Boolean)
+      .map((p) => `<span class="history-pill">${escHtml(p)}</span>`)
+      .join("");
+
+    return `
+      <div class="history-item" data-id="${escHtml(item.id)}">
+        <div class="history-item-meta">${pills}</div>
+        <div class="history-item-time">${escHtml(time)}</div>
+        <div class="history-item-subject">${escHtml(subj)}</div>
+        ${pre ? `<div class="history-item-preheader">${escHtml(pre)}</div>` : ""}
+        <div class="history-item-actions">
+          <button class="ghost-button" style="font-size:12px" type="button"
+            data-history-restore="${escHtml(item.id)}">Восстановить brief →</button>
+          <button class="ghost-button" style="font-size:12px;opacity:0.45" type="button"
+            data-history-delete="${escHtml(item.id)}">✕</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  // Bind actions
+  refs.historyList.querySelectorAll("[data-history-restore]").forEach((btn) => {
+    btn.addEventListener("click", () => restoreHistoryItem(btn.dataset.historyRestore));
+  });
+  refs.historyList.querySelectorAll("[data-history-delete]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      await fetch(`/api/history/${btn.dataset.historyDelete}`, { method: "DELETE" });
+      await loadAndRenderHistory();
+    });
+  });
+}
+
+function formatHistoryTime(iso) {
+  if (!iso) return "";
+  try {
+    const d = new Date(iso);
+    const now = new Date();
+    const diffMs = now - d;
+    const diffMins = Math.floor(diffMs / 60000);
+    if (diffMins < 1) return "только что";
+    if (diffMins < 60) return `${diffMins} мин. назад`;
+    const diffH = Math.floor(diffMins / 60);
+    if (diffH < 24) return `${diffH} ч. назад`;
+    return d.toLocaleDateString("ru", { day: "numeric", month: "short" });
+  } catch {
+    return iso;
+  }
+}
+
+async function restoreHistoryItem(id) {
+  try {
+    const res = await fetch(`/api/history/${id}`);
+    if (!res.ok) throw new Error("Not found");
+    const data = await res.json();
+    // Restore to state + form — don't generate, just fill brief
+    if (data.html) {
+      // If we have the html snapshot, load it as current draft HTML (read-only preview)
+      state.messages.push({
+        role: "assistant",
+        content: `Восстановлен черновик из истории. Тема: ${data.html.match(/<title[^>]*>([^<]*)<\/title>/i)?.[1] || "(без темы)"}`
+      });
+    }
+    closeHistoryModal();
+    renderAll();
+    persistState();
+  } catch (err) {
+    state.messages.push({ role: "assistant", content: `Ошибка восстановления: ${err.message}` });
+    renderAll();
+  }
+}
+
+async function handleClearHistory() {
+  if (!confirm("Очистить всю историю генераций? Это действие нельзя отменить.")) return;
+  await fetch("/api/history/clear", { method: "POST" });
+  await loadAndRenderHistory();
+}
+
+// ─── Template Browser ─────────────────────────────────────────────────────────
+
+/** @type {{ tree: Array<{brand:string, label:string, mails:Array<{mailId:string, hasBuilt:boolean, locales:string[]}>}> } | null} */
+let templateBrowserData = null;
+/** @type {string|null} Active selection: "brand::mailId" */
+let templateBrowserActive = null;
+
+async function openTemplateBrowser() {
+  refs.templateBrowserDrawer.setAttribute("aria-hidden", "false");
+  refs.templateBrowserDrawer.classList.add("is-open");
+  refs.templateBrowserBackdrop.hidden = false;
+  refs.templateSearchInput.value = "";
+  if (!templateBrowserData) {
+    await loadTemplateBrowserData();
+  } else {
+    renderTemplateBrowserTree(templateBrowserData.tree);
+  }
+}
+
+function closeTemplateBrowser() {
+  refs.templateBrowserDrawer.setAttribute("aria-hidden", "true");
+  refs.templateBrowserDrawer.classList.remove("is-open");
+  refs.templateBrowserBackdrop.hidden = true;
+}
+
+async function loadTemplateBrowserData() {
+  refs.templateBrowserBody.innerHTML = '<div class="template-browser-loading">Загрузка…</div>';
+  try {
+    const res = await fetch("/api/email-base/tree");
+    if (!res.ok) throw new Error("Failed to load template tree");
+    templateBrowserData = await res.json();
+    renderTemplateBrowserTree(templateBrowserData.tree);
+  } catch (err) {
+    refs.templateBrowserBody.innerHTML = `<div class="template-browser-loading">Ошибка: ${escHtml(err.message)}</div>`;
+  }
+}
+
+function renderTemplateBrowserFiltered() {
+  if (!templateBrowserData) return;
+  const q = refs.templateSearchInput.value.toLowerCase().trim();
+  if (!q) {
+    renderTemplateBrowserTree(templateBrowserData.tree);
+    return;
+  }
+  const filtered = templateBrowserData.tree
+    .map((brand) => ({
+      ...brand,
+      mails: brand.mails.filter(
+        (m) => m.mailId.toLowerCase().includes(q) || brand.label.toLowerCase().includes(q)
+      )
+    }))
+    .filter((brand) => brand.mails.length > 0);
+  renderTemplateBrowserTree(filtered, true);
+}
+
+function renderTemplateBrowserTree(tree, expandAll = false) {
+  if (!tree || tree.length === 0) {
+    refs.templateBrowserBody.innerHTML = '<div class="template-browser-loading">Нет шаблонов.</div>';
+    return;
+  }
+
+  const html = tree.map((brand) => {
+    const isOpen = expandAll || templateBrowserData?.tree.indexOf(brand) === 0;
+    const mailItems = brand.mails.map((m) => {
+      const key = `${brand.brand}::${m.mailId}`;
+      const isActive = templateBrowserActive === key;
+      return `
+        <div class="template-mail-item${isActive ? " active" : ""}"
+          data-brand="${escHtml(brand.brand)}"
+          data-mail="${escHtml(m.mailId)}"
+          data-built="${m.hasBuilt}"
+          data-key="${escHtml(key)}">
+          <span class="template-mail-name">${escHtml(m.mailId)}</span>
+          <span class="template-mail-built-dot" title="${m.hasBuilt ? "Build exists" : "Not built yet"}"></span>
+        </div>
+        ${isActive ? renderTemplateQuickBar(brand.brand, m) : ""}
+      `;
+    }).join("");
+
+    return `
+      <div class="template-brand-group${isOpen ? " open" : ""}" data-brand="${escHtml(brand.brand)}">
+        <button class="template-brand-toggle" type="button">
+          <span>${escHtml(brand.label)}</span>
+          <span class="template-brand-count">${brand.mails.length}</span>
+          <span class="brand-chevron">▶</span>
+        </button>
+        <div class="template-mail-list">${mailItems}</div>
+      </div>
+    `;
+  }).join("");
+
+  refs.templateBrowserBody.innerHTML = html;
+
+  // Bind toggle clicks
+  refs.templateBrowserBody.querySelectorAll(".template-brand-toggle").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      btn.closest(".template-brand-group").classList.toggle("open");
+    });
+  });
+
+  // Bind mail item clicks
+  refs.templateBrowserBody.querySelectorAll(".template-mail-item").forEach((item) => {
+    item.addEventListener("click", () => {
+      const brand = item.dataset.brand;
+      const mailId = item.dataset.mail;
+      const key = item.dataset.key;
+      templateBrowserActive = templateBrowserActive === key ? null : key;
+      // Re-render tree to show/hide quick bar
+      renderTemplateBrowserFiltered();
+      // If search is empty, restore full tree but keep state
+      if (!refs.templateSearchInput.value.trim()) {
+        renderTemplateBrowserTree(templateBrowserData?.tree || []);
+      }
+    });
+  });
+
+  // Bind quick bar action buttons (delegated)
+  refs.templateBrowserBody.querySelectorAll("[data-tbaction]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const action = e.currentTarget.dataset.tbaction;
+      const brand = e.currentTarget.dataset.brand;
+      const mailId = e.currentTarget.dataset.mail;
+      const locale = e.currentTarget.dataset.locale || "";
+      if (action === "load") {
+        templateBrowserLoadMail(brand, mailId, locale);
+      } else if (action === "scaffold") {
+        openScaffoldModal(brand, mailId);
+      }
+    });
+  });
+}
+
+function renderTemplateQuickBar(brand, mail) {
+  const localeButtons = (mail.locales || []).map((loc) =>
+    `<button class="ghost-button" style="font-size:11px;padding:3px 8px" type="button"
+      data-tbaction="load" data-brand="${escHtml(brand)}" data-mail="${escHtml(mail.mailId)}" data-locale="${escHtml(loc)}">${escHtml(loc)}</button>`
+  ).join(" ");
+
+  // Show Clone button for system-type categories (X_AffSystem etc.)
+  const isAffSystem = /AffSystem|_System/i.test(brand);
+  const cloneBtn = isAffSystem
+    ? `<button class="ghost-button" style="font-size:12px;padding:4px 12px;color:rgba(255,180,50,.9);border-color:rgba(255,180,50,.3)" type="button"
+        data-tbaction="scaffold" data-brand="${escHtml(brand)}" data-mail="${escHtml(mail.mailId)}">
+        Clone →
+      </button>`
+    : "";
+
+  return `
+    <div class="template-quick-bar">
+      <div class="template-quick-bar-label">
+        <strong>${escHtml(mail.mailId)}</strong>
+        ${mail.hasBuilt ? `Build ready · ${mail.locales.length} locale(s)` : "Not built yet"}
+      </div>
+      <button class="primary-button" style="font-size:12px;padding:4px 12px" type="button"
+        data-tbaction="load" data-brand="${escHtml(brand)}" data-mail="${escHtml(mail.mailId)}" data-locale="">
+        Load →
+      </button>
+      ${localeButtons}
+      ${cloneBtn}
+    </div>
+  `;
+}
+
+async function templateBrowserLoadMail(brand, mailId, locale) {
+  // Pre-fill brief fields
+  if (refs.fields.category) refs.fields.category.value = brand;
+  if (refs.fields.mailId) refs.fields.mailId.value = mailId.replace(/^mail-/, "");
+  if (locale && refs.fields.locale) refs.fields.locale.value = locale;
+
+  // Update state.brief
+  state.brief.category = brand;
+  state.brief.mailId = mailId.replace(/^mail-/, "");
+  if (locale) state.brief.locale = locale;
+
+  closeTemplateBrowser();
+  persistState();
+  await handleLoadBaseEmail();
+}
+
+// ─── Scaffold Modal ──────────────────────────────────────────────────────────
+
+function openScaffoldModal(brand, templateMailId) {
+  // Remove any existing scaffold modal
+  document.getElementById("scaffoldModal")?.remove();
+
+  const modal = document.createElement("div");
+  modal.id = "scaffoldModal";
+  modal.className = "modal-overlay";
+  modal.innerHTML = `
+    <div class="modal-box" style="max-width:440px">
+      <div class="modal-header">
+        <span class="modal-title">Clone письма</span>
+        <button class="modal-close-btn" id="scaffoldModalClose" type="button">✕</button>
+      </div>
+      <div class="modal-body" style="padding:16px">
+        <p style="font-size:13px;color:rgba(255,255,255,.6);margin:0 0 14px">
+          Клонирует <strong>${escHtml(templateMailId)}</strong> из <strong>${escHtml(brand)}</strong>
+          в новое письмо. Токены переименуются автоматически.
+        </p>
+        <label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:5px">ID нового письма (без mail-)</label>
+        <input id="scaffoldNewMailId" type="text" placeholder="например: new-aff-welcome"
+          style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
+          border-radius:5px;color:rgba(255,255,255,.9);font-size:13px;padding:8px 10px;outline:none" />
+        <div id="scaffoldStatus" style="margin-top:10px;font-size:12px;color:rgba(255,255,255,.5);min-height:16px"></div>
+      </div>
+      <div class="modal-footer" style="padding:10px 16px;display:flex;gap:8px;justify-content:flex-end">
+        <button class="ghost-button" id="scaffoldCancelBtn" type="button">Отмена</button>
+        <button class="primary-button" id="scaffoldRunBtn" type="button">Клонировать →</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  const closeModal = () => modal.remove();
+  document.getElementById("scaffoldModalClose").addEventListener("click", closeModal);
+  document.getElementById("scaffoldCancelBtn").addEventListener("click", closeModal);
+  modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
+
+  const input = document.getElementById("scaffoldNewMailId");
+  const status = document.getElementById("scaffoldStatus");
+  const runBtn = document.getElementById("scaffoldRunBtn");
+
+  input.focus();
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") runBtn.click();
+  });
+
+  runBtn.addEventListener("click", async () => {
+    const newMailId = input.value.trim().toLowerCase().replace(/\s+/g, "-");
+    if (!newMailId) {
+      status.textContent = "⚠️ Введите ID нового письма";
+      status.style.color = "rgba(255,140,50,.8)";
+      return;
+    }
+
+    runBtn.disabled = true;
+    runBtn.textContent = "Клонирую…";
+    status.textContent = "Запускаю scaffold…";
+    status.style.color = "rgba(255,255,255,.5)";
+
+    try {
+      const res = await fetch("/api/email-base/scaffold", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          category: brand,
+          templateMail: templateMailId,
+          newMailId,
+          buildAfter: true
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Scaffold failed");
+
+      status.textContent = `✓ Создано: mail-${data.safeMailId} · ${data.blockCount} блоков · ${data.tokenKeys?.length} токенов`;
+      status.style.color = "rgba(100,220,120,.9)";
+      runBtn.textContent = "Готово ✓";
+      runBtn.disabled = false;
+
+      // Refresh template browser tree
+      templateBrowserData = null;
+
+      // Pre-fill brief for the new mail and let the user generate copy via AI
+      if (refs.fields.category) refs.fields.category.value = brand;
+      if (refs.fields.mailId) refs.fields.mailId.value = data.safeMailId;
+      state.brief.category = brand;
+      state.brief.mailId = data.safeMailId;
+
+      // Store scaffold context in state for the next AI call
+      state.scaffoldContext = {
+        newMailId: data.safeMailId,
+        namespace: data.namespace,
+        category: brand,
+        templateMail: templateMailId,
+        tokenKeys: data.tokenKeys || []
+      };
+
+      persistState();
+
+      // Close modal after 1.5s and refresh template browser
+      setTimeout(() => {
+        closeModal();
+        closeTemplateBrowser();
+        // Show a hint in the chat input
+        if (refs.chatInput) {
+          refs.chatInput.value = `Напиши копи для нового письма mail-${data.safeMailId} — заполни все ${data.tokenKeys?.length} токенов`;
+          refs.chatInput.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+      }, 1500);
+
+    } catch (err) {
+      status.textContent = `✗ Ошибка: ${err.message}`;
+      status.style.color = "rgba(255,100,100,.9)";
+      runBtn.disabled = false;
+      runBtn.textContent = "Клонировать →";
+    }
+  });
+}
+
+function escHtml(str) {
+  return String(str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+// ─── Load Base Email ───────────────────────────────────────────────────────────
 
 async function handleLoadBaseEmail() {
   state.busy = true;
@@ -1472,6 +3208,8 @@ async function handleLoadBaseEmail() {
     state.previewSource = "email-base";
     state.draft = payload.draft;
     state.previewLocale = cleanText(payload.draft?.mail?.locale || state.brief.locale);
+    state.imageSlotPanelDismissed = false;
+    resetCodeWorkspaceSelection();
     state.messages.push({
       role: "assistant",
       content: payload.assistantReply
@@ -1500,6 +3238,180 @@ async function handleCreateBaseMail() {
     persistState();
     return;
   }
+
+  // Show diff before saving
+  await openDiffModal();
+}
+
+async function openDiffModal() {
+  openWorkspaceModal("diff");
+  const mail = state.draft?.mail;
+  const category = cleanText(state.brief.category || mail?.category);
+  const mailId = cleanText(state.brief.mailId || mail?.mail_id);
+  const locale = cleanText(state.brief.locale || mail?.locale || "en");
+
+  refs.diffModalTitle.textContent = `Diff: ${category}/${mailId} (${locale})`;
+  refs.diffModalMeta.textContent = "Загружаю существующий шаблон для сравнения…";
+  refs.diffView.innerHTML = '<div class="diff-no-change">Загрузка…</div>';
+  refs.diffStats.innerHTML = "";
+
+  let oldHtml = "";
+  try {
+    const res = await fetch(`/api/email-base/read?category=${encodeURIComponent(category)}&mailId=${encodeURIComponent(mailId)}&locale=${encodeURIComponent(locale)}`);
+    if (res.ok) {
+      const data = await res.json();
+      oldHtml = data.html || "";
+      refs.diffModalMeta.textContent = oldHtml
+        ? `Сравнение с существующим шаблоном ${category}/${mailId} (locale: ${data.locale || locale})`
+        : `Шаблон ${category}/${mailId} ещё не существует — будет создан новый`;
+    } else {
+      refs.diffModalMeta.textContent = `Шаблон ${category}/${mailId} ещё не существует — будет создан новый`;
+    }
+  } catch {
+    refs.diffModalMeta.textContent = "Не удалось загрузить существующий шаблон — diff показывает только новый файл";
+  }
+
+  const newHtml = cleanText(mail?.html) || "";
+  renderDiffView(oldHtml, newHtml);
+}
+
+function renderDiffView(oldText, newText) {
+  const oldLines = oldText ? oldText.split("\n") : [];
+  const newLines = newText ? newText.split("\n") : [];
+
+  const hunks = computeDiffHunks(oldLines, newLines, 3);
+
+  let added = 0, removed = 0, unchanged = 0;
+  for (const hunk of hunks) {
+    for (const op of hunk) {
+      if (op.type === "added") added++;
+      else if (op.type === "removed") removed++;
+      else unchanged++;
+    }
+  }
+
+  refs.diffStats.innerHTML = `
+    <span class="diff-stat-added">+${added} добавлено</span>
+    <span class="diff-stat-removed">-${removed} удалено</span>
+    <span class="diff-stat-unchanged">${unchanged} без изменений</span>
+  `;
+
+  if (added === 0 && removed === 0) {
+    refs.diffView.innerHTML = '<div class="diff-no-change">Изменений нет — файлы идентичны.</div>';
+    return;
+  }
+
+  if (!oldText) {
+    // New file — show all lines as added
+    const lines = newLines.slice(0, 1000);
+    refs.diffView.innerHTML = lines.map((l) =>
+      `<div class="diff-line diff-line-added">${escHtml(l)}</div>`
+    ).join("") + (newLines.length > 1000 ? `<div class="diff-hunk-header">… ещё ${newLines.length - 1000} строк</div>` : "");
+    return;
+  }
+
+  let html = "";
+  for (const hunk of hunks) {
+    html += `<div class="diff-hunk-header">@@ Hunk @@</div>`;
+    for (const op of hunk) {
+      const cls = op.type === "added" ? "diff-line-added"
+        : op.type === "removed" ? "diff-line-removed"
+        : "diff-line-context";
+      html += `<div class="diff-line ${cls}">${escHtml(op.text)}</div>`;
+    }
+  }
+  refs.diffView.innerHTML = html;
+}
+
+/**
+ * Minimal Myers-style line diff returning hunks of context lines.
+ * contextLines: number of unchanged lines shown around each change.
+ */
+function computeDiffHunks(oldLines, newLines, contextLines = 3) {
+  // LCS-based diff
+  const ops = lineDiff(oldLines, newLines);
+
+  // Group into hunks around changed lines
+  const changed = new Set();
+  ops.forEach((op, i) => { if (op.type !== "context") changed.add(i); });
+
+  const include = new Set();
+  changed.forEach((i) => {
+    for (let j = Math.max(0, i - contextLines); j <= Math.min(ops.length - 1, i + contextLines); j++) {
+      include.add(j);
+    }
+  });
+
+  if (include.size === 0) return [];
+
+  const sorted = Array.from(include).sort((a, b) => a - b);
+  const hunks = [];
+  let hunk = [];
+  let prev = -2;
+
+  for (const i of sorted) {
+    if (i > prev + 1 && hunk.length > 0) {
+      hunks.push(hunk);
+      hunk = [];
+    }
+    hunk.push(ops[i]);
+    prev = i;
+  }
+  if (hunk.length > 0) hunks.push(hunk);
+
+  return hunks;
+}
+
+/**
+ * Patience-like line diff using LCS.
+ * Returns array of {type: "added"|"removed"|"context", text: string}
+ */
+function lineDiff(a, b) {
+  const m = a.length, n = b.length;
+  // DP table — only store last two rows for memory efficiency
+  // For large files, cap at 5000 lines each
+  const A = a.slice(0, 5000);
+  const B = b.slice(0, 5000);
+  const M = A.length, N = B.length;
+
+  const dp = Array.from({ length: M + 1 }, () => new Int32Array(N + 1));
+  for (let i = M - 1; i >= 0; i--) {
+    for (let j = N - 1; j >= 0; j--) {
+      if (A[i] === B[j]) {
+        dp[i][j] = dp[i + 1][j + 1] + 1;
+      } else {
+        dp[i][j] = Math.max(dp[i + 1][j], dp[i][j + 1]);
+      }
+    }
+  }
+
+  const result = [];
+  let i = 0, j = 0;
+  while (i < M && j < N) {
+    if (A[i] === B[j]) {
+      result.push({ type: "context", text: A[i] });
+      i++; j++;
+    } else if (dp[i + 1][j] >= dp[i][j + 1]) {
+      result.push({ type: "removed", text: A[i] });
+      i++;
+    } else {
+      result.push({ type: "added", text: B[j] });
+      j++;
+    }
+  }
+  while (i < M) { result.push({ type: "removed", text: A[i++] }); }
+  while (j < N) { result.push({ type: "added", text: B[j++] }); }
+
+  // If files were capped, append note
+  if (m > 5000 || n > 5000) {
+    result.push({ type: "added", text: `[… файлы обрезаны до 5000 строк для diff]` });
+  }
+
+  return result;
+}
+
+async function executeSaveToEmailBase() {
+  closeWorkspaceModal();
 
   state.busy = true;
   renderStatus();
@@ -1532,6 +3444,7 @@ async function handleCreateBaseMail() {
     state.previewSource = "email-base";
     state.draft = payload.draft;
     state.previewLocale = cleanText(payload.draft?.mail?.locale || state.brief.locale);
+    resetCodeWorkspaceSelection();
     if (payload.saved?.category) {
       state.brief.category = payload.saved.category;
     }
@@ -1545,6 +3458,8 @@ async function handleCreateBaseMail() {
     await loadApiStatus();
     await loadBlockCatalog(true);
     await loadJournal();
+    // Invalidate template browser cache so next open shows the new mail
+    templateBrowserData = null;
     toggleSettings(false);
     closeWorkspaceModal();
   } catch (error) {
@@ -1594,6 +3509,7 @@ async function handleGenerateMissingLocales() {
     if (payload.draft) {
       state.draft = payload.draft;
       state.previewLocale = cleanText(payload.draft?.mail?.locale || state.brief.locale);
+      resetCodeWorkspaceSelection();
     }
     state.messages.push({
       role: "assistant",
@@ -1606,6 +3522,57 @@ async function handleGenerateMissingLocales() {
       content: `Ошибка при генерации локалей: ${error.message}`
     });
   } finally {
+    state.busy = false;
+    renderAll();
+    persistState();
+  }
+}
+
+/**
+ * "DeepL Auto-translate" button handler.
+ * Overrides provider to "deepl" for this one request,
+ * then restores original provider.
+ */
+async function handleDeepLAutoTranslate() {
+  state.busy = true;
+  renderStatus();
+
+  const originalProvider = state.settings.providerId;
+  try {
+    const response = await fetch("/api/translations/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        brief: state.brief,
+        settings: { ...state.settings, providerId: "deepl" },
+        draft: state.draft,
+        translationText: state.translationText,
+        assetInputs: state.assetInputs,
+        assetRegistryItems: state.assetRegistry.items,
+        design: state.design,
+        designAnalysis: state.designAnalysis,
+        messages: state.messages
+      })
+    });
+
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || "DeepL translate failed");
+
+    state.mode = payload.mode;
+    state.providerRuntime = payload.providerRuntime || null;
+    state.translationText = payload.translationText || state.translationText;
+    state.translationUploadStatus = payload.uploadStatus || state.translationUploadStatus;
+    if (payload.draft) {
+      state.draft = payload.draft;
+      state.previewLocale = cleanText(payload.draft?.mail?.locale || state.brief.locale);
+      resetCodeWorkspaceSelection();
+    }
+    state.messages.push({ role: "assistant", content: payload.assistantReply });
+    await loadJournal();
+  } catch (error) {
+    state.messages.push({ role: "assistant", content: `Ошибка DeepL: ${error.message}` });
+  } finally {
+    state.settings.providerId = originalProvider;
     state.busy = false;
     renderAll();
     persistState();
@@ -1693,7 +3660,8 @@ function openWorkspaceModal(name) {
   }
 
   if (name === "code") {
-    state.codeEditorBuffer = state.draft?.[codeMap[state.activeTab]] || "";
+    syncCodeSelectionWithPreviewLocale();
+    syncCodeEditorBufferForActiveContext(true);
   }
 
   renderWorkspaceModals();
@@ -1710,7 +3678,8 @@ function openLocalesModal() {
 }
 
 function openCodeModal() {
-  state.codeEditorBuffer = state.draft?.[codeMap[state.activeTab]] || "";
+  syncCodeSelectionWithPreviewLocale();
+  syncCodeEditorBufferForActiveContext(true);
   openWorkspaceModal("code");
 }
 
@@ -1761,7 +3730,32 @@ function openBlockCandidatesModal() {
 }
 
 function scrollToBlocks() {
-  refs.blockList?.scrollIntoView({ behavior: "smooth", block: "start" });
+  if (refs.blocksCatalogSection) {
+    const isHidden = refs.blocksCatalogSection.hidden;
+    if (isHidden) {
+      toggleBlocksSection();
+    }
+    refs.blocksCatalogSection.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
+function toggleBlocksSection() {
+  const section = refs.blocksCatalogSection;
+  const btn = refs.toggleBlocksBtn;
+  if (!section) return;
+  const willShow = section.hidden;
+  section.hidden = !willShow;
+  if (btn) btn.classList.toggle("is-active", willShow);
+  if (willShow) {
+    section.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+}
+
+function updateChatIntakeCompact() {
+  const intake = refs.translationDropZone;
+  if (!intake) return;
+  const hasMessages = refs.messages && refs.messages.children.length > 0;
+  intake.classList.toggle("is-compact", hasMessages);
 }
 
 function prepareLocaleEditor() {
@@ -1781,8 +3775,31 @@ function handleLocaleEditorInput() {
   activeDoc.content = refs.localeEditor.value;
 }
 
+let _codeAutoSaveTimer = null;
+
 function handleCodeEditorInput() {
+  const activeFile = getCurrentCodeFile();
   state.codeEditorBuffer = refs.codeOutput.value;
+  // Live re-highlight while typing
+  refs.codeHighlight.innerHTML = renderHighlightedCode(state.codeEditorBuffer, activeFile?.language || "text");
+  // Sync scroll position
+  refs.codeHighlight.scrollTop = refs.codeOutput.scrollTop;
+  refs.codeHighlight.scrollLeft = refs.codeOutput.scrollLeft;
+  // Auto-save with debounce
+  clearTimeout(_codeAutoSaveTimer);
+  _codeAutoSaveTimer = setTimeout(() => {
+    saveCodeEdits();
+    const badge = document.querySelector("#codeAutosaveBadge");
+    if (badge) {
+      badge.hidden = false;
+      clearTimeout(badge._hideTimer);
+      badge._hideTimer = setTimeout(() => { badge.hidden = true; }, 2000);
+    }
+  }, 600);
+}
+
+function handleToggleCodeEdit() {
+  // No-op — overlay mode: edit and highlight always visible together
 }
 
 function saveLocaleEdits() {
@@ -1806,8 +3823,20 @@ function saveCodeEdits() {
   }
 
   const selectedKey = codeMap[state.activeTab];
+  const activeFile = getCurrentCodeFile();
   const nextValue = refs.codeOutput.value;
   state.draft[selectedKey] = nextValue;
+
+  if (activeFile) {
+    const files = Array.isArray(state.draft.workspaceFiles) ? [...state.draft.workspaceFiles] : [];
+    const index = files.findIndex((file) => file.id === activeFile.id);
+    if (index >= 0) {
+      files[index] = { ...files[index], content: nextValue };
+    } else {
+      files.push({ ...activeFile, content: nextValue });
+    }
+    state.draft.workspaceFiles = files;
+  }
 
   if (state.activeTab === "spec") {
     try {
@@ -1825,6 +3854,16 @@ function saveCodeEdits() {
 
   if (state.activeTab === "locales") {
     const entries = parseJsonTranslationForEditor(nextValue, state.draft.mail, "locales-editor.json");
+    if (activeFile?.locale) {
+      if (!state.draft.localePayloads || typeof state.draft.localePayloads !== "object") {
+        state.draft.localePayloads = {};
+      }
+      try {
+        state.draft.localePayloads[activeFile.locale] = JSON.parse(nextValue);
+      } catch {
+        state.draft.localePayloads[activeFile.locale] = nextValue;
+      }
+    }
     if (entries.length > 0) {
       const existing = Array.isArray(state.draft.mail.translations) ? state.draft.mail.translations : [];
       const merged = [...existing];
@@ -1842,6 +3881,7 @@ function saveCodeEdits() {
         .join("\n\n");
       state.translationUploadStatus = "Locale JSON updated from code editor.";
       syncDraftTranslationsFromCurrentText();
+      state.draft.locales = buildLocalesJsonFromEntries(merged);
     }
   }
 
@@ -1868,11 +3908,28 @@ function saveCodeEdits() {
   }
 
   if (state.activeTab === "html") {
-    const locale = getCurrentPreviewLocale();
+    const locale = activeFile?.locale || getCurrentPreviewLocale();
     if (locale && state.draft.previewLocales && typeof state.draft.previewLocales === "object") {
       state.draft.previewLocales[locale] = nextValue;
     }
+    state.draft.html = nextValue;
     state.previewSource = "draft";
+  }
+
+  if (state.activeTab === "buildLog") {
+    const locale = activeFile?.locale || getCurrentPreviewLocale();
+    if (locale && state.draft.localeBuildLogs && typeof state.draft.localeBuildLogs === "object") {
+      state.draft.localeBuildLogs[locale] = nextValue;
+    }
+    state.draft.buildLog = nextValue;
+  }
+
+  if (state.activeTab === "pug") {
+    state.draft.pug = nextValue;
+  }
+
+  if (state.activeTab === "stylus") {
+    state.draft.stylus = nextValue;
   }
 
   closeWorkspaceModal();
@@ -1902,6 +3959,8 @@ function renderAll() {
   renderPreviewViewportButtons();
   renderPreviewLocaleTabs();
   renderPreview();
+  renderImageSlotPanel();
+  renderScaffoldBanner();
   renderTabs();
   renderCode();
   renderAssets();
@@ -1916,6 +3975,7 @@ function renderAll() {
   renderDesignWorkspace();
   renderDesignPreview();
   renderDesignAnalysis();
+  renderBaseEmailState();
   positionHelpTips();
 }
 
@@ -1927,7 +3987,7 @@ function renderChatIntake() {
 
 function renderAssetsWorkspaceView() {
   const isDesignView = state.assetsWorkspaceView !== "assets";
-  refs.assetsModalTitle.textContent = isDesignView ? "Design" : "Картинки";
+  refs.assetsModalTitle.textContent = isDesignView ? "Design" : "Картинки и библиотека";
   refs.designWorkspaceSection.hidden = !isDesignView;
   refs.inputAssetsSection.hidden = isDesignView;
   refs.previewAssetsSection.hidden = isDesignView;
@@ -1936,9 +3996,18 @@ function renderAssetsWorkspaceView() {
 
 function detectDesignInputKind() {
   const designLink = cleanText(state.brief.designUrl);
+  const hasFigmaImport = Boolean(state.design?.figmaImport);
+
+  if (state.design?.dataUrl && hasFigmaImport) {
+    return "figma-structured";
+  }
 
   if (state.design?.dataUrl) {
     return state.design.assetId ? "project-upload" : "local-upload";
+  }
+
+  if (hasFigmaImport) {
+    return "figma-structured";
   }
 
   if (!designLink) {
@@ -1962,6 +4031,8 @@ function getDesignSourceLabel(kind) {
       return "project design asset";
     case "local-upload":
       return "local screenshot/export";
+    case "figma-structured":
+      return "figma frame + layer payload";
     case "figma-frame":
       return "public figma frame";
     case "image-url":
@@ -1976,8 +4047,17 @@ function getDesignSourceLabel(kind) {
 function renderDesignWorkspace() {
   const kind = detectDesignInputKind();
   const designLink = cleanText(state.brief.designUrl);
+  const figmaReference = parseFigmaReferenceUrl(designLink);
+  const figmaImport = state.design?.figmaImport || null;
+  const figmaRuntime = state.api?.figma || null;
   refs.designReferenceUrlInput.value = designLink;
   refs.designSourcePills.innerHTML = "";
+  if (refs.figmaImportSummary) refs.figmaImportSummary.textContent = describeFigmaImport(figmaImport);
+  refs.figmaImportNote.textContent = figmaImport
+    ? "Structured Figma payload уже загружен. Теперь студия видит selection name, layer summary, text layers и image fills даже без публичного доступа ко всему файлу."
+    : figmaRuntime?.recommendedFlow
+      ? `${figmaRuntime.recommendedFlow} Этот advanced import оставлен только как внутренний fallback, пока мы не сделали прямой one-click Send to Studio.`
+      : "Обычному пользователю этот advanced import не нужен. Обычно хватает ссылки на frame или скрина/export. Этот блок оставлен как внутренний fallback, пока мы не сделали прямой plugin/API import.";
 
   const pills = [];
   if (state.design?.dataUrl) {
@@ -1991,7 +4071,22 @@ function renderDesignWorkspace() {
     ? `Primary design input: ${state.design.name || "attached design"}.`
     : designLink
       ? `Primary design input: ${designLink}`
-      : "Design пока не приложен.";
+      : figmaImport
+        ? `Primary design input: structured Figma payload${figmaImport.selectionName ? ` for ${figmaImport.selectionName}` : ""}.`
+        : "Design пока не приложен.";
+
+  if (figmaReference?.fileKey || figmaImport?.fileKey) {
+    pills.push(`figma file ${cleanText(figmaReference?.fileKey || figmaImport?.fileKey).slice(0, 8)}`);
+  }
+  if (figmaReference?.nodeId || figmaImport?.nodeId) {
+    pills.push(`node ${cleanText(figmaReference?.nodeId || figmaImport?.nodeId)}`);
+  }
+  if (figmaImport?.selectionName) {
+    pills.push(`selection ${figmaImport.selectionName}`);
+  }
+  if (figmaImport?.textLayerCount) {
+    pills.push(`${figmaImport.textLayerCount} text layers`);
+  }
 
   for (const label of Array.from(new Set(pills))) {
     const pill = document.createElement("div");
@@ -2000,18 +4095,24 @@ function renderDesignWorkspace() {
     refs.designSourcePills.appendChild(pill);
   }
 
-  if (state.design?.dataUrl && designLink) {
-    refs.designWorkspaceNote.textContent = "Сейчас у студии есть и image-based design, и внешний reference URL. Для vision основным будет приложенный скрин/export, а ссылка останется как дополнительный контекст.";
-  } else if (kind === "figma-frame") {
-    refs.designWorkspaceNote.textContent = "Публичный Figma frame сохранен как design reference. Для pixel-level анализа надежнее добавить скрин или image export этого frame.";
-  } else if (kind === "image-url") {
-    refs.designWorkspaceNote.textContent = "Публичный image export сохранен как design input. Такой источник уже подходит для vision-анализа без локального upload.";
-  } else if (kind === "reference-url") {
-    refs.designWorkspaceNote.textContent = "Сохранен reference URL. Студия может учитывать его как контекст, но для точного design mapping лучше прикладывать скрин или image export.";
-  } else if (kind === "project-upload" || kind === "local-upload") {
-    refs.designWorkspaceNote.textContent = "Приложенный скрин/export считается основным design input. При желании можно добавить еще и публичный reference URL.";
-  } else {
-    refs.designWorkspaceNote.textContent = "Сюда можно положить публичный Figma frame, public image export или просто reference URL. Для pixel-level vision надежнее всего скрин или image export.";
+  if (refs.designWorkspaceNote) {
+    if (kind === "figma-structured" && state.design?.dataUrl) {
+      refs.designWorkspaceNote.textContent = "Сейчас у студии есть и image-based design, и structured Figma payload. Это лучший режим для сложного письма: vision видит картинку, а mapping использует слои, тексты и node context.";
+    } else if (kind === "figma-structured") {
+      refs.designWorkspaceNote.textContent = "Сейчас у студии есть Figma frame reference и structured payload со слоями/текстами. Для pixel-level vision все еще полезно приложить image export этого frame.";
+    } else if (state.design?.dataUrl && designLink) {
+      refs.designWorkspaceNote.textContent = "Сейчас у студии есть и image-based design, и внешний reference URL. Для vision основным будет приложенный скрин/export, а ссылка останется как дополнительный контекст.";
+    } else if (kind === "figma-frame") {
+      refs.designWorkspaceNote.textContent = "Figma frame сохранен как design reference. Если этот frame открыт как draft/share link, студия может использовать его как основной reference. Если доступ закрыт, проще всего приложить скрин/export.";
+    } else if (kind === "image-url") {
+      refs.designWorkspaceNote.textContent = "Публичный image export сохранен как design input. Такой источник уже подходит для vision-анализа без локального upload.";
+    } else if (kind === "reference-url") {
+      refs.designWorkspaceNote.textContent = "Сохранен reference URL. Студия может учитывать его как контекст, но для точного design mapping лучше прикладывать скрин или image export.";
+    } else if (kind === "project-upload" || kind === "local-upload") {
+      refs.designWorkspaceNote.textContent = "Приложенный скрин/export считается основным design input. При желании можно добавить еще и публичный reference URL.";
+    } else {
+      refs.designWorkspaceNote.textContent = "Сюда можно просто положить Figma frame link, image export или reference URL. Если link приватный, студия должна попросить open draft link или скрин/export.";
+    }
   }
 }
 
@@ -2061,6 +4162,7 @@ function renderTranslationUploadStatus() {
 
 function renderAttachmentSummary() {
   const translationDocs = getParsedLocaleEntries().length;
+  const bundleBlocks = countLocaleBlocks(state.translationText);
   const assetsCount = state.assetInputs.filter((asset) => asset.url).length;
   const blockCount = state.draft?.mail?.sections?.length || 0;
   const designKind = detectDesignInputKind();
@@ -2072,6 +4174,8 @@ function renderAttachmentSummary() {
 
   refs.designBadge.textContent = designKind === "project-upload" || designKind === "local-upload"
     ? `Design: ${state.design.name || "attached"}`
+    : designKind === "figma-structured"
+      ? "Design: Figma+"
     : designKind === "figma-frame"
       ? "Design: Figma"
       : designKind === "image-url"
@@ -2080,19 +4184,42 @@ function renderAttachmentSummary() {
           ? "Design: reference"
           : "Design: none";
   refs.translationBadge.textContent = translationDocs > 0
-    ? `Bundle: ${translationDocs} locale(s)`
+    ? `Bundle: ${bundleBlocks > 0 ? `${bundleBlocks} block(s)` : `${translationDocs} locale(s)`}`
     : "Bundle: empty";
   refs.openLocalesBtn.textContent = `Locales: ${translationDocs}`;
   refs.openAssetsBtn.textContent = `Assets: ${assetsCount}`;
   refs.openBlocksBtn.textContent = `Blocks: ${blockCount}`;
+  refs.openCodeBtn.textContent = hasDraft ? "Code" : "Code: waiting";
 
-  refs.openLocalesBtn.hidden = !hasTranslationBundle;
-  refs.translationBadge.hidden = !hasTranslationBundle;
-  refs.openAssetsBtn.hidden = !hasAssets;
+  refs.designBadge.title = hasDesign
+    ? `Open design workspace. Source: ${getDesignSourceLabel(designKind)}.`
+    : "Attach a design screenshot, export or reference.";
+  refs.openLocalesBtn.title = hasTranslationBundle
+    ? `Open ${translationDocs} locale file(s).`
+    : "Attach locale files or a locale folder.";
+  refs.translationBadge.title = hasTranslationBundle
+    ? `Bundle contains ${translationDocs} locale file(s) and about ${bundleBlocks} text block(s).`
+    : "Translation bundle is empty.";
+  refs.openAssetsBtn.title = hasAssets
+    ? `Open ${assetsCount} mapped image asset(s).`
+    : "Attach content images for the email.";
+
+  refs.designBadge.classList.toggle("passive", !hasDesign);
+  refs.designBadge.classList.toggle("is-empty", !hasDesign);
+  refs.openLocalesBtn.classList.toggle("passive", !hasTranslationBundle);
+  refs.openLocalesBtn.classList.toggle("is-empty", !hasTranslationBundle);
+  refs.translationBadge.classList.toggle("passive", !hasTranslationBundle);
+  refs.translationBadge.classList.toggle("is-empty", !hasTranslationBundle);
+  refs.openAssetsBtn.classList.toggle("passive", !hasAssets);
+  refs.openAssetsBtn.classList.toggle("is-empty", !hasAssets);
+
+  refs.openLocalesBtn.hidden = false;
+  refs.translationBadge.hidden = false;
+  refs.openAssetsBtn.hidden = false;
   refs.openBlocksBtn.hidden = !hasBlocks;
   refs.openCodeBtn.hidden = !hasDraft;
-  refs.designBadge.hidden = !hasDesign;
-  refs.chatAttachmentsRow.hidden = ![hasTranslationBundle, hasAssets, hasBlocks, hasDesign, hasDraft].some(Boolean);
+  refs.designBadge.hidden = false;
+  refs.chatAttachmentsRow.hidden = false;
 }
 
 function renderWorkspaceModals() {
@@ -2106,6 +4233,10 @@ function renderWorkspaceModals() {
   toggleModalVisibility(refs.journalModal, active === "journal");
   toggleModalVisibility(refs.testsModal, active === "tests");
   toggleModalVisibility(refs.blockCandidatesModal, active === "block-candidates");
+  toggleModalVisibility(refs.lessonsModal, active === "lessons");
+  toggleModalVisibility(refs.rememberModal, active === "remember");
+  toggleModalVisibility(refs.historyModal, active === "history");
+  toggleModalVisibility(refs.diffModal, active === "diff");
 
   if (active === "locales") {
     prepareLocaleEditor();
@@ -2468,6 +4599,7 @@ function renderMessages() {
   }
 
   refs.messages.scrollTop = refs.messages.scrollHeight;
+  updateChatIntakeCompact();
 }
 
 function renderStatus() {
@@ -2509,8 +4641,10 @@ function renderStatus() {
   refs.clearChatBtn.disabled = state.busy;
   refs.clearStateBtn.disabled = state.busy;
   refs.toggleAttachMenuBtn.disabled = state.busy;
+  refs.pasteFigmaLinkBtn.disabled = state.busy;
   refs.designBadge.disabled = state.busy;
   refs.openLocalesBtn.disabled = state.busy;
+  refs.translationBadge.disabled = state.busy;
   refs.openAssetsBtn.disabled = state.busy;
   refs.openBlocksBtn.disabled = state.busy;
   refs.openCodeBtn.disabled = state.busy;
@@ -2524,16 +4658,23 @@ function renderStatus() {
   refs.openRulesBtn.disabled = state.busy;
   refs.openJournalBtn.disabled = state.busy;
   refs.openJournalFromSettingsBtn.disabled = state.busy;
+  if (refs.openRulesFromSettingsBtn) refs.openRulesFromSettingsBtn.disabled = state.busy;
+  if (refs.openLessonsFromSettingsBtn) refs.openLessonsFromSettingsBtn.disabled = state.busy;
   refs.refreshCatalogBtn.disabled = state.busy;
   refs.attachDesignBtn.disabled = state.busy;
   refs.attachTranslationsBtn.disabled = state.busy;
   refs.attachTranslationFolderBtn.disabled = state.busy;
   refs.attachAssetsBtn.disabled = state.busy;
-  refs.analyzeDesignBtn.disabled = state.busy || (!state.design?.dataUrl && !cleanText(state.brief.designUrl));
+  refs.analyzeDesignBtn.disabled = state.busy || detectDesignInputKind() === "none";
   refs.clearDesignBtn.disabled = state.busy;
-  refs.saveDesignReferenceBtn.disabled = state.busy;
-  refs.clearDesignReferenceBtn.disabled = state.busy;
+  if (refs.saveDesignReferenceBtn) refs.saveDesignReferenceBtn.disabled = state.busy;
+  if (refs.clearDesignReferenceBtn) refs.clearDesignReferenceBtn.disabled = state.busy;
   refs.designReferenceUrlInput.disabled = state.busy;
+  refs.figmaPayloadInput.disabled = state.busy;
+  refs.figmaPayloadFileInput.disabled = state.busy;
+  refs.importFigmaPayloadBtn.disabled = state.busy;
+  refs.loadFigmaPayloadFileBtn.disabled = state.busy;
+  refs.clearFigmaPayloadBtn.disabled = state.busy || !state.design?.figmaImport;
   refs.saveLocaleEditsBtn.disabled = state.busy;
   refs.saveCodeBtn.disabled = state.busy;
   refs.createBaseMailFromCodeBtn.disabled = state.busy;
@@ -2547,7 +4688,7 @@ function renderStatus() {
   refs.closeContextFooterBtn.disabled = state.busy;
   refs.closeTestsModalBtn.disabled = state.busy;
   refs.closeTestsFooterBtn.disabled = state.busy;
-  refs.copyPreviewHtmlBtn.disabled = state.busy || !state.draft?.html;
+  refs.copyPreviewHtmlBtn.disabled = state.busy || !getCurrentPreviewHtml();
   for (const button of refs.previewViewportButtons) {
     button.disabled = state.busy;
   }
@@ -2559,13 +4700,34 @@ function renderStatus() {
 function renderSummary() {
   const mail = state.draft?.mail;
   const previewLocale = getCurrentPreviewLocale();
-  refs.subjectValue.textContent = mail?.subject || "Пока пусто";
-  refs.preheaderValue.textContent = mail?.preheader || "Сгенерируйте первый драфт";
-  refs.localeValue.textContent = previewLocale || mail?.locale || state.brief.locale || "-";
-  refs.sourceValue.textContent = state.previewSource;
-  const note = buildAssistantNote();
-  refs.assistantReply.hidden = !note;
-  refs.assistantReply.textContent = note;
+
+  const hasDraft = !!mail?.subject;
+  const summaryBar = document.querySelector("#previewSummaryBar");
+  if (summaryBar) summaryBar.classList.toggle("has-draft", hasDraft);
+
+  if (refs.subjectValue) refs.subjectValue.textContent = mail?.subject || "Сгенерируйте первый драфт";
+  if (refs.preheaderValue) {
+    const ph = mail?.preheader || "";
+    refs.preheaderValue.textContent = ph;
+    refs.preheaderValue.hidden = !ph;
+  }
+  if (refs.localeValue) {
+    // Only show locale chip once a draft exists
+    const loc = hasDraft ? (previewLocale || mail?.locale || state.brief.locale || "") : "";
+    refs.localeValue.textContent = loc;
+  }
+  if (refs.mailIdValue) {
+    // Only show mail ID chip once a draft exists
+    if (hasDraft) {
+      const cat = state.brief.category || "";
+      const mid = state.brief.mailId || "";
+      refs.mailIdValue.textContent = cat && mid ? `${cat}/mail-${mid}` : (cat || mid || "");
+    } else {
+      refs.mailIdValue.textContent = "";
+    }
+  }
+  // keep hidden fields updated for compatibility
+  if (refs.sourceValue) refs.sourceValue.textContent = state.previewSource;
 }
 
 function buildAssistantNote() {
@@ -2600,8 +4762,11 @@ function buildAssistantNote() {
 
 function renderPreview() {
   const baseHtml = getCurrentPreviewHtml();
-  const simulated = simulatePreviewHtml(baseHtml, state.settings.clientProfileId);
+  const showSkeleton = state.busy && !baseHtml;
   refs.previewStage.dataset.viewport = state.previewViewport || "fit";
+  if (refs.previewSkeleton) refs.previewSkeleton.classList.toggle("is-visible", showSkeleton);
+  refs.previewFrame.style.display = showSkeleton ? "none" : "";
+  const simulated = simulatePreviewHtml(baseHtml, state.settings.clientProfileId);
   refs.previewFrame.srcdoc = simulated;
 }
 
@@ -2611,37 +4776,424 @@ function renderPreviewViewportButtons() {
   }
 }
 
-function renderPreviewLocaleTabs() {
-  const locales = getAvailableDraftLocales();
-  refs.previewLocaleTabs.innerHTML = "";
-  refs.previewLocaleRow.hidden = locales.length <= 1 && !state.draft?.html;
-  refs.copyPreviewHtmlBtn.hidden = !state.draft?.html;
+// ─── Image Slot Panel ──────────────────────────────────────────────────────
 
-  if (locales.length <= 1) {
+/**
+ * Rebuild preview HTML from state.draft.mail client-side.
+ * Called after user enters an image URL in the slot panel, so the
+ * preview reflects the new asset without a server round-trip.
+ */
+function rebuildDraftHtmlFromMail(mail) {
+  if (!mail || !Array.isArray(mail.sections)) return null;
+
+  // Detect system email mode from current state
+  const isSystem = (state.brief?.category || "").toLowerCase().includes("system") ||
+    (state.brief?.category || "") === "X_System";
+
+  if (isSystem) return rebuildSystemEmailHtml(mail);
+
+  const assetMap = {};
+  for (const a of (mail.assets || [])) {
+    if (a.key) assetMap[a.key] = a;
+  }
+
+  function esc(str) {
+    return String(str || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function paragraphize(text) {
+    return text.split(/\n+/).map(p => `<p>${esc(p)}</p>`).join("");
+  }
+
+  function sectionHtml(section) {
+    const asset = section.image_key ? assetMap[section.image_key] : null;
+    const imgSrc = asset?.url || "";
+    const imgAlt = asset?.alt || "";
+    const imgW = asset?.width || 600;
+    const imgH = asset?.height || 300;
+    const imgTag = imgSrc
+      ? `<img class="section-image" src="${esc(imgSrc)}" alt="${esc(imgAlt)}" width="${imgW}" height="${imgH}" style="width:100%;display:block;border-radius:20px;margin-bottom:20px;" />`
+      : "";
+    const eyebrow = section.eyebrow ? `<div class="eyebrow">${esc(section.eyebrow)}</div>` : "";
+    const body = section.body ? `<div class="body-copy">${paragraphize(section.body)}</div>` : "";
+    const btn = section.cta_label
+      ? section.cta_href
+        ? `<a class="button" href="${esc(section.cta_href)}">${esc(section.cta_label)}</a>`
+        : `<span class="button is-disabled">${esc(section.cta_label)}</span>`
+      : "";
+    const items = section.items?.length
+      ? `<ul>${section.items.map(i => `<li>${esc(i)}</li>`).join("")}</ul>`
+      : "";
+
+    if (section.kind === "hero") {
+      return `<section class="section hero">${imgTag}<div class="section-content">${eyebrow}<h1>${esc(section.title || mail.subject)}</h1>${body}${btn}</div></section>`;
+    }
+    if (section.kind === "feature-list") {
+      return `<section class="section feature-list">${eyebrow}<h2>${esc(section.title || "")}</h2>${body}${items}</section>`;
+    }
+    if (section.kind === "image") {
+      return `<section class="section image-only">${eyebrow}${imgTag}${body}</section>`;
+    }
+    if (section.kind === "cta") {
+      return `<section class="section cta">${eyebrow}<h2>${esc(section.title || "")}</h2>${body}${btn}</section>`;
+    }
+    if (section.kind === "footer") {
+      return `<section class="section footer">${body || `<p>${esc(section.title || "")}</p>`}</section>`;
+    }
+    return `<section class="section text">${eyebrow}<h2>${esc(section.title || "")}</h2>${body}${btn}${items}</section>`;
+  }
+
+  const sectionsHtml = mail.sections.map(sectionHtml).join("");
+
+  return `<!DOCTYPE html>
+<html lang="${esc(mail.locale)}">
+  <head>
+    <meta charset="utf-8" />
+    <title>${esc(mail.subject)}</title>
+    <style>
+      body{margin:0;background:#eef2e8;color:#14281d;font-family:"Avenir Next","Segoe UI",sans-serif}
+      .canvas{max-width:640px;margin:32px auto;background:#fffdf7;border-radius:28px;overflow:hidden;box-shadow:0 24px 70px rgba(20,40,29,.16)}
+      .meta{padding:18px 24px;background:#14281d;color:#d7e6c8;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+      .section{padding:28px 24px;border-bottom:1px solid rgba(20,40,29,.08)}
+      .hero{background:linear-gradient(160deg,#1d3b2a 0%,#365b38 42%,#f4a259 100%);color:#fff9f0}
+      .hero h1,.section h2{margin:0 0 12px;line-height:1.05}
+      .hero h1{font-size:42px}.section h2{font-size:28px}
+      .eyebrow{margin-bottom:12px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;opacity:.72}
+      .body-copy p,.footer p{margin:0 0 12px;font-size:16px;line-height:1.6}
+      .button{display:inline-block;margin-top:16px;padding:14px 32px;background:#f4a259;color:#fff;border-radius:100px;font-size:15px;font-weight:700;text-decoration:none}
+      ul{padding-left:20px;margin:12px 0}li{margin:6px 0;font-size:16px;line-height:1.5}
+    </style>
+  </head>
+  <body>
+    <div class="canvas">
+      <div class="meta">${esc(mail.subject)} · ${esc(mail.locale)}</div>
+      ${sectionsHtml}
+    </div>
+  </body>
+</html>`;
+}
+
+/**
+ * Render the image-slot panel that appears after draft generation
+ * when the AI has specified asset slots (mail.assets[]).
+ * Shows each slot with a URL input; entering a URL rebuilds the preview live.
+ */
+function renderImageSlotPanel() {
+  if (!refs.imageSlotPanel || !refs.imageSlotList) return;
+
+  const assets = state.draft?.mail?.assets;
+  const hasMail = Boolean(state.draft?.mail);
+  // Show panel only when there's a mail with assets and panel isn't dismissed
+  const hasSlots = hasMail && Array.isArray(assets) && assets.length > 0;
+
+  if (!hasSlots || state.imageSlotPanelDismissed) {
+    refs.imageSlotPanel.hidden = true;
     return;
   }
 
+  refs.imageSlotPanel.hidden = false;
+
+  // Re-render the slot list
+  refs.imageSlotList.innerHTML = "";
+
+  for (let i = 0; i < assets.length; i++) {
+    const asset = assets[i];
+    const hasUrl = Boolean(asset.url && asset.url.trim() && !asset.url.startsWith("http://placeholder"));
+
+    const item = document.createElement("div");
+    item.className = "image-slot-item";
+
+    // Thumbnail or placeholder icon
+    const thumbWrap = document.createElement("div");
+    if (hasUrl) {
+      const img = document.createElement("img");
+      img.className = "image-slot-thumb";
+      img.src = asset.url;
+      img.alt = asset.alt || asset.key;
+      img.onerror = () => {
+        img.replaceWith(makePlaceholderThumb());
+      };
+      thumbWrap.appendChild(img);
+    } else {
+      thumbWrap.appendChild(makePlaceholderThumb());
+    }
+
+    // Fields column
+    const fields = document.createElement("div");
+    fields.className = "image-slot-fields";
+
+    const label = document.createElement("div");
+    label.className = "image-slot-label";
+    label.textContent = asset.key;
+
+    const hint = document.createElement("div");
+    hint.className = "image-slot-hint";
+    hint.textContent = [
+      asset.placement ? `📍 ${asset.placement}` : "",
+      asset.alt ? asset.alt : "",
+      asset.width && asset.height ? `${asset.width}×${asset.height}` : ""
+    ].filter(Boolean).join(" · ");
+
+    // URL input row
+    const inputRow = document.createElement("div");
+    inputRow.className = "image-slot-input-row";
+
+    const input = document.createElement("input");
+    input.type = "url";
+    input.className = `image-slot-input${hasUrl ? " has-value" : ""}`;
+    input.placeholder = "https://cdn.example.com/image.jpg";
+    input.value = hasUrl ? asset.url : "";
+
+    // Hidden file input for upload
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "image/*";
+    fileInput.style.display = "none";
+
+    // Upload button
+    const uploadBtn = document.createElement("button");
+    uploadBtn.type = "button";
+    uploadBtn.className = "image-slot-upload-btn";
+    uploadBtn.title = "Загрузить файл";
+    uploadBtn.textContent = "↑";
+
+    // Helper: apply a new URL to this slot
+    const applyUrl = (newUrl) => {
+      if (state.draft?.mail?.assets?.[i]) {
+        state.draft.mail.assets[i].url = newUrl;
+      }
+      input.value = newUrl;
+      input.classList.toggle("has-value", Boolean(newUrl));
+
+      if (newUrl) {
+        let existingThumb = thumbWrap.querySelector("img.image-slot-thumb");
+        if (!existingThumb) {
+          thumbWrap.innerHTML = "";
+          existingThumb = document.createElement("img");
+          existingThumb.className = "image-slot-thumb";
+          existingThumb.alt = asset.alt || asset.key;
+          existingThumb.onerror = () => existingThumb.replaceWith(makePlaceholderThumb());
+          thumbWrap.appendChild(existingThumb);
+        }
+        existingThumb.src = newUrl;
+      } else {
+        thumbWrap.innerHTML = "";
+        thumbWrap.appendChild(makePlaceholderThumb());
+      }
+
+      if (state.draft?.mail) {
+        const rebuilt = rebuildDraftHtmlFromMail(state.draft.mail);
+        if (rebuilt) {
+          state.draft.html = rebuilt;
+          renderPreview();
+        }
+      }
+    };
+
+    input.addEventListener("input", () => applyUrl(input.value.trim()));
+
+    // File upload handler shared by button + drop
+    const handleFileUpload = async (file) => {
+      if (!file || !file.type.startsWith("image/")) return;
+      uploadBtn.textContent = "…";
+      uploadBtn.disabled = true;
+      try {
+        const url = await uploadAssetFile(file, asset.key);
+        applyUrl(url);
+      } catch (err) {
+        console.error("[image-slot] upload failed", err);
+      } finally {
+        uploadBtn.textContent = "↑";
+        uploadBtn.disabled = false;
+      }
+    };
+
+    fileInput.addEventListener("change", () => {
+      if (fileInput.files?.[0]) handleFileUpload(fileInput.files[0]);
+    });
+    uploadBtn.addEventListener("click", () => fileInput.click());
+
+    // Drag & drop on the thumbnail placeholder
+    thumbWrap.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      thumbWrap.classList.add("drag-over");
+    });
+    thumbWrap.addEventListener("dragleave", () => thumbWrap.classList.remove("drag-over"));
+    thumbWrap.addEventListener("drop", (e) => {
+      e.preventDefault();
+      thumbWrap.classList.remove("drag-over");
+      const file = e.dataTransfer?.files?.[0];
+      if (file) handleFileUpload(file);
+    });
+
+    inputRow.appendChild(input);
+    inputRow.appendChild(uploadBtn);
+    inputRow.appendChild(fileInput);
+
+    fields.appendChild(label);
+    if (hint.textContent) fields.appendChild(hint);
+    fields.appendChild(inputRow);
+
+    item.appendChild(thumbWrap);
+    item.appendChild(fields);
+    refs.imageSlotList.appendChild(item);
+  }
+}
+
+function renderScaffoldBanner() {
+  if (!refs.scaffoldBanner) return;
+  const sc = state.scaffoldContext;
+  if (!sc) {
+    refs.scaffoldBanner.hidden = true;
+    return;
+  }
+  refs.scaffoldBanner.hidden = false;
+  if (refs.scaffoldBannerText) {
+    refs.scaffoldBannerText.textContent =
+      `Scaffold mode: mail-${sc.newMailId} (${sc.tokenKeys?.length || 0} токенов). Напиши промт → AI заполнит копи.`;
+  }
+}
+
+/**
+ * Upload an image file to the studio's internal asset storage.
+ * Uses the existing /api/assets/register endpoint (accepts base64 dataUrl).
+ * Returns the public URL: /studio-assets/filename
+ */
+async function uploadAssetFile(file, assetKey) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        const dataUrl = reader.result;
+        const response = await fetch("/api/assets/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            files: [{
+              name: file.name,
+              dataUrl,
+              kind: "asset",
+              key: assetKey || "upload",
+              alt: assetKey || file.name.replace(/\.[^.]+$/, ""),
+              placement: "auto"
+            }]
+          })
+        });
+        if (!response.ok) throw new Error(`Upload failed: ${response.status}`);
+        const data = await response.json();
+        const item = data.items?.[0];
+        if (!item?.fileName) throw new Error("No fileName in response");
+        resolve(`/studio-assets/${encodeURIComponent(item.fileName)}`);
+      } catch (err) {
+        reject(err);
+      }
+    };
+    reader.onerror = () => reject(new Error("FileReader error"));
+    reader.readAsDataURL(file);
+  });
+}
+
+function makePlaceholderThumb() {
+  const div = document.createElement("div");
+  div.className = "image-slot-thumb-placeholder";
+  div.textContent = "🖼";
+  return div;
+}
+
+/**
+ * Client-side rebuild of system (transactional) email HTML.
+ * Mirrors the server-side renderSystemEmailHtml() for live preview updates.
+ */
+function rebuildSystemEmailHtml(mail) {
+  function esc(str) {
+    return String(str || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+  function para(text) {
+    return text.split(/\n+/).filter(Boolean).map(p => `<p style="margin:0 0 14px;color:#4f5f73;font-size:16px;line-height:24px;">${esc(p)}</p>`).join("");
+  }
+
+  const sections = (mail.sections || []).filter(s => s.kind !== "footer");
+  const sectionsHtml = sections.map((section, i) => {
+    if (section.kind === "image") return "";
+    const isLead = i === 0;
+    const titleTag = isLead ? "h1" : "h2";
+    const titleSize = isLead ? "28px" : "20px";
+    const title = section.title
+      ? `<${titleTag} style="margin:0 0 16px;color:#20242f;font-size:${titleSize};font-weight:700;line-height:1.2;">${esc(section.title)}</${titleTag}>`
+      : "";
+    const eyebrow = section.eyebrow
+      ? `<div style="margin:0 0 8px;color:#2473d7;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">${esc(section.eyebrow)}</div>`
+      : "";
+    const body = section.body ? `<div>${para(section.body)}</div>` : "";
+    const btn = section.cta_label
+      ? section.cta_href
+        ? `<a href="${esc(section.cta_href)}" style="display:inline-block;margin-top:8px;padding:13px 22px;background:#2c89df;color:#fff;text-decoration:none;border-radius:4px;font-size:14px;font-weight:700;">${esc(section.cta_label)}</a>`
+        : `<span style="display:inline-block;margin-top:8px;padding:13px 22px;background:#2c89df;color:#fff;border-radius:4px;font-size:14px;font-weight:700;opacity:.7;">${esc(section.cta_label)}</span>`
+      : "";
+    const items = section.kind === "feature-list" && section.items?.length
+      ? `<ul style="margin:10px 0 0 18px;padding:0;">${section.items.map(it => `<li style="margin:0 0 10px;font-size:16px;line-height:24px;color:#20242f;">${esc(it)}</li>`).join("")}</ul>`
+      : "";
+    return `<tr><td style="padding:${isLead ? "8px" : "0"} 40px 22px;">${eyebrow}${title}${body}${items}${btn}</td></tr>`;
+  }).join("");
+
+  // Footer
+  const footerSection = (mail.sections || []).find(s => s.kind === "footer");
+  const footerText = footerSection?.body || footerSection?.title || "© Company. All rights reserved.";
+  const footerHtml = `<tr><td style="padding:10px 40px 32px;"><div style="border-top:1px solid #e6ebf0;padding-top:18px;">${para(footerText)}</div></td></tr>`;
+
+  return `<!DOCTYPE html>
+<html lang="${esc(mail.locale)}">
+<head>
+<meta charset="utf-8"/><title>${esc(mail.subject)}</title>
+<style>body{margin:0;background:#f6f9fc;font-family:Roboto,Helvetica,Arial,sans-serif;color:#20242f}</style>
+</head>
+<body>
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background:#f6f9fc;padding:20px 0 36px;">
+<tr><td align="center">
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width:640px;background:#fff;">
+<tr><td style="padding:16px 22px 0;color:#7a8698;font-size:11px;letter-spacing:.04em;text-transform:uppercase;">
+Subject: ${esc(mail.subject)}<br/>Preheader: ${esc(mail.preheader)}
+</td></tr>
+<tr><td style="padding:28px 40px 14px;"><div style="color:#f58220;font-size:22px;font-weight:700;">${esc(mail.subject)}</div></td></tr>
+${sectionsHtml}
+${footerHtml}
+</table>
+</td></tr>
+</table>
+</body>
+</html>`;
+}
+
+function renderPreviewLocaleTabs() {
+  const locales = getAvailableDraftLocales();
+  refs.previewLocaleTabs.innerHTML = "";
+  // locale row is visible only when there are multiple locales to switch between
+  const multiLocale = locales.length > 1;
+  refs.previewLocaleRow.hidden = !multiLocale;
+
+  if (!state.draft?.html) {
+    return;
+  }
+
+  const visibleLocales = locales.length > 0
+    ? locales
+    : [cleanText(state.previewLocale || state.brief.locale || state.draft?.mail?.locale || "en")].filter(Boolean);
+
   const activeLocale = getCurrentPreviewLocale();
-  for (const locale of locales) {
+  for (const locale of visibleLocales) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = `locale-tab${locale === activeLocale ? " is-active" : ""}`;
     button.textContent = locale;
-    button.addEventListener("click", () => {
-      state.previewLocale = locale;
-      state.codeEditorBuffer = state.activeTab === "html"
-        ? getCurrentPreviewHtml()
-        : state.activeTab === "locales"
-          ? getCurrentLocalePayload()
-          : state.activeTab === "buildLog"
-            ? getCurrentLocaleBuildLog()
-            : (state.draft?.[codeMap[state.activeTab]] || "");
-      renderSummary();
-      renderPreviewLocaleTabs();
-      renderPreview();
-      renderCode();
-      persistState();
-    });
+    button.addEventListener("click", () => setPreviewLocale(locale));
     refs.previewLocaleTabs.appendChild(button);
   }
 }
@@ -2652,29 +5204,116 @@ function renderTabs() {
   }
 }
 
-function renderCode() {
-  const selectedKey = codeMap[state.activeTab];
-  let currentValue = state.draft?.[selectedKey] || "Код появится после первого draft или build.";
+function renderCodeLocaleTabs() {
+  refs.codeLocaleTabs.innerHTML = "";
 
-  if (state.activeTab === "html") {
-    currentValue = getCurrentPreviewHtml();
-  } else if (state.activeTab === "locales") {
-    currentValue = getCurrentLocalePayload();
-  } else if (state.activeTab === "buildLog") {
-    currentValue = getCurrentLocaleBuildLog();
+  if (!isCodeLocaleAwareTab(state.activeTab)) {
+    refs.codeLocaleTabs.hidden = true;
+    return;
   }
+
+  const locales = getCodeFilesForTab(state.activeTab)
+    .map((file) => cleanText(file.locale))
+    .filter(Boolean);
+  const visibleLocales = locales.length > 0 ? locales : getAvailableDraftLocales();
+
+  if (visibleLocales.length <= 1) {
+    refs.codeLocaleTabs.hidden = true;
+    return;
+  }
+
+  refs.codeLocaleTabs.hidden = false;
+  const activeLocale = getCurrentPreviewLocale();
+  for (const locale of visibleLocales) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `locale-tab${locale === activeLocale ? " is-active" : ""}`;
+    button.textContent = locale;
+    button.addEventListener("click", () => setPreviewLocale(locale));
+    refs.codeLocaleTabs.appendChild(button);
+  }
+}
+
+function renderCodeFileList() {
+  refs.codeFileList.innerHTML = "";
+
+  const files = getCodeFilesForTab(state.activeTab);
+  if (files.length === 0) {
+    refs.codeFileMeta.textContent = "Файлы появятся после первого draft или real build.";
+    refs.codeFileList.appendChild(createTextCard("Пока нечего показывать."));
+    return;
+  }
+
+  const activeFileId = getPreferredCodeFileId(state.activeTab);
+  refs.codeFileMeta.textContent = files.length === 1
+    ? "Одна текущая версия файла."
+    : `${files.length} файлов доступно для просмотра и сравнения.`;
+
+  for (const file of files) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `code-file-button${file.id === activeFileId ? " is-active" : ""}`;
+    button.addEventListener("click", () => {
+      state.codeFileSelection[state.activeTab] = file.id;
+      state.codeEditorBuffer = file.content;
+      renderCode();
+      persistState();
+    });
+
+    const title = document.createElement("strong");
+    title.textContent = file.label;
+
+    const meta = document.createElement("span");
+    meta.className = "code-file-meta";
+    const metaParts = [
+      file.locale ? `locale ${file.locale}` : "",
+      file.language.toUpperCase(),
+      file.editable ? "editable" : "read-only"
+    ].filter(Boolean);
+    meta.textContent = metaParts.join(" • ");
+
+    const pathLine = document.createElement("span");
+    pathLine.className = "code-file-path";
+    pathLine.textContent = file.path;
+
+    button.append(title, meta, pathLine);
+    refs.codeFileList.appendChild(button);
+  }
+}
+
+function renderCode() {
+  syncCodeSelectionWithPreviewLocale();
+  const activeFile = getCurrentCodeFile();
+  const currentValue = cleanText(activeFile?.content) || "Код появится после первого draft или build.";
 
   if (!state.codeEditorBuffer || refs.codeModal.getAttribute("aria-hidden") !== "false") {
     state.codeEditorBuffer = currentValue;
   }
+
+  renderCodeLocaleTabs();
+  renderCodeFileList();
+
+  // Overlay mode: both highlight (behind) and textarea (on top) always shown
+  refs.codeOutput.hidden = false;
+  refs.codeHighlight.hidden = false;
   refs.codeOutput.value = state.codeEditorBuffer;
-  refs.codeEditorMeta.textContent = state.activeTab === "locales"
-    ? `Показана locale payload для ${getCurrentPreviewLocale() || cleanText(state.brief.locale || "en")}. Для редактирования по языкам удобнее открыть Locales.`
-    : state.activeTab === "html"
-      ? `Показан HTML для локали ${getCurrentPreviewLocale() || cleanText(state.brief.locale || "en")}.`
-      : state.activeTab === "buildLog"
-        ? `Показан build log для локали ${getCurrentPreviewLocale() || cleanText(state.brief.locale || "en")}.`
-        : `Текущая вкладка: ${state.activeTab}. Save code edits сохранит текущий текст в workspace.`;
+  refs.codeHighlight.innerHTML = renderHighlightedCode(state.codeEditorBuffer, activeFile?.language || "text");
+  const tabDescriptions = {
+    html: "Готовый HTML preview для текущей локали.",
+    pug: "Шаблонная структура письма и include-файлы.",
+    stylus: "Стили, которые участвуют в email-base сборке.",
+    locales: "Locale payload по каждой локали.",
+    assets: "Asset manifest текущего draft: URL, placement, alt, notes.",
+    spec: "Нормализованная draft-структура, с которой работает студия.",
+    buildLog: "Логи реального email-base build по локали."
+  };
+  refs.codeEditorMeta.textContent = activeFile
+    ? [
+        `${activeFile.label}`,
+        activeFile.locale ? `локаль ${activeFile.locale}` : "",
+        tabDescriptions[state.activeTab] || ""
+      ].filter(Boolean).join(" • ")
+    : "Можно смотреть текущее представление драфта.";
 }
 
 function renderAssets() {
@@ -3044,6 +5683,156 @@ async function handleClearRules() {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// AI LESSONS — functions
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function loadLessons() {
+  try {
+    const response = await fetch("/api/ai/lessons");
+    if (!response.ok) return [];
+    const data = await response.json();
+    return Array.isArray(data?.items) ? data.items : [];
+  } catch {
+    return [];
+  }
+}
+
+function renderLessonsPanel(lessons) {
+  if (!refs.lessonsList) return;
+  if (!lessons || lessons.length === 0) {
+    refs.lessonsList.innerHTML = '<div class="diagnostics-item"><span class="diagnostics-message">Уроков пока нет. Добавь первый!</span></div>';
+    return;
+  }
+  refs.lessonsList.innerHTML = lessons.map((lesson) => {
+    const tags = lesson.tags?.length ? `<span class="lesson-tags">${lesson.tags.join(", ")}</span>` : "";
+    return `
+      <div class="diagnostics-item lesson-item" data-lesson-id="${lesson.id}">
+        <div class="lesson-meta">
+          <span class="lesson-category">${lesson.category}</span>
+          ${tags}
+          <span class="lesson-date">${new Date(lesson.createdAt).toLocaleDateString("ru-RU")}</span>
+        </div>
+        <div class="lesson-mistake">❌ ${lesson.mistake}</div>
+        <div class="lesson-correction">✅ ${lesson.correction}</div>
+        <button class="ghost-button lesson-delete-btn" data-lesson-id="${lesson.id}" type="button">Удалить</button>
+      </div>
+    `;
+  }).join("");
+
+  // Attach delete handlers
+  refs.lessonsList.querySelectorAll(".lesson-delete-btn").forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      const id = e.target.dataset.lessonId;
+      await fetch(`/api/ai/lesson/${id}`, { method: "DELETE" });
+      const lessons = await loadLessons();
+      renderLessonsPanel(lessons);
+      updateLessonsCountBadge(lessons.length);
+    });
+  });
+}
+
+function updateLessonsCountBadge(count) {
+  [refs.lessonsCountBadge, refs.lessonsCountBadgeSettings].forEach((badge) => {
+    if (!badge) return;
+    if (count > 0) {
+      badge.textContent = count;
+      badge.hidden = false;
+    } else {
+      badge.hidden = true;
+    }
+  });
+}
+
+async function openLessonsModal() {
+  const lessons = await loadLessons();
+  renderLessonsPanel(lessons);
+  updateLessonsCountBadge(lessons.length);
+  openWorkspaceModal("lessons");
+}
+
+async function handleSaveLesson() {
+  const mistake = refs.lessonMistakeInput?.value?.trim();
+  const correction = refs.lessonCorrectionInput?.value?.trim();
+  const category = refs.lessonCategorySelect?.value || "general";
+
+  if (!mistake || !correction) {
+    alert("Заполни оба поля: ошибка и правильный вариант.");
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/ai/lesson", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mistake, correction, category, source: "user" })
+    });
+    if (!response.ok) throw new Error("Save failed");
+
+    refs.lessonMistakeInput.value = "";
+    refs.lessonCorrectionInput.value = "";
+
+    const lessons = await loadLessons();
+    renderLessonsPanel(lessons);
+    updateLessonsCountBadge(lessons.length);
+  } catch (error) {
+    alert(`Ошибка: ${error.message}`);
+  }
+}
+
+async function handleClearLessons() {
+  if (!confirm("Удалить все уроки? AI забудет все исправления.")) return;
+  await fetch("/api/ai/lessons/clear", { method: "POST" });
+  const lessons = await loadLessons();
+  renderLessonsPanel(lessons);
+  updateLessonsCountBadge(0);
+}
+
+function openRememberModal() {
+  if (refs.rememberMistakeInput) refs.rememberMistakeInput.value = "";
+  if (refs.rememberCorrectionInput) refs.rememberCorrectionInput.value = "";
+  openWorkspaceModal("remember");
+}
+
+async function handleSaveRememberLesson() {
+  const mistake = refs.rememberMistakeInput?.value?.trim();
+  const correction = refs.rememberCorrectionInput?.value?.trim();
+  const category = refs.rememberCategorySelect?.value || "general";
+
+  if (!mistake || !correction) {
+    alert("Заполни оба поля.");
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/ai/lesson", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mistake, correction, category, source: "user" })
+    });
+    if (!response.ok) throw new Error("Save failed");
+
+    closeWorkspaceModal();
+    const lessons = await loadLessons();
+    updateLessonsCountBadge(lessons.length);
+
+    state.messages.push({
+      role: "assistant",
+      content: `✅ Урок сохранён. AI запомнит: "${mistake.slice(0, 60)}..."`
+    });
+    renderAll();
+  } catch (error) {
+    alert(`Ошибка: ${error.message}`);
+  }
+}
+
+// Load lessons badge on startup
+loadLessons().then((lessons) => updateLessonsCountBadge(lessons.length));
+
+// ─────────────────────────────────────────────────────────────────────────────
+// END AI LESSONS
+// ─────────────────────────────────────────────────────────────────────────────
+
 function useRegistryAsset(entry, mode = "asset") {
   if (mode === "design") {
     state.design = {
@@ -3112,8 +5901,8 @@ function renderTests() {
 
   const currentItems = getDiagnostics();
   refs.testsOverview.textContent = state.draft?.html
-    ? `Heuristic test suite по ${state.api.clientProfiles.length || 1} client profile(s). Для production финальную проверку все равно лучше прогонять реальным билдом и внешним renderer.`
-    : "Сначала нужен draft или реальный build, потом здесь появятся client diagnostics.";
+    ? `Сейчас это heuristic test suite по ${state.api.clientProfiles.length || 1} client profile(s). Это полезная ранняя диагностика по Gmail/Outlook/Apple Mail профилям, но не полный эмулятор всех клиентов.`
+    : "Сначала нужен draft или реальный build, потом здесь появятся client diagnostics и build warnings.";
 
   const profiles = state.api.clientProfiles.length > 0
     ? state.api.clientProfiles
@@ -3164,13 +5953,17 @@ function renderDesignPreview() {
   const designLink = cleanText(state.brief.designUrl);
   const designSource = state.design.dataUrl || (looksLikeImageUrl(designLink) ? designLink : "");
   const hasDesign = Boolean(designSource);
+  const hasFigmaImport = Boolean(state.design?.figmaImport);
   refs.designPreviewWrap.hidden = !hasDesign;
   refs.designEmptyState.hidden = hasDesign;
 
   if (!hasDesign) {
-    if (designLink) {
+    if (hasFigmaImport) {
       refs.designEmptyState.hidden = false;
-      refs.designEmptyState.textContent = `Используется design reference link: ${designLink}. Для превью лучше приложить скрин или image export.`;
+      refs.designEmptyState.textContent = "Structured Figma payload уже загружен. Для визуального preview и vision лучше еще приложить image export выбранного frame.";
+    } else if (designLink) {
+      refs.designEmptyState.hidden = false;
+      refs.designEmptyState.textContent = `Используется design reference link: ${designLink}. Если это приватный Figma frame, для превью и vision лучше приложить скрин или image export.`;
     } else {
       refs.designEmptyState.textContent = "Design пока не загружен. Можно вставить скрин прямо в чат или нажать Attach design.";
     }
@@ -3178,11 +5971,14 @@ function renderDesignPreview() {
   }
 
   refs.designPreview.src = designSource;
-  refs.designCaption.textContent = state.design.assetId
+  const baseCaption = state.design.assetId
     ? `${state.design.name} сохранен в проекте и может переиспользоваться.`
     : state.design.dataUrl
       ? `${state.design.name} загружен только в текущую сессию браузера.`
       : `Используется внешний design reference: ${cleanText(state.brief.designUrl)}`;
+  refs.designCaption.textContent = hasFigmaImport
+    ? `${baseCaption} Structured Figma payload тоже подключен и будет использован для layer/text context.`
+    : baseCaption;
 }
 
 function renderDesignAnalysis() {
@@ -3238,20 +6034,39 @@ function renderSettingsInfo() {
   const provider = getSelectedProvider();
   const config = state.api.config;
   const providerRuntime = getActiveProviderRuntime();
+  const figma = state.api.figma;
   refs.providerHelp.textContent = provider
     ? `${provider.status}. Возможности: ${provider.capabilities.join(", ")}.`
     : "Провайдер пока не определен.";
 
   refs.runtimeConfigInfo.textContent = config
     ? config.openAiConfigured
-      ? `Runtime: ${config.openAiModel} active. .env: ${config.envFileLoaded ? config.envFilePath : "not found"}.${providerRuntime?.fallback ? ` Last provider issue: ${formatProviderIssue(providerRuntime)}.` : ""}`
+      ? `Runtime: ${config.openAiModel} active. .env: ${config.envFileLoaded ? config.envFilePath : "not found"}.${providerRuntime?.fallback ? ` Last provider issue: ${formatProviderIssue(providerRuntime)}.` : ""}${config.deepLConfigured ? " DeepL: ✓" : ""}`
       : `Runtime: OpenAI key not loaded. Создай ${config.envFilePath} с OPENAI_API_KEY=... и перезапусти сервер.`
     : "Runtime config недоступен.";
+
+  // Show DeepL auto-translate button only when key is configured
+  if (refs.deeplAutoTranslateBtn) {
+    refs.deeplAutoTranslateBtn.hidden = !(config?.deepLConfigured);
+  }
 
   const profile = getSelectedClientProfile();
   refs.clientProfileHelp.textContent = profile
     ? profile.description
     : "Выберите профиль клиента для heuristic preview.";
+
+  refs.figmaRuntimeInfo.textContent = figma
+    ? [
+        `Recommended flow: ${figma.recommendedFlow}`,
+        `Plugin endpoint: ${figma.pluginImportEndpoint}${figma.pluginImportSecretRequired ? " (secret required)." : " (local dev open)."}`,
+        figma.serverTokenConfigured
+          ? "Server-side Figma token configured."
+          : "Server-side Figma token not configured yet.",
+        Array.isArray(figma.modes) && figma.modes.length > 0
+          ? `Modes: ${figma.modes.join(", ")}.`
+          : ""
+      ].filter(Boolean).join(" ")
+    : "Figma intake status пока недоступен.";
 
   const emailBase = state.api.emailBase;
   const blockCatalogSummary = state.blockCatalog.summary || state.api.blockCatalog;
@@ -3456,7 +6271,13 @@ function getDiagnostics(profileId = state.settings.clientProfileId) {
   const mappedAssets = state.assetInputs.filter((asset, index) => asset.url && resolveAssetPlacement(asset, index)).length;
   const autoAssets = state.assetInputs.filter((asset) => asset.url && cleanText(asset.placement) === "auto").length;
 
-  if (state.previewSource === "draft") {
+  if (state.previewSource === "scaffold") {
+    items.push({
+      level: "ok",
+      title: "Scaffold preview",
+      body: "Preview построен из клонированного шаблона с токенами от AI."
+    });
+  } else if (state.previewSource === "draft") {
     items.push({
       level: "warning",
       title: "Concept preview",
@@ -3627,8 +6448,219 @@ function extractUrlsFromText(text) {
     .map((url) => url.replace(/[.,]+$/g, ""));
 }
 
+function extractFigmaLinkFromText(text) {
+  return extractUrlsFromText(text).find((url) => /figma\.com/i.test(url)) || "";
+}
+
 function looksLikeImageUrl(url) {
   return /\.(png|jpe?g|gif|webp|svg)(\?.*)?$/i.test(cleanText(url));
+}
+
+function normalizeFigmaNodeId(value) {
+  return cleanText(value).replace(/-/g, ":");
+}
+
+function parseFigmaReferenceUrl(url) {
+  const value = cleanText(url);
+  if (!value || !/figma\.com/i.test(value)) {
+    return null;
+  }
+
+  try {
+    const parsed = new URL(value);
+    const segments = parsed.pathname.split("/").filter(Boolean);
+    const mode = segments[0] || "";
+    const fileKey = ["file", "design", "proto", "board"].includes(mode) ? cleanText(segments[1]) : "";
+    const nodeId = normalizeFigmaNodeId(parsed.searchParams.get("node-id"));
+    const selectionName = cleanText(decodeURIComponent(segments[2] || "")).replace(/[-_]+/g, " ");
+
+    return {
+      url: value,
+      mode,
+      fileKey,
+      nodeId,
+      selectionName
+    };
+  } catch {
+    return {
+      url: value,
+      mode: "figma",
+      fileKey: "",
+      nodeId: "",
+      selectionName: ""
+    };
+  }
+}
+
+function updateDesignFigmaReference(url) {
+  const parsed = parseFigmaReferenceUrl(url);
+  if (!parsed) {
+    state.design = {
+      ...state.design,
+      figmaFileKey: "",
+      figmaNodeId: "",
+      figmaSelectionName: state.design?.figmaImport?.selectionName || ""
+    };
+    return;
+  }
+
+  state.design = {
+    ...state.design,
+    figmaFileKey: parsed.fileKey,
+    figmaNodeId: parsed.nodeId,
+    figmaSelectionName: parsed.selectionName || state.design?.figmaImport?.selectionName || ""
+  };
+}
+
+function setDesignReferenceUrl(url) {
+  state.brief.designUrl = cleanText(url);
+  updateDesignFigmaReference(state.brief.designUrl);
+}
+
+function collectFigmaPayloadStats(input) {
+  const layerNames = [];
+  const textSamples = [];
+  const exportUrls = [];
+  const visited = new Set();
+  const stats = {
+    layerCount: 0,
+    textLayerCount: 0,
+    imageFillCount: 0
+  };
+
+  const visit = (value) => {
+    if (!value || typeof value !== "object") {
+      if (typeof value === "string" && /^https?:\/\//i.test(value) && /\.(png|jpe?g|webp|gif|svg)(\?.*)?$/i.test(value) && exportUrls.length < 6) {
+        exportUrls.push(value);
+      }
+      return;
+    }
+
+    if (visited.has(value)) {
+      return;
+    }
+    visited.add(value);
+
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        visit(item);
+      }
+      return;
+    }
+
+    const type = cleanText(value.type).toUpperCase();
+    const name = cleanText(value.name);
+    const characters = cleanText(value.characters || value.text || value.content);
+
+    if (type || name || characters) {
+      stats.layerCount += 1;
+    }
+
+    if (name && layerNames.length < 12) {
+      layerNames.push(name);
+    }
+
+    if ((type === "TEXT" || characters) && textSamples.length < 10) {
+      stats.textLayerCount += 1;
+      if (characters) {
+        textSamples.push(characters.replace(/\s+/g, " ").slice(0, 180));
+      }
+    } else if (type === "TEXT") {
+      stats.textLayerCount += 1;
+    }
+
+    if (Array.isArray(value.fills)) {
+      for (const fill of value.fills) {
+        const fillType = cleanText(fill?.type).toUpperCase();
+        if (fillType === "IMAGE" || cleanText(fill?.imageRef) || cleanText(fill?.imageHash)) {
+          stats.imageFillCount += 1;
+        }
+      }
+    }
+
+    for (const nested of Object.values(value)) {
+      visit(nested);
+    }
+  };
+
+  visit(input);
+
+  return {
+    layerCount: stats.layerCount,
+    textLayerCount: stats.textLayerCount,
+    imageFillCount: stats.imageFillCount,
+    layerNames: Array.from(new Set(layerNames)).slice(0, 12),
+    textSamples: Array.from(new Set(textSamples)).slice(0, 10),
+    exportUrls: Array.from(new Set(exportUrls)).slice(0, 6)
+  };
+}
+
+function extractFigmaImportValue(payload, paths = []) {
+  for (const path of paths) {
+    let cursor = payload;
+    let valid = true;
+    for (const key of path) {
+      if (!cursor || typeof cursor !== "object" || !(key in cursor)) {
+        valid = false;
+        break;
+      }
+      cursor = cursor[key];
+    }
+    if (valid) {
+      const value = cleanText(cursor);
+      if (value) {
+        return value;
+      }
+    }
+  }
+  return "";
+}
+
+function summarizeFigmaImportPayload(rawText, fallbackUrl = "") {
+  const payload = JSON.parse(cleanText(rawText));
+  const reference = parseFigmaReferenceUrl(fallbackUrl);
+  const stats = collectFigmaPayloadStats(payload);
+  const fileKey = extractFigmaImportValue(payload, [["fileKey"], ["file_key"], ["meta", "fileKey"], ["file", "key"]]) || reference?.fileKey || "";
+  const nodeId = normalizeFigmaNodeId(
+    extractFigmaImportValue(payload, [["nodeId"], ["node_id"], ["meta", "nodeId"], ["selection", "nodeId"]]) || reference?.nodeId || ""
+  );
+  const selectionName = extractFigmaImportValue(payload, [["selectionName"], ["selection", "name"], ["meta", "selectionName"], ["name"]])
+    || reference?.selectionName
+    || stats.layerNames[0]
+    || "";
+  const pageName = extractFigmaImportValue(payload, [["pageName"], ["meta", "pageName"], ["selection", "pageName"]]);
+
+  return {
+    source: "figma-json",
+    fileKey,
+    nodeId,
+    selectionName,
+    pageName,
+    layerCount: stats.layerCount,
+    textLayerCount: stats.textLayerCount,
+    imageFillCount: stats.imageFillCount,
+    layerNames: stats.layerNames,
+    textSamples: stats.textSamples,
+    exportUrls: stats.exportUrls
+  };
+}
+
+function describeFigmaImport(importData) {
+  if (!importData) {
+    return "Обычному пользователю structured import не нужен. Обычно хватает ссылки на frame или скрина/export. Этот блок нужен только для advanced/internal Figma flow.";
+  }
+
+  const bits = [
+    importData.selectionName ? `Selection: ${importData.selectionName}` : "",
+    importData.pageName ? `Page: ${importData.pageName}` : "",
+    importData.fileKey ? `File: ${importData.fileKey}` : "",
+    importData.nodeId ? `Node: ${importData.nodeId}` : "",
+    Number(importData.layerCount) > 0 ? `Layers: ${importData.layerCount}` : "",
+    Number(importData.textLayerCount) > 0 ? `Text layers: ${importData.textLayerCount}` : "",
+    Number(importData.imageFillCount) > 0 ? `Image fills: ${importData.imageFillCount}` : ""
+  ].filter(Boolean);
+
+  return bits.join(" | ") || "Structured Figma payload imported.";
 }
 
 function slugify(value) {
@@ -3793,7 +6825,7 @@ async function combineTranslationFiles(files) {
   return chunks.join("\n\n");
 }
 
-async function applyTranslationFiles(files, sourceLabel = "") {
+async function applyTranslationFiles(files, sourceLabel = "", options = {}) {
   const supported = filterTranslationFiles(files);
   if (supported.length === 0) {
     state.translationUploadStatus = "Не найдено поддерживаемых translation files.";
@@ -3804,12 +6836,16 @@ async function applyTranslationFiles(files, sourceLabel = "") {
 
   state.translationText = await combineTranslationFiles(supported);
   state.chatAttachMenuOpen = false;
-  state.translationUploadStatus = sourceLabel
-    ? `Загружено ${supported.length} translation file(s) из ${sourceLabel}.`
-    : `Загружено ${supported.length} translation file(s).`;
+  if (!options.skipStatus) {
+    state.translationUploadStatus = sourceLabel
+      ? `Загружено ${supported.length} translation file(s) из ${sourceLabel}.`
+      : `Загружено ${supported.length} translation file(s).`;
+  }
   refs.fields.translationText.value = state.translationText;
   syncDraftTranslationsFromCurrentText();
-  renderTranslationUploadStatus();
+  if (!options.skipStatus) {
+    renderTranslationUploadStatus();
+  }
   renderAttachmentSummary();
   persistState();
 }
@@ -3831,7 +6867,7 @@ function shouldTreatFirstImageAsDesign() {
   return !state.design?.dataUrl;
 }
 
-async function applyAssetFiles(files, sourceLabel = "") {
+async function applyAssetFiles(files, sourceLabel = "", options = {}) {
   const supported = files.filter(isImageFile);
   if (supported.length === 0) {
     return;
@@ -3860,11 +6896,16 @@ async function applyAssetFiles(files, sourceLabel = "") {
   const meaningful = state.assetInputs.filter((asset) => asset.url || asset.notes || asset.key !== "hero_asset");
   state.assetInputs = meaningful.length > 0 ? [...meaningful, ...rows] : rows;
   state.chatAttachMenuOpen = false;
-  state.translationUploadStatus = sourceLabel
-    ? `Добавлено ${rows.length} image asset(s) из ${sourceLabel}.`
-    : `Добавлено ${rows.length} image asset(s).`;
+  if (!options.skipStatus) {
+    state.translationUploadStatus = sourceLabel
+      ? `Добавлено ${rows.length} image asset(s) из ${sourceLabel}.`
+      : `Добавлено ${rows.length} image asset(s).`;
+  }
   renderAssetComposer();
   renderAssetLibrary();
+  if (!options.skipStatus) {
+    renderTranslationUploadStatus();
+  }
   renderAttachmentSummary();
   persistState();
 }

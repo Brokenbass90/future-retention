@@ -1,0 +1,16 @@
+{
+  "items": [
+    {
+      "id": "lesson-1773216275188-kgxug",
+      "createdAt": "2026-03-11T08:04:35.188Z",
+      "category": "layout",
+      "mistake": "AI генерировал generic hero без logo row вверху",
+      "correction": "Всегда начинать с header-logo-row блока перед hero",
+      "tags": [
+        "header",
+        "layout"
+      ],
+      "source": "user"
+    }
+  ]
+}

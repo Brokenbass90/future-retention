@@ -2,3 +2,7 @@ node_modules
 .DS_Store
 .env
 .env.local
+data/studio.db
+data/studio.db-shm
+data/studio.db-wal
+Copy

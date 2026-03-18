@@ -1,0 +1,256 @@
+/**
+ * src/ai-schemas.js — OpenAI structured output JSON schemas
+ *
+ * All schemas use strict mode (additionalProperties: false).
+ * Used with the OpenAI Responses API `text.format.json_schema`.
+ */
+
+// ─── Main email draft schema ──────────────────────────────────────────────────
+
+export const responseSchema = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    assistant_reply: { type: "string" },
+    mail: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        subject: { type: "string" },
+        preheader: { type: "string" },
+        locale: { type: "string" },
+        summary: { type: "string" },
+        sections: {
+          type: "array",
+          items: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              kind: {
+                type: "string",
+                enum: ["hero", "text", "feature-list", "image", "cta", "footer"]
+              },
+              eyebrow: { type: "string" },
+              title: { type: "string" },
+              body: { type: "string" },
+              image_key: { type: "string" },
+              cta_label: { type: "string" },
+              cta_href: { type: "string" },
+              items: {
+                type: "array",
+                items: { type: "string" }
+              }
+            },
+            required: ["kind", "eyebrow", "title", "body", "image_key", "cta_label", "cta_href", "items"]
+          }
+        },
+        assets: {
+          type: "array",
+          items: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              key: { type: "string" },
+              url: { type: "string" },
+              alt: { type: "string" },
+              placement: { type: "string" },
+              notes: { type: "string" },
+              width: { type: "number" },
+              height: { type: "number" }
+            },
+            required: ["key", "url", "alt", "placement", "notes", "width", "height"]
+          }
+        },
+        translations: {
+          type: "array",
+          items: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              locale: { type: "string" },
+              subject: { type: "string" },
+              preheader: { type: "string" },
+              cta_labels: {
+                type: "array",
+                items: { type: "string" }
+              },
+              notes: { type: "string" },
+              body_blocks: {
+                type: "array",
+                items: { type: "string" }
+              },
+              source_name: { type: "string" }
+            },
+            required: ["locale", "subject", "preheader", "cta_labels", "notes", "body_blocks", "source_name"]
+          }
+        },
+        // modified_html: used ONLY in clone-edit mode — full HTML of the edited email
+        // Leave as empty string "" when not in clone-edit mode
+        modified_html: { type: "string" },
+
+        // locale_entries: used ONLY in scaffold mode — fills token blocks for new system email
+        // Array of { key, value } pairs matching the token keys returned by the scaffold endpoint
+        // e.g. [{ key: "block_00", value: "Reset your password" }, { key: "block_01", value: "Click below..." }]
+        // Leave as empty array [] when not in scaffold mode
+        locale_entries: {
+          type: "array",
+          items: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              key: { type: "string" },
+              value: { type: "string" }
+            },
+            required: ["key", "value"]
+          }
+        },
+
+        // brand_theme: extracted from design screenshot — used to patch template styles
+        // Fill when the user provides a design with brand-specific colors/styles
+        // Leave all fields as empty string "" when no design/theme is provided
+        // primaryColor: button background color (e.g. "#BDFF00")
+        // primaryTextColor: button label color (e.g. "#1A1A1A")
+        // buttonRadius: button border-radius (e.g. "12px") — must end in "px"
+        // contentRadius: card corner radius (e.g. "8px") — must end in "px"
+        // textColor: body paragraph color (e.g. "#333333")
+        // headingColor: h1/subtitle color (e.g. "#1A1A1A")
+        // linkColor: inline link color (e.g. "#BDFF00") — defaults to primaryColor if empty
+        // bgColor: outer email background (e.g. "#F5F5F5")
+        // borderColor: card border color (e.g. "#E0E0E0")
+        // logoUrl: full URL to brand logo image
+        brand_theme: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            primaryColor:     { type: "string" },
+            primaryTextColor: { type: "string" },
+            buttonRadius:     { type: "string" },
+            contentRadius:    { type: "string" },
+            textColor:        { type: "string" },
+            headingColor:     { type: "string" },
+            linkColor:        { type: "string" },
+            bgColor:          { type: "string" },
+            borderColor:      { type: "string" },
+            logoUrl:          { type: "string" }
+          },
+          required: ["primaryColor", "primaryTextColor", "buttonRadius", "contentRadius",
+                     "textColor", "headingColor", "linkColor", "bgColor", "borderColor", "logoUrl"]
+        }
+      },
+      required: ["subject", "preheader", "locale", "summary", "sections", "assets", "translations",
+                 "modified_html", "locale_entries", "brand_theme"]
+    }
+  },
+  required: ["assistant_reply", "mail"]
+};
+
+// ─── Translation schema ───────────────────────────────────────────────────────
+
+export const translationResponseSchema = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    assistant_reply: { type: "string" },
+    translations: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          locale: { type: "string" },
+          subject: { type: "string" },
+          preheader: { type: "string" },
+          cta_labels: {
+            type: "array",
+            items: { type: "string" }
+          },
+          notes: { type: "string" },
+          body_blocks: {
+            type: "array",
+            items: { type: "string" }
+          },
+          source_name: { type: "string" }
+        },
+        required: ["locale", "subject", "preheader", "cta_labels", "notes", "body_blocks", "source_name"]
+      }
+    }
+  },
+  required: ["assistant_reply", "translations"]
+};
+
+// ─── Design analysis schema ───────────────────────────────────────────────────
+
+export const designAnalysisSchema = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    assistant_reply: { type: "string" },
+    analysis: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        summary: { type: "string" },
+        reference_family: { type: "string" },
+        reference_variant: { type: "string" },
+        brand_hint: { type: "string" },
+        section_kinds: {
+          type: "array",
+          items: {
+            type: "string",
+            enum: ["hero", "text", "feature-list", "image", "cta", "footer"]
+          }
+        },
+        sections_structured: {
+          type: "array",
+          items: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              index:        { type: "number" },
+              kind: {
+                type: "string",
+                enum: ["hero", "text", "feature-list", "image", "cta", "footer"]
+              },
+              title:        { type: "string" },
+              body:         { type: "string" },
+              cta_label:    { type: "string" },
+              has_image:    { type: "boolean" },
+              image_notes:  { type: "string" },
+              layout_notes: { type: "string" }
+            },
+            required: ["index", "kind", "title", "body", "cta_label", "has_image", "image_notes", "layout_notes"]
+          }
+        },
+        suggested_blocks: {
+          type: "array",
+          items: { type: "string" }
+        },
+        asset_slots: {
+          type: "array",
+          items: { type: "string" }
+        },
+        content_requirements: {
+          type: "array",
+          items: { type: "string" }
+        },
+        warnings: {
+          type: "array",
+          items: { type: "string" }
+        }
+      },
+      required: [
+        "summary",
+        "reference_family",
+        "reference_variant",
+        "brand_hint",
+        "section_kinds",
+        "sections_structured",
+        "suggested_blocks",
+        "asset_slots",
+        "content_requirements",
+        "warnings"
+      ]
+    }
+  },
+  required: ["assistant_reply", "analysis"]
+};
