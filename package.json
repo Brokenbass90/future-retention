@@ -3,8 +3,25 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": "22.x",
+    "npm": "10.x"
+  },
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node server.js",
+    "smoke": "node scripts/studio-smoke.mjs",
+    "import:legacy-toolkit": "node scripts/import-legacy-toolkit.mjs",
+    "watch:mail": "node email-base/tools/watch-mail.js",
+    "build:mail": "node email-base/tools/build-mail.js",
+    "enrich:catalog": "node scripts/enrich-block-catalog.mjs"
+  },
+  "dependencies": {
+    "html2pug": "^4.0.0",
+    "pug": "^3.0.4",
+    "stylus": "^0.64.0"
+  },
+  "devDependencies": {
+    "linkedom": "^0.18.12"
   }
 }

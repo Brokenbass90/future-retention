@@ -61,13 +61,15 @@ function inferDesiredAssetRoles(section = {}, decomposition = null) {
   }
 
   if (role === "footer") {
-    if (cleanText(decomposition?.footerFamily).includes("store")) {
+    if (archetype === "store-badges-row" || cleanText(decomposition?.footerFamily).includes("store")) {
       desired.push("badge");
     }
-    if (cleanText(decomposition?.footerFamily).includes("social") || childRoleHints.has("social")) {
+    if (archetype === "social-links-row" || cleanText(decomposition?.footerFamily).includes("social") || childRoleHints.has("social")) {
       desired.push("social");
     }
-    desired.push("logo");
+    if (archetype !== "legal-footer-copy") {
+      desired.push("logo");
+    }
   }
 
   return unique(desired);
@@ -77,41 +79,72 @@ function inferRecommendedBlockArchetypes(section = {}, decomposition = null) {
   const role = cleanText(section.role);
   const archetype = cleanText(section.archetype);
   const footerFamily = cleanText(decomposition?.footerFamily);
+  const childRoleHints = new Set((Array.isArray(section.childRoleHints) ? section.childRoleHints : []).map((value) => cleanText(value)).filter(Boolean));
+  const columnCount = normalizePositiveNumber(section.columnCount);
+  const surfaceKind = cleanText(section?.style?.surfaceKind);
+  const isDark = Boolean(section?.style?.isDark);
+  const hasBackgroundImage = Boolean(cleanText(section?.style?.backgroundImage));
   const recommendations = [];
 
   if (role === "header") {
     recommendations.push("header-logo-row");
   } else if (role === "hero") {
-    if (archetype === "background-hero") {
-      recommendations.push("background-hero-banner");
-    } else if (archetype === "hero-banner") {
+    if (
+      archetype === "background-hero"
+      || cleanText(decomposition?.styleFamily) === "hero-promo-layout"
+      || surfaceKind === "band"
+      || hasBackgroundImage
+      || isDark
+    ) {
+      recommendations.push("dark-banner-cta-block");
+    }
+    if (childRoleHints.has("cta")) {
+      recommendations.push("hero-image-two-cta");
+    } else if (archetype === "hero-banner" || childRoleHints.has("hero") || childRoleHints.has("background")) {
       recommendations.push("hero-image-block");
     } else {
-      recommendations.push("hero-copy-block");
+      recommendations.push("hero-image-block");
+      recommendations.push("plain-copy-text-card");
     }
   } else if (role === "feature-list") {
-    if (normalizePositiveNumber(section.columnCount) >= 3) {
-      recommendations.push("feature-grid");
-    } else if (normalizePositiveNumber(section.columnCount) === 2) {
-      recommendations.push("two-column-feature-grid");
+    if (columnCount >= 3 || archetype === "three-column-grid") {
+      recommendations.push("three-promo-column-row");
+    } else if (columnCount === 2 || archetype === "two-column-grid") {
+      recommendations.push("numbered-feature-stack");
+      recommendations.push("bullet-proof-list-card");
+    } else if (childRoleHints.has("icon") || childRoleHints.has("section")) {
+      recommendations.push("numbered-feature-stack");
     } else {
-      recommendations.push("feature-list-stack");
+      recommendations.push("bullet-proof-list-card");
     }
   } else if (role === "image") {
-    recommendations.push(archetype === "content-card" ? "image-card-block" : "image-showcase-block");
+    if (childRoleHints.has("background") || surfaceKind === "band" || hasBackgroundImage) {
+      recommendations.push("dark-banner-cta-block");
+    }
+    recommendations.push("hero-image-block");
   } else if (role === "cta") {
+    if (columnCount >= 2) {
+      recommendations.push("switch-cta-row");
+    }
     recommendations.push("single-button-cta-card");
+    if (surfaceKind === "card" || archetype === "cta-card") {
+      recommendations.push("plain-copy-text-card");
+    }
   } else if (role === "text") {
-    if (normalizePositiveNumber(section.columnCount) >= 2) {
-      recommendations.push("two-column-copy-block");
+    if (columnCount >= 2) {
+      recommendations.push("bullet-proof-list-card");
+      recommendations.push("numbered-feature-stack");
+    } else if (surfaceKind === "card" || archetype === "copy-card" || archetype === "callout-box") {
+      recommendations.push("plain-copy-text-card");
+      recommendations.push("single-button-cta-card");
     } else {
       recommendations.push("plain-copy-text-card");
     }
   } else if (role === "footer") {
-    if (footerFamily.includes("store")) {
+    if (archetype === "store-badges-row" || footerFamily.includes("store")) {
       recommendations.push("store-badges-row");
     }
-    if (footerFamily.includes("social")) {
+    if (archetype === "social-links-row" || footerFamily.includes("social")) {
       recommendations.push("social-links-row");
     }
     recommendations.push("legal-unsubscribe-footer");
@@ -127,6 +160,7 @@ function inferRecommendedBlockArchetypes(section = {}, decomposition = null) {
 function inferSectionConfidence(section = {}) {
   const role = cleanText(section.role);
   const archetype = cleanText(section.archetype);
+  const surfaceKind = cleanText(section?.style?.surfaceKind);
 
   if (!role || role === "unknown") {
     return "low";
@@ -137,6 +171,10 @@ function inferSectionConfidence(section = {}) {
   }
 
   if (archetype && archetype !== "plain-section") {
+    return "high";
+  }
+
+  if (surfaceKind === "card" || surfaceKind === "band") {
     return "high";
   }
 
@@ -158,6 +196,28 @@ function inferComplexity(decomposition = null) {
   return "low";
 }
 
+function inferAssemblyStrategy({ decomposition = null, sectionMappings = [], blockCandidateCount = 0, lowConfidenceSections = [] } = {}) {
+  const complexity = inferComplexity(decomposition);
+  const styleFamily = cleanText(decomposition?.styleFamily);
+  const footerFamily = cleanText(decomposition?.footerFamily);
+  const totalSections = sectionMappings.length;
+  const lowConfidenceRatio = totalSections > 0 ? lowConfidenceSections.length / totalSections : 0;
+
+  if (styleFamily || footerFamily) {
+    return "reference-family-first";
+  }
+
+  if (complexity === "low" && blockCandidateCount === 0 && lowConfidenceSections.length <= 1) {
+    return "base-blocks-first";
+  }
+
+  if (complexity === "high" || blockCandidateCount >= 2 || lowConfidenceRatio >= 0.35) {
+    return "hybrid-reference-plus-freeform";
+  }
+
+  return "reference-family-first";
+}
+
 export function buildDesignMappingHints({ schema = null, decomposition = null } = {}) {
   if (!schema || !decomposition) {
     return null;
@@ -173,6 +233,10 @@ export function buildDesignMappingHints({ schema = null, decomposition = null } 
       role: cleanText(section.role) || "unknown",
       archetype: cleanText(section.archetype) || "plain-section",
       columnCount: normalizePositiveNumber(section.columnCount),
+      surfaceKind: cleanText(section?.style?.surfaceKind),
+      surfaceCoverage: normalizePositiveNumber(section?.style?.surfaceCoverage),
+      hasBackgroundImage: Boolean(cleanText(section?.style?.backgroundImage)),
+      isDark: Boolean(section?.style?.isDark),
       confidence: inferSectionConfidence(section),
       childRoleHints: unique(section.childRoleHints),
       desiredAssetRoles,
@@ -181,7 +245,9 @@ export function buildDesignMappingHints({ schema = null, decomposition = null } 
         cleanText(section.summaryText),
         cleanText(section.componentName),
         cleanText(section?.style?.layoutMode),
+        cleanText(section?.style?.surfaceKind),
         cleanText(section?.style?.backgroundImage) ? "background-image" : "",
+        Boolean(section?.style?.isDark) ? "dark-surface" : "",
         normalizePositiveNumber(section.textCount) > 0 ? `${normalizePositiveNumber(section.textCount)} text node(s)` : "",
         normalizePositiveNumber(section.imageCount) > 0 ? `${normalizePositiveNumber(section.imageCount)} image slot(s)` : ""
       ])
@@ -196,6 +262,12 @@ export function buildDesignMappingHints({ schema = null, decomposition = null } 
   const missingAssetRoles = desiredAssetRoles.filter((role) => !presentImageRoles.includes(role));
   const lowConfidenceSections = sectionMappings.filter((section) => section.confidence === "low");
   const blockCandidateCount = sectionMappings.filter((section) => section.recommendedBlockArchetypes.includes("block-candidate")).length;
+  const assemblyStrategy = inferAssemblyStrategy({
+    decomposition,
+    sectionMappings,
+    blockCandidateCount,
+    lowConfidenceSections
+  });
 
   const warnings = [];
   if (missingAssetRoles.length > 0) {
@@ -209,7 +281,7 @@ export function buildDesignMappingHints({ schema = null, decomposition = null } 
   }
 
   return {
-    assemblyStrategy: "reference-family-first",
+    assemblyStrategy,
     layoutComplexity: inferComplexity(decomposition),
     directionHint: cleanText(decomposition.directionHint),
     localeHints: unique(decomposition.localeHints),

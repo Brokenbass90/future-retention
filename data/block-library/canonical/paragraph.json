@@ -1,0 +1,18 @@
+{
+  "id": "paragraph",
+  "label": "Paragraph — body text",
+  "description": "Один абзац основного текста. Inline-блок — вставляется внутрь секции рядом с другими элементами.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "canonical",
+  "pug": "p.body-text(style='text-align: {{ align }}; color: {{ color }};') {{ text }}\n",
+  "styl": "p.body-text { font-family: 'Helvetica', 'Arial', sans-serif; font-weight: 400; font-size: 16px; line-height: 1.5; margin: 0 0 12px; padding: 0; color: #333333; }\n",
+  "slots": [
+    { "id": "text",  "kind": "richText", "label": "Текст", "default": "A short body paragraph.", "max": 500 },
+    { "id": "align", "kind": "select",   "label": "Выравнивание", "default": "left", "options": ["left","center","right","justify"] },
+    { "id": "color", "kind": "color",    "label": "Цвет текста", "default": "#333333" }
+  ],
+  "outlookSafe": true,
+  "tags": ["text", "paragraph", "inline"]
+}

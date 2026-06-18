@@ -65,7 +65,12 @@ function scoreCatalogItemForSection(section, item, context = {}) {
   const archetype = cleanText(section?.archetype);
   const desiredAssetRoles = Array.isArray(section?.desiredAssetRoles) ? section.desiredAssetRoles.map(cleanText) : [];
   const recommendedBlockArchetypes = Array.isArray(section?.recommendedBlockArchetypes) ? section.recommendedBlockArchetypes.map(cleanText) : [];
+  const notesText = Array.isArray(section?.notes) ? section.notes.map(cleanText).filter(Boolean).join(" ").toLowerCase() : "";
   const columnCount = Number(section?.columnCount) || 1;
+  const surfaceKind = cleanText(section?.surfaceKind);
+  const surfaceCoverage = Number(section?.surfaceCoverage) || 0;
+  const hasBackgroundImage = Boolean(section?.hasBackgroundImage);
+  const isDark = Boolean(section?.isDark);
   const itemId = cleanText(item?.id);
   const itemText = buildCatalogItemText(item);
   const itemTraits = item?.traits && typeof item.traits === "object" ? item.traits : {};
@@ -77,6 +82,11 @@ function scoreCatalogItemForSection(section, item, context = {}) {
   if (recommendedBlockArchetypes.includes(itemId)) {
     score += 140;
     reasons.push(`archetype:${itemId}`);
+  }
+
+  if (archetype && itemText.includes(archetype.replace(/-/g, " "))) {
+    score += 26;
+    reasons.push(`section-archetype:${archetype}`);
   }
 
   const compatibleKind = isCompatibleSectionKind(role, itemSectionKind, itemText);
@@ -144,6 +154,92 @@ function scoreCatalogItemForSection(section, item, context = {}) {
   } else if (columnCount === 2 && /two|switch/.test(itemText)) {
     score += 18;
     reasons.push("columns:2");
+  }
+
+  if (surfaceKind === "band" && /banner|hero|vml|background|dark/.test(itemText)) {
+    score += 28;
+    reasons.push("surface:band");
+  }
+
+  if (surfaceKind === "card" && /card|copy|text|cta|bullet|feature/.test(itemText)) {
+    score += 20;
+    reasons.push("surface:card");
+  }
+
+  if (surfaceKind === "card" && /banner|vml/.test(itemText) && role !== "hero") {
+    score -= 18;
+    reasons.push("surface:avoid-band");
+  }
+
+  if (surfaceCoverage >= 0.9 && /banner|hero|background|vml/.test(itemText)) {
+    score += 12;
+    reasons.push("surface:full-coverage");
+  } else if (surfaceCoverage > 0 && surfaceCoverage <= 0.92 && /card|copy|cta|bullet/.test(itemText)) {
+    score += 10;
+    reasons.push("surface:partial-coverage");
+  }
+
+  if ((hasBackgroundImage || desiredAssetRoles.includes("background")) && /banner|background|hero|vml|dark/.test(itemText)) {
+    score += 16;
+    reasons.push("surface:background-image");
+  }
+
+  if (isDark && /dark|banner|vml/.test(itemText)) {
+    score += 14;
+    reasons.push("surface:dark");
+  }
+
+  if (columnCount >= 3 && cleanText(itemTraits.itemMode) === "grid") {
+    score += 22;
+    reasons.push("traits:grid");
+  }
+
+  if (columnCount >= 2 && cleanText(itemTraits.itemMode) === "numbered") {
+    score += 12;
+    reasons.push("traits:numbered");
+  }
+
+  if (role === "text" && !itemTraits.hasImage && !itemTraits.hasCta && itemSectionKind === "text") {
+    score += 20;
+    reasons.push("traits:plain-text");
+  }
+
+  if (role === "cta" && itemTraits.hasCta) {
+    score += 14;
+    reasons.push("traits:cta");
+  }
+
+  if ((role === "hero" || role === "image") && itemTraits.hasImage) {
+    score += 14;
+    reasons.push("traits:image");
+  }
+
+  if (archetype === "callout-box" && itemTraits.hasCta) {
+    score += 12;
+    reasons.push("archetype:callout");
+  }
+
+  if (notesText) {
+    if (/store|app store|google play|badge/.test(notesText) && /store|badge/.test(itemText)) {
+      score += 20;
+      reasons.push("notes:store");
+    }
+    if (/social|facebook|instagram|youtube|telegram|twitter|\bx\b/.test(notesText) && /social/.test(itemText)) {
+      score += 20;
+      reasons.push("notes:social");
+    }
+    if (/legal|unsubscribe|terms|risk warning|disclaimer/.test(notesText) && /unsubscribe|legal|terms|footer/.test(itemText)) {
+      score += 18;
+      reasons.push("notes:legal");
+    }
+    if (/logo|brand/.test(notesText) && /logo/.test(itemText)) {
+      score += 14;
+      reasons.push("notes:logo");
+    }
+    if (/dark|banner|background/.test(notesText) && /dark|banner|background|vml/.test(itemText)) {
+      score += 14;
+      reasons.push("notes:background");
+    }
   }
 
   if (cleanText(context?.styleFamily) === "simple-system-card" && compatibleKind && /copy|cta|footer|logo/.test(itemText)) {

@@ -1,0 +1,113 @@
+{
+  "_comment": "Built-in namespaces auto-merged into state.namespaces on studio load. Used for common footer links (Terms+Unsubscribe) so users don't have to translate them per email. Reference: https://embedded.company_terms_link and {{embedded.unsubscribe_link}}.",
+  "namespaces": [
+    {
+      "id": "ns-builtin-footer",
+      "name": "footer_upload",
+      "builtin": true,
+      "description": "Terms & Conditions + Unsubscribe — auto-translated across 19 locales. block_00 = Terms link text, block_01 = Unsubscribe link text. Use as ${{ footer_upload.block_00 }}$ / ${{ footer_upload.block_01 }}$ inside <a href=\"{{embedded.company_terms_link}}\"> and <a href=\"{{embedded.unsubscribe_link}}\"> respectively.",
+      "locales": {
+        "en": [
+          "Terms and Conditions",
+          "Unsubscribe"
+        ],
+        "ru": [
+          "Условия и положения",
+          "Отписаться"
+        ],
+        "uk": [
+          "Умови та положення",
+          "Відписатися"
+        ],
+        "de": [
+          "Allgemeine Geschäftsbedingungen",
+          "Abbestellen"
+        ],
+        "es": [
+          "Términos y condiciones",
+          "Cancelar suscripción"
+        ],
+        "fr": [
+          "Conditions générales",
+          "Se désabonner"
+        ],
+        "it": [
+          "Termini e condizioni",
+          "Annulla l'iscrizione"
+        ],
+        "pt": [
+          "Termos e condições",
+          "Cancelar inscrição"
+        ],
+        "tr": [
+          "Şartlar ve koşullar",
+          "Abonelikten çık"
+        ],
+        "id": [
+          "Syarat dan Ketentuan",
+          "Berhenti berlangganan"
+        ],
+        "tl": [
+          "Mga Tuntunin at Kundisyon",
+          "Mag-unsubscribe"
+        ],
+        "vi": [
+          "Điều khoản và Điều kiện",
+          "Huỷ đăng ký"
+        ],
+        "th": [
+          "ข้อกำหนดและเงื่อนไข",
+          "ยกเลิกการสมัคร"
+        ],
+        "hi": [
+          "नियम और शर्तें",
+          "सदस्यता समाप्त करें"
+        ],
+        "bn": [
+          "শর্তাবলী",
+          "আনসাবস্ক্রাইব করুন"
+        ],
+        "ar": [
+          "الشروط والأحكام",
+          "إلغاء الاشتراك"
+        ],
+        "ur": [
+          "شرائط و ضوابط",
+          "ان سبسکرائب کریں"
+        ],
+        "zh": [
+          "条款和条件",
+          "退订"
+        ],
+        "ja": [
+          "利用規約",
+          "配信解除"
+        ],
+        "ko": [
+          "이용 약관",
+          "구독 취소"
+        ],
+        "fa": [
+          "شرایط و ضوابط",
+          "لغو اشتراک"
+        ],
+        "he": [
+          "תנאים והגבלות",
+          "ביטול הרשמה"
+        ],
+        "hl": [
+          "Niyam aur Sharten",
+          "Sadasyata samapt karein"
+        ],
+        "sv": [
+          "Villkor och bestämmelser",
+          "Avregistrera prenumeration"
+        ],
+        "se": [
+          "Villkor och bestämmelser",
+          "Avregistrera prenumeration"
+        ]
+      }
+    }
+  ]
+}

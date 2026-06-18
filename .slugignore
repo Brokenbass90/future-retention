@@ -1,0 +1,14 @@
+.git/
+.github/
+.env
+.env.*
+node_modules/
+email-base/node_modules/
+email-base/_trash/
+tmp/
+*.log
+*.bak
+.DS_Store
+data/studio.db
+data/studio.db-shm
+data/studio.db-wal

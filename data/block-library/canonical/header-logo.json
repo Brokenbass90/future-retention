@@ -1,0 +1,19 @@
+{
+  "id": "header-logo",
+  "label": "Header — logo (centered)",
+  "description": "Шапка письма: центрированный логотип бренда. Ширина логотипа редактируется.",
+  "placement": "section",
+  "category": "header",
+  "version": 2,
+  "source": "canonical",
+  "pug": "table.row.header(role='presentation')\n    tr\n        td.center(align='center')\n            a(href='{{ brand_url }}' target='_blank')\n                img.logo(src='{{ logo_url }}' alt='{{ brand_name }}' width='{{ logo_width }}')\n",
+  "styl": ".row.header td.center { padding: 32px 24px 24px; text-align: center; }\n.row.header img.logo { display: inline-block; max-width: {{ logo_width }}px; height: auto; border: 0; }\n",
+  "slots": [
+    { "id": "brand_url",  "kind": "url",   "label": "Ссылка с логотипа", "default": "https://example.com" },
+    { "id": "logo_url",   "kind": "image", "label": "Логотип (URL)",     "default": "https://placehold.co/280x60?text=LOGO" },
+    { "id": "brand_name", "kind": "text",  "label": "Alt-текст бренда",   "default": "Brand", "max": 60 },
+    { "id": "logo_width", "kind": "number", "label": "Ширина логотипа, px", "default": 140, "min": 40, "max": 320 }
+  ],
+  "outlookSafe": true,
+  "tags": ["header", "logo", "brand"]
+}

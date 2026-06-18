@@ -1,0 +1,565 @@
+/* eslint-disable no-useless-escape */
+/**
+ * Minimal RTL post-processor for ar/he/fa/ur (and similar) emails.
+ *
+ * Design principle: change as little as possible. The email column
+ * keeps its centered structural layout intact; only:
+ *   - text reading direction is set on the INNERMOST text-bearing
+ *     <td>/<th> cells (where the actual localized text lives),
+ *   - text alignment is flipped from left → right (or added as right
+ *     when no text-align was set) on the elements that carry text
+ *     (p / h1..h6 / li / leaf div, plus the innermost text td),
+ *   - button shell tables are pulled to align="right" so CTA buttons
+ *     end up on the right side of their column.
+ *
+ * EVERYTHING ELSE is left alone:
+ *   - no dir="rtl" on wrappers, layout tables, structural <td>,
+ *     spacers, <a>, <button>, <span>, <font>, <b>, etc.
+ *   - no text-align inserted on elements that already declare
+ *     text-align: center / right / justify (designer intent wins).
+ *   - layout <td> with only nested children stays untouched.
+ *
+ * Detection mechanics:
+ *   - "innermost text td" = a <td>/<th> whose direct top-level
+ *     content has visible text outside any nested block child.
+ *     Detected by a small tokenizer with block-depth counting.
+ *   - "button shell table" = the IMMEDIATELY enclosing <table> of a
+ *     <td class="butt…">. Detected by a stack-walk over the token
+ *     stream. We never mark outer wrapper tables.
+ *
+ * Used by:
+ *   - email-base/tools/build-mail.js          (build-time, on disk HTML)
+ *   - server.js → applyLocaleDirectionToHtml  (preview/AI flow in the studio)
+ */
+
+'use strict';
+
+const RTL_LANG_PREFIXES = new Set([
+  'ar', 'he', 'fa', 'ur', 'ps', 'sd', 'ug', 'yi', 'ku', 'ks', 'dv', 'arc', 'ha',
+]);
+
+function isRtlLocale(localeRaw) {
+  if (!localeRaw) return false;
+  const code = String(localeRaw).trim();
+  if (!code) return false;
+  const prefix = code.split(/[-_]/)[0].toLowerCase();
+  return RTL_LANG_PREFIXES.has(prefix);
+}
+
+const VISIBLE_TEXT_RE = /[A-Za-zА-Яа-яЁё֐-׿؀-ۿݐ-ݿ]/;
+
+function hasVisibleText(s) {
+  if (!s) return false;
+  const text = String(s)
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<[^>]+>/g, ' ');
+  return VISIBLE_TEXT_RE.test(text) || /&[a-zA-Z]+;|&#\d+;/.test(String(s));
+}
+
+function readAttr(attrs, name) {
+  const src = String(attrs || '');
+  const quoted = new RegExp(`\\b${name}\\s*=\\s*(["'])([\\s\\S]*?)\\1`, 'i').exec(src);
+  if (quoted) return quoted[2];
+  const bare = new RegExp(`\\b${name}\\s*=\\s*([^\\s"'>]+)`, 'i').exec(src);
+  return bare ? bare[1] : '';
+}
+
+function hasClassToken(attrs, re) {
+  return readAttr(attrs, 'class')
+    .split(/\s+/)
+    .filter(Boolean)
+    .some(token => re.test(token));
+}
+
+function withDirRtl(attrs) {
+  if (/\bdir\s*=/i.test(attrs)) return attrs;
+  return ` dir="rtl"${attrs}`;
+}
+
+/* ─── Style flippers: text-align only, !important preserved ─────── */
+
+function flipTextAlignInCss(css) {
+  if (!css) return css;
+  return css.replace(
+    /\btext-align\s*:\s*(left|start|end)\b([^;}\n]*)/gi,
+    (match, _value, rest) => {
+      if (/\!\s*important/i.test(rest)) return match;
+      return `text-align: right${rest}`;
+    }
+  );
+}
+
+function flipTextAlignInStyleAttr(attrs) {
+  if (!/\bstyle\s*=/i.test(attrs)) return attrs;
+  return attrs.replace(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i,
+    (_m, q, body) => `style=${q}${flipTextAlignInCss(body)}${q}`);
+}
+
+function transformHeadStyles(html) {
+  return html.replace(/(<style[^>]*>)([\s\S]*?)(<\/style>)/gi,
+    (_m, open, body, close) => `${open}${flipTextAlignInCss(body)}${close}`);
+}
+
+function flipAllInlineStyles(html) {
+  return html.replace(/<([a-z][\w:-]*)([^>]*)>/gi, (m, tag, attrs) => {
+    if (/^(?:style|script)$/i.test(tag)) return m;
+    if (!/\bstyle\s*=/i.test(attrs)) return m;
+    return `<${tag}${flipTextAlignInStyleAttr(attrs)}>`;
+  });
+}
+
+/* ─── Physical-side swap: padding/margin/float left ↔ right ─────── */
+/**
+ * In HTML email templates the column structure is built with physical
+ * padding-left / padding-right values (utility classes like `.pl50`,
+ * `.offset-by-one { padding-left: 50px }`, or inline `padding-left: 50px`).
+ * For RTL we want the offset to land on the *opposite* physical side —
+ * otherwise a column that visually starts 50px from the LEFT in EN will
+ * still start 50px from the LEFT in AR/UR, which puts the content on the
+ * wrong side of the column.
+ *
+ * Rules:
+ *   - Swap individual padding-left ↔ padding-right declarations.
+ *   - Swap individual margin-left ↔ margin-right declarations.
+ *   - Swap float: left ↔ float: right.
+ *   - Skip declarations marked `!important` — designer intent wins.
+ *   - Skip when both sides have the same value (no-op).
+ *   - This pass operates on raw CSS strings (inline styles + <style>
+ *     blocks).
+ *
+ * NOTE: the shorthand `padding: a b c d` is left alone — too risky to
+ * try to re-shuffle the 4-value order with regex. Templates that need
+ * RTL-aware padding should use the per-side declarations.
+ */
+function swapPhysicalSidesInCss(css) {
+  if (!css) return css;
+  // float
+  let out = css.replace(/\bfloat\s*:\s*(left|right)\b([^;}\n]*)/gi, (match, value, rest) => {
+    if (/\!\s*important/i.test(rest)) return match;
+    return `float: ${value === 'left' ? 'right' : 'left'}${rest}`;
+  });
+  // padding-left / padding-right / margin-left / margin-right
+  // Strategy: collect all declarations into a temporary map per side,
+  // then re-emit. But we don't want to reorder the rest of the rule.
+  // Easier: do a token-pair swap using placeholders.
+  //
+  // We rewrite using a placeholder so the two sides don't fight.
+  const TOKEN_L = '\x00LFT\x00';
+  const TOKEN_R = '\x00RGT\x00';
+
+  // padding-left → TOKEN_L (skip !important)
+  out = out.replace(/\bpadding-left\s*:\s*([^;}\n]+?)(?=\s*(?:;|}|$|\n))/gi,
+    (match, value) => /\!\s*important/i.test(value) ? match : `padding-${TOKEN_L}: ${value.trim()}`);
+  out = out.replace(/\bpadding-right\s*:\s*([^;}\n]+?)(?=\s*(?:;|}|$|\n))/gi,
+    (match, value) => /\!\s*important/i.test(value) ? match : `padding-${TOKEN_R}: ${value.trim()}`);
+  out = out.replace(/\bmargin-left\s*:\s*([^;}\n]+?)(?=\s*(?:;|}|$|\n))/gi,
+    (match, value) => /\!\s*important/i.test(value) ? match : `margin-${TOKEN_L}: ${value.trim()}`);
+  out = out.replace(/\bmargin-right\s*:\s*([^;}\n]+?)(?=\s*(?:;|}|$|\n))/gi,
+    (match, value) => /\!\s*important/i.test(value) ? match : `margin-${TOKEN_R}: ${value.trim()}`);
+
+  // Token swap: L → right, R → left.
+  out = out.replace(new RegExp(TOKEN_L, 'g'), 'right');
+  out = out.replace(new RegExp(TOKEN_R, 'g'), 'left');
+
+  // ── background-position keyword swap ──────────────────────────────
+  // Two forms in HTML email templates:
+  //   1) `background-position: left top` / `right center` / etc.
+  //   2) `background: url(...) left top no-repeat` (shorthand).
+  //
+  // Only swap the `left` / `right` KEYWORDS (not percentages like 25%) —
+  // a percentage-based position has its own meaning the designer chose.
+  // Process in a single pass with placeholder tokens to avoid the
+  // L→R→L back-and-forth ping-pong.
+  const POS_L = '\x00POSL\x00';
+  const POS_R = '\x00POSR\x00';
+
+  // background-position: <pos>; (longhand)
+  out = out.replace(/\bbackground-position\s*:\s*([^;}\n]+)/gi, (match, value) => {
+    if (/\!\s*important/i.test(value)) return match;
+    const swapped = value
+      .replace(/\bleft\b/g, POS_L)
+      .replace(/\bright\b/g, POS_R);
+    return `background-position: ${swapped}`;
+  });
+
+  // background: <stuff> <left|right> <top|bottom|center>? ... (shorthand)
+  // We're conservative — only flip standalone `left`/`right` tokens, not
+  // anything inside url(...). Match only outside parens by splitting on url(…).
+  out = out.replace(/\bbackground\s*:\s*([^;}\n]+)/gi, (match, value) => {
+    if (/\!\s*important/i.test(value)) return match;
+    // Don't touch the value INSIDE url(...) — that may contain literal
+    // 'left'/'right' inside an image URL.
+    const swapped = value.replace(/(url\([^)]*\))|(\bleft\b)|(\bright\b)/g,
+      (m, urlPart, leftTok, rightTok) => {
+        if (urlPart) return urlPart;
+        if (leftTok) return POS_L;
+        if (rightTok) return POS_R;
+        return m;
+      });
+    return `background: ${swapped}`;
+  });
+
+  out = out.replace(new RegExp(POS_L, 'g'), 'right');
+  out = out.replace(new RegExp(POS_R, 'g'), 'left');
+
+  return out;
+}
+
+function swapPhysicalSidesInStyleAttr(attrs) {
+  if (!/\bstyle\s*=/i.test(attrs)) return attrs;
+  return attrs.replace(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i,
+    (_m, q, body) => `style=${q}${swapPhysicalSidesInCss(body)}${q}`);
+}
+
+function swapPhysicalSidesInHeadStyles(html) {
+  return html.replace(/(<style[^>]*>)([\s\S]*?)(<\/style>)/gi,
+    (_m, open, body, close) => `${open}${swapPhysicalSidesInCss(body)}${close}`);
+}
+
+function swapPhysicalSidesOnAllTags(html) {
+  return html.replace(/<([a-z][\w:-]*)([^>]*)>/gi, (m, tag, attrs) => {
+    if (/^(?:style|script)$/i.test(tag)) return m;
+    if (!/\bstyle\s*=/i.test(attrs)) return m;
+    return `<${tag}${swapPhysicalSidesInStyleAttr(attrs)}>`;
+  });
+}
+
+/* ─── Attribute flippers: align="left|start|end" → align="right"
+ * NOTE: no dir="rtl" added here. The user's directive is that dir
+ * lives only on the innermost text cell.                          */
+
+function flipAlignAttr(attrs) {
+  return attrs.replace(/\balign\s*=\s*(["']?)(left|start|end)\1/gi, 'align="right"');
+}
+
+function flipAlignOnAllTags(html) {
+  return html.replace(/<([a-z][\w:-]*)([^>]*)>/gi, (m, tag, attrs) => {
+    if (/^(?:style|script)$/i.test(tag)) return m;
+    if (!/\balign\s*=/i.test(attrs)) return m;
+    return `<${tag}${flipAlignAttr(attrs)}>`;
+  });
+}
+
+/* ─── Button shell detection (innermost enclosing <table>) ─────── */
+
+function isButtonClassToken(attrs) {
+  return hasClassToken(attrs, /^(?:button|tiny-button|small-button|medium-button(?:-[\w-]+)?|large-button)$/i)
+    || hasClassToken(attrs, /(?:^|-)button(?:-|$)/i);
+}
+
+function findButtonShellTableStarts(html) {
+  const marked = new Set();
+  const stack = [];
+  const tagRe = /<(\/?)(table|td|th)\b([^>]*)>/gi;
+  let m;
+  while ((m = tagRe.exec(html)) !== null) {
+    const closing = m[1] === '/';
+    const tag = m[2].toLowerCase();
+    if (!closing) {
+      if (tag === 'table') {
+        stack.push({ start: m.index });
+      } else if (tag === 'td' || tag === 'th') {
+        const cls = readAttr(m[3], 'class');
+        const isButtCell = cls
+          .split(/\s+/)
+          .some(token => /^butt(?:[-_].*)?$/i.test(token));
+        if (isButtCell && stack.length) {
+          marked.add(stack[stack.length - 1].start);
+        }
+      }
+    } else if (tag === 'table') {
+      stack.pop();
+    }
+  }
+  return marked;
+}
+
+function forceAlignRightAttr(attrs) {
+  if (!/\balign\s*=/i.test(attrs)) return `${attrs} align="right"`;
+  return attrs
+    .replace(/\balign\s*=\s*(["'])([\s\S]*?)\1/i, 'align="right"')
+    .replace(/\balign\s*=\s*([^\s"'>]+)/i, 'align="right"');
+}
+
+function alignButtonShellsRight(html) {
+  const marked = findButtonShellTableStarts(html);
+  return html.replace(/<table\b([^>]*)>/gi, (m, attrs, offset) => {
+    const isShell = isButtonClassToken(attrs) || marked.has(offset);
+    if (!isShell) return m;
+    return `<table${forceAlignRightAttr(attrs)}>`;
+  });
+}
+
+/* ─── text-align utilities ─────────────────────────────────────── */
+
+function readTextAlignFromStyle(attrs) {
+  if (!/\bstyle\s*=/i.test(attrs)) return null;
+  const m = attrs.match(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i);
+  if (!m) return null;
+  const decl = m[2].match(/\btext-align\s*:\s*([a-zA-Z-]+)/i);
+  return decl ? decl[1].toLowerCase() : null;
+}
+
+/**
+ * Add `text-align: right` to attrs ONLY when:
+ *   - no text-align declaration exists, OR
+ *   - text-align was `left` / `start` (already flipped by earlier passes,
+ *     so by this point it is `right` — no-op for us either way).
+ * Skip when text-align is center / justify / right / inherit / initial.
+ */
+function ensureTextAlignRightIfMissing(attrs) {
+  const current = readTextAlignFromStyle(attrs);
+  if (current !== null) {
+    // Designer already declared an alignment; respect it. flipAllInlineStyles
+    // has already turned left/start/end into right earlier in the pipeline,
+    // so center/right/justify/inherit/initial are the only values we see here.
+    return attrs;
+  }
+  // No text-align declared. Add it.
+  if (/\bstyle\s*=/i.test(attrs)) {
+    return attrs.replace(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i,
+      (_m, q, body) => `style=${q}${body.replace(/\s*;?\s*$/, ';')} text-align: right;${q}`);
+  }
+  return `${attrs} style="text-align: right;"`;
+}
+
+/* ─── Text-block elements: p / h* / li / leaf div get text-align right ─── */
+
+/**
+ * Add dir="rtl" + text-align: right (if missing) on text-block elements.
+ * These are block-level — they don't affect inline-block sibling flow,
+ * so it's safe to put dir on them without flipping multi-card grids.
+ *
+ * Why dir matters here: when a paragraph mixes RTL prose with LTR
+ * placeholders like `{{Level_Name}}`, the browser's auto-bidi can
+ * place punctuation in unexpected spots. Explicit dir="rtl" keeps
+ * the paragraph anchored as an RTL block.
+ */
+function addRtlAndAlignToPHLi(html) {
+  return html.replace(/<(p|h[1-6]|li)\b([^>]*)>/gi,
+    (_m, tag, attrs) => `<${tag}${ensureTextAlignRightIfMissing(withDirRtl(attrs))}>`);
+}
+
+function isSpacerDivContent(inner) {
+  const stripped = String(inner || '')
+    .replace(/<br\s*\/?>/gi, '')
+    .replace(/&nbsp;|&#160;|&#xa0;/gi, '')
+    .replace(/<[^>]+>/g, '')
+    .replace(/\s+/g, '');
+  return stripped.length === 0;
+}
+
+/**
+ * Leaf div = a <div> whose direct content has NO block children
+ * (p, h*, li, div, table). When such a leaf carries visible text
+ * (i.e. not a pure spacer) we mark it RTL: `dir="rtl"` so any
+ * placeholder / mixed-direction text bidi-resolves correctly inside
+ * the card or text block, and `text-align: right` if no alignment
+ * was declared.
+ *
+ * Cards in modern email templates often nest a leaf <div> with text
+ * directly inside a table cell (instead of a <p>) — without dir
+ * here, that inner block keeps LTR bidi order.
+ */
+function addRtlToLeafDivs(html) {
+  return html.replace(/<div\b([^>]*)>([\s\S]*?)<\/div>/gi, (m, attrs, inner) => {
+    if (/<(?:p|h[1-6]|li|div|table)\b/i.test(inner)) return m;
+    if (!hasVisibleText(inner)) return m;
+    if (isSpacerDivContent(inner)) return m;
+    let next = withDirRtl(attrs);
+    next = ensureTextAlignRightIfMissing(next);
+    return `<div${next}>${inner}</div>`;
+  });
+}
+
+/* ─── Button cells (<td class="butt…">): keep dir="rtl" so Arabic
+ *     text inside the link reads correctly. This is also an
+ *     "innermost" cell semantically — its only child is the link. */
+
+/**
+ * Mark deep text-bearing <td> cells for dir="rtl".
+ *
+ * Rationale: putting dir on a wrapping <td> (like center bg-col or
+ * container) makes the whole email lean right. Putting it ONLY on
+ * inner text wrappers (typically nesting 3+ td deep — body > center >
+ * container > row > td.wrapper > td.columns > td.text) reads RTL
+ * without touching the outer layout. We also skip cells that contain
+ * inline-block sibling divs (multi-card grids), because dir on those
+ * still flips child order.
+ *
+ *   - depthRequired: how many <td> ancestors the cell must have. 2 by
+ *     default — i.e. the cell itself is the 3rd nested td or deeper.
+ */
+function addRtlToDeepTextTd(html, opts = {}) {
+  const depthRequired = typeof opts.depthRequired === 'number' ? opts.depthRequired : 2;
+  const marked = new Set();
+
+  // Walk tokens to track td-depth and remember each cell's open offset.
+  const tagRe = /<(\/?)(td|th|table|tr|tbody|thead|tfoot|center)\b([^>]*)>/gi;
+  const tdStack = []; // [{ start, attrs, depth }]
+  let m;
+  while ((m = tagRe.exec(html)) !== null) {
+    const closing = m[1] === '/';
+    const tag = m[2].toLowerCase();
+    if (tag === 'td' || tag === 'th') {
+      if (!closing) {
+        tdStack.push({ start: m.index, attrs: m[3] || '', depthOnEntry: tdStack.length });
+      } else {
+        tdStack.pop();
+      }
+    }
+  }
+
+  // Re-walk to actually inspect each td's content range.
+  // Cheaper: collect all td open/close pairs first via balanced scan.
+  const pairs = [];
+  const stack2 = [];
+  tagRe.lastIndex = 0;
+  while ((m = tagRe.exec(html)) !== null) {
+    const closing = m[1] === '/';
+    const tag = m[2].toLowerCase();
+    if (tag !== 'td' && tag !== 'th') continue;
+    if (!closing) {
+      stack2.push({ start: m.index, openEnd: tagRe.lastIndex, attrs: m[3] || '', depth: stack2.length });
+    } else {
+      const frame = stack2.pop();
+      if (!frame) continue;
+      pairs.push({ start: frame.start, openEnd: frame.openEnd, closeStart: m.index, attrs: frame.attrs, depth: frame.depth });
+    }
+  }
+
+  for (const p of pairs) {
+    if (p.depth < depthRequired) continue;
+    const inner = html.slice(p.openEnd, p.closeStart);
+    // Skip if inner contains inline-block sibling divs — those are card
+    // grids and dir on the parent flips their visual order.
+    if (/<div\b[^>]*\bstyle\s*=\s*["'][^"']*\bdisplay\s*:\s*inline-block\b/i.test(inner)) continue;
+    // Skip if no meaningful text inside.
+    if (!hasVisibleText(inner)) continue;
+    // Skip cells whose only direct children are nested <table>s (layout).
+    const stripped = inner
+      .replace(/<(?:table|center)\b[\s\S]*?<\/(?:table|center)>/gi, '')
+      .replace(/&nbsp;|&#160;|&#xa0;/gi, '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+/g, '');
+    if (!stripped) continue;
+    marked.add(p.start);
+  }
+
+  return html.replace(/<(td|th)\b([^>]*)>/gi, (m, tag, attrs, offset) => {
+    if (!marked.has(offset)) return m;
+    let next = withDirRtl(attrs);
+    next = ensureTextAlignRightIfMissing(next);
+    return `<${tag}${next}>`;
+  });
+}
+
+function addDirToButtCells(html) {
+  return html.replace(/<(td|th)\b([^>]*)>/gi, (m, tag, attrs) => {
+    if (!hasClassToken(attrs, /^butt(?:[-_].*)?$/i)) return m;
+    return `<${tag}${withDirRtl(attrs)}>`;
+  });
+}
+
+/* ─── Idempotency: strip stale dir="rtl" from previous builds ──── */
+/**
+ * Old versions of this transformer used to add `dir="rtl"` to layout
+ * wrappers (outer <td>, <center>, layout <table>, spacer <div>, etc.).
+ * If a previously-built HTML is fed through applyRtl again (which is
+ * exactly what the studio preview does on every file open), the new
+ * pipeline won't re-add dir on those wrappers, but the OLD dir is
+ * still there in the source and makes the email fold right.
+ *
+ * Strip every `dir="rtl"` at the start. The subsequent pipeline will
+ * re-add dir to the correct subset of elements (p, h*, li, leaf div,
+ * butt td). dir="ltr" and dir="auto" are preserved — those are
+ * deliberate designer choices, not artifacts of a stale build.
+ */
+function stripStaleDirRtl(html) {
+  return html.replace(/\s+dir\s*=\s*(["']?)rtl\1/gi, '');
+}
+
+/* ─── Smart icon-text mirroring inside <a>/<button> ──────────── */
+
+function smartMirrorButtonIcons(html) {
+  return html.replace(
+    /<(a|button)\b([^>]*)>([\s\S]*?)<\/\1>/gi,
+    (m, tag, attrs, inner) => {
+      if (!/<(?:img|svg|i\b|span\s+class=["'][^"']*\bicon)/i.test(inner)) return m;
+      if (!hasVisibleText(inner)) return m;
+      if (/\bdirection\s*:/i.test(attrs)) return m;
+      let nextAttrs;
+      if (/\bstyle\s*=/i.test(attrs)) {
+        nextAttrs = attrs.replace(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i,
+          (_full, q, body) => `style=${q}${body.replace(/\s*;?\s*$/, ';')} direction: rtl;${q}`);
+      } else {
+        nextAttrs = `${attrs} style="direction: rtl;"`;
+      }
+      return `<${tag}${nextAttrs}>${inner}</${tag}>`;
+    }
+  );
+}
+
+/* ─── Public entry point ────────────────────────────────────── */
+
+function applyRtl(html, opts = {}) {
+  if (!html || typeof html !== 'string') return html;
+  let out = html;
+
+  // 0) Strip any stale dir="rtl" left over from a prior build with an
+  //    older transformer. Makes the pipeline idempotent — re-running it
+  //    on an already-RTL'd HTML cleans up wrappers before re-applying
+  //    dir to the right subset of elements.
+  out = stripStaleDirRtl(out);
+
+  // 1) CSS / inline-style: flip text-align left|start|end → right.
+  out = transformHeadStyles(out);
+  out = flipAllInlineStyles(out);
+
+  // 2) Physical-side swap: padding-left ↔ padding-right, margin-left ↔
+  //    margin-right, float: left ↔ right. So column-offset utility
+  //    classes (.offset-by-one with padding-left: 50px etc) mirror
+  //    correctly in RTL instead of leaving content on the wrong side.
+  out = swapPhysicalSidesInHeadStyles(out);
+  out = swapPhysicalSidesOnAllTags(out);
+
+  // 3) align="" attribute: flip left|start|end → right (no dir added).
+  out = flipAlignOnAllTags(out);
+
+  // 4) Button shells: force align="right" (no dir).
+  out = alignButtonShellsRight(out);
+
+  // 5) p / h* / li: add dir="rtl" + text-align: right (if missing).
+  //    Block-level — does NOT flip inline-block sibling order.
+  out = addRtlAndAlignToPHLi(out);
+
+  // 6) leaf <div> with real text: add dir="rtl" + text-align: right.
+  //    "Leaf" = no block children (p/h*/li/div/table) inside.
+  out = addRtlToLeafDivs(out);
+
+  //   NOTE: per user's directive ("don't put dir on td at all, just
+  //   mirror physical CSS"), the addRtlToDeepTextTd pass is INTENTIONALLY
+  //   not invoked. dir lives only on block-text elements (p/h*/li,
+  //   leaf div) and on butt cells. Layout cells stay clean.
+  //   The physical-side swap pass above mirrors padding/margin/float and
+  //   `background-position: left|right` so the visual layout reads RTL
+  //   without needing dir on wrappers.
+
+  // 7) Button cells get dir="rtl" so localized link text reads RTL.
+  out = addDirToButtCells(out);
+
+  //   Also note: the previous addRtlToInnermostTextTd pass caused
+  //   multi-card grids (inline-block sibling divs) to render in
+  //   reversed order. With dir living only on the block text
+  //   elements above, card source order is preserved.
+
+  // 8) Icon-in-button visual order flip (opt-out via opts.smart === false).
+  if (opts.smart !== false) {
+    out = smartMirrorButtonIcons(out);
+  }
+
+  return out;
+}
+
+module.exports = { isRtlLocale, applyRtl };

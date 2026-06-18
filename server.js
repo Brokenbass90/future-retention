@@ -1,4 +1,6 @@
 import http from "node:http";
+import { timingSafeEqual } from "node:crypto";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -39,12 +41,19 @@ import {
 } from "./src/assembler.js";
 import { parseFigmaUrl, flattenFigmaLayers, fetchFigmaNodeData, inspectFigmaUrl, exportFigmaImages, browseFigmaFile, downloadImageBuffer, buildFigmaImportFromUrl } from "./src/figma.js";
 import { callOpenAiWithRetry, extractResponseText } from "./src/ai-client.js";
-import { responseSchema, translationResponseSchema, designAnalysisSchema } from "./src/ai-schemas.js";
+import { placeholderizeHtml, fixLocaleTxt, translateLocaleTxt } from "./src/locale-ai.js";
+import { runAgent } from "./src/ai-agent.js";
+import os from "node:os";
+import * as fsLink from "node:fs";
+import { composeEmailFromBlocks, listCanonicalBlocks, userBlockPath, userBlockDir } from "./src/compose-email.js";
+import { responseSchema, cloneEditResponseSchema, translationResponseSchema, designAnalysisSchema } from "./src/ai-schemas.js";
 import { getFigmaIntegrationContract } from "./src/figma-contract.js";
 import { readEvalBenchmarkSnapshot, summarizeEvalBenchmark, findEvalBenchmarkCase, scoreEvalCase } from "./src/eval.js";
 import { buildDesignDecomposition, summarizeDesignDecomposition } from "./src/design-decomposition.js";
 import { buildDesignMappingHints, summarizeDesignMappingHints } from "./src/design-mapping.js";
 import { buildDesignBlockRecommendations, summarizeDesignBlockRecommendations } from "./src/block-ranking.js";
+import { buildLayoutModel, summarizeLayoutModel, summarizeLayoutModelMeta } from "./src/layout-model.js";
+import { listScenarioFixtures, saveScenarioFixture } from "./src/scenarios.js";
 import {
   registerCatalogItem,
   extractCatalogItemsFromTemplate,
@@ -54,11 +63,19 @@ import {
   createOutlineSectionFromCatalogItem,
   buildCatalogOutlineForMail as _buildCatalogOutlineForMail
 } from "./src/catalog.js";
+import { isRtlLocale as _rtlIsRtlLocale, applyLocaleDirectionToHtml as _rtlApply, warmupRtl as _rtlWarmup } from "./src/rtl.js";
+import { inferPlaceholders as _inferPlaceholders, applyPlaceholderProposals as _applyPlaceholderProposals } from "./src/placeholder-inference.js";
+import { normalizeLocaleConventions as _normalizeLocaleConventions, buildAnchorUnits as _buildAnchorUnits, parseNormalizedBlocks as _parseNormalizedBlocks, alignLocaleToReference as _alignLocaleToReference, serializeAligned as _serializeAligned, localePrefix as _localePrefix } from "./src/locale-conventions.js";
+import { buildPlaceholdersIndex as _buildPlaceholdersIndex, invalidatePlaceholdersIndexCache as _invalidatePlaceholdersIndexCache } from "./src/placeholders-index.js";
+import { buildBlocksByMail as _buildBlocksByMail, readBlockSource as _readBlockSource } from "./src/blocks-by-mail.js";
+import { classifyChatIntent as _classifyChatIntent } from "./src/chat-intents.js";
 import { cleanText, dedupeStrings as _dedupeStrings, toRelativePath as _toRelativePath, dedupeCatalogSources as _dedupeCatalogSources, mergeCatalogTraits as _mergeCatalogTraits } from "./src/utils.js";
 import { enqueueJob, getJob, listJobs, cancelJob, clearJobs, getQueueStats, startWorker } from "./src/batch.js";
 import { resolveOpenAiModelForTask, summarizeOpenAiModelRouting } from "./src/model-routing.js";
 import { buildInternalDesignSchema, summarizeDesignSchema } from "./src/design-schema.js";
+import { buildComposePlanFromDesign } from "./src/design-compose.js";
 import { scaffoldMail } from "./tools/scaffold-system-mail.js";
+import { buildVendorMixinsReference, buildVendorMixinsCompact, buildMarkupPatternsReference } from "./src/vendor-mixins-ref.js";
 import { patchTheme, saveTheme, readTheme, listThemes, normalizeTheme } from "./tools/theme-patcher.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -77,6 +94,8 @@ const templateFamilyProfilesPath = path.join(studioDataDir, "template-family-pro
 const mailStructureProfilesPath = path.join(studioDataDir, "mail-structure-profiles.json");
 const aiLessonsPath = path.join(studioDataDir, "ai-lessons.json");
 const evalBenchmarkPath = path.join(studioDataDir, "eval-benchmarks.json");
+const scenarioFixturesDir = path.join(studioDataDir, "scenarios");
+const legacyToolkitSnapshotPath = path.join(studioDataDir, "imports", "legacy-retention-tool-kit.snapshot.json");
 
 const port = Number(process.env.PORT || 3000);
 const openAiApiKey = process.env.OPENAI_API_KEY || "";
@@ -85,6 +104,9 @@ const deepLApiKey = process.env.DEEPL_API_KEY || "";
 const deepLApiUrl = process.env.DEEPL_API_URL || "https://api-free.deepl.com";
 const figmaApiToken = process.env.FIGMA_API_TOKEN || "";
 const figmaImportSecret = process.env.FIGMA_IMPORT_SECRET || "";
+const appAuthUser = process.env.APP_AUTH_USER || "";
+const appAuthPassword = process.env.APP_AUTH_PASSWORD || "";
+const appAuthEnabled = Boolean(appAuthUser && appAuthPassword);
 const categoryIgnoreList = new Set(["vendor", "docs", "dist", "tools", "node_modules", "_legacy"]);
 const localeDirPattern = /^[A-Za-z]{2}([_-][A-Za-z]{2})?$/;
 const templateSourceExtensions = [".pug", ".jade"];
@@ -161,19 +183,108 @@ const templateSelectionAliases = {
 
 // Clone-edit mode: completely separate system prompt — no catalog, pure HTML editing
 const cloneEditSystemPrompt = [
-  "You are an HTML email editor. Your ONLY job is to edit an existing HTML email.",
+  "You are an expert HTML email editor. Your ONLY job is to edit an existing HTML email.",
   "The user will give you an HTML email and tell you what to change.",
+  "Do not ask clarifying questions, do not propose a plan, and do not wait for confirmation. Apply the requested edits immediately using reasonable assumptions.",
+
+  // ── Output rules ──
   "You MUST return the complete modified HTML document in mail.modified_html.",
+  "mail.modified_html MUST be the HTML for the PRIMARY locale only.",
+  "If the user asks for multiple locales, also return full locale-specific HTML documents in mail.localized_html as [{ locale, html }].",
+  "Do not build one bilingual HTML with lang toggles, duplicated blocks, or CSS locale switching. Return separate full HTML documents per locale instead.",
+  "Never put the same language into all locale variants. Each localized_html entry must match its own locale.",
   "NEVER use the email-base block catalog. NEVER generate mail.sections[] entries. Set mail.sections to [].",
-  "NEVER output ${{ token }}$ placeholders — write real translated text directly in the HTML.",
-  "Preserve all table layouts, inline CSS, image URLs, and template variables like {%brand_color%} and {{embedded.*}}.",
+  "Do not invent RetKit ${{ namespace.block_NN }}$ placeholders unless the user explicitly asks to place placeholders. If they do, keep the complete HTML and replace only the requested visible text nodes with real RetKit placeholder tokens; never emulate placeholders with CSS classes or :before content.",
+
+  // ── Editing philosophy ──
+  "Default rule: make the smallest possible diff to the source HTML.",
+  "CRITICAL: NEVER delete or replace the entire email body. NEVER output a placeholder, stub, or skeleton in place of existing content. If you cannot edit something, leave it exactly as-is.",
+  "CRITICAL: Your output in mail.modified_html MUST be the full original HTML with only the requested changes applied. If the original email has a header, body blocks, footer — they ALL must appear in the output.",
+  "CRITICAL: Never return an empty <body>, a CSS-only placeholder implementation, or a head-only document. The output must keep the original body content unless the user specifically asks to delete a particular block.",
+  "Preserve all table layouts, inline CSS, image URLs, HTML comments, service tags, and template variables like {%brand_color%} and {{embedded.*}} unless the requested change requires touching them.",
+  "Do not rewrite or reformat the whole email when only a local edit was requested.",
   "Only change content the user explicitly asks to change (text, links, subject, images, branding).",
+
+  // ── Step-by-step reasoning for structural changes (move, reorder, layout) ──
+  "When asked to MOVE or REORDER an element (e.g. 'move button under image', 'put CTA above text'):",
+  "  STEP 1: Identify the exact HTML block containing the element to move (look at the element inventory in context).",
+  "  STEP 2: Identify the exact target location in the HTML (the element it should appear after/before).",
+  "  STEP 3: Copy the element's complete HTML (including wrapper <tr>/<td> if it's a table-based email).",
+  "  STEP 4: Insert it at the target location with appropriate spacing.",
+  "  STEP 5: Delete the original copy from its old position. Do NOT leave duplicates.",
+  "  STEP 6: Add spacing rows/padding between the moved element and its new neighbors (20-32px safe default).",
+  "Email HTML is almost always table-based. When moving elements, move the ENTIRE <tr> row, not just the inner content.",
+
+  // ── Translation rules ──
   "If the user asks to translate the email, translate all visible copy but preserve structure, links, placeholders, and image URLs unless the user asks otherwise.",
+  "When translating to Russian, keep text length reasonably close to the original where possible so the layout stays stable.",
+  "When producing RU locale: translate subject, preheader, all body copy, and CTA button labels. Do NOT translate: href links, image src URLs, HTML class names, style values, template tokens.",
+
+  // ── Other edit rules ──
   "If the user asks to adapt the email to another brand, preserve structure first and only update logo, brand-facing copy, obvious color tokens, and brand references that the user requested.",
-  "If the user asks to simplify or modernize copy, keep the same structure unless they explicitly ask for layout changes.",
-  "Update mail.subject and mail.preheader with the new values.",
+  "Update mail.subject and mail.preheader with the new values for each locale.",
+  "When the user asks for spacing changes, apply them in the HTML/CSS itself — do not only mention them in assistant_reply.",
+  "When a layout change is requested, keep the result visually production-ready by default: preserve alignment, spacing rhythm, and visual hierarchy.",
+  "Prefer reusing the email's existing spacing system. If no clear spacing system exists, use conservative email-safe spacing (roughly 20-32px vertical separation).",
+  "Do not leave elements glued together after a move. If needed, add or adjust wrapper rows, padding, or inline margins in an email-safe way.",
+  "Preserve responsive behavior: spacing changes must not break the mobile layout.",
+  "Keep all href values unchanged unless the user explicitly asks to change links.",
   "Keep the HTML valid and complete — the full <html>...</html> document, not a snippet.",
-  "Write assistant_reply in the user's language (Russian if the user writes in Russian). Max 2 sentences.",
+  "Write assistant_reply in the user's language (Russian if the user writes in Russian). Max 2 sentences describing what was changed.",
+].join(" ");
+
+// Pug source editing mode: AI edits Pug/Stylus source files like a developer
+const pugSourceEditSystemPrompt = [
+  "You are a professional Pug email template developer working inside RetKit Email Studio.",
+  "The user will show you one or more Pug/Stylus source files and ask you to make changes.",
+  "Your job: apply the requested change directly to the code like an experienced email developer — no HTML, no explanations first, just do it.",
+
+  // Output rules
+  "ALWAYS return each changed file as a fenced code block: ```pug ... ``` for Pug/Jade files, ```styl ... ``` for Stylus files.",
+  "The FIRST line inside every fenced block MUST be a path marker using the exact SOURCE FILES path, e.g. // file: templates/blocks/header.pug or // file: styles/blocks/main.styl.",
+  "Return the COMPLETE content of every changed file, not a diff and not only the changed fragment.",
+  "If one request changes both markup and styles, return two fenced blocks with two file markers.",
+  "Do NOT return compiled HTML. Do NOT use mail.modified_html. Do NOT output raw table HTML.",
+  "Set mail.sections to []. Set mail.modified_html to ''.",
+
+  // Studio conventions
+  "Use vendor mixin calls from vendor/helpers/mixins.pug: +vml-bg(), +top_img_100(), +col3_icon_text(), +general-btn(), +cta-two-column-table().",
+  "Use studio CSS classes: .white-title, .middle-title, .fat-text, .text, .butt, .butt-link, .color-bg, .white-bg, .wrapper, .last, .offset-by-one, .ten.columns, .twelve.columns, .text-pad-small, .pb16, .pb24, .pb32, .pt24, .pt44, .center, .row.",
+  "All links: a(href='...' target='_blank' universal='true'). Never inline style text colors or font families.",
+  "Text content should use translation tokens: ${{ mail-id.block_N }}$ — keep existing tokens when they appear in the source.",
+  "Use 4-space indentation throughout. Never use tabs.",
+  "Do not add footer or preheader — those are auto-included via helpers/.",
+
+  // Editing philosophy
+  "CRITICAL: NEVER delete or replace existing content wholesale. NEVER output a stub, placeholder, or skeleton. Return the full file with only the requested change applied.",
+  "Make the smallest possible change to achieve the user's goal. Preserve all existing structure, mixin calls, class names, and tokens unless the user explicitly asks to change them.",
+  "When adding a new block, insert it at a logical position relative to existing blocks.",
+  "When the user asks to change text in a Pug file that uses ${{ token }}$ placeholders, update the token key or add a note that the translation file must also be updated.",
+
+  "Write assistant_reply in the user's language (Russian if the user writes in Russian). Max 2 sentences describing what was changed.",
+].join(" ");
+
+// HTML→Pug conversion mode: rewrite a finished HTML email as studio Pug
+const htmlToPugSystemPrompt = [
+  "You are an email code converter for a Pug/Jade email production studio.",
+  "Your ONLY job: rewrite the given HTML email into studio-style Pug template code.",
+  "Output the converted Pug code in mail.pug_blocks as an array of { label, pug_code } entries.",
+  "Output a human-readable description of what you did in mail.summary (max 2 sentences, in the user's language).",
+  "Set mail.subject and mail.preheader from the HTML content.",
+  "Set mail.sections to [] — no section JSON needed.",
+  "Set mail.modified_html to '' — this is not clone-edit mode.",
+  "CONVERSION RULES:",
+  "1. Use 4-space indentation throughout.",
+  "2. Replace raw table HTML with vendor mixin calls where applicable: +vml-bg, +top_img_100, +col3_icon_text, +general-btn, +cta-two-column-table, +cta-switch-table, +person.",
+  "3. Use studio CSS classes instead of inline styles: .white-title, .middle-title, .fat-text, .white-text, .text-2, .gray-text, .text, .butt, .butt-link, .brad-full, .color-bg, .white-bg, .wrapper, .last, .offset-by-one, .ten.columns, .twelve.columns, .text-pad-small, .pb16, .pb24, .pb32, .pb44, .pt24, .pt44, etc.",
+  "4. All links MUST have universal='true' attribute: a(href='...' target='_blank' universal='true')",
+  "5. Replace visible text content with translation tokens: ${{ mail-id.block_01 }}$ — use a sensible mail-id derived from the email subject.",
+  "6. Preserve all image URLs exactly as they appear in the HTML.",
+  "7. Preserve tracking parameters in links (UTM params, aff=, afftrack= etc).",
+  "8. Split the email into logical labeled blocks for pug_blocks, e.g. label='logo', label='hero', label='intro', label='cta', label='stores', label='social'.",
+  "9. Do NOT include footer content (legal text, unsubscribe) — this is auto-included via helpers/footer in the template.",
+  "10. Do NOT output the full index.pug structure — only the content blocks that go inside blocks/header.pug.",
+  "Write assistant_reply in the user's language. Max 2 sentences summarizing what was converted.",
 ].join(" ");
 
 const systemPrompt = [
@@ -197,11 +308,28 @@ const systemPrompt = [
   "When you reference existing templates, always use these real token patterns, not invented placeholder text.",
   "When creating a new email, propose token keys in the same format: ${{ new-mail-id.block_01 }}$",
 
-  // Block assembly rules
-  "When assembling a new email, think in blocks: which canonical blocks from the catalog fit the design?",
-  "Canonical blocks include: header-logo-row, hero-image-block, plain-copy-text-card, single-button-cta-card, store-badges-row, legal-unsubscribe-footer.",
-  "A typical email structure: header-logo-row → [hero or content blocks] → single-button-cta-card → store-badges-row → legal-unsubscribe-footer.",
-  "Prefer existing block combinations from the catalog. Do not invent completely new layouts when a reusable block exists.",
+  // Block assembly rules — Pug mixins
+  "When assembling a new email, ALWAYS write real Pug code in the pug_blocks field using the vendor mixins.",
+  "The vendor mixin library (vendor/helpers/mixins.pug) is always available. Use +mixin_name(...) calls — do NOT write raw table HTML.",
+  "Key mixins to know:",
+  "  +vml-bg(imageUrl, bgColor, width, height) — hero with background image, VML for Outlook. REQUIRED when design has bg image behind text.",
+  "  +col3_icon_text(img1,title1,text1, img2,title2,text2, img3,title3,text3) — 3-column icon+title+text feature grid.",
+  "  +general-btn(fontSize,lineH,bgColor,textColor,fontW,border,borderR,link,text,class) — custom CTA button with explicit brand colors.",
+  "  +cta-two-column-table(leftHref,leftText,rightHref,rightText) — two side-by-side CTA buttons.",
+  "  +top_img_100(src,link,addClass) — full-width clickable image.",
+  "  +person(photo,name,position,link) — expert/analyst card.",
+  "A typical email pug_blocks structure: logo row → vml-bg hero → col3_icon_text features → general-btn CTA → store badges → footer.",
+  "CSS utility classes available: .white-title (h1, bold, white), .middle-title (h2, white), .fat-text (bold subtitle), .white-text / .text-2 (body, white), .gray-text (secondary body), .butt (default orange button), .butt-link (button link text), .brad-full (32px radius card), .color-bg (#101314 dark bg), .pb16/.pb24/.pb32/.pt24/.pt40 etc (spacing utilities), .plr30/.plr50 (horizontal padding).",
+  "IMPORTANT: always populate mail.pug_blocks alongside mail.sections. pug_blocks is the production output; sections is the preview.",
+
+  // Studio typography constants — do NOT guess or invent these
+  "The studio has fixed typography defaults that apply to ALL emails unless the brand_theme explicitly overrides them:",
+  "  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif — ALWAYS use this stack, never invent another font.",
+  "  body text: 18px / 28px line-height (fat-text / white-text / gray-text classes).",
+  "  headings (h1 / white-title): 28–36px bold.",
+  "  subheadings (middle-title): 22–24px.",
+  "  footer / legal text: 12–14px.",
+  "  These are studio constants — never output a different font-family in pug_blocks or sections.",
 
   // Design input rules
   "When a current draft or current email-base mail exists, preserve that structure before inventing a new one.",
@@ -209,6 +337,20 @@ const systemPrompt = [
   "Treat a Figma link as a normal design input. If the frame's JSON structure is provided, use layer names and text content directly.",
   "If access to Figma frame is unclear, ask for an open draft/share link or a screenshot/export. Do not invent a layout.",
   "If the user says to leave copy empty for now, accept that — leave strings empty and keep moving.",
+
+  // Figma → Email assembly rules
+  "When Figma structured data is available (figmaImport or figmaEnrichment in context):",
+  "  1. Use the actual text content from Figma layers as copy — do not invent text.",
+  "  2. Use the actual image export URLs from Figma as image src — do not use placeholders.",
+  "  3. Map each Figma frame/group to a block kind: top banner → hero, text group → text, button-only section → cta, icon grid → feature-list, bottom row → footer.",
+  "  4. Extract colors from the Figma design and put them in mail.brand_theme.",
+  "  5. If Figma layer names contain email structure hints (e.g. 'hero', 'cta', 'footer'), use them.",
+  "When assembling from a screenshot or design reference:",
+  "  1. Reconstruct EVERY visible section — do not skip any block even if it has no copy yet.",
+  "  2. Use the design's actual color values in +general-btn and brand_theme — never use generic colors.",
+  "  3. Match the visual hierarchy: if the design has a large hero image, use +vml-bg or +top_img_100.",
+  "  4. If 3 feature items are visible, use +col3_icon_text. If 2 items, use +cta-two-column-table.",
+  "  5. Preserve exact button label text as seen in the design. Preserve exact headline/body copy.",
 
   // Response rules
   "Do not ask the marketer for raw JSON or technical payloads unless the workflow is explicitly advanced/internal.",
@@ -238,6 +380,20 @@ const systemPrompt = [
   // Learning from mistakes
   "Pay close attention to 'AI lessons learned' in the context — these are corrections from the team. Never repeat a corrected mistake.",
   "If a lesson says a certain block pattern is wrong, avoid that pattern. If a lesson gives a preferred phrasing, use it."
+].join(" ");
+
+const localeAuditSystemPrompt = [
+  "You are a translation QA editor inside an email production studio.",
+  "Reply in the user's language, usually Russian. Be precise, practical, and cite exact namespace, locale, block_NN, or raw line when available.",
+  "The user provides locale TXT files. Each translation block should be wrapped as {{...}}. Bold/emphasis markers are @@...@@ inside a block.",
+  "An empty {{}} block is a real block and must remain an empty string at the same index; never drop it or renumber later blocks.",
+  "When converting emphasis to HTML, use <b>...</b>, not <strong>...</strong> and not Markdown **...**.",
+  "Audit tasks: find unclosed {{ }}, extra braces, text outside blocks, empty blocks, block-count mismatches versus the reference English locale, shifted URLs, HTML tags, placeholders, numbers, and @@ markers.",
+  "Also flag obviously wrong-language or semantically suspicious translations, but do not invent accusations without evidence from the provided source and target text.",
+  "For audit-only requests, do not rewrite all locales. Return a short structured report: severity, location, problem, suggested fix.",
+  "For fix requests, return full corrected locale TXT documents in fenced blocks. The first line of each fence must be exactly '# locale: namespace/code'. Example: ```txt\\n# locale: welcome/en\\n{{Text}}\\n```",
+  "When fixing, preserve block order and count, preserve empty blocks, URLs, HTML tags, placeholders, numbers, legal copy, brand/product names, and intentional @@ emphasis unless the syntax is broken.",
+  "Do not create unrelated marketing copy, do not merge blocks, and do not translate from a non-reference locale unless the user explicitly asks."
 ].join(" ");
 
 // responseSchema, translationResponseSchema, designAnalysisSchema → imported from src/ai-schemas.js
@@ -1444,7 +1600,9 @@ function summarizeRuntimeConfig() {
     openAiModel,
     openAiModelRouting: summarizeOpenAiModelRouting(),
     deepLConfigured: Boolean(deepLApiKey),
-    deepLApiUrl
+    deepLApiUrl,
+    appAuthEnabled,
+    persistenceMode: process.env.DYNO ? "ephemeral-heroku-filesystem" : "local-filesystem"
   };
 }
 
@@ -1461,8 +1619,35 @@ function summarizeFigmaIntegration() {
     serverTokenConfigured: Boolean(figmaApiToken),
     pluginImportEnabled: true,
     pluginImportEndpoint: "/api/figma/import",
+    readinessEndpoint: "/api/figma/readiness",
     contractEndpoint: "/api/figma/contract",
     pluginImportSecretRequired: Boolean(figmaImportSecret),
+    accessModes: [
+      {
+        id: "plugin-push",
+        label: "Send to Studio plugin",
+        ready: true,
+        description: "Best private-Figma flow. Sends sections, texts, image nodes, and design tokens."
+      },
+      {
+        id: "server-token-link-import",
+        label: "Server token link import",
+        ready: Boolean(figmaApiToken),
+        description: "Works when the server has FIGMA_API_TOKEN and the linked frame is accessible to that token."
+      },
+      {
+        id: "shared-intake-link",
+        label: "Shared intake file link",
+        ready: true,
+        description: "Temporary bridge for private teams: duplicate the frame into a separate intake file and share only that file/frame."
+      },
+      {
+        id: "screenshot-fallback",
+        label: "Screenshot fallback",
+        ready: true,
+        description: "Fallback only. Good for simple/system letters, but loses layers and structure."
+      }
+    ],
     recommendedFlow: figmaApiToken
       ? "Default flow: paste a Figma frame link or screenshot into chat. For private files, use an open draft/share link, screenshot/export, or future Send to Studio via server token/plugin."
       : "Default flow: paste a Figma frame link or screenshot into chat. For private files, use an open draft/share link or screenshot/export. Plugin push is ready as the next step.",
@@ -1471,6 +1656,132 @@ function summarizeFigmaIntegration() {
       "If only a Figma link is provided and access is unclear, the studio should ask for an open draft/share link or a screenshot/export.",
       "Plugin import is intended for advanced/internal automation and future one-click Figma push."
     ]
+  };
+}
+
+function summarizeNormalizedFigmaImportCoverage(figmaImport) {
+  const normalized = normalizeFigmaImportPayload(figmaImport);
+  if (!hasDetailedFigmaImportPayload(normalized)) {
+    return {
+      available: false,
+      sectionCount: 0,
+      textCount: 0,
+      imageCount: 0,
+      previewAvailable: false,
+      styleSignalCount: 0,
+      sectionRoles: [],
+      imageRoles: []
+    };
+  }
+
+  const sections = Array.isArray(normalized.sections) ? normalized.sections : [];
+  const texts = Array.isArray(normalized.texts) ? normalized.texts : [];
+  const images = Array.isArray(normalized.images) ? normalized.images : [];
+  const styleSource = normalized.styles && typeof normalized.styles === "object"
+    ? normalized.styles
+    : normalized.tokens && typeof normalized.tokens === "object"
+      ? normalized.tokens
+      : {};
+  const styleSignalCount = Object.values(styleSource).filter((value) => cleanText(String(value))).length;
+
+  return {
+    available: true,
+    sectionCount: sections.length,
+    textCount: texts.length,
+    imageCount: images.length,
+    previewAvailable: Boolean(cleanText(normalized?.previewImage?.url) || cleanText(normalized?.previewImage?.dataUrl)),
+    styleSignalCount,
+    sectionRoles: normalizeShortTextList(sections.map((section) => cleanText(section?.role)), 12, 40),
+    imageRoles: normalizeShortTextList(images.map((image) => cleanText(image?.roleHint)), 12, 40)
+  };
+}
+
+function buildFigmaIntakeSummary({ figmaImport = null, readiness = null, importMethod = "", hasLink = false, hasVisual = false } = {}) {
+  const coverage = summarizeNormalizedFigmaImportCoverage(figmaImport);
+  const parts = [
+    hasLink ? "link" : "",
+    hasVisual ? "visual" : "",
+    coverage.available ? `${coverage.sectionCount} section(s)` : "",
+    coverage.available ? `${coverage.textCount} text node(s)` : "",
+    coverage.available ? `${coverage.imageCount} image slot(s)` : "",
+    coverage.previewAvailable ? "preview-ready" : "",
+    cleanText(importMethod),
+    cleanText(readiness?.preferredPath)
+  ].filter(Boolean);
+
+  return {
+    importMethod: cleanText(importMethod),
+    coverage,
+    text: parts.length > 0 ? parts.join(" | ") : "No structured Figma intake yet."
+  };
+}
+
+function assessFigmaIntakeReadiness(figmaUrl, options = {}) {
+  const url = cleanText(figmaUrl);
+  const hasStructured = Boolean(options?.hasStructured);
+  const hasVisual = Boolean(options?.hasVisual);
+  const parsed = parseFigmaReferenceUrl(url);
+  const hasLink = Boolean(url && /figma\.com/i.test(url));
+  const hasFileKey = Boolean(cleanText(parsed?.fileKey));
+  const hasNodeId = Boolean(cleanText(parsed?.nodeId));
+  const serverTokenReady = Boolean(figmaApiToken);
+
+  let preferredPath = "";
+  let readiness = "missing-input";
+  let canImportStructuredNow = false;
+
+  if (hasStructured) {
+    preferredPath = "plugin-push";
+    readiness = "ready-now";
+    canImportStructuredNow = true;
+  } else if (hasLink && serverTokenReady && hasFileKey && hasNodeId) {
+    preferredPath = "server-token-link-import";
+    readiness = "ready-now";
+    canImportStructuredNow = true;
+  } else if (hasLink && hasFileKey && hasNodeId) {
+    preferredPath = "shared-intake-link";
+    readiness = "needs-shared-intake";
+  } else if (hasLink && hasFileKey) {
+    preferredPath = "shared-intake-link";
+    readiness = "needs-frame-link";
+  } else if (hasVisual) {
+    preferredPath = "screenshot-fallback";
+    readiness = "fallback-only";
+  }
+
+  const nextSteps = [];
+  if (!hasLink && !hasVisual && !hasStructured) {
+    nextSteps.push("Attach a frame link, structured plugin payload, or screenshot/export.");
+  }
+  if (hasLink && !hasNodeId) {
+    nextSteps.push("Use Copy link to selection on the exact email frame so the link includes node-id.");
+  }
+  if (hasLink && !hasStructured && !serverTokenReady) {
+    nextSteps.push("For private Figma, duplicate the frame into a separate intake file and share only that file/frame, or use future Send to Studio.");
+  }
+  if ((hasLink || hasStructured) && !hasVisual) {
+    nextSteps.push("Attach screenshot/export too if you want pixel-level preview while plugin/server-token import is not fully in place.");
+  }
+  if (serverTokenReady && hasLink && hasFileKey && hasNodeId && !hasStructured) {
+    nextSteps.push("This frame link is compatible with server-side Figma import if the token account has access to the file.");
+  }
+  if (hasStructured) {
+    nextSteps.push("Structured Figma payload is already enough for section/image/text decomposition.");
+  }
+
+  return {
+    url,
+    hasLink,
+    hasFileKey,
+    hasNodeId,
+    hasVisual,
+    hasStructured,
+    serverTokenReady,
+    preferredPath: preferredPath || "unknown",
+    readiness,
+    canImportStructuredNow,
+    nextSteps: Array.from(new Set(nextSteps)),
+    parsedReference: parsed || null
   };
 }
 
@@ -1593,6 +1904,844 @@ async function runCommand(command, args, cwd) {
       reject(new Error((stdout + stderr).trim() || `Command failed with exit code ${code}`));
     });
   });
+}
+
+function parseSipsDimensions(output) {
+  const width = Number((cleanText(output).match(/pixelWidth:\s*(\d+)/i) || [])[1]) || 0;
+  const height = Number((cleanText(output).match(/pixelHeight:\s*(\d+)/i) || [])[1]) || 0;
+  return { width, height };
+}
+
+function normalizeOcrLine(line) {
+  return cleanText(line)
+    .replace(/[|]+/g, "I")
+    .replace(/\s+/g, " ")
+    .replace(/[<>]{2,}/g, "")
+    .trim();
+}
+
+function normalizeOcrLines(rawText) {
+  return cleanText(rawText)
+    .split(/\r?\n+/)
+    .map(normalizeOcrLine)
+    .filter((line, index, collection) => {
+      if (!line || line.length < 2) {
+        return false;
+      }
+      if (/^[^A-Za-zА-Яа-я0-9]+$/.test(line)) {
+        return false;
+      }
+      return collection.indexOf(line) === index;
+    });
+}
+
+function isMostlyUppercaseLike(line) {
+  const letters = cleanText(line).match(/[A-Za-zА-Яа-я]/g) || [];
+  if (letters.length === 0) {
+    return false;
+  }
+
+  const uppercaseLetters = letters.filter((letter) => letter === letter.toUpperCase()).length;
+  return uppercaseLetters / letters.length >= 0.8;
+}
+
+function isLikelyBrandOcrLine(line) {
+  const normalized = cleanText(line);
+  if (!normalized) {
+    return false;
+  }
+
+  if (
+    normalized.split(/\s+/).length <= 3
+    && normalized.length <= 24
+    && !/[.!?]/.test(normalized)
+    && isMostlyUppercaseLike(normalized)
+    && !/(?:set|reset|open|continue|leave|review|trade|download|activate|verify|join|start|get|read|learn|buy|sell)\b/i.test(normalized)
+  ) {
+    return true;
+  }
+
+  return normalized.split(/\s+/).length <= 4
+    && normalized.length <= 28
+    && !/[.!?]/.test(normalized)
+    && /(iq option|quadcode|exnova|affstore|casa|broker)/i.test(normalized);
+}
+
+function isLikelyFooterOcrLine(line) {
+  return /(unsubscribe|terms|conditions|support@|risk warning|your capital|google play|app store|youtube|instagram|facebook|telegram|ignore this email|if you're having trouble|if you are having trouble|company_address|risk_warning|\{\{embedded\.)/i.test(cleanText(line));
+}
+
+function isLikelyCtaOcrLine(line) {
+  const normalized = cleanText(line);
+  if (!normalized || normalized.length > 40) {
+    return false;
+  }
+
+  if (isLikelyFooterOcrLine(normalized)) {
+    return false;
+  }
+
+  if (/\b(?:if|support|unsubscribe|terms|conditions|ignore)\b/i.test(normalized)) {
+    return false;
+  }
+
+  return /(?:set|reset|open|continue|leave|review|trade|download|activate|verify|join|start|get|read|learn|buy|sell)\b/i.test(normalized)
+    || (
+      isMostlyUppercaseLike(normalized)
+      && normalized.split(/\s+/).length >= 2
+      && normalized.split(/\s+/).length <= 4
+      && normalized.length <= 28
+    );
+}
+
+function scoreScreenshotTitleCandidate(line) {
+  const normalized = cleanText(line);
+  if (!normalized) {
+    return -100;
+  }
+
+  let score = 0;
+  const wordCount = normalized.split(/\s+/).filter(Boolean).length;
+
+  if (/\{\{|\}\}|https?:\/\/|support@|@/i.test(normalized)) {
+    score -= 5;
+  }
+  if (isLikelyFooterOcrLine(normalized)) {
+    score -= 6;
+  }
+  if (isLikelyCtaOcrLine(normalized)) {
+    score -= 2;
+  }
+  if (/^(please|if|we('|’)ve|we have|thank|by |to )\b/i.test(normalized)) {
+    score -= 3;
+  }
+  if (/[.!?]$/.test(normalized)) {
+    score -= 2;
+  }
+
+  if (normalized.length >= 12 && normalized.length <= 72) {
+    score += 2;
+  }
+  if (wordCount >= 2 && wordCount <= 8) {
+    score += 2;
+  }
+  if (!/[.:;]$/.test(normalized)) {
+    score += 1;
+  }
+  if (!/\{\{|\}\}/.test(normalized) && !/@/.test(normalized)) {
+    score += 1;
+  }
+  if (/(set|reset|password|verify|verification|confirm|welcome|account|security|review|activate|new)\b/i.test(normalized)) {
+    score += 5;
+  }
+  if (!isMostlyUppercaseLike(normalized) && /[A-Z][a-z]/.test(normalized)) {
+    score += 1;
+  }
+
+  return score;
+}
+
+function looksLikeSystemNoticeOcrSequence(lines = []) {
+  const signal = (Array.isArray(lines) ? lines : [])
+    .map(cleanText)
+    .filter(Boolean)
+    .join(" ");
+  return /(copy trading|paused|pause|suspend|suspended|suspension|reason for interruption|insufficient balance|support team|temporarily suspended)/i.test(signal);
+}
+
+function buildSystemNoticeOcrSummary(lines = [], dimensions = {}, layout = null, rawText = "") {
+  const normalizedLines = (Array.isArray(lines) ? lines : [])
+    .map(cleanText)
+    .filter(Boolean);
+  if (normalizedLines.length === 0 || !looksLikeSystemNoticeOcrSequence(normalizedLines)) {
+    return null;
+  }
+
+  const footerBoundary = normalizedLines.findIndex((line) => (
+    /\{\{embedded\.company_address\}\}|\{\{embedded\.risk_warning\}\}|company_address|risk_warning|terms and conditions|unsubscribe/i.test(line)
+  ));
+  const contentLines = footerBoundary >= 0 ? normalizedLines.slice(0, footerBoundary) : normalizedLines.slice();
+  if (contentLines.length === 0) {
+    return null;
+  }
+
+  let cursor = 0;
+  const brandParts = [];
+  while (cursor < contentLines.length) {
+    const line = contentLines[cursor];
+    if (/^notice$/i.test(line)) {
+      cursor += 1;
+      continue;
+    }
+    if (
+      isLikelyBrandOcrLine(line)
+      || /iq option/i.test(line)
+      || (/\bnotice\b/i.test(line) && /iq option/i.test(line))
+    ) {
+      brandParts.push(line.replace(/\bnotice\b/ig, "").trim());
+      cursor += 1;
+      continue;
+    }
+    break;
+  }
+
+  const brandLine = cleanText(brandParts.find((line) => /iq option/i.test(line)) || brandParts[0]);
+
+  const titleLines = [];
+  while (cursor < contentLines.length) {
+    const line = contentLines[cursor];
+    if (/^(dear|hello|hi)\b/i.test(line)) {
+      break;
+    }
+    if (
+      /^(we would like|this measure|if you believe|reason for interruption|insufficient balance|check your trades|terms and conditions|\{\{embedded\.)/i.test(line)
+      || /^notice$/i.test(line)
+    ) {
+      break;
+    }
+    if (line.length > 3) {
+      titleLines.push(line);
+    }
+    cursor += 1;
+    if (titleLines.length >= 3) {
+      break;
+    }
+  }
+
+  let greeting = "";
+  if (cursor < contentLines.length && /^(dear|hello|hi)\b/i.test(contentLines[cursor])) {
+    greeting = cleanText(contentLines[cursor]);
+    cursor += 1;
+  }
+
+  const introLines = [];
+  while (cursor < contentLines.length) {
+    const line = contentLines[cursor];
+    if (
+      /^reason for interruption:?$/i.test(line)
+      || /^insufficient balance/i.test(line)
+      || /^check your trades$/i.test(line)
+      || /^this measure\b/i.test(line)
+      || /^if you believe\b/i.test(line)
+      || /^we appreciate\b/i.test(line)
+      || isLikelyCtaOcrLine(line)
+    ) {
+      break;
+    }
+    introLines.push(line);
+    cursor += 1;
+  }
+
+  const reasonLineIndex = contentLines.findIndex((line) => /^reason for interruption:?$/i.test(line));
+  const warningBody = cleanText(
+    reasonLineIndex >= 0
+      ? contentLines.slice(reasonLineIndex + 1).find((line) => (
+        line
+        && !/^check your trades$/i.test(line)
+        && !/^this measure\b/i.test(line)
+        && !/^if you believe\b/i.test(line)
+        && !/^we appreciate\b/i.test(line)
+        && !isLikelyFooterOcrLine(line)
+      ))
+      : contentLines.find((line) => /^insufficient balance/i.test(line))
+  );
+
+  const ctaLabel = cleanText(
+    contentLines.find((line) => /^check your trades$/i.test(line))
+    || contentLines.find((line) => isLikelyCtaOcrLine(line))
+  );
+
+  const supportStart = contentLines.findIndex((line) => /^this measure\b/i.test(line) || /^if you believe\b/i.test(line));
+  const closingIndex = contentLines.findIndex((line) => /^we appreciate\b/i.test(line));
+  const supportLines = supportStart >= 0
+    ? contentLines
+      .slice(supportStart, closingIndex >= 0 ? closingIndex : contentLines.length)
+      .filter((line) => (
+        line
+        && !/^reason for interruption:?$/i.test(line)
+        && !/^insufficient balance/i.test(line)
+        && !/^check your trades$/i.test(line)
+        && !isLikelyFooterOcrLine(line)
+      ))
+    : [];
+
+  const title = cleanText(titleLines.join(" "));
+  const introBody = cleanText(introLines.join(" "));
+  const supportBody = cleanText(supportLines.join(" "));
+  const footerBody = cleanText(closingIndex >= 0 ? contentLines[closingIndex] : "");
+
+  return {
+    source: "local-tesseract-system-notice",
+    rawText: cleanText(rawText),
+    lines: normalizedLines,
+    brandLine,
+    title,
+    ctaLead: "",
+    ctaLabel,
+    brandWidthRatio: Number(layout?.brandWidthRatio) || 0,
+    brandTopRatio: Number(layout?.brandTopRatio) || 0,
+    titleWidthRatio: Number(layout?.titleWidthRatio) || 0,
+    titleTopRatio: Number(layout?.titleTopRatio) || 0,
+    titleHeightRatio: Number(layout?.titleHeightRatio) || 0,
+    ctaWidthRatio: Number(layout?.ctaWidthRatio) || 0,
+    ctaTopRatio: Number(layout?.ctaTopRatio) || 0,
+    ctaCenterOffset: Number(layout?.ctaCenterOffset) || 0,
+    bodyBlocks: [greeting, introBody].filter(Boolean),
+    warningBody,
+    supportBody,
+    footerBody,
+    layoutStyle: "centered-transactional-card",
+    width: Number(dimensions.width) || 0,
+    height: Number(dimensions.height) || 0,
+    usable: Boolean(title || introBody || warningBody)
+  };
+}
+
+function parseTesseractTsvLineRecords(rawTsv, dimensions = {}) {
+  const rows = cleanText(rawTsv) ? rawTsv.split(/\r?\n/) : [];
+  if (rows.length <= 1) {
+    return [];
+  }
+
+  const width = Number(dimensions?.width) || 0;
+  const height = Number(dimensions?.height) || 0;
+  const lineMap = new Map();
+
+  for (const row of rows.slice(1)) {
+    const columns = row.split("\t");
+    if (columns.length < 12 || Number(columns[0]) !== 5) {
+      continue;
+    }
+
+    const text = cleanText(columns.slice(11).join("\t"));
+    if (!text) {
+      continue;
+    }
+
+    const key = `${columns[1]}:${columns[2]}:${columns[3]}:${columns[4]}`;
+    const left = Number(columns[6]) || 0;
+    const top = Number(columns[7]) || 0;
+    const wordWidth = Number(columns[8]) || 0;
+    const wordHeight = Number(columns[9]) || 0;
+    const conf = Number(columns[10]) || 0;
+    const right = left + wordWidth;
+    const bottom = top + wordHeight;
+    const current = lineMap.get(key) || {
+      left,
+      top,
+      right,
+      bottom,
+      words: [],
+      confTotal: 0,
+      confCount: 0
+    };
+
+    current.left = Math.min(current.left, left);
+    current.top = Math.min(current.top, top);
+    current.right = Math.max(current.right, right);
+    current.bottom = Math.max(current.bottom, bottom);
+    current.words.push(text);
+
+    if (Number.isFinite(conf) && conf >= 0) {
+      current.confTotal += conf;
+      current.confCount += 1;
+    }
+
+    lineMap.set(key, current);
+  }
+
+  return Array.from(lineMap.values())
+    .map((entry) => {
+      const text = cleanText(entry.words.join(" ").replace(/\s+([,.;:!?~>])/g, "$1"));
+      const lineWidth = Math.max(0, entry.right - entry.left);
+      const lineHeight = Math.max(0, entry.bottom - entry.top);
+      const centerX = entry.left + lineWidth / 2;
+
+      return {
+        text,
+        left: entry.left,
+        top: entry.top,
+        width: lineWidth,
+        height: lineHeight,
+        conf: entry.confCount > 0 ? entry.confTotal / entry.confCount : 0,
+        wordCount: text.split(/\s+/).filter(Boolean).length,
+        centerX,
+        topRatio: height > 0 ? entry.top / height : 0,
+        widthRatio: width > 0 ? lineWidth / width : 0,
+        centerOffset: width > 0 ? Math.abs(centerX / width - 0.5) : 1
+      };
+    })
+    .filter((entry) => entry.text)
+    .sort((left, right) => left.top - right.top || left.left - right.left);
+}
+
+function inferScreenshotLayoutFromTesseractTsv(rawTsv, dimensions = {}) {
+  const lines = parseTesseractTsvLineRecords(rawTsv, dimensions);
+  if (lines.length === 0) {
+    return null;
+  }
+  const canvasHeight = Number(dimensions.height) || 0;
+
+  const brandCandidate = lines.find((line) => (
+    line.topRatio <= 0.18
+    && line.centerOffset <= 0.14
+    && line.wordCount <= 4
+    && line.widthRatio <= 0.46
+  )) || null;
+
+  const titleCandidate = lines
+    .filter((line) => (
+      line !== brandCandidate
+      && line.topRatio <= 0.44
+      && scoreScreenshotTitleCandidate(line.text) > 0
+      && !isLikelyFooterOcrLine(line.text)
+    ))
+    .sort((left, right) => {
+      const leftScore = scoreScreenshotTitleCandidate(left.text)
+        + Math.min(left.height, 90) / 8
+        + (left.centerOffset <= 0.18 ? 2 : 0)
+        + (left.widthRatio >= 0.28 ? 1 : 0)
+        - left.topRatio * 5;
+      const rightScore = scoreScreenshotTitleCandidate(right.text)
+        + Math.min(right.height, 90) / 8
+        + (right.centerOffset <= 0.18 ? 2 : 0)
+        + (right.widthRatio >= 0.28 ? 1 : 0)
+        - right.topRatio * 5;
+      return rightScore - leftScore;
+    })[0] || null;
+
+  const ctaCandidate = lines
+    .filter((line) => line !== brandCandidate && line !== titleCandidate && isLikelyCtaOcrLine(line.text))
+    .sort((left, right) => {
+      const leftScore = (left.centerOffset <= 0.18 ? 4 : 0)
+        + (left.topRatio >= 0.42 && left.topRatio <= 0.74 ? 4 : 0)
+        + (left.wordCount <= 4 ? 2 : 0)
+        + (isMostlyUppercaseLike(left.text) ? 2 : 0)
+        - Math.abs(left.topRatio - 0.58) * 6;
+      const rightScore = (right.centerOffset <= 0.18 ? 4 : 0)
+        + (right.topRatio >= 0.42 && right.topRatio <= 0.74 ? 4 : 0)
+        + (right.wordCount <= 4 ? 2 : 0)
+        + (isMostlyUppercaseLike(right.text) ? 2 : 0)
+        - Math.abs(right.topRatio - 0.58) * 6;
+      return rightScore - leftScore;
+    })[0] || null;
+
+  const ctaLeadCandidate = lines
+    .filter((line) => (
+      line !== brandCandidate
+      && line !== titleCandidate
+      && line !== ctaCandidate
+      && /(click the button|tap the button|button below|follow the link|below to|verify your email|set your new password)/i.test(line.text)
+    ))
+    .sort((left, right) => {
+      const targetTop = ctaCandidate?.top || 0;
+      return Math.abs(left.top - targetTop) - Math.abs(right.top - targetTop);
+    })[0] || null;
+
+  const lowerLines = lines.filter((line) => line.topRatio >= 0.62 || isLikelyFooterOcrLine(line.text));
+  const warningLines = lowerLines.filter((line) => (
+    looksLikeAffPasswordResetWarning(line.text)
+    || /(didn.?t request|ignore this email|you can safely ignore|if this wasn.?t you|no action is needed)/i.test(line.text)
+  ));
+  const supportLines = lowerLines.filter((line) => (
+    !warningLines.includes(line)
+    && (
+      looksLikeAffPasswordResetSupport(line.text)
+      || /(support@|contact us|contact support|need help|questions\?|having trouble|trouble signing in)/i.test(line.text)
+    )
+  ));
+  const footerLines = lowerLines.filter((line) => (
+    !warningLines.includes(line)
+    && !supportLines.includes(line)
+    && /(terms|unsubscribe|conditions|legal|risk warning|company address|privacy)/i.test(line.text)
+  ));
+
+  return {
+    lines,
+    brandLine: cleanText(brandCandidate?.text),
+    title: cleanText(titleCandidate?.text),
+    ctaLead: cleanText(ctaLeadCandidate?.text),
+    ctaLabel: cleanText(ctaCandidate?.text).replace(/\s*[~→>\-]+$/, "").trim(),
+    brandWidthRatio: Number(brandCandidate?.widthRatio) || 0,
+    brandTopRatio: Number(brandCandidate?.topRatio) || 0,
+    titleWidthRatio: Number(titleCandidate?.widthRatio) || 0,
+    titleTopRatio: Number(titleCandidate?.topRatio) || 0,
+    titleHeightRatio: canvasHeight > 0 && Number.isFinite(titleCandidate?.height)
+      ? Number(titleCandidate.height) / canvasHeight
+      : 0,
+    ctaWidthRatio: Number(ctaCandidate?.widthRatio) || 0,
+    ctaTopRatio: Number(ctaCandidate?.topRatio) || 0,
+    ctaCenterOffset: Number(ctaCandidate?.centerOffset) || 0,
+    warningBody: cleanText(warningLines.map((line) => line.text).join(" ")),
+    supportBody: cleanText(supportLines.map((line) => line.text).join(" ")),
+    footerBody: cleanText(footerLines.map((line) => line.text).join(" ")),
+    layoutStyle: brandCandidate && titleCandidate && ctaCandidate && (warningLines.length > 0 || supportLines.length > 0)
+      ? "centered-transactional-card"
+      : ""
+  };
+}
+
+function buildLocalScreenshotOcrSummary(rawText, dimensions = {}, layout = null) {
+  const lines = Array.isArray(layout?.lines) && layout.lines.length > 0
+    ? layout.lines.map((line) => cleanText(line?.text)).filter(Boolean)
+    : normalizeOcrLines(rawText);
+  const systemNoticeSummary = buildSystemNoticeOcrSummary(lines, dimensions, layout, rawText);
+  if (systemNoticeSummary?.usable) {
+    return systemNoticeSummary;
+  }
+  const brandLine = lines[0] && isLikelyBrandOcrLine(lines[0]) ? lines[0] : "";
+  const meaningfulLines = lines.filter((line, index) => !(brandLine && index === 0 && line === brandLine));
+  const footerLines = meaningfulLines.filter((line) => isLikelyFooterOcrLine(line));
+  const nonFooterLines = meaningfulLines.filter((line) => !footerLines.includes(line));
+  const ctaCandidates = nonFooterLines.filter((line) => isLikelyCtaOcrLine(line));
+  const ctaLabel = cleanText(layout?.ctaLabel)
+    || ctaCandidates.slice().reverse().find((line) => line.split(/\s+/).length <= 4)
+    || ctaCandidates.at(-1)
+    || "";
+  const titleCandidates = nonFooterLines.filter((line) => line !== ctaLabel);
+  const title = cleanText(layout?.title) || titleCandidates
+    .slice()
+    .sort((left, right) => scoreScreenshotTitleCandidate(right) - scoreScreenshotTitleCandidate(left))[0] || "";
+  const ctaLead = cleanText(layout?.ctaLead)
+    || nonFooterLines.find((line) => (
+      line !== title
+      && line !== ctaLabel
+      && /(click the button|tap the button|use the button|button below|follow the link|below to)/i.test(line)
+    ))
+    || "";
+  const warningBody = cleanText(layout?.warningBody);
+  const ignoredBodyLines = new Set([
+    brandLine,
+    title,
+    ctaLead,
+    ctaLabel,
+    warningBody,
+    ...normalizeOcrLines(cleanText(layout?.supportBody)),
+    ...normalizeOcrLines(cleanText(layout?.footerBody))
+  ].filter(Boolean));
+
+  const bodyBlocks = nonFooterLines.filter((line) => {
+    if (ignoredBodyLines.has(line)) {
+      return false;
+    }
+    return line.length >= 18;
+  });
+  const supportLines = footerLines.filter((line) => /support@|having trouble|ignore this email|\bif you\b/i.test(line));
+  let supportBody = cleanText(layout?.supportBody) || cleanText(supportLines.join(" "));
+  let footerBody = cleanText(layout?.footerBody) || cleanText(footerLines.filter((line) => !supportLines.includes(line)).join(" "));
+  if (/ignore\s+If\b/i.test(supportBody) && /(this email|это письмо|этот email)/i.test(footerBody || "")) {
+    supportBody = supportBody.replace(/ignore\s+If\b/i, "ignore this email. If");
+    footerBody = "";
+  }
+  if (
+    footerBody
+    && footerBody.length <= 24
+    && /(this email|это письмо|этот email)/i.test(footerBody)
+    && /ignore/i.test(supportBody)
+  ) {
+    supportBody = cleanText(`${supportBody} ${footerBody}`);
+    footerBody = "";
+  }
+
+  return {
+    source: "local-tesseract",
+    rawText: cleanText(rawText),
+    lines,
+    brandLine: cleanText(brandLine),
+    title: cleanText(title),
+    ctaLead: cleanText(ctaLead),
+    ctaLabel: cleanText(ctaLabel).replace(/\s*[~→>\-]+$/, "").trim(),
+    brandWidthRatio: Number(layout?.brandWidthRatio) || 0,
+    brandTopRatio: Number(layout?.brandTopRatio) || 0,
+    titleWidthRatio: Number(layout?.titleWidthRatio) || 0,
+    titleTopRatio: Number(layout?.titleTopRatio) || 0,
+    titleHeightRatio: Number(layout?.titleHeightRatio) || 0,
+    ctaWidthRatio: Number(layout?.ctaWidthRatio) || 0,
+    ctaTopRatio: Number(layout?.ctaTopRatio) || 0,
+    ctaCenterOffset: Number(layout?.ctaCenterOffset) || 0,
+    bodyBlocks: bodyBlocks.slice(0, 4),
+    warningBody,
+    supportBody,
+    footerBody,
+    layoutStyle: cleanText(layout?.layoutStyle),
+    width: Number(dimensions.width) || 0,
+    height: Number(dimensions.height) || 0,
+    usable: Boolean(cleanText(title) || cleanText(ctaLabel) || bodyBlocks.length > 0)
+  };
+}
+
+function chooseBestScreenshotOcrSummary(summaries = []) {
+  const usable = (Array.isArray(summaries) ? summaries : []).filter((summary) => summary && summary.usable);
+  if (usable.length === 0) {
+    return null;
+  }
+
+  const titleSource = usable
+    .slice()
+    .sort((left, right) => scoreScreenshotTitleCandidate(right?.title) - scoreScreenshotTitleCandidate(left?.title))[0] || usable[0];
+  const bodySource = usable
+    .slice()
+    .sort((left, right) => {
+      const leftScore = (left?.bodyBlocks?.length || 0) * 4 + (cleanText(left?.supportBody) ? 2 : 0) + (cleanText(left?.footerBody) ? 1 : 0);
+      const rightScore = (right?.bodyBlocks?.length || 0) * 4 + (cleanText(right?.supportBody) ? 2 : 0) + (cleanText(right?.footerBody) ? 1 : 0);
+      return rightScore - leftScore;
+    })[0] || usable[0];
+  const ctaSource = usable.find((summary) => cleanText(summary?.ctaLabel)) || bodySource;
+
+  const title = cleanText(titleSource?.title);
+  const ctaLead = cleanText(bodySource?.ctaLead)
+    || cleanText(titleSource?.ctaLead)
+    || usable.map((summary) => cleanText(summary?.ctaLead)).find(Boolean)
+    || "";
+  const bodyBlocks = Array.isArray(bodySource?.bodyBlocks)
+    ? bodySource.bodyBlocks.map(cleanText).filter((line) => line && line !== title && line !== ctaLead)
+    : [];
+
+  const warningBody = cleanText(bodySource?.warningBody) || cleanText(titleSource?.warningBody);
+  let supportBody = cleanText(bodySource?.supportBody) || cleanText(titleSource?.supportBody);
+  let footerBody = cleanText(bodySource?.footerBody) || cleanText(titleSource?.footerBody);
+  if (/ignore\s+If\b/i.test(supportBody) && /(this email|это письмо|этот email)/i.test(footerBody || "")) {
+    supportBody = supportBody.replace(/ignore\s+If\b/i, "ignore this email. If");
+    footerBody = "";
+  }
+  if (
+    footerBody
+    && footerBody.length <= 24
+    && /(this email|это письмо|этот email)/i.test(footerBody)
+    && /ignore/i.test(supportBody)
+  ) {
+    supportBody = cleanText(`${supportBody} ${footerBody}`);
+    footerBody = "";
+  }
+
+  return {
+    source: usable.map((summary) => cleanText(summary.source)).filter(Boolean).join("+") || "local-tesseract",
+    rawText: usable.map((summary) => cleanText(summary.rawText)).filter(Boolean).join("\n"),
+    lines: usable.flatMap((summary) => Array.isArray(summary.lines) ? summary.lines : []).map(cleanText).filter(Boolean),
+    brandLine: cleanText(titleSource?.brandLine) || cleanText(bodySource?.brandLine),
+    title,
+    ctaLead,
+    ctaLabel: cleanText(ctaSource?.ctaLabel),
+    brandWidthRatio: Number(titleSource?.brandWidthRatio || bodySource?.brandWidthRatio) || 0,
+    brandTopRatio: Number(titleSource?.brandTopRatio || bodySource?.brandTopRatio) || 0,
+    titleWidthRatio: Number(titleSource?.titleWidthRatio || bodySource?.titleWidthRatio) || 0,
+    titleTopRatio: Number(titleSource?.titleTopRatio || bodySource?.titleTopRatio) || 0,
+    titleHeightRatio: Number(titleSource?.titleHeightRatio || bodySource?.titleHeightRatio) || 0,
+    ctaWidthRatio: Number(ctaSource?.ctaWidthRatio || bodySource?.ctaWidthRatio || titleSource?.ctaWidthRatio) || 0,
+    ctaTopRatio: Number(ctaSource?.ctaTopRatio || bodySource?.ctaTopRatio || titleSource?.ctaTopRatio) || 0,
+    ctaCenterOffset: Number(ctaSource?.ctaCenterOffset || bodySource?.ctaCenterOffset || titleSource?.ctaCenterOffset) || 0,
+    bodyBlocks,
+    warningBody,
+    supportBody,
+    footerBody,
+    layoutStyle: cleanText(titleSource?.layoutStyle) || cleanText(bodySource?.layoutStyle) || cleanText(ctaSource?.layoutStyle),
+    width: Number(bodySource?.width || titleSource?.width) || 0,
+    height: Number(bodySource?.height || titleSource?.height) || 0,
+    usable: true
+  };
+}
+
+function isRussianLikeLocale(locale) {
+  const normalized = normalizeLocaleCode(locale || "");
+  return normalized === "ru" || normalized === "uk";
+}
+
+function getMockSectionCopy(locale) {
+  if (isRussianLikeLocale(locale)) {
+    return {
+      detailsEyebrow: "Детали",
+      visualEyebrow: "Визуал",
+      primaryActionEyebrow: "Основное действие",
+      mainContentTitle: "Основной блок",
+      primaryActionTitle: "Главное действие",
+      footerTitle: "Футер",
+      featureTitle: "Что должно быть в письме",
+      featureBody: "Блок собран из brief, перевода и текущей структуры письма.",
+      ctaBody: "Пользователь должен получить один четкий CTA и перейти по основной ссылке.",
+      footerBody: "Footer, legal и unsubscribe copy нужно подтвердить перед отправкой."
+    };
+  }
+
+  return {
+    detailsEyebrow: "Details",
+    visualEyebrow: "Visual",
+    primaryActionEyebrow: "Primary action",
+    mainContentTitle: "Main content",
+    primaryActionTitle: "Primary action",
+    footerTitle: "Footer",
+    featureTitle: "What should be in this email",
+    featureBody: "This block is assembled from the brief, translations, and current email structure.",
+    ctaBody: "The recipient should get one clear CTA and go to the primary link.",
+    footerBody: "Footer, legal and unsubscribe copy should be confirmed before send."
+  };
+}
+
+async function runLocalScreenshotOcr(payload) {
+  const design = normalizeDesignPayload(payload?.design);
+  const assetId = cleanText(design?.assetId);
+  let dataUrl = cleanText(design?.dataUrl);
+
+  if (!/^data:image\//i.test(dataUrl) && dataUrl) {
+    dataUrl = await resolveVisionImageUrl(dataUrl);
+  }
+
+  if (!/^data:image\//i.test(dataUrl) && assetId) {
+    try {
+      const assetEntry = dbAssetsGetAll()
+        .map(normalizeAssetRegistryEntry)
+        .find((item) => cleanText(item?.id) === assetId);
+      const assetSource = cleanText(assetEntry?.localUrl || assetEntry?.preferredUrl || assetEntry?.externalUrl);
+      if (assetSource) {
+        dataUrl = await resolveVisionImageUrl(assetSource);
+      }
+    } catch {
+      dataUrl = "";
+    }
+  }
+
+  if (!/^data:image\//i.test(dataUrl)) {
+    return null;
+  }
+
+  const { mimeType, buffer } = decodeDataUrl(dataUrl);
+  if (!/^image\//i.test(mimeType)) {
+    return null;
+  }
+
+  const extension = getExtensionForAssetUpload(mimeType, cleanText(design?.name) || "design.png");
+  const tempBase = path.join(tmpdir(), `studio-ocr-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
+  const imagePath = `${tempBase}${extension}`;
+  let dimensions = { width: 0, height: 0 };
+
+  try {
+    await writeFile(imagePath, buffer);
+
+    try {
+      const sipsResult = await runCommand("/usr/bin/sips", ["-g", "pixelWidth", "-g", "pixelHeight", imagePath], __dirname);
+      dimensions = parseSipsDimensions(`${sipsResult.stdout}\n${sipsResult.stderr}`);
+    } catch {
+      dimensions = { width: 0, height: 0 };
+    }
+
+    const psmVariants = ["4", "11", "6"];
+    const summaries = [];
+    for (const psm of psmVariants) {
+      try {
+        const ocrResult = await runCommand("tesseract", [imagePath, "stdout", "--psm", psm, "-l", "eng"], __dirname);
+        let layout = null;
+        try {
+          const tsvResult = await runCommand("tesseract", [imagePath, "stdout", "--psm", psm, "-l", "eng", "tsv"], __dirname);
+          layout = inferScreenshotLayoutFromTesseractTsv(tsvResult.stdout, dimensions);
+        } catch {
+          layout = null;
+        }
+        const summary = buildLocalScreenshotOcrSummary(ocrResult.stdout, dimensions, layout);
+        if (summary?.usable) {
+          summary.source = `local-tesseract-psm-${psm}`;
+          summaries.push(summary);
+        }
+      } catch {
+        continue;
+      }
+    }
+
+    if (summaries.length > 0) {
+      return chooseBestScreenshotOcrSummary(summaries);
+    }
+
+    const ocrResult = await runCommand("tesseract", [imagePath, "stdout", "--psm", "6", "-l", "eng"], __dirname);
+    return buildLocalScreenshotOcrSummary(ocrResult.stdout, dimensions);
+  } catch (error) {
+  return {
+    source: "local-tesseract",
+    usable: false,
+    error: cleanText(error?.message)
+    };
+  } finally {
+    await rm(imagePath, { force: true }).catch(() => {});
+  }
+}
+
+function createScreenshotOcrDebugSummary(screenshotOcr) {
+  if (!screenshotOcr || typeof screenshotOcr !== "object") {
+    return null;
+  }
+
+  return {
+    source: cleanText(screenshotOcr.source),
+    usable: Boolean(screenshotOcr.usable),
+    brandLine: cleanText(screenshotOcr.brandLine),
+    title: cleanText(screenshotOcr.title),
+    ctaLead: cleanText(screenshotOcr.ctaLead),
+    ctaLabel: cleanText(screenshotOcr.ctaLabel),
+    brandWidthRatio: Number(screenshotOcr.brandWidthRatio) || 0,
+    brandTopRatio: Number(screenshotOcr.brandTopRatio) || 0,
+    titleWidthRatio: Number(screenshotOcr.titleWidthRatio) || 0,
+    titleTopRatio: Number(screenshotOcr.titleTopRatio) || 0,
+    titleHeightRatio: Number(screenshotOcr.titleHeightRatio) || 0,
+    ctaWidthRatio: Number(screenshotOcr.ctaWidthRatio) || 0,
+    ctaTopRatio: Number(screenshotOcr.ctaTopRatio) || 0,
+    ctaCenterOffset: Number(screenshotOcr.ctaCenterOffset) || 0,
+    bodyBlocks: Array.isArray(screenshotOcr.bodyBlocks)
+      ? screenshotOcr.bodyBlocks.map(cleanText).filter(Boolean).slice(0, 4)
+      : [],
+    warningBody: cleanText(screenshotOcr.warningBody),
+    supportBody: cleanText(screenshotOcr.supportBody),
+    footerBody: cleanText(screenshotOcr.footerBody),
+    layoutStyle: cleanText(screenshotOcr.layoutStyle),
+    width: Number(screenshotOcr.width) || 0,
+    height: Number(screenshotOcr.height) || 0,
+    error: cleanText(screenshotOcr.error)
+  };
+}
+
+function normalizeScreenshotOcrPayload(screenshotOcr) {
+  if (!screenshotOcr || typeof screenshotOcr !== "object") {
+    return null;
+  }
+
+  return {
+    source: cleanText(screenshotOcr.source),
+    usable: Boolean(screenshotOcr.usable),
+    brandLine: cleanText(screenshotOcr.brandLine),
+    title: cleanText(screenshotOcr.title),
+    ctaLead: cleanText(screenshotOcr.ctaLead),
+    ctaLabel: cleanText(screenshotOcr.ctaLabel),
+    brandWidthRatio: Number(screenshotOcr.brandWidthRatio) || 0,
+    brandTopRatio: Number(screenshotOcr.brandTopRatio) || 0,
+    titleWidthRatio: Number(screenshotOcr.titleWidthRatio) || 0,
+    titleTopRatio: Number(screenshotOcr.titleTopRatio) || 0,
+    titleHeightRatio: Number(screenshotOcr.titleHeightRatio) || 0,
+    ctaWidthRatio: Number(screenshotOcr.ctaWidthRatio) || 0,
+    ctaTopRatio: Number(screenshotOcr.ctaTopRatio) || 0,
+    ctaCenterOffset: Number(screenshotOcr.ctaCenterOffset) || 0,
+    bodyBlocks: Array.isArray(screenshotOcr.bodyBlocks)
+      ? screenshotOcr.bodyBlocks.map(cleanText).filter(Boolean)
+      : [],
+    warningBody: cleanText(screenshotOcr.warningBody),
+    supportBody: cleanText(screenshotOcr.supportBody),
+    footerBody: cleanText(screenshotOcr.footerBody),
+    layoutStyle: cleanText(screenshotOcr.layoutStyle),
+    width: Number(screenshotOcr.width) || 0,
+    height: Number(screenshotOcr.height) || 0,
+    error: cleanText(screenshotOcr.error)
+  };
+}
+
+async function enrichPayloadWithLocalScreenshotOcr(payload) {
+  if (!hasVisualDesignInput(payload) || hasStructuredFigmaInput(payload) || payload?.screenshotOcr) {
+    return payload;
+  }
+
+  const screenshotOcr = await runLocalScreenshotOcr(payload);
+  if (!screenshotOcr) {
+    return payload;
+  }
+
+  return {
+    ...payload,
+    screenshotOcr
+  };
 }
 
 async function buildEmailBasePreview(category, mailId, locale) {
@@ -1806,6 +2955,27 @@ function looksLikeAffPasswordResetMail(mail) {
     && /(password|senha|парол|reset|set new|defin|nova senha)/i.test(signal);
 }
 
+function looksLikeSystemNoticeMail(mail) {
+  const sections = Array.isArray(mail?.sections) ? mail.sections : [];
+  if (sections.length < 5) {
+    return false;
+  }
+
+  const signal = [
+    cleanText(mail?.subject),
+    cleanText(mail?.preheader),
+    cleanText(sections[0]?.eyebrow),
+    cleanText(sections[0]?.title),
+    cleanText(sections[1]?.title),
+    cleanText(sections[1]?.body),
+    cleanText(sections[2]?.cta_label),
+    cleanText(sections[3]?.body),
+    cleanText(sections[4]?.body)
+  ].join(" ");
+
+  return /(copy trading|paused|suspend|suspended|interruption|insufficient balance|support team)/i.test(signal);
+}
+
 function splitAffPasswordResetIntroAndCtaBody(text) {
   const value = cleanText(text);
   if (!value) {
@@ -1846,6 +3016,36 @@ function isWeakAffPasswordResetCtaBody(text, ctaLabel = "") {
     || value.length < 16
     || looksLikeResetHeadline(value)
     || (normalizedLabel && normalizeTemplateSelectionText(value) === normalizedLabel);
+}
+
+function splitAffPasswordResetWarningAndSupport(text) {
+  const value = cleanText(text);
+  if (!value) {
+    return {
+      warning: "",
+      support: ""
+    };
+  }
+
+  const normalized = value.replace(/\s+/g, " ").trim();
+  const sentences = normalized
+    .split(/(?<=[.!?])\s+/)
+    .map((sentence) => cleanText(sentence))
+    .filter(Boolean);
+  const warningLines = sentences.filter((sentence) => looksLikeAffPasswordResetWarning(sentence));
+  const supportLines = sentences.filter((sentence) => looksLikeAffPasswordResetSupport(sentence));
+
+  if (warningLines.length > 0 || supportLines.length > 0) {
+    return {
+      warning: cleanText(warningLines.join(" ")),
+      support: cleanText(supportLines.join(" "))
+    };
+  }
+
+  return {
+    warning: "",
+    support: value
+  };
 }
 
 function buildBaseLocaleSectionMap(mail) {
@@ -2227,7 +3427,7 @@ body
   padding 0
   background #eef2e8
   color #14281d
-  font-family 'Arial', sans-serif
+  font-family 'Helvetica Neue', Helvetica, Arial, sans-serif
 
 table
   border-collapse collapse
@@ -2357,6 +3557,14 @@ function getAffPasswordResetReferenceRoot() {
   return path.join(emailBaseRoot, "X_AffSystem", "mail-password-retrieving-affiliate");
 }
 
+function getSimpleSystemCardReferenceRoot() {
+  return path.join(emailBaseRoot, "X_System", "mail-payment");
+}
+
+function getSystemNoticeCardReferenceRoot() {
+  return path.join(emailBaseRoot, "X_System", "mail-payment");
+}
+
 function isAffPasswordResetReference(payload) {
   const target = resolveReferenceTemplateMailTarget(payload);
   return cleanText(target.category) === "X_AffSystem"
@@ -2364,43 +3572,489 @@ function isAffPasswordResetReference(payload) {
 }
 
 function buildAffPasswordResetTemplateMail(payload) {
+  const screenshotOcr = payload?.screenshotOcr && typeof payload?.screenshotOcr === "object"
+    ? payload.screenshotOcr
+    : null;
+  const analysisVisualHints = payload?.designAnalysis?.visual_hints && typeof payload.designAnalysis.visual_hints === "object"
+    ? payload.designAnalysis.visual_hints
+    : null;
   const logoUrl = cleanText(extractLatestLogoOverrideUrl(payload))
     || "https://static.cdnpub.info/files/storage/public/5f/c8/d0517a03c1c8h5j9j4/logoaff_white_shadow__1_.png";
+  const bodyBlocks = Array.isArray(screenshotOcr?.bodyBlocks)
+    ? screenshotOcr.bodyBlocks.map(cleanText).filter(Boolean)
+    : [];
+  const warningSplit = splitAffPasswordResetWarningAndSupport(
+    cleanText(screenshotOcr?.warningBody)
+      || cleanText(screenshotOcr?.supportBody)
+  );
+  const title = looksLikeResetHeadline(cleanText(screenshotOcr?.title))
+    ? cleanText(screenshotOcr.title)
+    : "Set your new password";
+  const introBody = cleanText(bodyBlocks.slice(0, 2).join("\n\n"))
+    || "We created an account for you on {{affiliate_embedded_admin_domain_url}} (or received a request to reset your password).";
+  const ctaBody = cleanText(screenshotOcr?.ctaLead)
+    || "Please click the button below to set your new password:";
+  const warningBody = cleanText(screenshotOcr?.warningBody)
+    || cleanText(warningSplit.warning)
+    || "If you didn’t request to create or reset your password, you can safely ignore this email.";
+  const supportBody = cleanText(screenshotOcr?.supportBody)
+    || cleanText(warningSplit.support)
+    || "If you’re having trouble signing in to your account, try setting your password again or reach out to support.";
+  const ctaLabel = normalizeAffPasswordResetCtaLabel(
+    cleanText(screenshotOcr?.ctaLabel),
+    "Set new password"
+  );
+  const ctaHref = cleanText(payload?.brief?.primaryLink) || "";
 
   return {
-    subject: "Set your new password",
-    preheader: "Password reset instructions",
+    subject: title,
+    preheader: cleanText(bodyBlocks[0]) || "Password reset instructions",
     locale: normalizeLocaleCode(payload?.brief?.locale || "en"),
     summary: "Affiliate password reset email built from the base template.",
     brand_logo_url: logoUrl,
     brand_logo_alt: deriveLogoAltText(logoUrl),
+    visual_style: mergeVisualStyleHints(
+      deriveAffPasswordResetVisualStyle(screenshotOcr),
+      analysisVisualHints
+    ),
     sections: [
       {
         kind: "text",
-        title: "Set your new password",
-        body: "We created an account for you on {{affiliate_embedded_admin_domain_url}} (or received a request to reset your password)."
+        title,
+        body: introBody
       },
       {
         kind: "cta",
         title: "",
-        body: "Please click the button below to set your new password:",
-        cta_label: "Set new password",
-        cta_href: "{{reset_password_link}}"
+        body: ctaBody,
+        cta_label: ctaLabel,
+        cta_href: ctaHref
       },
       {
         kind: "text",
         title: "",
-        body: "If you didn’t request to create or reset your password, you can safely ignore this email."
+        body: warningBody
       },
       {
         kind: "text",
         title: "",
-        body: "If you’re having trouble signing in to your account, try setting your password again or reach out to support."
+        body: supportBody
       },
       {
         kind: "footer",
         title: "",
-        body: "{{embedded.company_address}}\n\nTerms and Conditions"
+        body: ""
+      }
+    ],
+    assets: [],
+    translations: []
+  };
+}
+
+function countTextWords(text) {
+  return cleanText(text).split(/\s+/).filter(Boolean).length;
+}
+
+function normalizeVisualStyleHints(hints) {
+  const normalizeHexColor = (value) => {
+    const normalized = cleanText(value);
+    return /^#[0-9A-Fa-f]{6}$/.test(normalized) ? normalized.toUpperCase() : "";
+  };
+  const titleScale = cleanText(hints?.titleScale);
+  const logoScale = cleanText(hints?.logoScale);
+  const cardWidth = cleanText(hints?.cardWidth);
+  const buttonWidth = cleanText(hints?.buttonWidth);
+  const buttonTone = cleanText(hints?.buttonTone);
+  const cardShape = cleanText(hints?.cardShape);
+  const buttonShape = cleanText(hints?.buttonShape);
+  const cardDensity = cleanText(hints?.cardDensity);
+  const supportLayout = cleanText(hints?.supportLayout);
+  const layoutStyle = cleanText(hints?.layoutStyle);
+  const notes = cleanText(hints?.notes);
+
+  return {
+    titleScale: ["hero", "default", "compact"].includes(titleScale) ? titleScale : "default",
+    logoScale: ["wide", "default", "compact"].includes(logoScale) ? logoScale : "default",
+    cardWidth: ["wide", "default", "narrow"].includes(cardWidth) ? cardWidth : "default",
+    buttonWidth: ["wide", "default", "compact"].includes(buttonWidth) ? buttonWidth : "default",
+    buttonTone: ["outline", "solid"].includes(buttonTone) ? buttonTone : "solid",
+    cardShape: ["sharp", "soft", "round"].includes(cardShape) ? cardShape : "soft",
+    buttonShape: ["sharp", "soft", "pill"].includes(buttonShape) ? buttonShape : "soft",
+    cardDensity: ["airy", "default", "compact"].includes(cardDensity) ? cardDensity : "default",
+    supportLayout: ["detached", "default", "inline"].includes(supportLayout) ? supportLayout : "default",
+    layoutStyle: ["centered-transactional-card", "hero-promo-band", "multi-band", "plain"].includes(layoutStyle) ? layoutStyle : "",
+    pageBgColor: normalizeHexColor(hints?.pageBgColor),
+    cardBgColor: normalizeHexColor(hints?.cardBgColor),
+    titleColor: normalizeHexColor(hints?.titleColor),
+    bodyColor: normalizeHexColor(hints?.bodyColor),
+    accentColor: normalizeHexColor(hints?.accentColor),
+    buttonFillColor: normalizeHexColor(hints?.buttonFillColor),
+    buttonBorderColor: normalizeHexColor(hints?.buttonBorderColor),
+    buttonTextColor: normalizeHexColor(hints?.buttonTextColor),
+    notes
+  };
+}
+
+function mergeVisualStyleHints(baseHints, overrideHints) {
+  const base = normalizeVisualStyleHints(baseHints);
+  const override = normalizeVisualStyleHints(overrideHints);
+
+  return {
+    titleScale: override.titleScale !== "default" ? override.titleScale : base.titleScale,
+    logoScale: override.logoScale !== "default" ? override.logoScale : base.logoScale,
+    cardWidth: override.cardWidth !== "default" ? override.cardWidth : base.cardWidth,
+    buttonWidth: override.buttonWidth !== "default" ? override.buttonWidth : base.buttonWidth,
+    buttonTone: override.buttonTone !== "solid" ? override.buttonTone : base.buttonTone,
+    cardShape: override.cardShape !== "soft" ? override.cardShape : base.cardShape,
+    buttonShape: override.buttonShape !== "soft" ? override.buttonShape : base.buttonShape,
+    cardDensity: override.cardDensity !== "default" ? override.cardDensity : base.cardDensity,
+    supportLayout: override.supportLayout !== "default" ? override.supportLayout : base.supportLayout,
+    layoutStyle: override.layoutStyle || base.layoutStyle,
+    pageBgColor: cleanText(override.pageBgColor) || cleanText(base.pageBgColor),
+    cardBgColor: cleanText(override.cardBgColor) || cleanText(base.cardBgColor),
+    titleColor: cleanText(override.titleColor) || cleanText(base.titleColor),
+    bodyColor: cleanText(override.bodyColor) || cleanText(base.bodyColor),
+    accentColor: cleanText(override.accentColor) || cleanText(base.accentColor),
+    buttonFillColor: cleanText(override.buttonFillColor) || cleanText(base.buttonFillColor),
+    buttonBorderColor: cleanText(override.buttonBorderColor) || cleanText(base.buttonBorderColor),
+    buttonTextColor: cleanText(override.buttonTextColor) || cleanText(base.buttonTextColor),
+    notes: cleanText(override.notes) || cleanText(base.notes)
+  };
+}
+
+function deriveSimpleSystemCardVisualStyle(screenshotOcr) {
+  const title = cleanText(screenshotOcr?.title);
+  const ctaLabel = cleanText(screenshotOcr?.ctaLabel);
+  const supportBody = cleanText(screenshotOcr?.supportBody);
+  const titleWordCount = countTextWords(title);
+  const titleWidthRatio = Number(screenshotOcr?.titleWidthRatio) || 0;
+  const titleHeightRatio = Number(screenshotOcr?.titleHeightRatio) || 0;
+  const titleTopRatio = Number(screenshotOcr?.titleTopRatio) || 0;
+  const brandWidthRatio = Number(screenshotOcr?.brandWidthRatio) || 0;
+  const ctaWidthRatio = Number(screenshotOcr?.ctaWidthRatio) || 0;
+
+  let titleScale = "default";
+  if (titleWordCount >= 8 || titleWidthRatio >= 0.72) {
+    titleScale = "compact";
+  } else if (titleHeightRatio >= 0.045 || titleWidthRatio >= 0.5 || titleWordCount <= 4) {
+    titleScale = "hero";
+  }
+
+  let logoScale = "default";
+  if (brandWidthRatio >= 0.24) {
+    logoScale = "wide";
+  } else if (brandWidthRatio > 0 && brandWidthRatio <= 0.16) {
+    logoScale = "compact";
+  }
+
+  let buttonWidth = "default";
+  if (ctaWidthRatio >= 0.26) {
+    buttonWidth = "wide";
+  } else if ((ctaWidthRatio > 0 && ctaWidthRatio <= 0.16) || ctaLabel.length <= 14) {
+    buttonWidth = "compact";
+  }
+
+  let cardWidth = "default";
+  if (titleWidthRatio >= 0.64 || ctaWidthRatio >= 0.3 || titleTopRatio >= 0.14) {
+    cardWidth = "wide";
+  } else if ((titleWidthRatio > 0 && titleWidthRatio <= 0.42) || (ctaWidthRatio > 0 && ctaWidthRatio <= 0.16)) {
+    cardWidth = "narrow";
+  }
+
+  return normalizeVisualStyleHints({
+    titleScale,
+    logoScale,
+    cardWidth,
+    buttonWidth,
+    buttonTone: titleScale === "hero" && ctaWidthRatio >= 0.24 ? "outline" : "solid",
+    cardShape: "soft",
+    buttonShape: titleScale === "hero" ? "soft" : "pill",
+    cardDensity: supportBody ? "airy" : (titleScale === "compact" ? "compact" : "default"),
+    supportLayout: supportBody ? "detached" : "inline"
+  });
+}
+
+function deriveAffPasswordResetVisualStyle(screenshotOcr) {
+  const title = cleanText(screenshotOcr?.title);
+  const titleWordCount = countTextWords(title);
+  const supportBody = cleanText(screenshotOcr?.supportBody);
+  const titleWidthRatio = Number(screenshotOcr?.titleWidthRatio) || 0;
+  const titleTopRatio = Number(screenshotOcr?.titleTopRatio) || 0;
+  const brandWidthRatio = Number(screenshotOcr?.brandWidthRatio) || 0;
+  const ctaWidthRatio = Number(screenshotOcr?.ctaWidthRatio) || 0;
+
+  let titleScale = "default";
+  if (titleWordCount >= 8 || titleWidthRatio >= 0.74) {
+    titleScale = "compact";
+  } else if (titleWidthRatio >= 0.48 || titleWordCount <= 5) {
+    titleScale = "hero";
+  }
+
+  let logoScale = "default";
+  if (brandWidthRatio >= 0.22) {
+    logoScale = "wide";
+  } else if (brandWidthRatio > 0 && brandWidthRatio <= 0.14) {
+    logoScale = "compact";
+  }
+
+  let buttonWidth = "default";
+  if (ctaWidthRatio >= 0.3) {
+    buttonWidth = "wide";
+  } else if (ctaWidthRatio > 0 && ctaWidthRatio <= 0.18) {
+    buttonWidth = "compact";
+  }
+
+  let cardWidth = "default";
+  if (titleWidthRatio >= 0.58 || ctaWidthRatio >= 0.28 || titleTopRatio >= 0.16) {
+    cardWidth = "wide";
+  } else if ((titleWidthRatio > 0 && titleWidthRatio <= 0.42) || (ctaWidthRatio > 0 && ctaWidthRatio <= 0.17)) {
+    cardWidth = "narrow";
+  }
+
+  return normalizeVisualStyleHints({
+    titleScale,
+    logoScale,
+    cardWidth,
+    buttonWidth,
+    buttonTone: "outline",
+    cardShape: "sharp",
+    buttonShape: "sharp",
+    cardDensity: supportBody ? "airy" : "default",
+    supportLayout: supportBody ? "detached" : "inline"
+  });
+}
+
+function normalizeSystemNoticeTitle(title = "", ctaLabel = "", fallbackTitle = "") {
+  const normalizedTitle = cleanText(title);
+  const normalizedCta = cleanText(ctaLabel);
+  const fallback = cleanText(fallbackTitle) || "Important account notice";
+
+  if (!normalizedTitle) {
+    return fallback;
+  }
+
+  const loweredTitle = normalizedTitle.toLowerCase();
+  const loweredCta = normalizedCta.toLowerCase();
+  const titleWordCount = countTextWords(normalizedTitle);
+  const looksLikeActionOnly = /^(check|open|continue|resume|view|learn|watch|start|go|verify|confirm|review)\b/i.test(normalizedTitle);
+  const duplicatesCta = loweredCta && loweredTitle === loweredCta;
+
+  if ((looksLikeActionOnly && titleWordCount <= 4) || duplicatesCta) {
+    return fallback;
+  }
+
+  return normalizedTitle;
+}
+
+function deriveSystemNoticeCardVisualStyle(screenshotOcr) {
+  const title = cleanText(screenshotOcr?.title);
+  const titleWordCount = countTextWords(title);
+  const titleWidthRatio = Number(screenshotOcr?.titleWidthRatio) || 0;
+  const brandWidthRatio = Number(screenshotOcr?.brandWidthRatio) || 0;
+  const ctaWidthRatio = Number(screenshotOcr?.ctaWidthRatio) || 0;
+
+  let titleScale = "default";
+  if (titleWordCount >= 9 || titleWidthRatio >= 0.78) {
+    titleScale = "compact";
+  } else if (titleWidthRatio >= 0.52 || titleWordCount <= 6) {
+    titleScale = "hero";
+  }
+
+  let logoScale = "default";
+  if (brandWidthRatio >= 0.2) {
+    logoScale = "wide";
+  } else if (brandWidthRatio > 0 && brandWidthRatio <= 0.12) {
+    logoScale = "compact";
+  }
+
+  let buttonWidth = "default";
+  if (ctaWidthRatio >= 0.24) {
+    buttonWidth = "wide";
+  } else if (ctaWidthRatio > 0 && ctaWidthRatio <= 0.16) {
+    buttonWidth = "compact";
+  }
+
+  return normalizeVisualStyleHints({
+    titleScale,
+    logoScale,
+    cardWidth: "wide",
+    buttonWidth,
+    buttonTone: "solid",
+    cardShape: "soft",
+    buttonShape: "soft",
+    cardDensity: "airy",
+    supportLayout: "detached",
+    layoutStyle: "centered-transactional-card",
+    pageBgColor: "#EEF2FA",
+    cardBgColor: "#FFFFFF",
+    titleColor: "#20242F",
+    bodyColor: "#495466",
+    accentColor: "#F68A2F",
+    buttonFillColor: "#F68A2F",
+    buttonBorderColor: "#F68A2F",
+    buttonTextColor: "#FFFFFF"
+  });
+}
+
+function buildSystemNoticeCardTemplateMail(payload) {
+  const screenshotOcr = payload?.screenshotOcr && typeof payload?.screenshotOcr === "object"
+    ? payload.screenshotOcr
+    : null;
+  const analysisVisualHints = payload?.designAnalysis?.visual_hints && typeof payload.designAnalysis.visual_hints === "object"
+    ? payload.designAnalysis.visual_hints
+    : null;
+  const bodyBlocks = Array.isArray(screenshotOcr?.bodyBlocks)
+    ? screenshotOcr.bodyBlocks.map(cleanText).filter(Boolean)
+    : [];
+  const greetingCandidate = cleanText(bodyBlocks[0]);
+  const greeting = /^(dear|hello|hi|уважаем|здравств|привет)/i.test(greetingCandidate)
+    ? greetingCandidate
+    : "Dear client,";
+  const introBlocks = /^(dear|hello|hi|уважаем|здравств|привет)/i.test(greetingCandidate)
+    ? bodyBlocks.slice(1)
+    : bodyBlocks;
+  const defaultTitle = cleanText(payload?.brief?.campaignName) || "Important account notice";
+  const title = normalizeSystemNoticeTitle(
+    cleanText(screenshotOcr?.title),
+    cleanText(screenshotOcr?.ctaLabel),
+    defaultTitle
+  );
+  const introBody = cleanText(introBlocks.slice(0, 2).join("\n\n"))
+    || cleanText(payload?.brief?.goal)
+    || "We would like to inform you that your account activity has been temporarily suspended.";
+  const rawSignal = [
+    cleanText(screenshotOcr?.ctaLead),
+    cleanText(screenshotOcr?.warningBody),
+    cleanText(screenshotOcr?.supportBody),
+    cleanText(getRecentUserTranscript(payload))
+  ].join(" ").toLowerCase();
+  const reasonTitle = /reason for interruption/i.test(rawSignal)
+    ? "Reason for interruption:"
+    : "Reason:";
+  const reasonBody = cleanText(screenshotOcr?.warningBody)
+    || cleanText(introBlocks.find((line) => /(insufficient balance|reason|interruption|paused|suspend|copying)/i.test(line)))
+    || "Please review your account settings.";
+  const ctaLabel = cleanText(screenshotOcr?.ctaLabel)
+    || cleanText(payload?.brief?.primaryCta)
+    || "Check your account";
+  const ctaHref = cleanText(payload?.brief?.primaryLink) || "";
+  const supportBody = cleanText(screenshotOcr?.supportBody)
+    || cleanText(introBlocks.slice(2).join("\n\n"))
+    || "If you need help, please review your account settings and contact Support Team for further assistance.";
+  const closingBody = cleanText(screenshotOcr?.footerBody) || "We appreciate your understanding.";
+  const logoUrl = cleanText(extractLatestLogoOverrideUrl(payload))
+    || "https://images01.iqoption.com/89/0689/static-01503674720413810689.png";
+
+  return {
+    subject: title,
+    preheader: cleanText(introBlocks[0]) || title,
+    locale: normalizeLocaleCode(payload?.brief?.locale || "en"),
+    summary: "System notice email assembled from screenshot OCR.",
+    brand_logo_url: logoUrl,
+    brand_logo_alt: cleanText(screenshotOcr?.brandLine) || "IQ Option",
+    visual_style: mergeVisualStyleHints(
+      deriveSystemNoticeCardVisualStyle(screenshotOcr),
+      analysisVisualHints
+    ),
+    sections: [
+      {
+        kind: "text",
+        eyebrow: greeting,
+        title,
+        body: introBody
+      },
+      {
+        kind: "feature-list",
+        title: reasonTitle,
+        body: reasonBody
+      },
+      {
+        kind: "cta",
+        title: "",
+        body: "",
+        cta_label: ctaLabel,
+        cta_href: ctaHref
+      },
+      {
+        kind: "text",
+        title: "",
+        body: supportBody
+      },
+      {
+        kind: "text",
+        title: "",
+        body: closingBody
+      },
+      {
+        kind: "footer",
+        title: "",
+        body: ""
+      }
+    ],
+    assets: [],
+    translations: []
+  };
+}
+
+function buildSimpleSystemCardTemplateMail(payload) {
+  const screenshotOcr = payload?.screenshotOcr && typeof payload.screenshotOcr === "object"
+    ? payload.screenshotOcr
+    : null;
+  const analysisVisualHints = payload?.designAnalysis?.visual_hints && typeof payload.designAnalysis.visual_hints === "object"
+    ? payload.designAnalysis.visual_hints
+    : null;
+  const logoUrl = cleanText(extractLatestLogoOverrideUrl(payload));
+  const bodyBlocks = Array.isArray(screenshotOcr?.bodyBlocks)
+    ? screenshotOcr.bodyBlocks.map(cleanText).filter(Boolean)
+    : [];
+  const warningSplit = splitAffPasswordResetWarningAndSupport(cleanText(screenshotOcr?.supportBody));
+  const title = cleanText(screenshotOcr?.title) || cleanText(payload?.brief?.campaignName) || "Important update";
+  const introBody = cleanText(bodyBlocks.slice(0, 3).join("\n\n")) || cleanText(payload?.brief?.goal) || "We prepared an important update for your account.";
+  const ctaBody = cleanText(screenshotOcr?.ctaLead) || cleanText(payload?.brief?.contentNotes) || "Please use the button below to continue.";
+  const warningBody = cleanText(screenshotOcr?.warningBody) || cleanText(warningSplit.warning);
+  const supportBody = cleanText(screenshotOcr?.supportBody) || cleanText(warningSplit.support);
+  const ctaLabel = cleanText(screenshotOcr?.ctaLabel) || cleanText(payload?.brief?.primaryCta) || "Continue";
+  const ctaHref = cleanText(payload?.brief?.primaryLink) || "";
+  const brandLabel = cleanText(screenshotOcr?.brandLine) || deriveLogoAltText(logoUrl) || "Brand";
+
+  return {
+    subject: title,
+    preheader: cleanText(bodyBlocks[0]) || cleanText(payload?.brief?.goal) || title,
+    locale: normalizeLocaleCode(payload?.brief?.locale || "en"),
+    summary: "Simple transactional card email assembled from screenshot OCR.",
+    brand_logo_url: logoUrl,
+    brand_logo_alt: brandLabel,
+    visual_style: mergeVisualStyleHints(
+      deriveSimpleSystemCardVisualStyle(screenshotOcr),
+      analysisVisualHints
+    ),
+    sections: [
+      {
+        kind: "text",
+        title,
+        body: introBody
+      },
+      {
+        kind: "cta",
+        title: "",
+        body: ctaBody,
+        cta_label: ctaLabel,
+        cta_href: ctaHref
+      },
+      {
+        kind: "text",
+        title: "",
+        body: warningBody
+      },
+      {
+        kind: "text",
+        title: "",
+        body: supportBody
+      },
+      {
+        kind: "footer",
+        title: "",
+        body: ""
       }
     ],
     assets: [],
@@ -2429,10 +4083,65 @@ function looksLikeSystemVerificationDraft(payload, mail) {
   return /(passbook|verification|verify|verified|bank passbook|document|documents|declin|reject|reason_text|вериф|провер|документ|пасбук|паспорт|банк)/i.test(source);
 }
 
+function looksLikeSimpleSystemCardScreenshot(payload, mail) {
+  const screenshotOcr = payload?.screenshotOcr && typeof payload?.screenshotOcr === "object"
+    ? payload.screenshotOcr
+    : null;
+  if (!screenshotOcr?.usable || !hasVisualDesignInput(payload) || payload?.baseEmailHtml) {
+    return false;
+  }
+
+  if (cleanText(screenshotOcr?.layoutStyle) !== "centered-transactional-card") {
+    return false;
+  }
+
+  const signal = [
+    cleanText(screenshotOcr?.title),
+    cleanText(screenshotOcr?.ctaLead),
+    cleanText(screenshotOcr?.ctaLabel),
+    ...(Array.isArray(screenshotOcr?.bodyBlocks) ? screenshotOcr.bodyBlocks.map(cleanText) : []),
+    cleanText(screenshotOcr?.warningBody),
+    cleanText(screenshotOcr?.supportBody),
+    cleanText(getRecentUserTranscript(payload)),
+    ...(Array.isArray(mail?.sections) ? mail.sections.flatMap((section) => [cleanText(section?.title), cleanText(section?.body)]) : [])
+  ].filter(Boolean).join(" ");
+
+  return /(password|reset|verify|verification|confirm|welcome|activate|account|email|security|invitation)/i.test(signal);
+}
+
+function looksLikeSystemNoticeScreenshot(payload, mail) {
+  const screenshotOcr = payload?.screenshotOcr && typeof payload?.screenshotOcr === "object"
+    ? payload.screenshotOcr
+    : null;
+  if (!screenshotOcr?.usable || !hasVisualDesignInput(payload) || payload?.baseEmailHtml) {
+    return false;
+  }
+
+  if (cleanText(screenshotOcr?.layoutStyle) !== "centered-transactional-card") {
+    return false;
+  }
+
+  const signal = [
+    cleanText(screenshotOcr?.brandLine),
+    cleanText(screenshotOcr?.title),
+    cleanText(screenshotOcr?.ctaLead),
+    cleanText(screenshotOcr?.ctaLabel),
+    ...(Array.isArray(screenshotOcr?.bodyBlocks) ? screenshotOcr.bodyBlocks.map(cleanText) : []),
+    cleanText(screenshotOcr?.warningBody),
+    cleanText(screenshotOcr?.supportBody),
+    cleanText(screenshotOcr?.footerBody),
+    cleanText(getRecentUserTranscript(payload)),
+    ...(Array.isArray(mail?.sections) ? mail.sections.flatMap((section) => [cleanText(section?.title), cleanText(section?.body)]) : [])
+  ].filter(Boolean).join(" ");
+
+  return /(notice|paused|pause|suspend|suspended|suspension|interruption|reason for interruption|insufficient balance|copy trading|temporarily suspended|support team)/i.test(signal);
+}
+
 function getEmailBaseTemplateProfile(payload, mail) {
   const selection = getReferenceTemplateSelection(payload);
-  if (cleanText(selection?.profile)) {
-    return cleanText(selection.profile);
+  const selectionProfile = cleanText(selection?.profile);
+  if (selectionProfile && selectionProfile !== "generic") {
+    return selectionProfile;
   }
 
   if (
@@ -2443,7 +4152,15 @@ function getEmailBaseTemplateProfile(payload, mail) {
     return "system-verification";
   }
 
-  return "generic";
+  if (looksLikeSystemNoticeScreenshot(payload, mail)) {
+    return "system-notice-card";
+  }
+
+  if (looksLikeSimpleSystemCardScreenshot(payload, mail)) {
+    return "simple-system-card";
+  }
+
+  return selectionProfile || "generic";
 }
 
 function getSystemVerificationToken(translationFileKey, sectionIndex, field) {
@@ -2561,69 +4278,886 @@ function renderAffPasswordResetHeaderPug(mail, translationFileKey) {
   const logoUrl = cleanText(mail?.brand_logo_url)
     || "https://static.cdnpub.info/files/storage/public/5f/c8/d0517a03c1c8h5j9j4/logoaff_white_shadow__1_.png";
   const logoAlt = cleanText(mail?.brand_logo_alt) || "Affstore";
+  const visualStyle = normalizeVisualStyleHints(mail?.visual_style);
   const introTitle = getAffPasswordResetToken(translationFileKey, 0, "title");
   const introBody = getAffPasswordResetToken(translationFileKey, 0, "body");
   const ctaBody = getAffPasswordResetToken(translationFileKey, 1, "body");
   const ctaLabel = getAffPasswordResetToken(translationFileKey, 1, "cta_label");
   const warningBody = getAffPasswordResetToken(translationFileKey, 2, "body");
   const supportBody = getAffPasswordResetToken(translationFileKey, 3, "body");
-  const ctaHref = cleanText(mail?.sections?.[1]?.cta_href) || "{{reset_password_link}}";
+  const ctaHref = cleanText(mail?.sections?.[1]?.cta_href) || "";
+  const logoClassChain = buildPugClassChain("qr-reset-logo", "center", getVisualModifierClass("qr-reset-logo", visualStyle.logoScale));
+  const cardClassChain = buildPugClassChain("qr-reset-card", getVisualModifierClass("qr-reset-card", visualStyle.cardDensity));
+  const shellClassChain = buildPugClassChain("twelve", "columns", "qr-reset-shell", getVisualModifierClass("qr-reset-shell", visualStyle.cardWidth));
+  const titleClassChain = buildPugClassChain("qr-reset-title", getVisualModifierClass("qr-reset-title", visualStyle.titleScale));
+  const buttonClassChain = buildPugClassChain(
+    "qr-reset-button",
+    getVisualModifierClass("qr-reset-button", visualStyle.buttonWidth),
+    getVisualModifierClass("qr-reset-button", visualStyle.buttonTone)
+  );
+  const supportWrapClassChain = buildPugClassChain("qr-reset-support-wrap", getVisualModifierClass("qr-reset-support-wrap", visualStyle.supportLayout));
+  const buttonMarkup = ctaHref
+    ? `                                                a.${buttonClassChain}(href=${JSON.stringify(ctaHref)} target=\"_blank\" universal=\"true\")!= ${JSON.stringify(ctaLabel)}`
+    : `                                                span.${buildPugClassChain(buttonClassChain, "qr-reset-button-disabled")}!= ${JSON.stringify(ctaLabel)}`;
 
   return [
-    "table.row.white-bg.brad-top.bg-col",
+    "table.row.qr-reset-page",
     "    tr",
-    "        td.wrapper.offset-by-one.last",
-    "            table.ten.columns",
+    "        td.pb0",
+    "            table.twelve.columns",
     "                tr",
-    "                    td.six.sub-columns.pt0",
-    `                        img.logo.center.pb5(src=${JSON.stringify(logoUrl)} alt=${JSON.stringify(logoAlt)})`,
+    "                    td.pb0",
+    `                        img.${logoClassChain}(src=${JSON.stringify(logoUrl)} alt=${JSON.stringify(logoAlt)})`,
     "",
-    "table.row.white-bg.bg-bord-r.br-top.bg-bord-top",
-    "    tr.bg-bord-l",
-    "        td.wrapper.last.offset-by-one",
-    "            table.ten.columns",
+    "table.row.qr-reset-page",
+    "    tr",
+    "        td.wrapper.last",
+    `            table.${shellClassChain}`,
     "                tr",
-    "                    td.text-pad-small.pt25.pb20",
-    `                        p.subtitle.center.pb15!= ${JSON.stringify(introTitle)}`,
-    `                        p.text.pb15!= ${JSON.stringify(introBody)}`,
+    "                    td.pb0",
+    `                        table.${cardClassChain}`,
+    "                            tr",
+    "                                td.qr-reset-card-pad",
+    `                                    p.${titleClassChain}!= ${JSON.stringify(introTitle)}`,
+    `                                    p.qr-reset-copy.qr-reset-copy-intro!= ${JSON.stringify(introBody)}`,
+    `                                    p.qr-reset-copy.qr-reset-copy-lead!= ${JSON.stringify(ctaBody)}`,
+    "                                    table.qr-reset-button-wrap",
+    "                                        tr",
+    "                                            td",
+    buttonMarkup,
+    `                                    p.qr-reset-copy.qr-reset-copy-warning!= ${JSON.stringify(warningBody)}`,
     "",
-    "table.row.white-bg.bg-bord-r",
-    "    tr.bg-bord-l",
-    "        td.wrapper.last.offset-by-three.pt0",
-    "            table.six.columns",
+    "table.row.qr-reset-page",
+    "    tr",
+    "        td.wrapper.last",
+    `            table.${shellClassChain}`,
     "                tr",
-    "                    td.pb0.plr20-a",
-    `                        p.text.pb15!= ${JSON.stringify(ctaBody)}`,
-    "                        .button-wrapper",
-    "                            table.medium-button.radius",
-    "                                tr",
-    "                                    td.iq",
-    `                                        a.butt(href=${JSON.stringify(ctaHref)} target=\"_blank\" universal=\"true\")!= ${JSON.stringify(ctaLabel)}`,
-    "",
-    "table.row.white-bg.bg-bord-r.br-bot.bg-bord-bot",
-    "    tr.bg-bord-l",
-    "        td.wrapper.last.offset-by-one",
-    "            table.ten.columns",
-    "                tr",
-    "                    td.text-pad-small.pt17.pb20",
-    `                        p.text.pb15!= ${JSON.stringify(warningBody)}`,
-    `                        p.text.pb15!= ${JSON.stringify(supportBody)}`
+    `                    td.${supportWrapClassChain}`,
+    `                        p.qr-reset-support!= ${JSON.stringify(supportBody)}`
   ].join("\n");
 }
 
-function renderAffPasswordResetFooterPug() {
+function renderAffPasswordResetFooterPug(mail, translationFileKey) {
+  const footerBodyValue = cleanText(mail?.sections?.[4]?.body);
+  if (!footerBodyValue) {
+    return "";
+  }
+
+  const footerBody = getAffPasswordResetToken(translationFileKey, 4, "body");
   return [
-    "table.row.footer.bg-col",
+    "table.row.qr-reset-page",
     "    tr",
-    "        td.pb30.bg-col",
+    "        td.pb30",
     "            table.twelve.columns",
     "                tr",
     "                    td",
-    "                        .mobile-paddding",
-    "                            p.footer-text.center {{embedded.company_address}}",
-    "                            p.footer-text.center",
-    "                                a(href=\"{{embedded.company_terms_link}}\" target=\"_blank\" universal=\"true\") ${{ footer.footer.conditions }}$"
+    "                        .qr-reset-legal-wrap",
+    `                            p.qr-reset-legal-text!= ${JSON.stringify(footerBody)}`
   ].join("\n");
+}
+
+function getSimpleSystemCardToken(translationFileKey, sectionIndex, field) {
+  return makeTranslationToken(translationFileKey, `sections.${getSectionLocaleKey(sectionIndex)}.${field}`);
+}
+
+function buildPugClassChain(...classes) {
+  return classes.map(cleanText).filter(Boolean).join(".");
+}
+
+function getVisualModifierClass(baseClass, modifier) {
+  const normalized = cleanText(modifier);
+  if (!normalized || normalized === "default") {
+    return "";
+  }
+  return `${baseClass}-${normalized}`;
+}
+
+function resolveShapeRadius(shape, radiusMap, fallbackKey) {
+  const normalized = cleanText(shape);
+  if (normalized && radiusMap[normalized]) {
+    return radiusMap[normalized];
+  }
+  return radiusMap[fallbackKey] || "";
+}
+
+function buildSimpleSystemCardThemeTokens(mail) {
+  const visualStyle = normalizeVisualStyleHints(mail?.visual_style);
+  const accent = cleanText(visualStyle.accentColor) || "#4F91F7";
+  const buttonFill = cleanText(visualStyle.buttonFillColor) || accent;
+  const buttonBorder = cleanText(visualStyle.buttonBorderColor) || accent;
+  const buttonText = cleanText(visualStyle.buttonTextColor) || (visualStyle.buttonTone === "outline" ? buttonBorder : "#FFFFFF");
+
+  return {
+    pageBg: cleanText(visualStyle.pageBgColor) || "#F4F6FB",
+    cardBg: cleanText(visualStyle.cardBgColor) || "#FFFFFF",
+    titleColor: cleanText(visualStyle.titleColor) || "#20242F",
+    bodyColor: cleanText(visualStyle.bodyColor) || "#465064",
+    supportColor: cleanText(visualStyle.bodyColor) || "#4F5869",
+    legalColor: "#8F95A6",
+    buttonFill,
+    buttonBorder,
+    buttonText,
+    cardRadius: resolveShapeRadius(visualStyle.cardShape, {
+      sharp: "6px",
+      soft: "18px",
+      round: "28px"
+    }, "soft"),
+    buttonRadius: resolveShapeRadius(visualStyle.buttonShape, {
+      sharp: "4px",
+      soft: "8px",
+      pill: "999px"
+    }, "soft")
+  };
+}
+
+function buildAffPasswordResetThemeTokens(mail) {
+  const visualStyle = normalizeVisualStyleHints(mail?.visual_style);
+  const accent = cleanText(visualStyle.accentColor) || "#FF2746";
+  const buttonFill = cleanText(visualStyle.buttonFillColor) || accent;
+  const buttonBorder = cleanText(visualStyle.buttonBorderColor) || accent;
+  const buttonText = cleanText(visualStyle.buttonTextColor) || (visualStyle.buttonTone === "outline" ? buttonBorder : "#FFFFFF");
+
+  return {
+    pageBg: cleanText(visualStyle.pageBgColor) || "#F3F4FA",
+    cardBg: cleanText(visualStyle.cardBgColor) || "#FFFFFF",
+    titleColor: cleanText(visualStyle.titleColor) || accent,
+    bodyColor: cleanText(visualStyle.bodyColor) || "#3A4050",
+    supportColor: cleanText(visualStyle.bodyColor) || "#3D4353",
+    legalColor: "#8F95A6",
+    buttonFill,
+    buttonBorder,
+    buttonText,
+    cardRadius: resolveShapeRadius(visualStyle.cardShape, {
+      sharp: "6px",
+      soft: "12px",
+      round: "24px"
+    }, "sharp"),
+    buttonRadius: resolveShapeRadius(visualStyle.buttonShape, {
+      sharp: "4px",
+      soft: "10px",
+      pill: "999px"
+    }, "sharp")
+  };
+}
+
+function renderSimpleSystemCardHeaderPug(mail, translationFileKey) {
+  const logoUrl = cleanText(mail?.brand_logo_url);
+  const brandLabel = cleanText(mail?.brand_logo_alt) || "Brand";
+  const visualStyle = normalizeVisualStyleHints(mail?.visual_style);
+  const introTitle = getSimpleSystemCardToken(translationFileKey, 0, "title");
+  const introBody = getSimpleSystemCardToken(translationFileKey, 0, "body");
+  const ctaBody = getSimpleSystemCardToken(translationFileKey, 1, "body");
+  const ctaLabel = getSimpleSystemCardToken(translationFileKey, 1, "cta_label");
+  const warningBody = getSimpleSystemCardToken(translationFileKey, 2, "body");
+  const supportBody = getSimpleSystemCardToken(translationFileKey, 3, "body");
+  const ctaHref = cleanText(mail?.sections?.[1]?.cta_href) || "";
+  const logoClassChain = buildPugClassChain("ssc-logo", "center", getVisualModifierClass("ssc-logo", visualStyle.logoScale));
+  const cardClassChain = buildPugClassChain("ssc-card", getVisualModifierClass("ssc-card", visualStyle.cardDensity));
+  const shellClassChain = buildPugClassChain("twelve", "columns", "ssc-shell", getVisualModifierClass("ssc-shell", visualStyle.cardWidth));
+  const titleClassChain = buildPugClassChain("ssc-title", getVisualModifierClass("ssc-title", visualStyle.titleScale));
+  const buttonClassChain = buildPugClassChain(
+    "ssc-button",
+    getVisualModifierClass("ssc-button", visualStyle.buttonWidth),
+    getVisualModifierClass("ssc-button", visualStyle.buttonTone)
+  );
+  const supportWrapClassChain = buildPugClassChain("ssc-support-wrap", getVisualModifierClass("ssc-support-wrap", visualStyle.supportLayout));
+  const lines = [
+    "table.row.ssc-page",
+    "    tr",
+    "        td.pb0"
+  ];
+
+  if (logoUrl) {
+    lines.push(`            img.${logoClassChain}(src=${JSON.stringify(logoUrl)} alt=${JSON.stringify(brandLabel)})`);
+  } else {
+    lines.push(`            p.ssc-brand-text.center!= ${JSON.stringify(brandLabel)}`);
+  }
+
+  lines.push(
+    "",
+    "table.row.ssc-page",
+    "    tr",
+    "        td.wrapper.last",
+    `            table.${shellClassChain}`,
+    "                tr",
+    "                    td.pb0",
+    `                        table.${cardClassChain}`,
+    "                            tr",
+    "                                td.ssc-card-pad",
+    `                                    p.${titleClassChain}!= ${JSON.stringify(introTitle)}`,
+    `                                    p.ssc-copy.ssc-copy-intro!= ${JSON.stringify(introBody)}`,
+    `                                    p.ssc-copy.ssc-copy-lead!= ${JSON.stringify(ctaBody)}`,
+    "                                    table.ssc-button-wrap",
+    "                                        tr",
+    "                                            td"
+  );
+
+  if (ctaHref) {
+    lines.push(`                                                a.${buttonClassChain}(href=${JSON.stringify(ctaHref)} target=\"_blank\" universal=\"true\")!= ${JSON.stringify(ctaLabel)}`);
+  } else {
+    lines.push(`                                                span.${buildPugClassChain(buttonClassChain, "ssc-button-disabled")}!= ${JSON.stringify(ctaLabel)}`);
+  }
+
+  if (cleanText(mail?.sections?.[2]?.body)) {
+    lines.push(`                                    p.ssc-copy.ssc-copy-warning!= ${JSON.stringify(warningBody)}`);
+  }
+
+  if (cleanText(mail?.sections?.[3]?.body)) {
+    lines.push(
+      "",
+      "table.row.ssc-page",
+      "    tr",
+      "        td.wrapper.last",
+      `            table.${shellClassChain}`,
+      "                tr",
+      `                    td.${supportWrapClassChain}`,
+      `                        p.ssc-support!= ${JSON.stringify(supportBody)}`
+    );
+  }
+
+  return lines.join("\n");
+}
+
+function renderSimpleSystemCardFooterPug(mail, translationFileKey) {
+  const footerBodyValue = cleanText(mail?.sections?.[4]?.body);
+  if (!footerBodyValue) {
+    return "";
+  }
+
+  const footerBody = getSimpleSystemCardToken(translationFileKey, 4, "body");
+  return [
+    "table.row.ssc-page",
+    "    tr",
+    "        td.pb30",
+    "            table.twelve.columns",
+    "                tr",
+    "                    td",
+    "                        .ssc-legal-wrap",
+    `                            p.ssc-legal-text!= ${JSON.stringify(footerBody)}`
+  ].join("\n");
+}
+
+function renderSimpleSystemCardIndexPug() {
+  return [
+    "doctype PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"",
+    "html(xmlns=\"http://www.w3.org/1999/xhtml\")",
+    "    include ../../../../vendor/helpers/mixins",
+    "    include ../../../../vendor/helpers/head",
+    "    body",
+    "        include ../../../../vendor/helpers/preheader",
+    "        table.body",
+    "            tr",
+    "                td(align=\"center\", valign=\"top\").center.bg-col",
+    "                    center",
+    "                        table.container",
+    "                            tr",
+    "                                td",
+    "                                    include blocks/header",
+    "                                    include helpers/footer",
+    "",
+    "        include ../../../../vendor/helpers/gmail-fix"
+  ].join("\n");
+}
+
+function renderSimpleSystemCardMainStylus(mail) {
+  const theme = buildSimpleSystemCardThemeTokens(mail);
+  return `
+*
+  font-family "Roboto", "Helvetica", "Arial", sans-serif !important
+  -webkit-font-smoothing antialiased
+  font-smoothing antialiased
+
+html
+  background ${theme.pageBg} !important
+
+body
+  margin 0 auto !important
+  text-align center !important
+  background ${theme.pageBg} !important
+
+table.body
+  background ${theme.pageBg} !important
+
+.bg-col
+  background ${theme.pageBg} !important
+
+.center
+  text-align center
+  margin 0 auto
+
+.ssc-page
+  background ${theme.pageBg} !important
+
+.ssc-shell
+  width 520px
+  margin 0 auto
+  @media screen and (max-width: 600px)
+    width 100% !important
+
+.ssc-shell-wide
+  width 580px
+  @media screen and (max-width: 600px)
+    width 100% !important
+
+.ssc-shell-narrow
+  width 460px
+  @media screen and (max-width: 600px)
+    width 100% !important
+
+.ssc-logo
+  float none
+  display block
+  margin 0 auto
+  max-width 188px
+  width 188px
+  padding-top 18px
+  padding-bottom 28px
+  height auto
+  @media screen and (max-width: 600px)
+    max-width 164px !important
+    width 164px !important
+    padding-top 12px !important
+    padding-bottom 22px !important
+
+.ssc-logo-wide
+  max-width 212px
+  width 212px
+  @media screen and (max-width: 600px)
+    max-width 176px !important
+    width 176px !important
+
+.ssc-logo-compact
+  max-width 152px
+  width 152px
+  @media screen and (max-width: 600px)
+    max-width 136px !important
+    width 136px !important
+
+.ssc-brand-text
+  margin 0
+  padding-top 18px
+  padding-bottom 28px
+  color ${theme.titleColor}
+  font-size 32px
+  line-height 1.1
+  font-weight 700
+  letter-spacing .01em
+  @media screen and (max-width: 600px)
+    font-size 26px !important
+
+.ssc-card
+  width 100%
+  background ${theme.cardBg}
+  border 1px solid #eaedf4
+  border-radius ${theme.cardRadius}
+
+.ssc-card-airy .ssc-card-pad
+  padding 54px 56px 46px
+  @media screen and (max-width: 600px)
+    padding 34px 26px 30px !important
+
+.ssc-card-compact .ssc-card-pad
+  padding 38px 40px 30px
+  @media screen and (max-width: 600px)
+    padding 28px 22px 22px !important
+
+.ssc-card-pad
+  padding 46px 48px 40px
+  @media screen and (max-width: 600px)
+    padding 30px 24px 26px !important
+
+.ssc-title
+  margin 0 0 28px
+  color ${theme.titleColor}
+  font-size 46px
+  line-height 1.08
+  font-weight 700
+  text-align left
+  @media screen and (max-width: 600px)
+    font-size 36px !important
+    line-height 1.1 !important
+    margin-bottom 20px !important
+
+.ssc-title-hero
+  font-size 54px
+  line-height 1.06
+  margin-bottom 30px
+  @media screen and (max-width: 600px)
+    font-size 38px !important
+
+.ssc-title-compact
+  font-size 38px
+  line-height 1.12
+  margin-bottom 22px
+  @media screen and (max-width: 600px)
+    font-size 32px !important
+
+.ssc-copy
+  margin 0
+  color ${theme.bodyColor}
+  font-size 18px
+  line-height 1.56
+  text-align left
+  font-weight 400
+  @media screen and (max-width: 600px)
+    font-size 16px !important
+    line-height 1.55 !important
+
+.ssc-copy-intro
+  margin-bottom 24px
+
+.ssc-copy-lead
+  margin-bottom 18px
+
+.ssc-copy-warning
+  margin-top 12px
+  color ${theme.bodyColor}
+
+.ssc-button-wrap
+  width 100%
+  margin 0 0 34px
+  border-collapse collapse
+  border-spacing 0
+
+.ssc-button-wrap td
+  padding 0
+  text-align left
+
+.ssc-button
+  display inline-block
+  min-width 248px
+  box-sizing border-box
+  padding 18px 24px
+  border-radius ${theme.buttonRadius}
+  background ${theme.buttonFill}
+  color ${theme.buttonText} !important
+  font-size 19px
+  line-height 1.2
+  font-weight 700
+  text-decoration none
+  text-align center
+  border 2px solid ${theme.buttonBorder}
+  @media screen and (max-width: 600px)
+    min-width 100% !important
+    font-size 17px !important
+
+.ssc-button-wide
+  min-width 292px
+
+.ssc-button-compact
+  min-width 204px
+
+.ssc-button-outline
+  background transparent
+  border 2px solid ${theme.buttonBorder}
+  color ${theme.buttonText} !important
+
+.ssc-button-disabled
+  opacity .74
+
+.ssc-support-wrap
+  padding 34px 48px 18px
+  @media screen and (max-width: 600px)
+    padding 26px 24px 12px !important
+
+.ssc-support-wrap-inline
+  padding-top 22px
+  @media screen and (max-width: 600px)
+    padding-top 18px !important
+
+.ssc-support
+  margin 0
+  color ${theme.supportColor}
+  font-size 18px
+  line-height 1.56
+  text-align center
+  font-weight 400
+  @media screen and (max-width: 600px)
+    font-size 16px !important
+
+.ssc-legal-wrap
+  padding 10px 0 0
+
+.ssc-legal-text
+  margin 0
+  color ${theme.legalColor}
+  font-size 12px
+  line-height 18px
+  text-align center
+`;
+}
+
+function buildSystemNoticeCardThemeTokens(mail) {
+  const visualStyle = normalizeVisualStyleHints(mail?.visual_style);
+  const accent = cleanText(visualStyle.accentColor) || "#F68A2F";
+  const buttonFill = cleanText(visualStyle.buttonFillColor) || accent;
+  const buttonBorder = cleanText(visualStyle.buttonBorderColor) || accent;
+  const buttonText = cleanText(visualStyle.buttonTextColor) || "#FFFFFF";
+
+  return {
+    pageBg: cleanText(visualStyle.pageBgColor) || "#EEF2FA",
+    cardBg: cleanText(visualStyle.cardBgColor) || "#FFFFFF",
+    titleColor: cleanText(visualStyle.titleColor) || "#20242F",
+    bodyColor: cleanText(visualStyle.bodyColor) || "#495466",
+    mutedColor: "#6E7686",
+    accent,
+    calloutBg: "#FFF6EB",
+    calloutBorder: accent,
+    buttonFill,
+    buttonBorder,
+    buttonText,
+    badgeBg: "#F2F4F8",
+    badgeText: "#9097A6",
+    cardRadius: resolveShapeRadius(visualStyle.cardShape, {
+      sharp: "10px",
+      soft: "18px",
+      round: "28px"
+    }, "soft"),
+    buttonRadius: resolveShapeRadius(visualStyle.buttonShape, {
+      sharp: "6px",
+      soft: "12px",
+      pill: "999px"
+    }, "soft")
+  };
+}
+
+function getSystemNoticeCardToken(translationFileKey, sectionIndex, field) {
+  return makeTranslationToken(translationFileKey, `sections.${getSectionLocaleKey(sectionIndex)}.${field}`);
+}
+
+function renderSystemNoticeCardHeaderPug(mail, translationFileKey) {
+  const logoUrl = cleanText(mail?.brand_logo_url) || "https://images01.iqoption.com/89/0689/static-01503674720413810689.png";
+  const logoAlt = cleanText(mail?.brand_logo_alt) || "IQ Option";
+  const visualStyle = normalizeVisualStyleHints(mail?.visual_style);
+  const greetingToken = getSystemNoticeCardToken(translationFileKey, 0, "eyebrow");
+  const titleToken = getSystemNoticeCardToken(translationFileKey, 0, "title");
+  const introToken = getSystemNoticeCardToken(translationFileKey, 0, "body");
+  const reasonTitleToken = getSystemNoticeCardToken(translationFileKey, 1, "title");
+  const reasonBodyToken = getSystemNoticeCardToken(translationFileKey, 1, "body");
+  const ctaToken = getSystemNoticeCardToken(translationFileKey, 2, "cta_label");
+  const supportToken = getSystemNoticeCardToken(translationFileKey, 3, "body");
+  const closingToken = getSystemNoticeCardToken(translationFileKey, 4, "body");
+  const ctaHref = cleanText(mail?.sections?.[2]?.cta_href) || "";
+  const shellClassChain = buildPugClassChain("twelve", "columns", "snc-shell", getVisualModifierClass("snc-shell", visualStyle.cardWidth));
+  const logoClassChain = buildPugClassChain("snc-logo", getVisualModifierClass("snc-logo", visualStyle.logoScale));
+  const titleClassChain = buildPugClassChain("snc-title", getVisualModifierClass("snc-title", visualStyle.titleScale));
+  const buttonClassChain = buildPugClassChain("snc-button", getVisualModifierClass("snc-button", visualStyle.buttonWidth));
+
+  return [
+    "table.row.snc-page",
+    "    tr",
+    "        td.wrapper.last",
+    `            table.${shellClassChain}`,
+    "                tr",
+    "                    td.pb0",
+    "                        table.snc-card",
+    "                            tr",
+    "                                td.snc-card-pad",
+    "                                    table.snc-topbar",
+    "                                        tr",
+    "                                            td.snc-topbar-left",
+    `                                                img.${logoClassChain}(src=${JSON.stringify(logoUrl)} alt=${JSON.stringify(logoAlt)})`,
+    "                                            td.snc-topbar-right",
+    "                                                span.snc-badge NOTICE",
+    `                                    p.snc-greeting!= ${JSON.stringify(greetingToken)}`,
+    `                                    p.${titleClassChain}!= ${JSON.stringify(titleToken)}`,
+    `                                    p.snc-copy.snc-copy-intro!= ${JSON.stringify(introToken)}`,
+    `                                    p.snc-reason-title!= ${JSON.stringify(reasonTitleToken)}`,
+    "                                    .snc-callout",
+    `                                        p.snc-callout-copy!= ${JSON.stringify(reasonBodyToken)}`,
+    "                                    table.snc-button-wrap",
+    "                                        tr",
+    "                                            td"
+  ].concat(
+    ctaHref
+      ? [`                                                a.${buttonClassChain}(href=${JSON.stringify(ctaHref)} target=\"_blank\" universal=\"true\")!= ${JSON.stringify(ctaToken)}`]
+      : [`                                                span.${buildPugClassChain(buttonClassChain, "snc-button-disabled")}!= ${JSON.stringify(ctaToken)}`],
+    [
+      cleanText(mail?.sections?.[3]?.body)
+        ? `                                    p.snc-copy.snc-copy-support!= ${JSON.stringify(supportToken)}`
+        : "",
+      "                            tr",
+      "                                td.snc-card-ack",
+      `                                    p.snc-ack!= ${JSON.stringify(closingToken)}`
+    ].filter(Boolean)
+  ).join("\n");
+}
+
+function renderSystemNoticeCardFooterPug() {
+  return [
+    "table.row.snc-footer",
+    "    tr",
+    "        td.pb30",
+    "            table.twelve.columns",
+    "                tr",
+    "                    td",
+    "                        .snc-footer-pad",
+    "                            p.snc-footer-address {{embedded.company_address}}",
+    "                            p.snc-footer-warning {{embedded.risk_warning}}",
+    "                            p.snc-footer-links",
+    "                                a(href='https://iqoption.com/terms-and-conditions' target='_blank') ${{ footer.footer.conditions }}$",
+    "                                |  |",
+    "                                a(href='{{embedded.unsubscribe_link}}' target='_blank') ${{ footer.footer.unsubscribe }}$"
+  ].join("\n");
+}
+
+function renderSystemNoticeCardIndexPug() {
+  return [
+    "doctype PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"",
+    "html(xmlns=\"http://www.w3.org/1999/xhtml\")",
+    "    include ../../../../vendor/helpers/mixins",
+    "    include ../../../../vendor/helpers/head",
+    "    body",
+    "        include ../../../../vendor/helpers/preheader",
+    "        table.body",
+    "            tr",
+    "                td(align=\"center\", valign=\"top\").center.bg-col",
+    "                    center",
+    "                        table.container",
+    "                            tr",
+    "                                td",
+    "                                    include blocks/header",
+    "                                    include helpers/footer",
+    "",
+    "        include ../../../../vendor/helpers/gmail-fix"
+  ].join("\n");
+}
+
+function renderSystemNoticeCardMainStylus(mail) {
+  const theme = buildSystemNoticeCardThemeTokens(mail);
+  return `
+*
+  font-family "Roboto", "Helvetica", "Arial", sans-serif !important
+
+html
+  background ${theme.pageBg} !important
+
+body
+  margin 0 auto !important
+  text-align center !important
+  background ${theme.pageBg} !important
+
+table.body
+  background ${theme.pageBg} !important
+
+.bg-col
+  background ${theme.pageBg} !important
+
+.center
+  text-align center
+  margin 0 auto
+
+.snc-page
+  background ${theme.pageBg} !important
+
+.snc-shell
+  width 580px
+  margin 0 auto
+  @media screen and (max-width: 600px)
+    width 100% !important
+
+.snc-shell-narrow
+  width 520px
+  @media screen and (max-width: 600px)
+    width 100% !important
+
+.snc-logo
+  display block
+  float none
+  max-width 134px
+  width 134px
+  height auto
+
+.snc-logo-wide
+  max-width 148px
+  width 148px
+
+.snc-logo-compact
+  max-width 118px
+  width 118px
+
+.snc-card
+  width 100%
+  background ${theme.cardBg}
+  border-radius ${theme.cardRadius}
+  border 1px solid #E7EBF3
+
+.snc-card-pad
+  padding 28px 40px 0
+  @media screen and (max-width: 600px)
+    padding 22px 24px 0 !important
+
+.snc-topbar
+  width 100%
+  margin 0 0 28px
+
+.snc-topbar-left
+  text-align left
+  vertical-align middle
+
+.snc-topbar-right
+  text-align right
+  vertical-align middle
+
+.snc-badge
+  display inline-block
+  padding 7px 12px
+  border-radius 6px
+  background ${theme.badgeBg}
+  color ${theme.badgeText}
+  font-size 12px
+  line-height 1
+  font-weight 700
+  letter-spacing .06em
+
+.snc-greeting
+  margin 0 0 18px
+  color ${theme.titleColor}
+  font-size 18px
+  line-height 1.45
+  font-weight 700
+  text-align left
+
+.snc-title
+  margin 0 0 24px
+  color ${theme.titleColor}
+  font-size 54px
+  line-height 1.05
+  font-weight 700
+  text-align left
+  @media screen and (max-width: 600px)
+    font-size 38px !important
+    line-height 1.08 !important
+
+.snc-title-hero
+  font-size 58px
+  line-height 1.03
+  @media screen and (max-width: 600px)
+    font-size 40px !important
+
+.snc-title-compact
+  font-size 44px
+  line-height 1.08
+  @media screen and (max-width: 600px)
+    font-size 34px !important
+
+.snc-copy
+  margin 0
+  color ${theme.bodyColor}
+  font-size 18px
+  line-height 1.56
+  text-align left
+  font-weight 400
+  @media screen and (max-width: 600px)
+    font-size 16px !important
+
+.snc-copy-intro
+  margin-bottom 22px
+
+.snc-reason-title
+  margin 0 0 14px
+  color ${theme.titleColor}
+  font-size 18px
+  line-height 1.45
+  font-weight 700
+  text-align left
+
+.snc-callout
+  margin 0 0 28px
+  padding 18px 22px
+  border-left 4px solid ${theme.calloutBorder}
+  background ${theme.calloutBg}
+
+.snc-callout-copy
+  margin 0
+  color ${theme.titleColor}
+  font-size 18px
+  line-height 1.45
+  text-align left
+  font-weight 400
+
+.snc-button-wrap
+  width 100%
+  margin 0 0 28px
+  border-collapse collapse
+  border-spacing 0
+
+.snc-button-wrap td
+  padding 0
+  text-align left
+
+.snc-button
+  display inline-block
+  min-width 240px
+  box-sizing border-box
+  padding 17px 26px
+  border-radius ${theme.buttonRadius}
+  background ${theme.buttonFill}
+  border 2px solid ${theme.buttonBorder}
+  color ${theme.buttonText} !important
+  text-decoration none
+  text-align center
+  font-size 19px
+  line-height 1.2
+  font-weight 700
+  @media screen and (max-width: 600px)
+    min-width 100% !important
+    font-size 17px !important
+
+.snc-button-wide
+  min-width 280px
+
+.snc-button-compact
+  min-width 204px
+
+.snc-button-disabled
+  opacity .76
+
+.snc-copy-support
+  margin-bottom 28px
+
+.snc-copy-support a
+  color #4F86FF !important
+  text-decoration underline !important
+
+.snc-card-ack
+  padding 24px 40px 30px
+  border-top 1px solid #E8EBF2
+  @media screen and (max-width: 600px)
+    padding 20px 24px 26px !important
+
+.snc-ack
+  margin 0
+  color ${theme.mutedColor}
+  font-size 18px
+  line-height 1.5
+  text-align left
+
+.snc-footer
+  background ${theme.pageBg} !important
+
+.snc-footer-pad
+  padding 24px 0 0
+
+.snc-footer-address,
+.snc-footer-warning
+  margin 0 0 14px
+  color #8C93A3
+  font-size 12px
+  line-height 18px
+  text-align center
+
+.snc-footer-links
+  margin 0
+  color #8C93A3
+  font-size 12px
+  line-height 18px
+  text-align center
+
+.snc-footer-links a
+  color #8C93A3 !important
+  text-decoration underline !important
+`;
 }
 
 function renderAffPasswordResetIndexPug() {
@@ -2646,6 +5180,220 @@ function renderAffPasswordResetIndexPug() {
     "",
     "        include ../../../../vendor/helpers/gmail-fix"
   ].join("\n");
+}
+
+function renderAffPasswordResetMainStylus(mail) {
+  const theme = buildAffPasswordResetThemeTokens(mail);
+  return `
+*
+  font-family "Roboto", "Helvetica", "Arial", sans-serif !important
+  -webkit-font-smoothing antialiased
+  font-smoothing antialiased
+
+html
+  background ${theme.pageBg} !important
+
+body
+  margin 0 auto !important
+  text-align center !important
+  background ${theme.pageBg} !important
+
+table.body
+  background ${theme.pageBg} !important
+
+.bg-col
+  background ${theme.pageBg} !important
+
+.center
+  text-align center
+  margin 0 auto
+
+.qr-reset-page
+  background ${theme.pageBg} !important
+
+.qr-reset-shell
+  width 520px
+  margin 0 auto
+  @media screen and (max-width: 600px)
+    width 100% !important
+
+.qr-reset-shell-wide
+  width 580px
+  @media screen and (max-width: 600px)
+    width 100% !important
+
+.qr-reset-shell-narrow
+  width 460px
+  @media screen and (max-width: 600px)
+    width 100% !important
+
+.qr-reset-logo
+  float none
+  display block
+  margin 0 auto
+  max-width 236px
+  width 236px
+  padding-top 18px
+  padding-bottom 30px
+  height auto
+  @media screen and (max-width: 600px)
+    max-width 200px !important
+    width 200px !important
+    padding-top 8px !important
+    padding-bottom 22px !important
+
+.qr-reset-logo-wide
+  max-width 252px
+  width 252px
+  @media screen and (max-width: 600px)
+    max-width 208px !important
+    width 208px !important
+
+.qr-reset-logo-compact
+  max-width 196px
+  width 196px
+  @media screen and (max-width: 600px)
+    max-width 176px !important
+    width 176px !important
+
+.qr-reset-card
+  width 100%
+  background ${theme.cardBg}
+  border-radius ${theme.cardRadius}
+
+.qr-reset-card-airy .qr-reset-card-pad
+  padding 62px 60px 54px
+  @media screen and (max-width: 600px)
+    padding 36px 28px 30px !important
+
+.qr-reset-card-compact .qr-reset-card-pad
+  padding 48px 48px 40px
+  @media screen and (max-width: 600px)
+    padding 30px 24px 24px !important
+
+.qr-reset-card-pad
+  padding 58px 56px 48px
+  @media screen and (max-width: 600px)
+    padding 34px 26px 28px !important
+
+.qr-reset-title
+  margin 0 0 42px
+  color ${theme.titleColor}
+  font-size 62px
+  line-height 1.03
+  font-weight 700
+  text-align left
+  @media screen and (max-width: 600px)
+    font-size 42px !important
+    line-height 1.06 !important
+    margin-bottom 28px !important
+
+.qr-reset-title-hero
+  font-size 68px
+  @media screen and (max-width: 600px)
+    font-size 44px !important
+
+.qr-reset-title-compact
+  font-size 54px
+  line-height 1.06
+  margin-bottom 34px
+  @media screen and (max-width: 600px)
+    font-size 38px !important
+
+.qr-reset-copy
+  margin 0
+  color ${theme.bodyColor}
+  font-size 19px
+  line-height 1.54
+  text-align left
+  font-weight 400
+  @media screen and (max-width: 600px)
+    font-size 16px !important
+    line-height 1.55 !important
+
+.qr-reset-copy-intro
+  margin-bottom 30px
+
+.qr-reset-copy-lead
+  margin-bottom 26px
+
+.qr-reset-copy-warning
+  margin-top 8px
+
+.qr-reset-button-wrap
+  width 100%
+  margin 0 0 40px
+  border-collapse collapse
+  border-spacing 0
+
+.qr-reset-button-wrap td
+  padding 0
+  text-align center
+
+.qr-reset-button
+  display inline-block
+  width 100%
+  max-width 520px
+  box-sizing border-box
+  padding 24px 22px
+  border 2px solid ${theme.buttonBorder}
+  border-radius ${theme.buttonRadius}
+  color ${theme.buttonText} !important
+  font-size 20px
+  line-height 1.2
+  font-weight 700
+  letter-spacing .02em
+  text-transform uppercase
+  text-decoration none
+  text-align center
+  @media screen and (max-width: 600px)
+    font-size 17px !important
+    padding 20px 16px !important
+
+.qr-reset-button-wide
+  max-width 560px
+
+.qr-reset-button-compact
+  max-width 420px
+
+.qr-reset-button-solid
+  background ${theme.buttonFill}
+  color ${theme.buttonText} !important
+
+.qr-reset-support-wrap
+  padding 42px 46px 24px
+  @media screen and (max-width: 600px)
+    padding 28px 20px 14px !important
+
+.qr-reset-support-wrap-inline
+  padding-top 28px
+  @media screen and (max-width: 600px)
+    padding-top 20px !important
+
+.qr-reset-support
+  margin 0
+  color ${theme.supportColor}
+  font-size 18px
+  line-height 1.55
+  text-align center
+  font-weight 400
+  @media screen and (max-width: 600px)
+    font-size 16px !important
+
+.qr-reset-legal-wrap
+  padding 8px 0 0
+
+.qr-reset-legal-text
+  margin 0
+  color ${theme.legalColor}
+  font-size 12px
+  line-height 18px
+  text-align center
+
+.qr-reset-legal-text a
+  color ${theme.legalColor} !important
+  text-decoration underline
+`;
 }
 
 function renderSystemVerificationIndexPug() {
@@ -2692,6 +5440,35 @@ function renderSystemVerificationExtraStylus() {
 `;
 }
 
+function renderPugBlocksIndexPug() {
+  return [
+    "doctype PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"",
+    "html(xmlns=\"http://www.w3.org/1999/xhtml\")",
+    "    include ../../../../vendor/helpers/mixins",
+    "    include ../../../../vendor/helpers/head",
+    "    body",
+    "        include ../../../../vendor/helpers/preheader",
+    "        table.body",
+    "            tr",
+    "                td(align=\"center\", valign=\"top\").center.bg-col",
+    "                    center",
+    "                        table.container",
+    "                            tr",
+    "                                td",
+    "                                    include blocks/header",
+    "",
+    "        include ../../../../vendor/helpers/gmail-fix"
+  ].join("\n");
+}
+
+function renderPugBlocksHeaderPug(pugBlocks) {
+  // Each block is preceded by a comment label, then the actual pug_code.
+  // Blocks are separated by a blank line for readability.
+  return pugBlocks
+    .map((b) => `// --- ${b.label} ---\n${b.pug_code}`)
+    .join("\n\n");
+}
+
 async function writeEmailBaseDraftFiles({
   mailRoot,
   templatesRoot,
@@ -2701,7 +5478,8 @@ async function writeEmailBaseDraftFiles({
   stylePath,
   mail,
   translationFileKey,
-  payload
+  payload,
+  pugBlocks = []
 }) {
   const profile = getEmailBaseTemplateProfile(payload, mail);
 
@@ -2737,16 +5515,73 @@ async function writeEmailBaseDraftFiles({
     const referenceAssetsRoot = path.join(referenceRoot, "app", "assets");
     const headerPath = path.join(templatesRoot, "blocks", "header.pug");
     const footerPath = path.join(templatesRoot, "helpers", "footer.pug");
+    const mainStylePath = path.join(stylesRoot, "blocks", "main.styl");
 
     await mkdir(path.join(templatesRoot, "blocks"), { recursive: true });
     await mkdir(path.join(templatesRoot, "helpers"), { recursive: true });
+    await mkdir(path.join(stylesRoot, "blocks"), { recursive: true });
     await cp(referenceStylesRoot, stylesRoot, { recursive: true });
     if (existsSync(referenceAssetsRoot)) {
       await cp(referenceAssetsRoot, assetsRoot, { recursive: true });
     }
     await writeFile(templatePath, renderAffPasswordResetIndexPug(), "utf8");
     await writeFile(headerPath, renderAffPasswordResetHeaderPug(mail, translationFileKey), "utf8");
-    await writeFile(footerPath, renderAffPasswordResetFooterPug(), "utf8");
+    await writeFile(footerPath, renderAffPasswordResetFooterPug(mail, translationFileKey), "utf8");
+    await writeFile(mainStylePath, renderAffPasswordResetMainStylus(mail).trimStart(), "utf8");
+
+    return {
+      profile,
+      templatePath,
+      stylePath
+    };
+  }
+
+  if (profile === "system-notice-card") {
+    const referenceRoot = getSystemNoticeCardReferenceRoot();
+    const referenceStylesRoot = path.join(referenceRoot, "app", "styles");
+    const referenceAssetsRoot = path.join(referenceRoot, "app", "assets");
+    const headerPath = path.join(templatesRoot, "blocks", "header.pug");
+    const footerPath = path.join(templatesRoot, "helpers", "footer.pug");
+    const mainStylePath = path.join(stylesRoot, "blocks", "main.styl");
+
+    await mkdir(path.join(templatesRoot, "blocks"), { recursive: true });
+    await mkdir(path.join(templatesRoot, "helpers"), { recursive: true });
+    await mkdir(path.join(stylesRoot, "blocks"), { recursive: true });
+    await cp(referenceStylesRoot, stylesRoot, { recursive: true });
+    if (existsSync(referenceAssetsRoot)) {
+      await cp(referenceAssetsRoot, assetsRoot, { recursive: true });
+    }
+    await writeFile(templatePath, renderSystemNoticeCardIndexPug(), "utf8");
+    await writeFile(headerPath, renderSystemNoticeCardHeaderPug(mail, translationFileKey), "utf8");
+    await writeFile(footerPath, renderSystemNoticeCardFooterPug(), "utf8");
+    await writeFile(mainStylePath, renderSystemNoticeCardMainStylus(mail).trimStart(), "utf8");
+
+    return {
+      profile,
+      templatePath,
+      stylePath
+    };
+  }
+
+  if (profile === "simple-system-card") {
+    const referenceRoot = getSimpleSystemCardReferenceRoot();
+    const referenceStylesRoot = path.join(referenceRoot, "app", "styles");
+    const referenceAssetsRoot = path.join(referenceRoot, "app", "assets");
+    const headerPath = path.join(templatesRoot, "blocks", "header.pug");
+    const footerPath = path.join(templatesRoot, "helpers", "footer.pug");
+    const mainStylePath = path.join(stylesRoot, "blocks", "main.styl");
+
+    await mkdir(path.join(templatesRoot, "blocks"), { recursive: true });
+    await mkdir(path.join(templatesRoot, "helpers"), { recursive: true });
+    await mkdir(path.join(stylesRoot, "blocks"), { recursive: true });
+    await cp(referenceStylesRoot, stylesRoot, { recursive: true });
+    if (existsSync(referenceAssetsRoot)) {
+      await cp(referenceAssetsRoot, assetsRoot, { recursive: true });
+    }
+    await writeFile(templatePath, renderSimpleSystemCardIndexPug(), "utf8");
+    await writeFile(headerPath, renderSimpleSystemCardHeaderPug(mail, translationFileKey), "utf8");
+    await writeFile(footerPath, renderSimpleSystemCardFooterPug(mail, translationFileKey), "utf8");
+    await writeFile(mainStylePath, renderSimpleSystemCardMainStylus(mail).trimStart(), "utf8");
 
     return {
       profile,
@@ -2757,8 +5592,23 @@ async function writeEmailBaseDraftFiles({
 
   await mkdir(templatesRoot, { recursive: true });
   await mkdir(stylesRoot, { recursive: true });
-  await writeFile(templatePath, renderStudioEmailBaseTemplate(mail, translationFileKey), "utf8");
   await writeFile(stylePath, renderStudioCommonStylus().trimStart(), "utf8");
+
+  // If the AI produced pug_blocks, write a proper vendor-mixin-based index.pug + blocks/header.pug.
+  // Otherwise fall back to the legacy section-based template.
+  if (Array.isArray(pugBlocks) && pugBlocks.length > 0) {
+    const headerPath = path.join(templatesRoot, "blocks", "header.pug");
+    await mkdir(path.join(templatesRoot, "blocks"), { recursive: true });
+    await writeFile(templatePath, renderPugBlocksIndexPug(), "utf8");
+    await writeFile(headerPath, renderPugBlocksHeaderPug(pugBlocks), "utf8");
+    return {
+      profile: `${profile}+pug_blocks`,
+      templatePath,
+      stylePath
+    };
+  }
+
+  await writeFile(templatePath, renderStudioEmailBaseTemplate(mail, translationFileKey), "utf8");
 
   return {
     profile,
@@ -2790,11 +5640,36 @@ function canUseReferenceTemplatePreview(payload) {
   const selection = getReferenceTemplateSelection(payload);
   const category = cleanText(selection?.category);
   const mailId = cleanText(selection?.mailId);
-  if (category !== "X_IQ" || !/^rfm-/i.test(mailId)) {
+  const selectionProfile = cleanText(selection?.profile);
+  const inferredProfile = cleanText(getEmailBaseTemplateProfile(payload, payload?.currentDraft || {}));
+  const templateRootExists = Boolean(
+    category
+    && mailId
+    && existsSync(path.join(emailBaseRoot, category, `mail-${mailId}`, "app", "templates"))
+  );
+  if (!templateRootExists) {
     return false;
   }
 
-  return existsSync(path.join(emailBaseRoot, category, `mail-${mailId}`, "app", "templates"));
+  if (category === "X_IQ" && /^rfm-/i.test(mailId)) {
+    return true;
+  }
+
+  // Special profiles already have dedicated email-base builders that produce
+  // cleaner output than the raw reference template override flow.
+  if (["aff-password-reset", "system-verification", "simple-system-card", "system-notice-card"].includes(selectionProfile)
+    || ["aff-password-reset", "system-verification", "simple-system-card", "system-notice-card"].includes(inferredProfile)) {
+    return false;
+  }
+
+  return Boolean(
+    payload?.screenshotOcr?.usable
+    && hasVisualDesignInput(payload)
+    && !hasStructuredFigmaInput(payload)
+    && !payload?.baseEmailHtml
+    && cleanText(selection?.source) !== "fallback"
+    && (Number(selection?.score) > 0 || cleanText(selection?.profile))
+  );
 }
 
 function isIqRfmReferenceSelection(selection) {
@@ -3153,6 +6028,7 @@ async function buildReferenceEmailBasePreviewFromDraft(payload, rawDraft) {
     };
     const draftSnapshot = createDraftSnapshot(savedMail, null, {
       assetRecommendations: buildAssetRecommendations(savedMail, {
+        ...payload,
         assetInputs: payload.assetInputs,
         assetRegistryItems: payload.assetRegistryItems.length > 0 ? payload.assetRegistryItems : assetRegistry.items
       }),
@@ -3315,6 +6191,7 @@ async function buildTemporaryEmailBasePreviewFromDraft(payload, rawDraft) {
     };
     const draftSnapshot = createDraftSnapshot(savedMail, null, {
       assetRecommendations: buildAssetRecommendations(savedMail, {
+        ...payload,
         assetInputs: payload.assetInputs,
         assetRegistryItems: payload.assetRegistryItems.length > 0 ? payload.assetRegistryItems : assetRegistry.items
       }),
@@ -3389,6 +6266,11 @@ async function createEmailBaseMailFromDraft(payload, rawDraft) {
     ? draftSnapshotSource.mail
     : rawDraft;
   const mail = normalizeMail(mailSource, payload);
+
+  // Extract AI-generated pug_blocks from the draft (not stripped by normalizeMail).
+  const pugBlocks = Array.isArray(mailSource?.pug_blocks)
+    ? mailSource.pug_blocks.filter((b) => b && cleanText(b.label) && cleanText(b.pug_code))
+    : [];
   const translationFileKey = getStudioTranslationFileKey(mailId);
   const locales = Array.from(new Set((mail.translations || []).map((entry) => normalizeLocaleCode(entry.locale)).filter(Boolean)));
   const primaryLocale = normalizeLocaleCode(payload.brief.locale || mail.locale || locales[0] || "en");
@@ -3441,7 +6323,8 @@ async function createEmailBaseMailFromDraft(payload, rawDraft) {
     stylePath,
     mail,
     translationFileKey,
-    payload
+    payload,
+    pugBlocks
   });
   await applyWorkspaceFileOverrides(mailRoot, draftSnapshotSource.workspaceFiles);
   await writeFile(metaPath, JSON.stringify({
@@ -3504,6 +6387,7 @@ async function createEmailBaseMailFromDraft(payload, rawDraft) {
   };
   const draftSnapshot = createDraftSnapshot(savedMail, null, {
     assetRecommendations: buildAssetRecommendations(savedMail, {
+      ...payload,
       assetInputs: payload.assetInputs,
       assetRegistryItems: payload.assetRegistryItems.length > 0 ? payload.assetRegistryItems : assetRegistry.items
     }),
@@ -3752,6 +6636,379 @@ function extractEmailHtmlContentMap(html) {
   };
 }
 
+function buildNormalizedContentMapSections(contentMap) {
+  if (!contentMap || typeof contentMap !== "object") {
+    return [];
+  }
+
+  const preheader = cleanText(contentMap.preheader);
+  const ctaLabels = new Set(
+    (Array.isArray(contentMap.links) ? contentMap.links : [])
+      .map((entry) => cleanText(entry?.text).toLowerCase())
+      .filter(Boolean)
+  );
+  const sections = [];
+
+  for (const entry of Array.isArray(contentMap.sections) ? contentMap.sections : []) {
+    const text = cleanText(entry);
+    const normalized = text.toLowerCase();
+
+    if (!text) continue;
+    if (preheader && text === preheader) continue;
+    if (ctaLabels.has(normalized)) continue;
+    if (/terms and unsubscribe|terms and conditions|unsubscribe|отписаться|условия и положения/i.test(text)) continue;
+    if (sections.includes(text)) continue;
+
+    sections.push(text);
+  }
+
+  return sections;
+}
+
+function pickContentMapHeading(contentMap, normalizedSections = []) {
+  const sections = normalizedSections.length > 0
+    ? normalizedSections
+    : buildNormalizedContentMapSections(contentMap);
+
+  return cleanText(
+    sections.find((line) => line.length <= 140 && !/[.!?…:]\s*$/.test(line))
+    || sections[0]
+  );
+}
+
+function pickContentMapLead(contentMap, normalizedSections = []) {
+  const sections = normalizedSections.length > 0
+    ? normalizedSections
+    : buildNormalizedContentMapSections(contentMap);
+  const heading = pickContentMapHeading(contentMap, sections);
+
+  return cleanText(
+    sections.find((line) => line !== heading && line.length >= 48)
+    || sections.find((line) => line !== heading)
+    || contentMap?.preheader
+  );
+}
+
+function buildTranslationEntryFromContentMap(contentMap, locale, mail, sourceName = "") {
+  if (!contentMap || typeof contentMap !== "object") {
+    return null;
+  }
+
+  const normalizedSections = buildNormalizedContentMapSections(contentMap);
+  const heading = pickContentMapHeading(contentMap, normalizedSections);
+  const lead = pickContentMapLead(contentMap, normalizedSections);
+  const ctaLabels = Array.isArray(contentMap.links)
+    ? contentMap.links
+      .map((entry) => cleanText(entry?.text))
+      .filter(Boolean)
+      .slice(0, 3)
+    : [];
+  const bodyBlocks = normalizedSections.length > 0
+    ? normalizedSections
+    : Array.isArray(contentMap.sections)
+      ? contentMap.sections.map(cleanText).filter(Boolean)
+      : [];
+
+  if (!cleanText(contentMap.subject) && !cleanText(contentMap.preheader) && !heading && bodyBlocks.length === 0 && ctaLabels.length === 0) {
+    return null;
+  }
+
+  return normalizeTranslationEntry({
+    locale: normalizeLocaleCode(locale) || normalizeLocaleCode(mail?.locale) || "en",
+    subject: cleanText(contentMap.subject) || heading || cleanText(mail?.subject),
+    preheader: cleanText(contentMap.preheader) || lead || cleanText(mail?.preheader),
+    cta_labels: ctaLabels,
+    notes: "Derived from attached base email HTML",
+    body_blocks: bodyBlocks,
+    source_name: sourceName || "clone-edit-base-email.txt"
+  }, mail || {});
+}
+
+function upsertInlineStyleValue(styleText, property, value) {
+  const propertyName = cleanText(property).toLowerCase();
+  const nextValue = cleanText(value);
+  const existing = cleanText(styleText);
+  if (!propertyName || !nextValue) {
+    return existing;
+  }
+
+  const declarations = existing
+    .split(";")
+    .map((item) => item.trim())
+    .filter(Boolean);
+  let replaced = false;
+
+  const nextDeclarations = declarations.map((item) => {
+    const [rawName, ...rest] = item.split(":");
+    const name = cleanText(rawName).toLowerCase();
+    if (name !== propertyName) {
+      return item;
+    }
+    replaced = true;
+    return `${propertyName}: ${nextValue}`;
+  });
+
+  if (!replaced) {
+    nextDeclarations.push(`${propertyName}: ${nextValue}`);
+  }
+
+  return nextDeclarations.join("; ");
+}
+
+function patchFirstTagInlineStyle(html, tagRegex, updates = {}) {
+  let changed = false;
+  const nextHtml = String(html || "").replace(tagRegex, (tag) => {
+    let nextTag = tag;
+    const styleMatch = nextTag.match(/\sstyle=(["'])([\s\S]*?)\1/i);
+    let styleText = styleMatch ? styleMatch[2] : "";
+
+    for (const [property, value] of Object.entries(updates || {})) {
+      const nextStyle = upsertInlineStyleValue(styleText, property, value);
+      if (nextStyle !== styleText) {
+        styleText = nextStyle;
+        changed = true;
+      }
+    }
+
+    if (!changed) {
+      return tag;
+    }
+
+    if (styleMatch) {
+      nextTag = nextTag.replace(styleMatch[0], ` style="${styleText}"`);
+    } else {
+      nextTag = nextTag.replace(/<([a-z0-9:-]+)/i, `<$1 style="${styleText}"`);
+    }
+
+    return nextTag;
+  });
+
+  return { html: nextHtml, changed };
+}
+
+function patchHtmlFragmentStyle(fragment, updates = {}) {
+  const rootTagMatch = String(fragment || "").match(/^<([a-z0-9:-]+)\b[\s\S]*?>/i);
+  if (!rootTagMatch) {
+    return { html: String(fragment || ""), changed: false };
+  }
+
+  const tagName = rootTagMatch[1];
+  return patchFirstTagInlineStyle(String(fragment || ""), new RegExp(`<${tagName}\\b[\\s\\S]*?>`, "i"), updates);
+}
+
+function looksLikePrimaryCtaLabel(text) {
+  const value = cleanText(stripTags(text || ""));
+  if (!value || value.length > 160) {
+    return false;
+  }
+  if (/unsubscribe|terms|privacy|conditions|отпис|услов/i.test(value)) {
+    return false;
+  }
+  return /(set new password|reset password|leave review|trade|open|learn|start|continue|confirm|verify|download|join|log in|sign in|оставить|подтверд|сброс|парол|открыть|скачать|войти)/i.test(value);
+}
+
+function userRequestedBlankLinks(payload) {
+  const latestUserMessage = cleanText(getLatestUserMessage(payload));
+  return /(ссылк[^\n]{0,40}пуст|leave links empty|href empty|empty href|links? blank)/i.test(latestUserMessage);
+}
+
+function findFirstPrimaryCtaBlock(html) {
+  const source = String(html || "");
+  const tableRegex = /<table\b[\s\S]{0,2400}?<a\b[^>]*>([\s\S]{1,220}?)<\/a>[\s\S]{0,2400}?<\/table>/ig;
+  let match = null;
+  while ((match = tableRegex.exec(source))) {
+    const tableHtml = match[0] || "";
+    const tableText = cleanText(stripTags(tableHtml));
+    const paragraphCount = (tableHtml.match(/<p\b/gi) || []).length;
+    if (/<img\b/i.test(tableHtml) || paragraphCount > 1 || tableText.length > 260) {
+      continue;
+    }
+    if (looksLikePrimaryCtaLabel(match[1])) {
+      return {
+        html: tableHtml,
+        start: match.index,
+        end: match.index + tableHtml.length,
+        kind: "table"
+      };
+    }
+  }
+
+  const anchorRegex = /<a\b[^>]*>([\s\S]{1,220}?)<\/a>/ig;
+  while ((match = anchorRegex.exec(source))) {
+    if (looksLikePrimaryCtaLabel(match[1])) {
+      return {
+        html: match[0],
+        start: match.index,
+        end: match.index + match[0].length,
+        kind: "anchor"
+      };
+    }
+  }
+
+  return null;
+}
+
+function applyDeterministicCloneEditFallback(payload) {
+  const originalHtml = cleanText(payload?.baseEmailHtml);
+  if (!originalHtml) {
+    return { html: "", changed: false, appliedRules: [] };
+  }
+
+  const latestUserMessage = cleanText(getLatestUserMessage(payload));
+  const wantsSpacing = /(отступ|spacing|space|gap|margin|padding|воздух)/i.test(latestUserMessage);
+  const wantsMoveCtaUnderImage = /((кнопк|cta).*(под|после).*(картин|image|hero))|((кнопк|cta).*(над|before).*(текст|text))|((move|put).*(button|cta).*(under|below).*(image|picture))/i.test(latestUserMessage);
+  const wantsEmptyLinks = userRequestedBlankLinks(payload);
+
+  let html = originalHtml;
+  let changed = false;
+  const appliedRules = [];
+
+  if (wantsEmptyLinks) {
+    const nextHtml = html.replace(/href=(["'])(?!mailto:|tel:)[^"']*\1/gi, 'href=""');
+    if (nextHtml !== html) {
+      html = nextHtml;
+      changed = true;
+      appliedRules.push("blank-links");
+    }
+  }
+
+  const firstImageMatch = html.match(/<img\b[^>]*>/i);
+  if (firstImageMatch && (wantsSpacing || wantsMoveCtaUnderImage)) {
+    const patchedImage = patchFirstTagInlineStyle(html, /<img\b[^>]*>/i, {
+      "display": "block",
+      "margin-bottom": wantsMoveCtaUnderImage ? "24px" : "20px"
+    });
+    if (patchedImage.changed) {
+      html = patchedImage.html;
+      changed = true;
+      appliedRules.push("image-spacing");
+    }
+  }
+
+  const ctaBlock = findFirstPrimaryCtaBlock(html);
+  if (ctaBlock && (wantsSpacing || wantsMoveCtaUnderImage)) {
+    const ctaStyled = patchHtmlFragmentStyle(ctaBlock.html, {
+      "margin-top": wantsMoveCtaUnderImage ? "24px" : "16px",
+      "margin-bottom": "24px"
+    });
+
+    let nextBlockHtml = ctaStyled.html;
+    if (ctaBlock.kind === "anchor") {
+      const anchorStyled = patchFirstTagInlineStyle(nextBlockHtml, /<a\b[^>]*>/i, {
+        "display": "inline-block",
+        "margin-top": wantsMoveCtaUnderImage ? "24px" : "16px",
+        "margin-bottom": "24px"
+      });
+      nextBlockHtml = anchorStyled.html;
+    }
+
+    if (nextBlockHtml !== ctaBlock.html) {
+      html = `${html.slice(0, ctaBlock.start)}${nextBlockHtml}${html.slice(ctaBlock.end)}`;
+      changed = true;
+      appliedRules.push("cta-spacing");
+    }
+  }
+
+  if (wantsMoveCtaUnderImage) {
+    const latestImageMatch = html.match(/<img\b[^>]*>/i);
+    const latestCtaBlock = findFirstPrimaryCtaBlock(html);
+    if (latestImageMatch && latestCtaBlock) {
+      const imageEnd = latestImageMatch.index + latestImageMatch[0].length;
+      const alreadyBelowImage = latestCtaBlock.start >= imageEnd
+        && cleanText(stripTags(html.slice(imageEnd, latestCtaBlock.start))).length <= 2;
+
+      if (!alreadyBelowImage) {
+        const withoutCta = `${html.slice(0, latestCtaBlock.start)}${html.slice(latestCtaBlock.end)}`;
+        const imageInWithoutCta = withoutCta.match(/<img\b[^>]*>/i);
+        if (imageInWithoutCta) {
+          const insertAt = imageInWithoutCta.index + imageInWithoutCta[0].length;
+          html = `${withoutCta.slice(0, insertAt)}${latestCtaBlock.html}${withoutCta.slice(insertAt)}`;
+          changed = true;
+          appliedRules.push("cta-below-image");
+        }
+      }
+    }
+  }
+
+  if ((wantsSpacing || wantsMoveCtaUnderImage) && ctaBlock) {
+    const paragraphAfterCtaRegex = /(<\/(?:table|a)>)([\s\S]*?)(<p\b[^>]*>)/i;
+    const nextHtml = html.replace(paragraphAfterCtaRegex, (full, closeTag, between, pTag) => {
+      const patchedParagraph = patchFirstTagInlineStyle(pTag, /<p\b[^>]*>/i, {
+        "margin-top": "24px"
+      });
+      return `${closeTag}${between}${patchedParagraph.html}`;
+    });
+    if (nextHtml !== html) {
+      html = nextHtml;
+      changed = true;
+      appliedRules.push("text-spacing");
+    }
+  }
+
+  return {
+    html,
+    changed,
+    appliedRules
+  };
+}
+
+function getCloneEditContentMap(payload) {
+  const html = cleanText(payload?.baseEmailHtml);
+  if (!html) {
+    return null;
+  }
+
+  return payload?.baseEmailContentMap && typeof payload.baseEmailContentMap === "object"
+    ? payload.baseEmailContentMap
+    : extractEmailHtmlContentMap(html);
+}
+
+function buildResponseLayoutModel(result, payload) {
+  if (!result || typeof result !== "object") {
+    return null;
+  }
+
+  const draft = result?.draft && typeof result.draft === "object" ? result.draft : null;
+  const currentDraft = payload?.currentDraft && typeof payload.currentDraft === "object" ? payload.currentDraft : null;
+  const draftHtml = cleanText(draft?.html)
+    || cleanText(draft?.mail?.html)
+    || cleanText(currentDraft?.html)
+    || cleanText(currentDraft?.mail?.html)
+    || cleanText(payload?.baseEmailHtml);
+  const contentMap = draftHtml
+    ? extractEmailHtmlContentMap(draftHtml)
+    : getCloneEditContentMap(payload);
+
+  return buildLayoutModel({
+    brief: payload?.brief,
+    contentMap,
+    screenshotOcr: payload?.screenshotOcr,
+    designSchema: payload?.designSchema,
+    designAnalysis: result?.designAnalysis || payload?.designAnalysis,
+    draft
+  });
+}
+
+function attachLayoutModelToChatResult(result, payload) {
+  if (!result?.draft || typeof result.draft !== "object") {
+    return result;
+  }
+
+  const layoutModel = buildResponseLayoutModel(result, payload);
+  if (!layoutModel) {
+    return result;
+  }
+
+  return {
+    ...result,
+    draft: {
+      ...result.draft,
+      layoutModelSummary: summarizeLayoutModel(layoutModel),
+      layoutModelMeta: summarizeLayoutModelMeta(layoutModel)
+    }
+  };
+}
+
 function inferCloneEditIntentHints(payload, contentMap = null) {
   const latestUserMessage = cleanText(getLatestUserMessage(payload)).toLowerCase();
   const requestedLocales = Array.from(new Set([
@@ -3769,6 +7026,15 @@ function inferCloneEditIntentHints(payload, contentMap = null) {
   if (/(adapt|адапт|подправ|передел|update|refresh|cleanup|rewrite|упрости|сделай живее)/i.test(latestUserMessage)) {
     intents.push("adapt");
   }
+  if (/(нов(ое|ый)|друго(е|й)|сделай другое|на базе этого письма|по мотивам|similar|same structure|на основе этого письма)/i.test(latestUserMessage)) {
+    intents.push("derive-new-email");
+  }
+  if (/(сохрани структуру|не меняй верстку|оставь структуру|preserve structure|same layout|same html)/i.test(latestUserMessage)) {
+    intents.push("preserve-structure");
+  }
+  if (/(смени бренд|другой бренд|под другой бренд|rebrand|brand swap|logo|логотип|лого|цвет|footer|футер|store|stores|social|соц)/i.test(latestUserMessage)) {
+    intents.push("brand-swap");
+  }
 
   const hints = [];
   if (contentMap?.subject) {
@@ -3783,10 +7049,44 @@ function inferCloneEditIntentHints(payload, contentMap = null) {
   if (cleanText(payload?.brief?.primaryLink)) {
     hints.push(`Primary link override requested: ${cleanText(payload.brief.primaryLink)}`);
   }
+  if (contentMap?.sectionCount) {
+    hints.push(`Visible text section count in base HTML: ${contentMap.sectionCount}`);
+  }
+  if (Array.isArray(contentMap?.images) && contentMap.images.length > 0) {
+    hints.push(`Image count in base HTML: ${contentMap.images.length}`);
+  }
+  if (Array.isArray(contentMap?.links) && contentMap.links.length > 0) {
+    hints.push(`Link count in base HTML: ${contentMap.links.length}`);
+  }
+  const likelyFooterLinks = Array.isArray(contentMap?.links)
+    ? contentMap.links.filter((item) => /terms|unsubscribe|privacy|conditions|отпис|услов/i.test(`${item?.text || ""} ${item?.href || ""}`))
+    : [];
+  if (likelyFooterLinks.length > 0) {
+    hints.push("Footer/legal links detected — preserve footer structure unless user explicitly asks to replace it.");
+  }
+  const storeBadgeImages = Array.isArray(contentMap?.images)
+    ? contentMap.images.filter((src) => /app.?store|google.?play|play\.png|app\.png|badge/i.test(src))
+    : [];
+  if (storeBadgeImages.length > 0) {
+    hints.push("Store badges detected — keep badge row ordering unless the user asks to change it.");
+  }
+  const logoLikeImage = Array.isArray(contentMap?.images)
+    ? contentMap.images.find((src) => /logo|brand|header/i.test(src))
+    : "";
+  if (logoLikeImage) {
+    hints.push(`Likely logo asset detected: ${logoLikeImage}`);
+  }
+
+  const preserveStructure = intents.includes("preserve-structure")
+    || intents.includes("translate")
+    || intents.includes("brand-swap")
+    || intents.includes("rebrand");
 
   return {
     intents,
     summary: intents.length > 0 ? intents.join(", ") : "direct-edit",
+    preserveStructure,
+    requestedLocales,
     hints
   };
 }
@@ -3829,9 +7129,8 @@ function getLatestPayloadMessage(payload, role = "user") {
 }
 
 function getRecentUserTranscript(payload) {
-  return (Array.isArray(payload?.messages) ? payload.messages : [])
-    .filter((message) => message.role === "user")
-    .map((message) => cleanText(message.content))
+  return getUserMessageContents(payload)
+    .map(cleanText)
     .filter(Boolean)
     .join("\n");
 }
@@ -3855,23 +7154,42 @@ function extractRequestedLocalesFromMessages(payload) {
   );
 
   const matches = source.match(/\b[a-z]{2}(?:_[A-Za-z]{2})?\b/gi) || [];
-  return Array.from(new Set(
-    matches
-      .map((token) => allowed.get(token.toLowerCase()))
-      .filter(Boolean)
-  ));
+  const locales = matches
+    .map((token) => allowed.get(token.toLowerCase()))
+    .filter(Boolean);
+
+  const keywordLocales = [
+    [/(русск|russian)/i, "ru"],
+    [/(англ|english)/i, "en"],
+    [/(араб|arabic)/i, "ar"],
+    [/(урду|urdu)/i, "ur"],
+    [/(португ|portuguese)/i, "pt"],
+    [/(немец|german)/i, "de"],
+    [/(франц|french)/i, "fr"],
+    [/(испан|spanish)/i, "es"],
+    [/(италь|italian)/i, "it"]
+  ]
+    .filter(([pattern]) => pattern.test(source))
+    .map(([, locale]) => locale);
+
+  return Array.from(new Set([...locales, ...keywordLocales].filter(Boolean)));
 }
 
 function inferBriefCategoryFromMessages(payload) {
   const design = normalizeDesignPayload(payload?.design);
+  const screenshotOcr = payload?.screenshotOcr && typeof payload.screenshotOcr === "object" ? payload.screenshotOcr : null;
   const source = [
     cleanText(getRecentUserTranscript(payload)),
     cleanText(payload?.brief?.designUrl),
     cleanText(design?.name),
-    cleanText(design?.figmaSelectionName)
+    cleanText(design?.figmaSelectionName),
+    cleanText(screenshotOcr?.title),
+    Array.isArray(screenshotOcr?.bodyBlocks) ? screenshotOcr.bodyBlocks.map(cleanText).join("\n") : "",
+    cleanText(screenshotOcr?.supportBody),
+    cleanText(screenshotOcr?.footerBody)
   ].join("\n").toLowerCase();
 
-  if (/(системн|технич|тех письмо|техническ|transactional|technical|service email|system email)/i.test(source)) {
+  if (/(системн|технич|тех письмо|техническ|transactional|technical|service email|system email|password reset|reset your password|set your new password|confirm email|verify email|verification code|ignore this email)/i.test(source)) {
     return "X_System";
   }
 
@@ -4006,6 +7324,9 @@ function extractTemplateSelectionTokens(value) {
 
 function buildTemplateSelectionSourceText(payload) {
   const design = normalizeDesignPayload(payload?.design);
+  const screenshotOcr = payload?.screenshotOcr && typeof payload.screenshotOcr === "object"
+    ? payload.screenshotOcr
+    : null;
   const designSchema = payload?.designSchema && typeof payload.designSchema === "object"
     ? payload.designSchema
     : buildNormalizedDesignSchema(payload, design, payload?.designAnalysis);
@@ -4112,6 +7433,19 @@ function buildTemplateSelectionSourceText(payload) {
           : [])
       ].filter(Boolean).join(" ")
     : "";
+  const screenshotOcrText = screenshotOcr
+    ? [
+        cleanText(screenshotOcr?.brandLine),
+        cleanText(screenshotOcr?.layoutStyle),
+        cleanText(screenshotOcr?.title),
+        cleanText(screenshotOcr?.ctaLead),
+        cleanText(screenshotOcr?.ctaLabel),
+        ...(Array.isArray(screenshotOcr?.bodyBlocks) ? screenshotOcr.bodyBlocks.map(cleanText) : []),
+        cleanText(screenshotOcr?.warningBody),
+        cleanText(screenshotOcr?.supportBody),
+        cleanText(screenshotOcr?.footerBody)
+      ].filter(Boolean).join(" ")
+    : "";
 
   return [
     cleanText(payload?.brief?.campaignName),
@@ -4131,6 +7465,7 @@ function buildTemplateSelectionSourceText(payload) {
     cleanText(payload?.designAnalysis?.reference_variant),
     cleanText(payload?.designAnalysis?.brand_hint),
     figmaText,
+    screenshotOcrText,
     schemaText,
     decompositionText,
     mappingText,
@@ -4529,19 +7864,25 @@ function readBlockCatalogSnapshot() {
 }
 
 function buildSpecialTemplateSelection(payload, sourceText) {
+  const rawSource = cleanText(sourceText).toLowerCase();
   const source = normalizeTemplateSelectionText(sourceText);
   const resolvedCategory = resolveBriefCategory(payload);
   const inferredRfmDigits = extractRfmVariantDigits(sourceText);
   const inferredRfmMailId = inferRfmReferenceMailId(sourceText);
   const brandHint = normalizeTemplateSelectionText(payload?.designAnalysis?.brand_hint);
-  const affPasswordSignal = /(password|reset|login|sign in|signin|create account|парол|сброс|логин|аккаунт|senha|redefinir)/i.test(source);
+  const affPasswordSignal = looksLikePasswordResetSelectionSignal(source);
   const affBrandSignal = brandHint.includes("affstore") || /affstore|affiliate/.test(source);
+  const affInfrastructureSignal = (
+    /affiliate[_-]embedded|affiliate_embedded_admin_domain_url|reset_password_link|support@quadcode\.com|quadcode/i.test(rawSource)
+    || /affiliate embedded|affiliate embedded admin domain url|reset password link|support quadcode com|quadcode/i.test(source)
+  );
 
   if (
     affPasswordSignal
     && (
       cleanText(resolvedCategory) === "X_AffSystem"
       || affBrandSignal
+      || affInfrastructureSignal
     )
   ) {
     return {
@@ -4556,7 +7897,7 @@ function buildSpecialTemplateSelection(payload, sourceText) {
 
   if (
     isSystemCategoryName(resolvedCategory)
-    && /(passbook|verification|verify|document|documents|declin|reject|reason_text|вериф|провер|документ|пасбук|банк)/i.test(source)
+    && looksLikeSystemVerificationSelectionSignal(source)
   ) {
     return {
       category: "X_IQBroker",
@@ -4597,11 +7938,128 @@ function buildSpecialTemplateSelection(payload, sourceText) {
   return null;
 }
 
+function looksLikePasswordResetSelectionSignal(source = "") {
+  const normalized = normalizeTemplateSelectionText(source);
+  if (!normalized) {
+    return false;
+  }
+
+  return /(?:\bpassword\b|\breset\b|\blogin\b|\bsign in\b|\bsignin\b|\bsigning in\b|\bcreate account\b|парол|сброс|логин|аккаунт|senha|redefinir)/i.test(normalized);
+}
+
+function looksLikeSystemVerificationSelectionSignal(source = "") {
+  const normalized = normalizeTemplateSelectionText(source);
+  if (!normalized) {
+    return false;
+  }
+
+  return /(?:passbook|bank passbook|payment verification|verification request|document|documents|declin|reject|reason_text|вериф|провер|документ|пасбук|паспорт|банк)/i.test(normalized);
+}
+
+function isStickyTemplateSelection(selection) {
+  if (!selection || typeof selection !== "object") {
+    return false;
+  }
+
+  const category = cleanText(selection.category);
+  const mailId = cleanText(selection.mailId);
+  const profile = cleanText(selection.profile);
+  const source = cleanText(selection.source);
+
+  if (!category || !mailId) {
+    return false;
+  }
+
+  return Boolean(
+    source === "special-case"
+    || source === "ocr-special-case"
+    || source === "manual"
+    || (profile && profile !== "generic")
+  );
+}
+
+function inferScreenshotTemplateSelectionOverride(payload) {
+  const screenshotOcr = payload?.screenshotOcr && typeof payload.screenshotOcr === "object"
+    ? payload.screenshotOcr
+    : null;
+  if (!screenshotOcr?.usable) {
+    return null;
+  }
+
+  const rawSource = [
+    cleanText(screenshotOcr?.brandLine),
+    cleanText(screenshotOcr?.title),
+    cleanText(screenshotOcr?.ctaLead),
+    cleanText(screenshotOcr?.ctaLabel),
+    ...(Array.isArray(screenshotOcr?.bodyBlocks) ? screenshotOcr.bodyBlocks.map(cleanText) : []),
+    cleanText(screenshotOcr?.warningBody),
+    cleanText(screenshotOcr?.supportBody),
+    cleanText(screenshotOcr?.footerBody),
+    cleanText(screenshotOcr?.layoutStyle),
+    cleanText(getRecentUserTranscript(payload))
+  ].filter(Boolean).join(" ").toLowerCase();
+  const source = normalizeTemplateSelectionText(rawSource);
+  const passwordSignal = looksLikePasswordResetSelectionSignal(source);
+  const affiliateSignal = (
+    /affiliate[_-]embedded|affiliate_embedded_admin_domain_url|reset_password_link|support@quadcode\.com|quadcode/i.test(rawSource)
+    || /affiliate embedded|affiliate embedded admin domain url|reset password link|support quadcode com|quadcode/i.test(source)
+  );
+  const noticeSignal = /(system\s*notice|notice\s*email|copy\s*trading|paused|pause|suspend|suspended|suspension|reason for interruption|insufficient balance|support team|temporarily suspended)/i.test([
+    rawSource,
+    cleanText(payload?.message),
+    cleanText(payload?.brief?.goal),
+    cleanText(payload?.brief?.campaignName)
+  ].filter(Boolean).join(" "));
+
+  if (!passwordSignal && noticeSignal) {
+    return {
+      category: "X_System",
+      mailId: "payment",
+      profile: "system-notice-card",
+      score: 6400,
+      reasons: ["ocr special profile", "system notice card"],
+      outlineKinds: ["text", "feature-list", "cta", "text", "footer"],
+      source: "ocr-special-case"
+    };
+  }
+
+  if (!passwordSignal || !affiliateSignal) {
+    if (looksLikeSimpleSystemCardScreenshot(payload, payload?.currentDraft || {})) {
+      const resolvedCategory = resolveBriefCategory(payload) || "X_System";
+      return {
+        category: resolvedCategory,
+        mailId: cleanText(payload?.brief?.mailId) || inferMailIdForCategory(resolvedCategory),
+        profile: "simple-system-card",
+        score: 6200,
+        reasons: ["ocr special profile", "centered transactional card"],
+        outlineKinds: ["text", "cta", "text", "footer"],
+        source: "ocr-special-case"
+      };
+    }
+
+    return null;
+  }
+
+  return {
+    category: "X_AffSystem",
+    mailId: "password-retrieving-affiliate",
+    profile: "aff-password-reset",
+    score: 6500,
+    reasons: ["ocr special profile", "affiliate password reset", affiliateSignal ? "ocr:affiliate-infra" : ""].filter(Boolean),
+    outlineKinds: ["text", "cta", "text", "text", "footer"],
+    source: "ocr-special-case"
+  };
+}
+
 function resolveReferenceTemplateSelection(payload) {
   const summary = summarizeEmailBase();
   const resolvedCategory = resolveBriefCategory(payload);
   const scopedCategory = cleanText(resolvedCategory);
   const explicitMailId = cleanText(payload?.brief?.mailId);
+  const screenshotOverride = inferScreenshotTemplateSelectionOverride(payload);
+  if (screenshotOverride) {
+    return screenshotOverride;
+  }
   const sourceText = buildTemplateSelectionSourceText(payload);
   const requestedKinds = collectTemplateSelectionSectionKinds(payload);
   const layoutTraits = dedupeStrings([
@@ -4714,6 +8172,11 @@ function resolveReferenceTemplateSelection(payload) {
 }
 
 function getReferenceTemplateSelection(payload) {
+  const screenshotOverride = inferScreenshotTemplateSelectionOverride(payload);
+  if (screenshotOverride) {
+    return screenshotOverride;
+  }
+
   const selection = payload?.templateSelection;
   if (selection && typeof selection === "object" && cleanText(selection.category) && cleanText(selection.mailId)) {
     return selection;
@@ -4751,6 +8214,10 @@ function resolveReferenceTemplateMailTarget(payload) {
 function inferServerIntent(payload, fallbackIntent = "") {
   const latestUserMessage = cleanText(getLatestPayloadMessage(payload, "user")).toLowerCase();
   const previousAssistantMessage = cleanText(getLatestPayloadMessage(payload, "assistant")).toLowerCase();
+
+  if (payload?.localeAuditMode) {
+    return "discuss";
+  }
 
   if (!latestUserMessage) {
     return cleanText(fallbackIntent) || "draft";
@@ -4796,13 +8263,21 @@ function inferServerIntent(payload, fallbackIntent = "") {
   return cleanText(fallbackIntent) || "draft";
 }
 
-function extractLatestLogoOverrideUrl(payload) {
-  const messages = [...(Array.isArray(payload?.messages) ? payload.messages : [])]
-    .filter((message) => message.role === "user")
-    .reverse();
+function getUserMessageContents(payload) {
+  const contents = [
+    ...(Array.isArray(payload?.messages) ? payload.messages : [])
+      .filter((message) => message.role === "user")
+      .map((message) => cleanText(message.content)),
+    cleanText(payload?.message)
+  ].filter(Boolean);
 
-  for (const message of messages) {
-    const content = cleanText(message.content);
+  return Array.from(new Set(contents));
+}
+
+function extractLatestLogoOverrideUrl(payload) {
+  const messages = [...getUserMessageContents(payload)].reverse();
+
+  for (const content of messages) {
     if (!/(лого|logo)/i.test(content)) {
       continue;
     }
@@ -5000,6 +8475,18 @@ function normalizeFigmaImportPayload(figmaImport) {
             imageHash: cleanText(image.imageHash || image.image_hash),
             exportRef: cleanText(image.exportRef || image.export_ref),
             isBackground: Boolean(image.isBackground || image.background),
+            prep: image.prep && typeof image.prep === "object"
+              ? {
+                  recommendedFormat: cleanText(image.prep.recommendedFormat || image.prep.format),
+                  transparency: cleanText(image.prep.transparency),
+                  trim: cleanText(image.prep.trim),
+                  padding: Number.isFinite(Number(image.prep.padding)) ? Number(image.prep.padding) : 0,
+                  placement: cleanText(image.prep.placement),
+                  postProcess: Array.isArray(image.prep.postProcess)
+                    ? image.prep.postProcess.map(cleanText).filter(Boolean).slice(0, 12)
+                    : []
+                }
+              : null,
             assetSource: image.assetSource && typeof image.assetSource === "object"
               ? { ...image.assetSource }
               : {
@@ -5175,10 +8662,41 @@ function createFigmaAccessBlockedResponse(payload, providerId, mode) {
     assistantReply: buildFigmaAccessBlockedAssistantReply(payload),
     mode,
     clearDraft: true,
+    ...buildFigmaResponseMetadata(payload),
     providerRuntime: createProviderRuntime({
       providerId,
       mode
     })
+  };
+}
+
+function buildFigmaResponseMetadata(payload) {
+  const intake = payload?.intake && typeof payload.intake === "object"
+    ? payload.intake
+    : null;
+  const figmaEnrichment = payload?.figmaEnrichment && typeof payload.figmaEnrichment === "object"
+    ? payload.figmaEnrichment
+    : hasDetailedFigmaImportPayload(payload?.design?.figmaImport)
+      ? {
+          source: cleanText(payload?.design?.figmaImport?.source) || "structured-import",
+          structured: true,
+          structuredCoverage: summarizeNormalizedFigmaImportCoverage(payload?.design?.figmaImport),
+          summary: buildFigmaIntakeSummary({
+            figmaImport: payload?.design?.figmaImport,
+            readiness: assessFigmaIntakeReadiness(cleanText(payload?.brief?.designUrl), {
+              hasStructured: true,
+              hasVisual: Boolean(cleanText(payload?.design?.dataUrl))
+            }),
+            importMethod: cleanText(payload?.design?.figmaImport?.source) || "structured-import",
+            hasLink: Boolean(cleanText(payload?.brief?.designUrl)),
+            hasVisual: Boolean(cleanText(payload?.design?.dataUrl))
+          }).text
+        }
+      : null;
+
+  return {
+    intake,
+    figmaEnrichment
   };
 }
 
@@ -5312,6 +8830,20 @@ function normalizeFigmaPluginRequest(payload) {
   const hasLink = Boolean(designUrl);
   const hasVisual = Boolean(normalizedImageUrl);
   const hasStructured = hasDetailedFigmaImportPayload(figmaImport);
+  const readiness = assessFigmaIntakeReadiness(designUrl, {
+    hasVisual,
+    hasStructured
+  });
+  const importMethod = hasStructured
+    ? cleanText(figmaImport?.source) || (readiness.preferredPath === "plugin-push" ? "figma-plugin" : "structured-import")
+    : "";
+  const intakeSummary = buildFigmaIntakeSummary({
+    figmaImport,
+    readiness,
+    importMethod,
+    hasLink,
+    hasVisual
+  });
   const mode = hasLink && hasVisual && hasStructured
     ? "frame-link + screenshot/export + structured push"
     : hasLink && hasVisual
@@ -5348,7 +8880,11 @@ function normalizeFigmaPluginRequest(payload) {
       hasLink,
       hasVisual,
       hasStructured,
-      recommendedNextStep
+      importMethod,
+      structuredCoverage: intakeSummary.coverage,
+      summary: intakeSummary.text,
+      recommendedNextStep,
+      readiness
     }
   };
 }
@@ -5440,6 +8976,17 @@ async function enrichPayloadWithServerSideFigma(payload) {
       ...structuredImport
     }
   });
+  const readiness = assessFigmaIntakeReadiness(figmaUrl, {
+    hasVisual: Boolean(cleanText(mergedDesign?.dataUrl)),
+    hasStructured: true
+  });
+  const intakeSummary = buildFigmaIntakeSummary({
+    figmaImport: mergedDesign?.figmaImport,
+    readiness,
+    importMethod: "figma-server-token",
+    hasLink: true,
+    hasVisual: Boolean(cleanText(mergedDesign?.dataUrl))
+  });
 
   return hydratePayloadTemplateSelection({
     ...payload,
@@ -5451,7 +8998,11 @@ async function enrichPayloadWithServerSideFigma(payload) {
     figmaEnrichment: {
       source: "server-token-link-import",
       figmaUrl,
-      structured: true
+      structured: true,
+      readiness,
+      importMethod: "figma-server-token",
+      structuredCoverage: intakeSummary.coverage,
+      summary: intakeSummary.text
     }
   });
 }
@@ -5757,6 +9308,23 @@ function scoreLibraryAssetForDesignRole(role, item) {
 function buildAssetRecommendations(mail, payload) {
   const registryItems = Array.isArray(payload?.assetRegistryItems) ? payload.assetRegistryItems : [];
   const sections = Array.isArray(mail?.sections) ? mail.sections : [];
+  const screenshotVisualFlow = Boolean(payload?.screenshotOcr?.usable && hasVisualDesignInput(payload) && !payload?.baseEmailHtml);
+  const templateProfile = cleanText(getEmailBaseTemplateProfile(payload, mail));
+  const specialScreenshotProfile = screenshotVisualFlow && ["aff-password-reset", "system-verification", "simple-system-card", "system-notice-card"].includes(templateProfile);
+  const visualAssetSections = sections.filter((section) => {
+    const kind = cleanText(section?.kind);
+    return Boolean(
+      cleanText(section?.image_key)
+      || cleanText(section?.image_url)
+      || cleanText(section?.image_notes)
+      || ["image", "hero"].includes(kind)
+    );
+  });
+
+  if (specialScreenshotProfile && visualAssetSections.length === 0) {
+    return [];
+  }
+
   const usedLibraryIds = new Set(
     (Array.isArray(payload?.assetInputs) ? payload.assetInputs : [])
       .map((asset) => cleanText(asset.libraryId))
@@ -5773,6 +9341,18 @@ function buildAssetRecommendations(mail, payload) {
   for (const [index, section] of sections.entries()) {
     const desiredPlacements = getSectionDesiredPlacements(section);
     const hasMappedImage = Boolean(cleanText(section?.image_key));
+    const sectionKind = cleanText(section?.kind) || "text";
+    const sectionNeedsVisualAsset = Boolean(
+      cleanText(section?.image_key)
+      || cleanText(section?.image_url)
+      || cleanText(section?.image_notes)
+      || ["image", "hero"].includes(sectionKind)
+    );
+
+    if (specialScreenshotProfile && !sectionNeedsVisualAsset) {
+      continue;
+    }
+
     const matches = libraryCandidates
       .map((item) => ({
         id: cleanText(item.id),
@@ -5789,7 +9369,7 @@ function buildAssetRecommendations(mail, payload) {
     recommendations.push({
       sectionIndex: index,
       sectionTitle: cleanText(section?.title) || cleanText(section?.eyebrow) || `Section ${index + 1}`,
-      sectionKind: cleanText(section?.kind) || "text",
+      sectionKind,
       desiredPlacements,
       hasMappedImage,
       status: hasMappedImage ? "mapped" : matches.length > 0 ? "needs-asset" : "missing-library-match",
@@ -5924,11 +9504,34 @@ function normalizeDesignAnalysis(rawAnalysis) {
     }));
   };
 
+  const normalizeVisualHints = (rawHints) => normalizeVisualStyleHints({
+    titleScale: cleanText(rawHints?.titleScale ?? rawHints?.title_scale),
+    logoScale: cleanText(rawHints?.logoScale ?? rawHints?.logo_scale),
+    cardWidth: cleanText(rawHints?.cardWidth ?? rawHints?.card_width),
+    buttonWidth: cleanText(rawHints?.buttonWidth ?? rawHints?.button_width),
+    buttonTone: cleanText(rawHints?.buttonTone ?? rawHints?.button_tone),
+    cardShape: cleanText(rawHints?.cardShape ?? rawHints?.card_shape),
+    buttonShape: cleanText(rawHints?.buttonShape ?? rawHints?.button_shape),
+    cardDensity: cleanText(rawHints?.cardDensity ?? rawHints?.card_density),
+    supportLayout: cleanText(rawHints?.supportLayout ?? rawHints?.support_layout),
+    layoutStyle: cleanText(rawHints?.layoutStyle ?? rawHints?.layout_style),
+    pageBgColor: cleanText(rawHints?.pageBgColor ?? rawHints?.page_bg_color),
+    cardBgColor: cleanText(rawHints?.cardBgColor ?? rawHints?.card_bg_color),
+    titleColor: cleanText(rawHints?.titleColor ?? rawHints?.title_color),
+    bodyColor: cleanText(rawHints?.bodyColor ?? rawHints?.body_color),
+    accentColor: cleanText(rawHints?.accentColor ?? rawHints?.accent_color),
+    buttonFillColor: cleanText(rawHints?.buttonFillColor ?? rawHints?.button_fill_color),
+    buttonBorderColor: cleanText(rawHints?.buttonBorderColor ?? rawHints?.button_border_color),
+    buttonTextColor: cleanText(rawHints?.buttonTextColor ?? rawHints?.button_text_color),
+    notes: cleanText(rawHints?.notes)
+  });
+
   return {
     summary: cleanText(rawAnalysis.summary),
     reference_family: cleanText(rawAnalysis.reference_family),
     reference_variant: cleanText(rawAnalysis.reference_variant),
     brand_hint: cleanText(rawAnalysis.brand_hint),
+    visual_hints: normalizeVisualHints(rawAnalysis.visual_hints),
     section_kinds: normalizeKinds,
     sections_structured: normalizeSectionsStructured(rawAnalysis.sections_structured),
     suggested_blocks: Array.isArray(rawAnalysis.suggested_blocks) ? rawAnalysis.suggested_blocks.map(cleanText).filter(Boolean) : [],
@@ -5962,6 +9565,7 @@ function summarizeDesignAnalysisForContext(analysis) {
     `Reference family: ${normalized.reference_family || "None"}`,
     `Reference variant: ${normalized.reference_variant || "None"}`,
     `Brand hint: ${normalized.brand_hint || "None"}`,
+    `Visual hints: layout=${cleanText(normalized.visual_hints?.layoutStyle) || "default"} | title=${cleanText(normalized.visual_hints?.titleScale) || "default"} | logo=${cleanText(normalized.visual_hints?.logoScale) || "default"} | button=${cleanText(normalized.visual_hints?.buttonTone) || "solid"}/${cleanText(normalized.visual_hints?.buttonWidth) || "default"} | card=${cleanText(normalized.visual_hints?.cardDensity) || "default"}/${cleanText(normalized.visual_hints?.cardShape) || "soft"}/${cleanText(normalized.visual_hints?.cardWidth) || "default"} | support=${cleanText(normalized.visual_hints?.supportLayout) || "default"} | colors=${[cleanText(normalized.visual_hints?.pageBgColor), cleanText(normalized.visual_hints?.cardBgColor), cleanText(normalized.visual_hints?.titleColor), cleanText(normalized.visual_hints?.accentColor)].filter(Boolean).join("/") || "default"}`,
     `Section kinds: ${normalized.section_kinds.join(", ") || "None"}`,
     structuredSections ? `Sections (top-to-bottom):\n${structuredSections}` : null,
     `Suggested blocks: ${normalized.suggested_blocks.join(" | ") || "None"}`,
@@ -6049,6 +9653,37 @@ function summarizeFigmaImportForContext(payload) {
     textSamples.length > 0 ? `Figma text samples: ${textSamples.join(" | ")}` : "",
     cleanText(figmaImport?.directionHint) ? `Figma direction hint: ${cleanText(figmaImport.directionHint)}` : "",
     Array.isArray(figmaImport?.localeHints) && figmaImport.localeHints.length > 0 ? `Figma locale hints: ${figmaImport.localeHints.join(" | ")}` : ""
+  ].filter(Boolean).join("\n");
+}
+
+function summarizeFigmaEnrichmentForContext(payload) {
+  const enrichment = payload?.figmaEnrichment && typeof payload.figmaEnrichment === "object"
+    ? payload.figmaEnrichment
+    : null;
+  const intake = payload?.intake && typeof payload.intake === "object"
+    ? payload.intake
+    : null;
+
+  if (!enrichment && !intake) {
+    return "Figma intake enrichment: none.";
+  }
+
+  const coverage = enrichment?.structuredCoverage && typeof enrichment.structuredCoverage === "object"
+    ? enrichment.structuredCoverage
+    : intake?.structuredCoverage && typeof intake.structuredCoverage === "object"
+      ? intake.structuredCoverage
+      : null;
+
+  return [
+    `Figma intake enrichment: ${cleanText(enrichment?.source) || cleanText(intake?.importMethod) || "present"}.`,
+    cleanText(enrichment?.figmaUrl) ? `Figma source URL: ${cleanText(enrichment.figmaUrl)}` : "",
+    cleanText(enrichment?.summary) || cleanText(intake?.summary),
+    cleanText(enrichment?.readiness?.readiness) ? `Figma readiness: ${cleanText(enrichment.readiness.readiness)}` : "",
+    coverage?.available
+      ? `Figma coverage: ${normalizePositiveInt(coverage.sectionCount)} sections, ${normalizePositiveInt(coverage.textCount)} texts, ${normalizePositiveInt(coverage.imageCount)} images.`
+      : "",
+    Array.isArray(coverage?.sectionRoles) && coverage.sectionRoles.length > 0 ? `Figma section roles: ${coverage.sectionRoles.join(" | ")}` : "",
+    Array.isArray(coverage?.imageRoles) && coverage.imageRoles.length > 0 ? `Figma image roles: ${coverage.imageRoles.join(" | ")}` : ""
   ].filter(Boolean).join("\n");
 }
 
@@ -6166,7 +9801,16 @@ function resolveEffectiveProviderId(settings = {}) {
 function normalizePayload(payload) {
   const brief = payload?.brief ?? {};
   const settings = payload?.settings ?? {};
-  const design = normalizeDesignPayload(payload?.design);
+  const rawDesign = payload?.design && typeof payload.design === "object"
+    ? payload.design
+    : {};
+  const design = normalizeDesignPayload({
+    ...rawDesign,
+    figmaImport: rawDesign.figmaImport || payload?.figmaImport,
+    figmaFileKey: cleanText(rawDesign.figmaFileKey) || cleanText(payload?.figmaFileKey),
+    figmaNodeId: cleanText(rawDesign.figmaNodeId) || cleanText(payload?.figmaNodeId),
+    figmaSelectionName: cleanText(rawDesign.figmaSelectionName) || cleanText(payload?.figmaSelectionName)
+  });
   const normalizedDesignAnalysis = normalizeDesignAnalysis(payload?.designAnalysis);
   const assetInputs = filterDesignAssetInputs(normalizeAssetInputs(payload), design);
   const assetRegistryItems = filterAssetLibraryItemsForContent(normalizeAssetLibraryItems(payload), payload);
@@ -6185,6 +9829,7 @@ function normalizePayload(payload) {
     : assetInputs;
   const normalized = {
     intent: resolvedIntent,
+    message: cleanText(payload?.message),
     messages: Array.isArray(payload?.messages) ? payload.messages.slice(-8) : [],
     brief: {
       campaignName: cleanText(brief.campaignName),
@@ -6210,6 +9855,7 @@ function normalizePayload(payload) {
     projectRules,
     assetLinks: resolvedAssetInputs.map((asset) => asset.url).filter(Boolean),
     translationText: cleanText(payload?.translationText),
+    screenshotOcr: normalizeScreenshotOcrPayload(payload?.screenshotOcr),
     design,
     designAnalysis: normalizedDesignAnalysis,
     designSchema: buildNormalizedDesignSchema({
@@ -6230,6 +9876,18 @@ function normalizePayload(payload) {
     baseEmailContentMap: payload?.baseEmailContentMap && typeof payload.baseEmailContentMap === "object"
       ? payload.baseEmailContentMap
       : null,
+    pugSourceMode: Boolean(payload?.pugSourceMode),
+    pugSourceFiles: payload?.pugSourceFiles && typeof payload.pugSourceFiles === "object"
+      ? payload.pugSourceFiles
+      : null,
+    localeAuditMode: Boolean(payload?.localeAuditMode),
+    // Locale namespaces snapshot from the workbench — нужен AI-диспетчеру
+    // (placeholderize / translate / fix-locale). Раньше whitelist его ВЫБРАСЫВАЛ,
+    // и сервер отвечал «Не вижу загруженных локалей» при загруженных локалях.
+    namespaces: Array.isArray(payload?.namespaces) ? payload.namespaces : [],
+    activeNamespaceName: cleanText(payload?.activeNamespaceName) || null,
+    activeNamespaceId: cleanText(payload?.activeNamespaceId) || null,
+    activeLocale: cleanText(payload?.activeLocale) || null,
     // Scaffold mode: context from POST /api/email-base/scaffold response
     scaffoldContext: payload?.scaffoldContext && typeof payload.scaffoldContext === "object"
       ? payload.scaffoldContext
@@ -6272,6 +9930,17 @@ function hydratePayloadTemplateSelection(payload) {
     designDecomposition,
     designMappingHints
   }, designMappingHints);
+  const stickySelection = isStickyTemplateSelection(payload?.templateSelection)
+    ? payload.templateSelection
+    : inferScreenshotTemplateSelectionOverride({
+      ...payload,
+      design,
+      designAnalysis,
+      designSchema,
+      designDecomposition,
+      designMappingHints,
+      designBlockRecommendations
+    });
 
   return {
     ...payload,
@@ -6281,7 +9950,7 @@ function hydratePayloadTemplateSelection(payload) {
     designDecomposition,
     designMappingHints,
     designBlockRecommendations,
-    templateSelection: resolveReferenceTemplateSelection({
+    templateSelection: stickySelection || resolveReferenceTemplateSelection({
       ...payload,
       design,
       designAnalysis,
@@ -6315,32 +9984,70 @@ function buildBaseEmailContext(payload) {
     "RULES for edit mode (MANDATORY — do not skip):",
     "- Do NOT use the email-base block catalog. Do NOT generate mail.sections[] entries.",
     "- Set mail.sections to an empty array [].",
-    "- Preserve all HTML structure, table layouts, and inline CSS exactly.",
+    "- Default to the smallest possible HTML diff.",
+    "- Preserve all HTML structure, table layouts, inline CSS, comments, and service tags unless the requested change requires touching them.",
     "- Only replace content the user explicitly asks to change (text, image URLs, href links).",
     "- If the user asks to translate, translate visible copy while preserving placeholders and structure.",
+    "- For RU translation, keep copy length reasonably close to the original where possible so the layout remains stable.",
     "- If the user asks to rebrand, preserve layout first and only change brand-facing content/assets the user requested.",
+    "- If the user asks to create a NEW email based on this one, keep the same structural skeleton by default and only rewrite the visible content/assets needed for the new purpose.",
+    "- Keep footer/legal/store/social rows unless the user explicitly asks to remove or replace them.",
+    "- If you move a CTA/button, keep the result visually sane by default: remove duplicates, preserve centering/alignment, and add spacing between the moved CTA and neighboring blocks.",
+    "- Reuse the email's existing spacing scale where possible. If spacing is unclear, choose conservative email-safe gaps instead of leaving blocks stuck together.",
     "- If subject/preheader should change, update mail.subject and mail.preheader accordingly.",
     "- Do not restructure sections or change the number of blocks unless explicitly asked.",
+    "- Keep href values unchanged unless the user explicitly asks to change links.",
     "- OUTPUT: return the COMPLETE modified HTML string in mail.modified_html.",
     "- mail.modified_html must contain the full <html>…</html> document, not a diff or snippet.",
     "",
     `File size: ${map.charCount ? Math.round(map.charCount / 1024) + "KB" : "unknown"}`,
+    `Visible text blocks: ${map.sectionCount || 0}`,
+    `Image count: ${Array.isArray(map.images) ? map.images.length : 0}`,
+    `Link count: ${Array.isArray(map.links) ? map.links.length : 0}`,
     `Detected edit mode: ${cloneEditHints.summary}`,
+    cloneEditHints.preserveStructure ? "Preserve structure: yes" : "Preserve structure: only if user asks",
     map.subject ? `Subject in HTML: ${map.subject}` : "",
     map.preheader ? `Preheader: ${map.preheader}` : "",
     ...(Array.isArray(cloneEditHints.hints) ? cloneEditHints.hints : []),
     "",
-    "--- CONTENT SECTIONS (visible text blocks in order) ---",
-    ...(map.sections || []).map((s, i) => `[${i + 1}] ${s}`),
-    "",
-    "--- IMAGE URLS ---",
-    ...(map.images || []).map((src, i) => `[img-${i + 1}] ${src}`),
-    "",
-    "--- CTA LINKS ---",
-    ...(map.links || []).map((l, i) => `[link-${i + 1}] text="${l.text}" href="${l.href}"`),
+    // ── Detailed element inventory — helps AI locate elements before touching HTML ──
+    (() => {
+      const parts = [];
+      // CTA buttons / links with visible text
+      const ctaLinks = Array.isArray(map.links) ? map.links.filter((l) => l.text && l.href) : [];
+      if (ctaLinks.length > 0) {
+        parts.push("CTA buttons / clickable links in this email (text → href):");
+        for (const l of ctaLinks.slice(0, 10)) {
+          parts.push(`  • "${l.text}" → ${l.href.slice(0, 80)}${l.href.length > 80 ? "…" : ""}`);
+        }
+      }
+      // Images (skip tiny icons)
+      const imgs = Array.isArray(map.images) ? map.images : [];
+      if (imgs.length > 0) {
+        parts.push("Images in this email (top-to-bottom order):");
+        for (const src of imgs.slice(0, 12)) {
+          const label = /logo|brand|header/i.test(src) ? "logo"
+            : /hero|banner|cover|main/i.test(src) ? "hero"
+            : /store|badge|app|play/i.test(src) ? "store-badge"
+            : /social|fb|ig|tw|vk/i.test(src) ? "social"
+            : "image";
+          parts.push(`  • [${label}] ${src.slice(0, 100)}${src.length > 100 ? "…" : ""}`);
+        }
+      }
+      // First 5 text sections for orientation
+      const secs = Array.isArray(map.sections) ? map.sections.filter(Boolean) : [];
+      if (secs.length > 0) {
+        parts.push("Main visible text blocks (excerpt, top-to-bottom):");
+        for (const s of secs.slice(0, 5)) {
+          parts.push(`  • "${s.slice(0, 120)}${s.length > 120 ? "…" : ""}"`);
+        }
+      }
+      return parts.join("\n");
+    })(),
     "",
     "=== END BASE EMAIL CONTEXT ===",
-    "The full HTML will be appended separately. Edit it according to user instructions."
+    "The full HTML will be appended separately. Edit it according to user instructions.",
+    "IMPORTANT: Before writing any HTML, mentally identify WHERE each element to change is located in the HTML above. Then apply the smallest possible correct edit."
   ].filter((l) => l !== null);
 
   return lines.join("\n");
@@ -6393,13 +10100,24 @@ function buildUserContext(payload) {
     const cloneEditHints = inferCloneEditIntentHints(payload, payload?.baseEmailContentMap && typeof payload.baseEmailContentMap === "object"
       ? payload.baseEmailContentMap
       : extractEmailHtmlContentMap(payload.baseEmailHtml || ""));
+    const primaryLocale = normalizeLocaleCode(payload.brief.locale || payload?.currentDraft?.mail?.locale || "en");
+    const requestedLocales = Array.from(new Set([
+      primaryLocale,
+      ...parseLocaleList(payload.brief.requestedLocales)
+    ].filter(Boolean)));
     return [
       "CLONE-EDIT MODE. Edit the HTML email appended below. Return the result in mail.modified_html.",
       buildResponseLanguageInstruction(payload),
-      `Primary locale: ${payload.brief.locale}`,
-      `Requested locales: ${payload.brief.requestedLocales || payload.brief.locale}`,
+      `Primary locale for mail.modified_html: ${primaryLocale}`,
+      `Requested locales: ${requestedLocales.join(", ")}`,
+      requestedLocales.length > 1
+        ? "Return mail.localized_html with a full HTML document for each requested locale."
+        : "If only one locale is requested, mail.localized_html may contain just that primary locale.",
+      "Do not return a plan, a checklist, or follow-up questions. Execute the edit now.",
+      "Do not return one combined bilingual HTML document. Keep locales as separate full HTML files.",
       `Campaign name: ${payload.brief.campaignName || "Untitled campaign"}`,
       `Detected clone-edit intent: ${cloneEditHints.summary}`,
+      `Preserve structure: ${cloneEditHints.preserveStructure ? "yes" : "only if user explicitly asks"}`,
       `Primary CTA label: ${payload.brief.primaryCta || ""}`,
       `Primary CTA href: ${payload.brief.primaryLink || ""}`,
       buildBaseEmailContext(payload) || "",
@@ -6425,6 +10143,17 @@ function buildUserContext(payload) {
     `Primary CTA label: ${payload.brief.primaryCta || ""}`,
     `Primary CTA href: ${payload.brief.primaryLink || ""}`,
     `Content notes: ${payload.brief.contentNotes || "None"}`,
+    (() => {
+      const bs = payload.brief?.brandStyle;
+      if (!bs || typeof bs !== "object") return "";
+      const parts = [];
+      if (bs.primaryColor) parts.push(`primaryColor: ${bs.primaryColor}`);
+      if (bs.buttonTextColor) parts.push(`buttonTextColor: ${bs.buttonTextColor}`);
+      if (bs.bgColor) parts.push(`bgColor: ${bs.bgColor}`);
+      if (bs.buttonRadius) parts.push(`buttonRadius: ${bs.buttonRadius}`);
+      if (bs.bodySize) parts.push(`bodySize: ${bs.bodySize}`);
+      return parts.length > 0 ? `Brand style overrides (use these in pug_blocks, override studio defaults): ${parts.join(", ")}` : "";
+    })(),
     `Design input type: ${summarizeDesignInputForContext(payload)}`,
     `Design URL: ${payload.brief.designUrl || "None"}`,
     "Figma access rule: if the user provides only a Figma link and direct access is unclear, ask for an open draft/share link or a screenshot/export of the exact frame. Do not ask for raw JSON unless the workflow is explicitly advanced/internal.",
@@ -6432,6 +10161,8 @@ function buildUserContext(payload) {
     "Copy rule: if the user says copy can stay empty for now, leave strings empty and keep moving once the design itself is accessible.",
     "Figma structured input:",
     summarizeFigmaImportForContext(payload),
+    "Figma intake enrichment:",
+    summarizeFigmaEnrichmentForContext(payload),
     "Design analysis:",
     summarizeDesignAnalysisForContext(payload.designAnalysis),
     "Structured design schema:",
@@ -6452,6 +10183,8 @@ function buildUserContext(payload) {
     summarizeProjectRulesForContext(payload.projectRules),
     "=== EMAIL BASE KNOWLEDGE (real templates) ===",
     buildEmailBaseDeepContext(),
+    buildVendorMixinsReference(),
+    buildMarkupPatternsReference(),
     "=== AI LESSONS LEARNED (never repeat these mistakes) ===",
     lessonsContext,
     "=== END OF BASE KNOWLEDGE ===",
@@ -6469,12 +10202,84 @@ function buildUserContext(payload) {
   ].filter(Boolean).join("\n");
 }
 
+
+// ─── Workbench namespace summary for AI chat context ─────────────────────
+// When the user is in the workbench (RetKit) and has loaded one or more
+// locale namespaces (TXT files), the chat payload includes `namespaces` —
+// an array of { namespace, locales: { code: blocks[] } }. The plain
+// discussion path used to ignore this, so the AI would say "load locales
+// first" even when 14 blocks were sitting right there. This summary fixes
+// that by surfacing the loaded namespaces (with block counts and the first
+// 6 reference-text blocks) into the prompt.
+function summarizeWorkbenchNamespacesForContext(payload) {
+  const arr = Array.isArray(payload?.namespaces) ? payload.namespaces : null;
+  if (!arr || !arr.length) return "Loaded namespaces: (none — the user has not opened a locale folder yet)";
+
+  const lines = [`Loaded namespaces (${arr.length}):`];
+  for (const ns of arr.slice(0, 8)) {
+    // workbench sends ns.name; older payloads used ns.namespace — accept both.
+    const name = cleanText(ns?.namespace) || cleanText(ns?.name) || "?";
+    const locales = ns?.locales && typeof ns.locales === "object" ? ns.locales : {};
+    const codes = Object.keys(locales);
+    const blockCounts = codes.map((c) => `${c}:${(locales[c] || []).length}`).join(", ");
+    lines.push(`  • ${name}  [${blockCounts}]`);
+    // Show a few reference blocks (prefer 'en') so AI sees actual content.
+    const refCode = locales.en ? "en" : codes[0];
+    const refBlocks = Array.isArray(locales[refCode]) ? locales[refCode] : [];
+    refBlocks.slice(0, 6).forEach((b, i) => {
+      const txt = String(b || "").replace(/@@/g, "").slice(0, 80);
+      if (txt) lines.push(`      block_${String(i).padStart(2, "0")} (${refCode}): "${txt}"`);
+    });
+    if (refBlocks.length > 6) lines.push(`      …и ещё ${refBlocks.length - 6} блоков`);
+  }
+  if (arr.length > 8) lines.push(`  …и ещё ${arr.length - 8} namespace(s) загружены.`);
+  return lines.join("\n");
+}
+
+// Surface the email source currently open in the workbench editor (HTML or
+// Pug), so AI can analyze it without us streaming the whole file twice.
+function summarizeWorkbenchOpenSourceForContext(payload) {
+  const html = String(payload?.baseEmailHtml || "").trim();
+  if (html) {
+    const head = html.slice(0, 600);
+    const tail = html.length > 1200 ? `\n…[truncated ${html.length - 1200} chars]…\n` + html.slice(-600) : "";
+    return `Open HTML in editor (${html.length} chars):\n--- begin ---\n${head}${tail}\n--- end ---`;
+  }
+  const pug = payload?.pugSourceFiles && typeof payload.pugSourceFiles === "object" ? payload.pugSourceFiles : null;
+  if (pug) {
+    const entries = Object.entries(pug).filter(([, c]) => typeof c === "string" && c.trim());
+    if (entries.length) {
+      const [pPath, pContent] = entries[0];
+      const head = pContent.slice(0, 600);
+      return `Open Pug in editor: ${pPath} (${pContent.length} chars):\n--- begin ---\n${head}\n--- end ---`;
+    }
+  }
+  return "Open editor source: (no HTML or Pug currently open)";
+}
+
 function buildDiscussionContext(payload) {
   const emailBaseSummary = summarizeEmailBase();
   const templateSelection = getReferenceTemplateSelection(payload);
   const transcript = payload.messages
     .map((message) => `${message.role === "assistant" ? "Assistant" : "User"}: ${cleanText(message.content)}`)
     .join("\n");
+
+  if (payload.localeAuditMode) {
+    return [
+      "Locale audit request inside RetKit email studio.",
+      buildResponseLanguageInstruction(payload),
+      "Focus only on translation/locale QA unless the user explicitly asks for email layout work.",
+      "Do not propose assembling a new email draft as the next step.",
+      `Current base mail: ${emailBaseSummary.currentMail?.folder || "None"}`,
+      `Content notes/context: ${payload.brief.contentNotes || "None"}`,
+      "Workbench locale state:",
+      summarizeWorkbenchNamespacesForContext(payload),
+      "Workbench editor source:",
+      summarizeWorkbenchOpenSourceForContext(payload),
+      "Conversation transcript:",
+      transcript || "User: Please audit the loaded translations."
+    ].filter(Boolean).join("\n");
+  }
 
   return [
     "You are discussing an email with a marketer inside an email studio.",
@@ -6487,6 +10292,7 @@ function buildDiscussionContext(payload) {
     "Do not claim you started background work, do not say you will send code later, and do not pretend there is async progress. Either discuss, or say clearly that the next step is to assemble the draft now.",
     `Campaign name: ${payload.brief.campaignName || "Untitled campaign"}`,
     `Goal: ${payload.brief.goal || "Not specified"}`,
+    `Content notes/context: ${payload.brief.contentNotes || "None"}`,
     `Tone: ${payload.brief.tone || "Not specified"}`,
     `Primary locale: ${payload.brief.locale}`,
     `Requested locales: ${payload.brief.requestedLocales || payload.brief.locale}`,
@@ -6497,6 +10303,8 @@ function buildDiscussionContext(payload) {
     "Copy rule: if the user says copy can stay empty for now, accept that and do not block on CTA, footer, or legal copy.",
     "Figma structured input:",
     summarizeFigmaImportForContext(payload),
+    "Figma intake enrichment:",
+    summarizeFigmaEnrichmentForContext(payload),
     "Design analysis:",
     summarizeDesignAnalysisForContext(payload.designAnalysis),
     "Structured design schema:",
@@ -6517,6 +10325,8 @@ function buildDiscussionContext(payload) {
     summarizeProjectRulesForContext(payload.projectRules),
     "=== EMAIL BASE KNOWLEDGE (real templates) ===",
     buildEmailBaseDeepContext(),
+    buildVendorMixinsReference(),
+    buildMarkupPatternsReference(),
     "=== AI LESSONS LEARNED (never repeat these mistakes) ===",
     getLessonsContextSnapshot(),
     "=== END OF BASE KNOWLEDGE ===",
@@ -6527,6 +10337,10 @@ function buildDiscussionContext(payload) {
     summarizeCurrentDraft(payload.currentDraft),
     "Translations source:",
     summarizeTranslationText(payload.translationText),
+    "Workbench locale state:",
+    summarizeWorkbenchNamespacesForContext(payload),
+    "Workbench editor source:",
+    summarizeWorkbenchOpenSourceForContext(payload),
     "Conversation transcript:",
     transcript || "User: Let's discuss the email direction."
   ].filter(Boolean).join("\n");
@@ -6554,15 +10368,32 @@ async function buildInputMessages(payload) {
     }
   }
 
+  // Pug source editing mode: inject source files for developer-style editing
+  if (payload.pugSourceMode && payload.pugSourceFiles) {
+    const filesBlock = Object.entries(payload.pugSourceFiles)
+      .map(([path, content]) => `=== ${path} ===\n${content}\n=== END ${path} ===`)
+      .join('\n\n');
+    content.push({
+      type: "input_text",
+      text: `SOURCE FILES (edit these and return changed file(s) as fenced code blocks):\n\n${filesBlock}`
+    });
+  }
+
   // Clone & Edit: append full base HTML so AI can edit it and return mail.modified_html
-  if (payload.baseEmailHtml) {
+  if (payload.baseEmailHtml && !payload.pugSourceMode) {
     content.push({
       type: "input_text",
       text: `=== FULL BASE EMAIL HTML (edit this, return complete result in mail.modified_html) ===\n${payload.baseEmailHtml}\n=== END BASE EMAIL HTML ===`
     });
   }
 
-  const activeSystemPrompt = payload.baseEmailHtml ? cloneEditSystemPrompt : systemPrompt;
+  const activeSystemPrompt = payload.localeAuditMode
+    ? localeAuditSystemPrompt
+    : payload.pugSourceMode
+      ? pugSourceEditSystemPrompt
+      : payload.baseEmailHtml
+        ? cloneEditSystemPrompt
+        : systemPrompt;
 
   return [
     {
@@ -6604,7 +10435,9 @@ async function buildDiscussionMessages(payload) {
       role: "system",
       content: [{
         type: "input_text",
-        text: "You are a live email strategist inside a collaborative email-studio. Reply in the user's language. Be concise and practical. Prefer making a concrete proposal first. Ask at most two blocking follow-up questions. If a CTA URL is missing, leave href empty instead of blocking the draft. Do not claim you started background work and do not say you will send code later."
+        text: payload.localeAuditMode
+          ? localeAuditSystemPrompt
+          : "You are a live email strategist inside a collaborative email-studio. Reply in the user's language. Be concise and practical. Prefer making a concrete proposal first. Ask at most two blocking follow-up questions. If a CTA URL is missing, leave href empty instead of blocking the draft. Do not claim you started background work and do not say you will send code later."
       }]
     },
     {
@@ -6634,8 +10467,11 @@ async function buildDesignAnalysisMessages(payload) {
         "Figma access rule: if there is only a Figma link, prefer asking for an open draft/share link or a screenshot/export of the frame. Do not ask for raw JSON unless this is an advanced/internal workflow.",
         "If the screenshot or Figma UI shows a visible template family or frame label like RFM 1-3-3, capture it.",
         "Set analysis.reference_family to the visible family label such as RFM, set analysis.reference_variant to the visible variant like 1-3-3, and set analysis.brand_hint to the visible brand such as IQ Option. If not obvious, return empty strings.",
+        "Also set analysis.visual_hints for the visible shell: centered card vs multi-band, title scale, logo scale, card width, CTA style (outline/solid, wide/default/compact), card density, support placement, approximate page/card/title/body/accent/button colors, and card/button corner shape.",
         "Figma structured input:",
         summarizeFigmaImportForContext(payload),
+        "Figma intake enrichment:",
+        summarizeFigmaEnrichmentForContext(payload),
         "Structured design schema:",
         summarizeDesignSchema(payload.designSchema),
         "Design decomposition:",
@@ -6653,7 +10489,9 @@ async function buildDesignAnalysisMessages(payload) {
         "Current draft context:",
         currentDraftSummary,
         "Available block system:",
-        emailBaseSummary.available ? emailBaseSummary.technology.join(", ") : "Not attached"
+        emailBaseSummary.available ? emailBaseSummary.technology.join(", ") : "Not attached",
+        "=== EMAIL BASE BLOCK CATALOG (map each design section to these specific blocks) ===",
+        buildEmailBaseDeepContext()
       ].join("\n")
     }
   ];
@@ -6673,7 +10511,16 @@ async function buildDesignAnalysisMessages(payload) {
         type: "input_text",
         text: [
           "You analyze email design references for a reusable email block system.",
+          "Your output is used directly to assemble a production email — be precise and specific.",
           "Reply in the user's language. Do not write HTML.",
+          "",
+          "ANALYSIS APPROACH — think step by step:",
+          "  1. Scan the image top-to-bottom and identify every distinct visual section.",
+          "  2. For each section: what kind is it? what text is visible? is there an image? is there a button?",
+          "  3. Map each section to the closest block kind (see below).",
+          "  4. If the email base catalog is provided, also suggest the specific block ID that best matches.",
+          "  5. Extract all brand colors, corner radii, and layout style from what you can see.",
+          "  6. Note any images that will need to be exported/extracted from Figma.",
           "",
           "BLOCK KINDS — map every visible section to one of these:",
           "  hero         — full-width top banner with headline, optional subtitle, optional CTA. Has a prominent image or background.",
@@ -6687,15 +10534,43 @@ async function buildDesignAnalysisMessages(payload) {
           "For each section fill:",
           "  index        — 0-based order position",
           "  kind         — one of the block kinds above",
-          "  title        — visible headline text (quote if possible, leave empty if not present)",
-          "  body         — visible paragraph/body text (quote if possible, leave empty if not present)",
-          "  cta_label    — visible button label (leave empty if no button in this section)",
+          "  title        — visible headline text (quote EXACTLY if possible, leave empty if not present)",
+          "  body         — visible paragraph/body text (quote EXACTLY if possible, leave empty if not present)",
+          "  cta_label    — visible button label (quote EXACTLY, leave empty if no button in this section)",
           "  has_image    — true if the section contains an image, false otherwise",
-          "  image_notes  — brief description of the image (size hint, position, what it shows) or empty string",
-          "  layout_notes — any notable layout detail (e.g. '2-column grid', 'dark background', 'centered text')",
+          "  image_notes  — describe the image: what it shows, approximate dimensions, position (e.g. 'full-width hero banner showing trading chart, ~600×400px')",
+          "  layout_notes — layout details: column count, background color, text alignment, whether image is bg vs inline",
+          "",
+          "IMAGE EXTRACTION NOTES (critical for Figma workflows):",
+          "  For every image you see, note in image_notes whether it looks like:",
+          "  - A hero/banner (full width, decorative) → will need export at 600px width",
+          "  - A feature icon (small, ~48-80px) → will need export at 2x",
+          "  - A logo → will need export as PNG with transparent background",
+          "  - A product screenshot or app mockup → will need export at actual display size",
           "",
           "Extract visible template family, variant, and brand from labels or layer names.",
-          "Set reference_family, reference_variant, brand_hint to empty strings if not visible."
+          "Set reference_family, reference_variant, brand_hint to empty strings if not visible.",
+          "",
+          "Also return visual_hints based on the visible shell.",
+          "  layout_style   — centered-transactional-card | hero-promo-band | multi-band | plain | ''",
+          "  title_scale    — hero | default | compact",
+          "  logo_scale     — wide | default | compact",
+          "  card_width     — wide | default | narrow",
+          "  button_width   — wide | default | compact",
+          "  button_tone    — outline | solid",
+          "  card_shape     — sharp | soft | round",
+          "  button_shape   — sharp | soft | pill",
+          "  card_density   — airy | default | compact",
+          "  support_layout — detached | default | inline",
+          "  page_bg_color      — approximate dominant page background hex like #F3F4FA or '' if unclear",
+          "  card_bg_color      — approximate card/panel fill hex like #FFFFFF or '' if unclear",
+          "  title_color        — approximate headline color hex or '' if unclear",
+          "  body_color         — approximate body text color hex or '' if unclear",
+          "  accent_color       — main accent/brand color hex or '' if unclear",
+          "  button_fill_color  — fill color for solid CTA or '' if unclear",
+          "  button_border_color — outline/border color for CTA or '' if unclear",
+          "  button_text_color  — CTA text color hex or '' if unclear",
+          "  notes          — short practical note about the visible spacing/shape style"
         ].join("\n")
       }]
     },
@@ -6709,15 +10584,75 @@ async function buildDesignAnalysisMessages(payload) {
 function createMockDesignAnalysis(payload, warning = "") {
   const hasDesign = hasDesignInput(payload);
   const designInputType = summarizeDesignInputForContext(payload);
+  const screenshotOcr = payload?.screenshotOcr && typeof payload.screenshotOcr === "object" ? payload.screenshotOcr : null;
+  const ocrBodyPreview = Array.isArray(screenshotOcr?.bodyBlocks) ? screenshotOcr.bodyBlocks.slice(0, 3) : [];
+  const ocrSectionKinds = screenshotOcr?.usable
+    ? [
+        cleanText(screenshotOcr?.title) ? "text" : "",
+        cleanText(screenshotOcr?.ctaLabel) ? "cta" : "",
+        cleanText(screenshotOcr?.supportBody || screenshotOcr?.footerBody) ? "footer" : ""
+      ].filter(Boolean)
+    : [];
   const analysis = normalizeDesignAnalysis({
     summary: hasDesign
-      ? `Есть design reference (${designInputType}), но mock-режим не анализирует изображение по содержанию. Можно только использовать его как ориентир по структуре.`
+      ? screenshotOcr?.usable
+        ? `Есть design reference (${designInputType}). Live vision недоступен, но локальный OCR fallback распознал часть текста и базовую структуру.`
+        : `Есть design reference (${designInputType}), но mock-режим не анализирует изображение по содержанию. Можно только использовать его как ориентир по структуре.`
       : "Design reference не приложен.",
+        visual_hints: screenshotOcr?.usable
+      ? {
+          layout_style: cleanText(screenshotOcr?.layoutStyle) || "plain",
+          title_scale: cleanText(deriveSimpleSystemCardVisualStyle(screenshotOcr)?.titleScale) || "default",
+          logo_scale: cleanText(deriveSimpleSystemCardVisualStyle(screenshotOcr)?.logoScale) || "default",
+          card_width: cleanText(deriveSimpleSystemCardVisualStyle(screenshotOcr)?.cardWidth) || "default",
+          button_width: cleanText(deriveSimpleSystemCardVisualStyle(screenshotOcr)?.buttonWidth) || "default",
+          button_tone: cleanText(deriveSimpleSystemCardVisualStyle(screenshotOcr)?.buttonTone) || "solid",
+          card_shape: cleanText(deriveSimpleSystemCardVisualStyle(screenshotOcr)?.cardShape) || "soft",
+          button_shape: cleanText(deriveSimpleSystemCardVisualStyle(screenshotOcr)?.buttonShape) || "soft",
+          card_density: cleanText(deriveSimpleSystemCardVisualStyle(screenshotOcr)?.cardDensity) || "default",
+          support_layout: cleanText(deriveSimpleSystemCardVisualStyle(screenshotOcr)?.supportLayout) || "default",
+          page_bg_color: "",
+          card_bg_color: "",
+          title_color: "",
+          body_color: "",
+          accent_color: "",
+          button_fill_color: "",
+          button_border_color: "",
+          button_text_color: "",
+          notes: cleanText(screenshotOcr?.layoutStyle) || "ocr visual fallback"
+        }
+      : {
+          layout_style: "",
+          title_scale: "default",
+          logo_scale: "default",
+          card_width: "default",
+          button_width: "default",
+          button_tone: "solid",
+          card_shape: "soft",
+          button_shape: "soft",
+          card_density: "default",
+          support_layout: "default",
+          page_bg_color: "",
+          card_bg_color: "",
+          title_color: "",
+          body_color: "",
+          accent_color: "",
+          button_fill_color: "",
+          button_border_color: "",
+          button_text_color: "",
+          notes: ""
+        },
     section_kinds: payload.currentDraft?.sections?.map((section) => cleanText(section.kind)).filter(Boolean).slice(0, 6)
-      || ["hero", "text", "feature-list", "cta", "footer"],
+      || (ocrSectionKinds.length > 0 ? ocrSectionKinds : ["hero", "text", "feature-list", "cta", "footer"]),
     sections_structured: [],
     suggested_blocks: hasDesign
-      ? ["Hero block", "Content block", "CTA block", "Footer block"]
+      ? screenshotOcr?.usable
+        ? [
+            cleanText(screenshotOcr?.title) ? "Text block with headline" : "",
+            cleanText(screenshotOcr?.ctaLabel) ? "Single CTA block" : "",
+            cleanText(screenshotOcr?.supportBody || screenshotOcr?.footerBody) ? "Support/footer block" : ""
+          ].filter(Boolean)
+        : ["Hero block", "Content block", "CTA block", "Footer block"]
       : ["Нужен design reference для точного block mapping"],
     asset_slots: hasDesign
       ? ["Hero visual", "Optional section image", "Logo/social/footer icons"]
@@ -6728,7 +10663,13 @@ function createMockDesignAnalysis(payload, warning = "") {
       !payload.translationText ? "Нужен translation bundle или автогенерация локалей" : ""
     ].filter(Boolean),
     warnings: [
-      hasDesign ? "Mock mode: нет vision-разбора пиксельного макета" : "Design reference отсутствует",
+      hasDesign
+        ? screenshotOcr?.usable
+          ? "Mock mode: пиксельный layout не распознан полностью, используется локальный OCR fallback."
+          : "Mock mode: нет vision-разбора пиксельного макета"
+        : "Design reference отсутствует",
+      ocrBodyPreview.length > 0 ? `OCR blocks: ${ocrBodyPreview.join(" | ")}` : "",
+      cleanText(screenshotOcr?.error),
       warning || ""
     ].filter(Boolean),
     mode: "mock-design",
@@ -6737,32 +10678,45 @@ function createMockDesignAnalysis(payload, warning = "") {
 
   return {
     assistantReply: hasDesign
-      ? `Design reference сохранен, но сейчас доступен только mock-анализ. Для реального разбора макета нужен OpenAI provider с ключом.${warning ? ` ${warning}` : ""}`
+      ? screenshotOcr?.usable
+        ? `Design reference сохранен. Live vision сейчас недоступен, поэтому студия использует локальный OCR fallback и собирает только rough structural analysis.${warning ? ` ${warning}` : ""}`
+        : `Design reference сохранен, но сейчас доступен только mock-анализ. Для реального разбора макета нужен OpenAI provider с ключом.${warning ? ` ${warning}` : ""}`
       : "Сначала приложи design reference, потом можно запускать анализ макета.",
     analysis
   };
 }
 
 function createAssetRecords(payload) {
-  if (isSystemCategoryName(resolveBriefCategory(payload))) {
-    return [];
-  }
+  const records = isSystemCategoryName(resolveBriefCategory(payload))
+    ? []
+    : payload.assetInputs
+      .filter((asset) => asset.url)
+      .slice(0, 8)
+      .map((asset, index) => {
+        const placement = resolveAssetPlacement(asset, index);
+        return {
+          key: resolveAssetKey(asset, index, placement),
+          url: asset.url,
+          alt: cleanText(asset.alt) || cleanText(asset.notes) || `Reference image ${index + 1}`,
+          placement,
+          notes: cleanText(asset.notes),
+          width: 600,
+          height: 300
+        };
+      });
 
-  const records = payload.assetInputs
-    .filter((asset) => asset.url)
-    .slice(0, 8)
-    .map((asset, index) => {
-      const placement = resolveAssetPlacement(asset, index);
-      return {
-        key: resolveAssetKey(asset, index, placement),
-        url: asset.url,
-        alt: cleanText(asset.alt) || cleanText(asset.notes) || `Reference image ${index + 1}`,
-        placement,
-        notes: cleanText(asset.notes),
-        width: 600,
-        height: 300
-      };
+  const logoUrl = cleanText(extractLatestLogoOverrideUrl(payload));
+  if (logoUrl && !records.some((asset) => cleanText(asset.url) === logoUrl)) {
+    records.unshift({
+      key: "brand_logo_asset",
+      url: logoUrl,
+      alt: deriveLogoAltText(logoUrl),
+      placement: "logo",
+      notes: "User provided logo override",
+      width: 240,
+      height: 80
     });
+  }
 
   return records;
 }
@@ -6785,9 +10739,7 @@ function defaultFeatureItems(payload) {
 }
 
 function getLatestUserMessage(payload) {
-  return [...(Array.isArray(payload?.messages) ? payload.messages : [])]
-    .reverse()
-    .find((message) => message.role === "user")?.content || "";
+  return getUserMessageContents(payload).at(-1) || "";
 }
 
 function detectPreferredResponseLanguage(payload) {
@@ -6829,6 +10781,7 @@ function looksLikeDraftReplyArtifact(text) {
 }
 
 function buildDraftSuccessReply(payload, mail) {
+  const templateSelection = getReferenceTemplateSelection(payload);
   const requestedLocales = Array.from(new Set([
     normalizeLocaleCode(payload?.brief?.locale || mail?.locale || "en"),
     ...parseLocaleList(payload?.brief?.requestedLocales || "")
@@ -6836,27 +10789,48 @@ function buildDraftSuccessReply(payload, mail) {
   const localesNote = requestedLocales.length > 1
     ? ` Локали: ${requestedLocales.join(", ")}.`
     : "";
-  const categoryNote = isSystemCategoryName(resolveBriefCategory(payload))
-    ? "Собрал черновик системного письма."
-    : "Собрал черновик письма.";
+  const categoryNote = cleanText(templateSelection?.profile) === "aff-password-reset"
+    ? "Собрал черновик affiliate password reset письма."
+    : payload?.screenshotOcr?.usable && hasVisualDesignInput(payload) && !payload?.baseEmailHtml
+      ? "Собрал OCR-черновик письма по скрину."
+      : isSystemCategoryName(resolveBriefCategory(payload))
+        ? "Собрал черновик системного письма."
+        : "Собрал черновик письма.";
   return `${categoryNote} Preview, код и локали обновлены.${localesNote}`;
 }
 
 function buildTemplateSelectionUserNote(payload) {
   const selection = getReferenceTemplateSelection(payload);
+  const reference = cleanText(selection?.category) && cleanText(selection?.mailId)
+    ? `${selection.category}/mail-${selection.mailId}`
+    : "";
+  const profile = cleanText(selection?.profile);
+  const source = cleanText(selection?.source);
   const reasons = Array.isArray(selection?.reasons) ? selection.reasons.map(cleanText).filter(Boolean) : [];
   const missingVariantReason = reasons.find((reason) => /visible variant .* not found in base/i.test(reason));
+  const hasRussianResponse = detectPreferredResponseLanguage(payload) === "Russian";
+
   if (!missingVariantReason) {
-    return "";
+    const isSpecialReference = Boolean(reference)
+      && (
+        source === "special-case"
+        || source === "ocr-special-case"
+        || (profile && profile !== "generic")
+      );
+    if (!isSpecialReference) {
+      return "";
+    }
+
+    if (hasRussianResponse) {
+      return ` Использую reference ${reference}${profile ? ` (profile: ${profile})` : ""}.`;
+    }
+
+    return ` Using reference ${reference}${profile ? ` (profile: ${profile})` : ""}.`;
   }
 
   const match = missingVariantReason.match(/visible variant\s+(\d{3})\s+not found in base/i);
   const digits = cleanText(match?.[1]);
   const variantLabel = digits ? digits.replace(/(\d)(\d)(\d)/, "$1-$2-$3") : "";
-  const reference = cleanText(selection?.category) && cleanText(selection?.mailId)
-    ? `${selection.category}/mail-${selection.mailId}`
-    : "";
-  const hasRussianResponse = detectPreferredResponseLanguage(payload) === "Russian";
 
   if (hasRussianResponse) {
     return variantLabel && reference
@@ -7035,6 +11009,11 @@ function buildDesignHintTemplateSections(payload) {
     ? payload.designMappingHints.sectionMappings
     : [];
   const footerFamily = cleanText(payload?.designMappingHints?.footerFamily);
+  const preserveCanonicalFooter = Boolean(
+    payload?.design?.figmaImport
+    || payload?.figmaEnrichment?.structuredCoverage?.available
+    || cleanText(payload?.figmaEnrichment?.importMethod).includes("figma")
+  );
   const result = [];
 
   if (blockSections.length > 0 || mappingSections.length > 0) {
@@ -7054,6 +11033,9 @@ function buildDesignHintTemplateSections(payload) {
       }
 
       if (sectionRole === "footer") {
+        if (preserveCanonicalFooter) {
+          continue;
+        }
         const footerCatalogIds = [];
         if (candidateIds.some((id) => id === "store-badges-row") || footerFamily.includes("store")) {
           footerCatalogIds.push("store-badges-row");
@@ -7098,7 +11080,7 @@ function buildDesignHintTemplateSections(payload) {
 
   const withoutFooter = result.filter((section) => cleanText(section.kind) !== "footer");
   const footerSections = result.filter((section) => cleanText(section.kind) === "footer");
-  const needsFooter = footerSections.length === 0 && cleanText(payload?.designMappingHints?.footerFamily);
+  const needsFooter = !preserveCanonicalFooter && footerSections.length === 0 && cleanText(payload?.designMappingHints?.footerFamily);
   if (needsFooter) {
     footerSections.push({
       kind: "footer",
@@ -7116,14 +11098,29 @@ function buildMockSectionForKind(kind, index, context) {
   const detail = detailLines[index] || detailLines[0] || "";
   const nextDetail = detailLines[index + 1] || "";
   const sharedEyebrow = context.audience ? `Audience: ${context.audience}` : cleanText(templateSection.eyebrow);
+  const copy = getMockSectionCopy(context.locale);
+  const getTemplateValue = (key, fallback = "") => (
+    Object.prototype.hasOwnProperty.call(templateSection, key)
+      ? cleanText(templateSection[key])
+      : cleanText(fallback)
+  );
+  const sectionMeta = {
+    sourceRole: cleanText(templateSection?.sourceRole),
+    sourceArchetype: cleanText(templateSection?.sourceArchetype),
+    recommendedCatalogId: cleanText(templateSection?.recommendedCatalogId),
+    profileBlockId: cleanText(templateSection?.profileBlockId),
+    profileSectionKind: cleanText(templateSection?.profileSectionKind),
+    confidence: cleanText(templateSection?.confidence)
+  };
 
   if (kind === "image" && sectionBlockId === "header-logo-row") {
     return {
+      ...sectionMeta,
       kind: "image",
       eyebrow: "",
       title: "",
       body: "",
-      image_key: context.heroAssetKey || context.sectionAssetKey,
+      image_key: context.logoAssetKey || context.heroAssetKey || context.sectionAssetKey,
       cta_label: "",
       cta_href: "",
       items: []
@@ -7132,10 +11129,11 @@ function buildMockSectionForKind(kind, index, context) {
 
   if (kind === "hero") {
     return {
+      ...sectionMeta,
       kind: "hero",
-      eyebrow: sharedEyebrow || "Primary message",
-      title: context.heroTitle,
-      body: context.heroBody,
+      eyebrow: getTemplateValue("eyebrow", sharedEyebrow || "Primary message"),
+      title: getTemplateValue("title", context.heroTitle),
+      body: getTemplateValue("body", context.heroBody),
       image_key: context.heroAssetKey || context.sectionAssetKey,
       cta_label: context.ctaLabel,
       cta_href: context.ctaHref,
@@ -7145,10 +11143,11 @@ function buildMockSectionForKind(kind, index, context) {
 
   if (kind === "feature-list") {
     return {
+      ...sectionMeta,
       kind: "feature-list",
-      eyebrow: cleanText(templateSection.eyebrow) || "Key points",
-      title: cleanText(templateSection.title) || "Что должно быть в письме",
-      body: cleanText(templateSection.body) || "Блок собран из brief, перевода и текущей структуры письма.",
+      eyebrow: getTemplateValue("eyebrow", "Key points"),
+      title: getTemplateValue("title", copy.featureTitle),
+      body: getTemplateValue("body", copy.featureBody),
       image_key: "",
       cta_label: "",
       cta_href: "",
@@ -7158,10 +11157,11 @@ function buildMockSectionForKind(kind, index, context) {
 
   if (kind === "image") {
     return {
+      ...sectionMeta,
       kind: "image",
-      eyebrow: cleanText(templateSection.eyebrow) || "Visual",
-      title: cleanText(templateSection.title) || detail || "Визуальный блок",
-      body: cleanText(templateSection.body) || nextDetail || context.supportBody,
+      eyebrow: getTemplateValue("eyebrow", copy.visualEyebrow),
+      title: getTemplateValue("title", detail || copy.mainContentTitle),
+      body: getTemplateValue("body", nextDetail || context.supportBody),
       image_key: context.sectionAssetKey || context.heroAssetKey,
       cta_label: "",
       cta_href: "",
@@ -7171,10 +11171,11 @@ function buildMockSectionForKind(kind, index, context) {
 
   if (kind === "cta") {
     return {
+      ...sectionMeta,
       kind: "cta",
-      eyebrow: cleanText(templateSection.eyebrow) || "Primary action",
-      title: cleanText(templateSection.title) || "Главное действие",
-      body: cleanText(templateSection.body) || context.ctaBody,
+      eyebrow: getTemplateValue("eyebrow", copy.primaryActionEyebrow),
+      title: getTemplateValue("title", copy.primaryActionTitle),
+      body: getTemplateValue("body", context.ctaBody),
       image_key: "",
       cta_label: context.ctaLabel,
       cta_href: context.ctaHref,
@@ -7185,6 +11186,7 @@ function buildMockSectionForKind(kind, index, context) {
   if (kind === "footer") {
     if (sectionBlockId === "social-links-row" || sectionBlockId === "social-icons-row") {
       return {
+        ...sectionMeta,
         kind: "footer",
         eyebrow: "",
         title: "",
@@ -7198,6 +11200,7 @@ function buildMockSectionForKind(kind, index, context) {
 
     if (sectionBlockId === "store-badges-row") {
       return {
+        ...sectionMeta,
         kind: "footer",
         eyebrow: "",
         title: "",
@@ -7210,10 +11213,11 @@ function buildMockSectionForKind(kind, index, context) {
     }
 
     return {
+      ...sectionMeta,
       kind: "footer",
       eyebrow: "",
-      title: cleanText(templateSection.title) || "Footer",
-      body: cleanText(templateSection.body) || context.footerBody,
+      title: getTemplateValue("title", copy.footerTitle),
+      body: getTemplateValue("body", context.footerBody),
       image_key: "",
       cta_label: "",
       cta_href: "",
@@ -7222,10 +11226,11 @@ function buildMockSectionForKind(kind, index, context) {
   }
 
   return {
+    ...sectionMeta,
     kind: "text",
-    eyebrow: cleanText(templateSection.eyebrow) || "Details",
-    title: cleanText(templateSection.title) || detail || "Основной блок",
-    body: cleanText(templateSection.body) || nextDetail || context.supportBody,
+    eyebrow: getTemplateValue("eyebrow", copy.detailsEyebrow),
+    title: getTemplateValue("title", detail || copy.mainContentTitle),
+    body: getTemplateValue("body", nextDetail || context.supportBody),
     image_key: context.sectionAssetKey,
     cta_label: "",
     cta_href: "",
@@ -7283,6 +11288,10 @@ function isWeakGeneratedSectionLayout(sections, payload, expectedSections = []) 
 }
 
 function repairMailSectionsFromDesignHints(mail, payload) {
+  if (payload?.screenshotOcr?.usable && hasVisualDesignInput(payload) && !hasStructuredFigmaInput(payload)) {
+    return mail;
+  }
+
   const expectedSections = buildDesignHintTemplateSections(payload);
   if (expectedSections.length === 0 || !isWeakGeneratedSectionLayout(mail?.sections, payload, expectedSections)) {
     return mail;
@@ -7296,11 +11305,26 @@ function repairMailSectionsFromDesignHints(mail, payload) {
 
 function buildFallbackMail(payload, options = {}) {
   const includeCurrentDraft = Boolean(options.includeCurrentDraft);
-  const templateMail = options.templateMail && typeof options.templateMail === "object"
+  const explicitTemplateMail = options.templateMail && typeof options.templateMail === "object"
     ? options.templateMail
     : includeCurrentDraft && payload?.currentDraft && typeof payload.currentDraft === "object"
       ? payload.currentDraft
       : null;
+  const affPasswordResetMock = cleanText(getReferenceTemplateSelection(payload)?.profile) === "aff-password-reset";
+  const templateMail = explicitTemplateMail
+    || (affPasswordResetMock ? buildAffPasswordResetTemplateMail(payload) : null);
+  const cloneEditContentMap = getCloneEditContentMap(payload);
+  const cloneEditBodyBlocks = buildNormalizedContentMapSections(cloneEditContentMap);
+  const cloneEditHeading = pickContentMapHeading(cloneEditContentMap, cloneEditBodyBlocks);
+  const cloneEditLead = pickContentMapLead(cloneEditContentMap, cloneEditBodyBlocks);
+  const cloneEditCtas = Array.isArray(cloneEditContentMap?.links)
+    ? cloneEditContentMap.links
+      .map((entry) => ({
+        text: cleanText(entry?.text),
+        href: cleanText(entry?.href)
+      }))
+      .filter((entry) => entry.text || entry.href)
+    : [];
   const translationSeed = findPreferredTranslationEntry(payload.translationText, payload.brief.locale, {
     locale: payload.brief.locale || templateMail?.locale || "en",
     subject: templateMail?.subject || "",
@@ -7309,8 +11333,21 @@ function buildFallbackMail(payload, options = {}) {
     body_blocks: []
   });
   const translatedBlocks = Array.isArray(translationSeed?.body_blocks) ? translationSeed.body_blocks : [];
+  const screenshotOcr = payload?.screenshotOcr && typeof payload.screenshotOcr === "object"
+    ? payload.screenshotOcr
+    : null;
+  const screenshotBlocks = Array.isArray(screenshotOcr?.bodyBlocks)
+    ? screenshotOcr.bodyBlocks.map(cleanText).filter(Boolean)
+    : [];
+  const resetSupportSplit = splitAffPasswordResetWarningAndSupport(cleanText(screenshotOcr?.supportBody));
+  const resetWarningBody = cleanText(screenshotOcr?.warningBody) || cleanText(resetSupportSplit.warning);
+  const resetSupportBody = cleanText(screenshotOcr?.supportBody) || cleanText(resetSupportSplit.support);
   const detailLines = translatedBlocks.length > 0
     ? translatedBlocks
+    : cloneEditBodyBlocks.length > 0
+      ? cloneEditBodyBlocks
+      : screenshotBlocks.length > 0
+        ? screenshotBlocks
     : defaultFeatureItems(payload);
   const latestUserMessage = getLatestUserMessage(payload);
   const templateCta = getPrimaryTemplateCta(templateMail);
@@ -7323,6 +11360,9 @@ function buildFallbackMail(payload, options = {}) {
     || "en";
   const heroTitle = cleanText(
     translatedBlocks[0]
+    || cloneEditHeading
+    || cloneEditContentMap?.subject
+    || screenshotOcr?.title
     || payload.brief.campaignName
     || deriveTitleFromUserMessage(latestUserMessage)
     || templateMail?.sections?.find((section) => cleanText(section?.kind) === "hero")?.title
@@ -7331,6 +11371,9 @@ function buildFallbackMail(payload, options = {}) {
   );
   const heroBody = cleanText(
     translatedBlocks[1]
+    || cloneEditLead
+    || cloneEditContentMap?.preheader
+    || screenshotBlocks[0]
     || payload.brief.goal
     || payload.brief.contentNotes
     || templateMail?.sections?.find((section) => cleanText(section?.kind) === "hero")?.body
@@ -7339,13 +11382,19 @@ function buildFallbackMail(payload, options = {}) {
   );
   const subject = cleanText(
     translationSeed?.subject
+    || cloneEditContentMap?.subject
+    || cloneEditHeading
+    || screenshotOcr?.title
+    || templateMail?.subject
     || payload.brief.campaignName
     || deriveTitleFromUserMessage(latestUserMessage)
-    || templateMail?.subject
     || heroTitle
   );
   const preheader = cleanText(
     translationSeed?.preheader
+    || cloneEditContentMap?.preheader
+    || cloneEditLead
+    || screenshotBlocks[0]
     || payload.brief.goal
     || templateMail?.preheader
     || heroBody.slice(0, 120)
@@ -7353,19 +11402,98 @@ function buildFallbackMail(payload, options = {}) {
   const ctaLabel = cleanText(
     payload.brief.primaryCta
     || translationSeed?.cta_labels?.[0]
+    || cloneEditCtas[0]?.text
+    || screenshotOcr?.ctaLabel
     || templateCta.label
     || "Open email"
   );
   const ctaHref = cleanText(
     payload.brief.primaryLink
+    || cloneEditCtas[0]?.href
     || templateCta.href
     || ""
   );
+  const logoAssetKey = getAssetByPlacement(assets, ["logo"])?.key || "";
   const heroAssetKey = getAssetByPlacement(assets, ["hero", "background"])?.key
     || assets[0]?.key
     || "";
   const sectionAssetKey = getAssetByPlacement(assets, ["section", "feature"])?.key
     || heroAssetKey;
+  const affPasswordResetTemplateSections = affPasswordResetMock
+    ? [
+        { kind: "image", recommendedCatalogId: "header-logo-row" },
+        {
+          kind: "text",
+          recommendedCatalogId: "plain-copy-text-card",
+          eyebrow: "",
+          title: cleanText(screenshotOcr?.title) || heroTitle,
+          body: cleanText(screenshotBlocks.slice(0, 3).join("\n\n")) || heroBody
+        },
+        {
+          kind: "cta",
+          recommendedCatalogId: "single-button-cta-card",
+          eyebrow: "",
+          title: "",
+          body: cleanText(screenshotOcr?.ctaLead || templateMail?.sections?.[1]?.body || "")
+        },
+        {
+          kind: "text",
+          recommendedCatalogId: "plain-copy-text-card",
+          eyebrow: "",
+          title: "",
+          body: resetWarningBody
+        },
+        {
+          kind: "text",
+          recommendedCatalogId: "plain-copy-text-card",
+          eyebrow: "",
+          title: "",
+          body: resetSupportBody
+        }
+      ].filter((section) => cleanText(section.body) || cleanText(section.title) || cleanText(section.kind) === "image" || cleanText(section.kind) === "cta")
+    : [];
+  const screenshotTemplateSections = screenshotOcr?.usable
+    ? [
+        (logoAssetKey || cleanText(payload?.brief?.designUrl) || screenshotOcr?.title)
+          ? { kind: "image", recommendedCatalogId: "header-logo-row" }
+          : null,
+        cleanText(screenshotOcr?.title) || screenshotBlocks.length > 0
+          ? {
+              kind: "text",
+              recommendedCatalogId: "plain-copy-text-card",
+              eyebrow: "",
+              title: cleanText(screenshotOcr?.title) || heroTitle,
+              body: cleanText(screenshotBlocks.slice(0, 3).join("\n\n")) || heroBody
+            }
+          : null,
+        cleanText(screenshotOcr?.ctaLabel)
+          ? {
+              kind: "cta",
+              recommendedCatalogId: "single-button-cta-card",
+              eyebrow: "",
+              title: "",
+              body: cleanText(screenshotOcr?.ctaLead || screenshotBlocks.at(-1) || heroBody)
+            }
+          : null,
+        cleanText(screenshotOcr?.supportBody)
+          ? {
+              kind: "text",
+              recommendedCatalogId: "plain-copy-text-card",
+              eyebrow: "",
+              title: "",
+              body: cleanText(screenshotOcr.supportBody)
+            }
+          : null,
+        cleanText(screenshotOcr?.footerBody).length > 18
+          ? {
+              kind: "footer",
+              recommendedCatalogId: "legal-unsubscribe-footer",
+              title: "",
+              body: cleanText(screenshotOcr.footerBody)
+            }
+          : null
+      ].filter(Boolean)
+    : [];
   const rawTemplateSections = Array.isArray(templateMail?.sections) && templateMail.sections.length > 0
     ? templateMail.sections.filter((section) => {
         const signal = `${cleanText(section?.title)} ${cleanText(section?.body)}`.toLowerCase();
@@ -7382,10 +11510,21 @@ function buildFallbackMail(payload, options = {}) {
   const profiledTemplateSections = guidedTemplateSections.length > 0
     ? guidedTemplateSections
     : [...heroSections, ...middleSections, ...footerSections].map((section) => normalizeSection(section));
-  const templateSections = profiledTemplateSections.length > 0
+  const templateSections = affPasswordResetTemplateSections.length > 0
+    ? affPasswordResetTemplateSections
+    : screenshotTemplateSections.length > 0
+    ? screenshotTemplateSections
+    : profiledTemplateSections.length > 0
     ? profiledTemplateSections
     : designDrivenSections.length > 0
       ? designDrivenSections
+      : hasVisualDesignInput(payload)
+        ? [
+            { kind: "image", recommendedCatalogId: "header-logo-row" },
+            { kind: "text", recommendedCatalogId: "plain-copy-text-card" },
+            { kind: "cta", recommendedCatalogId: "single-button-cta-card" },
+            { kind: "footer", recommendedCatalogId: "legal-unsubscribe-footer" }
+          ]
     : [
         { kind: "hero" },
         { kind: "text" },
@@ -7398,17 +11537,22 @@ function buildFallbackMail(payload, options = {}) {
     : defaultFeatureItems(payload);
   const context = {
     audience: payload.brief.audience,
+    locale,
     templateSections,
     detailLines,
     heroTitle,
     heroBody,
-    supportBody: detailLines[1] || payload.brief.contentNotes || heroBody,
-    ctaBody: payload.brief.goal || detailLines.at(-1) || "Пользователь должен получить один четкий CTA и перейти по основной ссылке.",
-    footerBody: cleanText(templateMail?.sections?.find((section) => cleanText(section.kind) === "footer")?.body)
-      || "Footer, legal и unsubscribe copy нужно подтвердить перед отправкой.",
+    supportBody: resetSupportBody || detailLines[1] || payload.brief.contentNotes || heroBody,
+    ctaBody: cleanText(screenshotOcr?.ctaLead || screenshotBlocks.at(-1) || screenshotBlocks[0]) || payload.brief.goal || detailLines.at(-1) || getMockSectionCopy(locale).ctaBody,
+    footerBody: affPasswordResetMock
+      ? ""
+      : cleanText(screenshotOcr?.footerBody)
+      || cleanText(templateMail?.sections?.find((section) => cleanText(section.kind) === "footer")?.body)
+      || (screenshotOcr?.usable ? "" : getMockSectionCopy(locale).footerBody),
     featureItems,
-    ctaLabel,
+    ctaLabel: affPasswordResetMock ? normalizeAffPasswordResetCtaLabel(ctaLabel, templateCta.label) : ctaLabel,
     ctaHref,
+    logoAssetKey,
     heroAssetKey,
     sectionAssetKey
   };
@@ -7416,6 +11560,14 @@ function buildFallbackMail(payload, options = {}) {
   const sections = templateSections
     .map((section, index) => buildMockSectionForKind(cleanText(section?.kind) || "text", index, context))
     .filter((section, index, collection) => section.kind !== "image" || Boolean(section.image_key) || collection.length <= 3);
+  const visualStyle = affPasswordResetMock
+    ? mergeVisualStyleHints(
+        deriveAffPasswordResetVisualStyle(screenshotOcr) || normalizeVisualStyleHints(templateMail?.visual_style),
+        payload?.designAnalysis?.visual_hints
+      )
+    : cleanText(screenshotOcr?.layoutStyle) === "centered-transactional-card"
+      ? mergeVisualStyleHints(deriveSimpleSystemCardVisualStyle(screenshotOcr), payload?.designAnalysis?.visual_hints)
+      : normalizeVisualStyleHints(templateMail?.visual_style);
 
   const mail = {
     subject,
@@ -7424,6 +11576,7 @@ function buildFallbackMail(payload, options = {}) {
     summary: heroBody,
     brand_logo_url: cleanText(templateMail?.brand_logo_url),
     brand_logo_alt: cleanText(templateMail?.brand_logo_alt),
+    visual_style: visualStyle,
     sections,
     assets,
     translations: []
@@ -7442,7 +11595,7 @@ function unwrapTranslationBraces(text) {
 }
 
 function extractLocaleFromFilename(fileName) {
-  const match = cleanText(fileName).match(/_([a-z]{2}(?:[_-][A-Za-z]{2})?)(?:_|\.|$)/);
+  const match = cleanText(fileName).match(/(?:^|[_-])([a-z]{2}(?:[_-][A-Za-z]{2})?)(?=[_.-]|$)/i);
   return match ? normalizeLocaleCode(match[1]) : "";
 }
 
@@ -7497,8 +11650,7 @@ function parseTxtTranslationDoc(doc) {
   const contentLines = pushIndex >= 0 ? lines.slice(0, pushIndex) : lines;
   const blocks = contentLines
     .filter((line) => /^\{\{[\s\S]*\}\}$/.test(line))
-    .map((line) => normalizeBoldTokens(unwrapTranslationBraces(line)))
-    .filter(Boolean);
+    .map((line) => normalizeBoldTokens(unwrapTranslationBraces(line)));
   const pushLines = pushIndex >= 0
     ? lines.slice(pushIndex + 1).map(normalizeBoldTokens).filter(Boolean)
     : [];
@@ -7647,7 +11799,7 @@ function normalizeTranslationEntry(entry, mail) {
       : collectCtaLabels(mail),
     notes: cleanText(entry?.notes),
     body_blocks: Array.isArray(entry?.body_blocks)
-      ? entry.body_blocks.map(normalizeBoldTokens).filter(Boolean)
+      ? entry.body_blocks.map(normalizeBoldTokens)
       : [],
     source_name: cleanText(entry?.source_name)
   };
@@ -7704,6 +11856,44 @@ function dedupeTranslationEntries(entries, mail) {
   }
 
   return [...map.values()];
+}
+
+function mergeSourceTranslationEntryIntoEntries(entries, sourceEntry, mail) {
+  const normalizedSource = sourceEntry ? normalizeTranslationEntry(sourceEntry, mail) : null;
+  if (!normalizedSource) {
+    return dedupeTranslationEntries(entries, mail);
+  }
+
+  const sourceLocale = normalizeLocaleCode(normalizedSource.locale) || normalizeLocaleCode(mail?.locale) || "en";
+  let mergedSource = false;
+
+  const mergedEntries = (Array.isArray(entries) ? entries : []).map((entry) => {
+    const normalizedEntry = normalizeTranslationEntry(entry, mail);
+    if (!localeMatchesRequest(normalizedEntry.locale, sourceLocale)) {
+      return normalizedEntry;
+    }
+
+    mergedSource = true;
+    return normalizeTranslationEntry({
+      locale: sourceLocale,
+      subject: cleanText(normalizedEntry.subject) || cleanText(normalizedSource.subject),
+      preheader: cleanText(normalizedEntry.preheader) || cleanText(normalizedSource.preheader),
+      cta_labels: Array.isArray(normalizedEntry.cta_labels) && normalizedEntry.cta_labels.length > 0
+        ? normalizedEntry.cta_labels
+        : normalizedSource.cta_labels,
+      notes: cleanText(normalizedEntry.notes) || cleanText(normalizedSource.notes),
+      body_blocks: Array.isArray(normalizedEntry.body_blocks) && normalizedEntry.body_blocks.length > 0
+        ? normalizedEntry.body_blocks
+        : normalizedSource.body_blocks,
+      source_name: cleanText(normalizedEntry.source_name) || cleanText(normalizedSource.source_name)
+    }, mail);
+  });
+
+  if (!mergedSource) {
+    mergedEntries.unshift(normalizedSource);
+  }
+
+  return dedupeTranslationEntries(mergedEntries, mail);
 }
 
 function localeMatchesRequest(existingLocale, requestedLocale) {
@@ -7845,6 +12035,16 @@ function renderTranslationBundle(entries) {
 }
 
 function buildSourceTranslationEntry(mail, payload) {
+  const cloneEditEntry = buildTranslationEntryFromContentMap(
+    getCloneEditContentMap(payload),
+    payload?.brief?.locale || mail?.locale || "en",
+    mail,
+    "clone-edit-base-email.txt"
+  );
+  if (cloneEditEntry) {
+    return cloneEditEntry;
+  }
+
   const preferred = findPreferredTranslationEntry(payload.translationText, payload.brief.locale, mail);
   if (preferred) {
     const normalized = normalizeTranslationEntry(preferred, mail);
@@ -7871,20 +12071,200 @@ function buildSourceTranslationEntry(mail, payload) {
   }, mail);
 }
 
+function extractStructuredJsonFromModelText(rawText) {
+  const source = cleanText(rawText);
+  if (!source) {
+    return null;
+  }
+
+  const candidates = [source];
+  const fencedMatch = source.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+  if (fencedMatch?.[1]) {
+    candidates.push(cleanText(fencedMatch[1]));
+  }
+
+  const firstBrace = source.indexOf("{");
+  const lastBrace = source.lastIndexOf("}");
+  if (firstBrace >= 0 && lastBrace > firstBrace) {
+    candidates.push(source.slice(firstBrace, lastBrace + 1));
+  }
+
+  for (const candidate of candidates) {
+    try {
+      return JSON.parse(candidate);
+    } catch {
+      // Try the next candidate.
+    }
+  }
+
+  return null;
+}
+
+function extractHtmlDocumentFromModelText(rawText) {
+  const source = String(rawText || "").trim();
+  if (!source) {
+    return "";
+  }
+
+  const directMatch = source.match(/(?:<!doctype[\s\S]*?<html[\s\S]*?<\/html>|<html[\s\S]*?<\/html>)/i);
+  if (directMatch?.[0]) {
+    return directMatch[0].trim();
+  }
+
+  const fencedMatch = source.match(/^```(?:html)?\s*([\s\S]*?)\s*```$/i);
+  if (fencedMatch?.[1]) {
+    const fencedHtml = fencedMatch[1].trim();
+    if (/<html[\s\S]*<\/html>/i.test(fencedHtml) || /<!doctype/i.test(fencedHtml)) {
+      return fencedHtml;
+    }
+  }
+
+  if (/^\s*(?:<!doctype|<html|<body)\b/i.test(source)) {
+    return source;
+  }
+
+  return "";
+}
+
+function buildCloneEditResponseFromRawHtml(rawText, payload) {
+  const modifiedHtml = cleanText(extractHtmlDocumentFromModelText(rawText));
+  if (!modifiedHtml) {
+    return null;
+  }
+
+  const primaryLocale = normalizeLocaleCode(
+    cleanText(payload?.brief?.locale)
+    || cleanText(payload?.currentDraft?.mail?.locale)
+    || "en"
+  );
+  const contentMap = extractEmailHtmlContentMap(modifiedHtml) || {};
+  const fallbackMail = {
+    subject: cleanText(contentMap.subject) || cleanText(payload?.currentDraft?.mail?.subject),
+    preheader: cleanText(contentMap.preheader) || cleanText(payload?.currentDraft?.mail?.preheader),
+    locale: primaryLocale,
+    sections: [],
+    assets: [],
+    translations: []
+  };
+  const sourceEntry = buildTranslationEntryFromContentMap(
+    contentMap,
+    primaryLocale,
+    fallbackMail,
+    "clone-edit-html-fallback.txt"
+  );
+  const userText = cleanText(getLatestUserMessage(payload));
+  const assistantReply = /[А-Яа-яЁё]/.test(userText)
+    ? "Готово. Основной HTML восстановлен из ответа модели, а локали будут дособраны отдельным шагом."
+    : "Done. Recovered the primary HTML from the model response; locale variants will be completed in a follow-up step.";
+
+  return {
+    assistant_reply: assistantReply,
+    mail: {
+      subject: cleanText(contentMap.subject) || cleanText(payload?.currentDraft?.mail?.subject) || "",
+      preheader: cleanText(contentMap.preheader) || cleanText(payload?.currentDraft?.mail?.preheader) || "",
+      locale: primaryLocale,
+      summary: cleanText(contentMap.sections?.[0]) || cleanText(contentMap.preheader) || cleanText(contentMap.subject) || "Clone-edit HTML recovered from raw model output.",
+      modified_html: modifiedHtml,
+      localized_html: [],
+      translations: sourceEntry ? [sourceEntry] : []
+    }
+  };
+}
+
+function buildLocaleRepairPlan(payload, draft) {
+  const effectiveDraft = draft && typeof draft === "object" ? draft : null;
+  const baseMail = normalizeMail(effectiveDraft?.mail || payload?.currentDraft || null, payload);
+  const requestedLocales = Array.from(new Set([
+    normalizeLocaleCode(payload?.brief?.locale || baseMail.locale || "en"),
+    ...parseLocaleList(payload?.brief?.requestedLocales || ""),
+    ...extractRequestedLocalesFromMessages(payload)
+  ].filter(Boolean)));
+
+  const existingEntries = dedupeTranslationEntries(
+    [
+      ...parseTranslationEntries(cleanText(payload?.translationText), baseMail),
+      ...(Array.isArray(baseMail?.translations) ? baseMail.translations : [])
+    ],
+    baseMail
+  );
+
+  const sourceEntry = payload?.baseEmailHtml && cleanText(effectiveDraft?.html)
+    ? buildCloneEditPreviewSourceEntry(cleanText(effectiveDraft.html), baseMail)
+    : buildSourceTranslationEntry(baseMail, payload);
+
+  const sourceBodyCount = Array.isArray(sourceEntry?.body_blocks) ? sourceEntry.body_blocks.filter(Boolean).length : 0;
+  const sourceCtaCount = Array.isArray(sourceEntry?.cta_labels) ? sourceEntry.cta_labels.filter(Boolean).length : 0;
+
+  const missingLocales = requestedLocales.filter((locale) => !existingEntries.some((entry) => localeMatchesRequest(entry.locale, locale)));
+  const incompleteLocales = requestedLocales.filter((locale) => {
+    const entry = existingEntries.find((candidate) => localeMatchesRequest(candidate?.locale, locale));
+    if (!entry) {
+      return false;
+    }
+
+    if (localeMatchesRequest(locale, sourceEntry?.locale)) {
+      return false;
+    }
+
+    const bodyCount = Array.isArray(entry?.body_blocks) ? entry.body_blocks.filter(Boolean).length : 0;
+    const ctaCount = Array.isArray(entry?.cta_labels) ? entry.cta_labels.filter(Boolean).length : 0;
+    return (sourceBodyCount > 0 && bodyCount < sourceBodyCount) || (sourceCtaCount > 0 && ctaCount < sourceCtaCount);
+  });
+
+  return {
+    baseMail,
+    sourceEntry,
+    requestedLocales,
+    existingEntries,
+    missingLocales,
+    incompleteLocales,
+    targetLocales: Array.from(new Set([...missingLocales, ...incompleteLocales]))
+  };
+}
+
 function createMockDraft(payload, warning = "") {
   const mail = buildFallbackMail(payload, { includeCurrentDraft: true });
   const reusingStructure = Boolean(payload.currentDraft?.sections?.length);
+  const screenshotOcrUsed = Boolean(payload?.screenshotOcr?.usable && hasVisualDesignInput(payload) && !payload?.baseEmailHtml);
   const suffix = warning ? ` Сейчас включен mock-режим: ${warning}.` : "";
+
+  // Clone-edit mock: return original HTML unchanged so the user always gets output.
+  // The AI couldn't apply edits, but at least the HTML is accessible via Copy HTML.
+  if (payload.baseEmailHtml) {
+    const fallbackEdit = applyDeterministicCloneEditFallback(payload);
+    const modifiedHtml = cleanText(fallbackEdit.html) || cleanText(payload.baseEmailHtml);
+    const ruleNote = Array.isArray(fallbackEdit.appliedRules) && fallbackEdit.appliedRules.length > 0
+      ? ` Применил safe fallback для простых правок: ${fallbackEdit.appliedRules.join(", ")}.`
+      : "";
+    return {
+      assistant_reply: fallbackEdit.changed
+        ? `⚠️ Mock-режим: AI-правки сейчас недоступны.${suffix}${ruleNote} HTML обновлен детерминированным fallback и доступен через Copy HTML.`
+        : `⚠️ Mock-режим: не удалось применить правки через AI.${suffix} Исходный HTML возвращён без изменений — скопируй его через кнопку Copy HTML.`,
+      mail: { ...mail, modified_html: modifiedHtml }
+    };
+  }
+
   return {
     assistant_reply: reusingStructure
       ? `Обновил draft на базе текущей структуры письма и ваших материалов.${suffix}`
-      : `Собрал draft по brief, переводам, design reference и доступным блокам.${suffix}`,
+      : screenshotOcrUsed
+        ? `Собрал rough draft через локальный OCR fallback: распознал часть текста и CTA со скрина, но layout пока приближенный.${suffix}`
+        : `Собрал draft по brief, переводам, design reference и доступным блокам.${suffix}`,
     mail
   };
 }
 
 async function createProjectAwareMockDraft(payload, warning = "") {
+  // Clone-edit mode: always use createMockDraft which returns original HTML as modified_html
+  if (payload.baseEmailHtml) {
+    return createMockDraft(payload, warning);
+  }
+
   if (payload.currentDraft?.sections?.length) {
+    return createMockDraft(payload, warning);
+  }
+
+  if (hasVisualDesignInput(payload) && !hasStructuredFigmaInput(payload)) {
     return createMockDraft(payload, warning);
   }
 
@@ -8006,19 +12386,32 @@ function createMockDiscussion(payload, warning = "") {
 }
 
 function createMockTranslations(payload, mail, sourceEntry, targetLocales, warning = "") {
-  const translations = targetLocales.map((locale) => normalizeTranslationEntry({
-    locale,
-    subject: sourceEntry.subject || mail.subject,
-    preheader: sourceEntry.preheader || mail.preheader,
-    cta_labels: sourceEntry.cta_labels?.length > 0 ? sourceEntry.cta_labels : collectCtaLabels(mail),
-    notes: `Mock placeholder copied from ${sourceEntry.locale || mail.locale}. Replace with reviewed translation before send.`,
-    body_blocks: sourceEntry.body_blocks?.length > 0 ? sourceEntry.body_blocks : deriveBodyBlocksFromMail(mail),
-    source_name: `mock-generated_${locale}.txt`
-  }, mail));
+  const translations = targetLocales.map((locale) => {
+    const deterministicEntry = buildDeterministicMockTranslationEntry(locale, mail, sourceEntry);
+    if (deterministicEntry) {
+      return deterministicEntry;
+    }
+
+    return normalizeTranslationEntry({
+      locale,
+      subject: sourceEntry.subject || mail.subject,
+      preheader: sourceEntry.preheader || mail.preheader,
+      cta_labels: sourceEntry.cta_labels?.length > 0 ? sourceEntry.cta_labels : collectCtaLabels(mail),
+      notes: `Mock placeholder copied from ${sourceEntry.locale || mail.locale}. Replace with reviewed translation before send.`,
+      body_blocks: sourceEntry.body_blocks?.length > 0 ? sourceEntry.body_blocks : deriveBodyBlocksFromMail(mail),
+      source_name: `${normalizeLocaleCode(locale) || "locale"}.txt`
+    }, mail);
+  });
+  const deterministicLocales = translations
+    .filter((entry) => /deterministic/i.test(cleanText(entry?.notes)))
+    .map((entry) => normalizeLocaleCode(entry?.locale))
+    .filter(Boolean);
 
   return {
     assistant_reply: [
-      `Собрал ${translations.length} missing locale(s) как placeholder bundle.`,
+      deterministicLocales.length > 0
+        ? `Собрал ${translations.length} missing locale(s); deterministic fallback готов для: ${deterministicLocales.join(", ")}.`
+        : `Собрал ${translations.length} missing locale(s) как placeholder bundle.`,
       warning || "Mock translation mode selected."
     ].filter(Boolean).join(" "),
     translations
@@ -8120,6 +12513,7 @@ function normalizeMail(rawMail, payload) {
     summary: cleanText(mail.summary) || fallback.summary,
     brand_logo_url: cleanText(mail.brand_logo_url) || cleanText(fallback.brand_logo_url),
     brand_logo_alt: cleanText(mail.brand_logo_alt) || cleanText(fallback.brand_logo_alt),
+    visual_style: normalizeVisualStyleHints(mail.visual_style),
     sections: Array.isArray(mail.sections) && mail.sections.length > 0
       ? mail.sections.map((section) => normalizeSection(section))
       : fallback.sections,
@@ -8327,7 +12721,9 @@ function adaptMailToCategory(mail, payload) {
     return mail;
   }
 
-  const assets = [];
+  const assets = (Array.isArray(mail.assets) ? mail.assets : [])
+    .map((asset) => ({ ...asset }))
+    .filter((asset) => cleanText(asset.placement) === "logo" || isLikelyLogoAsset(asset));
 
   let sections = (Array.isArray(mail.sections) ? mail.sections : [])
     .map((section) => {
@@ -8348,7 +12744,8 @@ function adaptMailToCategory(mail, payload) {
     })
     .filter((section) => {
       if (cleanText(section.kind) === "image") {
-        return Boolean(cleanText(section.title) || cleanText(section.body));
+        const blockId = cleanText(section.profileBlockId || section.recommendedCatalogId);
+        return blockId === "header-logo-row" || Boolean(cleanText(section.title) || cleanText(section.body) || cleanText(section.image_key));
       }
       return true;
     })
@@ -8629,7 +13026,7 @@ function renderSystemFooterHtml(mail) {
   `;
 }
 
-function renderSystemEmailHtml(mail) {
+function renderSystemEmailHtml(mail, metadata = {}) {
   const logoAsset = getPreferredLogoAsset(mail);
   const logoUrl = cleanText(mail?.brand_logo_url) || cleanText(logoAsset?.url) || "https://images01.iqoption.com/89/0689/static-01503674720413810689.png";
   const logoAlt = cleanText(mail?.brand_logo_alt) || cleanText(logoAsset?.alt) || "IQ Option";
@@ -8638,6 +13035,7 @@ function renderSystemEmailHtml(mail) {
     .filter((section) => cleanText(section.kind) !== "footer")
     .map((section, index) => renderSystemSectionHtml(section, mail, index))
     .join("");
+  const hideMeta = Boolean(metadata?.hideDebugMeta);
 
   return `<!DOCTYPE html>
 <html lang="${escapeHtml(mail.locale)}">
@@ -8812,9 +13210,9 @@ function renderSystemEmailHtml(mail) {
       <tr>
         <td align="center">
           <table class="system-frame" role="presentation" cellspacing="0" cellpadding="0" border="0">
-            <tr>
+            ${hideMeta ? "" : `<tr>
               <td class="system-head-meta">Subject: ${formatInlineMarkup(mail.subject)}<br />Preheader: ${formatInlineMarkup(mail.preheader)}</td>
-            </tr>
+            </tr>`}
             <tr>
               <td class="system-header">${logoMarkup}</td>
             </tr>
@@ -8828,8 +13226,9 @@ function renderSystemEmailHtml(mail) {
 </html>`;
 }
 
-function renderMarketingEmailHtml(mail) {
+function renderMarketingEmailHtml(mail, metadata = {}) {
   const sectionsHtml = mail.sections.map((section) => renderSectionHtml(section, mail)).join("");
+  const hideMeta = Boolean(metadata?.hideDebugMeta);
 
   return `<!DOCTYPE html>
 <html lang="${escapeHtml(mail.locale)}">
@@ -8951,7 +13350,7 @@ function renderMarketingEmailHtml(mail) {
   </head>
   <body>
     <div class="canvas">
-      <div class="meta">Subject: ${formatInlineMarkup(mail.subject)}<br />Preheader: ${formatInlineMarkup(mail.preheader)}</div>
+      ${hideMeta ? "" : `<div class="meta">Subject: ${formatInlineMarkup(mail.subject)}<br />Preheader: ${formatInlineMarkup(mail.preheader)}</div>`}
       ${sectionsHtml}
     </div>
   </body>
@@ -8960,8 +13359,8 @@ function renderMarketingEmailHtml(mail) {
 
 function renderDraftHtml(mail, metadata = {}) {
   return cleanText(metadata?.previewCategory) === "X_System"
-    ? renderSystemEmailHtml(mail)
-    : renderMarketingEmailHtml(mail);
+    ? renderSystemEmailHtml(mail, metadata)
+    : renderMarketingEmailHtml(mail, metadata);
 }
 
 function renderSectionPug(section) {
@@ -9401,9 +13800,19 @@ function createDraftSnapshot(mail, existingDraft = null, metadata = {}) {
   return {
     mail,
     html: cleanText(metadata?.modifiedHtml) || cleanText(existingDraft?.html) || renderDraftHtml(mail, metadata),
-    previewLocales: existingDraft?.previewLocales || metadata.previewLocales || {},
-    localePayloads: existingDraft?.localePayloads || metadata.localePayloads || {},
-    localeBuildLogs: existingDraft?.localeBuildLogs || metadata.localeBuildLogs || {},
+    previewBlocked: metadata?.previewBlocked || existingDraft?.previewBlocked || null,
+    previewLocales: {
+      ...(existingDraft?.previewLocales && typeof existingDraft.previewLocales === "object" ? existingDraft.previewLocales : {}),
+      ...(metadata?.previewLocales && typeof metadata.previewLocales === "object" ? metadata.previewLocales : {})
+    },
+    localePayloads: {
+      ...(existingDraft?.localePayloads && typeof existingDraft.localePayloads === "object" ? existingDraft.localePayloads : {}),
+      ...(metadata?.localePayloads && typeof metadata.localePayloads === "object" ? metadata.localePayloads : {})
+    },
+    localeBuildLogs: {
+      ...(existingDraft?.localeBuildLogs && typeof existingDraft.localeBuildLogs === "object" ? existingDraft.localeBuildLogs : {}),
+      ...(metadata?.localeBuildLogs && typeof metadata.localeBuildLogs === "object" ? metadata.localeBuildLogs : {})
+    },
     pug: cleanText(existingDraft?.pug) || renderEmailPug(mail),
     stylus: cleanText(existingDraft?.stylus) || cleanText(metadata?.stylus) || getPrimaryWorkspaceFileContent(workspaceFiles, "stylus"),
     locales: renderLocalesJson(mail),
@@ -9426,6 +13835,149 @@ function createDraftSnapshot(mail, existingDraft = null, metadata = {}) {
   };
 }
 
+function normalizeCloneEditLocalizedHtmlEntries(entries, fallbackLocale = "en") {
+  const previewLocales = {};
+  for (const entry of Array.isArray(entries) ? entries : []) {
+    const locale = normalizeLocaleCode(cleanText(entry?.locale) || fallbackLocale);
+    const html = cleanText(entry?.html);
+    if (!locale || !html) {
+      continue;
+    }
+    previewLocales[locale] = html;
+  }
+  return previewLocales;
+}
+
+function escapeHtmlTextContent(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function buildFlexibleHtmlTextPattern(source) {
+  const normalized = cleanText(source);
+  if (!normalized) {
+    return null;
+  }
+  const tokens = normalized.split(/\s+/).map(cleanText).filter(Boolean);
+  if (tokens.length === 0) {
+    return null;
+  }
+  return new RegExp(tokens.map((token) => escapeRegExp(token)).join("(?:\\s|&nbsp;|&#160;)+"), "i");
+}
+
+function replaceFirstFlexibleHtmlText(html, sourceText, targetText) {
+  const source = cleanText(sourceText);
+  const target = cleanText(targetText);
+  if (!source || !target || source === target) {
+    return html;
+  }
+
+  if (html.includes(source)) {
+    return html.replace(source, escapeHtmlTextContent(target));
+  }
+
+  const pattern = buildFlexibleHtmlTextPattern(source);
+  if (!pattern) {
+    return html;
+  }
+
+  return html.replace(pattern, escapeHtmlTextContent(target));
+}
+
+function buildCloneEditPreviewSourceEntry(baseHtml, mail) {
+  const contentMap = extractEmailHtmlContentMap(baseHtml) || {};
+  return normalizeTranslationEntry({
+    locale: normalizeLocaleCode(mail?.locale || "en"),
+    subject: cleanText(mail?.subject) || cleanText(contentMap.subject),
+    preheader: cleanText(mail?.preheader) || cleanText(contentMap.preheader),
+    cta_labels: Array.isArray(contentMap.links) && contentMap.links.length > 0
+      ? contentMap.links.map((entry) => cleanText(entry.text)).filter(Boolean)
+      : collectCtaLabels(mail),
+    body_blocks: Array.isArray(contentMap.sections) && contentMap.sections.length > 0
+      ? contentMap.sections.map(cleanText).filter(Boolean)
+      : deriveBodyBlocksFromMail(mail),
+    notes: "",
+    source_name: "clone-edit-preview-source"
+  }, mail);
+}
+
+function synthesizeCloneEditPreviewHtml(baseHtml, sourceEntry, targetEntry) {
+  let transformed = cleanText(baseHtml);
+  if (!transformed || !targetEntry) {
+    return transformed;
+  }
+
+  const targetSubject = cleanText(targetEntry.subject);
+  if (targetSubject && /<title[^>]*>[\s\S]*?<\/title>/i.test(transformed)) {
+    transformed = transformed.replace(/<title[^>]*>[\s\S]*?<\/title>/i, `<title>${escapeHtmlTextContent(targetSubject)}</title>`);
+  }
+
+  const targetPreheader = cleanText(targetEntry.preheader);
+  if (targetPreheader) {
+    transformed = transformed.replace(
+      /(<[^>]*class="[^"]*preheader[^"]*"[^>]*>)([\s\S]*?)(<\/(?:td|div|span|p)>)/i,
+      (_match, open, _content, close) => `${open}${escapeHtmlTextContent(targetPreheader)}${close}`
+    );
+  }
+
+  const sourceCtas = Array.isArray(sourceEntry?.cta_labels) ? sourceEntry.cta_labels.map(cleanText).filter(Boolean) : [];
+  const targetCtas = Array.isArray(targetEntry?.cta_labels) ? targetEntry.cta_labels.map(cleanText).filter(Boolean) : [];
+  for (let index = 0; index < Math.min(sourceCtas.length, targetCtas.length); index += 1) {
+    transformed = replaceFirstFlexibleHtmlText(transformed, sourceCtas[index], targetCtas[index]);
+  }
+
+  const sourceBlocks = Array.isArray(sourceEntry?.body_blocks) ? sourceEntry.body_blocks.map(cleanText).filter(Boolean) : [];
+  const targetBlocks = Array.isArray(targetEntry?.body_blocks) ? targetEntry.body_blocks.map(cleanText).filter(Boolean) : [];
+  for (let index = 0; index < Math.min(sourceBlocks.length, targetBlocks.length); index += 1) {
+    transformed = replaceFirstFlexibleHtmlText(transformed, sourceBlocks[index], targetBlocks[index]);
+  }
+
+  return applyLocaleDirectionToHtml(transformed, targetEntry.locale);
+}
+
+function buildCloneEditPreviewLocalesFromHtml(mail, baseHtml, payload, localizedHtmlEntries = []) {
+  const primaryLocale = normalizeLocaleCode(
+    cleanText(mail?.locale)
+    || cleanText(payload?.brief?.locale)
+    || "en"
+  );
+  const modifiedHtml = cleanText(baseHtml);
+  const previewLocales = normalizeCloneEditLocalizedHtmlEntries(localizedHtmlEntries, primaryLocale);
+
+  if (modifiedHtml) {
+    previewLocales[primaryLocale] = modifiedHtml;
+  }
+
+  const sourceEntry = Array.isArray(mail?.translations)
+    ? mail.translations.find((entry) => localeMatchesRequest(entry?.locale, primaryLocale))
+      || buildCloneEditPreviewSourceEntry(modifiedHtml || "", mail)
+    : buildCloneEditPreviewSourceEntry(modifiedHtml || "", mail);
+
+  for (const entry of Array.isArray(mail?.translations) ? mail.translations : []) {
+    const locale = normalizeLocaleCode(cleanText(entry?.locale));
+    if (!locale || previewLocales[locale]) {
+      continue;
+    }
+    const synthesized = synthesizeCloneEditPreviewHtml(modifiedHtml || "", sourceEntry, entry);
+    if (synthesized) {
+      previewLocales[locale] = synthesized;
+    }
+  }
+
+  return previewLocales;
+}
+
+function buildCloneEditPreviewLocales(result, mail, payload) {
+  return buildCloneEditPreviewLocalesFromHtml(
+    mail,
+    cleanText(result?.mail?.modified_html),
+    payload,
+    Array.isArray(result?.mail?.localized_html) ? result.mail.localized_html : []
+  );
+}
+
 function materializeDraft(result, payload, mode) {
   const mail = normalizeMail(result.mail, payload);
   const assetRecommendations = buildAssetRecommendations(mail, payload);
@@ -9439,6 +13991,9 @@ function materializeDraft(result, payload, mode) {
   const templateSelectionNote = buildTemplateSelectionUserNote(payload);
 
   const modifiedHtml = cleanText(result.mail?.modified_html) || null;
+  const cloneEditPreviewLocales = modifiedHtml
+    ? buildCloneEditPreviewLocales(result, mail, payload)
+    : {};
 
   // Scaffold mode: extract locale_entries and build localeContent map for token resolution
   const rawLocaleEntries = Array.isArray(result.mail?.locale_entries) ? result.mail.locale_entries : [];
@@ -9459,7 +14014,9 @@ function materializeDraft(result, payload, mode) {
       designDecomposition: payload?.designDecomposition || null,
       designMappingHints: payload?.designMappingHints || null,
       designBlockRecommendations: payload?.designBlockRecommendations || null,
-      modifiedHtml
+      hideDebugMeta: Boolean(payload?.screenshotOcr?.usable && hasVisualDesignInput(payload) && !payload?.baseEmailHtml),
+      modifiedHtml,
+      previewLocales: cloneEditPreviewLocales
     })
   };
 
@@ -9479,6 +14036,21 @@ function materializeDraft(result, payload, mode) {
 
   if (brandTheme && Object.values(brandTheme).some((v) => v && v !== "unknown")) {
     draftResult.brandTheme = brandTheme;
+  }
+
+  // pug_blocks: real Pug code using vendor mixins — pass through to client and draft
+  const rawPugBlocks = Array.isArray(result.mail?.pug_blocks) ? result.mail.pug_blocks : [];
+  const pugBlocks = rawPugBlocks
+    .filter((b) => b && cleanText(b.label) && cleanText(b.pug_code))
+    .map((b) => ({ label: cleanText(b.label), pug_code: b.pug_code.trim() }));
+
+  if (pugBlocks.length > 0) {
+    draftResult.pugBlocks = pugBlocks;
+    // Also store inside the draft object so it persists with the draft
+    if (draftResult.draft?.mail) {
+      draftResult.draft.mail.pug_blocks = pugBlocks;
+    }
+    console.log(`[materializeDraft] pug_blocks: ${pugBlocks.length} blocks (${pugBlocks.map((b) => b.label).join(", ")})`);
   }
 
   return draftResult;
@@ -9552,8 +14124,34 @@ function createProviderRuntime({
 
 // callOpenAiWithRetry, extractResponseText → imported from src/ai-client.js
 // Bind logger so module-level appendStudioJournalEntry is used automatically
-function _aiCall(buildRequestFn, label) {
-  return callOpenAiWithRetry(buildRequestFn, { label, apiKey: openAiApiKey, logger: appendStudioJournalEntry });
+
+// ─── Token usage accumulator ─────────────────────────────────────────────────
+// Tracks cumulative token consumption across all OpenAI calls this session.
+// Resets on server restart. Exposed via /api/status → tokenUsage.
+const tokenUsage = {
+  inputTokens:  0,
+  outputTokens: 0,
+  totalTokens:  0,
+  calls:        0,
+  lastCallAt:   null
+};
+
+function _trackUsage(usage) {
+  tokenUsage.inputTokens  += (usage?.input_tokens  || 0);
+  tokenUsage.outputTokens += (usage?.output_tokens || 0);
+  tokenUsage.totalTokens  += (usage?.total_tokens  || usage?.input_tokens + usage?.output_tokens || 0);
+  tokenUsage.calls        += 1;
+  tokenUsage.lastCallAt    = new Date().toISOString();
+}
+
+function _aiCall(buildRequestFn, label, options = {}) {
+  return callOpenAiWithRetry(buildRequestFn, {
+    label,
+    apiKey: openAiApiKey,
+    logger: appendStudioJournalEntry,
+    onUsage: _trackUsage,
+    ...options
+  });
 }
 
 function resolveDraftTaskForPayload(payload) {
@@ -9569,28 +14167,52 @@ function resolveDraftTaskForPayload(payload) {
 }
 
 async function createOpenAiDraft(payload) {
-  const effectivePayload = hydratePayloadTemplateSelection(await ensureDesignAnalysis(payload));
+  const draftTask = resolveDraftTaskForPayload(payload);
+  const effectivePayload = draftTask === "cloneEdit"
+    ? hydratePayloadTemplateSelection(payload)
+    : hydratePayloadTemplateSelection(await ensureDesignAnalysis(payload));
   const inputMessages = await buildInputMessages(effectivePayload);
-  const model = resolveOpenAiModelForTask(resolveDraftTaskForPayload(effectivePayload));
+  const model = resolveOpenAiModelForTask(draftTask);
+  const schema = draftTask === "cloneEdit" ? cloneEditResponseSchema : responseSchema;
+  const schemaName = draftTask === "cloneEdit" ? "email_studio_clone_edit" : "email_studio_draft";
+  const requestLabel = draftTask === "cloneEdit" ? "clone-edit" : "create-draft";
+  const aiOptions = draftTask === "cloneEdit"
+    ? { timeoutMs: 240_000, retryMax: 1 }
+    : {};
 
   const data = await _aiCall(
     async () => ({
       body: {
         model,
         input: inputMessages,
-        text: { format: { type: "json_schema", name: "email_studio_draft", strict: true, schema: responseSchema } }
+        text: { format: { type: "json_schema", name: schemaName, strict: true, schema } }
       }
     }),
-    "create-draft"
+    requestLabel,
+    aiOptions
   );
 
   const rawText = extractResponseText(data);
   if (!rawText) throw new Error("OpenAI response did not contain output text");
+  const parsed = extractStructuredJsonFromModelText(rawText);
+  if (parsed) {
+    return {
+      ...parsed,
+      design_analysis: effectivePayload.designAnalysis || null
+    };
+  }
 
-  return {
-    ...JSON.parse(rawText),
-    design_analysis: effectivePayload.designAnalysis || null
-  };
+  if (draftTask === "cloneEdit") {
+    const recovered = buildCloneEditResponseFromRawHtml(rawText, effectivePayload);
+    if (recovered) {
+      return {
+        ...recovered,
+        design_analysis: effectivePayload.designAnalysis || null
+      };
+    }
+  }
+
+  throw new Error(`OpenAI ${requestLabel} response was not valid structured JSON`);
 }
 
 async function createOpenAiDiscussion(payload) {
@@ -9844,9 +14466,18 @@ async function ensureDesignAnalysis(payload, options = {}) {
 
 async function resolveTemplateMail(payload) {
   const templateSelection = getReferenceTemplateSelection(payload);
+  const inferredTemplateProfile = getEmailBaseTemplateProfile(payload, payload?.currentDraft || {});
 
-  if (cleanText(templateSelection?.profile) === "aff-password-reset" && !payload?.currentDraft?.sections?.length) {
+  if (inferredTemplateProfile === "aff-password-reset" && !payload?.currentDraft?.sections?.length) {
     return buildAffPasswordResetTemplateMail(payload);
+  }
+
+  if (inferredTemplateProfile === "system-notice-card" && !payload?.currentDraft?.sections?.length) {
+    return buildSystemNoticeCardTemplateMail(payload);
+  }
+
+  if (inferredTemplateProfile === "simple-system-card" && !payload?.currentDraft?.sections?.length) {
+    return buildSimpleSystemCardTemplateMail(payload);
   }
 
   if (payload?.currentDraft?.sections?.length) {
@@ -10006,7 +14637,92 @@ function looksLikeAffPasswordResetSupport(text) {
   return Boolean(value) && /(support@|trouble signing in|reach out|contact us|entre em contato|acessar sua conta|войд|поддержк|свяж)/i.test(value);
 }
 
+function normalizeAffPasswordResetCtaLabel(text, fallback = "") {
+  const value = cleanText(text) || cleanText(fallback);
+  if (!value) {
+    return "";
+  }
+
+  return /[→›»]$/.test(value) ? value : `${value} →`;
+}
+
+function translateAffPasswordResetTextToRussian(text) {
+  const value = cleanText(text);
+  if (!value) {
+    return "";
+  }
+
+  const exactMap = new Map([
+    ["Set your new password", "Задайте новый пароль"],
+    ["Password reset instructions", "Инструкции по сбросу пароля"],
+    ["Please click the button below to set your new password:", "Нажмите кнопку ниже, чтобы задать новый пароль:"],
+    ["If you didn’t request to create or reset your password, you can safely ignore this email.", "Если вы не запрашивали создание аккаунта или сброс пароля, просто проигнорируйте это письмо."],
+    ["If you didn't request to create or reset your password, you can safely ignore this email.", "Если вы не запрашивали создание аккаунта или сброс пароля, просто проигнорируйте это письмо."],
+    ["If you’re having trouble signing in to your account, try setting your password again or reach out to support.", "Если у вас возникли проблемы со входом в аккаунт, попробуйте задать пароль еще раз или обратитесь в поддержку."],
+    ["If you're having trouble signing in to your account, try setting your password again or reach out to support.", "Если у вас возникли проблемы со входом в аккаунт, попробуйте задать пароль еще раз или обратитесь в поддержку."],
+    ["Terms and Conditions", "Условия и положения"]
+  ]);
+
+  if (exactMap.has(value)) {
+    return exactMap.get(value);
+  }
+
+  const introMatch = value.match(/^We(?:['’]ve| have)? created an account for you on\s+(\{\{[^}]+\}\})\s*\(or received a request to\s*reset your password\)\.?$/i);
+  if (introMatch) {
+    return `Мы создали для вас аккаунт на ${introMatch[1]} или получили запрос на сброс пароля.`;
+  }
+
+  const supportMatch = value.match(/^If you(?:['’]re| are) having trouble signing in to your account, try setting your password again or reach out to us at\s+([^\s]+@[^\s]+)\.?$/i);
+  if (supportMatch) {
+    return `Если у вас возникли проблемы со входом в аккаунт, попробуйте задать пароль еще раз или напишите нам на ${supportMatch[1]}`;
+  }
+
+  if (/^Set new password$/i.test(value) || /^SET NEW PASSWORD$/i.test(value)) {
+    return "ЗАДАТЬ НОВЫЙ ПАРОЛЬ →";
+  }
+
+  if (/support@quadcode\.com/i.test(value) && /trouble signing in/i.test(value)) {
+    return "Если у вас возникли проблемы со входом в аккаунт, попробуйте задать пароль еще раз или напишите нам на support@quadcode.com";
+  }
+
+  return value;
+}
+
+function buildDeterministicMockTranslationEntry(locale, mail, sourceEntry) {
+  const normalizedLocale = normalizeLocaleCode(locale);
+  if (normalizedLocale !== "ru" || !looksLikeAffPasswordResetMail(mail)) {
+    return null;
+  }
+
+  const sourceBlocks = Array.isArray(sourceEntry?.body_blocks) && sourceEntry.body_blocks.length > 0
+    ? sourceEntry.body_blocks.map(cleanText).filter(Boolean)
+    : deriveBodyBlocksFromMail(mail);
+  const sourceCtas = Array.isArray(sourceEntry?.cta_labels) && sourceEntry.cta_labels.length > 0
+    ? sourceEntry.cta_labels.map(cleanText).filter(Boolean)
+    : collectCtaLabels(mail);
+  const subject = translateAffPasswordResetTextToRussian(cleanText(sourceEntry?.subject) || cleanText(mail?.subject));
+  const preheader = translateAffPasswordResetTextToRussian(cleanText(sourceEntry?.preheader) || cleanText(mail?.preheader));
+  const bodyBlocks = sourceBlocks.map((block) => translateAffPasswordResetTextToRussian(block));
+  const ctaLabels = sourceCtas.map((label) => translateAffPasswordResetTextToRussian(label));
+
+  return normalizeTranslationEntry({
+    locale: normalizedLocale,
+    subject: subject || cleanText(sourceEntry?.subject) || cleanText(mail?.subject),
+    preheader: preheader || cleanText(sourceEntry?.preheader) || cleanText(mail?.preheader),
+    cta_labels: ctaLabels.length > 0 ? ctaLabels : sourceCtas,
+    notes: "Deterministic Russian fallback for affiliate password reset screenshot.",
+    body_blocks: bodyBlocks.length > 0 ? bodyBlocks : sourceBlocks,
+    source_name: "ru.txt"
+  }, mail);
+}
+
 function mergeAffPasswordResetMailOntoTemplate(normalizedGeneratedMail, baseMail, payloadTranslationEntries, payload) {
+  const screenshotDrivenAffPasswordReset = Boolean(
+    payload?.screenshotOcr?.usable
+    && hasVisualDesignInput(payload)
+    && cleanText(getReferenceTemplateSelection(payload)?.profile) === "aff-password-reset"
+  );
+  const blankLinksRequested = userRequestedBlankLinks(payload);
   const baseSections = Array.isArray(baseMail?.sections) ? baseMail.sections.map((section) => normalizeSection(section)) : [];
   const generatedSections = Array.isArray(normalizedGeneratedMail?.sections)
     ? normalizedGeneratedMail.sections.map((section) => normalizeSection(section))
@@ -10026,9 +14742,12 @@ function mergeAffPasswordResetMailOntoTemplate(normalizedGeneratedMail, baseMail
     || cleanText(baseSections[0]?.body);
   const resolvedIntroSplit = splitAffPasswordResetIntroAndCtaBody(introBodyCandidate);
   const introBody = cleanText(resolvedIntroSplit.intro) || cleanText(baseSections[0]?.body);
-  const ctaLabel = cleanText(ctaSection?.cta_label)
+  const ctaLabel = normalizeAffPasswordResetCtaLabel(
+    cleanText(ctaSection?.cta_label)
     || cleanText(generatedSections[0]?.cta_label)
-    || cleanText(baseSections[1]?.cta_label);
+    || cleanText(baseSections[1]?.cta_label),
+    cleanText(baseSections[1]?.cta_label)
+  );
   const ctaBodyCandidate = splitIntro.cta
     || resolvedIntroSplit.cta
     || cleanText(ctaSection?.body)
@@ -10036,17 +14755,28 @@ function mergeAffPasswordResetMailOntoTemplate(normalizedGeneratedMail, baseMail
   const ctaBody = isWeakAffPasswordResetCtaBody(ctaBodyCandidate, ctaLabel)
     ? cleanText(baseSections[1]?.body)
     : cleanText(ctaBodyCandidate);
+  const combinedSupportCandidate = cleanText(generatedSections[3]?.body)
+    || findGeneratedSectionText(generatedCandidates, ({ text }) => looksLikeAffPasswordResetSupport(text))
+    || cleanText(baseSections[3]?.body);
+  const splitSupport = splitAffPasswordResetWarningAndSupport(combinedSupportCandidate);
   const warningBody = looksLikeAffPasswordResetWarning(cleanText(generatedSections[2]?.body))
     ? cleanText(generatedSections[2]?.body)
     : findGeneratedSectionText(generatedCandidates, ({ text }) => looksLikeAffPasswordResetWarning(text))
     || cleanText(baseSections[1]?.body);
-  const resolvedWarningBody = warningBody === cleanText(baseSections[1]?.body)
+  const resolvedWarningBody = splitSupport.warning
+    || (warningBody === cleanText(baseSections[1]?.body)
     ? cleanText(baseSections[2]?.body)
-    : warningBody;
-  const supportBody = looksLikeAffPasswordResetSupport(cleanText(generatedSections[3]?.body))
-    ? cleanText(generatedSections[3]?.body)
-    : findGeneratedSectionText(generatedCandidates, ({ text }) => looksLikeAffPasswordResetSupport(text))
-      || cleanText(baseSections[3]?.body);
+    : warningBody);
+  const supportBody = cleanText(splitSupport.support)
+    || (looksLikeAffPasswordResetSupport(cleanText(generatedSections[3]?.body))
+      ? cleanText(generatedSections[3]?.body)
+      : findGeneratedSectionText(generatedCandidates, ({ text }) => looksLikeAffPasswordResetSupport(text))
+        || cleanText(baseSections[3]?.body));
+  const footerBody = screenshotDrivenAffPasswordReset
+    ? ""
+    : cleanText(generatedSections[4]?.body)
+      || findGeneratedSectionText(generatedCandidates, ({ kind, text }) => kind === "footer" && cleanText(text).length > 12)
+      || cleanText(baseSections[4]?.body);
 
   return {
     ...baseMail,
@@ -10072,7 +14802,8 @@ function mergeAffPasswordResetMailOntoTemplate(normalizedGeneratedMail, baseMail
         ...baseSections[1],
         kind: "cta",
         body: ctaBody,
-        cta_label: ctaLabel
+        cta_label: ctaLabel,
+        cta_href: blankLinksRequested ? "" : cleanText(ctaSection?.cta_href) || cleanText(generatedSections[0]?.cta_href) || cleanText(baseSections[1]?.cta_href)
       },
       {
         ...baseSections[2],
@@ -10087,9 +14818,73 @@ function mergeAffPasswordResetMailOntoTemplate(normalizedGeneratedMail, baseMail
       {
         ...baseSections[4],
         kind: "footer",
-        body: cleanText(baseSections[4]?.body)
+        body: footerBody
       }
     ],
+    assets: baseMail.assets
+  };
+}
+
+function mergeSystemNoticeMailOntoTemplate(normalizedGeneratedMail, baseMail, payloadTranslationEntries, payload) {
+  const blankLinksRequested = userRequestedBlankLinks(payload);
+  const baseSections = Array.isArray(baseMail?.sections) ? baseMail.sections.map((section) => normalizeSection(section)) : [];
+  const generatedSections = Array.isArray(normalizedGeneratedMail?.sections)
+    ? normalizedGeneratedMail.sections.map((section) => normalizeSection(section))
+    : [];
+  const ctaSection = generatedSections.find((section) => cleanText(section.kind) === "cta") || generatedSections[2] || null;
+
+  return {
+    ...baseMail,
+    subject: cleanText(baseMail?.subject) || cleanText(normalizedGeneratedMail?.subject),
+    preheader: cleanText(baseMail?.preheader) || cleanText(normalizedGeneratedMail?.preheader),
+    locale: cleanText(normalizedGeneratedMail?.locale) || cleanText(baseMail?.locale),
+    summary: cleanText(normalizedGeneratedMail?.summary) || cleanText(baseMail?.summary),
+    brand_logo_url: cleanText(extractLatestLogoOverrideUrl(payload)) || cleanText(baseMail?.brand_logo_url),
+    brand_logo_alt: cleanText(baseMail?.brand_logo_alt) || cleanText(normalizedGeneratedMail?.brand_logo_alt) || "IQ Option",
+    translations: payloadTranslationEntries.length > 0
+      ? payloadTranslationEntries
+      : Array.isArray(normalizedGeneratedMail?.translations) && normalizedGeneratedMail.translations.length > 0
+        ? normalizedGeneratedMail.translations
+        : baseMail.translations,
+    sections: [
+      {
+        ...baseSections[0],
+        kind: "text",
+        eyebrow: cleanText(baseSections[0]?.eyebrow),
+        title: cleanText(baseSections[0]?.title) || cleanText(baseMail?.subject),
+        body: cleanText(baseSections[0]?.body)
+      },
+      {
+        ...baseSections[1],
+        kind: "feature-list",
+        title: cleanText(baseSections[1]?.title) || "Reason for interruption:",
+        body: cleanText(baseSections[1]?.body)
+      },
+      {
+        ...baseSections[2],
+        kind: "cta",
+        body: cleanText(baseSections[2]?.body),
+        cta_label: cleanText(baseSections[2]?.cta_label) || cleanText(ctaSection?.cta_label),
+        cta_href: blankLinksRequested
+          ? ""
+          : cleanText(baseSections[2]?.cta_href) || cleanText(ctaSection?.cta_href)
+      },
+      {
+        ...baseSections[3],
+        kind: "text",
+        body: cleanText(baseSections[3]?.body)
+      },
+      {
+        ...baseSections[4],
+        kind: "text",
+        body: cleanText(baseSections[4]?.body)
+      },
+      {
+        ...baseSections[5],
+        kind: "footer",
+        body: cleanText(baseSections[5]?.body)
+      }
+    ].filter((section) => section && typeof section === "object"),
     assets: baseMail.assets
   };
 }
@@ -10301,6 +15096,16 @@ function mergeGeneratedMailOntoTemplate(generatedMail, templateMail, payload) {
     );
   }
 
+  if (looksLikeSystemNoticeMail(baseMail) || cleanText(getReferenceTemplateSelection(payload)?.profile) === "system-notice-card") {
+    return applyPrimaryTranslationEntryToMail(
+      applyDeterministicDraftEdits(
+        mergeSystemNoticeMailOntoTemplate(normalizedGeneratedMail, baseMail, payloadTranslationEntries, payload),
+        payload
+      ),
+      payload
+    );
+  }
+
   return applyPrimaryTranslationEntryToMail(
     applyDeterministicDraftEdits(
       repairMailSectionsFromDesignHints(merged, payload),
@@ -10310,58 +15115,16 @@ function mergeGeneratedMailOntoTemplate(generatedMail, templateMail, payload) {
   );
 }
 
+// RTL helpers extracted to src/rtl.js (P0.1 modularization).
+// We re-export thin local wrappers under the old names so existing callers
+// inside this file keep working without churn. The wrappers inject this
+// file's cleanText() so input normalization stays identical.
 function isRtlLocale(locale) {
-  const normalized = normalizeLocaleCode(locale).toLowerCase();
-  return ["ar", "he", "fa", "ur"].some((prefix) => normalized === prefix || normalized.startsWith(`${prefix}_`));
+  return _rtlIsRtlLocale(locale);
 }
 
 function applyLocaleDirectionToHtml(html, locale) {
-  const source = cleanText(html);
-  if (!source || !isRtlLocale(locale)) {
-    return source;
-  }
-
-  let transformed = source
-    .replace(/<html([^>]*)>/i, (match, attrs) => /\bdir=/i.test(attrs) ? `<html${attrs}>` : `<html${attrs} dir="rtl">`)
-    .replace(/<body([^>]*)>/i, (match, attrs) => {
-      if (/\bdir=/i.test(attrs)) {
-        return `<body${attrs}>`;
-      }
-      if (/\bstyle=/i.test(attrs)) {
-        return `<body${attrs.replace(/\bstyle=(["'])(.*?)\1/i, (_full, quote, value) => `style=${quote}${value}; direction: rtl; text-align: right;${quote}`)} dir="rtl">`;
-      }
-      return `<body${attrs} dir="rtl" style="direction: rtl; text-align: right;">`;
-    });
-
-  const rtlStyle = `
-<style type="text/css">
-  html[dir="rtl"] body,
-  html[dir="rtl"] table,
-  html[dir="rtl"] td,
-  html[dir="rtl"] p,
-  html[dir="rtl"] div,
-  html[dir="rtl"] h1,
-  html[dir="rtl"] h2,
-  html[dir="rtl"] h3,
-  html[dir="rtl"] li {
-    direction: rtl !important;
-    text-align: right !important;
-  }
-  html[dir="rtl"] ul,
-  html[dir="rtl"] ol {
-    direction: rtl !important;
-  }
-  html[dir="rtl"] img.logo {
-    margin-right: 0 !important;
-    margin-left: auto !important;
-  }
-</style>`;
-
-  if (/<\/head>/i.test(transformed)) {
-    transformed = transformed.replace(/<\/head>/i, `${rtlStyle}\n</head>`);
-  }
-
-  return transformed;
+  return _rtlApply(html, locale, cleanText);
 }
 
 async function resolveDiscussionResponse(payload) {
@@ -10377,6 +15140,7 @@ async function resolveDiscussionResponse(payload) {
       return {
         assistantReply: discussion.assistantReply,
         mode: "openai-discuss",
+        ...buildFigmaResponseMetadata(payload),
         providerRuntime: createProviderRuntime({
           providerId,
           mode: "openai-discuss",
@@ -10389,6 +15153,7 @@ async function resolveDiscussionResponse(payload) {
       return {
         assistantReply: fallback.assistantReply,
         mode: "mock-discuss",
+        ...buildFigmaResponseMetadata(payload),
         providerRuntime: createProviderRuntime({
           providerId,
           mode: "mock-discuss",
@@ -10405,6 +15170,7 @@ async function resolveDiscussionResponse(payload) {
     return {
       assistantReply: discussion.assistantReply,
       mode: "mock-discuss",
+      ...buildFigmaResponseMetadata(payload),
       providerRuntime: createProviderRuntime({
         providerId,
         mode: "mock-discuss"
@@ -10417,6 +15183,7 @@ async function resolveDiscussionResponse(payload) {
     return {
       assistantReply: discussion.assistantReply,
       mode: "mock-discuss",
+      ...buildFigmaResponseMetadata(payload),
       providerRuntime: createProviderRuntime({
         providerId,
         mode: "mock-discuss",
@@ -10430,6 +15197,7 @@ async function resolveDiscussionResponse(payload) {
   return {
     assistantReply: discussion.assistantReply,
     mode: "mock-discuss",
+    ...buildFigmaResponseMetadata(payload),
     providerRuntime: createProviderRuntime({
       providerId,
       mode: "mock-discuss",
@@ -10440,25 +15208,11 @@ async function resolveDiscussionResponse(payload) {
 }
 
 function shouldAutoGenerateMissingLocalesForDraft(payload, draft) {
-  const requestedLocales = Array.from(new Set([
-    normalizeLocaleCode(payload?.brief?.locale || draft?.mail?.locale || "en"),
-    ...parseLocaleList(payload?.brief?.requestedLocales || "")
-  ].filter(Boolean)));
-
-  if (requestedLocales.length <= 1) {
+  const repairPlan = buildLocaleRepairPlan(payload, draft);
+  if (repairPlan.requestedLocales.length <= 1) {
     return false;
   }
-
-  const existingEntries = dedupeTranslationEntries(
-    [
-      ...parseTranslationEntries(cleanText(payload?.translationText), draft?.mail || payload?.currentDraft || null),
-      ...(Array.isArray(draft?.mail?.translations) ? draft.mail.translations : [])
-    ],
-    draft?.mail || payload?.currentDraft || null
-  );
-
-  const missingLocales = requestedLocales.filter((locale) => !existingEntries.some((entry) => localeMatchesRequest(entry.locale, locale)));
-  if (missingLocales.length === 0) {
+  if (repairPlan.targetLocales.length === 0) {
     return false;
   }
 
@@ -10469,6 +15223,7 @@ function shouldAutoGenerateMissingLocalesForDraft(payload, draft) {
 
 async function resolveDraftResponse(payload) {
   const providerId = payload.settings.providerId;
+  payload = await enrichPayloadWithLocalScreenshotOcr(payload);
 
   if (isDraftBlockedByInaccessibleFigma(payload)) {
     return createFigmaAccessBlockedResponse(payload, providerId, "figma-access-blocked");
@@ -10535,7 +15290,13 @@ async function resolveDraftResponse(payload) {
   }
 
   const templateMail = await resolveTemplateMail(effectivePayload);
-  if (templateMail) {
+  // Clone-edit mode: skip template merge so that modified_html (or the base HTML fallback)
+  // is preserved in generated.mail and passed through to materializeDraft correctly.
+  if (
+    templateMail
+    && !effectivePayload.baseEmailHtml
+    && !shouldSkipEmailBaseBuildForVisualMock(effectivePayload, providerRuntime)
+  ) {
     generated = {
       ...generated,
       mail: mergeGeneratedMailOntoTemplate(generated?.mail || null, templateMail, effectivePayload)
@@ -10545,8 +15306,24 @@ async function resolveDraftResponse(payload) {
   let draftResponse = {
     ...materializeDraft(generated, effectivePayload, mode),
     designAnalysis: normalizeDesignAnalysis(generated.design_analysis),
+    ...buildFigmaResponseMetadata(effectivePayload),
     providerRuntime
   };
+
+  const screenshotOcrDebugSummary = createScreenshotOcrDebugSummary(effectivePayload?.screenshotOcr);
+  if (screenshotOcrDebugSummary && draftResponse?.draft) {
+    draftResponse.draft.screenshotOcr = screenshotOcrDebugSummary;
+  }
+
+  const visualPreviewBlocked = buildVisualPreviewBlockedState(effectivePayload, providerRuntime);
+  if (visualPreviewBlocked && draftResponse.draft) {
+    draftResponse.draft.previewBlocked = visualPreviewBlocked;
+    draftResponse.assistantReply = [
+      "Скрин получен, но точная сборка по нему сейчас недоступна.",
+      visualPreviewBlocked.body,
+      "Показываю честный blocked-state вместо случайной фальшивой верстки."
+    ].join(" ");
+  }
 
   // Auto-patch brand theme when scaffold context is present + AI returned brand_theme
   if (effectivePayload.scaffoldContext && draftResponse.brandTheme) {
@@ -10571,8 +15348,19 @@ async function resolveDraftResponse(payload) {
       const visibleGeneratedLocales = Array.isArray(localesResult.generatedLocales)
         ? localesResult.generatedLocales.filter((locale) => locale !== normalizeLocaleCode(effectivePayload?.brief?.locale || draftResponse?.draft?.mail?.locale || "en"))
         : [];
+      const generatedTranslationEntries = Array.isArray(localesResult?.draft?.mail?.translations)
+        ? localesResult.draft.mail.translations
+        : [];
+      const deterministicGeneratedLocales = generatedTranslationEntries
+        .filter((entry) => /deterministic/i.test(cleanText(entry?.notes)))
+        .map((entry) => normalizeLocaleCode(entry?.locale))
+        .filter((locale) => visibleGeneratedLocales.includes(locale));
       const generatedLocalesNote = visibleGeneratedLocales.length > 0
-        ? ` Автопереводы: ${visibleGeneratedLocales.join(", ")}.`
+        ? cleanText(localesResult.mode).startsWith("mock")
+          ? deterministicGeneratedLocales.length > 0
+            ? ` Rule-based locale fallback: ${deterministicGeneratedLocales.join(", ")}. Остальные locale по-прежнему placeholder, пока AI/billing недоступен.`
+            : ` Placeholder locale bundle: ${visibleGeneratedLocales.join(", ")}. Реальный перевод сейчас не сгенерирован из-за ограничений AI/billing.`
+          : ` Автопереводы: ${visibleGeneratedLocales.join(", ")}.`
         : "";
       draftResponse = {
         ...draftResponse,
@@ -10583,18 +15371,36 @@ async function resolveDraftResponse(payload) {
         generatedLocales: Array.isArray(localesResult.generatedLocales) ? localesResult.generatedLocales : [],
         providerRuntime: localesResult.providerRuntime || draftResponse.providerRuntime
       };
+      if (screenshotOcrDebugSummary && draftResponse?.draft) {
+        draftResponse.draft.screenshotOcr = screenshotOcrDebugSummary;
+      }
     } catch {
       // Keep the draft even if locale generation fails.
     }
   }
 
-  if (summaryEmailBaseBuildIsAvailableForDraft(effectivePayload, draftResponse.draft)) {
+  draftResponse.assistantReply = appendProblemNotesToAssistantReply(
+    draftResponse.assistantReply,
+    collectDraftProblemNotes(draftResponse)
+  );
+
+  // Clone-edit mode: skip email-base build — the modified HTML IS the preview output.
+  if (
+    !effectivePayload.baseEmailHtml
+    && !shouldSkipEmailBaseBuildForVisualMock(effectivePayload, draftResponse.providerRuntime)
+    && summaryEmailBaseBuildIsAvailableForDraft(effectivePayload, draftResponse.draft)
+  ) {
     try {
       const builtPreview = await buildTemporaryEmailBasePreviewFromDraft(effectivePayload, draftResponse.draft.mail);
       return {
         ...draftResponse,
         assistantReply: `${cleanText(draftResponse.assistantReply)} Preview прогнан через реальный email-base build.`.trim(),
-        draft: builtPreview.draft || draftResponse.draft,
+        draft: screenshotOcrDebugSummary && (builtPreview.draft || draftResponse.draft)
+          ? {
+              ...(builtPreview.draft || draftResponse.draft),
+              screenshotOcr: screenshotOcrDebugSummary
+            }
+          : builtPreview.draft || draftResponse.draft,
         previewSource: builtPreview.previewSource || "email-base-draft"
       };
     } catch (error) {
@@ -10622,6 +15428,118 @@ function summaryEmailBaseBuildIsAvailableForDraft(payload, draft) {
   }
 
   return Boolean(cleanText(payload?.brief?.category) || cleanText(payload?.templateSelection?.category));
+}
+
+function shouldSkipEmailBaseBuildForVisualMock(payload, providerRuntime) {
+  if (payload?.screenshotOcr?.usable) {
+    return false;
+  }
+
+  return Boolean(
+    (providerRuntime?.fallback || cleanText(providerRuntime?.mode).startsWith("mock"))
+    && hasVisualDesignInput(payload)
+    && !hasStructuredFigmaInput(payload)
+    && !payload?.baseEmailHtml
+  );
+}
+
+function buildVisualPreviewBlockedState(payload, providerRuntime) {
+  if (!shouldSkipEmailBaseBuildForVisualMock(payload, providerRuntime)) {
+    return null;
+  }
+
+  if (payload?.screenshotOcr?.usable) {
+    return null;
+  }
+
+  const issueCode = cleanText(providerRuntime?.issueCode);
+  const issueDetail = cleanText(providerRuntime?.errorMessage || providerRuntime?.issueLabel);
+  let body = "Студия получила скрин, но сейчас не может честно распознать его через live vision. Вместо случайной сборки из чужих блоков preview остановлен.";
+
+  if (issueCode === "quota") {
+    body = "Студия получила скрин, но live vision сейчас недоступен из-за quota или billing OpenAI. Без vision она не может надежно собрать письмо по картинке.";
+  } else if (/does not represent a valid image|invalid image/i.test(issueDetail)) {
+    body = "Студия получила файл, но рантайм не распознал его как валидную картинку. Нужен реальный PNG/JPG export или Copy as PNG из Figma.";
+  }
+
+  return {
+    kind: "visual-fallback-blocked",
+    title: "Сборка по скрину сейчас недоступна",
+    body,
+    details: issueDetail,
+    nextStep: "Лучший путь сейчас: восстановить live AI vision или прислать structured Figma intake."
+  };
+}
+
+function formatProviderIssueForUser(providerRuntime) {
+  if (!providerRuntime?.fallback) {
+    return "";
+  }
+
+  if (providerRuntime.issueCode === "quota") {
+    return "OpenAI API сейчас уперся в quota или billing.";
+  }
+
+  if (providerRuntime.issueCode === "auth") {
+    return "OpenAI API вернул ошибку авторизации.";
+  }
+
+  if (providerRuntime.issueCode === "rate_limit") {
+    return "OpenAI API уперся в rate limit.";
+  }
+
+  if (providerRuntime.issueCode === "schema") {
+    return "OpenAI structured output schema была отклонена.";
+  }
+
+  return cleanText(providerRuntime.errorMessage || providerRuntime.issueLabel);
+}
+
+function collectDraftProblemNotes(draftResponse) {
+  const notes = [];
+  const blocked = draftResponse?.draft?.previewBlocked;
+  const providerIssue = formatProviderIssueForUser(draftResponse?.providerRuntime);
+  const decompositionWarnings = Array.isArray(draftResponse?.draft?.designDecomposition?.warnings)
+    ? draftResponse.draft.designDecomposition.warnings.map(cleanText).filter(Boolean)
+    : [];
+  const screenshotOcrError = cleanText(draftResponse?.draft?.screenshotOcr?.error);
+  const screenshotOcrUsed = Boolean(draftResponse?.draft?.screenshotOcr?.usable);
+
+  if (cleanText(blocked?.body)) {
+    notes.push(cleanText(blocked.body));
+  }
+
+  if (providerIssue) {
+    notes.push(providerIssue);
+  }
+
+  if (decompositionWarnings.length > 0 && !screenshotOcrUsed) {
+    notes.push(`Design warnings: ${decompositionWarnings.slice(0, 2).join(" | ")}`);
+  }
+
+  if (screenshotOcrError) {
+    notes.push(`Local OCR warning: ${screenshotOcrError}`);
+  }
+
+  return Array.from(new Set(notes.filter(Boolean)));
+}
+
+function appendProblemNotesToAssistantReply(reply, notes) {
+  const normalizedReply = cleanText(reply);
+  const normalizedNotes = Array.isArray(notes) ? notes.filter(Boolean) : [];
+  if (normalizedNotes.length === 0) {
+    return normalizedReply;
+  }
+
+  const missingNotes = normalizedNotes.filter((note) => !normalizedReply.includes(note));
+  if (missingNotes.length === 0) {
+    return normalizedReply;
+  }
+
+  return [
+    normalizedReply,
+    `Проблемы: ${missingNotes.join(" ")}`
+  ].filter(Boolean).join(" ");
 }
 
 /**
@@ -10657,12 +15575,440 @@ function autoSaveGenerationHistory(result, payload) {
 
 async function resolveChatResponse(payload) {
   payload = await enrichPayloadWithServerSideFigma(payload);
+
+  // ── AI-tools intent dispatch (placeholderize / translate / fix-locale) ──
+  // Looks at the user's last message and, if it matches one of our supported
+  // intents, runs the matching helper directly and returns a chat result with
+  // an `aiToolResult` field that the frontend can apply (cm.setValue +
+  // setLocaleRawContent loop). This bypasses the heavy draft orchestrator,
+  // which is where the "AI вернул пустой <body>" failures come from.
+  try {
+    const dispatched = await tryAiToolsDispatch(payload);
+    if (dispatched) return dispatched;
+  } catch (err) {
+    console.warn("[chat] ai-tools dispatch failed:", err && err.message ? err.message : err);
+  }
+
   if (payload.intent === "discuss") {
     return resolveDiscussionResponse(payload);
   }
 
   return resolveDraftResponse(payload);
 }
+
+// ─── AI tools dispatcher ─────────────────────────────────────────────────
+function detectAiToolIntent(text) {
+  if (!text) return null;
+  const t = String(text).toLowerCase();
+  // Questions are NEVER execution intents — let the discussion path answer.
+  // A user asking "удобно ли тебе?" / "можешь?" / "как ты бы расставил?" wants
+  // an analysis, not the tool to run. Easiest signal: trailing "?", or a
+  // few question/conditional verbs.
+  const isQuestion = /[?？]\s*$/.test(t)
+    || /\bудобно ли\b|\bсможешь(ь| )ли\b|\bпосмотри\b|\bпроанализируй\b|\bрасскажи\b|\bобъясни\b|\bчто такое\b/.test(t)
+    || /\bcan you\b|\bcould you\b|\bwould you\b|\bwhat is\b|\bexplain\b|\banalyze\b/.test(t);
+  if (isQuestion) return null;
+
+  // ── placeholderize is the HIGHEST-PRIORITY intent. Tolerate Russian
+  // mis-spellings (пл[еэ]йсхолдер) — users routinely type 'плэйсхолдер'
+  // with э and the old regex missed it.
+  if (/(пл[еэ]йсхолд[ае]р|placeholder|\$\{\{)/i.test(t)) {
+    return "placeholderize";
+  }
+  // ── fix-locale / unify-locale: explicit "fix" verbs OR "приведи к единому
+  // виду / в соответствие / причеши / унифицируй" — user wants the TXT
+  // files cleaned up to match the reference shape. Higher priority than
+  // translate, because "translate" would overwrite valid blocks; fix-locale
+  // only repairs broken {{...}} / @@…@@ delimiters.
+  if ((/(почин|исправ|унифиц|приведи в соответ|приведи к единому|причеши|подправ|поправ)/i.test(t))
+      && /(локал|блок|перевод|плейсхолд|плэйсхолд|placeholder|local|translat)/i.test(t)) {
+    return "fix-locale";
+  }
+  // ── translate: only when verb is clearly "translate", and the target is
+  // a locale code or "все локали".
+  if (/(перевед|перевод|translat)/i.test(t) &&
+      /(во все|на все|все локал|all local|каждой локали|every local)/i.test(t)) {
+    return "translate-all";
+  }
+  if (/(перевед|перевод|translat)/i.test(t) && /локал|local/i.test(t)) {
+    return "translate-active";
+  }
+  return null;
+}
+
+function lastUserText(payload) {
+  if (typeof payload?.message === "string" && payload.message.trim()) return payload.message;
+  const msgs = Array.isArray(payload?.messages) ? payload.messages : [];
+  for (let i = msgs.length - 1; i >= 0; i -= 1) {
+    if (msgs[i]?.role === "user" && typeof msgs[i].content === "string" && msgs[i].content.trim()) {
+      return msgs[i].content;
+    }
+  }
+  return "";
+}
+
+function pickActiveNamespaceFromBundle(bundleJsonText) {
+  if (!bundleJsonText) return null;
+  try {
+    const arr = JSON.parse(bundleJsonText);
+    if (Array.isArray(arr) && arr.length) return arr[0]; // {namespace, locales: { code: blocks[] }}
+  } catch {}
+  return null;
+}
+
+async function tryAiToolsDispatch(payload) {
+  if (!openAiApiKey) return null;
+  const userText = lastUserText(payload);
+  const hasNamespaceWorkspace = Array.isArray(payload?.namespaces)
+    && payload.namespaces.some((namespace) => namespace && typeof namespace === "object");
+  let intent = detectAiToolIntent(userText);
+  if (!intent && hasNamespaceWorkspace && userText && userText.length > 6 && userText.length < 400) {
+    // Free-text fallback: ask the model to classify into one of our supported intents.
+    try {
+      intent = await classifyAiIntent(userText);
+    } catch (err) {
+      console.warn('[ai-classify] failed:', err && err.message);
+    }
+  }
+  if (!intent) return null;
+
+  // A new-mail request can legitimately mention translations while also
+  // attaching a design ("собери письмо и создай RU локаль"). In that case
+  // there is no existing locale workspace for the surgical locale tools to
+  // edit yet. Let the draft pipeline create the mail and requested locales
+  // instead of short-circuiting with "no namespaces loaded".
+  if (
+    !hasNamespaceWorkspace
+    && hasDesignInput(payload)
+    && ["translate-all", "translate-active", "fix-locale"].includes(intent)
+  ) {
+    return null;
+  }
+
+  // The frontend bundles namespaces under `brief.contentNotes` (as a JSON dump
+  // when localeOpsRequested), and active locale's blocks under `brief.localeBlocks`.
+  // We try multiple locations for resilience.
+  // Prefer the always-on namespaces[] field that the studio now sends with every chat call.
+  let namespacesArr = Array.isArray(payload?.namespaces) ? payload.namespaces : null;
+  if (!namespacesArr) {
+    const briefNotes = String(payload?.brief?.contentNotes || "");
+    const bundleMatch = briefNotes.match(/Locale bundle loaded in Studio:\s*([\s\S]*?)$/);
+    namespacesArr = bundleMatch ? safeJsonParse(bundleMatch[1]) : null;
+  }
+
+  // Normalize the namespace shape — workbench sends { id, name, locales },
+  // older payloads use { namespace, locales }. Make sure both .name and
+  // .namespace are populated so downstream code (and prompts) always work.
+  const normalizedNamespaces = (Array.isArray(namespacesArr) ? namespacesArr : []).map((n) => {
+    if (!n || typeof n !== "object") return n;
+    const name = cleanText(n.namespace) || cleanText(n.name) || "";
+    return { ...n, name, namespace: name };
+  });
+
+  // Pick the most-likely-relevant namespace:
+  //   1) explicit activeNamespaceName / activeNamespaceId from payload, if any
+  //   2) the largest namespace that ISN'T a known shared utility
+  //      (footer_*, header_*, common_*, shared_*)
+  //   3) otherwise the first non-utility namespace
+  //   4) otherwise the first one
+  const UTIL_NS_RE = /^(footer|header|common|shared|partials?|gmail-fix)([_-].*)?$/i;
+  function pickRelevantNamespace(list, payload) {
+    if (!list.length) return null;
+    const activeName = cleanText(payload?.activeNamespaceName || payload?.activeNs || "");
+    const activeId   = cleanText(payload?.activeNamespaceId || "");
+    if (activeName) {
+      const hit = list.find((n) => n.name === activeName || n.namespace === activeName);
+      if (hit) return hit;
+    }
+    if (activeId) {
+      const hit = list.find((n) => String(n.id) === activeId);
+      if (hit) return hit;
+    }
+    const nonUtil = list.filter((n) => !UTIL_NS_RE.test(n.name || ""));
+    const pool = nonUtil.length ? nonUtil : list;
+    pool.sort((a, b) => {
+      const ac = Object.values(a.locales || {}).reduce((m, arr) => Math.max(m, Array.isArray(arr) ? arr.length : 0), 0);
+      const bc = Object.values(b.locales || {}).reduce((m, arr) => Math.max(m, Array.isArray(arr) ? arr.length : 0), 0);
+      return bc - ac; // largest first
+    });
+    return pool[0] || null;
+  }
+  const ns = pickRelevantNamespace(normalizedNamespaces, payload);
+
+  // Helper: serialize blocks back to TXT so the AI helpers can consume.
+  const serializeBlocks = (blocks) =>
+    Array.isArray(blocks) && blocks.length
+      ? blocks.map((b) => `{{${b}}}`).join("\n\n") + "\n"
+      : "";
+
+  if (intent === "placeholderize") {
+    // Source: prefer baseEmailHtml; fallback to currently-open Pug file content.
+    let source = String(payload?.baseEmailHtml || "").trim();
+    let kind = "html";
+    if (!source && payload?.pugSourceFiles && typeof payload.pugSourceFiles === "object") {
+      // Pick the first non-empty .pug/.jade file in the bundle.
+      for (const [path, content] of Object.entries(payload.pugSourceFiles)) {
+        if (/\.(pug|jade)$/i.test(path) && typeof content === "string" && content.trim()) {
+          source = content;
+          kind = "pug";
+          break;
+        }
+      }
+    }
+    const html = source;
+    if (!html) {
+      return aiToolReply("Чтобы поставить плейсхолдеры, открой HTML или .pug файл в редакторе и повтори запрос.");
+    }
+    if (!ns || !ns.namespace || !ns.locales) {
+      return aiToolReply("Не вижу загруженных локалей. Открой папку с TXT-локалями («Локали» → «Выбрать папку») и повтори запрос.");
+    }
+    const refLocaleCode = ns.locales.en ? "en" : Object.keys(ns.locales)[0];
+    const refTxt = serializeBlocks(ns.locales[refLocaleCode]);
+    if (!refTxt) {
+      return aiToolReply(`В namespace ${ns.namespace} нет блоков для reference (искал ${refLocaleCode}).`);
+    }
+    const result = await placeholderizeHtml({
+      html, refLocaleTxt: refTxt, namespace: ns.namespace,
+      apiKey: openAiApiKey, model: "gpt-4.1-mini",
+      logger: appendStudioJournalEntry,
+      mailHint: ns.namespace,
+    });
+    if (result.report) {
+      try {
+        await appendStudioJournalEntry({
+          area: "ai-placeholderize",
+          title: `Placeholderize ${ns.namespace} (chat)`,
+          message: `Anchored ${result.report.anchored}/${result.report.refBlockCount} (${result.report.missed} missed, ${result.report.ambiguous} ambiguous)${result.report.usedSecondPass ? ', used 2nd pass' : ''}`,
+          meta: { namespace: ns.namespace, ...result.report,
+            decisions: (result.report.decisions || []).map((d) => ({
+              blockIndex: d.blockIndex, refText: d.refText, elementId: d.elementId,
+              parentChain: d.parentChain,
+              similarity: Number(d.similarity?.toFixed?.(3) ?? d.similarity),
+              confidence: Number(d.confidence?.toFixed?.(3) ?? d.confidence),
+              source: d.source,
+            })) },
+        });
+      } catch { /* non-blocking */ }
+    }
+    const total = (ns.locales[refLocaleCode] || []).length;
+    const refBlocks = ns.locales[refLocaleCode] || [];
+    const blockPreview = (i) => {
+      const raw = String(refBlocks[i] || "").replace(/@@/g, "");
+      return raw.length > 60 ? raw.slice(0, 60) + "..." : raw;
+    };
+    const lines = [
+      `Поставил ${result.anchors}/${total} плейсхолдеров ${ns.namespace}.block_NN в ${kind === 'pug' ? 'Pug-исходнике' : 'Original HTML'}.`,
+    ];
+    if (result.missed && result.missed.length) {
+      lines.push(`Не нашёл совпадения для:`);
+      result.missed.slice(0, 10).forEach(i => {
+        lines.push(`  • block_${String(i).padStart(2, '0')}: "${blockPreview(i)}"`);
+      });
+      if (result.missed.length > 10) {
+        lines.push(`  ...и ещё ${result.missed.length - 10} блоков.`);
+      }
+      lines.push(`Эти блоки нужно расставить вручную или поправить текст в HTML/локали.`);
+    }
+    if (result.ambiguous && result.ambiguous.length) {
+      lines.push(`Несколько совпадений в HTML (поэтому не вставил):`);
+      result.ambiguous.slice(0, 5).forEach(i => {
+        lines.push(`  • block_${String(i).padStart(2, '0')}: "${blockPreview(i)}"`);
+      });
+    }
+    if (result.anchors > 0) {
+      lines.push("Переключайся на любую локаль — переводы подставятся из TXT.");
+    }
+    return aiToolReply(lines.join(" "), {
+      kind: "placeholderize",
+      editorHtml: result.html,
+      summary: { anchors: result.anchors, total, missed: result.missed, ambiguous: result.ambiguous },
+    });
+  }
+
+  if (intent === "translate-all" || intent === "translate-active") {
+    if (!ns || !ns.locales) {
+      return aiToolReply("Сначала загрузи namespace с локалями (TXT-файлы в Студию).");
+    }
+    const srcCode = ns.locales.en ? "en" : (ns.referenceLocale || Object.keys(ns.locales)[0]);
+    const srcTxt = serializeBlocks(ns.locales[srcCode]);
+    if (!srcTxt) return aiToolReply(`Нет содержимого для source-локали ${srcCode}.`);
+
+    const allCodes = Object.keys(ns.locales);
+    const targets = intent === "translate-all"
+      ? allCodes.filter((c) => c !== srcCode)
+      : [String(payload?.activeLocale || "").trim() || allCodes.find((c) => c !== srcCode)].filter(Boolean);
+
+    if (!targets.length) return aiToolReply("Не нашёл целевых локалей для перевода.");
+
+    const localeUpdates = [];
+    const errors = [];
+    for (const tgt of targets) {
+      try {
+        const r = await translateLocaleTxt({
+          srcTxt, fromLang: srcCode, toLang: tgt,
+          apiKey: openAiApiKey, model: "gpt-4.1-mini",
+        });
+        // Guard: if AI returned blocks containing literal ${{...}}$ tokens
+        // (a hallucination — user asked for translation, not placeholderize),
+        // refuse to overwrite the locale.
+        const looksLikePh = r.blocks.some((b) => /\$\{\{[\s\S]*?\}\}\$/.test(b));
+        if (looksLikePh) {
+          errors.push(`${tgt}: AI returned literal ${'${{'}}-tokens — refused, locale not overwritten`);
+          continue;
+        }
+        localeUpdates.push({ namespace: ns.namespace, code: tgt, txt: r.translatedTxt, blocks: r.blocks.length, skipped: r.skipped });
+      } catch (e) {
+        errors.push(`${tgt}: ${e.message}`);
+      }
+    }
+    const summary = `Перевёл ${localeUpdates.length}/${targets.length} локал${targets.length === 1 ? 'ь' : 'ей'} из ${srcCode} в namespace «${ns.namespace}».` +
+      (errors.length ? ` Ошибки: ${errors.join("; ")}.` : "");
+    return aiToolReply(summary, { kind: "translate", localeUpdates });
+  }
+
+  if (intent === "fix-locale") {
+    if (!ns || !ns.locales) return aiToolReply("Сначала загрузи namespace с локалями.");
+
+    // Two modes:
+    //   - "all"     — user asked to bring EVERY locale to the reference shape
+    //                 (e.g. «приведи переводы к единому виду», «причеши все локали»)
+    //   - "active"  — user explicitly wants the currently-active locale only.
+    const userText = String(payload?.text || payload?.message || "").toLowerCase() ||
+                     (Array.isArray(payload?.messages) ? String(payload.messages[payload.messages.length - 1]?.content || "").toLowerCase() : "");
+    const looksLikeAll = /(во все|на все|все локал|всех локал|каждой локал|all local|every local|единому виду|единый вид|в соответ|причеши|унифиц|приведи переводы|all locales|all the locales)/i.test(userText);
+
+    // Reference locale: prefer 'en', otherwise the namespace's stored reference, otherwise first.
+    const refCode = ns.locales.en ? "en" : (ns.referenceLocale || Object.keys(ns.locales)[0]);
+    const refTxt = refCode ? serializeBlocks(ns.locales[refCode]) : "";
+
+    // Determine target list.
+    let targets;
+    if (looksLikeAll) {
+      targets = Object.keys(ns.locales).filter((c) => c && c !== refCode);
+    } else {
+      const code = String(payload?.activeLocale || "").trim();
+      if (!code || code === "original") {
+        return aiToolReply("Переключись на конкретную локаль (ar, ur, ru, …), или попроси «приведи все локали к единому виду» — починю пачкой.");
+      }
+      targets = [code];
+    }
+
+    if (!targets.length) {
+      return aiToolReply(`Не нашёл целевых локалей для починки (reference=${refCode}).`);
+    }
+
+    const localeUpdates = [];
+    const summary = [];
+    const errors = [];
+
+    for (const code of targets) {
+      const txt = serializeBlocks(ns.locales[code]);
+      if (!txt) { errors.push(`${code}: нет содержимого`); continue; }
+      try {
+        const r = await fixLocaleTxt({
+          txt, refTxt: (refTxt && code !== refCode) ? refTxt : undefined,
+          language: code, apiKey: openAiApiKey, model: "gpt-4.1-mini",
+        });
+        // Guard: AI must not insert literal ${{ ... }}$ tokens INTO locale TXT.
+        const looksLikePh = (r.blocks || []).some((b) => /\$\{\{[\s\S]*?\}\}\$/.test(b));
+        if (looksLikePh) {
+          errors.push(`${code}: AI вернул литеральные \${{ ... }}\$-токены в блоках, пропустил.`);
+          continue;
+        }
+        const before = (ns.locales[code] || []).length;
+        const after = r.blocks.length;
+        localeUpdates.push({ namespace: ns.namespace, code, txt: r.fixedTxt, blocks: after });
+        summary.push(`${code}: ${before} → ${after}`);
+      } catch (err) {
+        errors.push(`${code}: ${err && err.message ? err.message : err}`);
+      }
+    }
+
+    const lines = [];
+    if (localeUpdates.length) {
+      lines.push(`Привёл ${localeUpdates.length} локаль(и) к виду reference=${refCode} в «${ns.namespace}»: ${summary.join(", ")}.`);
+    }
+    if (errors.length) {
+      lines.push(`Не удалось: ${errors.slice(0, 6).join("; ")}${errors.length > 6 ? `; …и ещё ${errors.length - 6}` : ""}.`);
+    }
+    if (!localeUpdates.length && !errors.length) {
+      lines.push("Все локали уже совпадают с reference — чинить нечего.");
+    }
+    return aiToolReply(lines.join(" "), { kind: "fix-locale", localeUpdates });
+  }
+
+  return null;
+}
+
+
+const _AI_INTENT_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    intent: {
+      type: "string",
+      enum: ["placeholderize", "translate-all", "translate-active", "fix-locale", "none"],
+    },
+    confidence: { type: "number", minimum: 0, maximum: 1 },
+  },
+  required: ["intent", "confidence"],
+};
+
+async function classifyAiIntent(text) {
+  const sys =
+    "Classify the user's free-text request into ONE intent for an email-localization studio. " +
+    "Be aggressive — most messages map to an intent; pick `none` only for greetings, jokes, or pure analysis questions.\n" +
+    "Intents:\n" +
+    "  • placeholderize  — insert ${{ ns.block_NN }}$ placeholders into the HTML. " +
+    "    Triggers (any of): «расставь / расставить / распиши / разметь плейсхолдер[ыов]», «put placeholders», «mark placeholders», " +
+    "    «согласно ENG/английскому», «по логике английского текста», any spelling with е/э (плей/плэй), or the literal `${`.\n" +
+    "  • translate-all  — translate the email TXT into ALL loaded locales. " +
+    "    Triggers: «переведи во все локали», «translate to all locales», «локализуй на все языки».\n" +
+    "  • translate-active  — translate into the currently active locale only. " +
+    "    Triggers: «переведи на ar/ru/…», «локализуй активную локаль», «translate to active locale».\n" +
+    "  • fix-locale  — repair / unify locale TXT (broken {{}} brackets, @@ markers, block count, drift between locales). " +
+    "    Triggers: «приведи к единому виду», «приведи в соответствие», «причеши блоки», «унифицируй переводы», " +
+    "    «почини локаль», «исправь блоки», «поправь форматирование», «fix / repair locale».\n" +
+    "  • none  — analysis / questions / chat / greetings.\n\n" +
+    "Priority rules:\n" +
+    "  1. If the message asks to PLACE/RECOVER placeholders → placeholderize.\n" +
+    "  2. If the message asks to UNIFY / REPAIR / ALIGN locale TXTs (and does NOT ask to translate the meaning) → fix-locale.\n" +
+    "  3. If the message asks to TRANSLATE meaning into another language → translate-*.\n" +
+    "  4. Be lenient on word forms, typos (плей/плэй, расставь/расставить), and Russian/English/mixed wording.\n" +
+    "Return intent + confidence (0..1). Use confidence ≥0.8 when the verb is explicit; 0.5–0.8 when it's implied.";
+  const data = await callOpenAiWithRetry(
+    async () => ({
+      url: "https://api.openai.com/v1/responses",
+      body: {
+        model: "gpt-4.1-mini",
+        input: [
+          { role: "system", content: [{ type: "input_text", text: sys }] },
+          { role: "user",   content: [{ type: "input_text", text }] },
+        ],
+        text: { format: { type: "json_schema", name: "ai_intent", strict: true, schema: _AI_INTENT_SCHEMA } },
+      },
+    }),
+    { label: "ai-intent-classify", apiKey: openAiApiKey }
+  );
+  const txt = extractResponseText(data);
+  if (!txt) return null;
+  const parsed = JSON.parse(txt);
+  const intent = parsed?.intent;
+  if (!intent || intent === "none") return null;
+  if ((parsed.confidence ?? 1) < 0.5) return null;
+  return intent;
+}
+
+function safeJsonParse(s) { try { return JSON.parse(s); } catch { return null; } }
+
+function aiToolReply(text, aiToolResult) {
+  return {
+    assistantReply: text,
+    mode: "ai-tool",
+    ...(aiToolResult ? { aiToolResult } : {}),
+  };
+}
+
 
 async function resolveDesignAnalysis(payload) {
   payload = await enrichPayloadWithServerSideFigma(payload);
@@ -10778,6 +16124,7 @@ async function streamChatResponse(response, payload) {
   let result;
   try {
     result = await resolveChatResponse(payload);
+    result = attachLayoutModelToChatResult(result, payload);
   } catch (error) {
     sendNdjsonFrame(response, {
       type: "final",
@@ -10808,31 +16155,34 @@ async function streamChatResponse(response, payload) {
 async function generateMissingLocales(payload, existingDraft = null) {
   payload = await enrichPayloadWithServerSideFigma(payload);
   const baseDraft = existingDraft && typeof existingDraft === "object" ? existingDraft : null;
-  const baseMail = normalizeMail(baseDraft?.mail || payload.currentDraft || null, payload);
-  const existingEntries = dedupeTranslationEntries(
-    [
-      ...(Array.isArray(baseMail.translations) ? baseMail.translations : []),
-      ...parseTranslationEntries(payload.translationText, baseMail)
-    ],
-    baseMail
-  );
-  const requestedLocales = Array.from(new Set([
-    normalizeLocaleCode(payload.brief.locale || baseMail.locale),
-    ...parseLocaleList(payload.brief.requestedLocales)
-  ].filter(Boolean)));
+  const repairPlan = buildLocaleRepairPlan(payload, baseDraft);
+  const {
+    baseMail,
+    sourceEntry,
+    existingEntries,
+    requestedLocales,
+    targetLocales
+  } = repairPlan;
 
   if (requestedLocales.length === 0) {
     throw new Error("Requested locales are empty. Fill the Requested locales field first.");
   }
+  const sourceEntries = mergeSourceTranslationEntryIntoEntries(
+    existingEntries.length > 0 ? existingEntries : [sourceEntry],
+    sourceEntry,
+    baseMail
+  );
+  const cloneEditPreviewLocales = cleanText(baseDraft?.html)
+    ? buildCloneEditPreviewLocalesFromHtml(
+        { ...baseMail, translations: sourceEntries },
+        cleanText(baseDraft?.html),
+        payload,
+        Object.entries(baseDraft?.previewLocales && typeof baseDraft.previewLocales === "object" ? baseDraft.previewLocales : {})
+          .map(([locale, html]) => ({ locale, html }))
+      )
+    : null;
 
-  const missingLocales = requestedLocales.filter((locale) => !existingEntries.some((entry) => localeMatchesRequest(entry.locale, locale)));
-
-  const sourceEntry = buildSourceTranslationEntry(baseMail, payload);
-  const sourceEntries = existingEntries.length > 0
-    ? existingEntries
-    : [sourceEntry];
-
-  if (missingLocales.length === 0) {
+  if (targetLocales.length === 0) {
     const mergedMail = {
       ...baseMail,
       translations: collapseRedundantTranslationEntries(
@@ -10847,7 +16197,8 @@ async function generateMissingLocales(payload, existingDraft = null) {
       uploadStatus: `Locales already complete: ${requestedLocales.join(", ")}.`,
       draft: createDraftSnapshot(mergedMail, baseDraft, {
         assetRecommendations: buildAssetRecommendations(mergedMail, payload),
-        previewCategory: payload.brief.category
+        previewCategory: payload.brief.category,
+        previewLocales: cloneEditPreviewLocales || undefined
       })
     };
   }
@@ -10862,17 +16213,17 @@ async function generateMissingLocales(payload, existingDraft = null) {
 
   if (providerId === "deepl" && deepLApiKey) {
     try {
-      generated = await createDeepLTranslations(payload, baseMail, sourceEntry, missingLocales);
+      generated = await createDeepLTranslations(payload, baseMail, sourceEntry, targetLocales);
       mode = "deepl-translations";
       providerRuntime = createProviderRuntime({ providerId, mode, liveAttempted: true, liveUsed: true });
     } catch (error) {
-      generated = createMockTranslations(payload, baseMail, sourceEntry, missingLocales, error.message);
+      generated = createMockTranslations(payload, baseMail, sourceEntry, targetLocales, error.message);
       mode = "mock-translations";
       providerRuntime = createProviderRuntime({ providerId, mode, liveAttempted: true, fallback: true, errorMessage: error.message });
     }
   } else if (providerId === "openai" && openAiApiKey) {
     try {
-      generated = await createOpenAiTranslations(payload, baseMail, sourceEntry, missingLocales);
+      generated = await createOpenAiTranslations(payload, baseMail, sourceEntry, targetLocales);
       mode = "openai-translations";
       providerRuntime = createProviderRuntime({
         providerId,
@@ -10881,7 +16232,7 @@ async function generateMissingLocales(payload, existingDraft = null) {
         liveUsed: true
       });
     } catch (error) {
-      generated = createMockTranslations(payload, baseMail, sourceEntry, missingLocales, error.message);
+      generated = createMockTranslations(payload, baseMail, sourceEntry, targetLocales, error.message);
       mode = "mock-translations";
       providerRuntime = createProviderRuntime({
         providerId,
@@ -10892,14 +16243,14 @@ async function generateMissingLocales(payload, existingDraft = null) {
       });
     }
   } else if (providerId === "mock") {
-    generated = createMockTranslations(payload, baseMail, sourceEntry, missingLocales, "Mock translation mode selected.");
+    generated = createMockTranslations(payload, baseMail, sourceEntry, targetLocales, "Mock translation mode selected.");
     mode = "mock-translations";
     providerRuntime = createProviderRuntime({
       providerId,
       mode
     });
   } else if (providerId === "openai") {
-    generated = createMockTranslations(payload, baseMail, sourceEntry, missingLocales, "OPENAI_API_KEY is not configured on the server.");
+    generated = createMockTranslations(payload, baseMail, sourceEntry, targetLocales, "OPENAI_API_KEY is not configured on the server.");
     mode = "mock-translations";
     providerRuntime = createProviderRuntime({
       providerId,
@@ -10908,7 +16259,7 @@ async function generateMissingLocales(payload, existingDraft = null) {
       errorMessage: "OPENAI_API_KEY is not configured on the server."
     });
   } else {
-    generated = createMockTranslations(payload, baseMail, sourceEntry, missingLocales, `${providerId} adapter is planned but not wired yet.`);
+    generated = createMockTranslations(payload, baseMail, sourceEntry, targetLocales, `${providerId} adapter is planned but not wired yet.`);
     mode = "mock-translations";
     providerRuntime = createProviderRuntime({
       providerId,
@@ -10929,18 +16280,28 @@ async function generateMissingLocales(payload, existingDraft = null) {
     ...baseMail,
     translations: mergedTranslations
   };
+  const mergedCloneEditPreviewLocales = cleanText(baseDraft?.html)
+    ? buildCloneEditPreviewLocalesFromHtml(
+        mergedMail,
+        cleanText(baseDraft?.html),
+        payload,
+        Object.entries(baseDraft?.previewLocales && typeof baseDraft.previewLocales === "object" ? baseDraft.previewLocales : {})
+          .map(([locale, html]) => ({ locale, html }))
+      )
+    : null;
 
   return {
     assistantReply: cleanText(generated.assistant_reply)
-      || `Generated missing locales: ${missingLocales.join(", ")}.`,
+      || `Generated missing locales: ${targetLocales.join(", ")}.`,
     mode,
     providerRuntime,
-    generatedLocales: missingLocales,
+    generatedLocales: targetLocales,
     translationText: renderTranslationBundle(mergedTranslations),
-    uploadStatus: `Translation bundle now contains ${mergedTranslations.length} locale file(s). Generated: ${missingLocales.join(", ")}.`,
+    uploadStatus: `Translation bundle now contains ${mergedTranslations.length} locale file(s). Generated/repaired: ${targetLocales.join(", ")}.`,
     draft: createDraftSnapshot(mergedMail, baseDraft, {
       assetRecommendations: buildAssetRecommendations(mergedMail, payload),
-      previewCategory: payload.brief.category
+      previewCategory: payload.brief.category,
+      previewLocales: mergedCloneEditPreviewLocales || undefined
     })
   };
 }
@@ -10971,8 +16332,63 @@ async function serveStatic(request, response) {
   }
 }
 
+function safeCredentialEquals(actual, expected) {
+  const actualBuffer = Buffer.from(String(actual || ""), "utf8");
+  const expectedBuffer = Buffer.from(String(expected || ""), "utf8");
+  return actualBuffer.length === expectedBuffer.length
+    && timingSafeEqual(actualBuffer, expectedBuffer);
+}
+
+function isApplicationRequestAuthorized(request) {
+  if (!appAuthEnabled) return true;
+  const authorization = String(request?.headers?.authorization || "");
+  if (!authorization.startsWith("Basic ")) return false;
+
+  try {
+    const decoded = Buffer.from(authorization.slice(6), "base64").toString("utf8");
+    const separator = decoded.indexOf(":");
+    if (separator < 0) return false;
+    const username = decoded.slice(0, separator);
+    const password = decoded.slice(separator + 1);
+    return safeCredentialEquals(username, appAuthUser)
+      && safeCredentialEquals(password, appAuthPassword);
+  } catch {
+    return false;
+  }
+}
+
+function isAuthExemptRequest(request) {
+  if (request?.method === "GET" && request?.url === "/healthz") return true;
+  return request?.url === "/api/figma/import"
+    && (request?.method === "POST" || request?.method === "OPTIONS");
+}
+
+function rejectUnauthorizedRequest(response) {
+  response.writeHead(401, {
+    "Content-Type": "application/json; charset=utf-8",
+    "Cache-Control": "no-store",
+    "WWW-Authenticate": 'Basic realm="Retention Studio", charset="UTF-8"'
+  });
+  response.end(JSON.stringify({ error: "Authentication required" }));
+}
+
 const server = http.createServer(async (request, response) => {
   try {
+    if (request.method === "GET" && request.url === "/healthz") {
+      sendJson(response, 200, {
+        ok: true,
+        service: "retention-future",
+        node: process.version,
+        authEnabled: appAuthEnabled
+      });
+      return;
+    }
+
+    if (!isAuthExemptRequest(request) && !isApplicationRequestAuthorized(request)) {
+      rejectUnauthorizedRequest(response);
+      return;
+    }
+
     if (request.method === "GET" && request.url.startsWith("/studio-assets/")) {
       await serveStudioAsset(request, response);
       return;
@@ -10985,6 +16401,45 @@ const server = http.createServer(async (request, response) => {
 
     if (request.method === "GET" && request.url === "/api/figma/status") {
       sendJson(response, 200, summarizeFigmaIntegration(), getFigmaImportCorsHeaders());
+      return;
+    }
+
+    if (request.method === "POST" && request.url === "/api/figma/readiness") {
+      const body = await readRequestBody(request);
+      const figmaUrl = findFirstFigmaUrlInPayload(body) || cleanText(body?.url);
+      const existingStructuredImport = normalizeFigmaImportPayload(
+        body?.figmaImport && typeof body.figmaImport === "object"
+          ? body.figmaImport
+          : body
+      );
+      const hasStructured = hasDetailedFigmaImportPayload(existingStructuredImport);
+      const hasVisual = Boolean(
+        cleanText(body?.dataUrl)
+        || cleanText(body?.imageUrl)
+        || cleanText(body?.image_url)
+        || cleanText(body?.screenshotUrl)
+        || cleanText(body?.screenshot_url)
+        || cleanText(body?.previewUrl)
+        || cleanText(body?.preview_url)
+      );
+      const readiness = assessFigmaIntakeReadiness(figmaUrl, {
+        hasStructured,
+        hasVisual
+      });
+      const intakeSummary = buildFigmaIntakeSummary({
+        figmaImport: existingStructuredImport,
+        readiness,
+        importMethod: hasStructured ? cleanText(existingStructuredImport?.source) || "structured-import" : "",
+        hasLink: Boolean(figmaUrl),
+        hasVisual
+      });
+
+      sendJson(response, 200, {
+        figma: summarizeFigmaIntegration(),
+        readiness,
+        structuredCoverage: intakeSummary.coverage,
+        summary: intakeSummary.text
+      }, getFigmaImportCorsHeaders());
       return;
     }
 
@@ -11055,6 +16510,17 @@ const server = http.createServer(async (request, response) => {
       }
 
       const result = normalizeFigmaPluginRequest(payloadForNormalization);
+      const responseFigmaEnrichment = payloadForNormalization?.figmaEnrichment && typeof payloadForNormalization.figmaEnrichment === "object"
+        ? payloadForNormalization.figmaEnrichment
+        : result.intake.hasStructured
+          ? {
+              source: cleanText(result.intake.importMethod) || "structured-import",
+              structured: true,
+              readiness: result.intake.readiness,
+              structuredCoverage: result.intake.structuredCoverage,
+              summary: result.intake.summary
+            }
+          : null;
       if (!result.design && !result.briefPatch.designUrl) {
         sendJson(response, 400, {
           error: "No usable Figma link, screenshot/export or structured payload found"
@@ -11088,12 +16554,17 @@ const server = http.createServer(async (request, response) => {
       }, designMappingHints);
 
       sendJson(response, 200, {
+        ok: true,
         design: result.design,
         designSchema: result.designSchema,
         designDecomposition,
         designMappingHints,
         designBlockRecommendations,
+        composePlan: (() => { try { return buildComposePlanFromDesign({ schema: result.designSchema }); } catch (e) { return { plan: [], warnings: [String(e && e.message || e)] }; } })(),
+        figmaEnrichment: responseFigmaEnrichment,
+        decompositionSummary: summarizeDesignDecomposition(designDecomposition),
         mappingSummary: summarizeDesignMappingHints(designMappingHints),
+        blockRecommendationSummary: summarizeDesignBlockRecommendations(designBlockRecommendations),
         briefPatch: result.briefPatch,
         intake: result.intake,
         figma: summarizeFigmaIntegration(),
@@ -11129,6 +16600,7 @@ const server = http.createServer(async (request, response) => {
         openAiConfigured: Boolean(openAiApiKey),
         model: openAiModel,
         modelRouting: summarizeOpenAiModelRouting(),
+        tokenUsage,
         config: summarizeRuntimeConfig(),
         providers: getProviderCatalog(),
         clientProfiles,
@@ -11155,11 +16627,31 @@ const server = http.createServer(async (request, response) => {
     if (request.method === "POST" && request.url === "/api/design/decompose") {
       const rawPayload = await readRequestBody(request);
       const payload = await enrichPayloadWithServerSideFigma(normalizePayload(rawPayload));
+      const decomposeFigmaEnrichment = payload?.figmaEnrichment && typeof payload.figmaEnrichment === "object"
+        ? payload.figmaEnrichment
+        : hasDetailedFigmaImportPayload(payload?.design?.figmaImport)
+          ? {
+              source: cleanText(payload?.design?.figmaImport?.source) || "structured-import",
+              structured: true,
+              structuredCoverage: summarizeNormalizedFigmaImportCoverage(payload?.design?.figmaImport),
+              summary: buildFigmaIntakeSummary({
+                figmaImport: payload?.design?.figmaImport,
+                readiness: assessFigmaIntakeReadiness(cleanText(payload?.brief?.designUrl), {
+                  hasStructured: true,
+                  hasVisual: Boolean(cleanText(payload?.design?.dataUrl))
+                }),
+                importMethod: cleanText(payload?.design?.figmaImport?.source) || "structured-import",
+                hasLink: Boolean(cleanText(payload?.brief?.designUrl)),
+                hasVisual: Boolean(cleanText(payload?.design?.dataUrl))
+              }).text
+            }
+          : null;
       sendJson(response, 200, {
         designSchema: payload.designSchema,
         designDecomposition: payload.designDecomposition,
         designMappingHints: payload.designMappingHints,
         designBlockRecommendations: payload.designBlockRecommendations,
+        figmaEnrichment: decomposeFigmaEnrichment,
         summary: summarizeDesignDecomposition(payload.designDecomposition),
         mappingSummary: summarizeDesignMappingHints(payload.designMappingHints),
         blockRecommendationSummary: summarizeDesignBlockRecommendations(payload.designBlockRecommendations)
@@ -11192,6 +16684,194 @@ const server = http.createServer(async (request, response) => {
         benchmarkCase,
         result
       });
+      return;
+    }
+
+    // ── Block library (hand-crafted canonical blocks + user-saved) ──
+    if (request.method === "GET" && request.url === "/api/blocks-library") {
+      try {
+        const blocks = listCanonicalBlocks();
+        sendJson(response, 200, { count: blocks.length, blocks });
+      } catch (err) {
+        sendJson(response, 500, { error: String(err && err.message ? err.message : err) });
+      }
+      return;
+    }
+
+    // ── Save a new user-block (or overwrite if force=true).
+    if (request.method === "POST" && request.url === "/api/blocks-library/save") {
+      try {
+        const body = await readRequestBody(request);
+        const id = String(body?.id || "").trim();
+        if (!id || !/^[a-z0-9][a-z0-9_-]{0,63}$/i.test(id)) {
+          sendJson(response, 400, { error: "id must be 1-64 chars, letters/digits/_/-" });
+          return;
+        }
+        const label = String(body?.label || id).trim().slice(0, 120);
+        const description = String(body?.description || "").trim().slice(0, 400);
+        const placement = body?.placement === "section" || body?.placement === "inline" || body?.placement === "helper"
+          ? body.placement : "inline";
+        const category = String(body?.category || "misc").trim().slice(0, 40);
+        const pug = String(body?.pug || "");
+        const styl = String(body?.styl || "");
+        if (!pug.trim()) { sendJson(response, 400, { error: "pug content required" }); return; }
+        const slots = Array.isArray(body?.slots) ? body.slots.map((sl) => ({
+          id: String(sl?.id || "").trim(),
+          kind: String(sl?.kind || "text"),
+          label: String(sl?.label || sl?.id || ""),
+          default: sl?.default,
+          min: sl?.min, max: sl?.max, options: sl?.options,
+        })).filter((sl) => sl.id) : [];
+        const force = Boolean(body?.force);
+        const target = userBlockPath(id);
+        if (existsSync(target) && !force) {
+          sendJson(response, 409, { error: "block id already exists", hint: "send force=true to overwrite" });
+          return;
+        }
+        await mkdir(userBlockDir(), { recursive: true });
+        const blockJson = {
+          id, label, description, placement, category,
+          version: 1, source: "user",
+          pug, styl, slots,
+          tags: Array.isArray(body?.tags) ? body.tags.slice(0, 12).map(String) : [],
+          createdAt: new Date().toISOString(),
+        };
+        await writeFile(target, JSON.stringify(blockJson, null, 2) + "\n", "utf8");
+        try { await appendStudioJournalEntry({ area: "blocks", title: `User block saved: ${id}`, message: `placement=${placement}, slots=${slots.length}`, meta: { id, placement, category, slots: slots.length } }); } catch {}
+        sendJson(response, 200, { ok: true, id, path: path.relative(__dirname, target) });
+      } catch (err) {
+        sendJson(response, 500, { error: String(err && err.message ? err.message : err) });
+      }
+      return;
+    }
+
+    // ── Delete a user-block by id.
+    if (request.method === "DELETE" && request.url.startsWith("/api/blocks-library/user/")) {
+      try {
+        const id = decodeURIComponent(request.url.slice("/api/blocks-library/user/".length));
+        if (!/^[a-z0-9][a-z0-9_-]{0,63}$/i.test(id)) { sendJson(response, 400, { error: "invalid id" }); return; }
+        const target = userBlockPath(id);
+        if (!existsSync(target)) { sendJson(response, 404, { error: "not found" }); return; }
+        await rm(target, { force: true });
+        sendJson(response, 200, { ok: true, id });
+      } catch (err) {
+        sendJson(response, 500, { error: String(err && err.message ? err.message : err) });
+      }
+      return;
+    }
+
+    // ── Compose-preview: build a mail from blocks+slots and return dist HTML inline ──
+    // No file persistence — uses an in-memory dest under /tmp.
+    if (request.method === "POST" && request.url === "/api/compose-preview") {
+      try {
+        const body = await readRequestBody(request);
+        const blocks = Array.isArray(body?.blocks) ? body.blocks : [];
+        if (!blocks.length) { sendJson(response, 400, { error: "blocks array required" }); return; }
+        const mailName = String(body?.mailName || ("preview-" + Date.now())).replace(/[^a-z0-9_-]/gi, "-").toLowerCase();
+        const brand = "X_preview";
+        const tmpDir = path.join(os.tmpdir(), "retkit-compose-preview");
+        await mkdir(tmpDir, { recursive: true });
+        // Symlink (or copy) vendor + tools so build-mail.js can find them.
+        for (const item of ["vendor", "tools", "node_modules"]) {
+          const src = path.join(__dirname, "email-base", item);
+          const dst = path.join(tmpDir, item);
+          if (existsSync(src) && !existsSync(dst)) {
+            try { fsLink.symlinkSync(src, dst, "dir"); } catch { /* ignore */ }
+          }
+        }
+        // Compose into tmp dir.
+        const composed = composeEmailFromBlocks({ brand, mailName, blocks, destRoot: tmpDir, markBlocks: true });
+        // Run build-mail.js synchronously.
+        const built = await new Promise((resolve) => {
+          const args = ["tools/build-mail.js", "--category", brand, "--mail", mailName, "--locales", "en", "--pretty"];
+          const child = spawn(process.execPath, args, { cwd: tmpDir, stdio: ["ignore", "pipe", "pipe"] });
+          let stderr = "";
+          child.stderr.on("data", (d) => { stderr += d.toString(); });
+          child.on("close", (code) => resolve({ code, stderr }));
+          child.on("error", (err) => resolve({ code: -1, stderr: String(err) }));
+        });
+        if (built.code !== 0) {
+          sendJson(response, 422, { error: "build failed", stderr: built.stderr.slice(0, 800) });
+          return;
+        }
+        const distHtml = path.join(tmpDir, "dist", brand, "mail-" + mailName, "en", "index.html");
+        if (!existsSync(distHtml)) {
+          sendJson(response, 500, { error: "build succeeded but dist HTML missing" });
+          return;
+        }
+        const html = await readFile(distHtml, "utf8");
+        sendJson(response, 200, {
+          ok: true, mailName, brand,
+          html, htmlLength: html.length,
+          blocksUsed: composed.blocksUsed, totalBlocks: composed.totalBlocks,
+          warnings: composed.warnings,
+        });
+      } catch (err) {
+        sendJson(response, 500, { error: String(err && err.message ? err.message : err) });
+      }
+      return;
+    }
+
+    // ── Compose-save: persist the assembled mail into email-base/<brand>/mail-<name>/
+    //    and build it. Used by the constructor's Save button. Refuses if the
+    //    target folder already exists (unless force=true).
+    if (request.method === "POST" && request.url === "/api/compose-save") {
+      try {
+        const body = await readRequestBody(request);
+        const blocks = Array.isArray(body?.blocks) ? body.blocks : [];
+        if (!blocks.length) { sendJson(response, 400, { error: "blocks array required" }); return; }
+        const rawName = String(body?.mailName || "").trim();
+        if (!rawName || !/^[a-z0-9_-]+$/i.test(rawName)) {
+          sendJson(response, 400, { error: "mailName must be letters/digits/_/- only" });
+          return;
+        }
+        const brand = String(body?.brand || "X_assembled").replace(/[^a-zA-Z0-9_]/g, "") || "X_assembled";
+        const destFolder = path.join(__dirname, "email-base", brand, "mail-" + rawName);
+        const force = Boolean(body?.force);
+        if (existsSync(destFolder) && !force) {
+          sendJson(response, 409, {
+            error: "mail already exists",
+            existsAt: path.relative(__dirname, destFolder),
+            hint: "pick a different name OR send { force: true } to overwrite",
+          });
+          return;
+        }
+        // Compose into email-base directly.
+        const composed = composeEmailFromBlocks({
+          brand, mailName: rawName, blocks,
+          destRoot: path.join(__dirname, "email-base"),
+        });
+        // Build it.
+        const built = await new Promise((resolve) => {
+          const args = ["tools/build-mail.js", "--category", brand, "--mail", rawName, "--locales", "en", "--pretty"];
+          const child = spawn(process.execPath, args, { cwd: path.join(__dirname, "email-base"), stdio: ["ignore", "pipe", "pipe"] });
+          let stderr = "";
+          child.stderr.on("data", (d) => { stderr += d.toString(); });
+          child.on("close", (code) => resolve({ code, stderr }));
+          child.on("error", (err) => resolve({ code: -1, stderr: String(err) }));
+        });
+        const journalMeta = { brand, mailName: rawName, blocksUsed: composed.blocksUsed, buildOk: built.code === 0 };
+        try { await appendStudioJournalEntry({ area: "constructor", title: `Mail saved: ${brand}/mail-${rawName}`, message: `${composed.blocksUsed}/${composed.totalBlocks} blocks; build ${built.code === 0 ? "ok" : "failed"}`, meta: journalMeta }); } catch {}
+        if (built.code !== 0) {
+          sendJson(response, 422, {
+            ok: false,
+            error: "saved but build failed",
+            path: path.relative(__dirname, destFolder),
+            stderr: built.stderr.slice(0, 800),
+          });
+          return;
+        }
+        sendJson(response, 200, {
+          ok: true,
+          brand, mailName: rawName,
+          path: path.relative(__dirname, destFolder),
+          blocksUsed: composed.blocksUsed,
+          totalBlocks: composed.totalBlocks,
+          warnings: composed.warnings,
+        });
+      } catch (err) {
+        sendJson(response, 500, { error: String(err && err.message ? err.message : err) });
+      }
       return;
     }
 
@@ -11332,7 +17012,7 @@ const server = http.createServer(async (request, response) => {
     if (request.method === "POST" && request.url === "/api/chat") {
       const payload = normalizePayload(await readRequestBody(request));
       payload.projectRules = (await readProjectRules()).items;
-      const chatResult = await resolveChatResponse(payload);
+      const chatResult = attachLayoutModelToChatResult(await resolveChatResponse(payload), payload);
       autoSaveGenerationHistory(chatResult, payload);
       sendJson(response, 200, chatResult);
       return;
@@ -11342,6 +17022,114 @@ const server = http.createServer(async (request, response) => {
       const payload = normalizePayload(await readRequestBody(request));
       payload.projectRules = (await readProjectRules()).items;
       await streamChatResponse(response, payload);
+      return;
+    }
+
+    if (request.method === "POST" && request.url === "/api/chat/intent") {
+      const body = await readRequestBody(request);
+      const text = cleanText(body?.text || body?.message || "");
+      const minConfidence = Number(body?.minConfidence ?? 0.6);
+      try {
+        const r = _classifyChatIntent(text);
+        if (!r) {
+          sendJson(response, 200, { ok: true, intent: null });
+          return;
+        }
+        const meetsThreshold = r.confidence >= minConfidence;
+        sendJson(response, 200, {
+          ok: true,
+          intent: r.intent,
+          params: r.params,
+          confidence: r.confidence,
+          hint: r.hint || null,
+          shouldExecute: meetsThreshold,
+        });
+      } catch (err) {
+        console.error("[chat/intent] failed:", err);
+        sendJson(response, 500, { error: String(err && err.message ? err.message : err) });
+      }
+      return;
+    }
+
+    if (request.method === "POST" && request.url === "/api/mail/infer-placeholders") {
+      const body = await readRequestBody(request);
+      const html = cleanText(body?.html);
+      if (!html) {
+        sendJson(response, 400, { error: "html is required" });
+        return;
+      }
+      const mailNamespace = cleanText(body?.mailNamespace) || null;
+      try {
+        const result = _inferPlaceholders(html, { mailNamespace });
+        sendJson(response, 200, { ok: true, ...result });
+      } catch (err) {
+        console.error("[infer-placeholders] failed:", err);
+        sendJson(response, 500, { error: String(err && err.message ? err.message : err) });
+      }
+      return;
+    }
+
+    if (request.method === "GET" && request.url.startsWith("/api/blocks/by-mail")) {
+      try {
+        const u = new URL(request.url, "http://localhost");
+        const force = u.searchParams.get("force") === "1";
+        const result = await _buildBlocksByMail({ force });
+        sendJson(response, 200, { ok: true, ...result });
+      } catch (err) {
+        console.error("[blocks/by-mail] failed:", err);
+        sendJson(response, 500, { error: String(err && err.message ? err.message : err) });
+      }
+      return;
+    }
+
+    if (request.method === "GET" && request.url.startsWith("/api/blocks/source")) {
+      try {
+        const u = new URL(request.url, "http://localhost");
+        const category = u.searchParams.get("category") || "";
+        const mailId = u.searchParams.get("mailId") || "";
+        const blockFile = u.searchParams.get("blockFile") || "";
+        const src = await _readBlockSource({ category, mailId, blockFile });
+        if (!src) {
+          sendJson(response, 404, { error: "block not found or invalid params" });
+          return;
+        }
+        sendJson(response, 200, { ok: true, text: src.text, path: src.absPath.replace(process.cwd(), "") });
+      } catch (err) {
+        console.error("[blocks/source] failed:", err);
+        sendJson(response, 500, { error: String(err && err.message ? err.message : err) });
+      }
+      return;
+    }
+
+    if (request.method === "GET" && request.url.startsWith("/api/mail/placeholders-index")) {
+      try {
+        const u = new URL(request.url, "http://localhost");
+        const locale = (u.searchParams.get("locale") || "en").toLowerCase();
+        const force = u.searchParams.get("force") === "1";
+        const result = await _buildPlaceholdersIndex({ locale, force });
+        sendJson(response, 200, { ok: true, ...result });
+      } catch (err) {
+        console.error("[placeholders-index] failed:", err);
+        sendJson(response, 500, { error: String(err && err.message ? err.message : err) });
+      }
+      return;
+    }
+
+    if (request.method === "POST" && request.url === "/api/mail/apply-placeholders") {
+      const body = await readRequestBody(request);
+      const html = cleanText(body?.html);
+      const accepted = Array.isArray(body?.accepted) ? body.accepted : [];
+      if (!html) {
+        sendJson(response, 400, { error: "html is required" });
+        return;
+      }
+      try {
+        const result = _applyPlaceholderProposals(html, accepted);
+        sendJson(response, 200, { ok: true, ...result });
+      } catch (err) {
+        console.error("[apply-placeholders] failed:", err);
+        sendJson(response, 500, { error: String(err && err.message ? err.message : err) });
+      }
       return;
     }
 
@@ -11358,6 +17146,64 @@ const server = http.createServer(async (request, response) => {
         return;
       }
       sendJson(response, 200, { ok: true, contentMap });
+      return;
+    }
+
+    if (request.method === "POST" && request.url === "/api/layout-model/inspect") {
+      let payload = normalizePayload(await readRequestBody(request));
+      payload = await enrichPayloadWithServerSideFigma(payload);
+      const html = cleanText(payload?.baseEmailHtml)
+        || cleanText(payload?.currentDraft?.html)
+        || cleanText(payload?.currentDraft?.mail?.html);
+      const contentMap = html ? extractEmailHtmlContentMap(html) : getCloneEditContentMap(payload);
+      const layoutModel = buildLayoutModel({
+        brief: payload?.brief,
+        contentMap,
+        screenshotOcr: payload?.screenshotOcr,
+        designSchema: payload?.designSchema,
+        designAnalysis: payload?.designAnalysis,
+        draft: payload?.currentDraft ? { ...payload.currentDraft } : null
+      });
+
+      sendJson(response, 200, {
+        ok: Boolean(layoutModel),
+        layoutModel,
+        summary: summarizeLayoutModel(layoutModel),
+        meta: summarizeLayoutModelMeta(layoutModel)
+      });
+      return;
+    }
+
+    if (request.method === "GET" && request.url === "/api/scenarios") {
+      const scenarios = listScenarioFixtures(scenarioFixturesDir);
+      sendJson(response, 200, {
+        ok: true,
+        count: scenarios.length,
+        scenarios: scenarios.map((entry) => ({
+          id: entry.id,
+          title: entry.title,
+          description: entry.description,
+          type: entry.type,
+          tags: entry.tags,
+          fileName: entry.fileName
+        }))
+      });
+      return;
+    }
+
+    if (request.method === "POST" && request.url === "/api/scenarios/save") {
+      const body = await readRequestBody(request);
+      const scenario = body?.scenario && typeof body.scenario === "object" ? body.scenario : body;
+      const saved = await saveScenarioFixture(scenarioFixturesDir, scenario, {
+        overwrite: Boolean(body?.overwrite)
+      });
+      sendJson(response, 200, {
+        ok: true,
+        id: saved.id,
+        fileName: saved.fileName,
+        filePath: saved.filePath,
+        scenario: saved.scenario
+      });
       return;
     }
 
@@ -11398,11 +17244,27 @@ const server = http.createServer(async (request, response) => {
     }
 
     if (request.method === "POST" && request.url === "/api/email-base/build") {
-      const payload = normalizePayload(await readRequestBody(request));
+      const rawPayload = await readRequestBody(request);
+      const payload = normalizePayload(rawPayload);
       const summary = summarizeEmailBase();
-      const category = cleanText(payload?.brief?.category || payload?.category) || summary.currentMail?.category;
-      const mailId = cleanText(payload?.brief?.mailId || payload?.mailId) || summary.currentMail?.mailId;
-      const locale = cleanText(payload?.brief?.locale || payload?.locale) || payload.brief.locale || "en";
+      const category = cleanText(
+        payload?.brief?.category
+        || rawPayload?.brief?.category
+        || rawPayload?.category
+        || payload?.category
+      ) || summary.currentMail?.category;
+      const mailId = cleanText(
+        payload?.brief?.mailId
+        || rawPayload?.brief?.mailId
+        || rawPayload?.mailId
+        || payload?.mailId
+      ) || summary.currentMail?.mailId;
+      const locale = cleanText(
+        payload?.brief?.locale
+        || rawPayload?.brief?.locale
+        || rawPayload?.locale
+        || payload?.locale
+      ) || payload.brief.locale || "en";
 
       const result = await buildEmailBasePreview(category, mailId, locale);
       await appendStudioJournalEntry({
@@ -11432,6 +17294,151 @@ const server = http.createServer(async (request, response) => {
         meta: result.saved || {}
       });
       sendJson(response, 200, result);
+      return;
+    }
+
+    // ─── Add locale to existing saved email ────────────────────────────
+    // POST /api/email-base/add-locale
+    // Body: { category, mailId, locale, sourceLocale?, engine? }
+    // Reads existing studio.mail.json → source locale JSON → translates → writes new locale → rebuilds
+    if (request.method === "POST" && request.url === "/api/email-base/add-locale") {
+      const body = await readRequestBody(request);
+      const category = ensureSafeCategoryName(cleanText(body?.category));
+      const mailId   = cleanText(body?.mailId);
+      const locale   = normalizeLocaleCode(cleanText(body?.locale));
+      const engine   = cleanText(body?.engine) || "openai"; // "openai" | "deepl"
+
+      if (!category || !mailId || !locale) {
+        sendJson(response, 400, { error: "category, mailId and locale are required" });
+        return;
+      }
+
+      const summary = summarizeEmailBase();
+      if (!summary.available) {
+        sendJson(response, 400, { error: "email-base is not attached" });
+        return;
+      }
+
+      const mailRoot = path.join(emailBaseRoot, category, `mail-${mailId}`);
+      if (!existsSync(mailRoot)) {
+        sendJson(response, 404, { error: `Mail not found: ${category}/mail-${mailId}` });
+        return;
+      }
+
+      // Read studio.mail.json to get translationFileKey and primaryLocale
+      const metaPath = path.join(mailRoot, "studio.mail.json");
+      if (!existsSync(metaPath)) {
+        sendJson(response, 400, { error: "studio.mail.json not found for this mail — was it created via email-studio?" });
+        return;
+      }
+      const meta = JSON.parse(await readFile(metaPath, "utf8"));
+      const translationFileKey = cleanText(meta.translation_file);
+      const sourceLocale = normalizeLocaleCode(cleanText(body?.sourceLocale) || cleanText(meta.primary_locale) || "en");
+      const mail = meta.mail && typeof meta.mail === "object" ? meta.mail : {};
+
+      if (!translationFileKey) {
+        sendJson(response, 400, { error: "translation_file not found in studio.mail.json" });
+        return;
+      }
+
+      // Check target locale doesn't already exist
+      const targetLocalePath = path.join(emailBaseRoot, "vendor", "data", locale, `${translationFileKey}.json`);
+      if (existsSync(targetLocalePath)) {
+        sendJson(response, 409, { error: `Locale '${locale}' already exists for this mail (${translationFileKey}.json)` });
+        return;
+      }
+
+      // Read source locale JSON as the translation source
+      const sourceLocalePath = path.join(emailBaseRoot, "vendor", "data", sourceLocale, `${translationFileKey}.json`);
+      let sourceEntry;
+      if (existsSync(sourceLocalePath)) {
+        const raw = JSON.parse(await readFile(sourceLocalePath, "utf8"));
+        sourceEntry = {
+          locale: sourceLocale,
+          subject:     cleanText(raw.subject) || cleanText(mail.subject) || "",
+          preheader:   cleanText(raw.preheader) || cleanText(mail.preheader) || "",
+          cta_labels:  Array.isArray(raw.cta_labels) ? raw.cta_labels : [],
+          body_blocks: Array.isArray(raw.body_blocks) ? raw.body_blocks : [],
+          sections:    raw.sections || {},
+          notes:       cleanText(raw.summary) || ""
+        };
+      } else {
+        // Fall back to mail metadata fields
+        sourceEntry = {
+          locale: sourceLocale,
+          subject: cleanText(mail.subject) || "",
+          preheader: cleanText(mail.preheader) || "",
+          cta_labels: [],
+          body_blocks: [],
+          sections: {},
+          notes: ""
+        };
+      }
+
+      // Run translation
+      let translationResult;
+      try {
+        const fakePayload = {
+          brief: { locale: sourceLocale, translationLocales: [locale] },
+          assetInputs: [], assetRegistryItems: [], designInputs: []
+        };
+        if (engine === "deepl") {
+          translationResult = await createDeepLTranslations(fakePayload, mail, sourceEntry, [locale]);
+        } else {
+          translationResult = await createOpenAiTranslations(fakePayload, mail, sourceEntry, [locale]);
+        }
+      } catch (err) {
+        sendJson(response, 500, { error: `Translation failed: ${err.message}` });
+        return;
+      }
+
+      const translatedEntry = Array.isArray(translationResult.translations)
+        ? translationResult.translations.find((t) => normalizeLocaleCode(cleanText(t.locale)) === locale)
+        : null;
+
+      if (!translatedEntry) {
+        sendJson(response, 500, { error: "Translation engine returned no results for the requested locale" });
+        return;
+      }
+
+      // Write the new locale JSON
+      const localePayload = createLocalePayloadForEntry(mail, { ...translatedEntry, locale, source_name: `${translationFileKey}.json` });
+      const localeDir = path.join(emailBaseRoot, "vendor", "data", locale);
+      await mkdir(localeDir, { recursive: true });
+      await writeFile(targetLocalePath, JSON.stringify(localePayload, null, 2), "utf8");
+
+      // Rebuild for the new locale to get preview HTML
+      const buildResult = await runCommand(
+        process.execPath,
+        ["mail", "build-pretty", category, mailId, "--locales", locale],
+        emailBaseRoot
+      );
+      const distDir  = path.join(emailBaseRoot, "dist", category, `mail-${mailId}`, locale);
+      const prettyPath = path.join(distDir, "index.pretty.html");
+      const compactPath = path.join(distDir, "index.html");
+      const htmlPath = existsSync(prettyPath) ? prettyPath : compactPath;
+      const previewHtml = existsSync(htmlPath)
+        ? applyLocaleDirectionToHtml(await readFile(htmlPath, "utf8"), locale)
+        : null;
+      const buildLog = [buildResult.stdout, buildResult.stderr].filter(Boolean).join("\n").trim() || "Build completed.";
+
+      await appendStudioJournalEntry({
+        area: "email-base",
+        title: "Locale added",
+        message: `Added ${locale} to ${category}/mail-${mailId} via ${engine}.`,
+        meta: { category, mailId, locale, translationFileKey, engine }
+      });
+
+      sendJson(response, 200, {
+        ok: true,
+        locale,
+        category,
+        mailId,
+        translationFileKey,
+        previewHtml,
+        buildLog,
+        assistantReply: `${translationResult.assistant_reply || ""} Записал ${locale} в vendor/data/${locale}/${translationFileKey}.json и собрал preview.`
+      });
       return;
     }
 
@@ -11920,6 +17927,64 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
+    // POST /api/email-base/html-to-pug — AI converts pasted HTML email → studio Pug blocks
+    // Body: { html, mailId?, userMessage? }
+    // Response: { pugBlocks, subject, preheader, assistantReply }
+    if (request.method === "POST" && request.url === "/api/email-base/html-to-pug") {
+      const body = await readJsonBody(request);
+      const html = cleanText(body?.html);
+      if (!html || html.length < 100) {
+        sendJson(response, 400, { error: "html is required (min 100 chars)" });
+        return;
+      }
+
+      const model = resolveOpenAiModelForTask("clone_edit");
+      const messages = [
+        { role: "user", content: [
+          body?.userMessage ? `Task: ${body.userMessage}` : "Convert this HTML email to studio Pug blocks.",
+          "",
+          "=== VENDOR MIXIN REFERENCE ===",
+          buildVendorMixinsReference(),
+          buildMarkupPatternsReference(),
+          "=== HTML EMAIL TO CONVERT ===",
+          html
+        ].join("\n") }
+      ];
+
+      let result;
+      try {
+        const data = await _aiCall(
+          async () => ({
+            body: {
+              model,
+              system: htmlToPugSystemPrompt,
+              input: messages,
+              text: { format: { type: "json_schema", name: "email_studio_response", strict: true, schema: responseSchema } }
+            }
+          }),
+          "html_to_pug"
+        );
+        const rawText = extractResponseText(data);
+        result = JSON.parse(rawText);
+      } catch (err) {
+        sendJson(response, 500, { error: `AI conversion failed: ${err.message}` });
+        return;
+      }
+
+      const rawPugBlocks = Array.isArray(result.mail?.pug_blocks) ? result.mail.pug_blocks : [];
+      const pugBlocks = rawPugBlocks
+        .filter((b) => b && cleanText(b.label) && cleanText(b.pug_code))
+        .map((b) => ({ label: cleanText(b.label), pug_code: b.pug_code.trim() }));
+
+      sendJson(response, 200, {
+        pugBlocks,
+        subject:       cleanText(result.mail?.subject) || "",
+        preheader:     cleanText(result.mail?.preheader) || "",
+        assistantReply: cleanText(result.assistant_reply) || "Конвертация завершена.",
+      });
+      return;
+    }
+
     // GET /api/brands — list saved brand themes
     if (request.method === "GET" && request.url === "/api/brands") {
       try {
@@ -11927,6 +17992,18 @@ const server = http.createServer(async (request, response) => {
         sendJson(response, 200, { themes });
       } catch (err) {
         sendJson(response, 500, { error: err.message });
+      }
+      return;
+    }
+
+    // GET /api/legacy-toolkit/snapshot — imported legacy toolkit metadata
+    if (request.method === "GET" && request.url === "/api/legacy-toolkit/snapshot") {
+      try {
+        const raw = await readFile(legacyToolkitSnapshotPath, "utf8");
+        const snapshot = JSON.parse(raw);
+        sendJson(response, 200, snapshot);
+      } catch (err) {
+        sendJson(response, 404, { error: `Legacy toolkit snapshot is not available: ${err.message}` });
       }
       return;
     }
@@ -12042,6 +18119,638 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
+    // ── Workbench: list source emails from email-base ────────────────────
+    // ── Workbench: block catalog + snippets (for drag-and-drop "From base" shelf)
+    if (request.method === "GET" && request.url === "/api/wb/block-catalog") {
+      try {
+        const catalogP  = path.join(studioDataDir, "block-catalog.json");
+        const snippetsP = path.join(studioDataDir, "block-snippets.json");
+        const catalog   = existsSync(catalogP)
+          ? JSON.parse(readFileSync(catalogP, "utf8"))
+          : { items: [] };
+        const snippets  = existsSync(snippetsP)
+          ? JSON.parse(readFileSync(snippetsP, "utf8"))
+          : { items: {} };
+        // Combine: every catalog item gets its snippet (if any) inlined.
+        const items = (Array.isArray(catalog.items) ? catalog.items : [])
+          .map(it => {
+            const snip = snippets?.items?.[it.id];
+            return {
+              id: it.id,
+              label: it.label,
+              description: it.description,
+              sectionKind: it.sectionKind,
+              usageCount: it.usageCount || 0,
+              traits: it.traits || {},
+              pug: snip?.pug || null,
+              sourceFile: snip?.sourceFile || null,
+            };
+          })
+          .sort((a, b) => (b.usageCount || 0) - (a.usageCount || 0));
+        sendJson(response, 200, { ok: true, items });
+      } catch (e) {
+        sendJson(response, 500, { error: e.message });
+      }
+      return;
+    }
+
+    // ── AI: place ${{ ns.block_NN }}$ placeholders in HTML matching reference TXT ──
+    if (request.method === "POST" && request.url === "/api/wb/ai/placeholderize") {
+      try {
+        const { html = "", refLocaleTxt = "", namespace = "" } = await readRequestBody(request);
+        if (!openAiApiKey) { sendJson(response, 503, { error: "OPENAI_API_KEY is not configured" }); return; }
+        if (!html || !refLocaleTxt || !namespace) {
+          sendJson(response, 400, { error: "html, refLocaleTxt, namespace required" }); return;
+        }
+        const result = await placeholderizeHtml({
+          html, refLocaleTxt, namespace,
+          apiKey: openAiApiKey, model: "gpt-4.1-mini",
+          logger: appendStudioJournalEntry,
+          mailHint: namespace,
+        });
+        // Journal the structured decision report so we accumulate calibration data.
+        try {
+          if (result.report) {
+            await appendStudioJournalEntry({
+              area: "ai-placeholderize",
+              title: `Placeholderize ${namespace}`,
+              message: `Anchored ${result.report.anchored}/${result.report.refBlockCount} (${result.report.missed} missed, ${result.report.ambiguous} ambiguous)${result.report.usedSecondPass ? ', used 2nd pass' : ''}`,
+              meta: {
+                namespace,
+                ...result.report,
+                decisions: (result.report.decisions || []).map((d) => ({
+                  blockIndex: d.blockIndex,
+                  refText: d.refText,
+                  elementId: d.elementId,
+                  parentChain: d.parentChain,
+                  similarity: Number(d.similarity?.toFixed?.(3) ?? d.similarity),
+                  confidence: Number(d.confidence?.toFixed?.(3) ?? d.confidence),
+                  source: d.source,
+                })),
+              },
+            });
+          }
+        } catch { /* non-blocking */ }
+        sendJson(response, 200, { ok: true, ...result });
+      } catch (e) {
+        sendJson(response, 500, { error: e.message });
+      }
+      return;
+    }
+
+    // ── AI Agent: real tool-use loop (read_open_html, analyze, placeholderize,
+    //              fix_locale, translate, finish) — the model decides what to call.
+    //              Streams NDJSON frames so the UI can render each tool call live.
+    if (request.method === "POST" && request.url === "/api/wb/ai/agent") {
+      try {
+        const body = await readRequestBody(request);
+        if (!openAiApiKey) { sendJson(response, 503, { error: "OPENAI_API_KEY is not configured" }); return; }
+        const userMessage = String(body?.message || body?.text || "").trim();
+        if (!userMessage) { sendJson(response, 400, { error: "message required" }); return; }
+
+        // Build ctx: HTML currently open + loaded namespaces + active.
+        const namespaces = Array.isArray(body?.namespaces) ? body.namespaces.map((n) => ({
+          ...n,
+          name: cleanText(n.namespace) || cleanText(n.name) || "",
+          namespace: cleanText(n.namespace) || cleanText(n.name) || "",
+        })) : [];
+        const activeName = cleanText(body?.activeNamespaceName || "");
+        const activeNamespace = activeName
+          ? (namespaces.find((n) => n.name === activeName) || null)
+          : (namespaces[0] || null);
+        const ctx = {
+          html: String(body?.baseEmailHtml || body?.html || "").trim(),
+          namespaces,
+          activeNamespace,
+          activeLocale: cleanText(body?.activeLocale || ""),
+        };
+
+        // Stream NDJSON frames as the agent runs.
+        response.writeHead(200, {
+          "Content-Type": "application/x-ndjson; charset=utf-8",
+          "Cache-Control": "no-store",
+          Connection: "keep-alive",
+        });
+        const send = (frame) => {
+          try { response.write(JSON.stringify(frame) + "\n"); } catch { /* ignore */ }
+        };
+        send({ kind: "start", ctxSummary: {
+          htmlLength: ctx.html.length,
+          namespaces: namespaces.length,
+          activeNamespace: activeNamespace ? activeNamespace.name : null,
+          activeLocale: ctx.activeLocale,
+        }});
+
+        try {
+          const result = await runAgent({
+            userMessage,
+            history: Array.isArray(body?.messages) ? body.messages : [],
+            ctx,
+            apiKey: openAiApiKey,
+            model: "gpt-4.1-mini",
+            onFrame: send,
+          });
+          // Journal the agent run (best-effort).
+          try {
+            await appendStudioJournalEntry({
+              area: "ai-agent",
+              title: `Agent: ${userMessage.slice(0, 60)}`,
+              message: `${result.steps.length} step(s); ${result.localeUpdates?.length || 0} locale update(s); ${result.modifiedHtml ? "modified HTML" : "no HTML change"}`,
+              meta: {
+                userMessage: userMessage.slice(0, 200),
+                summary: result.summary,
+                steps: result.steps.map((s) => ({ kind: s.kind, name: s.name || null })),
+              },
+            });
+          } catch { /* non-blocking */ }
+          send({ kind: "final", payload: {
+            summary: result.summary,
+            modifiedHtml: result.modifiedHtml || "",
+            localeUpdates: result.localeUpdates || [],
+            localeDeletes: result.localeDeletes || [],
+          }});
+        } catch (err) {
+          send({ kind: "error", message: String(err && err.message ? err.message : err) });
+        } finally {
+          response.end();
+        }
+      } catch (e) {
+        try { sendJson(response, 500, { error: e.message }); } catch { response.end(); }
+      }
+      return;
+    }
+
+    // ── AI: fix a possibly-broken locale TXT (paired {{}}, balanced @@, ...) ──
+    // ── Zero-AI: детерминированная починка локали по конвенциям проекта ──
+    // (переменные {{embedded.*}}/{{user_name}} вне текстовых блоков, скобки,
+    //  Subject-строка). См. src/locale-conventions.js.
+    if (request.method === "POST" && request.url === "/api/wb/locale-normalize") {
+      try {
+        const body = await readRequestBody(request);
+        const txt = String(body?.txt || "");
+        if (!txt.trim()) { sendJson(response, 400, { error: "txt required" }); return; }
+        const r = _normalizeLocaleConventions(txt);
+        // Если передан namespace — вернуть ещё и анкер-юниты для расстановки
+        // плейсхолдеров (текст+переменная+хвост одного абзаца = один юнит).
+        const nsName = cleanText(body?.namespace || "");
+        const units = nsName ? _buildAnchorUnits(r.txt, nsName) : undefined;
+        sendJson(response, 200, { ok: true, changed: r.changed, txt: r.txt, changes: r.changes, ...(units ? { units } : {}) });
+      } catch (err) {
+        sendJson(response, 500, { error: String(err && err.message ? err.message : err) });
+      }
+      return;
+    }
+
+    // ── Zero-AI: полная подготовка namespace к расстановке плейсхолдеров ──
+    // 1) нормализовать конвенции во ВСЕХ локалях;
+    // 2) выровнять каждую локаль по структуре reference (одинаковое число
+    //    блоков, переменные на местах, нехватка → пустой блок-спейсер);
+    // 3) вернуть готовые TXT по всем локалям + анкер-юниты reference.
+    if (request.method === "POST" && request.url === "/api/wb/locale-prepare") {
+      try {
+        const body = await readRequestBody(request);
+        const nsName = cleanText(body?.namespace || "ns");
+        const locales = body?.locales && typeof body.locales === "object" ? body.locales : {};
+        const codes = Object.keys(locales);
+        if (!codes.length) { sendJson(response, 400, { error: "locales map required" }); return; }
+        let refCode = cleanText(body?.refCode || "");
+        if (!refCode || !(refCode in locales)) {
+          refCode = codes.find((c) => /^en/i.test(c)) || codes[0];
+        }
+        // Шаг 1: нормализация конвенций.
+        const norm = {};
+        for (const code of codes) norm[code] = _normalizeLocaleConventions(String(locales[code] || "")).txt;
+        const refBlocks = _parseNormalizedBlocks(norm[refCode]);
+        // Шаг 2: выравнивание не-reference локалей по reference.
+        const out = {};
+        const report = {};
+        for (const code of codes) {
+          if (code === refCode) { out[code] = norm[code]; report[code] = { aligned: false, padded: 0 }; continue; }
+          const locBlocks = _parseNormalizedBlocks(norm[code]);
+          const al = _alignLocaleToReference(refBlocks, locBlocks);
+          out[code] = _serializeAligned(_localePrefix(norm[code]), al.blocks);
+          report[code] = { aligned: true, padded: al.padded, dropped: al.dropped, before: locBlocks.length, after: al.blocks.length };
+        }
+        // Шаг 3: анкер-юниты reference для расстановки в HTML.
+        const units = _buildAnchorUnits(norm[refCode], nsName.replace(/[^a-z0-9_-]/gi, "_"));
+        sendJson(response, 200, { ok: true, refCode, refBlockCount: refBlocks.length, locales: out, report, units });
+      } catch (err) {
+        sendJson(response, 500, { error: String(err && err.message ? err.message : err) });
+      }
+      return;
+    }
+
+    if (request.method === "POST" && request.url === "/api/wb/ai/fix-locale-txt") {
+      try {
+        const { txt = "", refTxt = "", language = "" } = await readRequestBody(request);
+        if (!openAiApiKey) { sendJson(response, 503, { error: "OPENAI_API_KEY is not configured" }); return; }
+        if (!txt) { sendJson(response, 400, { error: "txt required" }); return; }
+        const result = await fixLocaleTxt({
+          txt, refTxt: refTxt || undefined, language: language || undefined,
+          apiKey: openAiApiKey, model: "gpt-4.1-mini",
+        });
+        sendJson(response, 200, { ok: true, ...result });
+      } catch (e) {
+        sendJson(response, 500, { error: e.message });
+      }
+      return;
+    }
+
+    // ── AI: translate a locale TXT block-by-block to a new language ──────────
+    if (request.method === "POST" && request.url === "/api/wb/ai/translate-locale-txt") {
+      try {
+        const { srcTxt = "", fromLang = "", toLang = "" } = await readRequestBody(request);
+        if (!openAiApiKey) { sendJson(response, 503, { error: "OPENAI_API_KEY is not configured" }); return; }
+        if (!srcTxt || !toLang) { sendJson(response, 400, { error: "srcTxt and toLang required" }); return; }
+        const result = await translateLocaleTxt({
+          srcTxt, fromLang: fromLang || undefined, toLang,
+          apiKey: openAiApiKey, model: "gpt-4.1-mini",
+        });
+        sendJson(response, 200, { ok: true, ...result });
+      } catch (e) {
+        sendJson(response, 500, { error: e.message });
+      }
+      return;
+    }
+
+    // ── Built-in namespaces (footer_upload etc) ─────────────────────────────
+    if (request.method === "GET" && request.url === "/api/wb/builtin-namespaces") {
+      try {
+        const fp = path.join(studioDataDir, "builtin-namespaces.json");
+        const data = existsSync(fp)
+          ? JSON.parse(readFileSync(fp, "utf8"))
+          : { namespaces: [] };
+        sendJson(response, 200, { ok: true, namespaces: data.namespaces || [] });
+      } catch (e) { sendJson(response, 500, { error: e.message }); }
+      return;
+    }
+
+    if (request.method === "GET" && request.url === "/api/wb/emails") {
+      const srcRoot  = path.join(__dirname, "email-base");
+      const distRoot = path.join(__dirname, "email-base", "dist");
+      const result   = [];
+      const SKIP = new Set(['dist', 'node_modules', 'vendor', 'docs', '_legacy', '_trash', 'mail', 'tools']);
+      try {
+        const brands = readdirSync(srcRoot, { withFileTypes: true })
+          .filter(d => d.isDirectory() && !d.name.startsWith('_') && !SKIP.has(d.name))
+          .map(d => d.name);
+        for (const brand of brands) {
+          const brandDir = path.join(srcRoot, brand);
+          const mails = readdirSync(brandDir, { withFileTypes: true })
+            .filter(d => d.isDirectory() && d.name.startsWith('mail-'))
+            .map(d => {
+              const built = existsSync(path.join(distRoot, brand, d.name, 'index.html'));
+              return { name: d.name, built };
+            });
+          if (mails.length) result.push({ brand, mails });
+        }
+      } catch(e) { console.error('[wb] emails list error:', e.message); }
+      sendJson(response, 200, { ok: true, emails: result });
+      return;
+    }
+
+    // ── Workbench: read a dist email HTML ─────────────────────────────────
+    if (request.method === "GET" && request.url.startsWith("/api/wb/email?")) {
+      const params = new URL(request.url, "http://localhost").searchParams;
+      const brand  = (params.get("brand") || "").replace(/\.\./g, "");
+      const mail   = (params.get("mail") || "").replace(/\.\./g, "");
+      if (!brand || !mail) { sendJson(response, 400, { error: "brand and mail required" }); return; }
+      const htmlPath = path.join(__dirname, "email-base", "dist", brand, mail, "index.html");
+      try {
+        const data = await readFile(htmlPath, "utf8");
+        sendJson(response, 200, { ok: true, html: data, brand, mail });
+      } catch {
+        sendJson(response, 404, { error: "Not found" });
+      }
+      return;
+    }
+
+    // ── Workbench: list editable source files for an email ───────────────────
+    if (request.method === "GET" && request.url.startsWith("/api/wb/email-files?")) {
+      const params = new URL(request.url, "http://localhost").searchParams;
+      const brand  = (params.get("brand") || "").replace(/\.\./g, "");
+      const mail   = (params.get("mail")  || "").replace(/\.\./g, "");
+      if (!brand || !mail) { sendJson(response, 400, { error: "brand and mail required" }); return; }
+      const emailDir = path.join(__dirname, "email-base", brand, mail, "app");
+      try {
+        const files = [];
+        const walk = (dir, rel) => {
+          const entries = readdirSync(dir, { withFileTypes: true });
+          for (const e of entries) {
+            if (e.name.startsWith(".") || e.name === "node_modules" || e.name === "dist") continue;
+            const relPath = rel ? rel + "/" + e.name : e.name;
+            const absPath = path.join(dir, e.name);
+            if (e.isDirectory()) { walk(absPath, relPath); }
+            else if (/\.(pug|styl|jade)$/.test(e.name)) {
+              // Prefer .pug over .jade: skip .jade if a matching .pug exists on disk
+              if (e.name.endsWith(".jade")) {
+                const pugAbsPath = absPath.replace(/\.jade$/, ".pug");
+                if (existsSync(pugAbsPath)) continue;
+              }
+              files.push({ path: relPath, ext: path.extname(e.name).slice(1) });
+            }
+          }
+        };
+        walk(emailDir, "");
+        sendJson(response, 200, { ok: true, files, brand, mail });
+      } catch(e) {
+        sendJson(response, 404, { error: e.message });
+      }
+      return;
+    }
+
+    // ── Workbench: read a source file ────────────────────────────────────────
+    if (request.method === "GET" && request.url.startsWith("/api/wb/email-file?")) {
+      const params = new URL(request.url, "http://localhost").searchParams;
+      const brand  = (params.get("brand") || "").replace(/\.\./g, "");
+      const mail   = (params.get("mail")  || "").replace(/\.\./g, "");
+      const file   = (params.get("file")  || "").replace(/\.\./g, "");
+      if (!brand || !mail || !file) { sendJson(response, 400, { error: "brand, mail, file required" }); return; }
+      try {
+        const filePath = path.join(__dirname, "email-base", brand, mail, "app", file);
+        const content = await readFile(filePath, "utf8");
+        sendJson(response, 200, { ok: true, content, brand, mail, file });
+      } catch(e) {
+        sendJson(response, 404, { error: "File not found" });
+      }
+      return;
+    }
+
+    // ── Workbench: save a source file ────────────────────────────────────────
+    if (request.method === "POST" && request.url === "/api/wb/email-file") {
+      const { brand = "", mail = "", file = "", content = "" } = await readRequestBody(request);
+      if (!brand || !mail || !file) { sendJson(response, 400, { error: "brand, mail, file required" }); return; }
+      const safeBrand = brand.replace(/\.\./g, "");
+      const safeMail  = mail.replace(/\.\./g, "");
+      const safeFile  = file.replace(/\.\./g, "");
+      try {
+        const filePath = path.join(__dirname, "email-base", safeBrand, safeMail, "app", safeFile);
+        await writeFile(filePath, content, "utf8");
+        sendJson(response, 200, { ok: true });
+      } catch(e) {
+        sendJson(response, 500, { error: e.message });
+      }
+      return;
+    }
+
+    // ── Workbench: rebuild an email from source (Pug+Stylus → HTML) ────────
+    if (request.method === "POST" && request.url === "/api/wb/build-email") {
+      const { brand = "", mail = "" } = await readRequestBody(request);
+      if (!brand || !mail) { sendJson(response, 400, { error: "brand and mail required" }); return; }
+      const safeBrand = brand.replace(/\.\./g, "").replace(/[^a-zA-Z0-9_\-]/g, "");
+      const safeMail  = mail.replace(/\.\./g, "").replace(/[^a-zA-Z0-9_\-]/g, "");
+      // build-mail.js convention: --mail <name> where name has no "mail-" prefix
+      // (it adds "mail-" internally). Strip it from folder names like "mail-welcome" -> "welcome"
+      const mailArg   = safeMail.replace(/^mail-/, "");
+      const emailBaseDir = path.join(__dirname, "email-base");
+      const t0 = Date.now();
+      try {
+        await new Promise((resolve, reject) => {
+          const child = spawn(
+            process.execPath,
+            ["tools/build-mail.js", "--category", safeBrand, "--mail", mailArg],
+            { cwd: emailBaseDir, stdio: ["ignore", "pipe", "pipe"] }
+          );
+          let errOut = "";
+          child.stderr.on("data", d => { errOut += d.toString(); });
+          child.on("close", code => {
+            if (code === 0) resolve();
+            else reject(new Error(errOut.trim().split("\n").pop() || `Exit ${code}`));
+          });
+        });
+        sendJson(response, 200, { ok: true, duration: Date.now() - t0 });
+      } catch(err) {
+        sendJson(response, 422, { ok: false, error: err.message });
+      }
+      return;
+    }
+
+    // ── Workbench: Clone email ───────────────────────────────────────────────
+    if (request.method === "POST" && request.url === "/api/wb/email-clone") {
+      const { brand = "", mail = "", newName = "" } = await readRequestBody(request);
+      const safe = s => s.replace(/\.\./g, "").replace(/[^a-zA-Z0-9_\-]/g, "");
+      const sBrand = safe(brand), sMail = safe(mail), sNew = safe(newName);
+      if (!sBrand || !sMail || !sNew) { sendJson(response, 400, { error: "brand, mail, newName required" }); return; }
+      const src  = path.join(__dirname, "email-base", sBrand, sMail);
+      const dest = path.join(__dirname, "email-base", sBrand, sNew);
+      if (!existsSync(src)) { sendJson(response, 404, { error: "Source not found" }); return; }
+      if (existsSync(dest)) { sendJson(response, 409, { error: "Destination already exists" }); return; }
+      try {
+        await cp(src, dest, { recursive: true });
+        sendJson(response, 200, { ok: true });
+      } catch(e) { sendJson(response, 500, { error: e.message }); }
+      return;
+    }
+
+    // ── Workbench: Rename email ──────────────────────────────────────────────
+    if (request.method === "POST" && request.url === "/api/wb/email-rename") {
+      const { brand = "", mail = "", newName = "" } = await readRequestBody(request);
+      const safe = s => s.replace(/\.\./g, "").replace(/[^a-zA-Z0-9_\-]/g, "");
+      const sBrand = safe(brand), sMail = safe(mail), sNew = safe(newName);
+      if (!sBrand || !sMail || !sNew) { sendJson(response, 400, { error: "brand, mail, newName required" }); return; }
+      const src  = path.join(__dirname, "email-base", sBrand, sMail);
+      const dest = path.join(__dirname, "email-base", sBrand, sNew);
+      if (!existsSync(src)) { sendJson(response, 404, { error: "Source not found" }); return; }
+      if (existsSync(dest)) { sendJson(response, 409, { error: "Destination already exists" }); return; }
+      try {
+        await rename(src, dest);
+        sendJson(response, 200, { ok: true });
+      } catch(e) { sendJson(response, 500, { error: e.message }); }
+      return;
+    }
+
+    // ── Workbench: Delete email (moves to _trash to avoid EPERM on mounted FS) ──
+    if (request.method === "POST" && request.url === "/api/wb/email-delete") {
+      const { brand = "", mail = "" } = await readRequestBody(request);
+      const safe = s => s.replace(/\.\./g, "").replace(/[^a-zA-Z0-9_\-]/g, "");
+      const sBrand = safe(brand), sMail = safe(mail);
+      if (!sBrand || !sMail) { sendJson(response, 400, { error: "brand and mail required" }); return; }
+      const target    = path.join(__dirname, "email-base", sBrand, sMail);
+      const trashDir  = path.join(__dirname, "email-base", "_trash", sBrand);
+      const trashDest = path.join(trashDir, sMail + "__" + Date.now());
+      if (!existsSync(target)) { sendJson(response, 404, { error: "Not found" }); return; }
+      try {
+        await mkdir(trashDir, { recursive: true });
+        await rename(target, trashDest);
+        sendJson(response, 200, { ok: true, note: "moved to _trash/" + sBrand });
+      } catch(e) { sendJson(response, 500, { error: e.message }); }
+      return;
+    }
+
+    // ── Workbench: Pug / Stylus converter ───────────────────────────────────
+    if (request.method === "POST" && request.url === "/api/wb/convert") {
+      const body = await readRequestBody(request);
+      const { code = "", from } = body;
+      try {
+        if (from === "pug") {
+          const { default: pug } = await import("pug");
+          const html = pug.render(code, { pretty: true });
+          sendJson(response, 200, { ok: true, result: html, to: "html" });
+        } else if (from === "stylus") {
+          const { default: stylus } = await import("stylus");
+          const css = await new Promise((res, rej) => {
+            stylus(code).render((err, css) => err ? rej(err) : res(css));
+          });
+          sendJson(response, 200, { ok: true, result: css, to: "css" });
+        } else if (from === "html2pug") {
+          // HTML → Pug (decompile)
+          const { default: html2pug } = await import("html2pug");
+          const pug = html2pug(code, { tabs: false, nspaces: 2, fragment: false });
+          sendJson(response, 200, { ok: true, result: pug, to: "pug" });
+        } else {
+          sendJson(response, 400, { error: "Unknown from type. Use 'pug', 'stylus', or 'html2pug'." });
+        }
+      } catch (err) {
+        sendJson(response, 422, { error: err.message });
+      }
+      return;
+    }
+
+    // ── Workbench: Import HTML → create new email source structure ──────────
+    if (request.method === "POST" && request.url === "/api/wb/email-import") {
+      const { brand = "", name = "", html = "", createBrand = false, format = "pug" } = await readRequestBody(request);
+      const safe = s => s.replace(/\.\./g, "").replace(/[^a-zA-Z0-9_\-]/g, "");
+      const sBrand = safe(brand), sName = safe(name);
+      if (!sBrand || !sName) { sendJson(response, 400, { error: "brand and name required" }); return; }
+      const mailFolder = sName.startsWith("mail-") ? sName : `mail-${sName}`;
+      const mailDir   = path.join(__dirname, "email-base", sBrand, mailFolder);
+      const templDir  = path.join(mailDir, "app", "templates");
+      const stylesDir = path.join(mailDir, "app", "styles");
+      const helpersDir = path.join(stylesDir, "helpers");
+      const blocksDir  = path.join(stylesDir, "blocks");
+      if (existsSync(mailDir)) { sendJson(response, 409, { error: "Письмо с таким именем уже существует" }); return; }
+      try {
+        // Create brand dir if needed
+        const brandDir = path.join(__dirname, "email-base", sBrand);
+        if (!existsSync(brandDir)) {
+          if (!createBrand) { sendJson(response, 404, { error: "Бренд не найден. Создайте его сначала." }); return; }
+          await mkdir(brandDir, { recursive: true });
+        }
+        await mkdir(templDir, { recursive: true });
+
+        // ─── RAW HTML MODE ─────────────────────────────────────────────
+        // No Pug, no Stylus. build-mail.js detects index.html and uses it
+        // verbatim — only localization + RTL run on it.
+        if (format === "html" || format === "raw") {
+          await writeFile(path.join(templDir, "index.html"), html || "", "utf-8");
+          // Still create an EMPTY app/styles/ dir so future "add stylus" works
+          // without surprise, but no required files.
+          await mkdir(stylesDir, { recursive: true });
+          sendJson(response, 200, { ok: true, brand: sBrand, mail: mailFolder, format: "html" });
+          return;
+        }
+
+        // ─── PUG + STYLUS MODE (legacy default) ────────────────────────
+        await mkdir(helpersDir, { recursive: true });
+        await mkdir(blocksDir, { recursive: true });
+        const pugContent = html ? `//- Импортировано из HTML\n${html}` : `//- Пустое письмо\ndoctype html\nhtml\n  head\n    title ${sName}\n  body\n    .wrapper Письмо`;
+        await writeFile(path.join(templDir, "index.pug"), pugContent, "utf-8");
+        await writeFile(path.join(stylesDir, "common.styl"), `@import 'helpers/variables'\n@import 'helpers/ink'\n@import 'helpers/mixins'\n@import 'blocks/main'\n`, "utf-8");
+        await writeFile(path.join(helpersDir, "variables.styl"), `// Переменные для ${sName}\n`, "utf-8");
+        await writeFile(path.join(blocksDir, "main.styl"), `// Стили для ${sName}\n`, "utf-8");
+        sendJson(response, 200, { ok: true, brand: sBrand, mail: mailFolder, format: "pug" });
+      } catch(e) { sendJson(response, 500, { error: e.message }); }
+      return;
+    }
+
+    // ── Workbench: Create new brand folder ──────────────────────────────────
+    if (request.method === "POST" && request.url === "/api/wb/create-brand") {
+      const { name = "" } = await readRequestBody(request);
+      const safe = s => s.replace(/\.\./g, "").replace(/[^a-zA-Z0-9_\-]/g, "");
+      const sName = safe(name);
+      if (!sName) { sendJson(response, 400, { error: "name required" }); return; }
+      const brandDir = path.join(__dirname, "email-base", sName);
+      if (existsSync(brandDir)) { sendJson(response, 409, { error: "Бренд уже существует" }); return; }
+      try {
+        await mkdir(brandDir, { recursive: true });
+        sendJson(response, 200, { ok: true, brand: sName });
+      } catch(e) { sendJson(response, 500, { error: e.message }); }
+      return;
+    }
+
+    // ── Workbench: HTML → Pug AI reverse compilation ────────────────
+    if (request.method === "POST" && request.url === "/api/wb/html-to-pug") {
+      const { originalHtml = "", modifiedHtml = "", currentPug = "", pugPath = "" } = await readRequestBody(request);
+      if (!modifiedHtml || !currentPug) {
+        sendJson(response, 400, { error: "modifiedHtml and currentPug are required" });
+        return;
+      }
+      if (!openAiApiKey) {
+        sendJson(response, 503, { error: "OPENAI_API_KEY is not configured" });
+        return;
+      }
+      try {
+        const systemMsg = [
+          "You are a senior Pug email template developer.",
+          "The user has edited the compiled HTML of a Pug email template.",
+          "Your job: apply ONLY the user's HTML changes to the Pug source file — preserve all existing structure, mixin calls, class names, and ${{ token }}$ placeholders.",
+          "CRITICAL: Return the FULL updated Pug file content, not a diff, not a snippet — the complete file.",
+          "CRITICAL: NEVER remove existing blocks, mixins, or tokens that were not changed by the user.",
+          "Output: a single fenced code block ```pug ... ``` containing the full updated Pug file. Nothing else.",
+        ].join(" ");
+
+        const userMsg = [
+          "=== CURRENT PUG SOURCE ===",
+          currentPug,
+          "=== END PUG SOURCE ===",
+          "",
+          originalHtml ? "=== ORIGINAL COMPILED HTML (before edits) ===" : "",
+          originalHtml ? originalHtml : "",
+          originalHtml ? "=== END ORIGINAL HTML ===" : "",
+          "",
+          "=== MODIFIED HTML (user's edits — apply these changes to the Pug above) ===",
+          modifiedHtml,
+          "=== END MODIFIED HTML ===",
+          "",
+          "Apply the HTML changes to the Pug file and return the complete updated Pug source.",
+        ].filter(Boolean).join("\n");
+
+        const data = await _aiCall(
+          async () => ({
+            body: {
+              model: openAiModel,
+              input: [
+                { role: "system", content: [{ type: "input_text", text: systemMsg }] },
+                { role: "user",   content: [{ type: "input_text", text: userMsg   }] },
+              ],
+            }
+          }),
+          "html-to-pug",
+          { timeoutMs: 120_000, retryMax: 1 }
+        );
+
+        const raw = extractResponseText(data) || "";
+        // Extract pug from fenced code block
+        const match = raw.match(/```(?:pug|jade)?\s*([\s\S]+?)```/);
+        const pugContent = match ? match[1].trim() : raw.trim();
+
+        if (!pugContent) {
+          sendJson(response, 500, { error: "AI did not return Pug content", raw: raw.slice(0, 500) });
+          return;
+        }
+        sendJson(response, 200, { ok: true, pug: pugContent });
+      } catch (e) {
+        sendJson(response, 500, { error: e.message });
+      }
+      return;
+    }
+
+    if (request.method === "GET" && (request.url === "/workbench" || request.url === "/workbench/")) {
+      const wbPath = path.join(publicDir, "workbench.html");
+      const data = await readFile(wbPath);
+      response.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" });
+      response.end(data);
+      return;
+    }
+
+    if (request.method === "GET" && (request.url === "/constructor" || request.url === "/constructor/")) {
+      const cPath = path.join(publicDir, "constructor.html");
+      const data = await readFile(cPath);
+      response.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" });
+      response.end(data);
+      return;
+    }
+
     if (request.method === "GET") {
       await serveStatic(request, response);
       return;
@@ -12106,6 +18815,10 @@ startWorker(async (job) => {
 }, { pollMs: 800 });
 
 console.log("[batch] Worker started");
+
+if ((appAuthUser || appAuthPassword) && !appAuthEnabled) {
+  console.warn("[security] APP_AUTH_USER and APP_AUTH_PASSWORD must both be set; application auth is disabled.");
+}
 
 server.listen(port, () => {
   console.log(`Email Studio Demo is running on http://localhost:${port}`);

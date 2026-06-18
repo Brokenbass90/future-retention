@@ -1,0 +1,17 @@
+table.row.footer
+    tr
+        td.no-padding-bottom
+            table.twelve.columns
+                tr
+                    td
+                        .mobile-paddding
+                            .ramka
+                                p.discription
+                                    span.upper ${{ footer.footer.warn }}$
+                                    | ${{ footer.new.cfd }}$
+                        div.address
+                            p.address-text {{embedded.company_address}}
+                        p.subscribe
+                            a#font(href='https://iqoption.com/terms-and-conditions')  ${{ footer.footer.conditions }}$
+                            |   |
+                            a.light(href='{{embedded.unsubscribe_link}}')  ${{ footer.footer.unsubscribe }}$

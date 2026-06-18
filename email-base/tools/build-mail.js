@@ -18,6 +18,7 @@ const pug = require('pug');
 const stylus = require('stylus');
 const minimist = require('minimist');
 const inlineCss = require('inline-css');
+const { isRtlLocale: isRtlLocaleCode, applyRtl: applyRtlToHtml } = require('./rtl');
 const postcss = require('postcss');
 const safeParser = require('postcss-safe-parser');
 const csso = require('csso');
@@ -30,6 +31,21 @@ function die(msg, code = 1) {
   console.error(`\n[build] ${msg}\n`);
   process.exit(code);
 }
+
+const generatedPugAliases = [];
+
+function cleanupGeneratedPugAliasesSync() {
+  for (let i = generatedPugAliases.length - 1; i >= 0; i -= 1) {
+    try {
+      if (fs.existsSync(generatedPugAliases[i])) fs.unlinkSync(generatedPugAliases[i]);
+    } catch {
+      // best-effort cleanup
+    }
+  }
+  generatedPugAliases.length = 0;
+}
+
+process.once('exit', cleanupGeneratedPugAliasesSync);
 
 
 function beautifyHtml(html) {
@@ -51,8 +67,8 @@ function beautifyHtml(html) {
 
 function ensurePugAliases(dirAbs) {
   // Pug v3 tends to resolve extensionless includes to .pug first.
-  // Legacy templates are still .jade. To keep the codebase stable while we migrate,
-  // we create one-to-one ".pug" aliases next to ".jade" files when missing.
+  // Legacy templates are still .jade, so create temporary one-to-one aliases
+  // for this build and remove only the files we created on process exit.
   if (!fs.existsSync(dirAbs)) return;
 
   const stack = [dirAbs];
@@ -72,6 +88,7 @@ function ensurePugAliases(dirAbs) {
         if (!fs.existsSync(pugPath)) {
           try {
             fs.copyFileSync(p, pugPath);
+            generatedPugAliases.push(pugPath);
           } catch {
             // ignore copy errors
           }
@@ -292,7 +309,8 @@ function getDeep(obj, pathParts) {
   return cur;
 }
 
-function localizeHtmlPlaceholders(html, translationIndex, { failOnMissing = false } = {}) {
+function localizeHtmlPlaceholders(html, translationIndex, opts = {}) {
+  const { failOnMissing = false, wrapWithBdi = false } = opts;
   // Matches: ${{ file.path.to.key }}$
   const re = /\$\{\{\s*([a-zA-Z0-9_-]+)(?:\.([a-zA-Z0-9_.-]+))\s*\}\}\$/g;
   return html.replace(re, (m, fileKey, keyPath) => {
@@ -307,7 +325,17 @@ function localizeHtmlPlaceholders(html, translationIndex, { failOnMissing = fals
       if (failOnMissing) throw new Error(`Missing translation key: ${fileKey}.${keyPath}`);
       return m;
     }
-    return String(val);
+    const str = String(val);
+    // RTL locales: isolate each substituted block as its own bidi run via
+    // <bdi>. Prevents the "punctuation jumps" artifact when a block contains
+    // LTR placeholders (like `{{Level_Name}}`) inside Arabic/Urdu prose, or
+    // when the surrounding HTML mixes directions.
+    // Skip wrapping if the value already contains a <bdi> (idempotent), or
+    // if it's empty / whitespace-only.
+    if (wrapWithBdi && str.trim() && !/<bdi\b/i.test(str)) {
+      return `<bdi>${str}</bdi>`;
+    }
+    return str;
   });
 }
 
@@ -331,7 +359,7 @@ async function pruneStaleLocaleDirs(distRoot, locales) {
     if (!entry.isDirectory()) continue;
     if (!LOCALE_DIR_RE.test(entry.name)) continue;
     if (keep.has(entry.name)) continue;
-    await fs.remove(path.join(distRoot, entry.name));
+    try { await fs.remove(path.join(distRoot, entry.name)); } catch { /* ignore permission errors */ }
   }
 }
 
@@ -381,7 +409,7 @@ async function writeHtmlPair(dirAbs, htmlCompact, htmlPretty, { emitPretty = fal
   if (emitPretty) {
     await fs.writeFile(path.join(dirAbs, 'index.pretty.html'), beautifyHtml(htmlPretty), 'utf8');
   } else {
-    await fs.remove(path.join(dirAbs, 'index.pretty.html'));
+    try { await fs.remove(path.join(dirAbs, 'index.pretty.html')); } catch { /* ignore if file can't be removed */ }
   }
 }
 
@@ -402,49 +430,65 @@ async function writeHtmlPair(dirAbs, htmlCompact, htmlPretty, { emitPretty = fal
   const autoImports = [path.join(vendorStylesRoot, 'tokens.styl')];
 
   // Template resolution rules:
-  // - Allow either index.pug OR index.jade
-  // - If both exist, fail fast (prevents editing the wrong file and "nothing changes")
+  // - Allow index.html (RAW MODE — skip Pug+Stylus, use HTML verbatim),
+  //   else index.pug, else index.jade.
+  // - If both index.pug and index.jade exist, prefer .pug.
+  const indexHtmlPath = path.join(templatesRoot, 'index.html');
   const indexPugPath = path.join(templatesRoot, 'index.pug');
   const indexJadePath = path.join(templatesRoot, 'index.jade');
+  const hasHtml = await fs.pathExists(indexHtmlPath);
   const hasPug = await fs.pathExists(indexPugPath);
   const hasJade = await fs.pathExists(indexJadePath);
 
   if (hasPug && hasJade) {
-    die(
-      `Both templates exist. Keep only ONE:\n` +
-      `- ${path.relative(projectRoot, indexPugPath)}\n` +
-      `- ${path.relative(projectRoot, indexJadePath)}\n` +
-      `Tip: we recommend index.pug (new) or index.jade (legacy), but not both.`
-    );
+    if (argv.verbose) {
+      console.warn(`[build] Both index.pug and index.jade found — using index.pug (ignoring .jade).`);
+    }
   }
 
-  const templateFile = hasPug ? indexPugPath : indexJadePath;
+  // RAW HTML MODE — for templates imported from outside (e.g. paste from
+  // VS Code) where the user just wants the HTML to flow through
+  // localization + RTL untouched, no Pug/Stylus compile.
+  const rawHtmlMode = hasHtml && !hasPug && !hasJade;
+  const templateFile = rawHtmlMode
+    ? indexHtmlPath
+    : (hasPug ? indexPugPath : indexJadePath);
   if (!(await fs.pathExists(templateFile))) {
-    die(`Template not found: ${path.relative(projectRoot, templateFile)}`);
+    die(`Template not found: looked for index.html / index.pug / index.jade in ${path.relative(projectRoot, templatesRoot)}`);
   }
 
-  if (argv.verbose) {
-    console.log(`[build] Template: ${path.relative(projectRoot, templateFile)}`);
+  if (argv.verbose || rawHtmlMode) {
+    console.log(`[build] Template: ${path.relative(projectRoot, templateFile)}${rawHtmlMode ? ' (RAW HTML MODE — Pug+Stylus skipped)' : ''}`);
   }
 
-  // Pick main Stylus entry: inline.styl (if exists) else common.styl
+  // Pick main Stylus entry: inline.styl (if exists) else common.styl.
+  // In RAW MODE, Stylus is OPTIONAL: if no entry exists we just skip compile.
   const stylEntry = (await fs.pathExists(path.join(stylesRoot, 'inline.styl')))
     ? path.join(stylesRoot, 'inline.styl')
     : path.join(stylesRoot, 'common.styl');
+  const hasStylEntry = await fs.pathExists(stylEntry);
 
-  if (!(await fs.pathExists(stylEntry))) {
+  if (!hasStylEntry && !rawHtmlMode) {
     die(`Stylus entry not found (expected inline.styl or common.styl): ${path.relative(projectRoot, stylEntry)}`);
   }
 
   const langDirAbs = path.join(projectRoot, argv.langDir);
   const locales = parseLocalesArg(argv.locales) || (await listLocales(langDirAbs));
 
-  // 1) CSS (compile once, then assemble per-output)
-  let cssText;
-  try {
-    cssText = await compileStylus(stylEntry, includePaths, autoImports);
-  } catch (e) {
-    die(`Stylus compile failed: ${e.message || e}`);
+  // 1) CSS (compile once, then assemble per-output). In RAW HTML MODE
+  // with no stylus entry, we use an empty CSS — HTML is taken verbatim.
+  let cssText = '';
+  if (hasStylEntry) {
+    try {
+      cssText = await compileStylus(stylEntry, includePaths, autoImports);
+    } catch (e) {
+      if (rawHtmlMode) {
+        console.warn('[build] Stylus compile failed in raw mode; continuing with empty CSS:', e.message || e);
+        cssText = '';
+      } else {
+        die(`Stylus compile failed: ${e.message || e}`);
+      }
+    }
   }
   const { headCss: headCssRaw, inlineCss: inlineCssRaw } = splitCss(cssText, { minifyHead: false });
 
@@ -482,13 +526,30 @@ async function writeHtmlPair(dirAbs, htmlCompact, htmlPretty, { emitPretty = fal
     }
   }
 
-  // Pug include compatibility for legacy .jade templates
-  ensurePugAliases(path.join(projectRoot, 'vendor', 'helpers'));
-  ensurePugAliases(templatesRoot);
+  // Pug include compatibility for legacy .jade templates (skip in raw mode).
+  if (!rawHtmlMode) {
+    ensurePugAliases(path.join(projectRoot, 'vendor', 'helpers'));
+    ensurePugAliases(templatesRoot);
+  }
   console.log(`[build] Template: ${path.relative(projectRoot, templateFile)}`);
   console.log(`[build] Locales: ${locales.join(', ')}`);
 
   function renderHtml(headCssFinal, prettyHtml) {
+    if (rawHtmlMode) {
+      // Raw HTML mode: read the file verbatim. If the user wants headCss
+      // injected, they should add a <!-- HEAD_CSS --> marker; otherwise we
+      // splice the styles into the <head> automatically if it exists.
+      let raw;
+      try {
+        raw = fs.readFileSync(templateFile, 'utf8');
+      } catch (e) {
+        die(`Failed to read ${path.relative(projectRoot, templateFile)}: ${e.message || e}`);
+      }
+      if (headCssFinal && /<\/head>/i.test(raw)) {
+        raw = raw.replace(/<\/head>/i, `<style>${headCssFinal}</style></head>`);
+      }
+      return raw;
+    }
     try {
       return pug.renderFile(templateFile, {
         // Pug locals
@@ -650,7 +711,7 @@ async function writeHtmlPair(dirAbs, htmlCompact, htmlPretty, { emitPretty = fal
       console.warn(`[build] locale '${locale}': no JSON found; emitting HTML with keys/placeholders`);
     }
     try {
-      localized = localizeHtmlPlaceholders(localized, idx, { failOnMissing: argv.failOnMissing });
+      localized = localizeHtmlPlaceholders(localized, idx, { failOnMissing: argv.failOnMissing, wrapWithBdi: isRtlLocaleCode(locale) });
     } catch (e) {
       die(`Localization failed for locale '${locale}': ${e.message || e}`);
     }
@@ -667,12 +728,18 @@ async function writeHtmlPair(dirAbs, htmlCompact, htmlPretty, { emitPretty = fal
     let localizedPretty = basePretty;
     if (argv.pretty && localizedPretty) {
       try {
-        localizedPretty = localizeHtmlPlaceholders(localizedPretty, idx, { failOnMissing: argv.failOnMissing });
+        localizedPretty = localizeHtmlPlaceholders(localizedPretty, idx, { failOnMissing: argv.failOnMissing, wrapWithBdi: isRtlLocaleCode(locale) });
       } catch (e) {
         die(`Localization failed for locale '${locale}': ${e.message || e}`);
       }
     }
 
+    if (isRtlLocaleCode(locale)) {
+      try { localized = applyRtlToHtml(localized); } catch (e) { console.warn(`[build] RTL apply failed for '${locale}': ${e.message || e}`); }
+      if (localizedPretty) {
+        try { localizedPretty = applyRtlToHtml(localizedPretty); } catch {}
+      }
+    }
     await writeHtmlPair(localeDir, localized, localizedPretty, { emitPretty: argv.pretty });
   }
 

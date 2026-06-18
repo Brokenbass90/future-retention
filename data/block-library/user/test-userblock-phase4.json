@@ -1,0 +1,20 @@
+{
+  "id": "test-userblock-phase4",
+  "label": "Test user block",
+  "description": "Smoke test for Phase 4 save/list/delete",
+  "placement": "inline",
+  "category": "test",
+  "version": 1,
+  "source": "user",
+  "pug": "p.test-block {{ text }}\n",
+  "styl": "p.test-block { color: red; }\n",
+  "slots": [
+    {
+      "id": "text",
+      "kind": "text",
+      "label": "Text",
+      "default": "USERBLOCK-TEST-VALUE"
+    }
+  ],
+  "createdAt": "2026-06-01T18:10:13.825Z"
+}

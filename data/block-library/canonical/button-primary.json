@@ -1,0 +1,21 @@
+{
+  "id": "button-primary",
+  "label": "Button — primary CTA",
+  "description": "Одна оранжевая кнопка-ссылка. Inline-блок, вставляется внутрь секции (hero, text-block, footer-cell). Цвет, текст и скругление редактируются.",
+  "placement": "inline",
+  "category": "cta",
+  "version": 2,
+  "source": "canonical",
+  "pug": "table.cta.cta-primary(role='presentation' align='{{ align }}')\n    tr\n        td.butt\n            a.butt-link(href='{{ href }}' target='_blank') {{ label }}\n",
+  "styl": "table.cta.cta-primary { margin: 16px auto; }\ntable.cta.cta-primary td.butt { background-color: {{ bg_color }}; border-radius: {{ radius }}px; padding: 0; }\ntable.cta.cta-primary a.butt-link { display: inline-block; padding: 12px 28px; font-family: 'Helvetica', 'Arial', sans-serif; font-weight: 700; font-size: 16px; color: {{ text_color }}; text-decoration: none; line-height: 1; }\n",
+  "slots": [
+    { "id": "label", "kind": "text", "label": "Текст кнопки",  "default": "Open", "max": 30 },
+    { "id": "href",  "kind": "url",  "label": "Куда ведёт",     "default": "#" },
+    { "id": "align", "kind": "select", "label": "Выравнивание", "default": "center", "options": ["left","center","right"] },
+    { "id": "bg_color",   "kind": "color",  "label": "Цвет кнопки",    "default": "#ff7700" },
+    { "id": "text_color", "kind": "color",  "label": "Цвет текста",    "default": "#ffffff" },
+    { "id": "radius",     "kind": "number", "label": "Скругление, px", "default": 14, "min": 0, "max": 40 }
+  ],
+  "outlookSafe": true,
+  "tags": ["cta", "button", "inline"]
+}

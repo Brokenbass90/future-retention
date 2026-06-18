@@ -12,6 +12,7 @@ const initialState = {
     emailBase: null
   },
   busy: false,
+  workbenchOpen: false,
   activeTab: "html",
   mode: "mock",
   providerRuntime: null,
@@ -89,10 +90,30 @@ const initialState = {
   journal: {
     entries: [],
     summary: null
+  },
+  legacyToolkit: {
+    snapshot: null,
+    sourceHtml: "",
+    activeBrandId: "",
+    txtToJson: {
+      folderName: "",
+      baseName: "",
+      outputs: {},
+      warnings: [],
+      blocksCount: {},
+      activeLocale: ""
+    }
   }
 };
 
 const state = structuredClone(initialState);
+let chatDragDepth = 0;
+const workbenchMount = {
+  previewParent: null,
+  previewNextSibling: null,
+  codeParent: null,
+  codeNextSibling: null
+};
 
 const codeMap = {
   html: "html",
@@ -105,9 +126,12 @@ const codeMap = {
 };
 
 const refs = {
+  pageShell: document.querySelector(".page-shell"),
   apiStatus: document.querySelector("#apiStatus"),
   aiModePill: document.querySelector("#aiModePill"),
+  mainGrid: document.querySelector(".main-grid"),
   chatCard: document.querySelector("#chatCard"),
+  previewStack: document.querySelector(".preview-stack"),
   messages: document.querySelector("#messages"),
   chatForm: document.querySelector("#chatForm"),
   chatSubmitButtons: Array.from(document.querySelectorAll("#chatForm button[type='submit']")),
@@ -118,6 +142,30 @@ const refs = {
   toggleAttachMenuBtn: document.querySelector("#toggleAttachMenuBtn"),
   pasteFigmaLinkBtn: document.querySelector("#pasteFigmaLinkBtn"),
   settingsBtn: document.querySelector("#settingsBtn"),
+  toggleWorkbenchBtn: document.querySelector("#toggleWorkbenchBtn"),
+  workbenchShell: document.querySelector("#workbenchShell"),
+  workbenchCodeDock: document.querySelector("#workbenchCodeDock"),
+  workbenchPreviewDock: document.querySelector("#workbenchPreviewDock"),
+  workbenchLocaleTabs: document.querySelector("#workbenchLocaleTabs"),
+  workbenchCodeTabs: document.querySelector("#workbenchCodeTabs"),
+  workbenchLocaleAddBtn: document.querySelector("#workbenchLocaleAddBtn"),
+  workbenchMailMetaBtn: document.querySelector("#workbenchMailMetaBtn"),
+  workbenchCurrentMeta: document.querySelector("#workbenchCurrentMeta"),
+  workbenchPlaceholderSummary: document.querySelector("#workbenchPlaceholderSummary"),
+  workbenchPlaceholderChips: document.querySelector("#workbenchPlaceholderChips"),
+  workbenchOpenLocalesBtn: document.querySelector("#workbenchOpenLocalesBtn"),
+  workbenchOpenTemplatesBtn: document.querySelector("#workbenchOpenTemplatesBtn"),
+  workbenchOpenBrandsBtn: document.querySelector("#workbenchOpenBrandsBtn"),
+  workbenchConvertPdfBtn: document.querySelector("#workbenchConvertPdfBtn"),
+  workbenchOpenTxtToJsonBtn: document.querySelector("#workbenchOpenTxtToJsonBtn"),
+  workbenchOpenPlaceholdersBtn: document.querySelector("#workbenchOpenPlaceholdersBtn"),
+  workbenchOpenAssetsBtn: document.querySelector("#workbenchOpenAssetsBtn"),
+  workbenchOpenHistoryBtn: document.querySelector("#workbenchOpenHistoryBtn"),
+  workbenchOpenCodeBtn: document.querySelector("#workbenchOpenCodeBtn"),
+  workbenchCopyHtmlBtn: document.querySelector("#workbenchCopyHtmlBtn"),
+  workbenchPreviewRailButtons: Array.from(document.querySelectorAll("[data-workbench-viewport]")),
+  closeWorkbenchBtn: document.querySelector("#closeWorkbenchBtn"),
+  focusChatBtn: document.querySelector("#focusChatBtn"),
   closeSettingsBtn: document.querySelector("#closeSettingsBtn"),
   settingsDrawer: document.querySelector("#settingsDrawer"),
   settingsBackdrop: document.querySelector("#settingsBackdrop"),
@@ -187,7 +235,10 @@ const refs = {
   chatAttachmentsRow: document.querySelector("#chatAttachmentsRow"),
   contextModal: document.querySelector("#contextModal"),
   localesModal: document.querySelector("#localesModal"),
+  placeholdersModal: document.querySelector("#placeholdersModal"),
   assetsModal: document.querySelector("#assetsModal"),
+  brandsModal: document.querySelector("#brandsModal"),
+  txtToJsonModal: document.querySelector("#txtToJsonModal"),
   codeModal: document.querySelector("#codeModal"),
   rulesModal: document.querySelector("#rulesModal"),
   journalModal: document.querySelector("#journalModal"),
@@ -195,7 +246,13 @@ const refs = {
   blockCandidatesModal: document.querySelector("#blockCandidatesModal"),
   closeLocalesModalBtn: document.querySelector("#closeLocalesModalBtn"),
   closeLocalesFooterBtn: document.querySelector("#closeLocalesFooterBtn"),
+  closePlaceholdersModalBtn: document.querySelector("#closePlaceholdersModalBtn"),
+  closePlaceholdersFooterBtn: document.querySelector("#closePlaceholdersFooterBtn"),
   closeAssetsModalBtn: document.querySelector("#closeAssetsModalBtn"),
+  closeBrandsModalBtn: document.querySelector("#closeBrandsModalBtn"),
+  closeBrandsFooterBtn: document.querySelector("#closeBrandsFooterBtn"),
+  closeTxtToJsonModalBtn: document.querySelector("#closeTxtToJsonModalBtn"),
+  closeTxtToJsonFooterBtn: document.querySelector("#closeTxtToJsonFooterBtn"),
   closeCodeModalBtn: document.querySelector("#closeCodeModalBtn"),
   closeCodeFooterBtn: document.querySelector("#closeCodeFooterBtn"),
   closeRulesModalBtn: document.querySelector("#closeRulesModalBtn"),
@@ -209,11 +266,14 @@ const refs = {
   closeContextModalBtn: document.querySelector("#closeContextModalBtn"),
   closeContextFooterBtn: document.querySelector("#closeContextFooterBtn"),
   saveLocaleEditsBtn: document.querySelector("#saveLocaleEditsBtn"),
+  copyPlaceholdersBtn: document.querySelector("#copyPlaceholdersBtn"),
   saveCodeBtn: document.querySelector("#saveCodeBtn"),
   createBaseMailFromCodeBtn: document.querySelector("#createBaseMailFromCodeBtn"),
   localeTabs: document.querySelector("#localeTabs"),
   localeEditor: document.querySelector("#localeEditor"),
   localeEditorMeta: document.querySelector("#localeEditorMeta"),
+  placeholdersModalMeta: document.querySelector("#placeholdersModalMeta"),
+  placeholdersTokenList: document.querySelector("#placeholdersTokenList"),
   generateLocalesModalBtn: document.querySelector("#generateLocalesModalBtn"),
   deeplAutoTranslateBtn: document.querySelector("#deeplAutoTranslateBtn"),
   codeEditorMeta: document.querySelector("#codeEditorMeta"),
@@ -241,7 +301,16 @@ const refs = {
   assistantReply: document.querySelector("#assistantReply"),
   previewLocaleRow: document.querySelector("#previewLocaleRow"),
   previewLocaleTabs: document.querySelector("#previewLocaleTabs"),
+  addLocaleBtn: document.querySelector("#addLocaleBtn"),
+  addLocalePanel: document.querySelector("#addLocalePanel"),
+  addLocaleInput: document.querySelector("#addLocaleInput"),
+  addLocaleEngine: document.querySelector("#addLocaleEngine"),
+  addLocaleConfirmBtn: document.querySelector("#addLocaleConfirmBtn"),
+  addLocaleCancelBtn: document.querySelector("#addLocaleCancelBtn"),
+  addLocaleStatus: document.querySelector("#addLocaleStatus"),
   copyPreviewHtmlBtn: document.querySelector("#copyPreviewHtmlBtn"),
+  cancelAiBtn: document.querySelector("#cancelAiBtn"),
+  tokenPill: document.querySelector("#tokenPill"),
   previewStage: document.querySelector("#previewStage"),
   previewSkeleton: document.querySelector("#previewSkeleton"),
   previewFrame: document.querySelector("#previewFrame"),
@@ -337,6 +406,23 @@ const refs = {
   closeHistoryModalBtn: document.querySelector("#closeHistoryModalBtn"),
   closeHistoryFooterBtn: document.querySelector("#closeHistoryFooterBtn"),
   clearHistoryBtn: document.querySelector("#clearHistoryBtn"),
+  // Legacy toolkit brands
+  brandsModalMeta: document.querySelector("#brandsModalMeta"),
+  legacyBrandsList: document.querySelector("#legacyBrandsList"),
+  restoreLegacyBrandBtn: document.querySelector("#restoreLegacyBrandBtn"),
+  // Txt to JSON
+  selectTxtToJsonFolderBtn: document.querySelector("#selectTxtToJsonFolderBtn"),
+  txtToJsonFolderInput: document.querySelector("#txtToJsonFolderInput"),
+  txtToJsonBaseNameInput: document.querySelector("#txtToJsonBaseNameInput"),
+  txtToJsonDropzone: document.querySelector("#txtToJsonDropzone"),
+  txtToJsonMeta: document.querySelector("#txtToJsonMeta"),
+  txtToJsonSummary: document.querySelector("#txtToJsonSummary"),
+  txtToJsonLocaleTabs: document.querySelector("#txtToJsonLocaleTabs"),
+  txtToJsonOutput: document.querySelector("#txtToJsonOutput"),
+  txtToJsonWarnings: document.querySelector("#txtToJsonWarnings"),
+  copyTxtToJsonBtn: document.querySelector("#copyTxtToJsonBtn"),
+  downloadTxtToJsonCurrentBtn: document.querySelector("#downloadTxtToJsonCurrentBtn"),
+  downloadTxtToJsonAllBtn: document.querySelector("#downloadTxtToJsonAllBtn"),
   // Template Browser
   openTemplateBrowserBtn: document.querySelector("#openTemplateBrowserBtn"),
   templateBrowserDrawer: document.querySelector("#templateBrowserDrawer"),
@@ -368,14 +454,44 @@ const refs = {
     primaryLink: document.querySelector("#primaryLink"),
     contentNotes: document.querySelector("#contentNotes"),
     designUrl: document.querySelector("#designUrl"),
-    translationText: document.querySelector("#translationText")
+    translationText: document.querySelector("#translationText"),
+    brandPrimaryColor: document.querySelector("#brandPrimaryColor"),
+    brandPrimaryColorHex: document.querySelector("#brandPrimaryColorHex"),
+    brandButtonTextColor: document.querySelector("#brandButtonTextColor"),
+    brandButtonTextColorHex: document.querySelector("#brandButtonTextColorHex"),
+    brandBgColor: document.querySelector("#brandBgColor"),
+    brandBgColorHex: document.querySelector("#brandBgColorHex"),
+    brandButtonRadius: document.querySelector("#brandButtonRadius"),
+    brandBodySize: document.querySelector("#brandBodySize")
   }
+};
+
+// Module-level abort controller for the active AI request (null when idle)
+let activeAiAbortController = null;
+
+// ─── Figma Assets Browser DOM refs ───────────────────────────────────────────
+// Must be declared BEFORE boot() → bindEvents() → bindFigmaAssetEvents() to
+// avoid a const TDZ (temporal dead zone) crash that would silence all events.
+const figmaAssets = {
+  overlay:      document.getElementById("figmaAssetsOverlay"),
+  title:        document.getElementById("figmaAssetsModalTitle"),
+  closeBtn:     document.getElementById("closeFigmaAssetsModal"),
+  pageSelect:   document.getElementById("figmaAssetsPageSelect"),
+  scaleSelect:  document.getElementById("figmaAssetsScale"),
+  formatSelect: document.getElementById("figmaAssetsFormat"),
+  selectAllBtn: document.getElementById("figmaSelectAllBtn"),
+  deselectBtn:  document.getElementById("figmaDeselectAllBtn"),
+  frameGrid:    document.getElementById("figmaAssetsFrameGrid"),
+  selectedCount:document.getElementById("figmaAssetsSelectedCount"),
+  exportBtn:    document.getElementById("exportFigmaAssetsBtn"),
+  exportStatus: document.getElementById("figmaAssetsExportStatus"),
 };
 
 boot();
 
 function boot() {
   hydrateFromStorage();
+  state.workbenchOpen = true;
   bindEvents();
   applyTheme();
   renderAll();
@@ -419,6 +535,20 @@ function bindEvents() {
   refs.closeHistoryModalBtn.addEventListener("click", closeHistoryModal);
   refs.closeHistoryFooterBtn.addEventListener("click", closeHistoryModal);
   refs.clearHistoryBtn.addEventListener("click", handleClearHistory);
+  refs.closeBrandsModalBtn?.addEventListener("click", closeWorkspaceModal);
+  refs.closeBrandsFooterBtn?.addEventListener("click", closeWorkspaceModal);
+  refs.restoreLegacyBrandBtn?.addEventListener("click", restoreLegacyBrandSourceHtml);
+  refs.closeTxtToJsonModalBtn?.addEventListener("click", closeWorkspaceModal);
+  refs.closeTxtToJsonFooterBtn?.addEventListener("click", closeWorkspaceModal);
+  refs.selectTxtToJsonFolderBtn?.addEventListener("click", () => refs.txtToJsonFolderInput?.click());
+  refs.txtToJsonFolderInput?.addEventListener("change", handleTxtToJsonFolderInputChange);
+  refs.txtToJsonBaseNameInput?.addEventListener("input", handleTxtToJsonBaseNameInput);
+  refs.copyTxtToJsonBtn?.addEventListener("click", copyTxtToJsonCurrentOutput);
+  refs.downloadTxtToJsonCurrentBtn?.addEventListener("click", downloadTxtToJsonCurrentOutput);
+  refs.downloadTxtToJsonAllBtn?.addEventListener("click", downloadTxtToJsonAllOutputs);
+  refs.txtToJsonDropzone?.addEventListener("dragover", handleTxtToJsonDragOver);
+  refs.txtToJsonDropzone?.addEventListener("dragleave", handleTxtToJsonDragLeave);
+  refs.txtToJsonDropzone?.addEventListener("drop", handleTxtToJsonDrop);
   refs.dismissImageSlotPanel?.addEventListener("click", () => {
     state.imageSlotPanelDismissed = true;
     renderImageSlotPanel();
@@ -432,7 +562,39 @@ function bindEvents() {
   document.getElementById("browseFigmaBtn")?.addEventListener("click", handleBrowseFigmaBtn);
   // Figma assets modal events
   bindFigmaAssetEvents();
+  // Add locale to saved email
+  bindAddLocaleEvents();
   refs.openTemplateBrowserBtn.addEventListener("click", openTemplateBrowser);
+  if (refs.toggleWorkbenchBtn) refs.toggleWorkbenchBtn.addEventListener("click", toggleWorkbench);
+  if (refs.closeWorkbenchBtn) refs.closeWorkbenchBtn.addEventListener("click", closeWorkbench);
+  if (refs.focusChatBtn) {
+    refs.focusChatBtn.addEventListener("click", () => {
+      closeWorkbench();
+      requestAnimationFrame(() => {
+        refs.chatCard?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+  }
+  if (refs.workbenchOpenLocalesBtn) refs.workbenchOpenLocalesBtn.addEventListener("click", openLocalesModal);
+  if (refs.workbenchLocaleAddBtn) refs.workbenchLocaleAddBtn.addEventListener("click", openLocalesModal);
+  if (refs.workbenchMailMetaBtn) refs.workbenchMailMetaBtn.addEventListener("click", openContextModal);
+  if (refs.workbenchOpenTemplatesBtn) refs.workbenchOpenTemplatesBtn.addEventListener("click", openTemplateBrowser);
+  if (refs.workbenchOpenBrandsBtn) refs.workbenchOpenBrandsBtn.addEventListener("click", openBrandsModal);
+  if (refs.workbenchConvertPdfBtn) refs.workbenchConvertPdfBtn.addEventListener("click", handleWorkbenchConvertPdf);
+  if (refs.workbenchOpenTxtToJsonBtn) refs.workbenchOpenTxtToJsonBtn.addEventListener("click", openTxtToJsonModal);
+  if (refs.workbenchOpenPlaceholdersBtn) refs.workbenchOpenPlaceholdersBtn.addEventListener("click", openPlaceholdersModal);
+  if (refs.workbenchOpenAssetsBtn) refs.workbenchOpenAssetsBtn.addEventListener("click", openImageWorkspaceModal);
+  if (refs.workbenchOpenHistoryBtn) refs.workbenchOpenHistoryBtn.addEventListener("click", openHistoryModal);
+  if (refs.workbenchOpenCodeBtn) refs.workbenchOpenCodeBtn.addEventListener("click", () => refs.codeOutput?.focus());
+  if (refs.workbenchCopyHtmlBtn) refs.workbenchCopyHtmlBtn.addEventListener("click", handleCopyPreviewHtml);
+  refs.workbenchPreviewRailButtons?.forEach((button) => {
+    button.addEventListener("click", () => {
+      state.previewViewport = cleanText(button.dataset.workbenchViewport) || "fit";
+      renderPreviewViewportButtons();
+      renderPreview();
+      persistState();
+    });
+  });
   refs.closeTemplateBrowserBtn.addEventListener("click", closeTemplateBrowser);
   refs.templateBrowserBackdrop.addEventListener("click", closeTemplateBrowser);
   refs.templateSearchInput.addEventListener("input", renderTemplateBrowserFiltered);
@@ -463,8 +625,12 @@ function bindEvents() {
   refs.openLocalesQuickBtn.addEventListener("click", openLocalesModal);
   refs.openAssetsQuickBtn.addEventListener("click", openImageWorkspaceModal);
   refs.openCodeQuickBtn.addEventListener("click", openCodeModal);
-  refs.openTestsBtn.addEventListener("click", openTestsModal);
+  if (refs.openTestsBtn) refs.openTestsBtn.addEventListener("click", openTestsModal);
   refs.openTestsQuickBtn.addEventListener("click", openTestsModal);
+  // Cancel button — aborts the active AI request immediately
+  if (refs.cancelAiBtn) refs.cancelAiBtn.addEventListener("click", () => {
+    activeAiAbortController?.abort();
+  });
   refs.openJournalBtn.addEventListener("click", openJournalModal);
   refs.openJournalFromSettingsBtn.addEventListener("click", openJournalModal);
   if (refs.openRulesFromSettingsBtn) refs.openRulesFromSettingsBtn.addEventListener("click", openRulesModal);
@@ -477,9 +643,11 @@ function bindEvents() {
   refs.refreshCatalogBtn.addEventListener("click", handleRefreshBlockCatalog);
   refs.closeLocalesModalBtn.addEventListener("click", closeWorkspaceModal);
   refs.closeLocalesFooterBtn.addEventListener("click", closeWorkspaceModal);
+  if (refs.closePlaceholdersModalBtn) refs.closePlaceholdersModalBtn.addEventListener("click", closeWorkspaceModal);
+  if (refs.closePlaceholdersFooterBtn) refs.closePlaceholdersFooterBtn.addEventListener("click", closeWorkspaceModal);
   refs.closeAssetsModalBtn.addEventListener("click", closeWorkspaceModal);
-  refs.closeCodeModalBtn.addEventListener("click", closeWorkspaceModal);
-  refs.closeCodeFooterBtn.addEventListener("click", closeWorkspaceModal);
+  refs.closeCodeModalBtn.addEventListener("click", handleCloseCodeSurface);
+  refs.closeCodeFooterBtn.addEventListener("click", handleCloseCodeSurface);
   refs.closeRulesModalBtn.addEventListener("click", closeWorkspaceModal);
   refs.closeRulesFooterBtn.addEventListener("click", closeWorkspaceModal);
   refs.closeJournalModalBtn.addEventListener("click", closeWorkspaceModal);
@@ -492,6 +660,7 @@ function bindEvents() {
   refs.closeContextFooterBtn.addEventListener("click", closeWorkspaceModal);
   refs.workspaceModalBackdrop.addEventListener("click", closeWorkspaceModal);
   refs.saveLocaleEditsBtn.addEventListener("click", saveLocaleEdits);
+  if (refs.copyPlaceholdersBtn) refs.copyPlaceholdersBtn.addEventListener("click", handleCopyPlaceholders);
   refs.saveCodeBtn.addEventListener("click", saveCodeEdits);
   refs.toggleCodeEditBtn.addEventListener("click", handleToggleCodeEdit);
   refs.createBaseMailFromCodeBtn.addEventListener("click", handleCreateBaseMail);
@@ -553,10 +722,43 @@ function bindEvents() {
     });
   }
 
+  // Brand style field key → brandStyle property mapping
+  const brandStyleFieldMap = {
+    brandPrimaryColor:     "primaryColor",
+    brandPrimaryColorHex:  "primaryColor",
+    brandButtonTextColor:  "buttonTextColor",
+    brandButtonTextColorHex: "buttonTextColor",
+    brandBgColor:          "bgColor",
+    brandBgColorHex:       "bgColor",
+    brandButtonRadius:     "buttonRadius",
+    brandBodySize:         "bodySize"
+  };
+
   for (const [key, element] of Object.entries(refs.fields)) {
     element.addEventListener("input", () => {
       if (key === "translationText") {
         state.translationText = element.value;
+      } else if (brandStyleFieldMap[key]) {
+        // Brand style field — write to nested brandStyle object
+        if (!state.brief.brandStyle || typeof state.brief.brandStyle !== "object") {
+          state.brief.brandStyle = {};
+        }
+        const bsKey = brandStyleFieldMap[key];
+        const val = cleanText(element.value);
+        if (val) state.brief.brandStyle[bsKey] = val;
+
+        // Sync swatch ↔ hex for color fields
+        if (key.endsWith("Hex")) {
+          // Hex field changed → update color swatch
+          const swatchKey = key.replace("Hex", "");
+          if (refs.fields[swatchKey] && /^#[0-9a-fA-F]{6}$/.test(val)) {
+            refs.fields[swatchKey].value = val;
+          }
+        } else if (key === "brandPrimaryColor" || key === "brandButtonTextColor" || key === "brandBgColor") {
+          // Swatch changed → update hex display
+          const hexKey = key + "Hex";
+          if (refs.fields[hexKey]) refs.fields[hexKey].value = element.value;
+        }
       } else {
         state.brief[key] = element.value;
       }
@@ -631,8 +833,12 @@ async function loadApiStatus() {
     const payload = await response.json();
     state.api = payload;
 
+    if (!state.api.model && payload?.config?.openAiModel) {
+      state.api.model = payload.config.openAiModel;
+    }
+
     if (!state.settings.providerId || state.settings.providerId === "mock") {
-      state.settings.providerId = payload.openAiConfigured ? "openai" : "mock";
+      state.settings.providerId = (payload.openAiConfigured || payload?.config?.openAiConfigured) ? "openai" : "mock";
     }
 
     if (!state.brief.category && payload.emailBase?.currentMail?.category) {
@@ -646,11 +852,6 @@ async function loadApiStatus() {
     if (!state.brief.locale && payload.emailBase?.locales?.[0]) {
       state.brief.locale = payload.emailBase.locales[0];
     }
-
-    await loadBlockCatalog();
-    await loadAssetRegistry();
-    await loadProjectRules();
-    await loadJournal();
   } catch {
     state.api = {
       openAiConfigured: false,
@@ -669,10 +870,32 @@ async function loadApiStatus() {
     state.assetRegistry = structuredClone(initialState.assetRegistry);
     state.projectRules = structuredClone(initialState.projectRules);
     state.journal = structuredClone(initialState.journal);
+    renderAll();
+    persistState();
+    return;
+  }
+
+  const backgroundLoaders = [
+    loadBlockCatalog,
+    loadAssetRegistry,
+    loadProjectRules,
+    loadJournal
+  ];
+
+  for (const loader of backgroundLoaders) {
+    try {
+      await loader();
+    } catch (error) {
+      console.warn(`Background status loader failed: ${loader.name}`, error);
+    }
   }
 
   renderAll();
   persistState();
+}
+
+function isOpenAiConfigured() {
+  return Boolean(state.api?.openAiConfigured || state.api?.config?.openAiConfigured);
 }
 
 async function loadBlockCatalog(forceRefresh = false) {
@@ -764,6 +987,7 @@ function hydrateFromStorage() {
       baseEmailFileName: saved.baseEmailFileName ?? "",
       baseEmailContentMap: saved.baseEmailContentMap ?? null,
       scaffoldContext: saved.scaffoldContext ?? null,
+      workbenchOpen: true,
       previewLocale: cleanText(saved.previewLocale),
       assetInputs: Array.isArray(saved.assetInputs) && saved.assetInputs.length > 0
         ? saved.assetInputs
@@ -800,19 +1024,26 @@ function persistState() {
     assetInputs: state.assetInputs,
     messages: state.messages,
     draft,
-    scaffoldContext: state.scaffoldContext || null
+    workbenchOpen: state.workbenchOpen,
+    scaffoldContext: state.scaffoldContext || null,
+    // Clone-edit state — must survive page refresh so studio stays in edit mode
+    baseEmailHtml: state.baseEmailHtml || null,
+    baseEmailFileName: state.baseEmailFileName || "",
+    baseEmailContentMap: state.baseEmailContentMap || null
   };
 
   try {
     localStorage.setItem(storageKey, JSON.stringify(payload));
   } catch {
-    localStorage.setItem(
-      storageKey,
-      JSON.stringify({
-        ...payload,
-        draft: null
-      })
-    );
+    // Draft is large — try without draft first
+    try {
+      localStorage.setItem(storageKey, JSON.stringify({ ...payload, draft: null }));
+    } catch {
+      // baseEmailHtml is also large — strip it too (user will need to re-paste)
+      try {
+        localStorage.setItem(storageKey, JSON.stringify({ ...payload, draft: null, baseEmailHtml: null }));
+      } catch { /* give up silently */ }
+    }
   }
 }
 
@@ -820,7 +1051,9 @@ function getAvailableDraftLocales() {
   const actualLocales = [
     ...Object.keys(state.draft?.previewLocales || {}),
     ...Object.keys(state.draft?.localePayloads || {}),
-    ...(Array.isArray(state.draft?.mail?.translations) ? state.draft.mail.translations.map((entry) => cleanText(entry.locale)) : [])
+    ...(Array.isArray(state.draft?.mail?.translations) ? state.draft.mail.translations.map((entry) => cleanText(entry.locale)) : []),
+    ...getParsedLocaleEntries().map((entry) => cleanText(entry.locale)),
+    ...buildLocaleEditorDocs().map((doc) => cleanText(doc.locale))
   ].filter(Boolean);
   const dedupedActualLocales = Array.from(new Set(actualLocales));
   const requestedLocales = [
@@ -849,15 +1082,49 @@ function getCurrentPreviewLocale() {
 
 function getCurrentPreviewHtml() {
   const locale = getCurrentPreviewLocale();
-  return cleanText(state.draft?.previewLocales?.[locale]) || cleanText(state.draft?.html) || emptyPreview();
+  const previewLocales = state.draft?.previewLocales && typeof state.draft.previewLocales === "object"
+    ? state.draft.previewLocales
+    : {};
+  const fallbackHtml = cleanText(state.baseEmailHtml) || cleanText(state.legacyToolkit?.sourceHtml);
+  const localizedHtml = cleanText(previewLocales?.[locale]);
+  if (localizedHtml) {
+    return localizedHtml;
+  }
+
+  const primaryLocale = cleanText(state.draft?.mail?.locale || state.brief.locale || "");
+  const primaryHtml = cleanText(state.draft?.html);
+  if (locale && primaryLocale && locale === primaryLocale) {
+    return primaryHtml || fallbackHtml || emptyPreview();
+  }
+
+  const availableLocales = getAvailableDraftLocales();
+  if (locale && (Object.keys(previewLocales).length > 0 || availableLocales.length > 1)) {
+    return missingLocalePreview(locale, primaryLocale || Object.keys(previewLocales)[0] || "en");
+  }
+
+  return primaryHtml || fallbackHtml || emptyPreview();
 }
 
 function getCurrentLocalePayload() {
   const locale = getCurrentPreviewLocale();
   const payload = state.draft?.localePayloads?.[locale];
+  if (!payload) {
+    const entry = getParsedLocaleEntries().find((candidate) => localeMatchesRequest(candidate?.locale, locale));
+    if (entry) {
+      return JSON.stringify({
+        locale: cleanText(entry.locale) || locale || "en",
+        subject: entry.subject || "",
+        preheader: entry.preheader || "",
+        cta_labels: entry.cta_labels || [],
+        notes: entry.notes || "",
+        body_blocks: entry.body_blocks || [],
+        source_name: entry.source_name || ""
+      }, null, 2);
+    }
+  }
   return payload
     ? JSON.stringify({ locale, ...payload }, null, 2)
-    : (state.draft?.locales || "Код появится после первого draft или build.");
+    : (state.draft?.locales || state.translationText || "Код появится после первого draft или build.");
 }
 
 function getCurrentLocaleBuildLog() {
@@ -932,6 +1199,59 @@ function getDraftWorkspaceFiles() {
 
 function buildFallbackCodeFilesForTab(tab) {
   if (!state.draft) {
+    if (tab === "html") {
+      const sourceHtml = getCurrentPreviewHtml();
+      return sourceHtml
+        ? [createVirtualCodeFile({
+            tab: "html",
+            locale: getCurrentPreviewLocale() || cleanText(state.brief.locale) || "en",
+            path: "preview/current.html",
+            label: "current.html",
+            content: sourceHtml
+          })]
+        : [];
+    }
+
+    if (tab === "locales") {
+      const docs = buildLocaleEditorDocs();
+      if (docs.length > 0) {
+        return docs.map((doc, index) => createVirtualCodeFile({
+          tab: "locales",
+          locale: doc.locale,
+          path: `locales/${doc.name}`,
+          label: doc.name,
+          language: /\.json$/i.test(doc.name) ? "json" : "text",
+          content: doc.content
+        }, index));
+      }
+      const localePayload = getCurrentLocalePayload();
+      return localePayload
+        ? [createVirtualCodeFile({
+            tab: "locales",
+            locale: getCurrentPreviewLocale() || cleanText(state.brief.locale) || "en",
+            path: "locales/bundle.json",
+            label: "bundle.json",
+            content: localePayload
+          })]
+        : [];
+    }
+
+    if (tab === "spec") {
+      const placeholders = collectWorkbenchPlaceholders();
+      return [createVirtualCodeFile({
+        tab: "spec",
+        path: "studio/workbench-spec.json",
+        label: "workbench-spec.json",
+        content: JSON.stringify({
+          mailId: cleanText(state.brief.mailId) || "mail draft",
+          locale: getCurrentPreviewLocale() || cleanText(state.brief.locale) || "en",
+          requestedLocales: cleanText(state.brief.requestedLocales || "").split(/[\s,;]+/).filter(Boolean),
+          placeholders,
+          source: cleanText(state.previewSource) || "workbench"
+        }, null, 2)
+      })];
+    }
+
     return [];
   }
 
@@ -1004,13 +1324,32 @@ function buildFallbackCodeFilesForTab(tab) {
   }
 
   if (tab === "pug") {
-    return [createVirtualCodeFile({
+    const files = [createVirtualCodeFile({
       tab: "pug",
       path: "app/templates/index.pug",
       label: "index.pug",
       mailRelativePath: "app/templates/index.pug",
       content: state.draft.pug || "Pug появится после первого build."
     })];
+
+    // If the AI generated pug_blocks, show blocks/header.pug as a second virtual file.
+    const pugBlocks = Array.isArray(state.draft?.mail?.pug_blocks)
+      ? state.draft.mail.pug_blocks.filter((b) => b && b.label && b.pug_code)
+      : [];
+    if (pugBlocks.length > 0) {
+      const headerContent = pugBlocks
+        .map((b) => `// --- ${b.label} ---\n${b.pug_code}`)
+        .join("\n\n");
+      files.push(createVirtualCodeFile({
+        tab: "pug",
+        path: "app/templates/blocks/header.pug",
+        label: "header.pug ✨",
+        mailRelativePath: "app/templates/blocks/header.pug",
+        content: headerContent
+      }, 1));
+    }
+
+    return files;
   }
 
   if (tab === "stylus") {
@@ -1379,7 +1718,7 @@ async function handleCopyPreviewHtml() {
   }
 
   try {
-    await navigator.clipboard.writeText(html);
+    await copyTextToClipboard(html);
     state.messages.push({
       role: "assistant",
       content: `Скопировал HTML для локали ${getCurrentPreviewLocale() || cleanText(state.brief.locale || "en")} в буфер обмена.`
@@ -1393,6 +1732,46 @@ async function handleCopyPreviewHtml() {
 
   renderAll();
   persistState();
+}
+
+async function copyTextToClipboard(text) {
+  const value = String(text ?? "");
+  if (!value) {
+    throw new Error("Пустой текст для копирования");
+  }
+
+  if (navigator?.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(value);
+      return;
+    } catch {
+      // fallback below
+    }
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = value;
+  textarea.setAttribute("readonly", "readonly");
+  textarea.setAttribute("aria-hidden", "true");
+  textarea.style.position = "fixed";
+  textarea.style.top = "-9999px";
+  textarea.style.left = "-9999px";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+  textarea.setSelectionRange(0, textarea.value.length);
+
+  let copied = false;
+  try {
+    copied = document.execCommand("copy");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+
+  if (!copied) {
+    throw new Error("Браузер не дал доступ к clipboard");
+  }
 }
 
 function clearDesignWorkspace() {
@@ -1574,23 +1953,53 @@ function bindChatDropTargets() {
     refs.translationDropZone,
     refs.messages,
     refs.chatForm,
-    refs.chatInput
+    refs.chatInput,
+    refs.chatAttachmentsRow,
+    refs.chatIntakeActions
   ].filter(Boolean);
 
+  const setDropActive = (active) => {
+    refs.chatCard?.classList.toggle("is-dragover", active);
+    refs.translationDropZone?.classList.toggle("is-dragover", active);
+  };
+
+  const hasTransferPayload = (dataTransfer) => {
+    const types = Array.from(dataTransfer?.types || []);
+    return types.includes("Files")
+      || types.includes("text/plain")
+      || types.includes("text/uri-list")
+      || types.includes("text/html");
+  };
+
   const activate = (event) => {
+    if (!hasTransferPayload(event.dataTransfer)) {
+      return;
+    }
     event.preventDefault();
-    refs.chatCard.classList.add("is-dragover");
-    refs.translationDropZone.classList.add("is-dragover");
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = "copy";
+    }
+    if (event.type === "dragenter") {
+      chatDragDepth += 1;
+    }
+    setDropActive(true);
   };
 
   const deactivate = (event) => {
+    if (!hasTransferPayload(event.dataTransfer)) {
+      return;
+    }
     event.preventDefault();
     const related = event.relatedTarget;
     if (related && refs.chatCard.contains(related)) {
       return;
     }
-    refs.chatCard.classList.remove("is-dragover");
-    refs.translationDropZone.classList.remove("is-dragover");
+    if (event.type === "dragleave") {
+      chatDragDepth = Math.max(0, chatDragDepth - 1);
+    }
+    if (chatDragDepth === 0) {
+      setDropActive(false);
+    }
   };
 
   for (const target of targets) {
@@ -1598,12 +2007,25 @@ function bindChatDropTargets() {
     target.addEventListener("dragover", activate);
     target.addEventListener("dragleave", deactivate);
     target.addEventListener("drop", async (event) => {
+      if (!hasTransferPayload(event.dataTransfer)) {
+        return;
+      }
       event.preventDefault();
-      refs.chatCard.classList.remove("is-dragover");
-      refs.translationDropZone.classList.remove("is-dragover");
+      chatDragDepth = 0;
+      setDropActive(false);
       await applyDroppedChatPayload(event.dataTransfer);
     });
   }
+
+  window.addEventListener("dragend", () => {
+    chatDragDepth = 0;
+    setDropActive(false);
+  });
+
+  window.addEventListener("drop", () => {
+    chatDragDepth = 0;
+    setDropActive(false);
+  });
 }
 
 async function handleChatPaste(event) {
@@ -1633,48 +2055,90 @@ async function handleChatPaste(event) {
   // 2. Detect pasted text — Figma URL or HTML email
   const textItem = items.find((item) => item.kind === "string" && item.type === "text/plain");
   if (textItem) {
+    // IMPORTANT: event.preventDefault() must be called SYNCHRONOUSLY here,
+    // before getAsString fires its async callback — otherwise the browser
+    // has already pasted the text into the input by the time we check it.
+    event.preventDefault();
+
     textItem.getAsString((text) => {
       const trimmed = text.trim();
 
-      // 2a. HTML email code → offer Clone & Edit
+      // 2a. HTML email code → offer Clone & Edit or Convert to Pug
       const looksLikeHtml = /^<!doctype\s+html|^<html[\s>]|<table[\s>].*<\/table>/is.test(trimmed)
         && trimmed.length > 200;
       if (looksLikeHtml) {
-        event.preventDefault();
+        const sizeKb = Math.round(trimmed.length / 1024) || 1;
         processBaseEmailHtml(trimmed, "pasted-email.html");
+        state._pastedHtml = trimmed;
+        // Show a user "message" with a file attachment chip so the chat history
+        // reflects that HTML was loaded — without polluting the thread with raw code.
+        state.messages.push({
+          role: "user",
+          content: `📎 pasted-email.html (${sizeKb}KB)`
+        });
         state.messages.push({
           role: "assistant",
-          content: "📧 Вижу HTML письма — загружаю как base email. Напиши что нужно поменять: текст, ссылки, картинки, добавить/убрать блоки."
+          content: "Загрузил письмо — напиши что нужно поменять (текст, перевод, добавить кнопку и т.п.) и я отредактирую HTML."
         });
         renderAll();
         persistState();
         return;
       }
 
-      // 2b. Pure Figma URL (nothing else in clipboard) → auto-open browse modal
+      // 2b. Pure Figma URL (nothing else in clipboard) → auto-open browse modal or show setup guide
       const isFigmaUrl = /^https?:\/\/(www\.)?figma\.com\/(design|file|proto)\//.test(trimmed)
         && !trimmed.includes("\n")
         && trimmed === trimmed.trim();
       if (isFigmaUrl) {
-        event.preventDefault();
-        // Save as design reference
         setDesignReferenceUrl(trimmed);
-        // Populate the URL input in the design modal so Browse can read it
         const urlInput = document.getElementById("designReferenceUrlInput");
         if (urlInput) urlInput.value = trimmed;
-        // Trigger browse flow — opens the frames modal automatically
+
+        const figmaTokenOk = state.api?.figma?.serverTokenConfigured;
+        if (!figmaTokenOk) {
+          state.messages.push({
+            role: "assistant",
+            content: [
+              "🎨 Вижу Figma ссылку! Чтобы студия могла открывать и нарезать макеты, нужно добавить Figma API токен.\n",
+              "**Как получить токен (1 минута):**",
+              "1. Открой figma.com → нажми на аватар (справа вверху) → **Settings**",
+              "2. Прокрути вниз до раздела **Personal access tokens**",
+              "3. Нажми **Generate new token** → дай имя (например «Studio») → скопируй токен",
+              "4. Открой файл `.env` в папке проекта и добавь строку:",
+              "   `FIGMA_API_TOKEN=figd_xxxxxxxxxxxxxxxxx`",
+              "5. Перезапусти студию (node server.js)\n",
+              "**Безопасность:** токен хранится только в `.env` на твоём компьютере, никуда не отправляется. Студия работает локально (localhost).\n",
+              "После настройки вставь ссылку ещё раз — студия автоматически откроет браузер фреймов."
+            ].join("\n")
+          });
+          renderAll();
+          persistState();
+          return;
+        }
+
         handleBrowseFigmaBtn();
         return;
       }
 
-      // Otherwise let default text paste work normally
+      // 2c. Plain text — insert manually at cursor position since we called preventDefault above
+      const input = refs.chatInput;
+      const start = input.selectionStart ?? input.value.length;
+      const end   = input.selectionEnd   ?? input.value.length;
+      input.value = input.value.slice(0, start) + text + input.value.slice(end);
+      input.setSelectionRange(start + text.length, start + text.length);
+      // Trigger input event so any listeners (e.g. auto-resize) fire
+      input.dispatchEvent(new Event("input", { bubbles: true }));
     });
   }
 }
 
 async function applyDroppedChatPayload(dataTransfer) {
   const files = await extractFilesFromDrop(dataTransfer);
-  const droppedText = cleanText(dataTransfer?.getData?.("text/plain"));
+  const droppedText = cleanText(
+    dataTransfer?.getData?.("text/plain")
+    || dataTransfer?.getData?.("text/uri-list")
+    || dataTransfer?.getData?.("text/html")
+  );
 
   if (files.length > 0) {
     try {
@@ -1692,6 +2156,19 @@ async function applyDroppedChatPayload(dataTransfer) {
   }
 
   if (droppedText) {
+    const looksLikeHtml = /^<!doctype\s+html|^<html[\s>]|<table[\s>].*<\/table>/is.test(droppedText)
+      && droppedText.length > 200;
+    if (looksLikeHtml) {
+      processBaseEmailHtml(droppedText, "dropped-email.html");
+      state.messages.push({
+        role: "assistant",
+        content: "Загрузил HTML письма из drop. Можно сразу попросить перевести, адаптировать под другой бренд или поменять блоки."
+      });
+      renderAll();
+      persistState();
+      return;
+    }
+
     const applied = applyReferenceLinksFromText(droppedText);
     if (applied) {
       renderAll();
@@ -2044,6 +2521,19 @@ async function handleBaseEmailPasteConfirm() {
 async function processBaseEmailHtml(html, filename) {
   if (!html || html.length < 50) return;
 
+  // Clear scaffold context and stale draft state so clone-edit mode is clean
+  state.scaffoldContext = null;
+  state.previewSource = "clone-edit";
+  // If previously in scaffold mode, clear the entire draft to avoid
+  // showing stale scaffold assets/locales in the clone-edit UI
+  if (state.draft) {
+    state.draft.mail = state.draft.mail ? { ...state.draft.mail, assets: [], sections: [] } : null;
+    state.draft.previewLocales = {};
+    state.draft.html = null;
+  }
+  state.assetInputs = [createEmptyAsset(1)]; // reset the asset composer panel
+  state.imageSlotPanelDismissed = true; // hide the image slot panel for clone-edit mode
+
   // Extract content map via server
   let contentMap = null;
   try {
@@ -2059,6 +2549,13 @@ async function processBaseEmailHtml(html, filename) {
   state.baseEmailHtml = html;
   state.baseEmailFileName = filename || "email.html";
   state.baseEmailContentMap = contentMap;
+
+  // Create (or update) a minimal draft so the code editor ("Код" button)
+  // can immediately show the pasted HTML before any AI call is made.
+  if (!state.draft) state.draft = {};
+  state.draft.html = html;
+  state.draft.previewLocales = {};
+  resetCodeWorkspaceSelection();
 
   renderBaseEmailState();
   persistState();
@@ -2147,6 +2644,48 @@ async function handleChatSubmit(event) {
   event.preventDefault();
 
   const typedMessage = refs.chatInput.value.trim();
+
+  if (state.busy) {
+    if (typedMessage) {
+      state.messages.push({
+        role: "assistant",
+        content: "⏳ Студия уже обрабатывает предыдущий запрос. Дождись ответа или нажми Cancel, если хочешь его остановить."
+      });
+      renderMessages();
+      persistState();
+    }
+    return;
+  }
+
+  // Intercept "convert to pug" command when HTML is stored from paste
+  const isHtmlToPugRequest = state._pastedHtml
+    && /конверт|convert.*pug|в\s+pug|в\s+jade|в\s+шаблон|to\s+pug/i.test(typedMessage);
+  if (isHtmlToPugRequest) {
+    refs.chatInput.value = "";
+    await handleHtmlToPugConversion(typedMessage);
+    return;
+  }
+
+  // If the user pasted/typed a full HTML email into the input and submitted,
+  // extract it silently: store it as base email, show a file chip in chat, strip it from the message.
+  const htmlMatch = typedMessage.match(/([\s\S]*?)(<!doctype\s+html[\s\S]{200,}|<html[\s>][\s\S]{200,})/i);
+  if (htmlMatch) {
+    const preText = htmlMatch[1].trim();
+    const htmlCode = htmlMatch[2].trim();
+    const sizeKb = Math.round(htmlCode.length / 1024) || 1;
+    processBaseEmailHtml(htmlCode, "pasted-email.html");
+    state._pastedHtml = htmlCode;
+    const chipLine = `📎 pasted-email.html (${sizeKb}KB)`;
+    const displayMsg = preText ? `${preText}\n${chipLine}` : chipLine;
+    refs.chatInput.value = preText; // keep only non-HTML text in input for continued editing
+    state.messages.push({ role: "user", content: displayMsg });
+    const assistantMsg = { role: "assistant", content: "Загрузил письмо — напиши что нужно поменять.", streaming: false };
+    state.messages.push(assistantMsg);
+    renderAll();
+    persistState();
+    return;
+  }
+
   applyChatHintsFromMessage(typedMessage);
   if (await handleRuleCommand(typedMessage)) {
     refs.chatInput.value = "";
@@ -2173,13 +2712,22 @@ async function handleChatSubmit(event) {
   renderMessages();
   renderStatus();
 
+  const abortController = new AbortController();
+  activeAiAbortController = abortController;
+  // Keep the browser-side timeout longer than the server-side OpenAI retry budget.
+  // Clone-edit with attached HTML can legitimately take a few minutes because
+  // the server may retry slow OpenAI calls before falling back.
+  const requestTimeout = setTimeout(() => abortController.abort(), 480000); // 8-min safety timeout
+  if (refs.cancelAiBtn) refs.cancelAiBtn.hidden = false; // show Cancel button
+
   try {
     const response = await fetch("/api/chat/stream", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(createChatRequestBody(intent))
+      body: JSON.stringify(createChatRequestBody(intent)),
+      signal: abortController.signal
     });
 
     if (!response.ok) {
@@ -2190,7 +2738,67 @@ async function handleChatSubmit(event) {
     await consumeChatStream(response, assistantMessage);
   } catch (error) {
     assistantMessage.streaming = false;
-    assistantMessage.content = `Ошибка при генерации: ${error.message}`;
+    assistantMessage.content = error.name === "AbortError"
+      ? "⚠️ Запрос отменён."
+      : `Ошибка при генерации: ${error.message}`;
+  } finally {
+    clearTimeout(requestTimeout);
+    activeAiAbortController = null;
+    if (refs.cancelAiBtn) refs.cancelAiBtn.hidden = true; // hide Cancel button
+    state.busy = false;
+    renderAll();
+    persistState();
+  }
+}
+
+// ─── HTML → Pug conversion ──────────────────────────────────────────────────
+
+async function handleHtmlToPugConversion(userMessage) {
+  const html = state._pastedHtml;
+  if (!html) return;
+
+  state.messages.push({ role: "user", content: userMessage || "Конвертируй в pug" });
+  const assistantMessage = { role: "assistant", content: "⏳ Конвертирую HTML в Pug…", streaming: true };
+  state.messages.push(assistantMessage);
+  state.busy = true;
+  renderMessages();
+  renderStatus();
+
+  try {
+    const res = await fetch("/api/email-base/html-to-pug", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ html, userMessage })
+    });
+    const data = await res.json();
+
+    if (!res.ok || data.error) {
+      assistantMessage.streaming = false;
+      assistantMessage.content = `Ошибка конвертации: ${data.error || "unknown"}`;
+      return;
+    }
+
+    // Store pug_blocks into draft
+    if (!state.draft) state.draft = {};
+    if (!state.draft.mail) state.draft.mail = {};
+    state.draft.mail.pug_blocks = data.pugBlocks || [];
+    if (data.subject) state.draft.mail.subject = data.subject;
+    if (data.preheader) state.draft.mail.preheader = data.preheader;
+
+    // Switch to pug tab to show the result
+    state.activeTab = "pug";
+    state._pastedHtml = null; // clear stored HTML
+
+    assistantMessage.streaming = false;
+    assistantMessage.content = [
+      data.assistantReply || "Готово.",
+      `\n\n✅ Сконвертировал ${data.pugBlocks?.length || 0} блоков. Код виден во вкладке **Pug → header.pug ✨**`,
+      "\nДля сохранения в email-base напиши **«в email-base»** или нажми «Save as new email-base mail»."
+    ].join("");
+
+  } catch (err) {
+    assistantMessage.streaming = false;
+    assistantMessage.content = `Ошибка: ${err.message}`;
   } finally {
     state.busy = false;
     renderAll();
@@ -2497,7 +3105,22 @@ function applyChatPayload(payload, assistantMessage) {
     state.previewSource = payload.previewSource || "draft";
     state.draft = payload.draft;
     state.previewLocale = cleanText(payload.draft?.mail?.locale || state.brief.locale);
-    state.imageSlotPanelDismissed = false; // reset panel dismiss on new draft
+    // In clone-edit mode: suppress image slot panel (assets from template don't apply to pasted HTML)
+    const isCloneEdit = Boolean(state.baseEmailHtml);
+    if (isCloneEdit) {
+      // Use the latest edited HTML as the next base for follow-up edits.
+      if (cleanText(state.draft?.html)) {
+        state.baseEmailHtml = state.draft.html;
+        state.baseEmailContentMap = null;
+      }
+      state.imageSlotPanelDismissed = true;
+      // Clear any spurious assets that came from the reference template
+      if (state.draft?.mail?.assets) {
+        state.draft.mail.assets = [];
+      }
+    } else {
+      state.imageSlotPanelDismissed = false; // reset panel dismiss on new draft
+    }
     resetCodeWorkspaceSelection();
   }
 
@@ -2573,21 +3196,8 @@ async function applyScaffoldLocaleContent(mailId, category, localeContent) {
 }
 
 // ─── Figma Assets Browser ────────────────────────────────────────────────────
-
-const figmaAssets = {
-  overlay:      document.getElementById("figmaAssetsOverlay"),
-  title:        document.getElementById("figmaAssetsModalTitle"),
-  closeBtn:     document.getElementById("closeFigmaAssetsModal"),
-  pageSelect:   document.getElementById("figmaAssetsPageSelect"),
-  scaleSelect:  document.getElementById("figmaAssetsScale"),
-  formatSelect: document.getElementById("figmaAssetsFormat"),
-  selectAllBtn: document.getElementById("figmaSelectAllBtn"),
-  deselectBtn:  document.getElementById("figmaDeselectAllBtn"),
-  frameGrid:    document.getElementById("figmaAssetsFrameGrid"),
-  selectedCount:document.getElementById("figmaAssetsSelectedCount"),
-  exportBtn:    document.getElementById("exportFigmaAssetsBtn"),
-  exportStatus: document.getElementById("figmaAssetsExportStatus"),
-};
+// NOTE: figmaAssets const is declared near the top of the file (before boot())
+// to avoid TDZ errors when bindFigmaAssetEvents() is called from bindEvents().
 
 let figmaBrowseData = null; // { fileName, pages: [...] }
 let figmaSelectedIds = new Set();
@@ -2638,6 +3248,111 @@ function updateFigmaSelectionCount() {
   const n = figmaSelectedIds.size;
   figmaAssets.selectedCount.textContent = `Выбрано: ${n}`;
   figmaAssets.exportBtn.disabled = n === 0;
+}
+
+// ─── Add Locale to saved email ───────────────────────────────────────────────
+
+function bindAddLocaleEvents() {
+  if (!refs.addLocaleBtn) return;
+
+  refs.addLocaleBtn.addEventListener("click", () => {
+    const panelHidden = refs.addLocalePanel.hidden;
+    refs.addLocalePanel.hidden = !panelHidden;
+    if (!refs.addLocalePanel.hidden) {
+      refs.addLocaleInput.value = "";
+      refs.addLocaleStatus.textContent = "";
+      refs.addLocaleInput.focus();
+    }
+  });
+
+  refs.addLocaleCancelBtn.addEventListener("click", () => {
+    refs.addLocalePanel.hidden = true;
+    refs.addLocaleStatus.textContent = "";
+  });
+
+  refs.addLocaleConfirmBtn.addEventListener("click", handleAddLocale);
+
+  refs.addLocaleInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") handleAddLocale();
+    if (e.key === "Escape") refs.addLocalePanel.hidden = true;
+  });
+}
+
+async function handleAddLocale() {
+  const locale = cleanText(refs.addLocaleInput.value).toLowerCase().replace(/[^a-z0-9_-]/g, "");
+  const engine = refs.addLocaleEngine.value || "openai";
+
+  if (!locale) {
+    refs.addLocaleStatus.textContent = "Enter a locale code (e.g. pt, ar, zh)";
+    refs.addLocaleStatus.style.color = "#c0392b";
+    return;
+  }
+
+  const category = cleanText(state.brief.category);
+  const mailId   = cleanText(state.brief.mailId);
+
+  if (!category || !mailId) {
+    refs.addLocaleStatus.textContent = "Cannot determine saved mail — save to email-base first";
+    refs.addLocaleStatus.style.color = "#c0392b";
+    return;
+  }
+
+  refs.addLocaleConfirmBtn.disabled = true;
+  refs.addLocaleStatus.style.color = "#3a7c55";
+  refs.addLocaleStatus.textContent = `Translating ${locale}…`;
+
+  try {
+    const res = await fetch("/api/email-base/add-locale", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ category, mailId, locale, engine })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      refs.addLocaleStatus.style.color = "#c0392b";
+      refs.addLocaleStatus.textContent = data.error || "Translation failed";
+      return;
+    }
+
+    // Add to the draft's available preview locales
+    if (data.previewHtml) {
+      if (!state.draft) state.draft = {};
+      if (!state.draft.previewLocales || typeof state.draft.previewLocales !== "object") {
+        state.draft.previewLocales = {};
+      }
+      state.draft.previewLocales[locale] = data.previewHtml;
+    }
+
+    // Update draft mail translations list if present
+    if (state.draft?.mail) {
+      const existing = Array.isArray(state.draft.mail.translations) ? state.draft.mail.translations : [];
+      if (!existing.some((t) => cleanText(t.locale) === locale)) {
+        state.draft.mail.translations = [...existing, { locale, subject: "", preheader: "", cta_labels: [], body_blocks: [] }];
+      }
+    }
+
+    // Switch to the new locale in preview
+    state.previewLocale = locale;
+
+    refs.addLocaleStatus.style.color = "#3a7c55";
+    refs.addLocaleStatus.textContent = `✓ ${data.assistantReply || `Locale ${locale} added.`}`;
+
+    persistState();
+    renderAll();
+
+    // Hide panel after success
+    setTimeout(() => {
+      refs.addLocalePanel.hidden = true;
+      refs.addLocaleStatus.textContent = "";
+    }, 3500);
+
+  } catch (err) {
+    refs.addLocaleStatus.style.color = "#c0392b";
+    refs.addLocaleStatus.textContent = `Error: ${err.message}`;
+  } finally {
+    refs.addLocaleConfirmBtn.disabled = false;
+  }
 }
 
 function bindFigmaAssetEvents() {
@@ -2873,6 +3588,466 @@ async function handleClearHistory() {
   if (!confirm("Очистить всю историю генераций? Это действие нельзя отменить.")) return;
   await fetch("/api/history/clear", { method: "POST" });
   await loadAndRenderHistory();
+}
+
+// ─── Legacy Toolkit Utilities ───────────────────────────────────────────────
+
+async function loadLegacyToolkitSnapshot(force = false) {
+  if (!force && state.legacyToolkit?.snapshot) {
+    return state.legacyToolkit.snapshot;
+  }
+
+  const res = await fetch("/api/legacy-toolkit/snapshot");
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || "Failed to load legacy toolkit snapshot");
+  }
+
+  state.legacyToolkit.snapshot = data;
+  return data;
+}
+
+function ensureLegacyBrandSourceHtml() {
+  const source = getCurrentPreviewHtml() || state.draft?.html || state.baseEmailHtml || "";
+  if (!cleanText(state.legacyToolkit?.sourceHtml) || !cleanText(state.legacyToolkit?.activeBrandId)) {
+    state.legacyToolkit.sourceHtml = source;
+  }
+  return source;
+}
+
+function buildLegacyBrandStyle(brand) {
+  return {
+    primaryColor: cleanText(brand?.tokens?.primaryColor),
+    buttonTextColor: cleanText(brand?.tokens?.buttonTextColor),
+    bgColor: cleanText(brand?.tokens?.backgroundColor),
+    buttonRadius: cleanText(brand?.tokens?.buttonRadius)
+  };
+}
+
+function applyLegacyBrandTokensToHtml(html, rawStyles) {
+  let nextHtml = String(html || "");
+  if (!nextHtml || !rawStyles || typeof rawStyles !== "object") {
+    return nextHtml;
+  }
+
+  for (const [token, value] of Object.entries(rawStyles)) {
+    const normalizedValue = String(value ?? "");
+    const pattern = new RegExp(`\\{%\\s*${escapeRegExp(token)}\\s*%\\}`, "g");
+    nextHtml = nextHtml.replace(pattern, normalizedValue);
+  }
+
+  return nextHtml;
+}
+
+async function openBrandsModal() {
+  ensureLegacyBrandSourceHtml();
+  openWorkspaceModal("brands");
+  try {
+    await loadLegacyToolkitSnapshot();
+  } catch (error) {
+    if (refs.brandsModalMeta) {
+      refs.brandsModalMeta.textContent = `Не удалось загрузить legacy brands: ${error.message}`;
+    }
+  }
+  renderWorkspaceModals();
+}
+
+function restoreLegacyBrandSourceHtml() {
+  const originalHtml = cleanText(state.legacyToolkit?.sourceHtml);
+  if (!originalHtml) {
+    state.messages.push({
+      role: "assistant",
+      content: "Пока не нашёл исходный HTML для возврата original styles. Сначала загрузи письмо или открой draft."
+    });
+    renderAll();
+    return;
+  }
+
+  const locale = getCurrentPreviewLocale() || cleanText(state.brief.locale) || "en";
+  if (!state.draft) state.draft = {};
+  state.draft.html = originalHtml;
+  if (!state.draft.previewLocales || typeof state.draft.previewLocales !== "object") {
+    state.draft.previewLocales = {};
+  }
+  state.draft.previewLocales[locale] = originalHtml;
+  if (state.baseEmailHtml) {
+    state.baseEmailHtml = originalHtml;
+  }
+  state.legacyToolkit.activeBrandId = "";
+  state.previewSource = "draft";
+  syncCodeSelectionWithPreviewLocale();
+  syncCodeEditorBufferForActiveContext(true);
+  state.messages.push({
+    role: "assistant",
+    content: "Вернул original styles из исходного HTML письма."
+  });
+  renderAll();
+  persistState();
+}
+
+function applyLegacyBrand(brandId) {
+  const brands = Array.isArray(state.legacyToolkit?.snapshot?.brands) ? state.legacyToolkit.snapshot.brands : [];
+  const brand = brands.find((entry) => cleanText(entry.id) === cleanText(brandId));
+  if (!brand) {
+    return;
+  }
+
+  const sourceHtml = ensureLegacyBrandSourceHtml();
+  const nextHtml = sourceHtml ? applyLegacyBrandTokensToHtml(sourceHtml, brand.rawStyles) : "";
+  const locale = getCurrentPreviewLocale() || cleanText(state.brief.locale) || "en";
+
+  state.legacyToolkit.activeBrandId = cleanText(brand.id);
+  state.brief.brandStyle = {
+    ...(state.brief.brandStyle || {}),
+    ...buildLegacyBrandStyle(brand)
+  };
+
+  if (cleanText(nextHtml)) {
+    if (!state.draft) state.draft = {};
+    state.draft.html = nextHtml;
+    if (!state.draft.previewLocales || typeof state.draft.previewLocales !== "object") {
+      state.draft.previewLocales = {};
+    }
+    state.draft.previewLocales[locale] = nextHtml;
+    if (state.baseEmailHtml) {
+      state.baseEmailHtml = nextHtml;
+    }
+    state.previewSource = "draft";
+  }
+
+  syncCodeSelectionWithPreviewLocale();
+  syncCodeEditorBufferForActiveContext(true);
+  state.messages.push({
+    role: "assistant",
+    content: `Применил brand preset "${brand.label}" к текущему письму${cleanText(nextHtml) ? " и обновил preview" : ""}.`
+  });
+  renderAll();
+  persistState();
+}
+
+function renderLegacyBrandsModal() {
+  const snapshot = state.legacyToolkit?.snapshot;
+  const brands = Array.isArray(snapshot?.brands) ? snapshot.brands : [];
+  const originalReady = cleanText(state.legacyToolkit?.sourceHtml).length > 0;
+
+  if (refs.brandsModalMeta) {
+    if (!snapshot) {
+      refs.brandsModalMeta.textContent = "Загружаем бренды из старого retention-tool-kit…";
+    } else {
+      refs.brandsModalMeta.textContent = `Нашли ${brands.length} brand preset(s) из старого retention-tool-kit. Original styles ${originalReady ? "сохранены и доступны для отката" : "пока не сохранены — сначала загрузи письмо или draft"}.`;
+    }
+  }
+
+  if (refs.restoreLegacyBrandBtn) {
+    refs.restoreLegacyBrandBtn.disabled = !originalReady;
+  }
+
+  if (!refs.legacyBrandsList) {
+    return;
+  }
+
+  refs.legacyBrandsList.innerHTML = "";
+
+  if (!snapshot) {
+    refs.legacyBrandsList.appendChild(createTextCard("Загружаем brand presets…"));
+    return;
+  }
+
+  if (brands.length === 0) {
+    refs.legacyBrandsList.appendChild(createTextCard("В legacy snapshot пока нет brand presets."));
+    return;
+  }
+
+  refs.legacyBrandsList.innerHTML = brands.map((brand) => {
+    const isActive = cleanText(state.legacyToolkit?.activeBrandId) === cleanText(brand.id);
+    const logo = cleanText(brand?.tokens?.logoUrl);
+    const primary = cleanText(brand?.tokens?.primaryColor) || "#D7E3F4";
+    const bg = cleanText(brand?.tokens?.backgroundColor) || "#F5F7FB";
+    const text = cleanText(brand?.tokens?.textColor) || "#1F2937";
+    const accent = cleanText(brand?.tokens?.accentColor) || primary;
+    return `
+      <article class="brand-card${isActive ? " is-active" : ""}" data-brand-card="${escHtml(brand.id)}">
+        <div class="brand-card-head">
+          <div>
+            <div class="brand-card-title">${escHtml(brand.label)}</div>
+            <div class="brand-card-subtitle">${escHtml(brand.source || "legacy")}</div>
+          </div>
+          ${logo ? `<img class="brand-card-logo" src="${escHtml(logo)}" alt="${escHtml(brand.label)}" />` : ""}
+        </div>
+        <div class="brand-swatch-row">
+          <span class="brand-swatch" style="background:${escHtml(primary)}" title="Primary"></span>
+          <span class="brand-swatch" style="background:${escHtml(bg)}" title="Background"></span>
+          <span class="brand-swatch" style="background:${escHtml(text)}" title="Text"></span>
+          <span class="brand-swatch" style="background:${escHtml(accent)}" title="Accent"></span>
+        </div>
+        <div class="brand-token-row">
+          <span>button ${escHtml(cleanText(brand?.tokens?.buttonRadius) || "—")}</span>
+          <span>logo ${escHtml(cleanText(brand?.tokens?.logoWidth) || "—")}</span>
+          <span>surface ${escHtml(cleanText(brand?.tokens?.surfaceColor) || "—")}</span>
+        </div>
+        <div class="brand-card-actions">
+          <button class="ghost-button legacy-brand-apply-btn" type="button" data-legacy-brand="${escHtml(brand.id)}">Apply</button>
+        </div>
+      </article>
+    `;
+  }).join("");
+
+  refs.legacyBrandsList.querySelectorAll("[data-legacy-brand]").forEach((button) => {
+    button.addEventListener("click", () => applyLegacyBrand(button.dataset.legacyBrand));
+  });
+}
+
+function normalizeTxtToJsonLocale(locale) {
+  const value = cleanText(locale);
+  if (!value) return "unknown";
+  const [lang, region] = value.replace("_", "-").split("-");
+  return region ? `${lang.toLowerCase()}-${region.toUpperCase()}` : lang.toLowerCase();
+}
+
+function inferTxtToJsonLocale(fileName) {
+  const match = String(fileName || "").match(/_?([a-z]{2}(?:-[A-Z]{2})?)[_.]/i);
+  return normalizeTxtToJsonLocale(match?.[1] || "unknown");
+}
+
+function convertTxtBlockToHtml(block) {
+  const trimmed = String(block || "").replace(/\{\{|\}\}/g, "").trim();
+  if (!trimmed) return " ";
+  return trimmed.replace(/@@(.*?)@@/g, "<b>$1</b>");
+}
+
+async function buildTxtToJsonOutputs(files, requestedBaseName = "") {
+  const warnings = [];
+  const blocksCount = {};
+  const outputs = {};
+  const baseName = cleanText(requestedBaseName) || "locale-bundle";
+
+  for (const file of files) {
+    const content = await file.text();
+    const blocks = content.match(/\{\{([\s\S]*?)\}\}/g) || [];
+    const locale = inferTxtToJsonLocale(file.name);
+    blocksCount[locale] = (blocksCount[locale] || 0) + blocks.length;
+
+    if (blocks.length === 0) {
+      warnings.push(`${file.name}: не нашёл блоков вида {{ ... }}`);
+    }
+
+    const jsonContent = blocks.reduce((acc, block, index) => {
+      acc[`block_${String(index).padStart(2, "0")}`] = convertTxtBlockToHtml(block);
+      return acc;
+    }, {});
+
+    outputs[locale] = {
+      locale,
+      fileName: `${baseName}.json`,
+      sourceName: file.name,
+      blockCount: blocks.length,
+      content: JSON.stringify(jsonContent, null, 4)
+    };
+  }
+
+  return { outputs, warnings, blocksCount, baseName };
+}
+
+function renderTxtToJsonWorkspace() {
+  const txtState = state.legacyToolkit?.txtToJson || {};
+  const outputs = txtState.outputs || {};
+  const locales = Object.keys(outputs);
+  const activeLocale = cleanText(txtState.activeLocale) || locales[0] || "";
+  const activeOutput = activeLocale ? outputs[activeLocale] : null;
+
+  if (refs.txtToJsonBaseNameInput) {
+    refs.txtToJsonBaseNameInput.value = cleanText(txtState.baseName);
+  }
+
+  if (refs.txtToJsonMeta) {
+    refs.txtToJsonMeta.textContent = locales.length > 0
+      ? `Собрали ${locales.length} locale JSON file(s) по правилам старого toolkit.`
+      : "Загрузи папку с txt-файлами локалей. Конвертер ждёт блоки вида {{ ... }} и поддерживает @@bold@@ → <b>bold</b>.";
+  }
+
+  if (refs.txtToJsonSummary) {
+    if (locales.length === 0) {
+      refs.txtToJsonSummary.textContent = "Пока нет загруженных locale txt-файлов.";
+    } else {
+      const stats = locales.map((locale) => `${locale}: ${txtState.blocksCount?.[locale] || 0} block(s)`).join(" • ");
+      refs.txtToJsonSummary.textContent = `${cleanText(txtState.folderName) || "Folder"} • ${stats}`;
+    }
+  }
+
+  if (refs.txtToJsonLocaleTabs) {
+    refs.txtToJsonLocaleTabs.innerHTML = "";
+    for (const locale of locales) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `locale-tab${locale === activeLocale ? " is-active" : ""}`;
+      button.textContent = locale;
+      button.addEventListener("click", () => {
+        state.legacyToolkit.txtToJson.activeLocale = locale;
+        renderTxtToJsonWorkspace();
+      });
+      refs.txtToJsonLocaleTabs.appendChild(button);
+    }
+  }
+
+  if (refs.txtToJsonOutput) {
+    refs.txtToJsonOutput.value = activeOutput?.content || "";
+  }
+
+  if (refs.txtToJsonWarnings) {
+    refs.txtToJsonWarnings.innerHTML = "";
+    const warnings = Array.isArray(txtState.warnings) ? txtState.warnings : [];
+    if (warnings.length > 0) {
+      refs.txtToJsonWarnings.innerHTML = warnings
+        .map((warning) => `<div class="txt-json-warning-item">${escHtml(warning)}</div>`)
+        .join("");
+    }
+  }
+
+  if (refs.copyTxtToJsonBtn) refs.copyTxtToJsonBtn.disabled = !activeOutput;
+  if (refs.downloadTxtToJsonCurrentBtn) refs.downloadTxtToJsonCurrentBtn.disabled = !activeOutput;
+  if (refs.downloadTxtToJsonAllBtn) refs.downloadTxtToJsonAllBtn.disabled = locales.length === 0;
+}
+
+function openTxtToJsonModal() {
+  openWorkspaceModal("txt-to-json");
+  renderTxtToJsonWorkspace();
+}
+
+async function processTxtToJsonFiles(files) {
+  const list = Array.from(files || []).filter(Boolean);
+  if (list.length === 0) {
+    return;
+  }
+
+  const firstFile = list[0];
+  const folderName = cleanText(firstFile.webkitRelativePath?.split("/")[0]) || cleanText(state.legacyToolkit.txtToJson.folderName) || "locale-folder";
+  const requestedBaseName = cleanText(state.legacyToolkit.txtToJson.baseName) || folderName;
+  const result = await buildTxtToJsonOutputs(list, requestedBaseName);
+
+  state.legacyToolkit.txtToJson.folderName = folderName;
+  state.legacyToolkit.txtToJson.baseName = result.baseName;
+  state.legacyToolkit.txtToJson.outputs = result.outputs;
+  state.legacyToolkit.txtToJson.warnings = result.warnings;
+  state.legacyToolkit.txtToJson.blocksCount = result.blocksCount;
+  state.legacyToolkit.txtToJson.activeLocale = Object.keys(result.outputs)[0] || "";
+  renderTxtToJsonWorkspace();
+  persistState();
+}
+
+function handleTxtToJsonBaseNameInput() {
+  const nextBaseName = cleanText(refs.txtToJsonBaseNameInput?.value) || "";
+  state.legacyToolkit.txtToJson.baseName = nextBaseName;
+  Object.values(state.legacyToolkit.txtToJson.outputs || {}).forEach((entry) => {
+    if (entry && typeof entry === "object") {
+      entry.fileName = `${nextBaseName || "locale-bundle"}.json`;
+    }
+  });
+  renderTxtToJsonWorkspace();
+  persistState();
+}
+
+async function handleTxtToJsonFolderInputChange(event) {
+  const files = Array.from(event.target?.files || []);
+  await processTxtToJsonFiles(files);
+  if (refs.txtToJsonFolderInput) {
+    refs.txtToJsonFolderInput.value = "";
+  }
+}
+
+function handleTxtToJsonDragOver(event) {
+  event.preventDefault();
+  refs.txtToJsonDropzone?.classList.add("is-dragover");
+}
+
+function handleTxtToJsonDragLeave() {
+  refs.txtToJsonDropzone?.classList.remove("is-dragover");
+}
+
+async function handleTxtToJsonDrop(event) {
+  event.preventDefault();
+  refs.txtToJsonDropzone?.classList.remove("is-dragover");
+  const files = Array.from(event.dataTransfer?.files || []);
+  await processTxtToJsonFiles(files);
+}
+
+function getTxtToJsonActiveOutput() {
+  const txtState = state.legacyToolkit?.txtToJson || {};
+  return txtState.outputs?.[txtState.activeLocale] || null;
+}
+
+async function copyTxtToJsonCurrentOutput() {
+  const activeOutput = getTxtToJsonActiveOutput();
+  if (!activeOutput?.content) return;
+  try {
+    await copyTextToClipboard(activeOutput.content);
+    state.messages.push({
+      role: "assistant",
+      content: `Скопировал JSON для локали ${activeOutput.locale} в буфер обмена.`
+    });
+    renderAll();
+  } catch (error) {
+    state.messages.push({
+      role: "assistant",
+      content: `Не смог скопировать JSON: ${error.message}`
+    });
+    renderAll();
+  }
+}
+
+function downloadTextFile(fileName, content, mimeType = "application/json;charset=utf-8") {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = fileName;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 500);
+}
+
+function downloadTxtToJsonCurrentOutput() {
+  const activeOutput = getTxtToJsonActiveOutput();
+  if (!activeOutput?.content) return;
+  downloadTextFile(activeOutput.fileName, activeOutput.content);
+}
+
+function downloadTxtToJsonAllOutputs() {
+  const outputs = state.legacyToolkit?.txtToJson?.outputs || {};
+  Object.values(outputs).forEach((entry) => {
+    if (entry?.content && entry?.locale) {
+      const prefix = cleanText(entry.locale);
+      downloadTextFile(`${prefix}-${entry.fileName || "locale.json"}`, entry.content);
+    }
+  });
+}
+
+function handleWorkbenchConvertPdf() {
+  const html = getCurrentPreviewHtml();
+  if (!cleanText(html)) {
+    state.messages.push({
+      role: "assistant",
+      content: "Пока нечего отправлять в PDF. Сначала открой письмо, draft или собери preview."
+    });
+    renderAll();
+    return;
+  }
+
+  const popup = window.open("", "_blank", "noopener,noreferrer,width=1200,height=900");
+  if (!popup) {
+    state.messages.push({
+      role: "assistant",
+      content: "Браузер заблокировал окно печати. Разреши pop-up и попробуй ещё раз."
+    });
+    renderAll();
+    return;
+  }
+
+  popup.document.open();
+  popup.document.write(simulatePreviewHtml(html, state.settings.clientProfileId));
+  popup.document.close();
+  popup.focus();
+  setTimeout(() => popup.print(), 250);
 }
 
 // ─── Template Browser ─────────────────────────────────────────────────────────
@@ -3176,6 +4351,10 @@ function openScaffoldModal(brand, templateMailId) {
 
 function escHtml(str) {
   return String(str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+function escapeRegExp(str) {
+  return String(str || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 // ─── Load Base Email ───────────────────────────────────────────────────────────
@@ -3672,15 +4851,103 @@ function closeWorkspaceModal() {
   renderWorkspaceModals();
 }
 
+function handleCloseCodeSurface() {
+  if (state.workbenchOpen) {
+    closeWorkbench();
+    return;
+  }
+  closeWorkspaceModal();
+}
+
 function openLocalesModal() {
   prepareLocaleEditor();
   openWorkspaceModal("locales");
 }
 
+function openPlaceholdersModal() {
+  openWorkspaceModal("placeholders");
+}
+
 function openCodeModal() {
   syncCodeSelectionWithPreviewLocale();
   syncCodeEditorBufferForActiveContext(true);
+  if (state.workbenchOpen) {
+    refs.codeModal?.scrollIntoView({ behavior: "smooth", block: "start" });
+    renderCode();
+    return;
+  }
   openWorkspaceModal("code");
+}
+
+function rememberWorkbenchOrigins() {
+  if (refs.previewStack && !workbenchMount.previewParent) {
+    workbenchMount.previewParent = refs.previewStack.parentNode;
+    workbenchMount.previewNextSibling = refs.previewStack.nextSibling;
+  }
+  if (refs.codeModal && !workbenchMount.codeParent) {
+    workbenchMount.codeParent = refs.codeModal.parentNode;
+    workbenchMount.codeNextSibling = refs.codeModal.nextSibling;
+  }
+}
+
+function restoreWorkbenchNode(node, parent, nextSibling) {
+  if (!node || !parent) return;
+  if (nextSibling && nextSibling.parentNode === parent) {
+    parent.insertBefore(node, nextSibling);
+  } else {
+    parent.appendChild(node);
+  }
+}
+
+function renderWorkbenchShell() {
+  if (!refs.workbenchShell || !refs.workbenchCodeDock || !refs.workbenchPreviewDock) {
+    return;
+  }
+
+  rememberWorkbenchOrigins();
+  refs.workbenchShell.hidden = !state.workbenchOpen;
+  refs.mainGrid?.classList.toggle("is-workbench-active", state.workbenchOpen);
+  refs.pageShell?.classList.toggle("is-workbench-mode", state.workbenchOpen);
+  refs.toggleWorkbenchBtn?.classList.toggle("is-active", state.workbenchOpen);
+
+  if (refs.toggleWorkbenchBtn) {
+    refs.toggleWorkbenchBtn.textContent = state.workbenchOpen ? "Workbench • ON" : "Workbench";
+  }
+
+  if (state.workbenchOpen) {
+    refs.codeModal?.classList.add("workbench-docked");
+    if (refs.previewStack) refs.workbenchPreviewDock.appendChild(refs.previewStack);
+    if (refs.codeModal) refs.workbenchCodeDock.appendChild(refs.codeModal);
+    renderWorkbenchToolbar();
+  } else {
+    refs.codeModal?.classList.remove("workbench-docked");
+    restoreWorkbenchNode(refs.previewStack, workbenchMount.previewParent, workbenchMount.previewNextSibling);
+    restoreWorkbenchNode(refs.codeModal, workbenchMount.codeParent, workbenchMount.codeNextSibling);
+  }
+}
+
+function openWorkbench() {
+  state.workbenchOpen = true;
+  state.workspaceModal = "";
+  syncCodeSelectionWithPreviewLocale();
+  syncCodeEditorBufferForActiveContext(true);
+  renderAll();
+  refs.workbenchShell?.scrollIntoView({ behavior: "smooth", block: "start" });
+  persistState();
+}
+
+function closeWorkbench() {
+  state.workbenchOpen = false;
+  renderAll();
+  persistState();
+}
+
+function toggleWorkbench() {
+  if (state.workbenchOpen) {
+    closeWorkbench();
+  } else {
+    openWorkbench();
+  }
 }
 
 async function openRulesModal() {
@@ -3818,13 +5085,48 @@ function saveLocaleEdits() {
 }
 
 function saveCodeEdits() {
-  if (!state.draft) {
-    return;
-  }
-
   const selectedKey = codeMap[state.activeTab];
   const activeFile = getCurrentCodeFile();
   const nextValue = refs.codeOutput.value;
+
+  if (!state.draft) {
+    if (state.activeTab === "html") {
+      state.baseEmailHtml = nextValue;
+      state.legacyToolkit.sourceHtml = nextValue;
+      renderAll();
+      persistState();
+      return;
+    }
+
+    if (state.activeTab === "locales") {
+      const docs = buildLocaleEditorDocs();
+      const targetLocale = cleanText(activeFile?.locale || getCurrentPreviewLocale() || state.brief.locale || "en");
+      const targetName = cleanText(activeFile?.label || activeFile?.path || `${targetLocale}.txt`);
+      const nextDocs = docs.length > 0 ? [...docs] : [{ locale: targetLocale, name: targetName, content: "" }];
+      const existingIndex = nextDocs.findIndex((doc) => cleanText(doc.locale) === targetLocale || cleanText(doc.name) === targetName);
+      const nextDoc = {
+        locale: targetLocale,
+        name: targetName,
+        content: nextValue
+      };
+      if (existingIndex >= 0) {
+        nextDocs[existingIndex] = nextDoc;
+      } else {
+        nextDocs.push(nextDoc);
+      }
+      state.translationText = nextDocs
+        .map((doc) => `=== FILE: ${doc.name} ===\n${cleanText(doc.content)}`)
+        .join("\n\n");
+      state.translationUploadStatus = `Locale bundle updated in code pane. ${nextDocs.length} locale file(s).`;
+      prepareLocaleEditor();
+      renderAll();
+      persistState();
+      return;
+    }
+
+    return;
+  }
+
   state.draft[selectedKey] = nextValue;
 
   if (activeFile) {
@@ -3956,6 +5258,7 @@ function renderAll() {
   renderSettingsInfo();
   renderSettingsDrawer();
   renderWorkspaceModals();
+  renderWorkbenchShell();
   renderPreviewViewportButtons();
   renderPreviewLocaleTabs();
   renderPreview();
@@ -4153,6 +5456,17 @@ function renderFields() {
   refs.fields.contentNotes.value = state.brief.contentNotes;
   refs.fields.designUrl.value = state.brief.designUrl;
   refs.fields.translationText.value = state.translationText;
+
+  // Brand style overrides
+  const bs = state.brief.brandStyle || {};
+  if (refs.fields.brandPrimaryColor) refs.fields.brandPrimaryColor.value = bs.primaryColor || "#FF7700";
+  if (refs.fields.brandPrimaryColorHex) refs.fields.brandPrimaryColorHex.value = bs.primaryColor || "";
+  if (refs.fields.brandButtonTextColor) refs.fields.brandButtonTextColor.value = bs.buttonTextColor || "#FFFFFF";
+  if (refs.fields.brandButtonTextColorHex) refs.fields.brandButtonTextColorHex.value = bs.buttonTextColor || "";
+  if (refs.fields.brandBgColor) refs.fields.brandBgColor.value = bs.bgColor || "#101314";
+  if (refs.fields.brandBgColorHex) refs.fields.brandBgColorHex.value = bs.bgColor || "";
+  if (refs.fields.brandButtonRadius) refs.fields.brandButtonRadius.value = bs.buttonRadius || "";
+  if (refs.fields.brandBodySize) refs.fields.brandBodySize.value = bs.bodySize || "";
 }
 
 function renderTranslationUploadStatus() {
@@ -4224,11 +5538,14 @@ function renderAttachmentSummary() {
 
 function renderWorkspaceModals() {
   const active = state.workspaceModal;
-  refs.workspaceModalBackdrop.hidden = !active;
+  refs.workspaceModalBackdrop.hidden = !active || (state.workbenchOpen && active === "code");
   toggleModalVisibility(refs.contextModal, active === "context");
   toggleModalVisibility(refs.localesModal, active === "locales");
+  toggleModalVisibility(refs.placeholdersModal, active === "placeholders");
   toggleModalVisibility(refs.assetsModal, active === "assets");
-  toggleModalVisibility(refs.codeModal, active === "code");
+  toggleModalVisibility(refs.brandsModal, active === "brands");
+  toggleModalVisibility(refs.txtToJsonModal, active === "txt-to-json");
+  toggleModalVisibility(refs.codeModal, state.workbenchOpen || active === "code");
   toggleModalVisibility(refs.rulesModal, active === "rules");
   toggleModalVisibility(refs.journalModal, active === "journal");
   toggleModalVisibility(refs.testsModal, active === "tests");
@@ -4243,8 +5560,20 @@ function renderWorkspaceModals() {
     renderLocaleEditor();
   }
 
+  if (active === "placeholders") {
+    renderPlaceholdersModal();
+  }
+
   if (active === "code") {
     renderCode();
+  }
+
+  if (active === "brands") {
+    renderLegacyBrandsModal();
+  }
+
+  if (active === "txt-to-json") {
+    renderTxtToJsonWorkspace();
   }
 
   if (active === "assets") {
@@ -4304,6 +5633,85 @@ function renderLocaleEditor() {
     ? `${activeDoc.name} | ${countLocaleBlocks(activeDoc.content)} blocks`
     : "Пока нет локалей.";
   refs.localeEditor.value = activeDoc?.content || "";
+}
+
+function collectWorkbenchPlaceholderDetails() {
+  const sources = [
+    { key: "html", label: "HTML", content: getCurrentPreviewHtml() },
+    { key: "base", label: "Base HTML", content: cleanText(state.baseEmailHtml) || cleanText(state.legacyToolkit?.sourceHtml) },
+    { key: "locales", label: "Locales", content: cleanText(state.translationText) || cleanText(state.draft?.locales) },
+    { key: "spec", label: "Mail spec", content: cleanText(state.draft?.spec) }
+  ];
+  const placeholderPattern = /(\$\{\{[^{}]+\}\}\$|\{\{[^{}]+\}\})/g;
+  const registry = new Map();
+
+  for (const source of sources) {
+    const matches = String(source.content || "").match(placeholderPattern) || [];
+    for (const match of matches) {
+      const token = cleanText(match);
+      if (!token) continue;
+      const item = registry.get(token) || { token, count: 0, sources: new Set() };
+      item.count += 1;
+      item.sources.add(source.label);
+      registry.set(token, item);
+    }
+  }
+
+  return Array.from(registry.values())
+    .sort((a, b) => b.count - a.count || a.token.localeCompare(b.token))
+    .map((entry) => ({
+      token: entry.token,
+      count: entry.count,
+      sources: Array.from(entry.sources)
+    }));
+}
+
+function renderPlaceholdersModal() {
+  if (!refs.placeholdersTokenList || !refs.placeholdersModalMeta) {
+    return;
+  }
+
+  const tokens = collectWorkbenchPlaceholderDetails();
+  const locale = getCurrentPreviewLocale() || cleanText(state.brief.locale) || "en";
+  refs.placeholdersModalMeta.textContent = tokens.length > 0
+    ? `Нашли ${tokens.length} token(s) для текущего письма. Активная локаль: ${locale}. Это рабочий список для оператора и AI.`
+    : "Пока нет токенов. Загрузите письмо, локали или draft, и список появится здесь.";
+
+  refs.placeholdersTokenList.innerHTML = "";
+  if (tokens.length === 0) {
+    refs.placeholdersTokenList.appendChild(createTextCard("Плейсхолдеров пока нет."));
+    return;
+  }
+
+  refs.placeholdersTokenList.innerHTML = tokens.map((entry) => `
+    <article class="placeholder-token-item">
+      <div class="placeholder-token-head">
+        <code>${escHtml(entry.token)}</code>
+        <span class="placeholder-token-count">${entry.count}x</span>
+      </div>
+      <div class="placeholder-token-sources">
+        ${entry.sources.map((source) => `<span class="placeholder-token-source">${escHtml(source)}</span>`).join("")}
+      </div>
+    </article>
+  `).join("");
+}
+
+async function handleCopyPlaceholders() {
+  const tokens = collectWorkbenchPlaceholderDetails();
+  if (tokens.length === 0) {
+    return;
+  }
+  const payload = tokens.map((entry) => `${entry.token}  // ${entry.sources.join(", ")} • ${entry.count}x`).join("\n");
+  try {
+    await navigator.clipboard.writeText(payload);
+    state.messages.push({
+      role: "assistant",
+      content: `Скопировал ${tokens.length} плейсхолдер(ов) в буфер обмена.`
+    });
+    renderMessages();
+  } catch (error) {
+    console.error("[placeholders] copy failed", error);
+  }
 }
 
 function renderBlocks() {
@@ -4607,18 +6015,18 @@ function renderStatus() {
   const providerRuntime = getActiveProviderRuntime();
   const hasProviderIssue = Boolean(providerRuntime?.fallback && providerRuntime?.issueCode);
   const isLive = state.settings.providerId === "openai"
-    && state.api.openAiConfigured
+    && isOpenAiConfigured()
     && !hasProviderIssue;
   let statusText = "Генерирую...";
   if (!state.busy) {
     if (hasProviderIssue) {
       statusText = `${providerLabel}: ${formatProviderIssue(providerRuntime)}`;
-    } else if (state.settings.providerId === "openai" && !state.api.openAiConfigured) {
+    } else if (state.settings.providerId === "openai" && !isOpenAiConfigured()) {
       statusText = `${providerLabel}: нет OPENAI_API_KEY, работает mock mode`;
     } else if (state.settings.providerId === "mock") {
       statusText = "Mock mode: без vision-разбора и без реального AI ответа";
     } else {
-      statusText = `${providerLabel}: ${state.api.openAiConfigured ? state.api.model : "demo mode"}`;
+      statusText = `${providerLabel}: ${isOpenAiConfigured() ? (state.api.model || state.api?.config?.openAiModel || "configured") : "demo mode"}`;
     }
   }
 
@@ -4631,6 +6039,18 @@ function renderStatus() {
       ? "LIVE AI"
       : "MOCK / FALLBACK";
   refs.aiModePill.dataset.state = hasProviderIssue ? "error" : isLive ? "live" : "mock";
+
+  // Token usage pill — shown only when there's been at least one AI call
+  const tokenUsage = state.api?.tokenUsage;
+  if (refs.tokenPill && tokenUsage?.calls > 0) {
+    const total = tokenUsage.totalTokens || 0;
+    const calls = tokenUsage.calls || 0;
+    const label = total >= 1000 ? `🪙 ${(total / 1000).toFixed(1)}k` : `🪙 ${total}`;
+    refs.tokenPill.textContent = `${label} spent · ${calls} req`;
+    refs.tokenPill.title = `Расход за текущую сессию сервера: ${total.toLocaleString()} токенов (${tokenUsage.inputTokens?.toLocaleString() || 0} вход + ${tokenUsage.outputTokens?.toLocaleString() || 0} выход) · ${calls} запросов. Остаток квоты OpenAI API этот индикатор не показывает.`;
+    refs.tokenPill.hidden = false;
+  }
+
   refs.modeValue.textContent = state.mode;
   refs.loadBaseBtn.disabled = state.busy;
   refs.createBaseMailBtn.disabled = state.busy;
@@ -4653,7 +6073,7 @@ function renderStatus() {
   refs.openLocalesQuickBtn.disabled = state.busy;
   refs.openAssetsQuickBtn.disabled = state.busy;
   refs.openCodeQuickBtn.disabled = state.busy;
-  refs.openTestsBtn.disabled = state.busy;
+  if (refs.openTestsBtn) refs.openTestsBtn.disabled = state.busy;
   refs.openTestsQuickBtn.disabled = state.busy;
   refs.openRulesBtn.disabled = state.busy;
   refs.openJournalBtn.disabled = state.busy;
@@ -4700,6 +6120,9 @@ function renderStatus() {
 function renderSummary() {
   const mail = state.draft?.mail;
   const previewLocale = getCurrentPreviewLocale();
+  const templateSelection = state.draft?.templateSelection && typeof state.draft.templateSelection === "object"
+    ? state.draft.templateSelection
+    : null;
 
   const hasDraft = !!mail?.subject;
   const summaryBar = document.querySelector("#previewSummaryBar");
@@ -4719,8 +6142,8 @@ function renderSummary() {
   if (refs.mailIdValue) {
     // Only show mail ID chip once a draft exists
     if (hasDraft) {
-      const cat = state.brief.category || "";
-      const mid = state.brief.mailId || "";
+      const cat = cleanText(templateSelection?.category) || state.brief.category || "";
+      const mid = cleanText(templateSelection?.mailId) || state.brief.mailId || "";
       refs.mailIdValue.textContent = cat && mid ? `${cat}/mail-${mid}` : (cat || mid || "");
     } else {
       refs.mailIdValue.textContent = "";
@@ -4762,11 +6185,14 @@ function buildAssistantNote() {
 
 function renderPreview() {
   const baseHtml = getCurrentPreviewHtml();
+  const blockedPreview = state.draft?.previewBlocked && typeof state.draft.previewBlocked === "object"
+    ? buildBlockedPreviewHtml(state.draft.previewBlocked)
+    : "";
   const showSkeleton = state.busy && !baseHtml;
   refs.previewStage.dataset.viewport = state.previewViewport || "fit";
   if (refs.previewSkeleton) refs.previewSkeleton.classList.toggle("is-visible", showSkeleton);
   refs.previewFrame.style.display = showSkeleton ? "none" : "";
-  const simulated = simulatePreviewHtml(baseHtml, state.settings.clientProfileId);
+  const simulated = simulatePreviewHtml(blockedPreview || baseHtml, state.settings.clientProfileId);
   refs.previewFrame.srcdoc = simulated;
 }
 
@@ -4774,6 +6200,9 @@ function renderPreviewViewportButtons() {
   for (const button of refs.previewViewportButtons) {
     button.classList.toggle("is-active", button.dataset.previewViewport === state.previewViewport);
   }
+  refs.workbenchPreviewRailButtons?.forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.workbenchViewport === state.previewViewport);
+  });
 }
 
 // ─── Image Slot Panel ──────────────────────────────────────────────────────
@@ -5175,9 +6604,14 @@ ${footerHtml}
 function renderPreviewLocaleTabs() {
   const locales = getAvailableDraftLocales();
   refs.previewLocaleTabs.innerHTML = "";
-  // locale row is visible only when there are multiple locales to switch between
+
+  // Show locale row when: multiple locales exist, OR we're in saved email-base mode (so "+ Locale" is always accessible)
+  const isSavedEmailBase = String(state.previewSource || "").startsWith("email-base") && cleanText(state.brief.category) && cleanText(state.brief.mailId);
   const multiLocale = locales.length > 1;
-  refs.previewLocaleRow.hidden = !multiLocale;
+  refs.previewLocaleRow.hidden = !multiLocale && !isSavedEmailBase;
+
+  // Show/hide the "+ Locale" button — only when we have a real saved email
+  if (refs.addLocaleBtn) refs.addLocaleBtn.hidden = !isSavedEmailBase;
 
   if (!state.draft?.html) {
     return;
@@ -5201,6 +6635,119 @@ function renderPreviewLocaleTabs() {
 function renderTabs() {
   for (const tab of refs.codeTabs) {
     tab.classList.toggle("is-active", tab.dataset.tab === state.activeTab);
+  }
+}
+
+function collectWorkbenchPlaceholders() {
+  const tokens = new Set();
+  const sources = [
+    getCurrentPreviewHtml(),
+    cleanText(getCurrentCodeFile()?.content),
+    cleanText(state.baseEmailHtml),
+    cleanText(state.draft?.pug),
+    cleanText(state.draft?.locales),
+    cleanText(state.draft?.spec)
+  ];
+
+  const placeholderPattern = /(\$\{\{[^{}]+\}\}\$|\{\{[^{}]+\}\})/g;
+  for (const source of sources) {
+    if (!source) continue;
+    const matches = source.match(placeholderPattern) || [];
+    for (const match of matches) {
+      tokens.add(match.trim());
+    }
+  }
+
+  return Array.from(tokens);
+}
+
+function renderWorkbenchToolbar() {
+  if (!refs.workbenchShell) {
+    return;
+  }
+
+  if (refs.workbenchOpenLocalesBtn) {
+    const localeCount = getAvailableDraftLocales().length;
+    refs.workbenchOpenLocalesBtn.textContent = localeCount > 0 ? `Original Locales (${localeCount})` : "Original Locales";
+  }
+
+  if (refs.workbenchLocaleTabs) {
+    refs.workbenchLocaleTabs.innerHTML = "";
+    const locales = getAvailableDraftLocales();
+    const activeLocale = getCurrentPreviewLocale();
+
+    if (locales.length === 0) {
+      const empty = document.createElement("span");
+      empty.className = "workbench-summary-value";
+      empty.textContent = "Пока нет locale bundle.";
+      refs.workbenchLocaleTabs.appendChild(empty);
+    } else {
+      for (const locale of locales) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `locale-tab${locale === activeLocale ? " is-active" : ""}`;
+        button.textContent = locale;
+        button.addEventListener("click", () => setPreviewLocale(locale));
+        refs.workbenchLocaleTabs.appendChild(button);
+      }
+    }
+  }
+
+  if (refs.workbenchCodeTabs) {
+    refs.workbenchCodeTabs.innerHTML = "";
+    for (const tab of refs.codeTabs) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `tab${tab.dataset.tab === state.activeTab ? " is-active" : ""}`;
+      button.textContent = cleanText(tab.textContent) || cleanText(tab.dataset.tab).toUpperCase();
+      button.addEventListener("click", () => {
+        state.activeTab = cleanText(tab.dataset.tab) || "html";
+        syncCodeSelectionWithPreviewLocale();
+        syncCodeEditorBufferForActiveContext(true);
+        renderCode();
+        renderWorkbenchToolbar();
+        persistState();
+      });
+      refs.workbenchCodeTabs.appendChild(button);
+    }
+  }
+
+  if (refs.workbenchCurrentMeta) {
+    const summaryParts = [
+      cleanText(state.draft?.mail?.mailId || state.brief.mailId) || "mail draft",
+      cleanText(state.previewSource) || "draft",
+      cleanText(getCurrentPreviewLocale()) || "en",
+      cleanText(state.design?.name) || cleanText(state.design?.figmaSelectionName) || ""
+    ].filter(Boolean);
+    refs.workbenchCurrentMeta.textContent = summaryParts.join(" • ");
+  }
+
+  refs.workbenchPreviewRailButtons?.forEach((button) => {
+    button.classList.toggle("is-active", cleanText(button.dataset.workbenchViewport) === cleanText(state.previewViewport));
+  });
+
+  const placeholders = collectWorkbenchPlaceholders();
+  if (refs.workbenchPlaceholderSummary) {
+    refs.workbenchPlaceholderSummary.textContent = placeholders.length > 0
+      ? `${placeholders.length} токен(ов) найдено в текущем письме. Ниже самые важные для оператора.`
+      : "Пока нет данных: сначала загрузи письмо, draft или локали.";
+  }
+
+  if (refs.workbenchPlaceholderChips) {
+    refs.workbenchPlaceholderChips.innerHTML = "";
+    const visible = placeholders.slice(0, 10);
+    for (const token of visible) {
+      const chip = document.createElement("span");
+      chip.className = "workbench-chip";
+      chip.textContent = token;
+      refs.workbenchPlaceholderChips.appendChild(chip);
+    }
+    if (placeholders.length > visible.length) {
+      const more = document.createElement("span");
+      more.className = "workbench-chip";
+      more.textContent = `+${placeholders.length - visible.length} more`;
+      refs.workbenchPlaceholderChips.appendChild(more);
+    }
   }
 }
 
@@ -5286,7 +6833,7 @@ function renderCode() {
   const activeFile = getCurrentCodeFile();
   const currentValue = cleanText(activeFile?.content) || "Код появится после первого draft или build.";
 
-  if (!state.codeEditorBuffer || refs.codeModal.getAttribute("aria-hidden") !== "false") {
+  if (!state.codeEditorBuffer || (!state.workbenchOpen && refs.codeModal.getAttribute("aria-hidden") !== "false")) {
     state.codeEditorBuffer = currentValue;
   }
 
@@ -5314,6 +6861,10 @@ function renderCode() {
         tabDescriptions[state.activeTab] || ""
       ].filter(Boolean).join(" • ")
     : "Можно смотреть текущее представление драфта.";
+
+  if (state.workbenchOpen) {
+    renderWorkbenchToolbar();
+  }
 }
 
 function renderAssets() {
@@ -6792,6 +8343,122 @@ function emptyPreview() {
 </html>`;
 }
 
+function missingLocalePreview(locale, primaryLocale) {
+  return `<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(180deg, #ecf2e7 0%, #f8f2e9 100%);
+        color: #1c3024;
+        font-family: "Avenir Next", "Segoe UI", sans-serif;
+      }
+      .placeholder {
+        max-width: 520px;
+        padding: 24px 28px;
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.84);
+        box-shadow: 0 20px 60px rgba(28, 48, 36, 0.12);
+        text-align: center;
+        line-height: 1.6;
+      }
+      strong {
+        display: block;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-size: 12px;
+      }
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="placeholder">
+      <strong>retantion future</strong>
+      Для локали <code>${escapeHtml(locale)}</code> отдельный HTML-превью еще не сгенерирован.
+      <br><br>
+      Сейчас доступен primary preview для <code>${escapeHtml(primaryLocale || "en")}</code>.
+      Письмо не потеряно: локаль есть в bundle, но AI не вернул отдельный locale-specific HTML.
+    </div>
+  </body>
+</html>`;
+}
+
+function buildBlockedPreviewHtml(blockedState) {
+  const title = cleanText(blockedState?.title) || "Preview temporarily blocked";
+  const body = cleanText(blockedState?.body) || "Studio could not produce a trustworthy preview for this input.";
+  const details = cleanText(blockedState?.details);
+  const nextStep = cleanText(blockedState?.nextStep);
+
+  return `<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(180deg, #ecf2e7 0%, #f8f2e9 100%);
+        color: #1c3024;
+        font-family: "Avenir Next", "Segoe UI", sans-serif;
+      }
+      .placeholder {
+        max-width: 620px;
+        padding: 28px 32px;
+        border-radius: 28px;
+        background: rgba(255, 255, 255, 0.88);
+        box-shadow: 0 20px 60px rgba(28, 48, 36, 0.12);
+        text-align: left;
+        line-height: 1.65;
+      }
+      strong {
+        display: block;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-size: 12px;
+      }
+      h1 {
+        margin: 0 0 14px;
+        font-size: 32px;
+        line-height: 1.1;
+      }
+      p {
+        margin: 0 0 14px;
+        font-size: 16px;
+      }
+      .muted {
+        color: #55685a;
+        font-size: 14px;
+      }
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="placeholder">
+      <strong>retantion future</strong>
+      <h1>${escapeHtml(title)}</h1>
+      <p>${escapeHtml(body)}</p>
+      ${details ? `<p class="muted"><code>${escapeHtml(details)}</code></p>` : ""}
+      ${nextStep ? `<p class="muted">${escapeHtml(nextStep)}</p>` : ""}
+    </div>
+  </body>
+</html>`;
+}
+
 function readFileAsDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -6971,7 +8638,7 @@ function buildLocaleEditorDocs() {
 
   const docsFromText = splitTranslationDocumentsForEditor(state.translationText)
     .map((doc) => ({
-      locale: extractLocaleFromEditorFileName(doc.name) || `locale_${Math.random().toString(36).slice(2, 6)}`,
+      locale: extractLocaleFromEditorFileName(doc.name) || cleanText(state.brief.locale || state.draft?.mail?.locale || "en"),
       name: doc.name,
       content: doc.content.trim()
     }))
@@ -7050,7 +8717,7 @@ function splitTranslationDocumentsForEditor(translationText) {
 }
 
 function extractLocaleFromEditorFileName(fileName) {
-  const match = cleanText(fileName).match(/_([a-z]{2}(?:[_-][A-Za-z]{2})?)(?:_|\.|$)/);
+  const match = cleanText(fileName).match(/(?:^|[_-])([a-z]{2}(?:[_-][A-Za-z]{2})?)(?=[_.-]|$)/i);
   return match ? match[1].replace("-", "_") : "";
 }
 

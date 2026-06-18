@@ -1,0 +1,20 @@
+{
+  "id": "social-icons",
+  "label": "Social icons row",
+  "description": "Горизонтальный ряд иконок соцсетей (FB / IG / TW / YT / TG). Inline — ставится в footer-cell или отдельной строкой.",
+  "placement": "inline",
+  "category": "footer",
+  "version": 1,
+  "source": "canonical",
+  "pug": "table.socials(role='presentation' align='center')\n    tr\n        td(align='center')\n            a.soc-link(href='{{ facebook }}' target='_blank')\n                img.soc-icon(src='https://fsms.quadcode.com/storage/public/cn/td/fb.png' alt='Facebook' width='24')\n            a.soc-link(href='{{ instagram }}' target='_blank')\n                img.soc-icon(src='https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7ve0/ig.png' alt='Instagram' width='24')\n            a.soc-link(href='{{ twitter }}' target='_blank')\n                img.soc-icon(src='https://fsms.quadcode.com/storage/public/d7/u4/r9p3i8as70fjdvvg/trading-dash-icon.png' alt='Twitter' width='24')\n            a.soc-link(href='{{ youtube }}' target='_blank')\n                img.soc-icon(src='https://fsms.iqoption.com/storage/public/cn/td/gb285cee2vclvjq0/yt.png' alt='YouTube' width='24')\n            a.soc-link(href='{{ telegram }}' target='_blank')\n                img.soc-icon(src='https://fsms.quadcode.com/storage/public/d5/ka/rf7vhhge5gv5vau0/tg.png' alt='Telegram' width='24')\n",
+  "styl": "table.socials { margin: 12px auto; }\ntable.socials a.soc-link { display: inline-block; margin: 0 8px; text-decoration: none; vertical-align: middle; }\ntable.socials img.soc-icon { display: inline-block; max-width: 24px; height: auto; border: 0; }\n",
+  "slots": [
+    { "id": "facebook",  "kind": "url", "label": "Facebook URL",  "default": "https://facebook.com/your-page" },
+    { "id": "instagram", "kind": "url", "label": "Instagram URL", "default": "https://instagram.com/your-account" },
+    { "id": "twitter",   "kind": "url", "label": "Twitter / X URL", "default": "https://twitter.com/your-handle" },
+    { "id": "youtube",   "kind": "url", "label": "YouTube URL",   "default": "https://youtube.com/your-channel" },
+    { "id": "telegram",  "kind": "url", "label": "Telegram URL",  "default": "https://t.me/your-channel" }
+  ],
+  "outlookSafe": true,
+  "tags": ["footer", "social", "icons", "inline"]
+}

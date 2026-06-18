@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RetKit — Email Constructor</title>
+  <link rel="stylesheet" href="/constructor.css" />
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <a class="brand" href="/workbench">← RetKit</a>
+      <span class="mode-label">🎨 Constructor</span>
+    </div>
+    <div class="topbar-right">
+      <input class="mail-name" id="mailName" placeholder="welcome-promo" value="welcome-demo" spellcheck="false" />
+      <button class="btn" id="previewBtn" title="Собрать письмо и показать превью">▶ Preview</button>
+      <button class="btn btn-primary" id="saveBtn" title="Сохранить в email-base/X_assembled/">💾 Save mail</button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <!-- LEFT: catalog -->
+    <aside class="catalog">
+      <div class="cat-filter">
+        <button class="cat-tab active" data-filter="section">Outer (sections)</button>
+        <button class="cat-tab" data-filter="inline">Inner (elements)</button>
+        <button class="cat-tab" data-filter="all">All</button>
+      </div>
+      <button class="btn author-new-btn" id="newBlockBtn" title="Создать новый блок с нуля (pug + stylus + слоты)">➕ Создать блок</button>
+      <div class="cat-list" id="catalogList">
+        <div class="cat-empty">Загрузка…</div>
+      </div>
+    </aside>
+
+    <!-- CENTER-LEFT: canvas (block stack) -->
+    <section class="canvas-pane">
+      <div class="canvas-header">
+        <span class="canvas-title">Структура</span>
+        <span class="canvas-hint" id="canvasHint">Кликни блок слева</span>
+      </div>
+      <ol class="canvas" id="canvas">
+        <li class="canvas-empty">Канвас пуст. Выбери блок слева.</li>
+      </ol>
+    </section>
+
+    <!-- CENTER: live preview -->
+    <section class="preview-pane">
+      <div class="preview-pane-header">
+        <span class="preview-pane-title">Превью</span>
+        <span class="preview-pane-status" id="livePreviewStatus">пусто</span>
+        <div class="preview-device-toggle">
+          <button class="dev-btn active" id="devDesktop" data-w="desktop" title="Desktop (600px)">🖥</button>
+          <button class="dev-btn" id="devMobile" data-w="mobile" title="Mobile (375px)">📱</button>
+          <button class="btn preview-fullscreen-btn" id="previewBtnFs" title="Открыть на весь экран">⛶</button>
+        </div>
+      </div>
+      <div class="preview-stage" id="previewStage">
+        <div class="preview-placeholder" id="previewPlaceholder">
+          Добавь блоки слева — здесь появится живое превью письма.<br><br>
+          Можно перетаскивать блоки прямо сюда, в письмо, а клик по блоку выделяет его для правки.
+        </div>
+        <iframe class="live-frame" id="liveFrame" sandbox="allow-same-origin"></iframe>
+        <div class="preview-overlay hidden" id="previewOverlay"><span class="spinner"></span> Собираю…</div>
+      </div>
+    </section>
+
+    <!-- RIGHT: slot inspector -->
+    <aside class="inspector">
+      <div class="insp-header">
+        <span class="insp-title">Свойства блока</span>
+      </div>
+      <div class="insp-body" id="inspectorBody">
+        <div class="insp-empty">Выбери блок на канвасе чтобы редактировать его поля.</div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- PREVIEW MODAL -->
+  <div class="preview-modal hidden" id="previewModal" role="dialog" aria-label="Preview">
+    <div class="preview-modal-bar">
+      <span class="preview-title">Preview</span>
+      <span class="preview-stats" id="previewStats"></span>
+      <button class="btn preview-close" id="previewClose">✕</button>
+    </div>
+    <iframe class="preview-frame" id="previewFrame" sandbox="allow-same-origin"></iframe>
+  </div>
+
+  <!-- BLOCK AUTHOR MODAL -->
+  <div class="author-modal hidden" id="authorModal" role="dialog" aria-label="Block author">
+    <div class="author-card">
+      <div class="author-bar">
+        <span class="author-title" id="authorTitle">➕ Новый блок</span>
+        <button class="btn preview-close" id="authorClose">✕</button>
+      </div>
+      <div class="author-body">
+        <div class="author-form">
+          <div class="author-row2">
+            <label>ID блока
+              <input id="abId" placeholder="my-hero" spellcheck="false" maxlength="64" /></label>
+            <label>Подпись
+              <input id="abLabel" placeholder="Мой hero-блок" maxlength="120" /></label>
+          </div>
+          <div class="author-row2">
+            <label>Placement
+              <select id="abPlacement">
+                <option value="section">section — секция письма</option>
+                <option value="inline">inline — элемент внутри секции</option>
+              </select></label>
+            <label>Категория
+              <input id="abCategory" placeholder="hero / cta / text…" value="misc" maxlength="40" /></label>
+          </div>
+          <label class="author-full">Описание
+            <input id="abDesc" placeholder="Коротко, для каталога" maxlength="400" /></label>
+          <label class="author-full">Pug <span class="author-hint">редактируемые места помечай {{ token }}</span>
+            <textarea id="abPug" spellcheck="false" placeholder="table.row.my-block(width='100%' cellpadding='0' cellspacing='0')&#10;  tr&#10;    td.my-block-td&#10;      p.my-block-text {{ text }}"></textarea></label>
+          <label class="author-full">Stylus <span class="author-hint">блок-локальные стили; {{ token }} тоже работают</span>
+            <textarea id="abStyl" spellcheck="false" placeholder=".my-block-td&#10;  padding 24px&#10;  background {{ bg_color }}"></textarea></label>
+          <div class="author-slots">
+            <div class="author-slots-title">Слоты <span class="author-hint">автоопределены из {{ }} — настрой тип и default</span></div>
+            <div id="abSlotList"><div class="author-hint" style="padding:6px 0">Пока нет {{ token }} в коде.</div></div>
+          </div>
+        </div>
+        <div class="author-preview">
+          <div class="author-preview-head">
+            <span>Живое превью</span>
+            <span id="abStatus" class="preview-pane-status">пусто</span>
+          </div>
+          <iframe id="abFrame" sandbox="allow-same-origin"></iframe>
+        </div>
+      </div>
+      <div class="author-footer">
+        <span class="author-hint" id="abFootHint">Блок сохранится в «My blocks» и сразу появится в каталоге.</span>
+        <div style="display:flex;gap:8px">
+          <button class="btn" id="abCancel">Отмена</button>
+          <button class="btn btn-primary" id="abSave">💾 Сохранить блок</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/constructor.js"></script>
+</body>
+</html>

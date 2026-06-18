@@ -1,0 +1,7 @@
+{
+  "raw_test": {
+    "block_00": "Welcome to the Studio",
+    "block_01": "This is a raw HTML import test — no Pug or Stylus involved.",
+    "block_02": "Try it out"
+  }
+}

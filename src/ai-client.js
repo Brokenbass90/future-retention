@@ -13,15 +13,16 @@
 
 import {
   responseSchema,
+  cloneEditResponseSchema,
   translationResponseSchema,
   designAnalysisSchema
 } from "./ai-schemas.js";
 
-export { responseSchema, translationResponseSchema, designAnalysisSchema };
+export { responseSchema, translationResponseSchema, designAnalysisSchema, cloneEditResponseSchema };
 
 const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
 const AI_RETRY_MAX = 3;
-const AI_TIMEOUT_MS = 45_000;
+const AI_TIMEOUT_MS = 120_000;
 const AI_NO_RETRY_CODES = new Set(["invalid_api_key", "billing_hard_limit_reached", "model_not_found"]);
 
 // ─── Core retry wrapper ───────────────────────────────────────────────────────
@@ -36,12 +37,25 @@ const AI_NO_RETRY_CODES = new Set(["invalid_api_key", "billing_hard_limit_reache
  * @param {Function} [opts.logger]   Optional fn(entry) for journal logging
  * @returns {Promise<object>} Raw OpenAI API response
  */
-export async function callOpenAiWithRetry(buildRequestFn, { label = "ai-call", apiKey, logger } = {}) {
+export async function callOpenAiWithRetry(
+  buildRequestFn,
+  { label = "ai-call", apiKey, logger, onUsage, timeoutMs = AI_TIMEOUT_MS, retryMax = AI_RETRY_MAX } = {}
+) {
+  // Test hook: when globalThis.__OPENAI_TEST_MOCK is set to a function,
+  // route every AI call through it instead of hitting the network.
+  // The mock receives ({ label, body, attempt }) and returns the parsed
+  // Responses-API payload. Used by scripts/test-agent-loop.mjs to validate
+  // the agent flow without spending tokens. Production code never sets it.
+  if (typeof globalThis.__OPENAI_TEST_MOCK === "function") {
+    const { body } = await buildRequestFn();
+    return globalThis.__OPENAI_TEST_MOCK({ label, body, attempt: 1 });
+  }
+
   let lastError;
 
-  for (let attempt = 1; attempt <= AI_RETRY_MAX; attempt++) {
+  for (let attempt = 1; attempt <= retryMax; attempt++) {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), AI_TIMEOUT_MS);
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
     try {
       const { url = OPENAI_RESPONSES_URL, body, headers: extraHeaders = {} } = await buildRequestFn();
@@ -60,6 +74,11 @@ export async function callOpenAiWithRetry(buildRequestFn, { label = "ai-call", a
 
       const data = await response.json();
 
+      // Track token usage if callback provided and usage present in response
+      if (onUsage && data?.usage) {
+        try { onUsage(data.usage); } catch { /* non-blocking */ }
+      }
+
       if (!response.ok) {
         const errMsg = data?.error?.message || `HTTP ${response.status}`;
         const errCode = data?.error?.code || data?.error?.type || "";
@@ -74,7 +93,7 @@ export async function callOpenAiWithRetry(buildRequestFn, { label = "ai-call", a
         }
 
         lastError = new Error(errMsg);
-        if (attempt < AI_RETRY_MAX) {
+        if (attempt < retryMax) {
           const backoffMs = 1000 * Math.pow(2, attempt - 1);
           console.warn(`[ai] ${label} attempt ${attempt} failed: ${errMsg}. Retry in ${backoffMs}ms`);
           await new Promise((r) => setTimeout(r, backoffMs));
@@ -86,14 +105,14 @@ export async function callOpenAiWithRetry(buildRequestFn, { label = "ai-call", a
     } catch (err) {
       clearTimeout(timeoutId);
       const isTimeout = err.name === "AbortError";
-      const msg = isTimeout ? `AI timeout after ${AI_TIMEOUT_MS}ms` : err.message;
+      const msg = isTimeout ? `AI timeout after ${timeoutMs}ms` : err.message;
 
       if (logger) {
-        try { logger({ level: "error", area: "ai-client", title: `AI ${isTimeout ? "timeout" : "error"} (${label}) [${attempt}/${AI_RETRY_MAX}]`, message: msg }); } catch { /* non-blocking */ }
+        try { logger({ level: "error", area: "ai-client", title: `AI ${isTimeout ? "timeout" : "error"} (${label}) [${attempt}/${retryMax}]`, message: msg }); } catch { /* non-blocking */ }
       }
 
       lastError = new Error(msg);
-      if (attempt < AI_RETRY_MAX) {
+      if (attempt < retryMax) {
         const backoffMs = 1000 * Math.pow(2, attempt - 1);
         console.warn(`[ai] ${label} attempt ${attempt}: ${msg}. Retry in ${backoffMs}ms`);
         await new Promise((r) => setTimeout(r, backoffMs));
@@ -101,7 +120,7 @@ export async function callOpenAiWithRetry(buildRequestFn, { label = "ai-call", a
     }
   }
 
-  throw lastError || new Error(`AI request failed after ${AI_RETRY_MAX} attempts`);
+  throw lastError || new Error(`AI request failed after ${retryMax} attempts`);
 }
 
 // ─── Response text extractor ──────────────────────────────────────────────────

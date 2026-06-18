@@ -105,6 +105,28 @@ export const responseSchema = {
           }
         },
 
+        // pug_blocks: PRODUCTION Pug code using vendor mixins — the real template content.
+        // This is the primary output for email assembly. Write real Pug using vendor mixins:
+        //   +vml-bg(imgUrl, bgColor, 580, 320) { ... content ... }
+        //   +col3_icon_text(img1,title1,text1, img2,title2,text2, img3,title3,text3)
+        //   +general-btn(fontSize, lineH, bgColor, textColor, fontW, border, radius, link, text, class)
+        //   +top_img_100(src, link, class)  +cta-two-column-table(...)  +person(...)
+        // label: short identifier (e.g. "hero", "features", "cta", "footer")
+        // pug_code: valid Pug snippet to insert into the email template's header.pug block
+        // Leave as empty array [] in clone-edit and scaffold modes.
+        pug_blocks: {
+          type: "array",
+          items: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              label:    { type: "string" },
+              pug_code: { type: "string" }
+            },
+            required: ["label", "pug_code"]
+          }
+        },
+
         // brand_theme: extracted from design screenshot — used to patch template styles
         // Fill when the user provides a design with brand-specific colors/styles
         // Leave all fields as empty string "" when no design/theme is provided
@@ -138,7 +160,68 @@ export const responseSchema = {
         }
       },
       required: ["subject", "preheader", "locale", "summary", "sections", "assets", "translations",
-                 "modified_html", "locale_entries", "brand_theme"]
+                 "modified_html", "locale_entries", "brand_theme", "pug_blocks"]
+    }
+  },
+  required: ["assistant_reply", "mail"]
+};
+
+// ─── Clone-edit schema ────────────────────────────────────────────────────────
+
+// Lightweight schema for "edit existing HTML email" mode.
+// We do not ask the model to regenerate sections/assets/pug blocks here,
+// because that slows down the response and is unnecessary for HTML-preserving edits.
+export const cloneEditResponseSchema = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    assistant_reply: { type: "string" },
+    mail: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        subject: { type: "string" },
+        preheader: { type: "string" },
+        locale: { type: "string" },
+        summary: { type: "string" },
+        modified_html: { type: "string" },
+        localized_html: {
+          type: "array",
+          items: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              locale: { type: "string" },
+              html: { type: "string" }
+            },
+            required: ["locale", "html"]
+          }
+        },
+        translations: {
+          type: "array",
+          items: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              locale: { type: "string" },
+              subject: { type: "string" },
+              preheader: { type: "string" },
+              cta_labels: {
+                type: "array",
+                items: { type: "string" }
+              },
+              notes: { type: "string" },
+              body_blocks: {
+                type: "array",
+                items: { type: "string" }
+              },
+              source_name: { type: "string" }
+            },
+            required: ["locale", "subject", "preheader", "cta_labels", "notes", "body_blocks", "source_name"]
+          }
+        }
+      },
+      required: ["subject", "preheader", "locale", "summary", "modified_html", "localized_html", "translations"]
     }
   },
   required: ["assistant_reply", "mail"]
@@ -193,6 +276,82 @@ export const designAnalysisSchema = {
         reference_family: { type: "string" },
         reference_variant: { type: "string" },
         brand_hint: { type: "string" },
+        visual_hints: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            layout_style: {
+              type: "string",
+              enum: ["centered-transactional-card", "hero-promo-band", "multi-band", "plain", ""]
+            },
+            title_scale: {
+              type: "string",
+              enum: ["hero", "default", "compact"]
+            },
+            logo_scale: {
+              type: "string",
+              enum: ["wide", "default", "compact"]
+            },
+            card_width: {
+              type: "string",
+              enum: ["wide", "default", "narrow"]
+            },
+            button_width: {
+              type: "string",
+              enum: ["wide", "default", "compact"]
+            },
+            button_tone: {
+              type: "string",
+              enum: ["outline", "solid"]
+            },
+            card_shape: {
+              type: "string",
+              enum: ["sharp", "soft", "round"]
+            },
+            button_shape: {
+              type: "string",
+              enum: ["sharp", "soft", "pill"]
+            },
+            card_density: {
+              type: "string",
+              enum: ["airy", "default", "compact"]
+            },
+            support_layout: {
+              type: "string",
+              enum: ["detached", "default", "inline"]
+            },
+            page_bg_color: { type: "string", pattern: "^(|#[0-9A-Fa-f]{6})$" },
+            card_bg_color: { type: "string", pattern: "^(|#[0-9A-Fa-f]{6})$" },
+            title_color: { type: "string", pattern: "^(|#[0-9A-Fa-f]{6})$" },
+            body_color: { type: "string", pattern: "^(|#[0-9A-Fa-f]{6})$" },
+            accent_color: { type: "string", pattern: "^(|#[0-9A-Fa-f]{6})$" },
+            button_fill_color: { type: "string", pattern: "^(|#[0-9A-Fa-f]{6})$" },
+            button_border_color: { type: "string", pattern: "^(|#[0-9A-Fa-f]{6})$" },
+            button_text_color: { type: "string", pattern: "^(|#[0-9A-Fa-f]{6})$" },
+            notes: { type: "string" }
+          },
+          required: [
+            "layout_style",
+            "title_scale",
+            "logo_scale",
+            "card_width",
+            "button_width",
+            "button_tone",
+            "card_shape",
+            "button_shape",
+            "card_density",
+            "support_layout",
+            "page_bg_color",
+            "card_bg_color",
+            "title_color",
+            "body_color",
+            "accent_color",
+            "button_fill_color",
+            "button_border_color",
+            "button_text_color",
+            "notes"
+          ]
+        },
         section_kinds: {
           type: "array",
           items: {
@@ -243,6 +402,7 @@ export const designAnalysisSchema = {
         "reference_family",
         "reference_variant",
         "brand_hint",
+        "visual_hints",
         "section_kinds",
         "sections_structured",
         "suggested_blocks",

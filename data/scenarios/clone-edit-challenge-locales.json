@@ -1,0 +1,50 @@
+{
+  "id": "clone-edit-challenge-locales",
+  "title": "Clone edit challenge mail with en/ru locales",
+  "type": "chat",
+  "tags": [
+    "clone-edit",
+    "locales",
+    "html"
+  ],
+  "request": {
+    "message": "Нужно удалить кнопку Accept Challenge, блок с оранжевой обводкой перенести над блоком Try This Simple Challenge Next Week: и так же нужно перевести письмо на русский то есть сделать 2 локали английскую и русскую",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Нужно удалить кнопку Accept Challenge, блок с оранжевой обводкой перенести над блоком Try This Simple Challenge Next Week: и так же нужно перевести письмо на русский то есть сделать 2 локали английскую и русскую"
+      }
+    ],
+    "brief": {
+      "category": "X_AffSystem",
+      "locale": "en",
+      "requestedLocales": "en, ru"
+    },
+    "settings": {
+      "providerId": "openai",
+      "clientProfileId": "standard"
+    },
+    "baseEmailHtml": "<!doctype html><html><head><meta charset=\"utf-8\"><title>Weekly challenge</title></head><body style=\"margin:0;background:#f5f5f7;font-family:Arial,sans-serif;\"><table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\"><tr><td align=\"center\" style=\"padding:24px;\"><table role=\"presentation\" width=\"640\" cellspacing=\"0\" cellpadding=\"0\" style=\"background:#ffffff;border-radius:24px;overflow:hidden;\"><tr><td style=\"padding:32px;background:linear-gradient(135deg,#1d0d08,#ffae38);color:#fff;\"><h1 style=\"margin:0 0 16px;font-size:44px;line-height:1.1;\">One trade isn't all that defines you</h1><p style=\"margin:0 0 24px;font-size:18px;line-height:1.5;\">Markets move in cycles, and even the most successful traders face losing deals.</p><a href=\"https://example.com/challenge\" style=\"display:inline-block;background:#ff9a2f;color:#fff;padding:18px 28px;border-radius:16px;text-decoration:none;font-weight:700;\">Accept Challenge</a></td></tr><tr><td style=\"padding:24px 32px;\"><table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" style=\"border:3px solid #ff8a2a;border-radius:24px;\"><tr><td style=\"padding:24px;\"><h2 style=\"margin:0 0 12px;font-size:28px;line-height:1.2;\">Why the Market Moves</h2><p style=\"margin:0 0 20px;font-size:18px;line-height:1.5;\">Sometimes technical analysis is not enough. Many sharp swings are driven by global events.</p><a href=\"https://example.com/tutorials\" style=\"display:inline-block;background:#ff8a2a;color:#fff;padding:16px 24px;border-radius:14px;text-decoration:none;font-weight:700;\">Watch Tutorials</a></td></tr></table></td></tr><tr><td style=\"padding:0 32px 32px;\"><table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" style=\"background:#f7f7fb;border-radius:24px;\"><tr><td style=\"padding:24px;\"><h2 style=\"margin:0 0 16px;font-size:32px;line-height:1.2;color:#303341;\">Try This Simple Challenge Next Week:</h2><p style=\"margin:0;font-size:18px;line-height:1.5;color:#303341;\">Pick just one market and focus only on your best setup.</p></td></tr></table></td></tr></table></td></tr></table></body></html>"
+  },
+  "expected": {
+    "locales": [
+      "en",
+      "ru"
+    ],
+    "localeHtmlExcludes": {
+      "en": [
+        "Accept Challenge"
+      ],
+      "ru": [
+        "Accept Challenge"
+      ]
+    },
+    "orderChecks": [
+      {
+        "locale": "en",
+        "before": "Why the Market Moves",
+        "after": "Try This Simple Challenge Next Week"
+      }
+    ]
+  }
+}

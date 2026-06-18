@@ -1,0 +1,311 @@
+{
+  "generatedAt": "2026-04-22T06:04:19.908Z",
+  "source": {
+    "root": "/tmp/retention-tool-kit",
+    "packageName": "html-to-pdf-converter",
+    "packageVersion": "0.1.0"
+  },
+  "summary": {
+    "brands": 3,
+    "templates": 3,
+    "templateTypes": {
+      "support": 3
+    }
+  },
+  "brands": [
+    {
+      "id": "iq-option",
+      "source": "retention-tool-kit",
+      "label": "IQ Option",
+      "tokens": {
+        "primaryColor": "#36b980",
+        "secondaryColor": "#f0f4fa",
+        "buttonTextColor": "#ffffff",
+        "surfaceColor": "#ffffff",
+        "surfaceVariantColor": "#f4fafe",
+        "textColor": "#262832",
+        "backgroundColor": "#f0f4fa",
+        "accentColor": "#0081e3",
+        "buttonRadius": "3px",
+        "smallRadius": "3px",
+        "largeRadius": "12px",
+        "logoUrl": "https://static.cdnroute.io/files/storage/public/60/b6/1b5cef3f19b7c9i0b2/logo_shadow_top_2.png",
+        "logoWidth": "136px",
+        "position": "center",
+        "borderFrame": "none"
+      },
+      "spacing": {
+        "l": "32px",
+        "m": "20px",
+        "s": "12px",
+        "xs": "6px"
+      },
+      "rawStyles": {
+        "brand_color": "#36b980",
+        "brand_additional_color": "#f0f4fa",
+        "on_brand_color": "#ffffff",
+        "surface_color": "#ffffff",
+        "surface_variant_color": "#f4fafe",
+        "on_surface_color": "#262832",
+        "background_color": "#f0f4fa",
+        "accent_color": "#0081e3",
+        "button_radius": "3px",
+        "small_radius": "3px",
+        "large_radius": "12px",
+        "logo_email_brand": "https://static.cdnroute.io/files/storage/public/60/b6/1b5cef3f19b7c9i0b2/logo_shadow_top_2.png",
+        "padding_l": "32px",
+        "padding_m": "20px",
+        "padding_s": "12px",
+        "padding_xs": "6px",
+        "ref_color": "#4882ff",
+        "left_border_color": "#5165ff",
+        "logo_width": "136px",
+        "position": "center",
+        "border_ramka": "none"
+      }
+    },
+    {
+      "id": "exnova",
+      "source": "retention-tool-kit",
+      "label": "Exnova",
+      "tokens": {
+        "primaryColor": "#0081e3",
+        "secondaryColor": "#f8fafb",
+        "buttonTextColor": "#ffffff",
+        "surfaceColor": "#ffffff",
+        "surfaceVariantColor": "#f3f6fb",
+        "textColor": "#262832",
+        "backgroundColor": "#f5f9ff",
+        "accentColor": "#0081e3",
+        "buttonRadius": "3px",
+        "smallRadius": "3px",
+        "largeRadius": "12px",
+        "logoUrl": "https://static.cdnroute.io/files/storage/public/62/b1/eb98e3afd4a7c8f1e8/m_logoCombination__1_.png",
+        "logoWidth": "167px",
+        "position": "center",
+        "borderFrame": "none"
+      },
+      "spacing": {
+        "l": "32px",
+        "m": "20px",
+        "s": "10px",
+        "xs": "6px"
+      },
+      "rawStyles": {
+        "brand_color": "#0081e3",
+        "brand_additional_color": "#f8fafb",
+        "on_brand_color": "#ffffff",
+        "surface_color": "#ffffff",
+        "surface_variant_color": "#f3f6fb",
+        "on_surface_color": "#262832",
+        "background_color": "#f5f9ff",
+        "accent_color": "#0081e3",
+        "button_radius": "3px",
+        "small_radius": "3px",
+        "large_radius": "12px",
+        "logo_email_brand": "https://static.cdnroute.io/files/storage/public/62/b1/eb98e3afd4a7c8f1e8/m_logoCombination__1_.png",
+        "padding_l": "32px",
+        "padding_m": "20px",
+        "padding_s": "10px",
+        "padding_xs": "6px",
+        "ref_color": "#0074cc",
+        "left_border_color": "#5165ff",
+        "logo_width": "167px",
+        "position": "center",
+        "border_ramka": "none"
+      }
+    },
+    {
+      "id": "quadcode-markets",
+      "source": "retention-tool-kit",
+      "label": "Quadcode Markets",
+      "tokens": {
+        "primaryColor": "#0081e3",
+        "secondaryColor": "#f4f6fa",
+        "buttonTextColor": "#ffffff",
+        "surfaceColor": "#ffffff",
+        "surfaceVariantColor": "none",
+        "textColor": "#3e414b",
+        "backgroundColor": "#f5f9ff",
+        "accentColor": "#0081e3",
+        "buttonRadius": "5px",
+        "smallRadius": "10px",
+        "largeRadius": "12px",
+        "logoUrl": "https://fsms.quadcode.com/storage/public/cm/1f/kj285cee2vclv6kg/qcm-shadow.png",
+        "logoWidth": "150px",
+        "position": "left",
+        "borderFrame": "1px"
+      },
+      "spacing": {
+        "l": "32px",
+        "m": "20px",
+        "s": "10px",
+        "xs": "6px"
+      },
+      "rawStyles": {
+        "brand_color": "#0081e3",
+        "brand_additional_color": "#f4f6fa",
+        "on_brand_color": "#ffffff",
+        "surface_color": "#ffffff",
+        "surface_variant_color": "none",
+        "on_surface_color": "#3e414b",
+        "background_color": "#f5f9ff",
+        "accent_color": "#0081e3",
+        "button_radius": "5px",
+        "small_radius": "10px",
+        "large_radius": "12px",
+        "logo_email_brand": "https://fsms.quadcode.com/storage/public/cm/1f/kj285cee2vclv6kg/qcm-shadow.png",
+        "padding_l": "32px",
+        "padding_m": "20px",
+        "padding_s": "10px",
+        "padding_xs": "6px",
+        "ref_color": "#2d51b6",
+        "left_border_color": "#0081e3",
+        "logo_width": "150px",
+        "position": "left",
+        "border_ramka": "1px"
+      }
+    }
+  ],
+  "templates": [
+    {
+      "id": "button",
+      "source": "retention-tool-kit",
+      "label": "Button",
+      "type": "support",
+      "stats": {
+        "length": 9388,
+        "inlineStyleCount": 38,
+        "imageCount": 1,
+        "linkCount": 5
+      },
+      "placeholders": {
+        "styleTokens": [
+          "background_color",
+          "padding_l",
+          "position",
+          "logo_email_brand",
+          "logo_width",
+          "surface_color",
+          "small_radius",
+          "on_surface_color",
+          "padding_s",
+          "on_brand_color",
+          "button_radius",
+          "brand_color",
+          "ref_color",
+          "padding_m"
+        ],
+        "embeddedRefs": [
+          "domain",
+          "company_email",
+          "company_address",
+          "risk_warning",
+          "company_terms_link",
+          "unsubscribe_link"
+        ],
+        "blockRefs": [
+          "footer.block_00",
+          "footer.block_01"
+        ]
+      },
+      "content": "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\" style=\"font-family: 'Helvetica', 'Roboto', 'Arial',sans-serif !important;\">\n\n<head>\n\t<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8; width=device-width; content=width=device-width\" style=\"font-family: 'Helvetica', 'Roboto','Arial',sans-serif !important;\">\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n\t<meta name=\"x-apple-disable-message-reformatting\">\n\t<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n\t<link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n\t<link href=\"https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Rubik&display=swap\" rel=\"stylesheet\">\n\n\t<style type=\"text/css\">\n\t\thtml {\n\t\t\t-webkit-text-size-adjust: none;\n\t\t\t-ms-text-size-adjust: none;\n\t\t\tbackground-color: {%background_color%};\n\t\t}\n\t\tbody {\n\t\t\tmargin: 0;\n\t\t}\n\t\t@media only screen and (max-device-width: 600px), only screen and (max-width: 600px) {\n\n\t\t\t.table580 {width: 100% !important;}\n\t\t\t\n\t\t\t.mob_100 {width: 100% !important; max-width: 100% !important;}\n\n\t\t\t.mob_95 {width: 100% !important;max-width: 100% !important;}\n\t\t\t\n\t\t\t.mob_90 {width: 90% !important;max-width: 90% !important;}\n\n\t\t\t.title {\n\t\t\t\tfont-size: 24px !important;\n\t\t\t\tline-height: 30px !important;\n\t\t\t}\n\t\t\tcenter{\n\t\t\t\tmin-width: 100% !important;\n\t\t\t}\n\t\t}\n\t\t@media screen {\n\t\t\t.font{\n\t\t\t\tfont-family: 'Helvetica', 'Roboto', Helvetica, Roboto, Arial, sans-serif !important;\n\t\t\t\tfont-weight: 400;\n\t\t\t}\n\n\t\t\t.font-bold{\n\t\t\t\tfont-family: 'Helvetica', 'Roboto', Helvetica, Roboto, Arial, sans-serif !important;\n\t\t\t\tfont-weight: 700;\n\t\t\t}\n\t\t}\n\n\t</style>\n\t\n</head>\n\n<body bgcolor=\"{%background_color%}\" style=\"padding:0px; margin:0px; background-color: {%background_color%};\">\n<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"font-size: 1px; line-height: normal;\">\n\t<tr>\n\t\t<td align=\"center\" bgcolor=\"{%background_color%}\" style=\"padding: 0 10px; background-color: {%background_color%};\">\n\t\t\t<!--[if (gte mso 9)|(IE)]>\n\t\t\t<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"580\"><tr><td align=\"center\">\n\t\t\t<![endif]-->\n\t\t\t<div>\n\t\t\t\t<center style=\"font-family: 'Roboto','Helvetica','Arial',sans-serif !important; min-width: 580px; width: 92%;\">\n\t\t\t\t<div style=\"height: {%padding_l%}; line-height: {%padding_l%};\">&nbsp;</div>\n\t\t\t\t<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"580\" class=\"table580 mob_100\" style=\"width: 100%; max-width: 100%;\">\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t<td align=\"center\">\n\t\t\t\t\t\t\t<table class=\"mob_95\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"width: 95%; max-width: 520px; padding: 0 20px;\">\n\t\t\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t\t\t<td align=\"{%position%}\" style=\"text-align: {%position%};\">\n\t\t\t\t\t\t\t\t\t\t<a href=\"{{embedded.domain}}/traderoom/?&afftrack=mail_system&retrack=system\" target=\"_blank\">\n\t\t\t\t\t\t\t\t\t\t\t<img src=\"{%logo_email_brand%}\" width=\"{%logo_width%}\" style=\"width: 100%; max-width: {%logo_width%}; text-align: {%position%};\" alt=\"\">\n\t\t\t\t\t\t\t\t\t\t</a>\n\t\t\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\t</table>\n\t\t\t\t\t\t</td>\n\t\t\t\t\t</tr>\n\t\t\t\t</table>\n\t\t\t\t<div style=\"height: {%padding_l%}; line-height: {%padding_l%};\">&nbsp;</div>\n\t\t\t\t\n\t\t\t\t<table bgcolor=\"{%surface_color%}\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" class=\"table580 mob_100\" style=\"width: 100%; max-width: 580px; background: {%surface_color%};  border-radius: {%small_radius%};\">\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t<td align=\"center\">\n\t\t\t\t\t\t\t<table class=\"mob_95\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"width: 95%; max-width: 520px; padding: 0 20px;\">\n\t\t\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t\t\t<td align=\"left\">\n\t\t\t\t\t\t\t\t\t\t<div style=\"height: 40px; line-height: 40px;\">&nbsp;</div>\t\n\t\t\t\t\t\t\t\t\t\t<div class=\"title font-bold\" style=\"text-align: left; 0; color: {%on_surface_color%}; font-size: 32px; line-height: 42px; font-weight: 700; font-style: normal; font-family: Helvetica !important; padding-bottom: {%padding_l%};\">Title</div>\n\t\t\t\t\t\t\t\t\t\t<div class=\"font\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%}; font-size: 16px; line-height: 24px; font-weight: 700; font-style: normal; font-family: Helvetica !important; padding-bottom: {%padding_s%};\">Hello text</div>\n\t\t\t\t\t\t\t\t\t\t<div class=\"font\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%}; font-size: 16px; line-height: 24px; font-weight: 400; font-style: normal; font-family: Helvetica !important; padding-bottom: {%padding_s%};\">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.</div>\n\t\t\t\t\t\t\t\t\t\t<div class=\"font\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%}; font-size: 16px; line-height: 24px; font-weight: 400; font-style: normal; font-family: Helvetica !important; padding-bottom: {%padding_s%}\">Lorem Ipsum is simply dummy text of the printing and typesetting industry.</div>\n\t\t\t\t\t\t\t\t\t\t<div class=\"font\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%}; font-size: 16px; line-height: 24px; font-weight: 400; font-style: normal; font-family: Helvetica !important; padding-bottom: {%padding_s%};\">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries</div>\n\t\t\t\t\t\t\t\t\t\t<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" style=\"width: 65%;\" class=\"mob_90\">\n\t\t\t\t\t\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t\t\t\t\t\t<td style=\"padding-bottom: {%padding_l%}; padding-top: {%padding_l%};\"> \n\t\t\t\t\t\t\t\t\t\t\t\t\t<a href=\"{{embedded.domain}}/traderoom/?&afftrack=mail_system&retrack=system\" target=\"_blank\" style=\"text-decoration: none;\">\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t<div class=\"read-more-button wh100\" style=\"color: {%on_brand_color%};  text-decoration: none; display: block; max-width: 305px; width: 100%; font-size: 16px; font-weight: 700; border-radius: {%button_radius%}; margin: 0 auto; background: {%brand_color%}; text-align: center;  cursor: pointer; font-family: Helvetica !important;\">\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<div style=\"height: 18px; line-height: 18px;\">&nbsp;</div>\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tButton\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<div style=\"height: 18px; line-height: 18px;\">&nbsp;</div>\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t\t\t\t</a>\n\t\t\t\t\t\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\t\t\t\t</table> \n\t\t\t\t\t\t\t\t\t\t<div class=\"font\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%}; font-size: 16px; line-height: 24px; font-weight: 400; font-style: normal; font-family: Helvetica !important; padding-top: {%padding_l%}; border-top:1px solid {%background_color%}\">Support text <a href=\"mailto:{{embedded.company_email}}\" target=\"_blank\" style=\"text-decoration: none; color: {%ref_color%} !important;\">{{embedded.company_email}}</a> another support text.</div>\n\t\t\t\t\t\t\t\t\t\t<div style=\"height: 40px; line-height: 40px;\">&nbsp;</div>\n\t\t\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\t</table>\n\t\t\t\t\t\t</td>\n\t\t\t\t\t</tr>\n\t\t\t\t</table>\n\t\t\t\t<div style=\"height: 30px; line-height: 30px;\">&nbsp;</div>\n\t\t\t\t<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"480\" class=\"table580 mob_90\" style=\"width: 100%; max-width: 480px;\">\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t<td align=\"left\">\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t<div class=\"font\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%}; font-size: 16px; line-height: 24px; font-weight: 400; font-style: normal; font-family: Helvetica; padding-bottom: {%padding_m%};\">{{embedded.company_address}}</div>\n\t\t\t\t\t\t\t<div class=\"font\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%}; font-size: 16px; line-height: 24px; font-weight: 400; font-style: normal; font-family: Helvetica; padding-bottom: {%padding_m%};\">{{embedded.risk_warning}}</div>\n\t\t\t\t\t\t\t<div class=\"font\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%}; font-size: 16px; line-height: 24px; font-weight: 400; font-style: normal; font-family: Helvetica; padding-bottom: {%padding_m%};\">\n\t\t\t\t\t\t\t\t<a href=\"{{embedded.company_terms_link}}\" target=\"_blank\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%} !important; font-size: 16px; line-height: 24px; font-weight: 400; font-family: Helvetica !important; text-decoration: none; padding: 0 7px;\">${{ footer.block_00 }}$</a>\n\t\t\t\t\t\t\t\t<a href=\"{{embedded.unsubscribe_link}}\" target=\"_blank\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%} !important; font-size: 16px; line-height: 24px; font-weight: 400; font-family: Helvetica !important; text-decoration: none; padding: 0 7px;\">${{ footer.block_01 }}$</a>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</td>\n\t\t\t\t\t</tr>\n\t\t\t\t</table>\n\t\t\t\t<div style=\"height: 40px; line-height: 40px;\">&nbsp;</div>\n\n\t\t\t</center>\n\t\t\t</div>\n\t\t\t\n\t\t\t<!--[if (gte mso 9)|(IE)]>\n\t\t\t</td></tr></table><![endif]-->\n\t\t</td>\n\t</tr>\n</table>\n<div style=\"-webkit-font-smoothing: antialiased; display: none; font: 15px courier; line-height: 0; white-space: nowrap;\">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</div>\n</body>\n</html>"
+    },
+    {
+      "id": "ramka",
+      "source": "retention-tool-kit",
+      "label": "Ramka",
+      "type": "support",
+      "stats": {
+        "length": 11781,
+        "inlineStyleCount": 50,
+        "imageCount": 1,
+        "linkCount": 5
+      },
+      "placeholders": {
+        "styleTokens": [
+          "background_color",
+          "padding_l",
+          "position",
+          "logo_email_brand",
+          "logo_width",
+          "surface_color",
+          "small_radius",
+          "on_surface_color",
+          "padding_s",
+          "padding_m",
+          "surface_variant_color",
+          "border_ramka",
+          "left_border_color",
+          "brand_color",
+          "padding_xs",
+          "on_brand_color",
+          "button_radius",
+          "ref_color"
+        ],
+        "embeddedRefs": [
+          "domain",
+          "company_email",
+          "company_address",
+          "risk_warning",
+          "company_terms_link",
+          "unsubscribe_link"
+        ],
+        "blockRefs": [
+          "footer.block_00",
+          "footer.block_01"
+        ]
+      },
+      "content": "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\" style=\"font-family: 'Helvetica', 'Roboto', 'Arial',sans-serif !important;\">\n\n<head>\n\t<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8; width=device-width; content=width=device-width\" style=\"font-family: 'Helvetica', 'Roboto','Arial',sans-serif !important;\">\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n\t<meta name=\"x-apple-disable-message-reformatting\">\n\t<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n\t<link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n\t<link href=\"https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Rubik&display=swap\" rel=\"stylesheet\">\n\n\t<style type=\"text/css\">\n\t\thtml {\n\t\t\t-webkit-text-size-adjust: none;\n\t\t\t-ms-text-size-adjust: none;\n\t\t\tbackground-color: {%background_color%};\n\t\t}\n\t\tbody {\n\t\t\tmargin: 0;\n\t\t}\n\t\t@media only screen and (max-device-width: 600px), only screen and (max-width: 600px) {\n\n\t\t\t.table580 {width: 100% !important;}\n\t\t\t\n\t\t\t.mob_100 {width: 100% !important; max-width: 100% !important;}\n\n\t\t\t.mob_95 {width: 100% !important;max-width: 100% !important;}\n\t\t\t\n\t\t\t.mob_90 {width: 90% !important;max-width: 90% !important;}\n\n\t\t\t.title {\n\t\t\t\tfont-size: 24px !important;\n\t\t\t\tline-height: 30px !important;\n\t\t\t}\n\t\t\tcenter{\n\t\t\t\tmin-width: 100% !important;\n\t\t\t}\n\t\t}\n\t\t@media screen {\n\t\t\t.font{\n\t\t\t\tfont-family: 'Helvetica', 'Roboto', Helvetica, Roboto, Arial, sans-serif !important;\n\t\t\t\tfont-weight: 400;\n\t\t\t}\n\n\t\t\t.font-bold{\n\t\t\t\tfont-family: 'Helvetica', 'Roboto', Helvetica, Roboto, Arial, sans-serif !important;\n\t\t\t\tfont-weight: 700;\n\t\t\t}\n\t\t}\n\n\t</style>\n\t\n</head>\n\n<body bgcolor=\"{%background_color%}\" style=\"padding:0px; margin:0px; background-color: {%background_color%};\">\n<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"font-size: 1px; line-height: normal;\">\n\t<tr>\n\t\t<td align=\"center\" bgcolor=\"{%background_color%}\" style=\"padding: 0 10px; background-color: {%background_color%};\">\n\t\t\t<!--[if (gte mso 9)|(IE)]>\n\t\t\t<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"580\"><tr><td align=\"center\">\n\t\t\t<![endif]-->\n\t\t\t<div>\n\t\t\t\t<center style=\"font-family: 'Roboto','Helvetica','Arial',sans-serif !important; min-width: 580px; width: 92%;\">\n\t\t\t\t<div style=\"height: {%padding_l%}; line-height: {%padding_l%};\">&nbsp;</div>\n\t\t\t\t<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"580\" class=\"table580 mob_100\" style=\"width: 100%; max-width: 100%;\">\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t<td align=\"center\">\n\t\t\t\t\t\t\t<table class=\"mob_95\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"width: 95%; max-width: 520px; padding: 0 20px;\">\n\t\t\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t\t\t<td align=\"{%position%}\" style=\"text-align: {%position%};\">\n\t\t\t\t\t\t\t\t\t\t<a href=\"{{embedded.domain}}/traderoom/?&afftrack=mail_system&retrack=system\" target=\"_blank\">\n\t\t\t\t\t\t\t\t\t\t\t<img src=\"{%logo_email_brand%}\" width=\"{%logo_width%}\" style=\"width: 100%; max-width: {%logo_width%}; text-align: {%position%};\" alt=\"\">\n\t\t\t\t\t\t\t\t\t\t</a>\n\t\t\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\t</table>\n\t\t\t\t\t\t</td>\n\t\t\t\t\t</tr>\n\t\t\t\t</table>\n\t\t\t\t<div style=\"height: {%padding_l%}; line-height: {%padding_l%};\">&nbsp;</div>\n\t\t\t\t\n\t\t\t\t<table bgcolor=\"{%surface_color%}\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" class=\"table580 mob_100\" style=\"width: 100%; max-width: 580px; background: {%surface_color%};  border-radius: {%small_radius%};\">\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t<td align=\"center\">\n\t\t\t\t\t\t\t<table class=\"mob_95\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"width: 95%; max-width: 520px; padding: 0 20px;\">\n\t\t\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t\t\t<td align=\"left\">\n\t\t\t\t\t\t\t\t\t\t<div style=\"height: 40px; line-height: 40px;\">&nbsp;</div>\t\n\t\t\t\t\t\t\t\t\t\t<div class=\"title font-bold\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%}; font-size: 32px; line-height: 42px; font-weight: 700; font-style: normal; font-family: Helvetica !important; padding-bottom: {%padding_l%};\">Title</div>\n\t\t\t\t\t\t\t\t\t\t<div class=\"font\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%}; font-size: 16px; line-height: 24px; font-weight: 700; font-style: normal; font-family: Helvetica !important; padding-bottom: {%padding_s%};\">Hello text</div>\n\t\t\t\t\t\t\t\t\t\t<div class=\"font\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%}; font-size: 16px; line-height: 24px; font-weight: 400; font-style: normal; font-family: Helvetica !important; padding-bottom: {%padding_s%};\">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.</div>\n\t\t\t\t\t\t\t\t\t\t<div class=\"font\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%}; font-size: 16px; line-height: 24px; font-weight: 400; font-style: normal; font-family: Helvetica !important; padding-bottom: {%padding_s%}\">Lorem Ipsum is simply dummy text of the printing and typesetting industry.</div>\n\t\t\t\t\t\t\t\t\t\t<div style=\"height: {%padding_m%}; line-height: {%padding_m%};\">&nbsp;</div>\n\t\t\t\t\t\t\t\t\t\t<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 100%;\">\n\t\t\t\t\t\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t\t\t\t\t\t<td style=\"display: block; border-radius: {%small_radius%}; width: 100%; font-size: 16px; font-weight: 700; margin: 0 auto; background: {%surface_variant_color%}; width: 100%; border: {%border_ramka%} solid {%left_border_color%}; border-left: 4px solid {%left_border_color%};\"> \n\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t<div style=\"padding: 24px 0 24px 0; width: 100%;\" >\n\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t<ul style=\"margin: 0; padding-left: 35px;\">\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li style=\"text-align: left; letter-spacing: 0; color: {%brand_color%}; font-size: 16px; line-height: 24px; font-weight: 400; font-style: normal; font-family: Helvetica !important; padding-bottom: {%padding_xs%}; margin: 0 !important;\">\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<span class=\"font\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%} !important; font-size: 16px; line-height: 24px; font-weight: 400; font-style: normal; font-family: Helvetica !important;\">point one</span>\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</li>\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li style=\"ltext-align: left; etter-spacing: 0; color: {%brand_color%}; font-size: 16px; line-height: 24px; font-weight: 400; font-style: normal; font-family: Helvetica !important; padding-bottom: {%padding_xs%}; margin: 0 !important;\">\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<span class=\"font\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%} !important; font-size: 16px; line-height: 24px; font-weight: 400; font-style: normal; font-family: Helvetica !important;\">point two</span>\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</li>\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li style=\"text-align: left; letter-spacing: 0; color: {%brand_color%}; font-size: 16px; line-height: 24px; font-weight: 400; font-style: normal; font-family: Helvetica !important; padding-bottom: {%padding_xs%}; margin: 0 !important;\">\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<span class=\"font\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%} !important; font-size: 16px; line-height: 24px; font-weight: 400; font-style: normal; font-family: Helvetica !important;\">point three</span>\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</li>\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t</ul>\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\t\t\t\t</table> \n\t\t\t\t\t\t\t\t\t\t<div style=\"height: {%padding_m%}; line-height: {%padding_m%};\">&nbsp;</div>\n\t\t\t\t\t\t\t\t\t\t<div class=\"font\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%}; font-size: 16px; line-height: 24px; font-weight: 400; font-style: normal; font-family: Helvetica !important; padding-bottom: {%padding_s%};\">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries</div>\n\t\t\t\t\t\t\t\t\t\t<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" style=\"width: 65%;\" class=\"mob_90\">\n\t\t\t\t\t\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t\t\t\t\t\t<td style=\"padding-bottom: {%padding_l%}; padding-top: {%padding_l%};\"> \n\t\t\t\t\t\t\t\t\t\t\t\t\t<a href=\"{{embedded.domain}}/traderoom/?&afftrack=mail_system&retrack=system\" target=\"_blank\" style=\"text-decoration: none;\">\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t<div class=\"read-more-button wh100\" style=\"color: {%on_brand_color%};  text-decoration: none; display: block; max-width: 305px; width: 100%; font-size: 16px; font-weight: 700; border-radius: {%button_radius%}; margin: 0 auto; background: {%brand_color%}; text-align: center;  cursor: pointer; font-family: Helvetica !important;\">\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<div style=\"height: 18px; line-height: 18px;\">&nbsp;</div>\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tButton\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<div style=\"height: 18px; line-height: 18px;\">&nbsp;</div>\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t\t\t\t</a>\n\t\t\t\t\t\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\t\t\t\t</table> \n\t\t\t\t\t\t\t\t\t\t<div class=\"font\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%}; font-size: 16px; line-height: 24px; font-weight: 400; font-style: normal; font-family: Helvetica !important; padding-top: {%padding_l%}; border-top:1px solid {%background_color%}\">Support text <a href=\"mailto:{{embedded.company_email}}\" target=\"_blank\" style=\"text-decoration: none; color: {%ref_color%} !important;\">{{embedded.company_email}}</a></div>\n\t\t\t\t\t\t\t\t\t\t<div style=\"height: 40px; line-height: 40px;\">&nbsp;</div>\n\t\t\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\t</table>\n\t\t\t\t\t\t</td>\n\t\t\t\t\t</tr>\n\t\t\t\t</table>\n\t\t\t\t<div style=\"height: 30px; line-height: 30px;\">&nbsp;</div>\n\t\t\t\t<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"480\" class=\"table580 mob_90\" style=\"width: 100%; max-width: 480px;\">\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t<td align=\"left\">\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t<div class=\"font\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%}; font-size: 16px; line-height: 24px; font-weight: 400; font-style: normal; font-family: Helvetica; padding-bottom: {%padding_m%};\">{{embedded.company_address}}</div>\n\t\t\t\t\t\t\t<div class=\"font\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%}; font-size: 16px; line-height: 24px; font-weight: 400; font-style: normal; font-family: Helvetica; padding-bottom: {%padding_m%};\">{{embedded.risk_warning}}</div>\n\t\t\t\t\t\t\t<div class=\"font\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%}; font-size: 16px; line-height: 24px; font-weight: 400; font-style: normal; font-family: Helvetica; padding-bottom: {%padding_m%};\">\n\t\t\t\t\t\t\t\t<a href=\"{{embedded.company_terms_link}}\" target=\"_blank\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%} !important; font-size: 16px; line-height: 24px; font-weight: 400; font-family: Helvetica !important; text-decoration: none; padding: 0 7px;\">${{ footer.block_00 }}$</a>\n\t\t\t\t\t\t\t\t<a href=\"{{embedded.unsubscribe_link}}\" target=\"_blank\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%} !important; font-size: 16px; line-height: 24px; font-weight: 400; font-family: Helvetica !important; text-decoration: none; padding: 0 7px;\">${{ footer.block_01 }}$</a>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</td>\n\t\t\t\t\t</tr>\n\t\t\t\t</table>\n\t\t\t\t<div style=\"height: 40px; line-height: 40px;\">&nbsp;</div>\n\n\t\t\t</center>\n\t\t\t</div>\n\t\t\t\n\t\t\t<!--[if (gte mso 9)|(IE)]>\n\t\t\t</td></tr></table><![endif]-->\n\t\t</td>\n\t</tr>\n</table>\n<div style=\"-webkit-font-smoothing: antialiased; display: none; font: 15px courier; line-height: 0; white-space: nowrap;\">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</div>\n</body>\n</html>"
+    },
+    {
+      "id": "support",
+      "source": "retention-tool-kit",
+      "label": "Support",
+      "type": "support",
+      "stats": {
+        "length": 8250,
+        "inlineStyleCount": 33,
+        "imageCount": 1,
+        "linkCount": 4
+      },
+      "placeholders": {
+        "styleTokens": [
+          "background_color",
+          "padding_l",
+          "position",
+          "logo_email_brand",
+          "logo_width",
+          "surface_color",
+          "small_radius",
+          "on_surface_color",
+          "padding_s",
+          "ref_color",
+          "padding_m"
+        ],
+        "embeddedRefs": [
+          "domain",
+          "company_email",
+          "company_address",
+          "risk_warning",
+          "company_terms_link",
+          "unsubscribe_link"
+        ],
+        "blockRefs": [
+          "support.block_00",
+          "support.block_01",
+          "support.block_02",
+          "support.block_03",
+          "support.block_04",
+          "support.block_05",
+          "support.block_06",
+          "support.block_07",
+          "support.block_08",
+          "footer.block_00",
+          "footer.block_01"
+        ]
+      },
+      "content": "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\" style=\"font-family: 'Helvetica', 'Roboto', 'Arial',sans-serif !important;\">\n\n<head>\n\t<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8; width=device-width; content=width=device-width\" style=\"font-family: 'Helvetica', 'Roboto','Arial',sans-serif !important;\">\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n\t<meta name=\"x-apple-disable-message-reformatting\">\n\t<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n\t<link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n\t<link href=\"https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Rubik&display=swap\" rel=\"stylesheet\">\n\n\t<style type=\"text/css\">\t\n\t\thtml {\n\t\t\t-webkit-text-size-adjust: none;\n\t\t\t-ms-text-size-adjust: none;\n\t\t\tbackground-color: {%background_color%};\n\t\t}\n\t\tbody {\n\t\t\tmargin: 0;\n\t\t}\n\t\t@media only screen and (max-device-width: 600px), only screen and (max-width: 600px) {\n\n\t\t\t.table580 {width: 100% !important;}\n\t\t\t\n\t\t\t.mob_100 {width: 100% !important; max-width: 100% !important;}\n\n\t\t\t.mob_95 {width: 100% !important;max-width: 100% !important;}\n\t\t\t\n\t\t\t.mob_90 {width: 90% !important;max-width: 90% !important;}\n\n\t\t\t.title {\n\t\t\t\tfont-size: 24px !important;\n\t\t\t\tline-height: 30px !important;\n\t\t\t}\n\t\t\tcenter{\n\t\t\t\tmin-width: 100% !important;\n\t\t\t}\n\t\t}\n\t\t@media screen {\n\t\t\t.font{\n\t\t\t\tfont-family: 'Helvetica', 'Roboto', Helvetica, Roboto, Arial, sans-serif !important;\n\t\t\t\tfont-weight: 400;\n\t\t\t}\n\n\t\t\t.font-bold{\n\t\t\t\tfont-family: 'Helvetica', 'Roboto', Helvetica, Roboto, Arial, sans-serif !important;\n\t\t\t\tfont-weight: 700;\n\t\t\t}\n\t\t}\n\n\t</style>\n\t\n</head>\n\n<body bgcolor=\"{%background_color%}\" style=\"padding:0px;margin:0px; background-color: {%background_color%};\">\n<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"font-size: 1px; line-height: normal;\">\n\t<tr>\n\t\t<td align=\"center\" bgcolor=\"{%background_color%}\" style=\"padding: 0 10px; background-color: {%background_color%};\">\n\t\t\t<!--[if (gte mso 9)|(IE)]>\n\t\t\t<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"580\"><tr><td align=\"center\">\n\t\t\t<![endif]-->\n\t\t\t<div>\n\t\t\t\t<center style=\"font-family: 'Roboto','Helvetica','Arial',sans-serif !important; min-width: 580px; width: 92%;\">\n\t\t\t\t<div style=\"height: {%padding_l%}; line-height: {%padding_l%};\">&nbsp;</div>\n\t\t\t\t<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"580\" class=\"table580 mob_100\" style=\"width: 100%; max-width: 100%;\">\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t<td align=\"center\">\n\t\t\t\t\t\t\t<table class=\"mob_95\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"width: 95%; max-width: 520px; padding: 0 20px;\">\n\t\t\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t\t\t<td align=\"{%position%}\"style=\"text-align: {%position%};\">\n\t\t\t\t\t\t\t\t\t\t<a href=\"{{embedded.domain}}/traderoom/?&afftrack=mail_system&retrack=system\" target=\"_blank\">\n\t\t\t\t\t\t\t\t\t\t\t<img src=\"{%logo_email_brand%}\" width=\"{%logo_width%}\" style=\"width: 100%; max-width: {%logo_width%}; text-align: {%position%};\" alt=\"\">\n\t\t\t\t\t\t\t\t\t\t</a>\n\t\t\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\t</table>\n\t\t\t\t\t\t</td>\n\t\t\t\t\t</tr>\n\t\t\t\t</table>\n\t\t\t\t<div style=\"height: {%padding_l%}; line-height: {%padding_l%};\">&nbsp;</div>\n\t\t\t\t\n\t\t\t\t<table bgcolor=\"{%surface_color%}\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" class=\"table580 mob_100\" style=\"width: 100%; max-width: 580px; background: {%surface_color%};  border-radius: {%small_radius%};\">\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t<td align=\"center\">\n\t\t\t\t\t\t\t<table class=\"mob_95\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"width: 95%; max-width: 520px; padding: 0 20px;\">\n\t\t\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t\t\t<td align=\"left\">\n\t\t\t\t\t\t\t\t\t\t<div style=\"height: 40px; line-height: 40px;\">&nbsp;</div>\t\n\t\t\t\t\t\t\t\t\t\t<div class=\"title font-bold\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%}; font-size: 32px; line-height: 42px; font-weight: 700; font-style: normal; font-family: Helvetica !important; padding-bottom: {%padding_l%};\">${{ support.block_00 }}$</div>\n\t\t\t\t\t\t\t\t\t\t<div class=\"font\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%}; font-size: 16px; line-height: 24px; font-weight: 700; font-style: normal; font-family: Helvetica !important; padding-bottom: {%padding_s%};\">${{ support.block_01 }}$</div>\n\t\t\t\t\t\t\t\t\t\t<div class=\"font\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%}; font-size: 16px; line-height: 24px; font-weight: 400; font-style: normal; font-family: Helvetica !important; padding-bottom: {%padding_s%};\">${{ support.block_02 }}$</div>\n\t\t\t\t\t\t\t\t\t\t<div class=\"font\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%}; font-size: 16px; line-height: 24px; font-weight: 400; font-style: normal; font-family: Helvetica !important; padding-bottom: {%padding_s%}\">${{ support.block_03 }}$</div>\n\t\t\t\t\t\t\t\t\t\t<div class=\"font\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%}; font-size: 16px; line-height: 24px; font-weight: 400; font-style: normal; font-family: Helvetica !important; padding-bottom: {%padding_s%};\">${{ support.block_04 }}$</div>\n\t\t\t\t\t\t\t\t\t\t<div class=\"font\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%}; font-size: 16px; line-height: 24px; font-weight: 400; font-style: normal; font-family: Helvetica !important; padding-bottom: {%padding_l%};\">${{ support.block_05 }}$</div>\n\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t<div class=\"font\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%}; font-size: 16px; line-height: 24px; font-weight: 400; font-style: normal; font-family: Helvetica !important; padding-top: {%padding_l%}; border-top:1px solid {%background_color%}\">${{ support.block_06 }}$ <a href=\"mailto:{{embedded.company_email}}\" target=\"_blank\" style=\"text-decoration: none; color: {%ref_color%} !important;\">${{ support.block_07 }}$</a> ${{ support.block_08 }}$</div>\n\t\t\t\t\t\t\t\t\t\t<div style=\"height: 40px; line-height: 40px;\">&nbsp;</div>\n\t\t\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\t</table>\n\t\t\t\t\t\t</td>\n\t\t\t\t\t</tr>\n\t\t\t\t</table>\n\t\t\t\t<div style=\"height: 30px; line-height: 30px;\">&nbsp;</div>\n\t\t\t\t<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"480\" class=\"table580 mob_90\" style=\"width: 100%; max-width: 480px;\">\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t<td align=\"left\">\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t<div class=\"font\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%}; font-size: 16px; line-height: 24px; font-weight: 400; font-style: normal; font-family: Helvetica; padding-bottom: {%padding_m%};\">{{embedded.company_address}}</div>\n\t\t\t\t\t\t\t<div class=\"font\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%}; font-size: 16px; line-height: 24px; font-weight: 400; font-style: normal; font-family: Helvetica; padding-bottom: {%padding_m%};\">{{embedded.risk_warning}}</div>\n\t\t\t\t\t\t\t<div class=\"font\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%}; font-size: 16px; line-height: 24px; font-weight: 400; font-style: normal; font-family: Helvetica; padding-bottom: {%padding_m%};\">\n\t\t\t\t\t\t\t\t<a href=\"{{embedded.company_terms_link}}\" target=\"_blank\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%} !important; font-size: 16px; line-height: 24px; font-weight: 400; font-family: Helvetica !important; text-decoration: none; padding: 0 7px;\">${{ footer.block_00 }}$</a>\n\t\t\t\t\t\t\t\t<a href=\"{{embedded.unsubscribe_link}}\" target=\"_blank\" style=\"text-align: left; letter-spacing: 0; color: {%on_surface_color%} !important; font-size: 16px; line-height: 24px; font-weight: 400; font-family: Helvetica !important; text-decoration: none; padding: 0 7px;\">${{ footer.block_01 }}$</a>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t</td>\n\t\t\t\t\t</tr>\n\t\t\t\t</table>\n\t\t\t\t<div style=\"height: 40px; line-height: 40px;\">&nbsp;</div>\n\n\t\t\t</center>\n\t\t\t</div>\n\t\t\t\n\t\t\t<!--[if (gte mso 9)|(IE)]>\n\t\t\t</td></tr></table><![endif]-->\n\t\t</td>\n\t</tr>\n</table>\n<div style=\"-webkit-font-smoothing: antialiased; display: none; font: 15px courier; line-height: 0; white-space: nowrap;\">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</div>\n</body>\n</html>"
+    }
+  ]
+}

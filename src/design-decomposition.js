@@ -274,18 +274,29 @@ function countColumnAnchors(nodes = [], frameWidth = 0) {
   const positioned = nodes
     .map((node) => ({
       x: normalizePositiveNumber(node.x),
-      width: normalizePositiveNumber(node.width)
+      width: normalizePositiveNumber(node.width),
+      role: cleanText(node.inferredRole || node.roleHint)
     }))
-    .filter((node) => node.width > 0);
+    .filter((node) => node.width > 0)
+    .filter((node) => node.role !== "background" && node.role !== "legal");
 
   if (positioned.length < 2) {
+    return 1;
+  }
+
+  const relevant = positioned.filter((node) => {
+    if (frameWidth <= 0) return true;
+    return node.width <= frameWidth * 0.62 || ["icon", "badge", "social", "section"].includes(node.role);
+  });
+
+  if (relevant.length < 2) {
     return 1;
   }
 
   const threshold = Math.max(80, frameWidth * 0.14);
   const anchors = [];
 
-  for (const node of positioned.sort((left, right) => left.x - right.x)) {
+  for (const node of relevant.sort((left, right) => left.x - right.x)) {
     const existing = anchors.find((anchor) => Math.abs(anchor - node.x) <= threshold);
     if (!existing) {
       anchors.push(node.x);
@@ -300,12 +311,26 @@ function inferSectionArchetype(section = {}, nodes = [], frameWidth = 0) {
   const childRoles = new Set(Array.isArray(section.childRoleHints) ? section.childRoleHints.map(cleanText).filter(Boolean) : []);
   const columnCount = normalizePositiveNumber(section.columnCount);
   const width = normalizePositiveNumber(section.width);
-  const hasBackgroundFill = Boolean(cleanText(section?.style?.bgColor) || cleanText(section?.style?.backgroundImage));
-  const hasBorderFrame = Boolean(cleanText(section?.style?.radius) || cleanText(section?.style?.borderWidth));
+  const surfaceKind = cleanText(section?.style?.surfaceKind);
+  const hasBackgroundFill = Boolean(
+    cleanText(section?.style?.bgColor)
+    || cleanText(section?.style?.backgroundImage)
+    || surfaceKind === "band"
+  );
+  const hasBorderFrame = Boolean(
+    cleanText(section?.style?.radius)
+    || cleanText(section?.style?.borderWidth)
+    || surfaceKind === "card"
+  );
   const hasCardStyle = Boolean(
     hasBorderFrame
     || hasBackgroundFill
     || (frameWidth > 0 && width > 0 && width <= frameWidth * 0.92)
+  );
+  const hasEmphasizedFrame = Boolean(
+    cleanText(section?.style?.borderWidth)
+    || surfaceKind === "band"
+    || isDarkHexColor(section?.style?.bgColor)
   );
 
   if (role === "header" && childRoles.has("logo")) {
@@ -313,6 +338,15 @@ function inferSectionArchetype(section = {}, nodes = [], frameWidth = 0) {
   }
 
   if (role === "footer") {
+    if (childRoles.has("badge") && !childRoles.has("social") && !childRoles.has("legal")) {
+      return "store-badges-row";
+    }
+    if (childRoles.has("social") && !childRoles.has("badge") && !childRoles.has("legal")) {
+      return "social-links-row";
+    }
+    if (childRoles.has("legal") && !childRoles.has("badge") && !childRoles.has("social")) {
+      return "legal-footer-copy";
+    }
     if (childRoles.has("badge") && childRoles.has("social")) {
       return "store-social-footer-band";
     }
@@ -322,7 +356,7 @@ function inferSectionArchetype(section = {}, nodes = [], frameWidth = 0) {
     return "footer-band";
   }
 
-  if (role === "hero" && childRoles.has("background")) {
+  if (role === "hero" && (childRoles.has("background") || surfaceKind === "band" || cleanText(section?.style?.backgroundImage))) {
     return "background-hero";
   }
 
@@ -330,7 +364,7 @@ function inferSectionArchetype(section = {}, nodes = [], frameWidth = 0) {
     return "hero-banner";
   }
 
-  if ((role === "text" || role === "cta") && hasBackgroundFill && hasBorderFrame && columnCount <= 1) {
+  if ((role === "text" || role === "cta") && hasBackgroundFill && hasBorderFrame && hasEmphasizedFrame && columnCount <= 1) {
     return "callout-box";
   }
 
@@ -361,11 +395,26 @@ function inferSectionArchetype(section = {}, nodes = [], frameWidth = 0) {
   return "plain-section";
 }
 
+function inferFooterTraits(sections = []) {
+  const footerSections = sections.filter((section) => cleanText(section.role) === "footer");
+  const archetypes = new Set(footerSections.map((section) => cleanText(section.archetype)).filter(Boolean));
+
+  return {
+    hasStoreRow: archetypes.has("store-badges-row") || archetypes.has("store-social-footer-band"),
+    hasSocialRow: archetypes.has("social-links-row") || archetypes.has("store-social-footer-band") || archetypes.has("legal-footer-band"),
+    hasLegalCopy: archetypes.has("legal-footer-copy") || archetypes.has("legal-footer-band") || archetypes.has("store-social-footer-band"),
+    sectionCount: footerSections.length
+  };
+}
+
 function countCardSections(sections = [], frameWidth = 0) {
   return sections.filter((section) => {
     const width = normalizePositiveNumber(section.width);
+    const surfaceKind = cleanText(section?.style?.surfaceKind);
     return Boolean(
-      cleanText(section?.style?.radius)
+      surfaceKind === "card"
+      || (surfaceKind !== "band" && normalizePositiveNumber(section?.style?.surfaceCoverage) >= 0.18)
+      || cleanText(section?.style?.radius)
       || cleanText(section?.style?.bgColor)
       || (frameWidth > 0 && width > 0 && width <= frameWidth * 0.92 && cleanText(section.role) !== "footer")
     );
@@ -375,10 +424,12 @@ function countCardSections(sections = [], frameWidth = 0) {
 function countBackgroundBands(sections = [], frameWidth = 0) {
   return sections.filter((section) => {
     const width = normalizePositiveNumber(section.width);
-    const sectionRoles = new Set(Array.isArray(section.childRoleHints) ? section.childRoleHints.map(cleanText).filter(Boolean) : []);
     return Boolean(
-      (frameWidth > 0 && width >= frameWidth * 0.92 && cleanText(section?.style?.bgColor))
-      || sectionRoles.has("background")
+      cleanText(section?.style?.surfaceKind) === "band"
+      || (frameWidth > 0 && width >= frameWidth * 0.92 && cleanText(section?.style?.bgColor))
+      || cleanText(section?.style?.backgroundImage)
+      || (cleanText(section?.role) === "hero"
+        && ["background-hero", "hero-banner"].includes(cleanText(section?.archetype)))
     );
   }).length;
 }
@@ -439,16 +490,21 @@ function inferFooterFamily(sections = [], imageSlots = [], textNodes = []) {
   const footerSections = sections.filter((section) => cleanText(section.role) === "footer");
   const imageRoles = new Set(imageSlots.map((slot) => cleanText(slot.inferredRole || slot.roleHint)).filter(Boolean));
   const hasLegalText = textNodes.some((node) => cleanText(node.inferredRole || node.roleHint) === "legal");
+  const footerTraits = inferFooterTraits(sections);
 
   if (footerSections.length === 0 && !hasLegalText) {
     return "";
   }
 
-  if (imageRoles.has("badge") && imageRoles.has("social")) {
+  if ((imageRoles.has("badge") || footerTraits.hasStoreRow) && (imageRoles.has("social") || footerTraits.hasSocialRow)) {
     return "store-social-legal-footer";
   }
 
-  if (imageRoles.has("social")) {
+  if (imageRoles.has("badge") || footerTraits.hasStoreRow) {
+    return "store-legal-footer";
+  }
+
+  if (imageRoles.has("social") || footerTraits.hasSocialRow) {
     return "social-legal-footer";
   }
 
@@ -479,6 +535,10 @@ function inferStyleFamily(layoutTraits = [], sections = []) {
     return "simple-transactional-layout";
   }
 
+  if (traits.has("store-badges") && traits.has("social-row") && traits.has("legal-footer")) {
+    return "store-social-promotional-layout";
+  }
+
   return "";
 }
 
@@ -491,7 +551,7 @@ function inferLayoutTraits(sections = [], textNodes = [], imageSlots = [], frame
   const imageRoles = new Set(imageSlots.map((slot) => cleanText(slot.inferredRole || slot.roleHint)).filter(Boolean));
   const cardSectionCount = countCardSections(sections, frameWidth);
   const backgroundBandCount = countBackgroundBands(sections, frameWidth);
-  const hasDarkBackground = sections.some((section) => isDarkHexColor(section?.style?.bgColor));
+  const hasDarkBackground = sections.some((section) => Boolean(section?.style?.isDark) || isDarkHexColor(section?.style?.bgColor));
 
   if (maxColumns > 1) {
     traits.push(`${maxColumns}-column`);
@@ -503,7 +563,9 @@ function inferLayoutTraits(sections = [], textNodes = [], imageSlots = [], frame
   if (imageRoles.has("social")) traits.push("social-row");
   if (imageRoles.has("badge")) traits.push("store-badges");
   if (imageRoles.has("hero")) traits.push("hero-image");
-  if (imageRoles.has("background")) traits.push("background-image");
+  if (imageRoles.has("background") && (backgroundBandCount > 0 || sectionArchetypes.has("background-hero"))) {
+    traits.push("background-image");
+  }
   if (sectionRoles.has("footer")) traits.push("legal-footer");
   if (sectionRoles.has("feature-list")) traits.push("feature-grid");
   if (backgroundBandCount > 0) traits.push("background-band");
@@ -512,6 +574,11 @@ function inferLayoutTraits(sections = [], textNodes = [], imageSlots = [], frame
   if (sectionArchetypes.has("two-column-grid")) traits.push("two-column-grid");
   if (sectionArchetypes.has("three-column-grid")) traits.push("three-column-grid");
   if (sectionArchetypes.has("cta-card")) traits.push("cta-card");
+  if (sectionArchetypes.has("store-badges-row")) traits.push("store-row");
+  if (sectionArchetypes.has("social-links-row")) traits.push("social-row");
+  if (sectionArchetypes.has("legal-footer-copy")) traits.push("legal-copy");
+  if (sectionArchetypes.has("copy-card")) traits.push("copy-card");
+  if (sectionArchetypes.has("feature-card-stack")) traits.push("feature-card-stack");
 
   const transactionalLike = sectionRoles.has("header")
     && sectionRoles.has("footer")

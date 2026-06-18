@@ -1,0 +1,26 @@
+{
+  "id": "cta-banner",
+  "label": "CTA — full-width orange banner",
+  "description": "Полноширинная полоса с заголовком и одной кнопкой. Хороший конверсионный блок в конце письма. Цвета фона/текста/кнопки и скругления редактируются.",
+  "placement": "section",
+  "category": "cta",
+  "version": 2,
+  "source": "canonical",
+  "pug": "table.row.cta-banner(role='presentation')\n    tr\n        td.banner-cell(align='center')\n            h2.banner-title {{ title }}\n            p.banner-sub {{ subtitle }}\n            table.cta(role='presentation' align='center')\n                tr\n                    td.butt\n                        a.butt-link(href='{{ cta_href }}' target='_blank') {{ cta_label }}\n",
+  "styl": ".row.cta-banner td.banner-cell { background-color: {{ bg_color }}; padding: 40px 32px; text-align: center; border-radius: {{ radius }}px; }\n.row.cta-banner h2.banner-title { font-family: 'Helvetica', 'Arial', sans-serif; font-weight: 700; font-size: 26px; line-height: 1.25; color: {{ title_color }}; margin: 0 0 12px; padding: 0; }\n.row.cta-banner p.banner-sub { font-family: 'Helvetica', 'Arial', sans-serif; font-weight: 400; font-size: 15px; line-height: 1.5; color: {{ subtitle_color }}; margin: 0 0 24px; padding: 0; }\n.row.cta-banner td.butt { background-color: {{ button_bg }}; border-radius: {{ button_radius }}px; padding: 0; }\n.row.cta-banner a.butt-link { display: block; padding: 14px 32px; font-family: 'Helvetica', 'Arial', sans-serif; font-weight: 700; font-size: 16px; color: {{ button_text_color }}; text-decoration: none; }\n",
+  "slots": [
+    { "id": "title",     "kind": "text", "label": "Заголовок банера",  "default": "Ready to get started?", "max": 60 },
+    { "id": "subtitle",  "kind": "text", "label": "Подзаголовок",      "default": "Open your account in 60 seconds.", "max": 100 },
+    { "id": "cta_label", "kind": "text", "label": "Текст кнопки",       "default": "Sign up free", "max": 30 },
+    { "id": "cta_href",  "kind": "url",  "label": "Ссылка кнопки",      "default": "https://example.com" },
+    { "id": "bg_color",          "kind": "color",  "label": "Цвет фона банера",      "default": "#ff7700" },
+    { "id": "title_color",       "kind": "color",  "label": "Цвет заголовка",        "default": "#ffffff" },
+    { "id": "subtitle_color",    "kind": "color",  "label": "Цвет подзаголовка",     "default": "#fff3e6" },
+    { "id": "radius",            "kind": "number", "label": "Скругление банера, px", "default": 16, "min": 0, "max": 48 },
+    { "id": "button_bg",         "kind": "color",  "label": "Цвет кнопки",           "default": "#ffffff" },
+    { "id": "button_text_color", "kind": "color",  "label": "Цвет текста кнопки",     "default": "#ff7700" },
+    { "id": "button_radius",     "kind": "number", "label": "Скругление кнопки, px",  "default": 14, "min": 0, "max": 40 }
+  ],
+  "outlookSafe": true,
+  "tags": ["cta", "banner", "conversion"]
+}

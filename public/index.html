@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
@@ -25,10 +26,12 @@
           <div class="status-cluster">
             <span class="pill" id="apiStatus">Проверяю API...</span>
             <span class="pill" id="aiModePill">AI mode</span>
+            <span class="pill token-pill" id="tokenPill" title="Расход токенов за сессию сервера (сбрасывается при перезапуске). Остаток квоты не показывает." hidden>🪙 0</span>
           </div>
           <div class="topbar-actions">
             <!-- Primary: Templates (replaces old "Load base email") -->
             <button class="ghost-button topbar-primary-action" id="openTemplateBrowserBtn" type="button">📂 Templates</button>
+            <button class="ghost-button utility-button" id="toggleWorkbenchBtn" type="button">Workbench</button>
             <!-- Secondary: History + Settings -->
             <button class="ghost-button utility-button" id="openHistoryBtn" type="button">🕐 История</button>
             <button class="ghost-button utility-button" id="settingsBtn" type="button">⚙ Settings</button>
@@ -119,6 +122,8 @@
                   <button class="ghost-button secondary-button" id="openContextBtn" type="button">Опц. поля</button>
                   <button class="ghost-button secondary-button remember-btn" id="rememberLastBtn" type="button" title="Сохранить последнюю ошибку AI как урок">🧠 Запомни</button>
                   <button class="primary-button" id="sendBtn" type="submit">Отправить</button>
+                  <!-- Cancel button — appears ONLY while AI is processing, right next to Send -->
+                  <button class="ghost-button cancel-ai-btn" id="cancelAiBtn" type="button" title="Отменить запрос к AI" hidden>✕ Отменить</button>
                 </div>
               </div>
             </form>
@@ -140,13 +145,14 @@
                 </h2>
               </div>
               <div class="preview-toolbar">
-                <button class="ghost-button" id="openTestsBtn" type="button">Тесты</button>
                 <div class="preview-viewport-group">
                   <button class="ghost-button viewport-button" data-preview-viewport="fit" type="button">Fit</button>
                   <button class="ghost-button viewport-button" data-preview-viewport="desktop" type="button">Desktop</button>
                   <button class="ghost-button viewport-button" data-preview-viewport="mobile" type="button">Mobile</button>
                 </div>
-                <button class="ghost-button" id="copyPreviewHtmlBtn" type="button" disabled>Copy HTML</button>
+                <button class="primary-button copy-html-btn" id="copyPreviewHtmlBtn" type="button" disabled>Copy HTML</button>
+                <!-- Keep for JS compat but hidden — Тесты is in workspace shortcuts below -->
+                <button id="openTestsBtn" type="button" hidden></button>
               </div>
             </div>
 
@@ -187,6 +193,25 @@
             </div>
             <div class="preview-locale-row" id="previewLocaleRow" hidden>
               <div class="locale-tabs" id="previewLocaleTabs"></div>
+              <button class="ghost-button add-locale-btn" id="addLocaleBtn" type="button" title="Add a new locale translation to this saved email">+ Locale</button>
+            </div>
+
+            <!-- Add Locale dialog (inline, shown below the locale row) -->
+            <div class="add-locale-panel" id="addLocalePanel" hidden>
+              <div class="add-locale-panel-inner">
+                <label class="add-locale-label">New locale code
+                  <input class="add-locale-input" id="addLocaleInput" type="text" placeholder="e.g. pt, ar, zh" maxlength="10" />
+                </label>
+                <label class="add-locale-label">Engine
+                  <select class="add-locale-select" id="addLocaleEngine">
+                    <option value="openai">OpenAI</option>
+                    <option value="deepl">DeepL</option>
+                  </select>
+                </label>
+                <button class="primary-button add-locale-confirm-btn" id="addLocaleConfirmBtn" type="button">Translate &amp; save</button>
+                <button class="ghost-button" id="addLocaleCancelBtn" type="button">Cancel</button>
+                <span class="add-locale-status" id="addLocaleStatus"></span>
+              </div>
             </div>
             <div class="preview-stage" id="previewStage" data-viewport="fit">
               <div class="preview-skeleton" id="previewSkeleton" hidden>
@@ -222,6 +247,52 @@
           </section>
         </section>
       </div>
+
+      <section class="workbench-shell" id="workbenchShell" hidden>
+        <div class="card workbench-card">
+          <div class="workbench-classic-topbar">
+            <div class="workbench-classic-row">
+              <button class="workbench-icon-button" id="focusChatBtn" type="button" title="AI chat">◎</button>
+              <button class="workbench-pill-button" id="workbenchOpenLocalesBtn" type="button">Original Locales</button>
+              <div class="locale-tabs workbench-locale-tabs" id="workbenchLocaleTabs"></div>
+              <button class="workbench-mini-button" id="workbenchLocaleAddBtn" type="button">+</button>
+            </div>
+            <div class="workbench-classic-row workbench-classic-row--secondary">
+              <button class="workbench-mail-button" id="workbenchMailMetaBtn" type="button">
+                <span class="workbench-mail-id" id="workbenchCurrentMeta">mail draft</span>
+              </button>
+              <div class="workbench-status-inline">
+                <span class="workbench-status-label">Placeholders</span>
+                <span class="workbench-status-value" id="workbenchPlaceholderSummary">Плейсхолдеры появятся после первого письма.</span>
+              </div>
+              <div class="workbench-chip-row" id="workbenchPlaceholderChips"></div>
+              <button class="workbench-mini-button workbench-mini-button--danger" id="closeWorkbenchBtn" type="button">✕</button>
+            </div>
+          </div>
+          <div class="workbench-shell-body">
+            <div class="workbench-dock workbench-code-dock" id="workbenchCodeDock"></div>
+            <div class="workbench-preview-shell">
+              <div class="workbench-dock workbench-preview-dock" id="workbenchPreviewDock"></div>
+              <div class="workbench-preview-rail">
+                <button class="workbench-preview-rail-btn" data-workbench-viewport="desktop" type="button">Desktop</button>
+                <button class="workbench-preview-rail-btn" data-workbench-viewport="mobile" type="button">Mobile</button>
+                <button class="workbench-preview-rail-btn" data-workbench-viewport="fit" type="button">Fit</button>
+                <button class="workbench-preview-rail-btn workbench-preview-rail-btn--copy" id="workbenchCopyHtmlBtn" type="button">Copy HTML</button>
+              </div>
+            </div>
+          </div>
+          <div class="workbench-bottom-bar">
+            <button class="workbench-bottom-button" id="workbenchOpenTemplatesBtn" type="button">Templates</button>
+            <button class="workbench-bottom-button" id="workbenchOpenBrandsBtn" type="button">Brands</button>
+            <button class="workbench-bottom-button" id="workbenchConvertPdfBtn" type="button">Convert to PDF</button>
+            <button class="workbench-bottom-button" id="workbenchOpenTxtToJsonBtn" type="button">Txt to JSON</button>
+            <button class="workbench-bottom-button" id="workbenchOpenPlaceholdersBtn" type="button">Placeholders</button>
+            <button class="workbench-bottom-button" id="workbenchOpenAssetsBtn" type="button">Assets</button>
+            <button class="workbench-bottom-button" id="workbenchOpenHistoryBtn" type="button">History</button>
+            <button class="workbench-bottom-button" id="workbenchOpenCodeBtn" type="button">Code tools</button>
+          </div>
+        </div>
+      </section>
     </div>
 
     <div class="settings-backdrop" id="settingsBackdrop" hidden></div>
@@ -323,6 +394,24 @@
       </div>
     </section>
 
+    <section class="workspace-modal" id="placeholdersModal" aria-hidden="true">
+      <div class="workspace-modal-header">
+        <div>
+          <div class="card-kicker">Placeholders</div>
+          <h2>Токены и рабочие переменные</h2>
+        </div>
+        <button class="ghost-button" id="closePlaceholdersModalBtn" type="button">Close</button>
+      </div>
+      <div class="workspace-modal-body">
+        <div class="modal-meta" id="placeholdersModalMeta">Плейсхолдеры появятся после загрузки письма, локалей или draft.</div>
+        <div class="placeholder-token-list" id="placeholdersTokenList"></div>
+      </div>
+      <div class="workspace-modal-footer">
+        <button class="ghost-button" id="closePlaceholdersFooterBtn" type="button">Close</button>
+        <button class="primary-button" id="copyPlaceholdersBtn" type="button">Copy list</button>
+      </div>
+    </section>
+
     <section class="workspace-modal" id="contextModal" aria-hidden="true">
       <div class="workspace-modal-header">
         <div>
@@ -384,6 +473,40 @@
               <label class="field">
                 <span>Primary link</span>
                 <input id="primaryLink" type="url" placeholder="https://..." />
+              </label>
+            </div>
+          </details>
+          <details class="context-advanced field-wide">
+            <summary>Brand style overrides <span class="field-hint">(оставь пустым — студия возьмёт дефолты)</span></summary>
+            <div class="field-grid modal-field-grid compact">
+              <label class="field">
+                <span>Primary color (button bg)</span>
+                <div class="color-field-row">
+                  <input id="brandPrimaryColor" type="color" class="color-swatch-input" value="#FF7700" />
+                  <input id="brandPrimaryColorHex" type="text" class="color-hex-input" placeholder="#FF7700" maxlength="7" />
+                </div>
+              </label>
+              <label class="field">
+                <span>Button text color</span>
+                <div class="color-field-row">
+                  <input id="brandButtonTextColor" type="color" class="color-swatch-input" value="#FFFFFF" />
+                  <input id="brandButtonTextColorHex" type="text" class="color-hex-input" placeholder="#FFFFFF" maxlength="7" />
+                </div>
+              </label>
+              <label class="field">
+                <span>Background color</span>
+                <div class="color-field-row">
+                  <input id="brandBgColor" type="color" class="color-swatch-input" value="#101314" />
+                  <input id="brandBgColorHex" type="text" class="color-hex-input" placeholder="#101314" maxlength="7" />
+                </div>
+              </label>
+              <label class="field">
+                <span>Button radius</span>
+                <input id="brandButtonRadius" type="text" placeholder="12px (default)" maxlength="10" />
+              </label>
+              <label class="field">
+                <span>Body text size</span>
+                <input id="brandBodySize" type="text" placeholder="18px (default)" maxlength="10" />
               </label>
             </div>
           </details>
@@ -841,6 +964,62 @@
       <div class="workspace-modal-footer">
         <button class="ghost-button" id="clearHistoryBtn" type="button">Очистить историю</button>
         <button class="ghost-button" id="closeHistoryFooterBtn" type="button">Закрыть</button>
+      </div>
+    </section>
+
+    <section class="workspace-modal" id="brandsModal" aria-hidden="true">
+      <div class="workspace-modal-header">
+        <div>
+          <div class="card-kicker">Legacy toolkit</div>
+          <h2>Brands</h2>
+        </div>
+        <button class="ghost-button" id="closeBrandsModalBtn" type="button">Close</button>
+      </div>
+      <div class="workspace-modal-body">
+        <div class="modal-meta" id="brandsModalMeta">
+          Здесь будут бренды из старого retention-tool-kit. Выбирай тему, и мы применим её как brand preset к текущему письму.
+        </div>
+        <div class="brands-modal-grid" id="legacyBrandsList"></div>
+      </div>
+      <div class="workspace-modal-footer">
+        <button class="ghost-button" id="restoreLegacyBrandBtn" type="button">Original styles</button>
+        <button class="ghost-button" id="closeBrandsFooterBtn" type="button">Close</button>
+      </div>
+    </section>
+
+    <section class="workspace-modal" id="txtToJsonModal" aria-hidden="true">
+      <div class="workspace-modal-header">
+        <div>
+          <div class="card-kicker">Legacy toolkit</div>
+          <h2>Txt to JSON</h2>
+        </div>
+        <button class="ghost-button" id="closeTxtToJsonModalBtn" type="button">Close</button>
+      </div>
+      <div class="workspace-modal-body">
+        <div class="modal-meta" id="txtToJsonMeta">
+          Загрузи папку с txt-файлами локалей. Мы разложим блоки в JSON по старым правилам toolkit и дадим их скачать по локалям.
+        </div>
+        <div class="txt-json-toolbar">
+          <button class="ghost-button" id="selectTxtToJsonFolderBtn" type="button">Выбрать папку</button>
+          <label class="field txt-json-name-field">
+            <span>JSON filename</span>
+            <input id="txtToJsonBaseNameInput" type="text" placeholder="folder-name" />
+          </label>
+          <input id="txtToJsonFolderInput" type="file" webkitdirectory directory multiple hidden />
+        </div>
+        <div class="txt-json-dropzone" id="txtToJsonDropzone" tabindex="0">
+          Перетащи сюда папку или нажми «Выбрать папку».
+        </div>
+        <div class="txt-json-summary" id="txtToJsonSummary">Пока нет загруженных locale txt-файлов.</div>
+        <div class="locale-tabs txt-json-locale-tabs" id="txtToJsonLocaleTabs"></div>
+        <textarea class="modal-editor txt-json-output" id="txtToJsonOutput" spellcheck="false" readonly placeholder="Здесь появится JSON для выбранной локали."></textarea>
+        <div class="txt-json-warnings" id="txtToJsonWarnings"></div>
+      </div>
+      <div class="workspace-modal-footer">
+        <button class="ghost-button" id="copyTxtToJsonBtn" type="button">Copy JSON</button>
+        <button class="ghost-button" id="downloadTxtToJsonCurrentBtn" type="button">Download current</button>
+        <button class="ghost-button" id="downloadTxtToJsonAllBtn" type="button">Download all</button>
+        <button class="ghost-button" id="closeTxtToJsonFooterBtn" type="button">Close</button>
       </div>
     </section>
 

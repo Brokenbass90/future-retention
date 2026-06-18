@@ -26,6 +26,10 @@ npm start
 
 Открыть: [http://localhost:3000](http://localhost:3000)
 
+Production deployment на Heroku, обязательные переменные окружения, Basic Auth
+и ограничение ephemeral filesystem описаны в
+[`docs/HEROKU-DEPLOYMENT.md`](docs/HEROKU-DEPLOYMENT.md).
+
 Для live-режима OpenAI можно больше не делать `export` вручную. Достаточно создать `.env` рядом с [server.js](/Users/nikolay.bulgakov/Documents/retantion-future/server.js):
 
 ```bash

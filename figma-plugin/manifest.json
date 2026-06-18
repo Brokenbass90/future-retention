@@ -1,0 +1,12 @@
+{
+  "name": "RetKit — Send frame to Studio",
+  "id": "retkit-send-to-studio",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": ["figma"],
+  "networkAccess": {
+    "allowedDomains": ["*"],
+    "reasoning": "Posts the selected frame's structured JSON to the locally-running RetKit studio (default http://localhost:3000) so it can assemble an email from canonical blocks."
+  }
+}

@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  body { font: 12px -apple-system, "Segoe UI", sans-serif; margin: 0; padding: 12px; color: #1a1a1a; }
+  h3 { margin: 0 0 8px; font-size: 13px; }
+  .row { display: flex; gap: 6px; align-items: center; margin-bottom: 8px; }
+  .row label { width: 70px; color: #666; }
+  input { flex: 1; padding: 5px 7px; border: 1px solid #ccc; border-radius: 5px; font: 11px ui-monospace, Menlo, monospace; }
+  textarea { width: 100%; height: 230px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px;
+             font: 10px/1.4 ui-monospace, Menlo, monospace; padding: 8px; resize: vertical; }
+  .btns { display: flex; gap: 8px; margin: 10px 0; }
+  button { flex: 1; padding: 8px; border: 0; border-radius: 6px; cursor: pointer; font-weight: 600; }
+  .primary { background: #2563eb; color: #fff; }
+  .ghost { background: #eee; color: #222; }
+  .stat { font-size: 11px; color: #666; min-height: 16px; margin-top: 4px; }
+  .stat.ok { color: #15803d; } .stat.err { color: #b91c1c; }
+  .hint { color: #888; font-size: 11px; line-height: 1.5; margin-top: 8px; }
+  code { background: #f3f3f3; padding: 1px 4px; border-radius: 3px; }
+</style>
+</head>
+<body>
+  <h3>RetKit — Send frame to Studio</h3>
+
+  <div class="row">
+    <label>Studio URL</label>
+    <input id="url" value="http://localhost:3000/api/figma/import" />
+  </div>
+  <div class="row">
+    <label>Secret</label>
+    <input id="secret" placeholder="FIGMA_IMPORT_SECRET (если задан)" />
+  </div>
+
+  <div class="btns">
+    <button class="primary" id="send">Отправить в студию</button>
+    <button class="ghost" id="copy">Скопировать JSON</button>
+  </div>
+  <div class="stat" id="stat">Готовлю данные фрейма…</div>
+
+  <textarea id="json" spellcheck="false"></textarea>
+
+  <p class="hint">
+    Выдели <b>один фрейм</b> письма в Figma и запусти плагин. Если «Отправить» не проходит
+    (CORS/секрет), нажми «Скопировать JSON» и вставь его в поле <code>Figma payload</code> в студии.
+  </p>
+
+  <script>
+  let payload = null;
+  const $ = (id) => document.getElementById(id);
+  const setStat = (t, cls) => { const s = $("stat"); s.textContent = t; s.className = "stat" + (cls ? " " + cls : ""); };
+
+  onmessage = (e) => {
+    const msg = e.data.pluginMessage;
+    if (!msg) return;
+    if (msg.error) { setStat(msg.error, "err"); $("json").value = ""; payload = null; return; }
+    payload = msg;
+    $("json").value = JSON.stringify(msg, null, 2);
+    const sc = (msg.sections || []).length, tc = (msg.texts || []).length, ic = (msg.images || []).length;
+    setStat("Готово: " + sc + " секц., " + tc + " текст., " + ic + " картинок. Стили: " + (msg.styles.primaryColor || "—"), "ok");
+  };
+
+  $("copy").onclick = () => {
+    $("json").select();
+    document.execCommand("copy");
+    setStat("JSON скопирован — вставь в поле Figma payload в студии.", "ok");
+    parent.postMessage({ pluginMessage: { type: "notify", text: "JSON скопирован" } }, "*");
+  };
+
+  $("send").onclick = async () => {
+    if (!payload) { setStat("Нет данных — выдели фрейм и перезапусти.", "err"); return; }
+    const url = $("url").value.trim();
+    const secret = $("secret").value.trim();
+    const body = Object.assign({ figmaImport: payload }, secret ? { secret } : {});
+    setStat("Отправляю…");
+    try {
+      const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { setStat("Студия ответила " + res.status + ": " + (data.error || ""), "err"); return; }
+      const n = (data.composePlan && data.composePlan.plan ? data.composePlan.plan.length : 0);
+      setStat("✓ Принято студией. План: " + n + " блок(ов). Открой студию.", "ok");
+    } catch (err) {
+      setStat("Сеть/CORS: " + err.message + ". Используй «Скопировать JSON».", "err");
+    }
+  };
+  </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "id": "text-block",
+  "label": "Text — paragraph(s)",
+  "description": "Свободный абзац основного текста. Опциональный подзаголовок над текстом. Цвета заголовка и текста редактируются.",
+  "placement": "section",
+  "category": "text",
+  "version": 2,
+  "source": "canonical",
+  "pug": "table.row.text-block(role='presentation')\n    tr\n        td.text-cell\n            h2.subtitle {{ subtitle }}\n            p.body {{ body }}\n",
+  "styl": ".row.text-block td.text-cell { padding: 16px 32px 24px; text-align: left; }\n.row.text-block h2.subtitle { font-family: 'Helvetica', 'Arial', sans-serif; font-weight: 700; font-size: 20px; line-height: 1.3; color: {{ title_color }}; margin: 0 0 12px; padding: 0; }\n.row.text-block p.body { font-family: 'Helvetica', 'Arial', sans-serif; font-weight: 400; font-size: 16px; line-height: 1.5; color: {{ body_color }}; margin: 0; padding: 0; }\n",
+  "slots": [
+    { "id": "subtitle", "kind": "text",     "label": "Подзаголовок (можно оставить пустым)", "default": "What's new", "max": 80 },
+    { "id": "body",     "kind": "richText", "label": "Текст абзаца",                           "default": "Your paragraph text goes here. Keep it concise — emails read better when short.", "max": 600 },
+    { "id": "title_color", "kind": "color", "label": "Цвет заголовка", "default": "#1a1a1a" },
+    { "id": "body_color",  "kind": "color", "label": "Цвет текста",    "default": "#333333" }
+  ],
+  "outlookSafe": true,
+  "tags": ["text", "paragraph", "body"]
+}

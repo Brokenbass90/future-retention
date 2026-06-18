@@ -277,6 +277,7 @@ export function getFigmaIntegrationContract() {
   return {
     version: 1,
     endpoint: "/api/figma/import",
+    readinessEndpoint: "/api/figma/readiness",
     auth: {
       header: "X-Figma-Import-Secret",
       optionalWhenServerSecretIsEmpty: true
@@ -284,6 +285,7 @@ export function getFigmaIntegrationContract() {
     preferredFlows: [
       "figma-plugin-push",
       "server-token-link-import",
+      "shared-intake-link",
       "screenshot-fallback"
     ],
     requiredMinimumFields: [
@@ -299,6 +301,7 @@ export function getFigmaIntegrationContract() {
       "texts[].lineHeight",
       "texts[].direction",
       "images[].roleHint",
+      "images[].prep",
       "images[].assetSource",
       "images[].exportRef",
       "localeHints",
@@ -306,6 +309,7 @@ export function getFigmaIntegrationContract() {
     ],
     notes: [
       "Plugin push is the preferred private-Figma workflow.",
+      "Shared intake file is the best manual bridge until Send to Studio is fully wired.",
       "Users should not prepare JSON manually.",
       "PNG/JPG is fallback-only and loses layer fidelity.",
       "The goal is to send frame structure, text nodes, exported image nodes, section styles, and design tokens.",

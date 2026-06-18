@@ -1,0 +1,28 @@
+{
+  "id": "hero-stack",
+  "label": "Hero — stacked (image / heading / body / CTA)",
+  "description": "Главный блок: опциональная картинка сверху, крупный заголовок, абзац, одна кнопка. Всё друг под другом, по центру. Цвета и скругления редактируются.",
+  "placement": "section",
+  "category": "hero",
+  "version": 2,
+  "source": "canonical",
+  "pug": "table.row.hero(role='presentation')\n    tr\n        td.hero-cell(align='center')\n            //- optional hero image\n            if true\n                a(href='{{ image_link }}' target='_blank')\n                    img.hero-img(src='{{ image_url }}' alt='{{ image_alt }}' width='480')\n            h1.hero-title {{ title }}\n            p.hero-body {{ body }}\n            //- CTA button\n            table.cta(role='presentation' align='center')\n                tr\n                    td.butt\n                        a.butt-link(href='{{ cta_href }}' target='_blank') {{ cta_label }}\n",
+  "styl": ".row.hero td.hero-cell { padding: 0 24px 32px; text-align: center; }\n.row.hero img.hero-img { display: block; margin: 0 auto 24px; max-width: 100%; height: auto; border-radius: {{ image_radius }}px; }\n.row.hero h1.hero-title { font-family: 'Helvetica', 'Arial', sans-serif; font-weight: 700; font-size: 32px; line-height: 1.2; color: {{ title_color }}; margin: 0 0 16px; padding: 0; }\n.row.hero p.hero-body { font-family: 'Helvetica', 'Arial', sans-serif; font-weight: 400; font-size: 16px; line-height: 1.5; color: {{ body_color }}; margin: 0 0 24px; padding: 0; }\n.row.hero table.cta { margin: 0 auto; }\n.row.hero td.butt { background-color: {{ button_bg }}; border-radius: {{ button_radius }}px; padding: 0; }\n.row.hero a.butt-link { display: block; padding: 14px 32px; font-family: 'Helvetica', 'Arial', sans-serif; font-weight: 700; font-size: 16px; color: {{ button_text_color }}; text-decoration: none; }\n",
+  "slots": [
+    { "id": "image_url",  "kind": "image", "label": "Картинка hero (URL)", "default": "https://placehold.co/480x240?text=Hero" },
+    { "id": "image_alt",  "kind": "text",  "label": "Alt картинки",         "default": "Hero", "max": 80 },
+    { "id": "image_link", "kind": "url",   "label": "Ссылка с картинки",    "default": "#" },
+    { "id": "title",      "kind": "text",  "label": "Заголовок",            "default": "Welcome to our service", "max": 80 },
+    { "id": "body",       "kind": "richText", "label": "Текст",             "default": "Short paragraph explaining what's inside.", "max": 240 },
+    { "id": "cta_label",  "kind": "text",  "label": "Текст кнопки",         "default": "Learn more", "max": 40 },
+    { "id": "cta_href",   "kind": "url",   "label": "Ссылка кнопки",        "default": "https://example.com" },
+    { "id": "title_color",       "kind": "color",  "label": "Цвет заголовка",       "default": "#1a1a1a" },
+    { "id": "body_color",        "kind": "color",  "label": "Цвет текста",          "default": "#4a4a4a" },
+    { "id": "button_bg",         "kind": "color",  "label": "Цвет кнопки",          "default": "#ff7700" },
+    { "id": "button_text_color", "kind": "color",  "label": "Цвет текста кнопки",    "default": "#ffffff" },
+    { "id": "image_radius",      "kind": "number", "label": "Скругление картинки, px", "default": 16, "min": 0, "max": 48 },
+    { "id": "button_radius",     "kind": "number", "label": "Скругление кнопки, px",   "default": 16, "min": 0, "max": 40 }
+  ],
+  "outlookSafe": true,
+  "tags": ["hero", "main", "cta"]
+}

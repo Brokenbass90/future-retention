@@ -1,0 +1,25 @@
+{
+  "id": "divider-spacer",
+  "label": "Divider / Spacer",
+  "description": "Тонкая горизонтальная линия или просто вертикальный пробел между секциями. Inline-блок, можно ставить и в секцию, и между секциями.",
+  "placement": "inline",
+  "category": "utility",
+  "version": 1,
+  "source": "canonical",
+  "pug": "table.divider(role='presentation')\n    tr\n        td.line(style='height: {{ height }}px; border-top: {{ line }};')\n            | &nbsp;\n",
+  "styl": "table.divider { width: 100%; margin: 0; }\ntable.divider td.line { font-size: 1px; line-height: 1px; }\n",
+  "slots": [
+    { "id": "height", "kind": "number", "label": "Высота пробела (px)", "default": 24, "min": 1, "max": 100 },
+    { "id": "line",   "kind": "select", "label": "Стиль линии",          "default": "none",
+      "options": [
+        "none",
+        "1px solid #e0e0e0",
+        "1px solid #cccccc",
+        "1px dashed #cccccc",
+        "2px solid #ff7700"
+      ]
+    }
+  ],
+  "outlookSafe": true,
+  "tags": ["divider", "spacer", "utility"]
+}
