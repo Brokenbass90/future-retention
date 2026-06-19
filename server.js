@@ -18735,6 +18735,15 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
+    if (request.method === "GET" && (request.url === "/" || request.url.startsWith("/?"))) {
+      response.writeHead(302, {
+        Location: "/workbench",
+        "Cache-Control": "no-store"
+      });
+      response.end();
+      return;
+    }
+
     if (request.method === "GET" && (request.url === "/workbench" || request.url === "/workbench/")) {
       const wbPath = path.join(publicDir, "workbench.html");
       const data = await readFile(wbPath);
