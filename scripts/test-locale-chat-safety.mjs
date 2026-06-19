@@ -21,6 +21,18 @@ for (const text of ["Исправь локаль ID", "Примени правк
   assert.equal(policy.explicitFix, true, `expected explicit fix: ${text}`);
 }
 
+const affirmativeFix = classifyLocaleChatPolicy("Да давай", {
+  hasNamespaces: true,
+  priorAssistantText: "В ID лишних 2 блока относительно EN. Хотите, я помогу поправить индонезийский локал?",
+});
+assert.equal(affirmativeFix.explicitFix, true, "affirmative answer must continue the offered locale fix");
+assert.equal(affirmativeFix.confirmsPriorFix, true, "affirmative answer must retain prior locale context");
+assert.equal(
+  classifyLocaleChatPolicy("Да давай", { hasNamespaces: true, priorAssistantText: "Собрать новый HTML?" }).explicitFix,
+  false,
+  "generic confirmation must not become a locale fix without a prior fix offer",
+);
+
 assert.equal(
   classifyLocaleChatPolicy("Сравни локали", { hasNamespaces: false }).readOnlyAudit,
   false,

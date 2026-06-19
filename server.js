@@ -15608,6 +15608,7 @@ async function resolveChatResponse(payload) {
 
   const localePolicy = classifyLocaleChatPolicy(lastUserText(payload), {
     hasNamespaces: Array.isArray(payload?.namespaces) && payload.namespaces.length > 0,
+    priorAssistantText: lastAssistantText(payload),
   });
 
   // Locale analysis must win over every mutating dispatcher. The frontend
@@ -15689,6 +15690,16 @@ function lastUserText(payload) {
   return "";
 }
 
+function lastAssistantText(payload) {
+  const msgs = Array.isArray(payload?.messages) ? payload.messages : [];
+  for (let i = msgs.length - 1; i >= 0; i -= 1) {
+    if (msgs[i]?.role === "assistant" && typeof msgs[i].content === "string" && msgs[i].content.trim()) {
+      return msgs[i].content;
+    }
+  }
+  return "";
+}
+
 function pickActiveNamespaceFromBundle(bundleJsonText) {
   if (!bundleJsonText) return null;
   try {
@@ -15704,6 +15715,13 @@ async function tryAiToolsDispatch(payload) {
   const hasNamespaceWorkspace = Array.isArray(payload?.namespaces)
     && payload.namespaces.some((namespace) => namespace && typeof namespace === "object");
   let intent = detectAiToolIntent(userText);
+  const continuationPolicy = classifyLocaleChatPolicy(userText, {
+    hasNamespaces: hasNamespaceWorkspace,
+    priorAssistantText: lastAssistantText(payload),
+  });
+  if (!intent && continuationPolicy.confirmsPriorFix) {
+    intent = "fix-locale";
+  }
   if (!intent && hasNamespaceWorkspace && userText && userText.length > 6 && userText.length < 400) {
     // Free-text fallback: ask the model to classify into one of our supported intents.
     try {

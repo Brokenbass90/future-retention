@@ -6991,8 +6991,17 @@ function truncateForAi(text, max = 2400) {
 
 function inferRequestedLocaleCode(text) {
   const source = String(text || '').toLowerCase();
+  const mismatched = new Set();
+  const referenceCodes = new Set();
+  state.namespaces.forEach(ns => {
+    checkBlockMismatches(ns).forEach(issue => mismatched.add(issue.code));
+    const ref = getReferenceLocaleCode(ns);
+    if (ref) referenceCodes.add(ref);
+  });
   const codes = Array.from(new Set(state.namespaces.flatMap(ns => Object.keys(ns.locales || {}))))
-    .sort((a, b) => b.length - a.length);
+    .sort((a, b) => Number(mismatched.has(b)) - Number(mismatched.has(a))
+      || Number(referenceCodes.has(a)) - Number(referenceCodes.has(b))
+      || b.length - a.length);
   for (const code of codes) {
     const escaped = code.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     if (new RegExp(`(^|[^a-z0-9_])${escaped}([^a-z0-9_]|$)`, 'i').test(source)) return code;
@@ -7000,24 +7009,26 @@ function inferRequestedLocaleCode(text) {
   if (state.activeLocale && state.activeLocale !== 'original' && codes.includes(state.activeLocale)) {
     return state.activeLocale;
   }
-  const mismatched = [];
-  state.namespaces.forEach(ns => checkBlockMismatches(ns).forEach(issue => mismatched.push(issue.code)));
-  return new Set(mismatched).size === 1 ? mismatched[0] : null;
+  return mismatched.size === 1 ? [...mismatched][0] : null;
 }
 
-function classifyLocaleChatRequest(text) {
+function classifyLocaleChatRequest(text, priorAssistantText = '') {
   const source = String(text || '').toLowerCase();
+  const confirmsPriorFix = /^\s*(?:да(?:,?\s+давай)?|давай|ок(?:ей)?|хорошо|согласен|продолжай|сделай)(?:[\s.!]|$)/i.test(source)
+    && /хотите.{0,100}(?:исправ|поправ|почин|предлож)|помог.{0,60}(?:исправ|поправ|почин)|подготов.{0,60}(?:исправ|правк)|привести.{0,60}соответ/i.test(String(priorAssistantText || ''));
   const hasLocaleContext = state.namespaces.length > 0 && (
     /локал|перевод|блок|namespace|local|translation|англ|english|\ben\b/i.test(source)
-    || Boolean(inferRequestedLocaleCode(source))
+    || Boolean(inferRequestedLocaleCode(`${source} ${confirmsPriorFix ? priorAssistantText : ''}`))
+    || confirmsPriorFix
   );
   const explicitlyReadOnly = /не\s+(?:примен|меня|исправ|трог)|без\s+(?:прав|измен)|только\s+(?:анализ|проверк)|ничего\s+не\s+(?:меня|примен)/i.test(source);
   const asksForAudit = /аудит|анализ|сравн|проверь|провер|посмотр|найди|какая|какой|почему|что\s+не\s+так|неправ|некор|расхожд|отлич|количеств.{0,16}блок|сколько.{0,12}блок|предлож|как\s+(?:исправ|почин)/i.test(source);
-  const explicitlyApplies = /^\s*(?:(?:да|теперь|тогда|хорошо)[,!]?\s*)*(?:исправь|почини|выровняй|примени|внеси\s+правк|расставь\s+блок|сделай\s+исправ)/i.test(source);
+  const explicitlyApplies = /^\s*(?:(?:да|теперь|тогда|хорошо)[,!]?\s*)*(?:исправь|почини|выровняй|примени|внеси\s+правк|расставь\s+блок|сделай\s+исправ)/i.test(source) || confirmsPriorFix;
   return {
     hasLocaleContext,
     readOnlyAudit: hasLocaleContext && (explicitlyReadOnly || asksForAudit) && !explicitlyApplies,
     explicitFix: hasLocaleContext && explicitlyApplies && !explicitlyReadOnly,
+    confirmsPriorFix,
   };
 }
 
@@ -7363,7 +7374,8 @@ async function sendAiMessage() {
         return JSON.stringify(blocks).slice(0, 3000);
       })()
     : null;
-  const localePolicy = classifyLocaleChatRequest(text);
+  const priorAssistantText = [...state.chatHistory].reverse().find(message => message.role === 'assistant')?.content || '';
+  const localePolicy = classifyLocaleChatRequest(text, priorAssistantText);
   const localeOpsRequested = localePolicy.hasLocaleContext
     || /локал|перевод|translate|translation|placeholder|плейс|плэйс|ссыл|link|жирн|bold|<b>|текст|англ|english|en\b|разб|split|блок|namespace/i.test(text);
   const localeAuditRequested = localePolicy.readOnlyAudit;
