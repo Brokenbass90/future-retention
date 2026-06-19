@@ -14,6 +14,7 @@ import {
   tokenizeLocaleTxt,
   normalizeLocaleConventions,
   buildAnchorUnits,
+  splitPluralPlaceholderBlocks,
 } from "../src/locale-conventions.js";
 
 const C = { reset: "\x1b[0m", red: "\x1b[31m", green: "\x1b[32m", dim: "\x1b[2m" };
@@ -112,6 +113,26 @@ section("починка незакрытой переменной");
   const r = normalizeLocaleConventions(broken);
   assert(/\{\{embedded\.company_email\}\}/.test(r.txt), "незакрытая {{embedded.x закрыта");
   assert(r.changes.some((c) => c.type === "closed_variable"), "зафиксировано изменение closed_variable");
+}
+
+section("plural placeholder — полноценные блоки во всех локалях");
+{
+  const fixtures = {
+    en: "Subject: Test\n\n{{Intro}}\n\n{{Expires in {{days}} days/1 day/ and access ends.}}\n",
+    id: "Subject: Uji\n\n{{Pembuka}}\n\n{{Berakhir dalam {{days}} hari/1 hari/ dan akses berakhir.}}\n",
+    ko: "Subject: 테스트\n\n{{소개}}\n\n{{{{days}}일/1일 후 접근이 종료됩니다.}}\n",
+  };
+  const expected = {
+    en: ["Intro", "Expires in", "days", "days", "1 day", "and access ends."],
+    id: ["Pembuka", "Berakhir dalam", "days", "hari", "1 hari", "dan akses berakhir."],
+    ko: ["소개", "days", "일", "1일", "후 접근이 종료됩니다."],
+  };
+  for (const [code, raw] of Object.entries(fixtures)) {
+    const result = splitPluralPlaceholderBlocks(raw);
+    assert(result.changed, `${code}: структура изменена`);
+    assert(JSON.stringify(result.blocks) === JSON.stringify(expected[code]), `${code}: переменная/plural/singular/tail разделены без перевода`);
+    assert(!result.txt.includes("{{{{"), `${code}: вложенные скобки отсутствуют`);
+  }
 }
 
 section("buildAnchorUnits — юниты для placeholderize");

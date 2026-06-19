@@ -7016,19 +7016,22 @@ function classifyLocaleChatRequest(text, priorAssistantText = '') {
   const source = String(text || '').toLowerCase();
   const confirmsPriorFix = /^\s*(?:да(?:,?\s+давай)?|давай|ок(?:ей)?|хорошо|согласен|продолжай|сделай)(?:[\s.!]|$)/i.test(source)
     && /хотите.{0,100}(?:исправ|поправ|почин|предлож)|помог.{0,60}(?:исправ|поправ|почин)|подготов.{0,60}(?:исправ|правк)|привести.{0,60}соответ/i.test(String(priorAssistantText || ''));
+  const structureFixRequested = /(?:раздел|отдел|вынес|полноценн.{0,24}блок|сделай\s+так|давай\s+так).{0,100}(?:везде|во\s+всех|для\s+всех|локал|блок|пл[еэ]йсхолдер|переменн)|(?:везде|во\s+всех|для\s+всех).{0,100}(?:раздел|отдел|вынес|блок)/i.test(source);
   const hasLocaleContext = state.namespaces.length > 0 && (
-    /локал|перевод|блок|namespace|local|translation|англ|english|\ben\b/i.test(source)
+    /локал|перевод|блок|namespace|local|translation|англ|english|\ben\b|пл[еэ]йсхолдер|placeholder|переменн/i.test(source)
     || Boolean(inferRequestedLocaleCode(`${source} ${confirmsPriorFix ? priorAssistantText : ''}`))
+    || structureFixRequested
     || confirmsPriorFix
   );
   const explicitlyReadOnly = /не\s+(?:примен|меня|исправ|трог)|без\s+(?:прав|измен)|только\s+(?:анализ|проверк)|ничего\s+не\s+(?:меня|примен)/i.test(source);
   const asksForAudit = /аудит|анализ|сравн|проверь|провер|посмотр|найди|какая|какой|почему|что\s+не\s+так|неправ|некор|расхожд|отлич|количеств.{0,16}блок|сколько.{0,12}блок|предлож|как\s+(?:исправ|почин)/i.test(source);
-  const explicitlyApplies = /^\s*(?:(?:да|теперь|тогда|хорошо)[,!]?\s*)*(?:исправь|почини|выровняй|примени|внеси\s+правк|расставь\s+блок|сделай\s+исправ)/i.test(source) || confirmsPriorFix;
+  const explicitlyApplies = /^\s*(?:(?:да|теперь|тогда|хорошо)[,!]?\s*)*(?:исправь|почини|выровняй|примени|внеси\s+правк|расставь\s+блок|сделай\s+исправ|раздели|отдели|вынеси)/i.test(source) || structureFixRequested || confirmsPriorFix;
   return {
     hasLocaleContext,
     readOnlyAudit: hasLocaleContext && (explicitlyReadOnly || asksForAudit) && !explicitlyApplies,
     explicitFix: hasLocaleContext && explicitlyApplies && !explicitlyReadOnly,
     confirmsPriorFix,
+    structureFixRequested,
   };
 }
 
@@ -7379,6 +7382,11 @@ async function sendAiMessage() {
   const localeOpsRequested = localePolicy.hasLocaleContext
     || /локал|перевод|translate|translation|placeholder|плейс|плэйс|ссыл|link|жирн|bold|<b>|текст|англ|english|en\b|разб|split|блок|namespace/i.test(text);
   const localeAuditRequested = localePolicy.readOnlyAudit;
+  // A request about loaded locale TXT is isolated from the email editor.
+  // Only an explicit HTML/layout request may leave this mode. This is a hard
+  // safety boundary: even a malformed server response cannot replace HTML.
+  const explicitHtmlEdit = /(?:html|в[её]рстк|письм|шаблон|дизайн).{0,80}(?:исправ|измени|собер|созда|передел|подстав|замен)|(?:исправ|измени|собер|созда|передел|подстав|замен).{0,80}(?:html|в[её]рстк|письм|шаблон|дизайн)|(?:расстав|постав|встав|замен).{0,40}(?:пл[еэ]йсхолдер|placeholder)/i.test(text);
+  const localeOnlyMode = localePolicy.hasLocaleContext && !explicitHtmlEdit;
   const localeAuditTarget = localeAuditRequested ? inferRequestedLocaleCode(text) : null;
   const localeBundleContext = localeOpsRequested && state.namespaces.length
     ? (localeAuditRequested
@@ -7413,7 +7421,7 @@ async function sendAiMessage() {
   let pugSourceMode = false;
   let pugSourceFiles = null;
 
-  if (srcCtx && !localeAuditRequested) {
+  if (srcCtx && !localeOnlyMode) {
     pugSourceMode = true;
     // Build map of source files to send: active file (from editor) + other key files
     pugSourceFiles = {};
@@ -7450,7 +7458,7 @@ async function sendAiMessage() {
 
   // Audit is read-only and has no reason to receive an editable HTML source.
   // This prevents a locale question from falling into clone/draft generation.
-  const htmlForAi = currentHtml && !srcCtx && !localeAuditRequested ? currentHtml : null;
+  const htmlForAi = currentHtml && !srcCtx && !localeOnlyMode ? currentHtml : null;
 
   try {
     const res = await fetch('/api/chat/stream', {
@@ -7475,6 +7483,7 @@ async function sendAiMessage() {
         },
         pugSourceMode,
         localeAuditMode: localeAuditRequested,
+        localeOnlyMode,
         localeAuditTarget,
         pugSourceFiles: pugSourceMode ? pugSourceFiles : undefined,
         baseEmailHtml: htmlForAi ? htmlForAi.slice(0, 18000) : null,
@@ -7534,14 +7543,15 @@ async function sendAiMessage() {
             // Apply editorHtml directly to the editor and localeUpdates to the namespace store.
             const tool = frame.payload.aiToolResult;
             if (!localeAuditRequested && tool && typeof tool === 'object') {
-              try { applyAiToolResult(tool, bubble); } catch (err) { console.warn('[AI] applyAiToolResult failed', err); }
+              const safeTool = localeOnlyMode ? { ...tool, editorHtml: undefined } : tool;
+              try { applyAiToolResult(safeTool, bubble); } catch (err) { console.warn('[AI] applyAiToolResult failed', err); }
             }
             // Auto-apply modified HTML from clone-edit mode
             const modHtml = frame.payload.draft?.html
                          || frame.payload.draft?.modifiedHtml
                          || frame.payload.modifiedHtml;
             console.log('[AI] final payload keys:', Object.keys(frame.payload), 'draft keys:', frame.payload.draft ? Object.keys(frame.payload.draft) : 'no draft', 'modHtml len:', modHtml?.length ?? 0);
-            if (!localeAuditRequested && modHtml && modHtml.trim().length > 50 && modHtml.includes('<')) {
+            if (!localeOnlyMode && modHtml && modHtml.trim().length > 50 && modHtml.includes('<')) {
               _pendingAiModifiedHtml = modHtml;
             }
           }
@@ -7553,7 +7563,7 @@ async function sendAiMessage() {
     if (fullText) state.chatHistory.push({role:'assistant', content:fullText});
 
     // Offer to apply: first try code blocks in text, then server-returned modifiedHtml
-    if (!localeAuditRequested) {
+    if (!localeOnlyMode) {
       if (!offerHtmlApply(bubble, fullText) && _pendingAiModifiedHtml) {
         offerModifiedHtmlApply(bubble, _pendingAiModifiedHtml);
       }

@@ -21,6 +21,11 @@ for (const text of ["Исправь локаль ID", "Примени правк
   assert.equal(policy.explicitFix, true, `expected explicit fix: ${text}`);
 }
 
+const structureFix = "Сможешь отделить полноценными блоками? Потому что это плэйсхолдер. Давай так везде?";
+const structurePolicy = classifyLocaleChatPolicy(structureFix, { hasNamespaces: true });
+assert.equal(structurePolicy.readOnlyAudit, false, "explicit structure request must not remain an audit");
+assert.equal(structurePolicy.explicitFix, true, "explicit structure request must route to locale fix");
+
 const affirmativeFix = classifyLocaleChatPolicy("Да давай", {
   hasNamespaces: true,
   priorAssistantText: "В ID лишних 2 блока относительно EN. Хотите, я помогу поправить индонезийский локал?",
@@ -56,11 +61,17 @@ const client = await readFile(new URL("../public/workbench.js", import.meta.url)
 assert.equal(client.includes("✓ AI применил изменения автоматически"), false, "AI results must not claim automatic application");
 assert.match(client, /if \(!localeAuditRequested && tool/, "audit responses must ignore tool mutations");
 assert.match(client, /showLocaleFixDiffPreview/, "locale proposals must have a diff preview");
+assert.match(client, /const localeOnlyMode = localePolicy\.hasLocaleContext && !explicitHtmlEdit/, "locale-only safety boundary must be enabled");
+assert.match(client, /localeOnlyMode \? \{ \.\.\.tool, editorHtml: undefined \}/, "locale-only tool results must discard editor HTML");
+assert.match(client, /if \(!localeOnlyMode && modHtml/, "locale-only responses must discard draft HTML");
 
 const server = await readFile(new URL("../server.js", import.meta.url), "utf8");
 const auditGuard = server.indexOf("if (payload.localeAuditMode || localePolicy.readOnlyAudit)");
 const toolDispatch = server.indexOf("const dispatched = await tryAiToolsDispatch(payload)", auditGuard);
 assert.ok(auditGuard >= 0 && toolDispatch > auditGuard, "read-only audit guard must run before mutating tool dispatch");
+assert.match(server, /if \(payload\.localeOnlyMode \|\| localePolicy\.hasLocaleContext\)/, "locale requests must never fall through to HTML draft generation");
+assert.match(server, /const explicitStructureAction =/, "structure requests must bypass the generic question guard");
+assert.match(server, /везде\|во всех/, "all-locale structure requests must include every locale");
 
 const localeAi = await readFile(new URL("../src/locale-ai.js", import.meta.url), "utf8");
 assert.match(localeAi, /required:\s*\["notes",\s*"blocks"\]/, "strict locale schema must require every declared property");

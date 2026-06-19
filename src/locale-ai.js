@@ -29,7 +29,7 @@
  */
 
 import { callOpenAiWithRetry, extractResponseText } from "./ai-client.js";
-import { buildAnchorUnits } from "./locale-conventions.js";
+import { buildAnchorUnits, localePrefix, serializeAligned } from "./locale-conventions.js";
 
 const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
 
@@ -834,6 +834,9 @@ function dedupeNumeric(arr) {
 export async function fixLocaleTxt({
   txt, refTxt, language,
   fillMissingFromReference = false,
+  instruction = "",
+  allowRestructure = false,
+  systemVariableIndexes = [],
   apiKey, model = "gpt-4.1-mini",
   logger,
 }) {
@@ -848,9 +851,15 @@ export async function fixLocaleTxt({
     "Format: every translatable block is wrapped in {{...}}. Inside a block, " +
     "@@text@@ marks bold (must be paired). Blocks are separated by a blank line. " +
     "An empty {{}} block is intentional and must be returned as an empty string in the same position. " +
-    "Return EXACTLY one entry per output block in the `blocks` array. \n" +
+    "Return EXACTLY one entry per output block in the `blocks` array. Return block CONTENT only: never include the outer {{ and }} delimiters in an array entry. \n" +
     (refBlocks ? `Reference (source) has ${refBlocks.length} blocks; output must have the same count, in the same order. ` : "") +
+    (allowRestructure
+      ? "The user explicitly requested a structural split. Follow their example exactly, even when that increases the number of blocks. Do not force the old block count. "
+      : "") +
     (language ? `The text is in ${language}; preserve it. ` : "") +
+    (systemVariableIndexes.length
+      ? `Zero-based output positions ${systemVariableIndexes.join(", ")} are system variables: preserve their identifier exactly. Every other position is translatable, even when its source text looks identical to a variable name. `
+      : "") +
     "Common fixes you should make: " +
     "1. balance unpaired @@ markers; " +
     "2. recover blocks where the user forgot a closing }}; " +
@@ -863,13 +872,17 @@ export async function fixLocaleTxt({
     "{{user_name}} (identifier with dot/underscore, no spaces) must NEVER sit inside a text " +
     "block — if you meet one nested in text, split the block around it: " +
     "{{text before}} {{embedded.var}}{{tail}}. A standalone {{embedded.var}} block stays as-is, " +
-    "untranslated. A leading 'Subject: ...' line outside blocks is normal — keep it verbatim.";
+    "untranslated. A leading 'Subject: ...' line outside blocks is normal and is preserved by the caller. " +
+    "When the instruction distinguishes a system variable such as {{days}} from translated words like {{days}} or {{1 day}}, keep each requested item as its own positional block. " +
+    "The translated plural word is one word/phrase only; do not copy slash separators such as days/1 day/ into that block.";
 
   const userPayload = JSON.stringify({
     inputTxt: txt,
     parsedBlocks: currentBlocks,
     refBlocks: refBlocks || undefined,
     fillMissingFromReference,
+    userInstruction: instruction || undefined,
+    systemVariableIndexes,
   });
 
   const data = await callOpenAiWithRetry(
@@ -890,8 +903,15 @@ export async function fixLocaleTxt({
   const responseText = extractResponseText(data);
   if (!responseText) throw new Error("AI returned empty response for fixLocaleTxt");
   const parsed = JSON.parse(responseText);
-  let fixedBlocks = (parsed.blocks || []).map((b) => String(b ?? "").trim());
-  const expectedCount = refBlocks?.length || currentBlocks.length;
+  let fixedBlocks = (parsed.blocks || []).map((b) => {
+    const value = String(b ?? "").trim();
+    // Models sometimes return `{{days}}` for a standalone variable even
+    // though the schema asks for block content. Strip exactly one wrapper so
+    // serialization produces {{days}}, never {{{{days}}}}.
+    const wrapped = /^\{\{\s*([^{}]*?)\s*\}\}$/.exec(value);
+    return wrapped ? wrapped[1].trim() : value;
+  });
+  const expectedCount = refBlocks?.length || (allowRestructure ? 0 : currentBlocks.length);
   if (expectedCount > 0) {
     if (fixedBlocks.length < expectedCount) {
       for (let i = fixedBlocks.length; i < expectedCount; i += 1) {
@@ -901,9 +921,12 @@ export async function fixLocaleTxt({
       fixedBlocks = fixedBlocks.slice(0, expectedCount);
     }
   }
+  if (fixedBlocks.some((block) => /\{\{|\}\}/.test(block))) {
+    throw new Error("AI returned nested {{ }} delimiters inside a locale block");
+  }
 
   return {
-    fixedTxt: serializeTxtBlocks(fixedBlocks) + "\n",
+    fixedTxt: serializeAligned(localePrefix(txt), fixedBlocks) + "\n",
     blocks: fixedBlocks,
     notes: parsed.notes,
   };

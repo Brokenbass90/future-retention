@@ -65,7 +65,7 @@ import {
 } from "./src/catalog.js";
 import { isRtlLocale as _rtlIsRtlLocale, applyLocaleDirectionToHtml as _rtlApply, warmupRtl as _rtlWarmup } from "./src/rtl.js";
 import { inferPlaceholders as _inferPlaceholders, applyPlaceholderProposals as _applyPlaceholderProposals } from "./src/placeholder-inference.js";
-import { normalizeLocaleConventions as _normalizeLocaleConventions, buildAnchorUnits as _buildAnchorUnits, parseNormalizedBlocks as _parseNormalizedBlocks, alignLocaleToReference as _alignLocaleToReference, serializeAligned as _serializeAligned, localePrefix as _localePrefix } from "./src/locale-conventions.js";
+import { normalizeLocaleConventions as _normalizeLocaleConventions, buildAnchorUnits as _buildAnchorUnits, parseNormalizedBlocks as _parseNormalizedBlocks, alignLocaleToReference as _alignLocaleToReference, serializeAligned as _serializeAligned, localePrefix as _localePrefix, isSystemVariable as _isSystemVariable, splitPluralPlaceholderBlocks as _splitPluralPlaceholderBlocks } from "./src/locale-conventions.js";
 import { buildPlaceholdersIndex as _buildPlaceholdersIndex, invalidatePlaceholdersIndexCache as _invalidatePlaceholdersIndexCache } from "./src/placeholders-index.js";
 import { buildBlocksByMail as _buildBlocksByMail, readBlockSource as _readBlockSource } from "./src/blocks-by-mail.js";
 import { classifyChatIntent as _classifyChatIntent } from "./src/chat-intents.js";
@@ -15632,6 +15632,14 @@ async function resolveChatResponse(payload) {
     console.warn("[chat] ai-tools dispatch failed:", err && err.message ? err.message : err);
   }
 
+  // Loaded-locale operations are never allowed to fall through into the mail
+  // draft generator. If intent detection or an AI helper fails, return a
+  // discussion response; never manufacture/rewrite HTML as a fallback.
+  if (payload.localeOnlyMode || localePolicy.hasLocaleContext) {
+    payload.intent = "discuss";
+    return resolveDiscussionResponse(payload);
+  }
+
   if (payload.intent === "discuss") {
     return resolveDiscussionResponse(payload);
   }
@@ -15647,15 +15655,16 @@ function detectAiToolIntent(text) {
   // A user asking "удобно ли тебе?" / "можешь?" / "как ты бы расставил?" wants
   // an analysis, not the tool to run. Easiest signal: trailing "?", or a
   // few question/conditional verbs.
-  const isQuestion = /[?？]\s*$/.test(t)
+  const explicitStructureAction = /(?:раздел|отдел|вынес|полноценн.{0,24}блок|сделай\s+так|давай\s+так).{0,120}(?:везде|во\s+всех|для\s+всех|локал|блок|пл[еэ]йсхолдер|переменн)|(?:везде|во\s+всех|для\s+всех).{0,120}(?:раздел|отдел|вынес|блок)/i.test(t);
+  const isQuestion = !explicitStructureAction && (/[?？]\s*$/.test(t)
     || /\bудобно ли\b|\bсможешь(ь| )ли\b|\bпосмотри\b|\bпроанализируй\b|\bрасскажи\b|\bобъясни\b|\bчто такое\b/.test(t)
-    || /\bcan you\b|\bcould you\b|\bwould you\b|\bwhat is\b|\bexplain\b|\banalyze\b/.test(t);
+    || /\bcan you\b|\bcould you\b|\bwould you\b|\bwhat is\b|\bexplain\b|\banalyze\b/.test(t));
   if (isQuestion) return null;
 
   // ── placeholderize is the HIGHEST-PRIORITY intent. Tolerate Russian
   // mis-spellings (пл[еэ]йсхолдер) — users routinely type 'плэйсхолдер'
   // with э and the old regex missed it.
-  if (/(пл[еэ]йсхолд[ае]р|placeholder|\$\{\{)/i.test(t)) {
+  if (!explicitStructureAction && /(пл[еэ]йсхолд[ае]р|placeholder|\$\{\{)/i.test(t)) {
     return "placeholderize";
   }
   // ── fix-locale / unify-locale: explicit "fix" verbs OR "приведи к единому
@@ -15663,7 +15672,7 @@ function detectAiToolIntent(text) {
   // files cleaned up to match the reference shape. Higher priority than
   // translate, because "translate" would overwrite valid blocks; fix-locale
   // only repairs broken {{...}} / @@…@@ delimiters.
-  if ((/(почин|исправ|унифиц|приведи в соответ|приведи к единому|причеши|подправ|поправ)/i.test(t))
+  if ((explicitStructureAction || /(почин|исправ|унифиц|приведи в соответ|приведи к единому|причеши|подправ|поправ|раздел|отдел|вынес)/i.test(t))
       && /(локал|блок|перевод|плейсхолд|плэйсхолд|placeholder|local|translat|(?:^|[\s,])(?:е[её]|их)(?:$|[\s.!?]))/i.test(t)) {
     return "fix-locale";
   }
@@ -15935,16 +15944,30 @@ async function tryAiToolsDispatch(payload) {
     //   - "active"  — user explicitly wants the currently-active locale only.
     const userText = String(payload?.text || payload?.message || "").toLowerCase() ||
                      (Array.isArray(payload?.messages) ? String(payload.messages[payload.messages.length - 1]?.content || "").toLowerCase() : "");
-    const looksLikeAll = /(во все|на все|все локал|всех локал|каждой локал|all local|every local|единому виду|единый вид|в соответ|причеши|унифиц|приведи переводы|all locales|all the locales)/i.test(userText);
+    const looksLikeAll = /(во все|на все|все локал|всех локал|каждой локал|везде|во всех|для всех|all local|every local|единому виду|единый вид|в соответ|причеши|унифиц|приведи переводы|all locales|all the locales)/i.test(userText);
+    const explicitPluralSplit = looksLikeAll
+      && /(?:раздел|отдел|вынес|полноценн.{0,24}блок|сделай\s+так|давай\s+так)/i.test(userText)
+      && /\{\{\s*days\s*\}\}|пл[еэ]йсхолдер|placeholder|переменн/i.test(userText);
 
     // Reference locale: prefer 'en', otherwise the namespace's stored reference, otherwise first.
     const refCode = ns.locales.en ? "en" : (ns.referenceLocale || Object.keys(ns.locales)[0]);
-    const refTxt = refCode ? serializeBlocks(ns.locales[refCode]) : "";
+    const rawFor = (code) => cleanText(ns.localeRaw?.[code]) || serializeBlocks(ns.locales[code]);
+    const originalRefTxt = refCode ? rawFor(refCode) : "";
+    const normalizedOriginalRefBlocks = originalRefTxt
+      ? _parseNormalizedBlocks(_normalizeLocaleConventions(originalRefTxt).txt)
+      : [];
+    const systemVariableIndexes = normalizedOriginalRefBlocks
+      .map((block, index) => (_isSystemVariable(block) ? index : -1))
+      .filter((index) => index >= 0);
 
     // Determine target list.
     let targets;
     if (looksLikeAll) {
-      targets = Object.keys(ns.locales).filter((c) => c && c !== refCode);
+      // Structure changes may alter the reference itself. Process it first,
+      // then use its proposed result as the structural reference for others.
+      targets = explicitPluralSplit
+        ? [refCode, ...Object.keys(ns.locales).filter((c) => c && c !== refCode)].filter(Boolean)
+        : Object.keys(ns.locales).filter((c) => c && c !== refCode);
     } else {
       const localeCodes = Object.keys(ns.locales || {}).filter((code) => code && code !== refCode);
       const conversationText = [
@@ -15966,17 +15989,56 @@ async function tryAiToolsDispatch(payload) {
       return aiToolReply(`Не нашёл целевых локалей для починки (reference=${refCode}).`);
     }
 
+    if (explicitPluralSplit) {
+      const proposals = targets.map((code) => ({
+        code,
+        result: _splitPluralPlaceholderBlocks(rawFor(code), { variableName: "days" }),
+      }));
+      const failed = proposals.filter(({ result }) => !result.changed || !result.changes.some((change) => change.type === "split_plural_placeholder"));
+      const refProposal = proposals.find(({ code }) => code === refCode);
+      const refVariableIndex = refProposal?.result?.changes.find((change) => change.type === "split_plural_placeholder")?.index;
+      if (!failed.length && Number.isInteger(refVariableIndex)) {
+        for (const proposal of proposals) {
+          if (proposal.code === refCode) continue;
+          const targetIndex = proposal.result.changes.find((change) => change.type === "split_plural_placeholder")?.index;
+          const missingBeforeVariable = Number.isInteger(targetIndex) ? refVariableIndex - targetIndex : 0;
+          if (missingBeforeVariable > 0) {
+            proposal.result.blocks.splice(targetIndex, 0, ...Array(missingBeforeVariable).fill(""));
+            proposal.result.txt = _serializeAligned(_localePrefix(rawFor(proposal.code)), proposal.result.blocks) + "\n";
+          }
+        }
+      }
+      const counts = new Set(proposals.map(({ result }) => result.blocks.length));
+      if (!failed.length && counts.size === 1) {
+        const localeUpdates = proposals.map(({ code, result }) => ({
+          namespace: ns.namespace,
+          code,
+          txt: result.txt,
+          blocks: result.blocks.length,
+        }));
+        const summary = proposals.map(({ code, result }) => `${code}: ${(ns.locales[code] || []).length} → ${result.blocks.length}`).join(", ");
+        return aiToolReply(
+          `Разделил переменную, plural, singular и продолжение на самостоятельные блоки во всех локалях «${ns.namespace}»: ${summary}. HTML не изменён. Ничего не применено — сначала проверь diff.`,
+          { kind: "fix-locale", localeUpdates },
+        );
+      }
+    }
+
     const localeUpdates = [];
     const summary = [];
     const errors = [];
+    let proposedRefTxt = originalRefTxt;
 
     for (const code of targets) {
-      const txt = serializeBlocks(ns.locales[code]);
+      const txt = rawFor(code);
       if (!txt) { errors.push(`${code}: нет содержимого`); continue; }
       try {
         const r = await fixLocaleTxt({
-          txt, refTxt: (refTxt && code !== refCode) ? refTxt : undefined,
+          txt, refTxt: (proposedRefTxt && code !== refCode) ? proposedRefTxt : undefined,
           language: code, fillMissingFromReference: true,
+          instruction: userText,
+          allowRestructure: Boolean(explicitPluralSplit && code === refCode),
+          systemVariableIndexes,
           apiKey: openAiApiKey, model: "gpt-4.1-mini",
         });
         // Guard: AI must not insert literal ${{ ... }}$ tokens INTO locale TXT.
@@ -15989,6 +16051,7 @@ async function tryAiToolsDispatch(payload) {
         const after = r.blocks.length;
         localeUpdates.push({ namespace: ns.namespace, code, txt: r.fixedTxt, blocks: after });
         summary.push(`${code}: ${before} → ${after}`);
+        if (code === refCode) proposedRefTxt = r.fixedTxt;
       } catch (err) {
         errors.push(`${code}: ${err && err.message ? err.message : err}`);
       }
