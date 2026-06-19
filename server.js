@@ -70,6 +70,7 @@ import { buildPlaceholdersIndex as _buildPlaceholdersIndex, invalidatePlaceholde
 import { buildBlocksByMail as _buildBlocksByMail, readBlockSource as _readBlockSource } from "./src/blocks-by-mail.js";
 import { classifyChatIntent as _classifyChatIntent } from "./src/chat-intents.js";
 import { cleanText, dedupeStrings as _dedupeStrings, toRelativePath as _toRelativePath, dedupeCatalogSources as _dedupeCatalogSources, mergeCatalogTraits as _mergeCatalogTraits } from "./src/utils.js";
+import { classifyLocaleChatPolicy } from "./src/locale-chat-policy.js";
 import { enqueueJob, getJob, listJobs, cancelJob, clearJobs, getQueueStats, startWorker } from "./src/batch.js";
 import { resolveOpenAiModelForTask, summarizeOpenAiModelRouting } from "./src/model-routing.js";
 import { buildInternalDesignSchema, summarizeDesignSchema } from "./src/design-schema.js";
@@ -390,9 +391,11 @@ const localeAuditSystemPrompt = [
   "When converting emphasis to HTML, use <b>...</b>, not <strong>...</strong> and not Markdown **...**.",
   "Audit tasks: find unclosed {{ }}, extra braces, text outside blocks, empty blocks, block-count mismatches versus the reference English locale, shifted URLs, HTML tags, placeholders, numbers, and @@ markers.",
   "Also flag obviously wrong-language or semantically suspicious translations, but do not invent accusations without evidence from the provided source and target text.",
-  "For audit-only requests, do not rewrite all locales. Return a short structured report: severity, location, problem, suggested fix.",
-  "For fix requests, return full corrected locale TXT documents in fenced blocks. The first line of each fence must be exactly '# locale: namespace/code'. Example: ```txt\\n# locale: welcome/en\\n{{Text}}\\n```",
-  "When fixing, preserve block order and count, preserve empty blocks, URLs, HTML tags, placeholders, numbers, legal copy, brand/product names, and intentional @@ emphasis unless the syntax is broken.",
+  "This audit mode is strictly READ-ONLY. Never return HTML, modified_html, locale TXT documents, code fences, or claims that anything was applied.",
+  "Always identify the target locale, compare it block-by-block with its English reference, and state both block counts.",
+  "For a block-count mismatch, identify the first likely shifted, split, merged, missing, or extra block using evidence from EN and the target text. Do not guess beyond the provided data.",
+  "Return a short structured report: severity, exact location, EN evidence, target evidence, cause, and proposed correction.",
+  "End by asking whether the user wants a separate correction proposal. Do not perform that correction in audit mode.",
   "Do not create unrelated marketing copy, do not merge blocks, and do not translate from a non-reference locale unless the user explicitly asks."
 ].join(" ");
 
@@ -9881,6 +9884,7 @@ function normalizePayload(payload) {
       ? payload.pugSourceFiles
       : null,
     localeAuditMode: Boolean(payload?.localeAuditMode),
+    localeAuditTarget: cleanText(payload?.localeAuditTarget) || null,
     // Locale namespaces snapshot from the workbench — нужен AI-диспетчеру
     // (placeholderize / translate / fix-locale). Раньше whitelist его ВЫБРАСЫВАЛ,
     // и сервер отвечал «Не вижу загруженных локалей» при загруженных локалях.
@@ -10223,9 +10227,32 @@ function summarizeWorkbenchNamespacesForContext(payload) {
     const codes = Object.keys(locales);
     const blockCounts = codes.map((c) => `${c}:${(locales[c] || []).length}`).join(", ");
     lines.push(`  • ${name}  [${blockCounts}]`);
-    // Show a few reference blocks (prefer 'en') so AI sees actual content.
     const refCode = locales.en ? "en" : codes[0];
     const refBlocks = Array.isArray(locales[refCode]) ? locales[refCode] : [];
+
+    if (payload.localeAuditMode) {
+      const requestedTarget = cleanText(payload.localeAuditTarget);
+      const activeTarget = cleanText(payload.activeLocale);
+      const targetCode = (requestedTarget && Array.isArray(locales[requestedTarget]) && requestedTarget)
+        || (activeTarget && activeTarget !== "original" && Array.isArray(locales[activeTarget]) && activeTarget)
+        || codes.find((code) => code !== refCode && Array.isArray(locales[code]) && locales[code].length !== refBlocks.length)
+        || codes.find((code) => code !== refCode && Array.isArray(locales[code]));
+      const targetBlocks = targetCode && Array.isArray(locales[targetCode]) ? locales[targetCode] : [];
+      lines.push(`      Exact comparison: ${refCode}:${refBlocks.length} vs ${targetCode || "target"}:${targetBlocks.length}`);
+      const rowCount = Math.min(Math.max(refBlocks.length, targetBlocks.length), 40);
+      for (let i = 0; i < rowCount; i += 1) {
+        const key = `block_${String(i).padStart(2, "0")}`;
+        const refValue = i < refBlocks.length ? JSON.stringify(String(refBlocks[i] ?? "").slice(0, 240)) : "<MISSING>";
+        const targetValue = i < targetBlocks.length ? JSON.stringify(String(targetBlocks[i] ?? "").slice(0, 240)) : "<MISSING>";
+        lines.push(`      ${key} ${refCode}=${refValue} | ${targetCode || "target"}=${targetValue}`);
+      }
+      if (Math.max(refBlocks.length, targetBlocks.length) > rowCount) {
+        lines.push(`      …${Math.max(refBlocks.length, targetBlocks.length) - rowCount} more paired blocks omitted`);
+      }
+      continue;
+    }
+
+    // General discussion mode only needs a compact reference sample.
     refBlocks.slice(0, 6).forEach((b, i) => {
       const txt = String(b || "").replace(/@@/g, "").slice(0, 80);
       if (txt) lines.push(`      block_${String(i).padStart(2, "0")} (${refCode}): "${txt}"`);
@@ -10268,8 +10295,11 @@ function buildDiscussionContext(payload) {
     return [
       "Locale audit request inside RetKit email studio.",
       buildResponseLanguageInstruction(payload),
-      "Focus only on translation/locale QA unless the user explicitly asks for email layout work.",
-      "Do not propose assembling a new email draft as the next step.",
+      "READ-ONLY: focus only on translation/locale QA. Never generate or modify email HTML or locale TXT in this response.",
+      "Compare the target locale directly against EN, report both counts, and locate the first evidence-backed split/merge/missing/extra block.",
+      "Use the exact paired block values below. Never invent an empty or missing block that is not present in the supplied arrays.",
+      `Target locale: ${payload.localeAuditTarget || (payload.activeLocale && payload.activeLocale !== "original" ? payload.activeLocale : "detect the structurally mismatched locale")}`,
+      "Do not propose assembling a new email draft as the next step and do not claim that a change was applied.",
       `Current base mail: ${emailBaseSummary.currentMail?.folder || "None"}`,
       `Content notes/context: ${payload.brief.contentNotes || "None"}`,
       "Workbench locale state:",
@@ -15576,6 +15606,18 @@ function autoSaveGenerationHistory(result, payload) {
 async function resolveChatResponse(payload) {
   payload = await enrichPayloadWithServerSideFigma(payload);
 
+  const localePolicy = classifyLocaleChatPolicy(lastUserText(payload), {
+    hasNamespaces: Array.isArray(payload?.namespaces) && payload.namespaces.length > 0,
+  });
+
+  // Locale analysis must win over every mutating dispatcher. The frontend
+  // sends localeAuditMode, while the server-side classifier is a second guard
+  // for follow-up wording such as "ID локаль посмотреть надо".
+  if (payload.localeAuditMode || localePolicy.readOnlyAudit) {
+    payload.localeAuditMode = true;
+    return resolveDiscussionResponse(payload);
+  }
+
   // ── AI-tools intent dispatch (placeholderize / translate / fix-locale) ──
   // Looks at the user's last message and, if it matches one of our supported
   // intents, runs the matching helper directly and returns a chat result with
@@ -15621,7 +15663,7 @@ function detectAiToolIntent(text) {
   // translate, because "translate" would overwrite valid blocks; fix-locale
   // only repairs broken {{...}} / @@…@@ delimiters.
   if ((/(почин|исправ|унифиц|приведи в соответ|приведи к единому|причеши|подправ|поправ)/i.test(t))
-      && /(локал|блок|перевод|плейсхолд|плэйсхолд|placeholder|local|translat)/i.test(t)) {
+      && /(локал|блок|перевод|плейсхолд|плэйсхолд|placeholder|local|translat|(?:^|[\s,])(?:е[её]|их)(?:$|[\s.!?]))/i.test(t)) {
     return "fix-locale";
   }
   // ── translate: only when verb is clearly "translate", and the target is
@@ -15861,7 +15903,7 @@ async function tryAiToolsDispatch(payload) {
         errors.push(`${tgt}: ${e.message}`);
       }
     }
-    const summary = `Перевёл ${localeUpdates.length}/${targets.length} локал${targets.length === 1 ? 'ь' : 'ей'} из ${srcCode} в namespace «${ns.namespace}».` +
+    const summary = `Подготовил перевод для ${localeUpdates.length}/${targets.length} локал${targets.length === 1 ? 'и' : 'ей'} из ${srcCode} в namespace «${ns.namespace}». Ничего не применено — сначала проверь diff.` +
       (errors.length ? ` Ошибки: ${errors.join("; ")}.` : "");
     return aiToolReply(summary, { kind: "translate", localeUpdates });
   }
@@ -15886,9 +15928,18 @@ async function tryAiToolsDispatch(payload) {
     if (looksLikeAll) {
       targets = Object.keys(ns.locales).filter((c) => c && c !== refCode);
     } else {
-      const code = String(payload?.activeLocale || "").trim();
+      const localeCodes = Object.keys(ns.locales || {}).filter((code) => code && code !== refCode);
+      const conversationText = [
+        userText,
+        ...(Array.isArray(payload?.messages) ? payload.messages.slice().reverse().map((message) => String(message?.content || "")) : []),
+      ];
+      const mentionedCode = conversationText.map((message) => localeCodes.find((candidate) => {
+        const escaped = candidate.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        return new RegExp(`(^|[^a-z0-9_])${escaped}([^a-z0-9_]|$)`, "i").test(message);
+      })).find(Boolean);
+      const code = mentionedCode || String(payload?.activeLocale || "").trim();
       if (!code || code === "original") {
-        return aiToolReply("Переключись на конкретную локаль (ar, ur, ru, …), или попроси «приведи все локали к единому виду» — починю пачкой.");
+        return aiToolReply("Укажи код локали в запросе (например, «исправь ID локаль») или переключись на неё. Пока ничего не изменено.");
       }
       targets = [code];
     }
@@ -15907,7 +15958,8 @@ async function tryAiToolsDispatch(payload) {
       try {
         const r = await fixLocaleTxt({
           txt, refTxt: (refTxt && code !== refCode) ? refTxt : undefined,
-          language: code, apiKey: openAiApiKey, model: "gpt-4.1-mini",
+          language: code, fillMissingFromReference: true,
+          apiKey: openAiApiKey, model: "gpt-4.1-mini",
         });
         // Guard: AI must not insert literal ${{ ... }}$ tokens INTO locale TXT.
         const looksLikePh = (r.blocks || []).some((b) => /\$\{\{[\s\S]*?\}\}\$/.test(b));
@@ -15926,7 +15978,7 @@ async function tryAiToolsDispatch(payload) {
 
     const lines = [];
     if (localeUpdates.length) {
-      lines.push(`Привёл ${localeUpdates.length} локаль(и) к виду reference=${refCode} в «${ns.namespace}»: ${summary.join(", ")}.`);
+      lines.push(`Подготовил исправление ${localeUpdates.length} локали(ей) относительно reference=${refCode} в «${ns.namespace}»: ${summary.join(", ")}. Ничего не применено — сначала проверь diff.`);
     }
     if (errors.length) {
       lines.push(`Не удалось: ${errors.slice(0, 6).join("; ")}${errors.length > 6 ? `; …и ещё ${errors.length - 6}` : ""}.`);

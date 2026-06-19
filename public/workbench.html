@@ -89,10 +89,6 @@
   </div>
 
   <div class="locale-bar-right">
-    <!-- AI-driven quick actions moved to the chat panel below.
-         These elements stay in the DOM (hidden) so existing JS bindings work. -->
-    <button class="locale-add-manual-btn" id="aiTranslateBtn" title="AI: перевести английский → текущую локаль" style="display:none;">🌐</button>
-    <button class="locale-add-manual-btn" id="aiPlaceholdersBtn" title="AI: расставить плейсхолдеры в текущем файле" style="display:none;">✱</button>
     <button class="locale-add-manual-btn" id="localeCompareBtn" title="Сравнить две локали бок о бок (Ctrl+Alt+L)" style="margin-right:4px;">⇄</button>
     <button class="locale-add-manual-btn" id="scanPlaceholdersBtn" title="Сканер: предложить плейсхолдеры по регекс-правилам (amounts, dates, IDs, ссылки…)" style="display:none;">🔍</button>
     <button class="locale-add-manual-btn" id="addLocaleManualBtn" title="Добавить локаль вручную">
@@ -274,24 +270,15 @@
       <div class="ai-drawer-body" id="aiDrawerBody">
         <div class="ai-messages" id="aiMessages">
           <div class="ai-welcome">
-            <p>Привет! Я вижу HTML и все локали. Могу:</p>
+            <p>Привет! Я вижу открытый HTML и загруженные локали.</p>
             <ul>
-              <li>Расставить плейсхолдеры по порядку в письме</li>
-              <li>Перевести или добавить новую локаль</li>
-              <li>Найти и исправить ошибки в блоках</li>
-              <li>Переделать текст по заданию</li>
+              <li>Проверено: расстановка плейсхолдеров по EN</li>
+              <li>Анализ локалей выполняется без автоматических правок</li>
             </ul>
           </div>
         </div>
         <div class="ai-presets" id="aiPresets">
           <button class="ai-preset" data-preset="placeholderize">✱ Расставить плейсхолдеры</button>
-          <button class="ai-preset" data-preset="translate-all">🌐 Перевести во все локали</button>
-          <button class="ai-preset" data-preset="translate-active">🈯 Перевести в активную локаль</button>
-          <button class="ai-preset" data-preset="fix-locale">🩹 Починить активную локаль</button>
-          <button class="ai-preset" data-preset="analyze" title="Структурный анализ без AI">🔍 Анализ</button>
-          <label class="ai-agent-toggle" title="Агент-режим: AI сам решает какие инструменты вызвать (анализ, расстановка плейсхолдеров, починка локалей, перевод). Каждый шаг виден в чате.">
-            <input type="checkbox" id="aiAgentToggle"> 🤖 Agent
-          </label>
         </div>
         <!-- Image preview strip for AI -->
         <div class="ai-image-strip hidden" id="aiImageStrip"></div>
@@ -493,8 +480,6 @@
   <div class="modal-footer">
     <div class="locale-footer-left">
       <button class="btn-danger-sm" id="deleteLocaleBtn">🗑 Удалить локаль</button>
-      <button class="btn-secondary locale-tool-btn" id="autoFixLocaleBtn" title="Выровнять количество блоков по английской локали">Авточинить</button>
-      <button class="btn-secondary locale-tool-btn" id="aiAuditLocaleBtn" title="Попросить AI проверить структуру и качество переводов">AI-аудит</button>
       <button class="btn-secondary locale-tool-btn" id="splitLocaleSelectionBtn" title="Разбить выделенный текст внутри блока во всех локалях">Разбить выделение</button>
     </div>
     <div style="display:flex;gap:8px">
@@ -524,13 +509,7 @@
       <label>Имя нового namespace</label>
       <input type="text" id="newNsName" placeholder="my-campaign-REG" class="modal-input" />
     </div>
-    <div class="settings-row" id="newLocaleAiRow">
-      <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
-        <input type="checkbox" id="newLocaleAiTranslate" checked style="cursor:pointer" />
-        🌐 Сразу перевести через AI из
-      </label>
-      <select id="newLocaleAiFrom" class="modal-select"></select>
-    </div>
+    <p class="panel-hint">Новая локаль создаётся пустой. Автоматический перевод пока отключён.</p>
   </div>
   <div class="modal-footer">
     <div></div>
@@ -717,8 +696,6 @@
   </div>
   <div class="modal-body" id="mismatchBody" style="gap:6px;max-height:60vh;overflow-y:auto"></div>
   <div class="modal-footer" style="justify-content:flex-end">
-    <button class="btn-secondary" id="aiAuditMismatchBtn">AI-аудит переводов</button>
-    <button class="btn-secondary" id="autoFixMismatchBtn">Авточинить структуру</button>
     <button class="btn-primary" id="closeMismatchOkBtn">Понятно</button>
   </div>
 </div>

@@ -104,8 +104,6 @@ const r = {
   localeEditValidation:$('localeEditValidation'),
   localeKeyList:       $('localeKeyList'),
   deleteLocaleBtn:     $('deleteLocaleBtn'),
-  autoFixLocaleBtn:    $('autoFixLocaleBtn'),
-  aiAuditLocaleBtn:    $('aiAuditLocaleBtn'),
   splitLocaleSelectionBtn: $('splitLocaleSelectionBtn'),
   cancelLocaleEditBtn: $('cancelLocaleEditBtn'),
   saveLocaleEditBtn:   $('saveLocaleEditBtn'),
@@ -117,8 +115,6 @@ const r = {
   newLocaleNs:         $('newLocaleNs'),
   newNsRow:            $('newNsRow'),
   newNsName:           $('newNsName'),
-  newLocaleAiTranslate: $('newLocaleAiTranslate'),
-  newLocaleAiFrom:     $('newLocaleAiFrom'),
   cancelAddLocaleBtn:  $('cancelAddLocaleBtn'),
   confirmAddLocaleBtn: $('confirmAddLocaleBtn'),
   // AI settings modal
@@ -156,8 +152,6 @@ const r = {
   mismatchBody:        $('mismatchBody'),
   closeMismatchBtn:    $('closeMismatchBtn'),
   closeMismatchOkBtn:  $('closeMismatchOkBtn'),
-  autoFixMismatchBtn:  $('autoFixMismatchBtn'),
-  aiAuditMismatchBtn:  $('aiAuditMismatchBtn'),
   // brand panel
   brandsGrid:          $('brandsGrid'),
   createBrandBtn:      $('createBrandBtn'),
@@ -2077,7 +2071,7 @@ function parseTxtDetailed(text) {
           block: blockIndex,
           line: pos.line,
           col: pos.col,
-          message: `Переменная {{...}} внутри block_${PH_NUM(blockIndex)} — нажми «Авточинить»: блок разобьётся по конвенции ({{текст}} {{переменная}}{{хвост}})`,
+          message: `Переменная {{...}} находится внутри block_${PH_NUM(blockIndex)}; вынесите переменную между текстовыми блоками вручную`,
         });
       }
       const boldMarkers = (b.match(/@@/g) || []).length;
@@ -2559,7 +2553,10 @@ function showMismatchModal(issues, nsName) {
           <span style="color:var(--text-2)"> vs ${i.refCode.toUpperCase()} — ${msg}</span>
         </div>
       </div>`;
-    }).join('');
+    }).join('') + `
+    <div style="font-size:12px;color:var(--text-2);margin-top:10px;line-height:1.45">
+      Автоматические исправления отключены. В чате можно попросить сравнить проблемную локаль с EN — анализ ничего не изменит.
+    </div>`;
   r.mismatchBackdrop.classList.remove('hidden');
   r.mismatchModal.classList.remove('hidden');
   validateLocales();
@@ -2573,17 +2570,6 @@ function closeMismatchModal() {
 r.closeMismatchBtn.addEventListener('click', closeMismatchModal);
 r.closeMismatchOkBtn.addEventListener('click', closeMismatchModal);
 r.mismatchBackdrop.addEventListener('click', closeMismatchModal);
-r.autoFixMismatchBtn?.addEventListener('click', () => {
-  const changed = autoFixLocaleStructures();
-  if (changed) {
-    closeMismatchModal();
-    toast(`Автоисправлено локалей: ${changed}`, 'success');
-  } else {
-    toast('Структура локалей уже совпадает', 'info');
-  }
-});
-r.aiAuditMismatchBtn?.addEventListener('click', () => requestLocaleAiAudit());
-
 // ═══════════════════════════════════════════════════════════════
 // LOCALE TABS
 // ═══════════════════════════════════════════════════════════════
@@ -3078,42 +3064,6 @@ r.deleteLocaleBtn.addEventListener('click', () => {
   closeLocaleEditModal();
 });
 
-r.autoFixLocaleBtn?.addEventListener('click', async () => {
-  // Шаг 1: детерминированные конвенции (переменные вне блоков, скобки) — на сервере.
-  let conventionsFixed = 0;
-  try {
-    const txt = cmLocale ? cmLocale.getValue() : r.localeEditTextarea.value;
-    const res = await fetch('/api/wb/locale-normalize', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ txt }),
-    });
-    if (res.ok) {
-      const json = await res.json();
-      if (json.ok && json.changed) {
-        if (cmLocale) cmLocale.setValue(json.txt); else r.localeEditTextarea.value = json.txt;
-        conventionsFixed = (json.changes || []).length;
-      }
-    }
-  } catch { /* сервер старый/недоступен — едем дальше без конвенций */ }
-  // Шаг 2: прежняя логика выравнивания структуры по reference.
-  const ns = flushLocaleEditorToState();
-  if (!ns) return;
-  const changed = autoFixLocaleStructures(ns.id);
-  loadLocaleIntoLocaleCM(ns.id, state._editLocale);
-  if (conventionsFixed || changed) {
-    toast(`Авточинка: конвенции ×${conventionsFixed}, структура ×${changed}`, 'success');
-  } else {
-    toast('Всё уже по конвенциям, структура совпадает', 'info');
-  }
-});
-
-r.aiAuditLocaleBtn?.addEventListener('click', () => {
-  const ns = flushLocaleEditorToState();
-  if (!ns) return;
-  requestLocaleAiAudit(ns, state._editLocale);
-});
-
 r.splitLocaleSelectionBtn?.addEventListener('click', splitSelectedLocaleBlockAcrossLocales);
 
 // ═══════════════════════════════════════════════════════════════
@@ -3148,27 +3098,6 @@ function populateNsSelect() {
 r.newLocaleNs.addEventListener('change', updateNewNsRow);
 function updateNewNsRow() {
   r.newNsRow.classList.toggle('hidden', r.newLocaleNs.value !== '__new__');
-  populateAiFromSelect();
-}
-
-function populateAiFromSelect() {
-  if (!r.newLocaleAiFrom) return;
-  r.newLocaleAiFrom.innerHTML = '';
-  const ns = r.newLocaleNs.value !== '__new__' ? getNs(r.newLocaleNs.value) : null;
-  const codes = ns ? Object.keys(ns.locales || {}).filter(c => (ns.locales[c] || []).length) : [];
-  codes.sort((a, b) => (a === 'en' ? -1 : b === 'en' ? 1 : a.localeCompare(b)));
-  codes.forEach(c => {
-    const o = document.createElement('option');
-    o.value = c; o.textContent = c.toUpperCase();
-    r.newLocaleAiFrom.appendChild(o);
-  });
-  const has = codes.length > 0;
-  if (r.newLocaleAiTranslate) {
-    r.newLocaleAiTranslate.disabled = !has;
-    if (!has) r.newLocaleAiTranslate.checked = false;
-  }
-  const row = document.getElementById('newLocaleAiRow');
-  if (row) row.classList.toggle('hidden', !has);
 }
 
 function closeAddLocaleModal() {
@@ -3192,8 +3121,6 @@ r.confirmAddLocaleBtn.addEventListener('click', async () => {
     ns = getNs(r.newLocaleNs.value);
   }
   if (!ns) return;
-  const wantAi = !!(r.newLocaleAiTranslate && r.newLocaleAiTranslate.checked && !r.newLocaleAiTranslate.disabled);
-  const fromCode = r.newLocaleAiFrom ? r.newLocaleAiFrom.value : '';
   if (!ns.locales[code]) {
     ns.locales[code] = [];
     syncLocaleRawFromBlocks(ns, code);
@@ -3202,29 +3129,6 @@ r.confirmAddLocaleBtn.addEventListener('click', async () => {
   renderNamespaceBar();
   saveToLocalStorage();
   closeAddLocaleModal();
-  // Optional: immediately fill the new locale via AI translation from a source locale.
-  if (wantAi && fromCode && fromCode !== code && Array.isArray(ns.locales[fromCode]) && ns.locales[fromCode].length) {
-    const srcTxt = (ns.localeRaw && ns.localeRaw[fromCode]) || serializeTxt(ns.locales[fromCode] || []);
-    toast(`🌐 Перевожу ${fromCode}→${code} через AI…`, 'info', 20000);
-    try {
-      const res = await fetch('/api/wb/ai/translate-locale-txt', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ srcTxt, fromLang: fromCode, toLang: code }),
-      });
-      const json = await res.json();
-      if (res.status === 404) throw new Error('Сервер не подхватил AI-endpoints. Перезапусти `npm start`.');
-      if (!res.ok || !json.ok) throw new Error(json.error || `HTTP ${res.status}`);
-      setLocaleRawContent(ns, code, json.translatedTxt);
-      renderLocalesBar();
-      saveToLocalStorage();
-      activateLocale(code);
-      toast(`✓ Локаль ${code.toUpperCase()} создана и переведена: ${json.blocks.length} блоков`, 'success', 4000);
-      return;
-    } catch (err) {
-      toast(`AI перевод не удался: ${err.message}. Локаль создана пустой.`, 'warning', 6000);
-    }
-  }
   openLocaleEdit(code);
   toast(`Локаль ${code.toUpperCase()} создана`, 'success');
 });
@@ -7085,13 +6989,50 @@ function truncateForAi(text, max = 2400) {
   return source.length > max ? source.slice(0, max) + `\n…[truncated ${source.length - max} chars]` : source;
 }
 
-function buildLocaleAiAuditContext() {
+function inferRequestedLocaleCode(text) {
+  const source = String(text || '').toLowerCase();
+  const codes = Array.from(new Set(state.namespaces.flatMap(ns => Object.keys(ns.locales || {}))))
+    .sort((a, b) => b.length - a.length);
+  for (const code of codes) {
+    const escaped = code.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    if (new RegExp(`(^|[^a-z0-9_])${escaped}([^a-z0-9_]|$)`, 'i').test(source)) return code;
+  }
+  if (state.activeLocale && state.activeLocale !== 'original' && codes.includes(state.activeLocale)) {
+    return state.activeLocale;
+  }
+  const mismatched = [];
+  state.namespaces.forEach(ns => checkBlockMismatches(ns).forEach(issue => mismatched.push(issue.code)));
+  return new Set(mismatched).size === 1 ? mismatched[0] : null;
+}
+
+function classifyLocaleChatRequest(text) {
+  const source = String(text || '').toLowerCase();
+  const hasLocaleContext = state.namespaces.length > 0 && (
+    /локал|перевод|блок|namespace|local|translation|англ|english|\ben\b/i.test(source)
+    || Boolean(inferRequestedLocaleCode(source))
+  );
+  const explicitlyReadOnly = /не\s+(?:примен|меня|исправ|трог)|без\s+(?:прав|измен)|только\s+(?:анализ|проверк)|ничего\s+не\s+(?:меня|примен)/i.test(source);
+  const asksForAudit = /аудит|анализ|сравн|проверь|провер|посмотр|найди|какая|какой|почему|что\s+не\s+так|неправ|некор|расхожд|отлич|количеств.{0,16}блок|сколько.{0,12}блок|предлож|как\s+(?:исправ|почин)/i.test(source);
+  const explicitlyApplies = /^\s*(?:(?:да|теперь|тогда|хорошо)[,!]?\s*)*(?:исправь|почини|выровняй|примени|внеси\s+правк|расставь\s+блок|сделай\s+исправ)/i.test(source);
+  return {
+    hasLocaleContext,
+    readOnlyAudit: hasLocaleContext && (explicitlyReadOnly || asksForAudit) && !explicitlyApplies,
+    explicitFix: hasLocaleContext && explicitlyApplies && !explicitlyReadOnly,
+  };
+}
+
+function buildLocaleAiAuditContext(targetLocale = null) {
   if (!state.namespaces.length) return '';
   const payload = state.namespaces.map(ns => {
     ensureLocaleMeta(ns);
     const diagnostics = collectLocaleAuditDiagnostics(ns);
     const locales = {};
-    Object.keys(ns.locales || {}).forEach(code => {
+    const refCode = getReferenceLocaleCode(ns);
+    const localeCodes = Object.keys(ns.locales || {});
+    const scopedCodes = targetLocale && localeCodes.includes(targetLocale)
+      ? Array.from(new Set([refCode, targetLocale].filter(Boolean)))
+      : localeCodes;
+    scopedCodes.forEach(code => {
       const raw = ns.localeRaw?.[code] ?? serializeTxt(ns.locales[code] || []);
       const parsed = parseTxtDetailed(raw);
       locales[code] = {
@@ -7103,7 +7044,8 @@ function buildLocaleAiAuditContext() {
     });
     return {
       namespace: ns.name,
-      referenceLocale: getReferenceLocaleCode(ns),
+      referenceLocale: refCode,
+      targetLocale: targetLocale && scopedCodes.includes(targetLocale) ? targetLocale : null,
       diagnostics: diagnostics.slice(0, 80),
       locales,
     };
@@ -7116,7 +7058,8 @@ function buildLocaleAiAuditContext() {
     'Audit/fix rules: preserve block order, preserve URLs, HTML tags, numbers, placeholders, and @@ markers unless explicitly correcting broken syntax.',
     'If EN has a bold/link split and other locales do not, propose a safe block split or matching <b>/<a> wrapping across locales before applying.',
     'When reporting problems, cite namespace, locale, and block_NN or raw line if available.',
-    'If the user asks to fix/apply changes, return full corrected locale TXT documents in fenced blocks with first line exactly: # locale: namespace/code',
+    targetLocale ? `AUDIT TARGET: compare locale ${targetLocale.toUpperCase()} strictly against its EN reference.` : 'AUDIT TARGET: find every locale whose structure differs from EN.',
+    'READ-ONLY: do not return HTML, do not modify locale TXT, do not claim that anything was applied.',
     JSON.stringify(payload, null, 2),
   ].join('\n');
 }
@@ -7309,11 +7252,9 @@ function replaceUnitsWithPlaceholders(html, units) {
   };
 }
 
-// Zero-AI конвейер «приведи локали в порядок и расставь плейсхолдеры»:
-//   1) все локали namespace → нормализация конвенций на сервере (переменные
-//      вынесены из блоков, скобки закрыты) — выравнивает нумерацию block_NN;
-//   2) reference-локаль → анкер-юниты;
-//   3) расстановка юнитов по DOM. Без AI, детерминированно.
+// Zero-AI конвейер расстановки плейсхолдеров. Он читает только reference
+// локаль и меняет только открытый HTML. Загруженные TXT никогда не
+// нормализуются и не выравниваются побочным эффектом этой команды.
 async function maybeApplyPlaceholdersFromLocales(userText, bubble) {
   const text = String(userText || '');
   const asksForPlaceholders = /плейс|плэйс|placeholder|токен|namespace/i.test(text)
@@ -7327,37 +7268,19 @@ async function maybeApplyPlaceholdersFromLocales(userText, bubble) {
 
   const ns = picked.ns;
   let units = null;
-  let prepReport = {};
-  let alignedCount = 0;
-  let paddedTotal = 0;
   try {
     ensureLocaleMeta(ns);
-    // Один вызов: нормализация конвенций + выравнивание ВСЕХ локалей по
-    // reference (одинаковое число блоков, пустые спейсеры) + анкер-юниты.
-    const localesPayload = {};
-    for (const code of Object.keys(ns.locales || {})) {
-      localesPayload[code] = (ns.localeRaw && ns.localeRaw[code]) || serializeTxt(ns.locales[code] || []);
-    }
-    const res = await fetch('/api/wb/locale-prepare', {
+    const referenceTxt = ns.localeRaw?.[picked.code] || serializeTxt(ns.locales[picked.code] || []);
+    const res = await fetch('/api/wb/locale-normalize', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ namespace: ns.name, refCode: picked.code, locales: localesPayload }),
+      body: JSON.stringify({ namespace: ns.name, txt: referenceTxt }),
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
-    if (json.ok) {
-      // Применить выровненные TXT во все локали.
-      for (const [code, txt] of Object.entries(json.locales || {})) {
-        setLocaleRawContent(ns, code, txt);
-      }
-      units = Array.isArray(json.units) ? json.units : null;
-      prepReport = json.report || {};
-      for (const r of Object.values(prepReport)) {
-        if (r && r.aligned) { alignedCount += 1; paddedTotal += (r.padded || 0); }
-      }
-    }
+    if (json.ok) units = Array.isArray(json.units) ? json.units : null;
   } catch (err) {
-    console.warn('[placeholders] locale-prepare failed, fallback to legacy matcher:', err);
+    console.warn('[placeholders] locale-normalize failed, fallback to legacy matcher:', err);
   }
 
   let result;
@@ -7368,7 +7291,6 @@ async function maybeApplyPlaceholdersFromLocales(userText, bubble) {
     result = replaceVisibleTextWithPlaceholders(currentHtml, ns.name, blocks);
   }
   if (!result.count) {
-    if (alignedCount) { renderLocalesBar(); validateLocales(); saveToLocalStorage(); }
     return false;
   }
 
@@ -7376,19 +7298,13 @@ async function maybeApplyPlaceholdersFromLocales(userText, bubble) {
   cm.setValue(prettyHtml(result.html));
   updatePreview();
   updateEditorStats();
-  renderLocalesBar();
-  validateLocales();
   saveToLocalStorage();
   bubble.classList.remove('streaming');
   const missedNote = result.missed && result.missed.length
     ? ` Для ${result.missed.length} блок(ов) не нашёл место в HTML — проверь вручную.` : '';
-  const padNote = paddedTotal ? ` Добавил ${paddedTotal} пустых блок(ов)-спейсеров там, где в переводе нет текста.` : '';
-  bubble.textContent =
-    (alignedCount ? `Выровнял ${alignedCount} локал${alignedCount === 1 ? 'ь' : 'ей'} под ${picked.code.toUpperCase()} (одинаковое число блоков, переменные на местах).${padNote} ` : '')
-    + `Расставил ${result.count} плейсхолдеров. Переключи вкладки локалей и проверь превью — жёлтые обводки должны уйти.`
-    + missedNote;
+  bubble.textContent = `Расставил ${result.count} плейсхолдеров по ${picked.code.toUpperCase()}. Загруженные локали не изменены.${missedNote}`;
   addUndoButton(bubble);
-  toast(`Плейсхолдеры: ${result.count}${alignedCount ? ` · выровнено локалей: ${alignedCount}` : ''}`, 'success');
+  toast(`Плейсхолдеры: ${result.count}`, 'success');
   return true;
 }
 
@@ -7447,11 +7363,14 @@ async function sendAiMessage() {
         return JSON.stringify(blocks).slice(0, 3000);
       })()
     : null;
-  const localeOpsRequested = /локал|перевод|translate|translation|placeholder|плейс|плэйс|ссыл|link|жирн|bold|<b>|текст|англ|english|en\b|разб|split|блок|namespace/i.test(text);
-  const localeAuditRequested = localeOpsRequested && /аудит|audit|провер|валид|ошиб|исправ|почин|чин|правк|редакт|скоб|brace|незакрыт|качество|плох|лев|расхожд|missing|mismatch|fix|подстав|расстав|оберн|wrap|сравн|анализ/i.test(text);
+  const localePolicy = classifyLocaleChatRequest(text);
+  const localeOpsRequested = localePolicy.hasLocaleContext
+    || /локал|перевод|translate|translation|placeholder|плейс|плэйс|ссыл|link|жирн|bold|<b>|текст|англ|english|en\b|разб|split|блок|namespace/i.test(text);
+  const localeAuditRequested = localePolicy.readOnlyAudit;
+  const localeAuditTarget = localeAuditRequested ? inferRequestedLocaleCode(text) : null;
   const localeBundleContext = localeOpsRequested && state.namespaces.length
     ? (localeAuditRequested
-      ? buildLocaleAiAuditContext().slice(0, 18000)
+      ? buildLocaleAiAuditContext(localeAuditTarget).slice(0, 18000)
       : JSON.stringify(state.namespaces.map(ns => ({
           namespace: ns.name,
           referenceLocale: getReferenceLocaleCode(ns),
@@ -7473,6 +7392,7 @@ async function sendAiMessage() {
       : (activeFileName ? `File: ${activeFileName}` : 'No HTML file'),
     nsInfo ? `Namespaces: ${nsInfo}` : null,
     state.activeLocale !== 'original' ? `Active locale: ${state.activeLocale}` : null,
+    localeAuditTarget ? `Audit target: ${localeAuditTarget.toUpperCase()}; compare strictly with EN` : null,
     'Placeholder format: ${{namespace.block_N}}$',
     srcCtx ? 'Режим: исходные файлы (Pug+Stylus → скомпилированный HTML)' : null,
   ].filter(Boolean).join(' | ');
@@ -7516,12 +7436,9 @@ async function sendAiMessage() {
     }
   }
 
-  // Always send currentHtml when it exists — the server uses it both for
-  // clone-edit (when no srcCtx) and as `baseEmailHtml` for the AI tools
-  // dispatcher (placeholderize / fix-locale / translate). Previously we
-  // hid it in locale-audit mode and follow-up requests like "now place
-  // the placeholders" failed because the server couldn't find any source.
-  const htmlForAi = currentHtml && !srcCtx ? currentHtml : null;
+  // Audit is read-only and has no reason to receive an editable HTML source.
+  // This prevents a locale question from falling into clone/draft generation.
+  const htmlForAi = currentHtml && !srcCtx && !localeAuditRequested ? currentHtml : null;
 
   try {
     const res = await fetch('/api/chat/stream', {
@@ -7546,6 +7463,7 @@ async function sendAiMessage() {
         },
         pugSourceMode,
         localeAuditMode: localeAuditRequested,
+        localeAuditTarget,
         pugSourceFiles: pugSourceMode ? pugSourceFiles : undefined,
         baseEmailHtml: htmlForAi ? htmlForAi.slice(0, 18000) : null,
         // Always include a compact namespaces snapshot so the AI dispatcher
@@ -7603,7 +7521,7 @@ async function sendAiMessage() {
             // Server returns { mode: 'ai-tool', aiToolResult: { editorHtml?, localeUpdates? } }
             // Apply editorHtml directly to the editor and localeUpdates to the namespace store.
             const tool = frame.payload.aiToolResult;
-            if (tool && typeof tool === 'object') {
+            if (!localeAuditRequested && tool && typeof tool === 'object') {
               try { applyAiToolResult(tool, bubble); } catch (err) { console.warn('[AI] applyAiToolResult failed', err); }
             }
             // Auto-apply modified HTML from clone-edit mode
@@ -7611,7 +7529,7 @@ async function sendAiMessage() {
                          || frame.payload.draft?.modifiedHtml
                          || frame.payload.modifiedHtml;
             console.log('[AI] final payload keys:', Object.keys(frame.payload), 'draft keys:', frame.payload.draft ? Object.keys(frame.payload.draft) : 'no draft', 'modHtml len:', modHtml?.length ?? 0);
-            if (modHtml && modHtml.trim().length > 50 && modHtml.includes('<')) {
+            if (!localeAuditRequested && modHtml && modHtml.trim().length > 50 && modHtml.includes('<')) {
               _pendingAiModifiedHtml = modHtml;
             }
           }
@@ -7623,8 +7541,10 @@ async function sendAiMessage() {
     if (fullText) state.chatHistory.push({role:'assistant', content:fullText});
 
     // Offer to apply: first try code blocks in text, then server-returned modifiedHtml
-    if (!offerHtmlApply(bubble, fullText) && _pendingAiModifiedHtml) {
-      offerModifiedHtmlApply(bubble, _pendingAiModifiedHtml);
+    if (!localeAuditRequested) {
+      if (!offerHtmlApply(bubble, fullText) && _pendingAiModifiedHtml) {
+        offerModifiedHtmlApply(bubble, _pendingAiModifiedHtml);
+      }
     }
     _pendingAiModifiedHtml = null;
 
@@ -7643,15 +7563,13 @@ async function sendAiMessage() {
 }
 
 
-// Apply chat-side AI-tool dispatcher result. Updates editor HTML and locale TXTs in place.
+// AI-tool results are proposals by default. Only the verified placeholder tool
+// may update open HTML immediately; locale changes require a diff confirmation.
 function applyAiToolResult(tool, bubble) {
   let didSomething = false;
   if (typeof tool.editorHtml === 'string' && tool.editorHtml.trim().length > 50) {
-    if (state.srcCtx && !state.srcCtx.viewingCompiledHtml) {
-      state.srcCtx.compiledHtml = tool.editorHtml;
-      try { updatePreview(); } catch {}
-      didSomething = true;
-    } else if (cm) {
+    if (tool.kind === 'placeholderize' && cm && !state.srcCtx) {
+      pushUndoSnapshot('Плейсхолдеры AI');
       // Use replaceRange instead of setValue to preserve mode + overlays
       // (placeholder ph-overlay highlight) and keep undo history clean.
       const lastLine = cm.lastLine();
@@ -7662,13 +7580,15 @@ function applyAiToolResult(tool, bubble) {
       // Force CM to re-render highlights/overlay after a large change.
       try { cm.refresh(); } catch {}
       try { updatePreview(); } catch {}
+      try { saveToLocalStorage(); } catch {}
       didSomething = true;
+    } else {
+      offerModifiedHtmlApply(bubble, tool.editorHtml);
     }
   }
   if (Array.isArray(tool.localeUpdates) && tool.localeUpdates.length) {
-    let touched = 0;
-    let lastCode = null;
     let rejected = 0;
+    let proposed = 0;
     for (const u of tool.localeUpdates) {
       if (!u || !u.code || !u.txt) continue;
       // GUARD: refuse to write a locale that contains literal ${{...}}$ tokens
@@ -7679,36 +7599,58 @@ function applyAiToolResult(tool, bubble) {
         console.warn('[AI] locale update rejected — contains literal ${{ }} tokens:', u.code);
         continue;
       }
-      const ns = (state.namespaces || []).find(n => n.name === u.namespace) || state.namespaces?.[0];
+      const ns = (state.namespaces || []).find(n => n.name === u.namespace);
       if (!ns) continue;
-      try {
+      const beforeRaw = ns.localeRaw?.[u.code] ?? serializeTxt(ns.locales?.[u.code] || []);
+      const before = parseTxt(beforeRaw);
+      const after = parseTxt(u.txt);
+      const btn = document.createElement('button');
+      btn.className = 'btn-primary';
+      btn.style.cssText = 'margin-top:8px;font-size:12px;padding:5px 14px;display:block;background:var(--success)';
+      btn.textContent = `Проверить правку ${ns.name}/${String(u.code).toUpperCase()}`;
+      btn.onclick = async () => {
+        const apply = await showLocaleFixDiffPreview({
+          code: u.code,
+          nsName: ns.name,
+          before,
+          after,
+        });
+        if (!apply) return;
+        _lastLocaleFixSnapshot = { nsId: ns.id, code: u.code, prevRawTxt: beforeRaw };
         setLocaleRawContent(ns, u.code, u.txt);
-        touched += 1;
-        lastCode = u.code;
-      } catch (err) {
-        console.warn('[AI] setLocaleRawContent failed', u.code, err);
-      }
+        refreshLocaleUiAfterStructureChange();
+        activateLocale(u.code);
+        saveToLocalStorage();
+        btn.disabled = true;
+        btn.textContent = `✓ Применено ${ns.name}/${String(u.code).toUpperCase()}`;
+        toast(`Локаль ${String(u.code).toUpperCase()} обновлена после подтверждения`, 'success');
+      };
+      bubble.after(btn);
+      proposed += 1;
     }
     if (rejected) {
       toast(`AI вернул мусор в ${rejected} локалях (${'${{'} '}-токены внутри переводов) — не применил.`, 'warning', 4500);
     }
-    if (touched) {
-      try { renderLocalesBar(); } catch {}
-      if (lastCode) { try { activateLocale(lastCode); } catch {} }
-      didSomething = true;
+    if (proposed && bubble) {
+      const note = document.createElement('div');
+      note.className = 'ai-apply-warning';
+      note.style.cssText = 'margin-top:8px;font-size:12px;color:var(--text-muted);';
+      note.textContent = `Подготовлено правок: ${proposed}. Ничего не применено — сначала открой diff.`;
+      bubble.appendChild(note);
     }
   }
   if (Array.isArray(tool.localeDeletes) && tool.localeDeletes.length) {
-    for (const del of tool.localeDeletes) {
-      if (del && del.namespace && del.locale && deleteLocaleInNamespace(del.namespace, del.locale)) {
-        didSomething = true;
-      }
+    if (bubble) {
+      const note = document.createElement('div');
+      note.className = 'ai-apply-warning';
+      note.textContent = 'AI предложил удалить локаль. Автоматическое удаление заблокировано.';
+      bubble.appendChild(note);
     }
   }
   if (didSomething && bubble) {
     const mark = document.createElement('div');
     mark.style.cssText = 'margin-top:6px;font-size:11px;color:#16a34a;font-weight:600;';
-    mark.textContent = '✓ AI применил изменения автоматически';
+    mark.textContent = '✓ Плейсхолдеры применены к открытому HTML';
     bubble.appendChild(mark);
   }
 }
@@ -7957,19 +7899,32 @@ function offerLocaleEditsApply(bubble, edits) {
     ? `✓ Применить локаль ${edits[0].namespace}/${edits[0].code.toUpperCase()}`
     : `✓ Применить ${edits.length} локалей`;
 
-  btn.onclick = () => {
+  btn.onclick = async () => {
+    const approved = [];
+    for (const edit of edits) {
+      const ns = getNs(edit.nsId);
+      if (!ns) continue;
+      const beforeRaw = ns.localeRaw?.[edit.code] ?? serializeTxt(ns.locales?.[edit.code] || []);
+      const apply = await showLocaleFixDiffPreview({
+        code: edit.code,
+        nsName: edit.namespace,
+        before: parseTxt(beforeRaw),
+        after: edit.parsed.blocks,
+      });
+      if (apply) approved.push({ edit, ns, beforeRaw });
+    }
+    if (!approved.length) return;
     btn.disabled = true;
     pushUndoSnapshot('AI локали');
-    edits.forEach(edit => {
-      const ns = getNs(edit.nsId);
-      if (!ns) return;
+    approved.forEach(({ edit, ns, beforeRaw }) => {
+      _lastLocaleFixSnapshot = { nsId: ns.id, code: edit.code, prevRawTxt: beforeRaw };
       setLocaleRawContent(ns, edit.code, edit.rawText);
     });
     refreshLocaleUiAfterStructureChange();
     if (state._editNsId && state._editLocale) loadLocaleIntoLocaleCM(state._editNsId, state._editLocale);
     btn.textContent = '✓ Локали применены';
     addUndoButton(btn);
-    toast(`AI применил ${edits.length} локаль(и)`, 'success');
+    toast(`Применено после проверки: ${approved.length} локаль(и)`, 'success');
   };
 
   bubble.after(btn);
@@ -8781,12 +8736,6 @@ document.addEventListener('DOMContentLoaded', init);
 (function setupAiPresets() {
   const PRESETS = {
     'placeholderize':    'Расставь плейсхолдеры в HTML по EN-локали (по порядку blockов).',
-    'translate-all':     'Переведи письмо во все загруженные локали.',
-    'translate-active':  'Переведи в текущую активную локаль.',
-    'fix-locale':        'Почини активную локаль: парные {{}}, балансировка @@, выровнять блоки с EN.',
-    // Analyze preset auto-enables Agent mode so the AI runs the full
-    // discovery → analyze_email tool chain and reports findings.
-    'analyze':           'Сделай умный анализ: прочитай открытый HTML, посмотри загруженные namespace и локали, найди orphan-блоки, hardcoded-текст и drift между локалями. Покажи отчёт; ничего не меняй.',
   };
   const root = document.getElementById('aiPresets');
   if (!root || !r.aiInput || !r.aiSendBtn) return;
@@ -8796,12 +8745,6 @@ document.addEventListener('DOMContentLoaded', init);
     const key = btn.dataset.preset;
     const text = PRESETS[key];
     if (!text) return;
-    // 'analyze' is meaningful only via the agent loop (it calls analyze_email
-    // as a tool). Force-enable Agent toggle for this preset.
-    if (key === 'analyze') {
-      const toggle = document.getElementById('aiAgentToggle');
-      if (toggle && !toggle.checked) toggle.checked = true;
-    }
     r.aiInput.value = text;
     r.aiInput.dispatchEvent(new Event('input', { bubbles: true }));
     r.aiSendBtn.click();

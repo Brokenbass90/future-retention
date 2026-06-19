@@ -234,11 +234,11 @@ const PLACEHOLDERIZE_DOM_SCHEMA = {
           elementId: { type: 'integer', minimum: 0 },
           confidence: { type: 'number', minimum: 0, maximum: 1 },
         },
-        required: ['blockIndex', 'elementId'],
+        required: ['blockIndex', 'elementId', 'confidence'],
       },
     },
   },
-  required: ['mappings'],
+  required: ['notes', 'mappings'],
 };
 
 // ─── JSON schemas ──────────────────────────────────────────────────────────
@@ -262,7 +262,7 @@ const PLACEHOLDERIZE_SCHEMA = {
       },
     },
   },
-  required: ["items"],
+  required: ["notes", "items"],
 };
 
 // For fixLocaleTxt and translateLocaleTxt: AI returns array of strings, one per block.
@@ -273,7 +273,7 @@ const BLOCKS_ARRAY_SCHEMA = {
     notes:  { type: "string" },
     blocks: { type: "array", items: { type: "string" } },
   },
-  required: ["blocks"],
+  required: ["notes", "blocks"],
 };
 
 
@@ -828,10 +828,12 @@ function dedupeNumeric(arr) {
  * @param {string} args.txt          The (possibly broken) locale TXT to fix.
  * @param {string} [args.refTxt]     Reference TXT (e.g. EN) — used to align block count.
  * @param {string} [args.language]   Human-friendly language name (e.g. "Urdu").
+ * @param {boolean} [args.fillMissingFromReference] Translate source text only for genuinely missing target blocks.
  * @returns {Promise<{ fixedTxt: string, blocks: string[], notes?: string }>}
  */
 export async function fixLocaleTxt({
   txt, refTxt, language,
+  fillMissingFromReference = false,
   apiKey, model = "gpt-4.1-mini",
   logger,
 }) {
@@ -854,8 +856,9 @@ export async function fixLocaleTxt({
     "2. recover blocks where the user forgot a closing }}; " +
     "3. trim text that was accidentally placed outside any {{}}; " +
     "4. preserve empty blocks, %%placeholders%%, ${{ ns.key }}$ tokens, <b>/<a>/<br> tags, and HTML entities exactly; " +
-    "5. do NOT translate, do NOT rephrase, do NOT add or remove blocks unless the " +
-    "reference forces alignment. \n" +
+    (fillMissingFromReference
+      ? "5. align semantically against the reference, not only by index. Preserve every existing target translation. If a reference text block has no target counterpart, translate only that missing source block into the target language; never use an empty filler for a non-empty source block. Do not rephrase existing target blocks. \n"
+      : "5. do NOT translate, do NOT rephrase, do NOT add or remove blocks unless the reference forces alignment. \n") +
     "PROJECT CONVENTIONS (mandatory): system variables like {{embedded.company_email}} or " +
     "{{user_name}} (identifier with dot/underscore, no spaces) must NEVER sit inside a text " +
     "block — if you meet one nested in text, split the block around it: " +
@@ -866,6 +869,7 @@ export async function fixLocaleTxt({
     inputTxt: txt,
     parsedBlocks: currentBlocks,
     refBlocks: refBlocks || undefined,
+    fillMissingFromReference,
   });
 
   const data = await callOpenAiWithRetry(
