@@ -37,14 +37,20 @@ const SYSTEM_PROMPT = [
   "  • the email HTML open in the editor (read_open_html / find_in_html)",
   "  • every locale namespace + its translation blocks (list_namespaces / get_namespace_blocks)",
   "  • the canonical block library for building new emails (list_canonical_blocks)",
+  "  • screenshots the user attaches in chat — use them to understand the desired layout,",
+  "    spot which block/section they mean, and verify the email matches the design.",
   "",
   "Available tools:",
   "  • read_open_html, list_namespaces, get_namespace_blocks, find_in_html — discovery (cheap, offline)",
   "  • analyze_email                                               — structural HTML↔locale report (offline, fast)",
+  "  • validate_html                                               — find unclosed tags / unbalanced {{ }} / broken \${{ }}\$ / odd @@ (offline)",
+  "  • compare_locales                                             — cross-check ALL locales vs reference (offline): block counts, missing {{vars}}, @@bold@@, empty/untranslated blocks",
+  "  • align_locales_to_reference                                  — RE-STRUCTURE all locales to the reference (same block count/order) so placeholders land right (offline, deterministic)",
   "  • placeholderize_html, fix_locale_txt, translate_locale_txt   — AI actions (cost tokens)",
   "  • create_locale, delete_locale, edit_locale_block             — locale CRUD (offline; deletes need user confirm)",
   "  • normalize_locale_conventions                                — deterministic conventions repair (offline)",
   "  • replace_in_html                                             — surgical HTML edit (bold a phrase, swap a logo URL, fix a link)",
+  "  • list_email_sections, insert_block, remove_block            — add / remove a block in the OPEN email (anchor-based, safe)",
   "  • compose_email_from_blocks                                   — build a NEW email from canonical blocks",
   "  • finish                                                      — wrap up with a user-facing summary",
   "",
@@ -54,12 +60,17 @@ const SYSTEM_PROMPT = [
   "  3. ACT with the most precise tool available:",
   "     – a one-block text fix → edit_locale_block, never a full re-translation;",
   "     – a visual tweak (bold, logo, link) → find_in_html then replace_in_html, never regenerate the document;",
+  "     – add a block to the open email → find_in_html to locate the spot, then insert_block (anchor + before/after);",
+  "     – remove a block from the open email → find_in_html for its unique markup, then remove_block;",
   "     – a new locale → create_locale (it translates from the reference);",
+  "     – 'сверь/сравни все локали' → compare_locales (then summarise the drift per locale);",
   "     – a whole new email → compose_email_from_blocks ONLY — never write raw HTML/Pug from scratch.",
   "  4. VERIFY after every mutation — this is mandatory, not optional:",
   "     – after edit_locale_block / fix / translate → re-read the blocks (get_namespace_blocks) or run analyze_email;",
   "     – after replace_in_html → find_in_html to confirm the new text is in place (and the old one is gone);",
   "     – before placeholderize_html → analyze_email; if >20% orphans, STOP and report the drift instead of applying.",
+  "  4a. When locales have drifted (different block counts/order) → align_locales_to_reference FIRST, then placeholderize.",
+  "      'сверь с английской и приведи к единому виду' = align_locales_to_reference (not just compare).",
   "  5. If a tool returns an error, read it — errors are instructions (e.g. 'extend the search string'). Retry smarter, max twice.",
   "  6. Locale TXT is sacred text: preserve {{Var}} placeholders, @@bold@@ markers, and inline HTML in every edit.",
   "     Never put literal ${{ ns.block_NN }}$ tokens inside locale TXT — those live in the HTML only.",
@@ -93,7 +104,7 @@ const SYSTEM_PROMPT = [
  *                                       { kind: 'tool_call'|'tool_result'|'text'|'finish'|'error', ... }
  * @returns {Promise<{ summary, modifiedHtml, localeUpdates, steps }>}
  */
-export async function runAgent({ userMessage, history = [], ctx, apiKey, model = "gpt-4.1-mini", maxSteps = DEFAULT_MAX_STEPS, onFrame }) {
+export async function runAgent({ userMessage, history = [], images = [], ctx, apiKey, model = "gpt-4.1-mini", maxSteps = DEFAULT_MAX_STEPS, onFrame }) {
   if (!apiKey) throw new Error("OPENAI_API_KEY is not configured");
   if (!userMessage || typeof userMessage !== "string") throw new Error("userMessage is required");
 
@@ -115,7 +126,17 @@ export async function runAgent({ userMessage, history = [], ctx, apiKey, model =
       content: [{ type: m.role === "assistant" ? "output_text" : "input_text", text: String(m.content).slice(0, 4000) }],
     });
   }
-  input.push({ role: "user", content: [{ type: "input_text", text: userMessage }] });
+  // Final user turn — text plus any attached screenshots (vision).
+  const userContent = [{ type: "input_text", text: userMessage }];
+  if (Array.isArray(images)) {
+    for (const img of images.slice(0, 4)) {
+      const url = typeof img === "string" ? img : (img && img.dataUrl) || "";
+      if (url && /^data:image\/|^https?:\/\//.test(url)) {
+        userContent.push({ type: "input_image", image_url: url });
+      }
+    }
+  }
+  input.push({ role: "user", content: userContent });
 
   let finalResult = null;
   const steps = [];

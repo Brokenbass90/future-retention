@@ -123,7 +123,29 @@ function renderCatalog() {
 }
 
 // ─── Canvas ─────────────────────────────────────────────────────────────
+// Undo stack for canvas structure (add / remove / reorder). Snapshot BEFORE each mutation.
+let _canvasUndo = [];
+function pushCanvasUndo() {
+  try { _canvasUndo.push(JSON.stringify(state.canvas)); } catch { return; }
+  if (_canvasUndo.length > 50) _canvasUndo.shift();
+  const btn = document.getElementById("undoBtn");
+  if (btn) btn.disabled = _canvasUndo.length === 0;
+}
+function undoCanvas() {
+  if (!_canvasUndo.length) return;
+  let prev;
+  try { prev = JSON.parse(_canvasUndo.pop()); } catch { return; }
+  state.canvas = prev;
+  state.selectedUid = null;
+  renderCanvas();
+  renderInspector();
+  scheduleLivePreview();
+  const btn = document.getElementById("undoBtn");
+  if (btn) btn.disabled = _canvasUndo.length === 0;
+}
+
 function addToCanvas(block, atIndex) {
+  pushCanvasUndo();
   const slots = {};
   for (const s of block.slots || []) {
     if ("default" in s) slots[s.id] = s.default;
@@ -141,6 +163,7 @@ function addToCanvas(block, atIndex) {
 }
 
 function moveCanvasUid(uid, toIndex) {
+  pushCanvasUndo();
   const fromIndex = state.canvas.findIndex((c) => c.uid === uid);
   if (fromIndex < 0) return;
   // Adjust target if removing earlier shifts the array.
@@ -152,6 +175,7 @@ function moveCanvasUid(uid, toIndex) {
 }
 
 function removeFromCanvas(uid) {
+  pushCanvasUndo();
   state.canvas = state.canvas.filter((c) => c.uid !== uid);
   if (state.selectedUid === uid) state.selectedUid = null;
   renderCanvas();
@@ -160,6 +184,7 @@ function removeFromCanvas(uid) {
 }
 
 function moveInCanvas(uid, delta) {
+  pushCanvasUndo();
   const idx = state.canvas.findIndex((c) => c.uid === uid);
   if (idx < 0) return;
   const target = idx + delta;
@@ -325,6 +350,12 @@ function renderInspector() {
   const block = state.library.find((b) => b.id === entry.blockId);
   if (!block) return;
   let html = `<div class="insp-block-id">${escapeHtml(block.id)} · ${escapeHtml(block.placement)}</div>`;
+  // Move / delete the selected block (these lived in the removed «Структура» column).
+  html += `<div class="insp-actions">
+    <button class="btn" data-act="up" type="button" title="Переместить выше">▲ Выше</button>
+    <button class="btn" data-act="down" type="button" title="Переместить ниже">▼ Ниже</button>
+    <button class="btn" data-act="del" type="button" title="Удалить блок из письма">🗑</button>
+  </div>`;
   for (const slot of block.slots || []) {
     html += renderSlotControl(slot, entry.slots[slot.id]);
   }
@@ -355,6 +386,9 @@ function renderInspector() {
     });
   });
   body.querySelector("#insp-save-as-block")?.addEventListener("click", () => saveSelectedAsUserBlock());
+  body.querySelector('[data-act="up"]')?.addEventListener("click", () => { moveInCanvas(entry.uid, -1); renderInspector(); });
+  body.querySelector('[data-act="down"]')?.addEventListener("click", () => { moveInCanvas(entry.uid, +1); renderInspector(); });
+  body.querySelector('[data-act="del"]')?.addEventListener("click", () => removeFromCanvas(entry.uid));
 }
 
 async function saveSelectedAsUserBlock() {
@@ -545,6 +579,7 @@ function setPreviewDevice(mode) {
 // the drop line is a real DOM node the email's layout positions for us, so
 // there's no fragile cross-frame pixel math.
 let _draggingBlockId = null;
+let _draggingCanvasUid = null;  // reorder: uid of the placed block being dragged
 let _draggingPlacement = "";
 let _blockRanges = [];          // [{ index, id, startComment, endComment, firstEl, lastEl }]
 let _iframeWired = false;
@@ -587,7 +622,7 @@ function indexIframeBlocks() {
       id: s.id,
       startComment: s.node,
       endComment: e.node,
-      firstEl: nextElementAfter(s.node),
+      firstEl: (function(){ const fe = nextElementAfter(s.node); if (fe) { try { fe.setAttribute("draggable","true"); fe.style.cursor = "grab"; } catch {} } return fe; })(),
       lastEl: prevElementBefore(e.node),
     });
   });
@@ -624,6 +659,8 @@ function wireIframeInteractions() {
   // Listeners are attached to the fresh document on every load, so the flag is
   // per-document; reset by reload. We attach idempotently.
   doc.addEventListener("click", onIframeClick, true);
+  doc.addEventListener("dragstart", onIframeBlockDragStart, true);
+  doc.addEventListener("dragend", onIframeBlockDragEnd, true);
   doc.addEventListener("dragover", onIframeDragOver);
   doc.addEventListener("drop", onIframeDrop);
   doc.addEventListener("dragleave", onIframeDragLeave);
@@ -657,8 +694,21 @@ function onIframeClick(e) {
   if (uid != null) selectCanvas(uid);
 }
 
+function onIframeBlockDragStart(e) {
+  if (_draggingBlockId) return;            // a catalog drag wins
+  const r = rangeForTarget(e.target);
+  if (!r) return;
+  const uid = uidForRenderedIndex(r.index);
+  if (uid == null) return;
+  _draggingCanvasUid = uid;
+  try { e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", ""); } catch {}
+}
+function onIframeBlockDragEnd() {
+  _draggingCanvasUid = null;
+  clearIframeDropLine();
+}
 function onIframeDragOver(e) {
-  if (!_draggingBlockId) return;
+  if (!_draggingBlockId && _draggingCanvasUid == null) return;
   e.preventDefault();
   e.dataTransfer.dropEffect = "copy";
   const insertAt = iframeInsertionIndex(e.clientY);
@@ -671,10 +721,16 @@ function onIframeDragLeave(e) {
 }
 
 function onIframeDrop(e) {
-  if (!_draggingBlockId) return;
+  if (!_draggingBlockId && _draggingCanvasUid == null) return;
   e.preventDefault();
   const insertAt = iframeInsertionIndex(e.clientY);
   clearIframeDropLine();
+  if (_draggingCanvasUid != null) {           // reorder an existing block
+    const uid = _draggingCanvasUid;
+    _draggingCanvasUid = null;
+    moveCanvasUid(uid, insertAt);
+    return;
+  }
   const block = state.library.find((b) => b.id === _draggingBlockId);
   _draggingBlockId = null;
   document.body.classList.remove("dragging-from-catalog");
@@ -814,7 +870,8 @@ async function save() {
       `Открыть в workbench для финальной правки?`
     );
     if (goWorkbench) {
-      window.location.href = "/workbench";
+      const mid = (data.mail || ("mail-" + mailName));
+      window.location.href = "/workbench?brand=" + encodeURIComponent(brand) + "&mail=" + encodeURIComponent(mid);
     }
     return;
   }
@@ -1118,3 +1175,18 @@ $("previewBtnFs")?.addEventListener("click", () => {
 
 wireCanvasDnd();
 loadLibrary();
+
+
+// ─── Undo wiring ─────────────────────────────────────────────────────────
+document.getElementById("undoBtn")?.addEventListener("click", undoCanvas);
+document.addEventListener("keydown", (e) => {
+  if ((e.metaKey || e.ctrlKey) && !e.shiftKey && (e.key === "z" || e.key === "Z")) {
+    const t = e.target;
+    if (t && /^(INPUT|TEXTAREA)$/.test(t.tagName)) return;   // let inputs use native undo
+    e.preventDefault();
+    undoCanvas();
+  }
+});
+
+try { console.log('%c[RetKit] constructor build 2026-06-25k: drag-reorder + undo', 'color:#f70;font-weight:bold'); } catch {}
+const RETKIT_CONSTRUCTOR_BUILD = '2026-06-25k';

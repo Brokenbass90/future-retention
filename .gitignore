@@ -10,6 +10,7 @@ Copy
 tmp/
 tmp_exec_probe
 *.bak
+*.bak-ai*
 email-base/_trash/
 scripts/_tmp*.mjs
 email-base/X_new/mail-studio-preview-*/

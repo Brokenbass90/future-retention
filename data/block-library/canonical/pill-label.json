@@ -1,0 +1,23 @@
+{
+  "id": "pill-label",
+  "label": "Плашка-метка (pill)",
+  "description": "Маленькая скруглённая метка-капсула, как «Asset Focus». Inline.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "base",
+  "pug": "table.pill(role='presentation' align='{{ align }}')\n    tr\n        td.pill-cell\n            span.pill-text {{ label }}",
+  "styl": ".pill { margin: 0; }\n.pill td.pill-cell { background: {{ bg }}; border-radius: {{ radius }}px; padding: {{ padding }}; }\n.pill span.pill-text { font-family: 'Helvetica', 'Arial', sans-serif; font-weight: 700; font-size: {{ font_size }}px; line-height: 1; color: {{ text_color }}; text-transform: {{ transform }}; }",
+  "slots": [
+    { "id": "label", "kind": "text", "label": "Текст", "default": "Asset Focus", "max": 40 },
+    { "id": "bg", "kind": "color", "label": "Фон", "default": "#3a2a14" },
+    { "id": "text_color", "kind": "color", "label": "Цвет текста", "default": "#ff7a00" },
+    { "id": "font_size", "kind": "number", "label": "Размер (px)", "default": 14 },
+    { "id": "radius", "kind": "number", "label": "Скругление (px)", "default": 8 },
+    { "id": "padding", "kind": "text", "label": "Отступы", "default": "6px 14px" },
+    { "id": "align", "kind": "select", "label": "Выравнивание", "default": "left", "options": ["left","center","right"] },
+    { "id": "transform", "kind": "select", "label": "Регистр", "default": "none", "options": ["none","uppercase"] }
+  ],
+  "outlookSafe": true,
+  "tags": ["pill", "label", "badge", "base"]
+}

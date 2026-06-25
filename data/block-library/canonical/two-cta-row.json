@@ -1,0 +1,26 @@
+{
+  "id": "two-cta-row",
+  "label": "Две кнопки в ряд",
+  "description": "Две CTA-кнопки рядом, по центру (на мобиле стекаются). Outlook-safe.",
+  "placement": "section",
+  "category": "cta",
+  "version": 1,
+  "source": "base",
+  "pug": "table.two-cta(role='presentation' align='center')\n    tr\n        td.two-cta-cell\n            table.cta(role='presentation' align='center')\n                tr\n                    td.butt.butt-a\n                        a.butt-link(href='{{ a_href }}' target='_blank') {{ a_label }}\n        td.two-cta-cell\n            table.cta(role='presentation' align='center')\n                tr\n                    td.butt.butt-b\n                        a.butt-link(href='{{ b_href }}' target='_blank') {{ b_label }}",
+  "styl": ".two-cta td.two-cta-cell { padding: 0 8px; }\n.two-cta td.butt { border-radius: {{ radius }}px; padding: 0; }\n.two-cta td.butt-a { background: {{ a_bg }}; }\n.two-cta td.butt-b { background: {{ b_bg }}; }\n.two-cta a.butt-link { display: block; padding: {{ padding }}; font-family: 'Helvetica', 'Arial', sans-serif; font-weight: 700; font-size: {{ font_size }}px; text-decoration: none; }\n.two-cta td.butt-a a.butt-link { color: {{ a_text }}; }\n.two-cta td.butt-b a.butt-link { color: {{ b_text }}; }",
+  "slots": [
+    { "id": "a_label", "kind": "text", "label": "Кнопка 1 — текст", "default": "Open account", "max": 30 },
+    { "id": "a_href", "kind": "url", "label": "Кнопка 1 — ссылка", "default": "#" },
+    { "id": "a_bg", "kind": "color", "label": "Кнопка 1 — фон", "default": "#f70" },
+    { "id": "a_text", "kind": "color", "label": "Кнопка 1 — текст цвет", "default": "#ffffff" },
+    { "id": "b_label", "kind": "text", "label": "Кнопка 2 — текст", "default": "Learn more", "max": 30 },
+    { "id": "b_href", "kind": "url", "label": "Кнопка 2 — ссылка", "default": "#" },
+    { "id": "b_bg", "kind": "color", "label": "Кнопка 2 — фон", "default": "#2a2a2a" },
+    { "id": "b_text", "kind": "color", "label": "Кнопка 2 — текст цвет", "default": "#ffffff" },
+    { "id": "radius", "kind": "number", "label": "Скругление (px)", "default": 12 },
+    { "id": "font_size", "kind": "number", "label": "Размер шрифта (px)", "default": 16 },
+    { "id": "padding", "kind": "text", "label": "Отступы кнопки", "default": "14px 28px" }
+  ],
+  "outlookSafe": true,
+  "tags": ["cta", "buttons", "two", "base"]
+}

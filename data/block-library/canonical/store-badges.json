@@ -1,0 +1,21 @@
+{
+  "id": "store-badges",
+  "label": "Бейджи сторов",
+  "description": "App Store + Google Play рядом, по центру. Footer/utility.",
+  "placement": "section",
+  "category": "footer",
+  "version": 1,
+  "source": "base",
+  "pug": "table.store-badges(role='presentation' align='center')\n    tr\n        td(align='center')\n            a.store-badge(href='{{ appstore_link }}' target='_blank')\n                img(src='{{ appstore_img }}' alt='App Store' height='40')\n            a.store-badge(href='{{ gplay_link }}' target='_blank')\n                img(src='{{ gplay_img }}' alt='Google Play' height='40')",
+  "styl": ".store-badges td { padding: {{ padding }}; text-align: center; }\n.store-badges a.store-badge { display: inline-block; margin: 0 6px; }\n.store-badges a.store-badge img { display: inline-block; height: {{ height }}px; width: auto; border: 0; }",
+  "slots": [
+    { "id": "appstore_link", "kind": "url", "label": "App Store — ссылка", "default": "#" },
+    { "id": "appstore_img", "kind": "image", "label": "App Store — картинка", "default": "https://placehold.co/120x40?text=App+Store" },
+    { "id": "gplay_link", "kind": "url", "label": "Google Play — ссылка", "default": "#" },
+    { "id": "gplay_img", "kind": "image", "label": "Google Play — картинка", "default": "https://placehold.co/135x40?text=Google+Play" },
+    { "id": "height", "kind": "number", "label": "Высота бейджа (px)", "default": 40 },
+    { "id": "padding", "kind": "text", "label": "Отступы", "default": "16px 0" }
+  ],
+  "outlookSafe": true,
+  "tags": ["store", "badges", "appstore", "googleplay", "footer", "base"]
+}

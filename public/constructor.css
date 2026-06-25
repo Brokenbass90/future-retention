@@ -59,7 +59,7 @@ body {
 /* ── Workspace 4 columns ─────────────────────────────── */
 .workspace {
   display: grid;
-  grid-template-columns: 232px 248px 1fr 300px;
+  grid-template-columns: 232px 1fr 320px;  /* catalog | LIVE email (canvas) | inspector — Структура убрана, превью = холст */
   height: calc(100% - 48px);
   overflow: hidden;
 }
@@ -556,3 +556,8 @@ body.dragging-canvas-card .canvas { pointer-events: auto; }
   display: flex; align-items: center; justify-content: space-between;
   padding: 12px 16px; border-top: 1px solid var(--bg-3);
 }
+
+/* «Структура» свёрнута: живое превью теперь и есть холст (клик = выбор, drop = вставка). */
+.canvas-pane { display: none !important; }
+.insp-actions { display: flex; gap: 6px; margin: 0 0 12px; }
+.insp-actions .btn { flex: 1; padding: 6px 0; }

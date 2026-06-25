@@ -14,7 +14,9 @@
     "import:legacy-toolkit": "node scripts/import-legacy-toolkit.mjs",
     "watch:mail": "node email-base/tools/watch-mail.js",
     "build:mail": "node email-base/tools/build-mail.js",
-    "enrich:catalog": "node scripts/enrich-block-catalog.mjs"
+    "enrich:catalog": "node scripts/enrich-block-catalog.mjs",
+    "test": "node scripts/test-locale-align-tool.mjs && node scripts/test-locale-cross-check.mjs && node scripts/test-html-blocks.mjs && node scripts/test-agent-loop.mjs && node scripts/test-locale-crud-tools.mjs && node scripts/test-html-validate.mjs && node scripts/test-email-segment.mjs",
+    "test:blocks": "node scripts/test-blocks.mjs"
   },
   "dependencies": {
     "html2pug": "^4.0.0",

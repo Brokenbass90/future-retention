@@ -13,6 +13,7 @@ const state = {
   viewport: 'desktop',
   wrapMode: false,
   aiStreaming: false,
+  aiConfigured: false,  // set by refreshAiStatus(): is live OpenAI available
   aiAbortController: null,
   activePanel: null,
   chatHistory: [],
@@ -77,6 +78,9 @@ const r = {
   previewLocaleLabel:  $('previewLocaleLabel'),
   previewRtlBadge:     $('previewRtlBadge'),
   pencilToggle:        $('pencilToggle'),
+  previewMaxBtn:       $('previewMaxBtn'),
+  previewRtlBtn:       $('previewRtlBtn'),
+  blocksPaletteToggle: $('blocksPaletteToggle'),
   previewFrameWrap:    $('previewFrameWrap'),
   previewNsLabel:      $('previewNsLabel'),
   resizeHandle:        $('resizeHandle'),
@@ -482,6 +486,8 @@ function initCodeMirror() {
     lineWrapping: false,
     tabSize: 2, indentUnit: 2, indentWithTabs: false,
     autofocus: false,
+    autoCloseBrackets: true,   // auto-close () [] {} "" ''
+    autoCloseTags: true,       // auto-close HTML tags as you type
     scrollbarStyle: 'native',
     gutters: ['CodeMirror-linenumbers', 'cm-left-pad'],
     extraKeys: {
@@ -1066,6 +1072,116 @@ function initLocaleCM() {
 // ═══════════════════════════════════════════════════════════════
 
 r.fullscreenBtn.addEventListener('click', openFullscreen);
+(function setupToolbarMoreMenu() {
+  const btn = document.getElementById('toolbarMoreBtn');
+  const menu = document.getElementById('toolbarMoreMenu');
+  if (!btn || !menu) return;
+  const close = () => { menu.classList.add('hidden'); btn.setAttribute('aria-expanded', 'false'); };
+  const open  = () => {
+    // Reflect current on/off state of proxied toggles into the menu items.
+    menu.querySelectorAll('.more-menu-item').forEach(item => {
+      const tgt = document.getElementById(item.dataset.proxy);
+      if (tgt && tgt.getAttribute('aria-pressed')) item.setAttribute('aria-pressed', tgt.getAttribute('aria-pressed'));
+    });
+    menu.classList.remove('hidden'); btn.setAttribute('aria-expanded', 'true');
+  };
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    menu.classList.contains('hidden') ? open() : close();
+  });
+  menu.addEventListener('click', e => {
+    const item = e.target.closest('.more-menu-item');
+    if (!item) return;
+    const tgt = document.getElementById(item.dataset.proxy);
+    if (tgt) tgt.click();   // proxy to the real (hidden) button — keeps all existing handlers
+    close();
+  });
+  document.addEventListener('click', e => {
+    if (!menu.classList.contains('hidden') && !e.target.closest('.toolbar-more-wrap')) close();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+})();
+
+function renderBlocksPalette() {
+  const inner = document.getElementById('blocksPaletteInner');
+  if (!inner) return;
+  inner.innerHTML = '';
+  EMAIL_BLOCKS.forEach(b => inner.appendChild(_makeBlockCard(b, 'block-card')));
+  loadCatalogBlocks().then(items => {
+    if (!items || !items.length) return;
+    const sep = document.createElement('div');
+    sep.className = 'block-card'; sep.style.cssText = 'opacity:.5;pointer-events:none;min-width:40px;justify-content:center;';
+    sep.innerHTML = '<span class="block-card-label">из базы →</span>';
+    inner.appendChild(sep);
+    items.forEach(b => inner.appendChild(_makeBlockCard(b, 'block-card')));
+  });
+}
+(function setupBlocksPalette() {
+  const btn = document.getElementById('blocksPaletteToggle');
+  const rail = document.getElementById('blocksPaletteRail');
+  if (!btn || !rail) return;
+  let rendered = false;
+  btn.addEventListener('click', () => {
+    const show = rail.classList.contains('hidden');
+    rail.classList.toggle('hidden', !show);
+    btn.setAttribute('aria-pressed', show ? 'true' : 'false');
+    if (show && !rendered) { renderBlocksPalette(); rendered = true; }
+  });
+})();
+
+(function setupPreviewRtlButton() {
+  const btn = document.getElementById('previewRtlBtn');
+  if (!btn) return;
+  btn.addEventListener('click', async () => {
+    if (!cm) return;
+    // Pug source can't be RTL'd as HTML — on base emails RTL is applied per-locale at build.
+    if (state.editorType && state.editorType !== 'html') {
+      toast('RTL-кнопка для HTML-писем. Для писем из базы RTL применяется сам на локалях AR/UR.', 'warning', 6000);
+      return;
+    }
+    const html = cm.getValue();
+    if (!html || !/<\w/.test(html)) { toast('Нет HTML для RTL', 'warning'); return; }
+    try {
+      btn.disabled = true;
+      pushUndoSnapshot('RTL письма');
+      // Use the SAME server-side transform AR/UR locales use at build (src/rtl.js).
+      const res = await fetch('/api/wb/rtl', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ html, locale: 'ar' }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.ok) throw new Error(json.error || ('HTTP ' + res.status));
+      cm.setValue(json.html);
+      if (typeof updateEditorStats === 'function') updateEditorStats();
+      updatePreview();
+      toast('Письмо приведено к RTL — как на AR/UR. Повторно безопасно.', 'success', 3000);
+    } catch (e) { toast('RTL: ' + (e.message || e), 'error', 5000); }
+    finally { btn.disabled = false; }
+  });
+})();
+
+(function setupPreviewMaximize() {
+  const btn = r.previewMaxBtn;
+  const ws = $('workspace');
+  if (!btn || !ws) return;
+  const setState = on => {
+    ws.classList.toggle('preview-maximized', on);
+    // Robust: hide the editor COLUMN (#editorPane) + divider directly, so this
+    // works even if the CSS rule didn't load. previewPane (flex:1) then fills.
+    if (r.editorPane)   r.editorPane.style.display   = on ? 'none' : '';
+    if (r.resizeHandle) r.resizeHandle.style.display = on ? 'none' : '';
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.title = on ? 'Свернуть (показать код)' : 'Развернуть письмо на весь экран (скрыть код)';
+    try { if (cm) cm.refresh(); } catch {}
+    try { if (cmSplit) cmSplit.refresh(); } catch {}
+    try { updatePreview(); } catch {}
+  };
+  btn.addEventListener('click', () => setState(!ws.classList.contains('preview-maximized')));
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && ws.classList.contains('preview-maximized')) setState(false);
+  });
+})();
+
 r.fullscreenClose.addEventListener('click', closeFullscreen);
 
 // Fullscreen toolbar buttons
@@ -3156,6 +3272,22 @@ function updateEditorStats() {
  * forExport=true  → clean HTML, no click scripts, no retkit spans (ready to copy/download)
  * forExport=false → preview HTML with clickable spans + interaction script
  */
+// Remove preview-only artifacts the studio injects for editing (placeholder
+// click-spans, pencil/inspector debug <style>/<script>). Used to keep the
+// source clean when the inspector patches it and before saving — so a
+// pencil edit can never persist debug markup into the email.
+function stripPreviewArtifacts(html) {
+  let s = String(html || '');
+  s = s.replace(/<span\s+data-retkit-ph="[^"]*"[^>]*>([\s\S]*?)<\/span>/gi, '$1');
+  s = s.replace(/<style>[\s\S]*?__retkit[\s\S]*?<\/style>/gi, '');
+  s = s.replace(/<script>[\s\S]*?__retkit[\s\S]*?<\/script>/gi, '');
+  s = s.replace(/<script>[\s\S]*?retkit-inspect-click[\s\S]*?<\/script>/gi, '');
+  s = s.replace(/<div class="__retkit-edit-badge"[\s\S]*?<\/div>/gi, '');
+  s = s.replace(/\s*class="__retkit-edit-hover-outline"/gi, '');
+  s = s.replace(/\s*__retkit-edit-hover-outline/g, '');
+  return s;
+}
+
 function getRenderedHtml(forExport = false) {
   if (!cm) return '';
   let rawHtml;
@@ -3224,27 +3356,47 @@ document.addEventListener('click',function(e){
     const editorOverlayScript = `<script>(function(){
       var pencilOn = false;
       window.addEventListener('message', function(ev){
-        if(!ev||!ev.data||ev.data.type!=='retkit-set-pencil')return;
-        pencilOn = !!ev.data.on;
-        document.documentElement.classList.toggle('__retkit-pencil-on', pencilOn);
+        if(!ev||!ev.data)return;
+        if(ev.data.type==='retkit-set-pencil'){ pencilOn = !!ev.data.on; document.documentElement.classList.toggle('__retkit-pencil-on', pencilOn); if(!pencilOn)__rkClearBox(); return; }
+        if(ev.data.type==='retkit-highlight'){ var el=document.querySelector('[data-rk-chain="'+ev.data.depth+'"]'); __rkBox(el); return; }
+        if(ev.data.type==='retkit-clear-highlight'){ __rkClearBox(); return; }
       }, false);
+      function __snap(node){var cs=window.getComputedStyle(node);var bw=cs.borderTopWidth,bd=(bw==='0px'||cs.borderTopStyle==='none')?'':(bw+' '+cs.borderTopStyle+' '+cs.borderTopColor);return{tag:node.tagName.toLowerCase(),text:node.tagName==='IMG'?'':(node.innerText||node.textContent||'').trim().slice(0,500),outerHtml:node.outerHTML.slice(0,12000),computed:{color:cs.color,backgroundColor:cs.backgroundColor,fontSize:cs.fontSize,fontWeight:cs.fontWeight,textAlign:cs.textAlign,padding:cs.padding,borderRadius:cs.borderRadius,border:bd,lineHeight:cs.lineHeight,backgroundImage:cs.backgroundImage,bgAttr:(node.getAttribute&&node.getAttribute('background'))||''},src:node.tagName==='IMG'?node.getAttribute('src'):null,alt:node.tagName==='IMG'?node.getAttribute('alt'):null,href:node.tagName==='A'?node.getAttribute('href'):null};}
+      function __rkClearBox(){var o=document.getElementById('__rk_box');if(o)o.remove();}
+      function __px(v){return parseFloat(v)||0;}
+      function __rkBox(el){
+        __rkClearBox(); if(!el||!el.getBoundingClientRect) return;
+        var r=el.getBoundingClientRect(), cs=window.getComputedStyle(el), sx=window.scrollX, sy=window.scrollY;
+        var pt=__px(cs.paddingTop),pr=__px(cs.paddingRight),pb=__px(cs.paddingBottom),pl=__px(cs.paddingLeft);
+        var mt=__px(cs.marginTop),mr=__px(cs.marginRight),mb=__px(cs.marginBottom),ml=__px(cs.marginLeft);
+        var bt=__px(cs.borderTopWidth),brr=__px(cs.borderRightWidth),bb=__px(cs.borderBottomWidth),bl=__px(cs.borderLeftWidth);
+        var L=r.left+sx,T=r.top+sy,W=r.width,H=r.height;
+        var box=document.createElement('div'); box.id='__rk_box'; box.style.cssText='position:absolute;top:0;left:0;z-index:2147483646;pointer-events:none;';
+        function rc(x,y,w,h,c){ if(w<=0||h<=0)return; var d=document.createElement('div'); d.style.cssText='position:absolute;left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px;background:'+c+';'; box.appendChild(d); }
+        // margin (red)
+        rc(L-ml,T-mt,W+ml+mr,mt,'rgba(255,60,60,.18)'); rc(L-ml,T+H,W+ml+mr,mb,'rgba(255,60,60,.18)');
+        rc(L-ml,T,ml,H,'rgba(255,60,60,.18)'); rc(L+W,T,mr,H,'rgba(255,60,60,.18)');
+        // border (blue)
+        rc(L,T,W,bt,'rgba(40,110,255,.32)'); rc(L,T+H-bb,W,bb,'rgba(40,110,255,.32)');
+        rc(L,T,bl,H,'rgba(40,110,255,.32)'); rc(L+W-brr,T,brr,H,'rgba(40,110,255,.32)');
+        // padding (green)
+        rc(L+bl,T+bt,W-bl-brr,pt,'rgba(0,200,90,.22)'); rc(L+bl,T+H-bb-pb,W-bl-brr,pb,'rgba(0,200,90,.22)');
+        rc(L+bl,T+bt+pt,pl,H-bt-bb-pt-pb,'rgba(0,200,90,.22)'); rc(L+W-brr-pr,T+bt+pt,pr,H-bt-bb-pt-pb,'rgba(0,200,90,.22)');
+        // content outline
+        var c=document.createElement('div'); c.style.cssText='position:absolute;left:'+(L+bl+pl)+'px;top:'+(T+bt+pt)+'px;width:'+(W-bl-brr-pl-pr)+'px;height:'+(H-bt-bb-pt-pb)+'px;outline:1px dashed #ff7700;'; box.appendChild(c);
+        document.body.appendChild(box);
+      }
       document.addEventListener('click',function(e){
         var altKey = e.metaKey||e.ctrlKey;
         if(!pencilOn && !altKey) return;
-        // Don't intercept links/buttons unless we're sure we want to edit.
         var t=e.target.closest('p,h1,h2,h3,h4,h5,h6,li,a,img,td,div');
         if(!t||t===document.body||t===document.documentElement)return;
         e.preventDefault();e.stopPropagation();
-        var cs=window.getComputedStyle(t);
-        window.parent.postMessage({type:'retkit-inspect-click',
-          tag:t.tagName.toLowerCase(),
-          text:t.tagName==='IMG'?'':(t.innerText||t.textContent||'').trim().slice(0,500),
-          outerHtml:t.outerHTML.slice(0,12000),
-          computed:{color:cs.color,backgroundColor:cs.backgroundColor,fontSize:cs.fontSize,fontWeight:cs.fontWeight,textAlign:cs.textAlign,padding:cs.padding,borderRadius:cs.borderRadius},
-          src:t.tagName==='IMG'?t.getAttribute('src'):null,
-          alt:t.tagName==='IMG'?t.getAttribute('alt'):null,
-          wasAltKey: altKey
-        },'*');
+        Array.prototype.forEach.call(document.querySelectorAll('[data-rk-chain]'),function(x){x.removeAttribute('data-rk-chain');});
+        var __chain=[];var __n=t;var __g=0;
+        while(__n&&__n!==document.body&&__g<10){ __n.setAttribute('data-rk-chain',__g); __chain.push(__snap(__n)); __n=__n.parentElement; __g++; }
+        __rkBox(t);
+        window.parent.postMessage(Object.assign({type:'retkit-inspect-click',chain:__chain,depth:0,wasAltKey:altKey},__chain[0]),'*');
       },true);
     })();<\/script>`;
     // CSS injected so when pencil mode is on, hovering elements shows an outline.
@@ -3265,7 +3417,7 @@ document.addEventListener('click',function(e){
       var EDITABLE='p,h1,h2,h3,h4,h5,h6,li,a,img,td,div';var hideTimer=null;
       function cancelHide(){if(hideTimer){clearTimeout(hideTimer);hideTimer=null;}}
       function scheduleHide(){cancelHide();hideTimer=setTimeout(function(){if(badge){badge.remove();badge=null;}if(hoverEl){hoverEl.classList.remove('__retkit-edit-hover-outline');hoverEl=null;}},250);}
-      function showBadge(el){if(badge)badge.remove();if(hoverEl)hoverEl.classList.remove('__retkit-edit-hover-outline');hoverEl=el;el.classList.add('__retkit-edit-hover-outline');var pos=abs(el);badge=document.createElement('div');badge.className='__retkit-edit-badge';badge.textContent='✎';badge.style.top=(pos.top-9)+'px';badge.style.left=(pos.left+pos.width-11)+'px';badge.title='Редактировать';badge.addEventListener('mouseenter',cancelHide);badge.addEventListener('mouseleave',scheduleHide);badge.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();cancelHide();var cs=window.getComputedStyle(el);window.parent.postMessage({type:'retkit-inspect-click',tag:el.tagName.toLowerCase(),text:el.tagName==='IMG'?'':(el.innerText||el.textContent||'').trim().slice(0,500),outerHtml:el.outerHTML.slice(0,12000),computed:{color:cs.color,backgroundColor:cs.backgroundColor,fontSize:cs.fontSize,fontWeight:cs.fontWeight,textAlign:cs.textAlign,padding:cs.padding,borderRadius:cs.borderRadius},src:el.tagName==='IMG'?el.getAttribute('src'):null,alt:el.tagName==='IMG'?el.getAttribute('alt'):null},'*');});document.body.appendChild(badge);}
+      function showBadge(el){if(badge)badge.remove();if(hoverEl)hoverEl.classList.remove('__retkit-edit-hover-outline');hoverEl=el;el.classList.add('__retkit-edit-hover-outline');var pos=abs(el);badge=document.createElement('div');badge.className='__retkit-edit-badge';badge.textContent='✎';badge.style.top=(pos.top-9)+'px';badge.style.left=(pos.left+pos.width-11)+'px';badge.title='Редактировать';badge.addEventListener('mouseenter',cancelHide);badge.addEventListener('mouseleave',scheduleHide);badge.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();cancelHide();var __snap=function(node){var cs=window.getComputedStyle(node);return{tag:node.tagName.toLowerCase(),text:node.tagName==='IMG'?'':(node.innerText||node.textContent||'').trim().slice(0,500),outerHtml:node.outerHTML.slice(0,12000),computed:{color:cs.color,backgroundColor:cs.backgroundColor,fontSize:cs.fontSize,fontWeight:cs.fontWeight,textAlign:cs.textAlign,padding:cs.padding,borderRadius:cs.borderRadius},src:node.tagName==='IMG'?node.getAttribute('src'):null,alt:node.tagName==='IMG'?node.getAttribute('alt'):null};};var __chain=[];var __n=el;var __g=0;while(__n&&__n!==document.body&&__g<8){__chain.push(__snap(__n));__n=__n.parentElement;__g++;}window.parent.postMessage(Object.assign({type:'retkit-inspect-click',chain:__chain,depth:0},__chain[0]),'*');});document.body.appendChild(badge);}
       document.addEventListener('mouseover',function(e){var t=e.target.closest(EDITABLE);if(t){cancelHide();showBadge(t);return;}if(!e.target.closest('.__retkit-edit-badge'))scheduleHide();},true);
       document.addEventListener('mouseout',function(e){if(e.relatedTarget&&(e.relatedTarget.closest&&e.relatedTarget.closest('.__retkit-edit-badge')))return;scheduleHide();},true);
     })();<\/script>`;
@@ -5426,7 +5578,7 @@ document.addEventListener('keydown', e => {
   }
 });
 
-r.saveSourceBtn?.addEventListener('click', saveCurrentSourceFile);
+r.saveSourceBtn?.addEventListener('click', () => { saveCurrentSourceFile(); });
 
 async function saveCurrentSourceFile(contentOverride = null) {
   const ctx = state.srcCtx;
@@ -5439,7 +5591,7 @@ async function saveCurrentSourceFile(contentOverride = null) {
     const res = await fetch('/api/wb/email-file', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ brand: ctx.brand, mail: ctx.mail, file: ctx.activeFile, content: contentOverride ?? cm.getValue() }),
+      body: JSON.stringify({ brand: ctx.brand, mail: ctx.mail, file: ctx.activeFile, content: stripPreviewArtifacts(typeof contentOverride === 'string' ? contentOverride : cm.getValue()) }),
     });
     const data = await res.json();
     if (!data.ok) throw new Error(data.error);
@@ -6186,13 +6338,97 @@ $('ebCtxDelete')?.addEventListener('click', async () => {
 // EXPORT TXT
 // ═══════════════════════════════════════════════════════════════
 
+// ─── Email structure: segment a ready email into blocks + reorder/delete ──────
+// Mirrors src/email-segment.js (tested). Works on the open HTML email — top-level
+// <table class="... row ..."> are the blocks. No markers baked into the email.
+function _matchTableEnd(html, openStart) {
+  const re = /<\/?table\b[^>]*>/gi; re.lastIndex = openStart;
+  let depth = 0, m;
+  while ((m = re.exec(html)) !== null) {
+    if (m[0][1] === '/') { depth -= 1; if (depth === 0) return m.index + m[0].length; }
+    else depth += 1;
+  }
+  return -1;
+}
+function segmentEmailBlocks(html) {
+  const src = String(html || ''); const blocks = [];
+  const re = /<table\b[^>]*>/gi; let m, coveredEnd = 0;
+  while ((m = re.exec(src)) !== null) {
+    if (m.index < coveredEnd) continue;
+    const cls = (m[0].match(/class\s*=\s*["']([^"']*)["']/i) || [])[1] || '';
+    if (!/(^|\s)row(\s|$)/.test(cls)) continue;
+    const end = _matchTableEnd(src, m.index); if (end < 0) continue;
+    const text = src.slice(m.index, end).replace(/<[^>]+>/g, ' ').replace(/&[a-z#0-9]+;/gi, ' ').replace(/\s+/g, ' ').trim();
+    blocks.push({ index: blocks.length, start: m.index, end, label: cls.split(/\s+/).filter(c => c && c !== 'row').join(' ') || 'row', preview: text.slice(0, 60) });
+    coveredEnd = end; re.lastIndex = end;
+  }
+  return blocks;
+}
+function _removeEmailBlock(html, index) {
+  const b = segmentEmailBlocks(html)[index]; if (!b) return html;
+  return html.slice(0, b.start) + html.slice(b.end);
+}
+function _moveEmailBlock(html, from, to) {
+  const blocks = segmentEmailBlocks(html);
+  if (!blocks[from] || from === to || to < 0 || to > blocks.length) return html;
+  const moved = html.slice(blocks[from].start, blocks[from].end);
+  const rest = html.slice(0, blocks[from].start) + html.slice(blocks[from].end);
+  const after = segmentEmailBlocks(rest);
+  const adjustedTo = to > from ? to - 1 : to;
+  const insertAt = after[adjustedTo] ? after[adjustedTo].start : rest.length;
+  return rest.slice(0, insertAt) + moved + rest.slice(insertAt);
+}
+function _structureApply(newHtml, label) {
+  pushUndoSnapshot(label || 'Структура');
+  cm.setValue(typeof prettyHtml === 'function' ? prettyHtml(newHtml) : newHtml);
+  if (typeof updateEditorStats === 'function') updateEditorStats();
+  updatePreview();
+  renderStructurePanel();
+}
+function renderStructurePanel() {
+  const list = document.getElementById('structureList');
+  const hint = document.getElementById('structureHint');
+  if (!list) return;
+  if (!cm || state.editorType !== 'html') {
+    list.innerHTML = '<div class="panel-empty">Работает на HTML-письме. Открой/вставь HTML.</div>';
+    if (hint) hint.textContent = '';
+    return;
+  }
+  const html = cm.getValue();
+  const blocks = segmentEmailBlocks(html);
+  if (hint) hint.textContent = blocks.length ? `${blocks.length} блок(ов) · перетаскивание стрелками, ✕ — удалить` : '';
+  if (!blocks.length) { list.innerHTML = '<div class="panel-empty">Секции не найдены (нужны table.row…). Разметка работает на письмах из вашей базы.</div>'; return; }
+  list.innerHTML = '';
+  blocks.forEach((b, i) => {
+    const row = document.createElement('div');
+    row.className = 'structure-item';
+    row.innerHTML =
+      `<span class="structure-item-label">${i + 1}. ${escapeHtml(b.label)}</span>` +
+      `<span class="structure-item-preview">${escapeHtml(b.preview)}</span>` +
+      `<span class="structure-item-acts">` +
+        `<button data-act="up" title="Выше" ${i === 0 ? 'disabled' : ''}>▲</button>` +
+        `<button data-act="down" title="Ниже" ${i === blocks.length - 1 ? 'disabled' : ''}>▼</button>` +
+        `<button data-act="del" title="Удалить">✕</button>` +
+      `</span>`;
+    row.querySelector('[data-act="up"]').addEventListener('click', () => _structureApply(_moveEmailBlock(cm.getValue(), i, i - 1), 'Блок выше'));
+    row.querySelector('[data-act="down"]').addEventListener('click', () => _structureApply(_moveEmailBlock(cm.getValue(), i, i + 2), 'Блок ниже'));
+    row.querySelector('[data-act="del"]').addEventListener('click', () => { if (confirm('Удалить блок «' + b.label + '»?')) _structureApply(_removeEmailBlock(cm.getValue(), i), 'Удалён блок'); });
+    list.appendChild(row);
+  });
+}
+
 function renderExportList() {
   if (!state.namespaces.length) {
     r.exportLocaleList.innerHTML = '<div class="panel-empty">Нет загруженных локалей</div>';
     return;
   }
   let html = '';
-  state.namespaces.forEach(ns => {
+  const exportable = state.namespaces.filter(ns => !ns.builtin);
+  if (!exportable.length) {
+    r.exportLocaleList.innerHTML = '<div class="panel-empty">Нет пользовательских локалей (футер не выгружается)</div>';
+    return;
+  }
+  exportable.forEach(ns => {
     Object.keys(ns.locales).forEach(code => {
       html += `<button class="export-locale-btn" data-ns="${ns.id}" data-code="${code}">
         <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
@@ -6230,8 +6466,15 @@ $('exportAllZipBtn')?.addEventListener('click', async () => {
 
   try {
     const zip = new JSZip();
-    state.namespaces.forEach(ns => {
-      const folder = zip.folder(ns.name);
+    // Built-in namespaces (footer_upload 🔒) are service data — never exported,
+    // so the user gets back exactly the texts they uploaded, as a folder.
+    const exportable = state.namespaces.filter(ns => !ns.builtin);
+    if (!exportable.length) { toast('Нет пользовательских локалей для экспорта (футер не выгружается)', 'warning'); btn.disabled = false; btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 7l3 3 3-3M1 12h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Скачать всё (ZIP)`; return; }
+    const single = exportable.length === 1;
+    exportable.forEach(ns => {
+      // One namespace → put locale files at the ZIP root (flat folder of txt).
+      // Multiple → keep a subfolder per namespace.
+      const folder = single ? zip : zip.folder(ns.name);
       Object.keys(ns.locales).forEach(code => {
         const content = ns.localeRaw?.[code] ?? serializeTxt(ns.locales[code] || []);
         folder.file(`${code}.txt`, content);
@@ -6337,7 +6580,7 @@ $('bottomBarToggle').addEventListener('click', closePanel);
 
 function togglePanel(id, btn) { if (state.activePanel===id) closePanel(); else { closePanel(); openPanel(id,btn); } }
 function clampBottomPanelHeight(height) {
-  const max = Math.max(180, Math.min(window.innerHeight * 0.78, window.innerHeight - 120));
+  const max = Math.max(180, window.innerHeight - 52);  // fill almost to the top bar
   return Math.round(Math.max(160, Math.min(max, height)));
 }
 function restoreBottomPanelHeight() {
@@ -6358,6 +6601,7 @@ function openPanel(id, btn) {
   document.querySelectorAll('.bottom-panel').forEach(p => p.classList.add('hidden'));
   const panel = $(`panel-${id}`);
   if (panel) panel.classList.remove('hidden');
+  if (id==='structure') renderStructurePanel();
   if (id==='export')    renderExportList();
   if (id==='brands')    renderBrands();
   if (id==='emailbase') renderEmailBase();
@@ -6727,12 +6971,13 @@ r.aiInput.addEventListener('keydown', e => {
 
 
 // ─── Agent mode: stream tool calls + results into the chat ─────────────
-async function runAgentChat(text) {
+async function runAgentChat(text, images = []) {
   state.chatHistory.push({ role: 'user', content: text });
+  const _imgCount = Array.isArray(images) ? images.length : 0;
   // Insert a dedicated agent timeline bubble.
   const timeline = document.createElement('div');
   timeline.className = 'ai-message assistant ai-agent-timeline';
-  timeline.innerHTML = '<div class="ai-agent-step ai-agent-status">🤖 Agent думает…</div>';
+  timeline.innerHTML = `<div class="ai-agent-step ai-agent-status">🤖 Agent думает…${_imgCount ? ' (📷 ' + _imgCount + ')' : ''}</div>`;
   r.aiMessages.appendChild(timeline);
   r.aiMessages.scrollTop = r.aiMessages.scrollHeight;
 
@@ -6782,6 +7027,7 @@ async function runAgentChat(text) {
           return ns ? ns.name : null;
         })(),
         activeLocale: state.activeLocale || null,
+        images: Array.isArray(images) ? images.slice(0, 4) : [],
       }),
     });
     if (!res.ok || !res.body) throw new Error('agent endpoint returned ' + res.status);
@@ -6813,6 +7059,11 @@ async function runAgentChat(text) {
           else if (frame.name === 'fix_locale_txt' && r.locale) summary = `${r.locale}: ${r.before} → ${r.after} блоков`;
           else if (frame.name === 'translate_locale_txt') summary = `${r.from || '?'} → ${r.to || '?'}: ${r.blocks} блоков`;
           else if (frame.name === 'list_namespaces') summary = `${r.count} namespace(ов)`;
+          else if (frame.name === 'compare_locales' && r.summary) summary = `сверка: ${r.summary.total} расхожден(ий) в ${ (r.locales||[]).length } локал(ях), reference ${r.refCode}`;
+          else if (frame.name === 'align_locales_to_reference') summary = `выровнено по ${r.refCode}: ${ (r.updated||[]).length } локал(ей) изменено (эталон ${r.refBlockCount} блоков)`;
+          else if (frame.name === 'insert_block' && typeof r.delta === 'number') summary = `вставлен блок (+${r.delta} симв.)`;
+          else if (frame.name === 'remove_block' && typeof r.removed === 'number') summary = `удалён блок (−${r.removed} симв.)`;
+          else if (frame.name === 'list_email_sections') summary = r.marked ? `${r.count} секц(ий) с маркерами` : 'маркеров нет — через find_in_html';
           else if (frame.name === 'read_open_html') summary = `${r.length} байт`;
           else if (frame.name === 'get_namespace_blocks' && Array.isArray(r.blocks)) summary = `${r.blocks.length} блоков`;
           timeline.appendChild(stepEl('toolresult', '↳ ' + summary));
@@ -6957,6 +7208,43 @@ r.aiInput?.addEventListener('paste', e => {
   };
   reader.readAsDataURL(file);
 });
+
+// Drag & drop image files anywhere onto the AI drawer → attach as references.
+// The studio sends attached images to the agent (vision), so dropped references
+// are actually seen by the AI.
+function _attachAiImageFile(file) {
+  if (!file || !file.type || !file.type.startsWith('image/')) return false;
+  if (_aiPendingImages.length >= 4) { toast('Максимум 4 изображения', 'warning'); return false; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    _aiPendingImages.push(ev.target.result);
+    renderAiImageStrip();
+    toast('📷 Референс прикреплён', 'info', 1500);
+  };
+  reader.readAsDataURL(file);
+  return true;
+}
+(function setupAiImageDrop() {
+  const zone = $('aiDrawerBody') || r.aiDrawer;
+  if (!zone) return;
+  const over = e => {
+    if (!e.dataTransfer || !Array.from(e.dataTransfer.types || []).includes('Files')) return;
+    e.preventDefault(); e.stopPropagation();
+    zone.classList.add('ai-drop-hot');
+  };
+  const leave = e => { if (e.target === zone) zone.classList.remove('ai-drop-hot'); };
+  const drop = e => {
+    const files = [...(e.dataTransfer?.files || [])].filter(f => f.type.startsWith('image/'));
+    if (!files.length) return;
+    e.preventDefault(); e.stopPropagation();
+    zone.classList.remove('ai-drop-hot');
+    if (r.aiDrawer?.dataset.state === 'collapsed') r.aiDrawer.dataset.state = 'expanded';
+    files.slice(0, 4).forEach(_attachAiImageFile);
+  };
+  zone.addEventListener('dragover', over, true);
+  zone.addEventListener('dragleave', leave, true);
+  zone.addEventListener('drop', drop, true);
+})();
 
 function renderAiImageStrip() {
   const strip = $('aiImageStrip');
@@ -7269,6 +7557,29 @@ function replaceUnitsWithPlaceholders(html, units) {
 // Zero-AI конвейер расстановки плейсхолдеров. Он читает только reference
 // локаль и меняет только открытый HTML. Загруженные TXT никогда не
 // нормализуются и не выравниваются побочным эффектом этой команды.
+// ─── Edit-intent detection ───────────────────────────────────────
+// True when the user is asking the studio to CHANGE something (locales,
+// text, placeholders, HTML, blocks) rather than just chatting / asking a
+// question. Such messages are routed to the tool-use agent automatically
+// so the user no longer has to discover the 🤖 toggle to get real edits.
+function looksLikeEditIntent(text) {
+  const t = String(text || '').toLowerCase().trim();
+  if (!t) return false;
+  // Pure questions are NOT edit intents.
+  const isQuestion = /[?？]\s*$/.test(t)
+    || /^(что|как|почему|зачем|какой|какая|какие|можно ли|умеешь|можешь ли|what|how|why|which|can you|do you|is it|правда ли|расскажи|объясни|поясни|explain|tell me)\b/.test(t);
+  // Action verbs that imply a mutation of the email / locales.
+  const editVerb = /(помен[яе]|измен[иь]|поправ[ьи]|исправ[ьи]|почини|перепиш[иь]|перепис|замен[иь]|сдела[йе]|сделать|добав[ьи]|встав[ьи]|убер[иь]|удал[иь]|вынес|разметь|расстав[ьи]|подстав[ьи]|переведи|перевед[иь]|локализ|приведи в порядок|приведи к|унифицируй|сократ[иь]|перенеси|собери|пересобери|обнови|примени|wrap|bold|сделай жирн|edit|change|replace|insert|remove|delete|add|translate|fix|create|update|move|swap|compose|build)/;
+  // Targets that make a mutation meaningful in this studio.
+  const target = /(локал|locale|плейсх|плэйсх|placeholder|токен|блок|block|кнопк|button|ссылк|link|href|лого|logo|текст|заголов|heading|перевод|жирн|секц|section|колонк|column|cta|письм|email|верстк|шаблон|template)/;
+  if (isQuestion && !editVerb.test(t)) return false;
+  // translate "на ar" type even without an explicit target word
+  if (/(переведи|перевед[иь]|translate)\b/.test(t)) return true;
+  // compare locales
+  if (/(сравн|compare)\b/.test(t) && /(локал|locale|en|ru|ar|ur)\b/.test(t)) return true;
+  return editVerb.test(t) && target.test(t);
+}
+
 async function maybeApplyPlaceholdersFromLocales(userText, bubble) {
   const text = String(userText || '');
   const asksForPlaceholders = /плейс|плэйс|placeholder|токен|namespace/i.test(text)
@@ -7332,12 +7643,17 @@ async function sendAiMessage() {
   clearAiImages();
   addMessage('user', text, pendingImgs);
 
-  // ─── Agent mode short-circuit ──────────────────────────────────
-  // When the user enables the 🤖 Agent toggle, route THIS message
-  // through the tool-use agent loop instead of the regular chat.
-  // Each tool call is shown live as a separate frame in the chat.
-  if (document.getElementById('aiAgentToggle')?.checked) {
-    await runAgentChat(text);
+  // ─── Routing: agent vs zero-AI shortcut vs discussion ──────────
+  // 1. Explicit 🤖 toggle → always the agent (force).
+  // 2. The message LOOKS like an edit request AND live AI is available
+  //    → the agent, automatically. This removes the old trap where the
+  //    user had to know about the toggle to get real locale/HTML edits.
+  // 3. Offline (no key) placeholder request → zero-AI shortcut fallback.
+  // 4. Otherwise → regular discussion chat.
+  const forceAgent = !!document.getElementById('aiAgentToggle')?.checked;
+  const editIntent = looksLikeEditIntent(text);
+  if (forceAgent || (editIntent && state.aiConfigured)) {
+    await runAgentChat(text, pendingImgs);
     return;
   }
 
@@ -8036,6 +8352,7 @@ async function refreshAiStatus() {
     if (!res.ok) throw new Error('bad');
     const data = await res.json();
     const ok = !!(data.openAiConfigured || data.openAiApiKey || data.hasOpenAiKey || data.status==='ok');
+    state.aiConfigured = ok;
     r.aiDot.dataset.state = ok ? 'connected' : 'error';
     if (r.aiKeyStatus)   r.aiKeyStatus.textContent   = ok ? '✅ Подключён' : '❌ Нет ключа';
     if (r.aiModelStatus) r.aiModelStatus.textContent = data.cloneEditModel || data.model || '—';
@@ -8492,7 +8809,9 @@ $('ebSearchInput')?.addEventListener('keydown', e => {
 // INIT
 // ═══════════════════════════════════════════════════════════════
 
+const RETKIT_BUILD = '2026-06-25p: pencil styles selected Pug node';
 function init() {
+  try { console.log('%c[RetKit] build ' + RETKIT_BUILD, 'color:#f70;font-weight:bold'); } catch {}
   setTheme(localStorage.getItem(LS_THEME) || 'dark');
   loadFromLocalStorage();
   initCodeMirror();
@@ -8578,6 +8897,16 @@ function init() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
+// Auto-open a mail passed from the constructor handoff: /workbench?brand=..&mail=..
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    const q = new URLSearchParams(location.search);
+    const brand = q.get('brand'), mail = q.get('mail');
+    if (brand && mail && typeof openSourceContext === 'function') {
+      setTimeout(() => { openSourceContext(brand, mail).catch(() => {}); }, 500);
+    }
+  } catch {}
+});
 
 
 // ─── AI: placeholderize HTML + translate/fix locale TXT ────────────────
@@ -8777,6 +9106,8 @@ document.addEventListener('DOMContentLoaded', init);
 // ─── Inline inspector (preview-side editor) ────────────────────────────────
 let _inspectorPanel = null;
 let _inspectorTarget = null; // { outerHtml, ... } — last clicked element snapshot
+let _inspectorChain = [];     // ancestor chain [clicked, parent, ...] for depth navigation
+let _inspectorDepth = 0;      // index into _inspectorChain currently shown
 
 function ensureInspectorPanel() {
   if (_inspectorPanel) return _inspectorPanel;
@@ -8786,6 +9117,12 @@ function ensureInspectorPanel() {
   panel.innerHTML = `
     <div class="inspector-header">
       <span class="inspector-title">Инспектор</span>
+      <span class="inspector-depth" id="inspectorDepth">
+        <button class="inspector-depth-btn" id="inspectorDepthUp" type="button" title="Наружу — к родительскому блоку">⬆</button>
+        <span class="inspector-depth-label" id="inspectorDepthLabel"></span>
+        <button class="inspector-depth-btn" id="inspectorDepthDown" type="button" title="Внутрь — к вложенному блоку">⬇</button>
+      </span>
+      <button class="inspector-collapse" type="button" title="Свернуть / развернуть">▁</button>
       <button class="inspector-close" type="button" title="Закрыть">✕</button>
     </div>
     <div class="inspector-body" id="inspectorBody"></div>
@@ -8798,6 +9135,31 @@ function ensureInspectorPanel() {
   panel.querySelector('.inspector-close').addEventListener('click', closeInspector);
   panel.querySelector('.inspector-cancel').addEventListener('click', closeInspector);
   panel.querySelector('.inspector-apply').addEventListener('click', applyInspectorChanges);
+  panel.querySelector('#inspectorDepthUp').addEventListener('click', () => stepInspectorDepth(1));
+  panel.querySelector('#inspectorDepthDown').addEventListener('click', () => stepInspectorDepth(-1));
+  panel.querySelector('.inspector-collapse').addEventListener('click', () => {
+    panel.classList.toggle('collapsed');
+  });
+  // Draggable by its header — move anywhere on screen.
+  (function makeDraggable() {
+    const head = panel.querySelector('.inspector-header');
+    let sx = 0, sy = 0, ox = 0, oy = 0, dragging = false;
+    const onMove = (e) => {
+      if (!dragging) return;
+      panel.style.left = (ox + e.clientX - sx) + 'px';
+      panel.style.top  = Math.max(8, oy + e.clientY - sy) + 'px';
+      panel.style.right = 'auto';
+    };
+    const onUp = () => { dragging = false; document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); document.body.style.userSelect = ''; };
+    head.addEventListener('mousedown', (e) => {
+      if (e.target.closest('button')) return;        // buttons still clickable
+      const r = panel.getBoundingClientRect();
+      ox = r.left; oy = r.top; sx = e.clientX; sy = e.clientY; dragging = true;
+      document.body.style.userSelect = 'none';
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+  })();
   _inspectorPanel = panel;
   return panel;
 }
@@ -8805,10 +9167,42 @@ function ensureInspectorPanel() {
 function closeInspector() {
   _inspectorTarget = null;
   if (_inspectorPanel) _inspectorPanel.classList.add('hidden');
+  try { r.previewFrame?.contentWindow?.postMessage({ type: 'retkit-clear-highlight' }, '*'); } catch {}
 }
 
-function openInspector(payload) {
+function stepInspectorDepth(delta) {
+  if (!_inspectorChain.length) return;
+  const next = _inspectorDepth + delta;
+  if (next < 0 || next >= _inspectorChain.length) return;
+  _inspectorDepth = next;
+  openInspector(_inspectorChain[_inspectorDepth], { keepChain: true });
+}
+
+function updateInspectorDepthUI() {
+  if (!_inspectorPanel) return;
+  const wrap = _inspectorPanel.querySelector('#inspectorDepth');
+  const label = _inspectorPanel.querySelector('#inspectorDepthLabel');
+  const up = _inspectorPanel.querySelector('#inspectorDepthUp');
+  const down = _inspectorPanel.querySelector('#inspectorDepthDown');
+  if (!wrap) return;
+  // Always show the depth controls so "select the parent" is discoverable.
+  wrap.style.display = '';
+  const cur = _inspectorChain[_inspectorDepth] || {};
+  const multi = _inspectorChain.length > 1;
+  label.textContent = multi
+    ? `<${cur.tag || '?'}> ${_inspectorDepth + 1}/${_inspectorChain.length}`
+    : `<${cur.tag || '?'}>`;
+  up.disabled = _inspectorDepth >= _inspectorChain.length - 1;   // ⬆ = toward parent (outer)
+  down.disabled = _inspectorDepth <= 0;                          // ⬇ = toward clicked (inner)
+}
+
+function openInspector(payload, opts = {}) {
   const panel = ensureInspectorPanel();
+  if (!opts.keepChain) {
+    _inspectorChain = Array.isArray(payload.chain) && payload.chain.length ? payload.chain : [payload];
+    _inspectorDepth = 0;
+    payload = _inspectorChain[0];
+  }
   _inspectorTarget = payload;
   const body = panel.querySelector('#inspectorBody');
   const c = payload.computed || {};
@@ -8825,14 +9219,30 @@ function openInspector(payload) {
     <label class="ins-row"><span>Alt text</span>
       <input data-field="alt" type="text" value="${escapeHtml(payload.alt || '')}" />
     </label>` : ''}
+    ${payload.tag === 'a' ? `
+    <label class="ins-row"><span>Ссылка (href)</span>
+      <input data-field="href" type="text" value="${escapeHtml(payload.href || '')}" placeholder="https://… или {{embedded.domain}}" />
+    </label>` : ''}
     <label class="ins-row"><span>Цвет текста</span>
-      <input data-field="color" type="color" value="${rgbToHex(c.color)}" />
+      <span class="ins-color">
+        <input data-sync="color" type="color" value="${rgbToHex(c.color) || '#000000'}" />
+        <input data-field="color" type="text" class="ins-hex" maxlength="7" value="${rgbToHexOrEmpty(c.color)}" placeholder="#000000" />
+      </span>
     </label>
     <label class="ins-row"><span>Фон</span>
-      <input data-field="backgroundColor" type="color" value="${rgbToHex(c.backgroundColor)}" />
+      <span class="ins-color">
+        <input data-sync="backgroundColor" type="color" value="${rgbToHex(c.backgroundColor) || '#ffffff'}" />
+        <input data-field="backgroundColor" type="text" class="ins-hex" maxlength="7" value="${rgbToHexOrEmpty(c.backgroundColor)}" placeholder="прозрачный" />
+      </span>
+    </label>
+    <label class="ins-row"><span>Фоновая картинка (URL)</span>
+      <input data-field="backgroundImage" type="text" value="${escapeHtml(bgImageUrl(c.backgroundImage) || payload.bgAttr || '')}" placeholder="https://…/bg.png (пусто — убрать фон)" />
     </label>
     <label class="ins-row"><span>Размер шрифта (px)</span>
       <input data-field="fontSize" type="number" min="8" max="80" value="${parseInt(c.fontSize) || 14}" />
+    </label>
+    <label class="ins-row"><span>Высота строки</span>
+      <input data-field="lineHeight" type="text" value="${escapeHtml(c.lineHeight && c.lineHeight !== 'normal' ? c.lineHeight : '')}" placeholder="28px или 1.5" />
     </label>
     <label class="ins-row"><span>Жирность</span>
       <select data-field="fontWeight">
@@ -8856,14 +9266,41 @@ function openInspector(payload) {
     <label class="ins-row"><span>Border-radius</span>
       <input data-field="borderRadius" type="text" value="${escapeHtml(c.borderRadius || '')}" placeholder="4px" />
     </label>
+    <label class="ins-row"><span>Граница (border)</span>
+      <input data-field="border" type="text" value="${escapeHtml(c.border || '')}" placeholder="1px solid #d9d9db" />
+    </label>
   `;
+  // Sync each colour picker with its hex text twin (hex is the data-field).
+  body.querySelectorAll('[data-sync]').forEach(picker => {
+    const key = picker.getAttribute('data-sync');
+    const hex = body.querySelector(`[data-field="${key}"]`);
+    if (!hex) return;
+    picker.addEventListener('input', () => { hex.value = picker.value; });
+    hex.addEventListener('input', () => { if (/^#[0-9a-fA-F]{6}$/.test(hex.value)) picker.value = hex.value; });
+  });
   panel.classList.remove('hidden');
+  updateInspectorDepthUI();
+  try { r.previewFrame?.contentWindow?.postMessage({ type: 'retkit-highlight', depth: _inspectorDepth }, '*'); } catch {}
   // Position: top-right of preview pane.
   const rect = (r.previewFrameWrap || document.body).getBoundingClientRect();
   panel.style.top = `${Math.max(20, rect.top + 12)}px`;
   panel.style.left = `${Math.max(20, rect.right - panel.offsetWidth - 12)}px`;
 }
 
+function bgImageUrl(v) {
+  const s = String(v || '');
+  if (!s || s === 'none') return '';
+  const m = s.match(/url\((["']?)(.*?)\1\)/);
+  return m ? m[2] : '';
+}
+function rgbToHexOrEmpty(rgb) {
+  // Transparent / no colour → empty (so the inspector shows blank, not #000000).
+  const v = String(rgb || '').trim().toLowerCase();
+  if (!v || v === 'transparent') return '';
+  const m = v.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([0-9.]+))?\)/);
+  if (m && m[4] !== undefined && parseFloat(m[4]) === 0) return ''; // alpha 0
+  return rgbToHex(rgb);
+}
 function rgbToHex(rgb) {
   if (!rgb) return '#000000';
   const m = String(rgb).match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
@@ -8872,15 +9309,205 @@ function rgbToHex(rgb) {
   return '#' + toHex(m[1]) + toHex(m[2]) + toHex(m[3]);
 }
 
+// ─── Pug-aware pencil: edit Pug-source emails via the placeholder token ──────
+// Bridge: the token ${{ ns.block_NN }}$ exists literally in BOTH the Pug source
+// and the rendered HTML, so we locate the Pug line by the token. Styles → an
+// inline (style="…") on that line; text → the active locale's block.
+function mergeStyleDecls(existing, incoming) {
+  const map = new Map();
+  const parse = (str) => String(str || '').split(';').forEach(d => {
+    const i = d.indexOf(':'); if (i < 0) return;
+    const k = d.slice(0, i).trim().toLowerCase(); const v = d.slice(i + 1).trim();
+    if (k && v) map.set(k, v);
+  });
+  parse(existing); parse(incoming);
+  return Array.from(map, ([k, v]) => k + ': ' + v).join('; ');
+}
+
+function injectInlinePugStyle(pug, token, styleStr) {
+  if (!pug || !token || !styleStr) return { error: 'missing args' };
+  const lines = String(pug).split('\n');
+  const hits = [];
+  lines.forEach((ln, i) => { if (ln.indexOf(token) !== -1) hits.push(i); });
+  if (hits.length === 0) return { error: 'плейсхолдер не найден в коде' };
+  if (hits.length > 1) return { error: 'плейсхолдер встречается ' + hits.length + ' раз — неоднозначно' };
+  return injectInlinePugStyleAtLine(lines, hits[0], styleStr);
+}
+
+function injectInlinePugStyleAtLine(linesOrPug, lineIndex, styleStr) {
+  if (!styleStr) return { error: 'empty style' };
+  const lines = Array.isArray(linesOrPug) ? [...linesOrPug] : String(linesOrPug || '').split('\n');
+  const i = Number(lineIndex);
+  if (!Number.isInteger(i) || i < 0 || i >= lines.length) return { error: 'неверная строка Pug' };
+  const line = lines[i];
+  const m = /^(\s*)([A-Za-z][\w-]*(?:[.#][\w-]+)*|[.#][\w-]+(?:[.#][\w-]+)*)(\((?:[^()]|\([^()]*\))*\))?(.*)$/.exec(line);
+  if (!m) return { error: 'не разобрал Pug-селектор строки' };
+  const [, indent, selector, attrs, rest] = m;
+  let newLine;
+  if (attrs) {
+    const inner = attrs.slice(1, -1);
+    if (/\bstyle\s*=/.test(inner)) {
+      const merged = inner.replace(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/, (mm, q, body) =>
+        'style=' + q + mergeStyleDecls(body, styleStr) + q);
+      newLine = indent + selector + '(' + merged + ')' + rest;
+    } else {
+      newLine = indent + selector + '(' + inner.trim() + ' style="' + styleStr + '")' + rest;
+    }
+  } else {
+    newLine = indent + selector + '(style="' + styleStr + '")' + rest;
+  }
+  lines[i] = newLine;
+  return { pug: lines.join('\n'), line: i };
+}
+
+function parsePugSelectorLine(line) {
+  const m = /^(\s*)([A-Za-z][\w-]*(?:[.#][\w-]+)*|[.#][\w-]+(?:[.#][\w-]+)*)(\((?:[^()]|\([^()]*\))*\))?(.*)$/.exec(String(line || ''));
+  if (!m) return null;
+  const selector = m[2] || '';
+  const tagM = selector.match(/^[A-Za-z][\w-]*/);
+  const tag = (tagM ? tagM[0] : 'div').toLowerCase();
+  const classes = new Set();
+  selector.replace(/\.([\w-]+)/g, (_m, cls) => { classes.add(cls); return _m; });
+  const attrs = m[3] ? m[3].slice(1, -1) : '';
+  attrs.replace(/\bclass\s*=\s*(["'])([\s\S]*?)\1/g, (_m, _q, body) => {
+    body.split(/\s+/).filter(Boolean).forEach(cls => classes.add(cls));
+    return _m;
+  });
+  return { tag, classes };
+}
+
+function targetClassesFromOuterHtml(target) {
+  const open = String(target?.outerHtml || '').match(/^<[a-z][\w:-]*\b[^>]*>/i)?.[0] || '';
+  const cls = open.match(/\bclass\s*=\s*(["'])([\s\S]*?)\1/i)?.[2] || '';
+  return cls.split(/\s+/).map(x => x.trim()).filter(Boolean);
+}
+
+function findUniquePugLineForTarget(pug, target) {
+  const tag = String(target?.tag || '').toLowerCase();
+  const classes = targetClassesFromOuterHtml(target);
+  if (!tag || !classes.length) return null;
+  const lines = String(pug || '').split('\n');
+  const hits = [];
+  lines.forEach((line, i) => {
+    const parsed = parsePugSelectorLine(line);
+    if (!parsed || parsed.tag !== tag) return;
+    if (classes.every(cls => parsed.classes.has(cls))) hits.push(i);
+  });
+  return hits.length === 1 ? { line: hits[0], lines } : null;
+}
+
+function buildStyleStringFromEdits(edits, c = {}) {
+  const parts = [];
+  if (edits.color && rgbToHex(c.color) !== edits.color) parts.push('color: ' + edits.color);
+  if (edits.backgroundColor && rgbToHex(c.backgroundColor) !== edits.backgroundColor) parts.push('background-color: ' + edits.backgroundColor);
+  if (edits.fontSize && String(parseInt(edits.fontSize)) !== String(parseInt(c.fontSize))) parts.push('font-size: ' + parseInt(edits.fontSize) + 'px');
+  if (edits.fontWeight && String(edits.fontWeight) !== String(c.fontWeight || '')) parts.push('font-weight: ' + edits.fontWeight);
+  if (edits.textAlign && String(edits.textAlign).toLowerCase() !== String(c.textAlign || '').toLowerCase()) parts.push('text-align: ' + edits.textAlign);
+  if (edits.padding && String(edits.padding).trim() !== String(c.padding || '').trim()) parts.push('padding: ' + edits.padding);
+  if (edits.borderRadius && String(edits.borderRadius).trim() !== String(c.borderRadius || '').trim()) parts.push('border-radius: ' + edits.borderRadius);
+  if (edits.border !== undefined && String(edits.border).trim() !== String(c.border || '').trim()) parts.push(String(edits.border).trim() ? 'border: ' + String(edits.border).trim() : 'border: none');
+  if (edits.lineHeight && String(edits.lineHeight).trim() !== String(c.lineHeight || '').trim()) parts.push('line-height: ' + String(edits.lineHeight).trim());
+  if (edits.backgroundImage !== undefined && edits.backgroundImage.trim() && edits.backgroundImage.trim() !== bgImageUrl(c.backgroundImage)) {
+    const u = edits.backgroundImage.trim().replace(/'/g, "%27");
+    parts.push("background-image: url('" + u + "')");
+    parts.push("background-position: center");
+    parts.push("background-repeat: no-repeat");
+    parts.push("background-size: cover");
+  }
+  return parts.join('; ');
+}
+
+function applyInspectorChangesPug(edits) {
+  const target = _inspectorTarget || {};
+  let code = cm.getValue();
+  let did = false;
+
+  // HREF edit (links) — works without a placeholder token. The href value is
+  // identical in Pug source and rendered HTML (platform vars stay literal), so
+  // we locate the link by its current href and swap it.
+  if (typeof edits.href === 'string' && target.href != null && edits.href !== target.href) {
+    const oldH = String(target.href);
+    let swapped = false;
+    for (const q of ['"', "'"]) {
+      const needle = 'href=' + q + oldH + q;
+      if (code.split(needle).length === 2) {
+        code = code.replace(needle, 'href=' + q + edits.href + q);
+        swapped = true; break;
+      }
+    }
+    if (swapped) { cm.setValue(code); try { updatePreview(); } catch {} toast('Ссылка обновлена', 'success', 1500); did = true; }
+    else toast('Ссылку не нашёл однозначно в Pug (0 или >1 совпадений) — поправь в коде вручную.', 'warning', 5000);
+  }
+
+  const probe = stripPreviewArtifacts(target.outerHtml || '') + ' ' + (target.text || '');
+  const tokM = /\$\{\{\s*([\w.\-]+)\.block_(\d+)\s*\}\}\$/.exec(probe);
+  if (!tokM) {
+    if (!did) toast('На Pug/Stylus стиль/текст правится по блокам с плейсхолдером ${{…}}$. Кликни по тексту блока.', 'info', 6000);
+    return closeInspector();
+  }
+  const token = tokM[0];
+  const nsName = tokM[1];
+  const blockN = Number(tokM[2]);
+
+  // STYLE → inline (style="…") on the token's Pug line.
+  const styleStr = buildStyleStringFromEdits(edits, target.computed || {});
+  if (styleStr) {
+    // For containers (<td>/<table>/<div> with child placeholders), the first
+    // token belongs to a child line. Prefer the selected element's own Pug
+    // selector by tag+class, and fall back to token anchoring only when the
+    // selector is not unique.
+    const ownLine = findUniquePugLineForTarget(code, target);
+    const res = ownLine
+      ? injectInlinePugStyleAtLine(ownLine.lines, ownLine.line, styleStr)
+      : injectInlinePugStyle(code, token, styleStr);
+    if (res.error) { toast('Стиль: ' + res.error, 'warning', 5000); }
+    else {
+      cm.setValue(res.pug);
+      try { cm.refresh(); } catch {}
+      try { updatePreview(); } catch {}
+      toast('✓ Стиль применён к Pug', 'success', 1500);
+      did = true;
+    }
+  }
+
+  // TEXT → active locale's block (text is a placeholder; real text lives in locales).
+  if (target.tag !== 'img' && typeof edits.text === 'string' && edits.text.indexOf('${{') === -1) {
+    const code0 = state.activeLocale;
+    if (code0 && code0 !== 'original') {
+      const ns = state.namespaces.find(n => n.name === nsName);
+      if (ns && Array.isArray(ns.locales[code0]) && blockN < ns.locales[code0].length) {
+        if (ns.locales[code0][blockN] !== edits.text) {
+          ns.locales[code0][blockN] = edits.text;
+          try { setLocaleRawContent(ns, code0, serializeTxt(ns.locales[code0])); } catch {}
+          try { renderLocalesBar(); } catch {}
+          try { saveToLocalStorage(); } catch {}
+          try { activateLocale(code0); } catch {}
+          toast('Текст блока ' + blockN + ' обновлён в локали ' + code0.toUpperCase(), 'success', 2500);
+          did = true;
+        }
+      }
+    } else if (edits.text.trim()) {
+      toast('Текст блока — это плейсхолдер. Переключись на локаль (EN/AR/…), чтобы изменить сам текст.', 'info', 5000);
+    }
+  }
+
+  if (!did) toast('Нет изменений для применения', 'info', 2000);
+  closeInspector();
+}
+
 function buildPatchedOuterHtml(target, edits) {
   // Start from outerHtml; mutate the opening tag's style/attrs and (for non-img) the inner text.
   let out = String(target.outerHtml || '');
 
-  // Replace inner text for non-img containers — only touch a single inner text run if possible.
-  if (target.tag !== 'img' && typeof edits.text === 'string') {
-    // naive: replace all text nodes inside the element with the new text
-    out = out.replace(/^(<[a-z][^>]*>)([\s\S]*)(<\/[a-z]+>)$/i, (_m, open, _inner, close) =>
-      `${open}${edits.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}${close}`);
+  // Replace inner text — ONLY for text-leaf elements. If the element contains
+  // child tags (a container like <td>/<div> with image+title+text+button), do
+  // NOT flatten its inner HTML into text — that destroys the block.
+  const textChanged = typeof edits.text === 'string' && edits.text !== String(target.text || '');
+  if (target.tag !== 'img' && textChanged) {
+    out = out.replace(/^(<[a-z][^>]*>)([\s\S]*)(<\/[a-z]+>)$/i, (_m, open, inner, close) => {
+      if (/<[a-z]/i.test(inner)) return `${open}${inner}${close}`;   // has child tags → keep inner intact
+      return `${open}${edits.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}${close}`;
+    });
   }
   // For images: replace src/alt
   if (target.tag === 'img') {
@@ -8890,15 +9517,26 @@ function buildPatchedOuterHtml(target, edits) {
       else out = out.replace(/^<img\b/i, `<img alt="${edits.alt.replace(/"/g, '&quot;')}"`);
     }
   }
+  // For links: replace the opening tag's href.
+  if (typeof edits.href === 'string' && edits.href !== '' && target.href != null) {
+    if (/\bhref\s*=/i.test(out)) out = out.replace(/\bhref\s*=\s*("|')[^"']*\1/i, `href="${edits.href.replace(/"/g, '&quot;')}"`);
+  }
   // Build a style declarations block from edits (only those that were set).
   const styleParts = [];
-  const fields = ['color','backgroundColor','fontSize','fontWeight','textAlign','padding','borderRadius'];
-  const cssNames = { backgroundColor:'background-color', fontSize:'font-size', fontWeight:'font-weight', textAlign:'text-align', borderRadius:'border-radius' };
+  const fields = ['color','backgroundColor','fontSize','fontWeight','textAlign','padding','borderRadius','border','lineHeight'];
+  const cssNames = { backgroundColor:'background-color', fontSize:'font-size', fontWeight:'font-weight', textAlign:'text-align', borderRadius:'border-radius', backgroundImage:'background-image', lineHeight:'line-height' };
   for (const f of fields) {
     let v = edits[f];
     if (v === undefined || v === '' || v == null) continue;
     if (f === 'fontSize' && typeof v !== 'string') v = `${parseInt(v)}px`;
     styleParts.push(`${cssNames[f] || f}: ${v}`);
+  }
+  if (edits.backgroundImage !== undefined && String(edits.backgroundImage).trim() && String(edits.backgroundImage).trim() !== bgImageUrl(target.computed && target.computed.backgroundImage)) {
+    const u = String(edits.backgroundImage).trim().replace(/'/g, '%27');
+    styleParts.push("background-image: url('" + u + "')");
+    styleParts.push('background-position: center');
+    styleParts.push('background-repeat: no-repeat');
+    styleParts.push('background-size: cover');
   }
   if (styleParts.length) {
     out = out.replace(/^<([a-z][\w:-]*)\b([^>]*)>/i, (_m, tag, attrs) => {
@@ -8912,6 +9550,39 @@ function buildPatchedOuterHtml(target, edits) {
   return out;
 }
 
+// Robust HTML edit: locate the element by tag + exact class value (survives the
+// browser re-serialising attributes differently from the source) and patch ONLY
+// its style/href attribute in-place — no whole-fragment replace, no text touch.
+function patchHtmlElementInPlace(code, target, edits) {
+  const clean = stripPreviewArtifacts(target.outerHtml || '');
+  const oldOpen = (clean.match(/^<[a-z][\w:-]*\b[^>]*>/i) || [])[0];
+  if (!oldOpen) return null;
+  const tagName = (oldOpen.match(/^<([a-z][\w:-]*)/i) || [])[1];
+  const clsM = oldOpen.match(/\bclass\s*=\s*(["'])([\s\S]*?)\1/i);
+  if (!clsM) return null;                                   // need a class to locate reliably
+  const cls = clsM[2];
+  const escRe = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = new RegExp('<' + tagName + '\\b[^>]*\\bclass\\s*=\\s*(["\'])' + escRe(cls) + '\\1[^>]*>', 'gi');
+  const ms = [...code.matchAll(re)];
+  if (ms.length !== 1) return null;                          // ambiguous / none → caller falls back
+  const at = ms[0].index;
+  let openTag = ms[0][0];
+  let patched = openTag;
+  const styleStr = buildStyleStringFromEdits(edits, target.computed || {});
+  if (styleStr) {
+    if (/\bstyle\s*=/i.test(patched)) {
+      patched = patched.replace(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i, (m, q, b) => 'style=' + q + mergeStyleDecls(b, styleStr) + q);
+    } else {
+      patched = patched.replace(/\s*>$/, ' style="' + styleStr + '">');
+    }
+  }
+  if (typeof edits.href === 'string' && edits.href !== '' && target.href != null && /\bhref\s*=/i.test(patched)) {
+    patched = patched.replace(/\bhref\s*=\s*(["'])[\s\S]*?\1/i, 'href="' + edits.href.replace(/"/g, '&quot;') + '"');
+  }
+  if (patched === openTag) return null;
+  return { at, openTag, patched };
+}
+
 function applyInspectorChanges() {
   if (!_inspectorTarget || !cm) return closeInspector();
   const panel = _inspectorPanel;
@@ -8921,39 +9592,74 @@ function applyInspectorChanges() {
     const f = el.dataset.field;
     edits[f] = el.value;
   });
-  const newOuter = buildPatchedOuterHtml(_inspectorTarget, edits);
-  const oldOuter = _inspectorTarget.outerHtml;
+  // Pug/Stylus source: HTML find-replace can't work (editor has Pug, preview is
+  // compiled HTML). Route through the token-anchored Pug-aware path.
+  if (state.editorType && state.editorType !== 'html') { applyInspectorChangesPug(edits); return; }
+  // Build from a CLEANED snapshot so we match the bare source (no injected
+  // placeholder spans / debug nodes) and never write those artifacts back.
+  const cleanTarget = { ..._inspectorTarget, outerHtml: stripPreviewArtifacts(_inspectorTarget.outerHtml) };
+  const newOuter = stripPreviewArtifacts(buildPatchedOuterHtml(cleanTarget, edits));
+  const oldOuter = cleanTarget.outerHtml;
   if (!oldOuter || oldOuter === newOuter) return closeInspector();
 
   const code = cm.getValue();
+
+  // ROBUST PATH (HTML, style/href only, text unchanged): locate by tag+class and
+  // patch the style/href attribute in place — tolerant to attribute serialization.
+  {
+    const textChanged = typeof edits.text === 'string' && edits.text !== String(_inspectorTarget.text || '');
+    if (!textChanged) {
+      const r = patchHtmlElementInPlace(code, cleanTarget, edits);
+      if (r) {
+        cm.operation(() => cm.replaceRange(r.patched, cm.posFromIndex(r.at), cm.posFromIndex(r.at + r.openTag.length)));
+        try { cm.refresh(); } catch {}
+        try { updatePreview(); } catch {}
+        toast('✓ Применено', 'success', 1500);
+        return closeInspector();
+      }
+    }
+  }
+
+  // FAST PATH — when only the opening tag changed (style/attrs/href; inner content
+  // identical), patch JUST the opening tag. The opening tag is short and complete
+  // (never truncated), so this is safe even for huge <td> containers whose full
+  // outerHTML is sliced to 12000 chars.
+  {
+    const oldOpen = (oldOuter.match(/^<[a-z][\w:-]*\b[^>]*>/i) || [])[0];
+    const newOpen = (newOuter.match(/^<[a-z][\w:-]*\b[^>]*>/i) || [])[0];
+    if (oldOpen && newOpen && oldOpen !== newOpen &&
+        oldOuter.slice(oldOpen.length) === newOuter.slice(newOpen.length)) {
+      const occ = code.split(oldOpen).length - 1;
+      if (occ === 1) {
+        const at = code.indexOf(oldOpen);
+        cm.operation(() => {
+          cm.replaceRange(newOpen, cm.posFromIndex(at), cm.posFromIndex(at + oldOpen.length));
+        });
+        try { cm.refresh(); } catch {}
+        try { updatePreview(); } catch {}
+        toast('✓ Применено', 'success', 1500);
+        return closeInspector();
+      }
+      // not unique → fall through to full matching below
+    }
+  }
+
   // First try exact outerHTML match. If iframe ran CSS-inline, outerHTML in iframe
   // can differ from cm — fall back to a more flexible match by tag + visible text.
   let idx = code.indexOf(oldOuter);
   let matchLen = oldOuter.length;
-  if (idx === -1 && _inspectorTarget) {
-    const tag = _inspectorTarget.tag;
-    const txt = (_inspectorTarget.text || '').trim();
-    if (tag && txt && txt.length >= 4) {
-      // Find any opening <tag ...> ... txt ... </tag>
-      const tagRe = new RegExp('<' + tag + '\\b[^>]*>[\\s\\S]*?</' + tag + '>', 'i');
-      const re = new RegExp(
-        '<' + tag + '\\b[^>]*>[\\s\\S]*?' +
-          txt.slice(0, 60).replace(/[.*+?^${}()|[\]\\]/g, '\\$&') +
-          '[\\s\\S]*?</' + tag + '>',
-        'i'
-      );
-      const m = re.exec(code);
-      if (m) {
-        idx = m.index;
-        matchLen = m[0].length;
-        // We will replace the matched range with newOuter. newOuter was built from
-        // the iframe's (CSS-inlined) outerHTML, which can differ from cm's source.
-        // To stay safe: only patch the OPENING tag's style + the visible text inside.
-      }
-    }
-  }
+  // NOTE: the old regex "by tag + text" fallback was removed — on serialization
+  // mismatch it could match the WRONG range and corrupt the whole email. Принцип:
+  // лучше не применить, чем сломать. If exact / robust-class / opening-tag paths
+  // above didn't resolve, we refuse below.
   if (idx === -1) {
-    toast('Не удалось найти фрагмент в коде. Возможно текст изменён вручную.', 'warning', 4000);
+    // The most common cause is editing a Pug/Stylus source while the preview is
+    // compiled HTML — the element's HTML can't be found in Pug source. Be honest.
+    if (state.editorType && state.editorType !== 'html') {
+      toast('Это ' + state.editorType.toUpperCase() + '-исходник, не HTML. Точечная правка по клику пока работает на HTML-письмах. Текст меняй через локали, стили — в Stylus.', 'warning', 6000);
+    } else {
+      toast('Не смог однозначно найти этот элемент в коде — правка НЕ применена (письмо не тронуто). У элемента нет уникального класса; правь через код или дай ему class.', 'warning', 6000);
+    }
     return;
   }
   if (code.indexOf(oldOuter, idx + 1) !== -1) {

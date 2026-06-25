@@ -1,0 +1,24 @@
+{
+  "id": "content-card",
+  "label": "Карточка: заголовок + текст",
+  "description": "Фирменная скруглённая белая карточка IQ-стиля: крупный заголовок и абзацы текста. Outlook-safe, самодостаточная.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "base",
+  "pug": "table.row.card(role='presentation' align='center' width='100%')\n    tr\n        td.card-cell\n            h1.card-title {{ title }}\n            p.card-text {{ body }}",
+  "styl": ".row.card { background: {{ card_bg }}; border-radius: {{ card_radius }}px; border-collapse: separate; width: 100%; }\n.row.card td.card-cell { padding: {{ card_padding }}; text-align: left; }\n.row.card h1.card-title { font-family: 'Helvetica', 'Arial', sans-serif; font-weight: 700; font-size: {{ title_size }}px; line-height: 1.18; color: {{ title_color }}; margin: 0 0 18px; padding: 0; }\n.row.card p.card-text { font-family: 'Helvetica', 'Arial', sans-serif; font-weight: 400; font-size: {{ body_size }}px; line-height: 1.55; color: {{ body_color }}; margin: 0 0 12px; padding: 0; }",
+  "slots": [
+    { "id": "title", "kind": "richText", "label": "Заголовок", "default": "Заголовок письма" },
+    { "id": "body", "kind": "richText", "label": "Текст", "default": "Основной текст карточки." },
+    { "id": "title_color", "kind": "color", "label": "Цвет заголовка", "default": "#2e292a" },
+    { "id": "body_color", "kind": "color", "label": "Цвет текста", "default": "#3c3939" },
+    { "id": "title_size", "kind": "number", "label": "Размер заголовка (px)", "default": 48 },
+    { "id": "body_size", "kind": "number", "label": "Размер текста (px)", "default": 18 },
+    { "id": "card_bg", "kind": "color", "label": "Фон карточки", "default": "#ffffff" },
+    { "id": "card_radius", "kind": "number", "label": "Скругление (px)", "default": 16 },
+    { "id": "card_padding", "kind": "text", "label": "Внутренние отступы", "default": "44px 40px" }
+  ],
+  "outlookSafe": true,
+  "tags": ["card", "title", "text", "iqbroker", "base"]
+}

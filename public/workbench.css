@@ -2534,7 +2534,8 @@ svg { display: block; flex-shrink: 0; }
 /* ═══════════════════ EMAIL BASE FILE MANAGER ════════════════ */
 .eb-manager {
   display: flex;
-  height: 260px;
+  height: 100%;
+  min-height: 320px;
   gap: 0;
   overflow: hidden;
 }
@@ -3682,11 +3683,16 @@ svg { display: block; flex-shrink: 0; }
 
 /* Built-in namespace pill (footer_upload etc) */
 .ns-btn-builtin {
-  background: linear-gradient(135deg, rgba(96,165,250,0.10), rgba(96,165,250,0.04)) !important;
-  border-color: rgba(96,165,250,0.35) !important;
+  /* Service namespace (footer_upload) — de-emphasised: muted, smaller, faded,
+     sits quietly at the end of the list. */
+  background: transparent !important;
+  border-color: var(--border) !important;
+  color: var(--text-2) !important;
+  opacity: 0.6;
+  font-size: 11px;
   cursor: pointer;
 }
-.ns-btn-builtin:hover { filter: brightness(1.1); }
+.ns-btn-builtin:hover { opacity: 1; filter: none; }
 .ns-builtin-icon {
   margin-right: 4px;
   font-size: 11px;
@@ -4444,3 +4450,81 @@ body:has(.ph-sidebar:not(.collapsed):not(.hidden)) .workspace {
   color: var(--accent, #2563eb);
   border-color: var(--accent, #2563eb);
 }
+
+/* ── Preview maximize: hide editor column, email fills the workspace ── */
+.workspace.preview-maximized > #editorPane,
+.workspace.preview-maximized > #resizeHandle { display: none !important; }
+.workspace.preview-maximized > .preview-pane {
+  flex: 1 1 100% !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+}
+#previewMaxBtn[aria-pressed="true"] { background: var(--accent); color: #fff; }
+
+/* ── AI chat image drop target ── */
+.ai-drop-hot { outline: 2px dashed var(--accent); outline-offset: -6px; background: rgba(96,165,250,0.06); }
+
+/* ── Inspector depth navigation (nested/overlapping blocks) ── */
+.inspector-depth { display: inline-flex; align-items: center; gap: 4px; margin: 0 6px; }
+.inspector-depth-btn {
+  border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
+  border-radius: 5px; width: 22px; height: 22px; line-height: 1; cursor: pointer; font-size: 12px;
+}
+.inspector-depth-btn:hover:not(:disabled) { background: var(--surface-3); border-color: var(--accent); }
+.inspector-depth-btn:disabled { opacity: 0.35; cursor: default; }
+.inspector-depth-label { font-size: 11px; color: var(--text-2); min-width: 64px; text-align: center; }
+
+/* ── Toolbar overflow menu (⋯) ── */
+.toolbar-more-wrap { position: relative; display: inline-flex; }
+.toolbar-more-menu {
+  position: absolute; top: calc(100% + 6px); right: 0; z-index: 60;
+  min-width: 240px; padding: 6px;
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.35); display: flex; flex-direction: column; gap: 2px;
+}
+.more-menu-item {
+  text-align: left; padding: 8px 10px; border: none; background: transparent;
+  color: var(--text); border-radius: 6px; cursor: pointer; font-size: 12.5px; white-space: nowrap;
+}
+.more-menu-item:hover { background: var(--surface-3); }
+.more-menu-item[aria-pressed="true"] { color: var(--accent); }
+#toolbarMoreBtn[aria-expanded="true"] { background: var(--surface-3); border-color: var(--accent); }
+
+/* ── Inspector colour: picker + hex text ── */
+.ins-color { display: inline-flex; align-items: center; gap: 6px; }
+.ins-color input[type="color"] { width: 34px; height: 28px; padding: 0; border: 1px solid var(--border); border-radius: 6px; background: transparent; cursor: pointer; }
+.ins-hex { width: 88px; font-family: ui-monospace, Menlo, monospace; text-transform: lowercase; }
+
+/* ── Blocks palette rail (right preview pane) ── */
+.blocks-palette-rail { border-bottom: 1px solid var(--border); background: var(--surface-2); padding: 8px; overflow-x: auto; overflow-y: hidden; flex-shrink: 0; max-height: 120px; }
+.blocks-palette-inner { display: flex; gap: 8px; align-items: stretch; }
+.blocks-palette-inner .block-card {
+  flex: 0 0 auto; min-width: 92px; display: flex; flex-direction: column; gap: 6px; align-items: center;
+  padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface);
+  cursor: grab; user-select: none; position: relative; font-size: 11px; color: var(--text-2);
+}
+.blocks-palette-inner .block-card:hover { border-color: var(--accent); color: var(--text); }
+.blocks-palette-inner .block-card.dragging { opacity: .5; }
+.blocks-palette-inner .block-card-icon { font-size: 18px; font-weight: 700; }
+.blocks-palette-inner .block-card-label { text-align: center; line-height: 1.2; }
+.blocks-palette-inner .block-card-source-tag { position: absolute; top: 3px; right: 4px; font-size: 8px; color: var(--accent); opacity: .8; }
+#blocksPaletteToggle[aria-pressed="true"] { background: var(--accent); color: #fff; }
+
+/* ── Inspector: draggable + collapsible ── */
+.inline-inspector .inspector-header { cursor: move; user-select: none; }
+.inline-inspector.collapsed .inspector-body,
+.inline-inspector.collapsed .inspector-footer { display: none; }
+.inline-inspector.collapsed { height: auto; }
+.inspector-collapse { border: none; background: transparent; color: var(--text-2); cursor: pointer; font-size: 14px; line-height: 1; padding: 0 4px; }
+.inspector-collapse:hover { color: var(--text); }
+
+/* ── Email structure panel (segment / reorder / delete blocks) ── */
+.structure-list { display: flex; flex-direction: column; gap: 6px; }
+.structure-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); }
+.structure-item-label { font-weight: 600; font-size: 12px; color: var(--text); white-space: nowrap; }
+.structure-item-preview { flex: 1; font-size: 11px; color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.structure-item-acts { display: inline-flex; gap: 4px; }
+.structure-item-acts button { border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 5px; width: 24px; height: 24px; cursor: pointer; font-size: 11px; }
+.structure-item-acts button:hover:not(:disabled) { border-color: var(--accent); }
+.structure-item-acts button:disabled { opacity: .35; cursor: default; }

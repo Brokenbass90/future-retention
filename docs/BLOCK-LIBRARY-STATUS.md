@@ -1,11 +1,11 @@
 # Block Library — Validation Report
 
-Generated: 2026-06-18T17:44:46.265Z
+Generated: 2026-06-25T11:41:47.279Z
 
-**Hand-crafted blocks** (`data/block-library/canonical/*.json`): 8
-**Legacy auto-extracted blocks** (`data/block-snippets.json`): 15
+**Hand-crafted blocks** (`data/block-library/canonical/*.json`): 14
+**Legacy auto-extracted blocks** (`data/block-snippets.json`): 11
 
-**Pass:** 19 · **Fail:** 0 · **Skipped (corrupted):** 4
+**Pass:** 25 · **Fail:** 0 · **Skipped (corrupted):** 0
 
 Pass criteria: block scaffolds into a minimal mail wrapper, compiles via `build-mail.js` without errors, produces a dist HTML with a `<body>` containing ≥200 chars of content.
 
@@ -13,25 +13,31 @@ Pass criteria: block scaffolds into a minimal mail wrapper, compiles via `build-
 
 | id | section | pug size | output | build time |
 |---|---|---|---|---|
-| `button-primary` | cta | 157 B | 8667 B (body: 6651 B) | 834 ms |
-| `cta-banner` | cta | 364 B | 9763 B (body: 7751 B) | 826 ms |
-| `divider-spacer` | utility | 136 B | 8220 B (body: 6204 B) | 574 ms |
-| `header-logo` | header | 228 B | 8693 B (body: 6650 B) | 557 ms |
-| `hero-stack` | hero | 581 B | 10085 B (body: 8073 B) | 563 ms |
-| `paragraph` | text | 77 B | 7843 B (body: 5832 B) | 559 ms |
-| `social-icons` | footer | 1055 B | 10665 B (body: 8581 B) | 652 ms |
-| `text-block` | text | 139 B | 8678 B (body: 6666 B) | 558 ms |
-| `header-logo-row` | image | 1263 B | 13189 B (body: 10903 B) | 584 ms |
-| `hero-image-block` | hero | 3259 B | 24139 B (body: 21434 B) | 615 ms |
-| `plain-copy-text-card` | text | 1263 B | 13194 B (body: 10903 B) | 582 ms |
-| `single-button-cta-card` | cta | 1772 B | 17533 B (body: 15167 B) | 595 ms |
-| `social-links-row` | footer | 2259 B | 16160 B (body: 13873 B) | 592 ms |
-| `bullet-proof-list-card` | feature-list | 3392 B | 18747 B (body: 16454 B) | 600 ms |
-| `numbered-feature-stack` | feature-list | 3912 B | 22972 B (body: 20679 B) | 610 ms |
-| `store-badges-row` | footer | 4538 B | 24403 B (body: 21732 B) | 633 ms |
-| `three-promo-column-row` | feature-list | 3767 B | 21101 B (body: 18742 B) | 605 ms |
-| `legal-unsubscribe-footer` | footer | 4229 B | 22484 B (body: 20080 B) | 609 ms |
-| `dark-banner-cta-block` | hero | 1541 B | 14133 B (body: 11703 B) | 602 ms |
+| `button-primary` | cta | 157 B | 8759 B (body: 6651 B) | 802 ms |
+| `content-card` | text | 164 B | 8798 B (body: 6692 B) | 567 ms |
+| `cta-banner` | cta | 364 B | 9855 B (body: 7751 B) | 567 ms |
+| `divider-spacer` | utility | 136 B | 8312 B (body: 6204 B) | 657 ms |
+| `footer-legal` | footer | 327 B | 9213 B (body: 7107 B) | 565 ms |
+| `header-logo` | header | 228 B | 8785 B (body: 6650 B) | 585 ms |
+| `hero-image` | hero | 264 B | 8699 B (body: 6595 B) | 571 ms |
+| `hero-stack` | hero | 581 B | 10177 B (body: 8073 B) | 579 ms |
+| `paragraph` | text | 77 B | 7935 B (body: 5832 B) | 579 ms |
+| `pill-label` | text | 118 B | 8384 B (body: 6280 B) | 579 ms |
+| `social-icons` | footer | 1055 B | 10757 B (body: 8581 B) | 583 ms |
+| `store-badges` | footer | 372 B | 8954 B (body: 6848 B) | 635 ms |
+| `text-block` | text | 139 B | 8770 B (body: 6666 B) | 571 ms |
+| `two-cta-row` | cta | 502 B | 10673 B (body: 8568 B) | 604 ms |
+| `header-logo-row` | image | 1263 B | 13281 B (body: 10903 B) | 620 ms |
+| `hero-image-block` | hero | 3259 B | 24231 B (body: 21434 B) | 662 ms |
+| `plain-copy-text-card` | text | 1263 B | 13286 B (body: 10903 B) | 602 ms |
+| `single-button-cta-card` | cta | 1772 B | 17625 B (body: 15167 B) | 632 ms |
+| `social-links-row` | footer | 2259 B | 16252 B (body: 13873 B) | 607 ms |
+| `bullet-proof-list-card` | feature-list | 3392 B | 18839 B (body: 16454 B) | 621 ms |
+| `numbered-feature-stack` | feature-list | 3912 B | 23064 B (body: 20679 B) | 642 ms |
+| `store-badges-row` | footer | 4538 B | 24495 B (body: 21732 B) | 650 ms |
+| `three-promo-column-row` | feature-list | 3767 B | 21193 B (body: 18742 B) | 634 ms |
+| `legal-unsubscribe-footer` | footer | 4229 B | 22576 B (body: 20080 B) | 622 ms |
+| `dark-banner-cta-block` | hero | 1541 B | 14225 B (body: 11703 B) | 588 ms |
 
 ## ✗ Failed blocks
 
@@ -39,12 +45,7 @@ _(none — all clean!)_
 
 ## ⚠ Skipped (need manual rebuild)
 
-| id | section | pug size | reason |
-|---|---|---|---|
-| `hero-image-two-cta` | hero | 71064 B | pug > 50KB — needs manual rebuild |
-| `switch-cta-row` | cta | 71064 B | pug > 50KB — needs manual rebuild |
-| `vml-bottom-hero` | cta | 71064 B | pug > 50KB — needs manual rebuild |
-| `vml-bottom-hero-fixed` | cta | 71064 B | pug > 50KB — needs manual rebuild |
+_(none)_
 
 ## Next steps
 

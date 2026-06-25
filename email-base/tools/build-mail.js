@@ -365,7 +365,7 @@ async function pruneStaleLocaleDirs(distRoot, locales) {
 
 async function inlineHtml(html, inlineCssText) {
   // Do NOT touch <head> style tag with media queries.
-  return inlineCss(html, {
+  const out = await inlineCss(html, {
     url: 'file:///',
     extraCss: inlineCssText,
     applyStyleTags: false,
@@ -374,6 +374,11 @@ async function inlineHtml(html, inlineCssText) {
     removeLinkTags: false,
     preserveMediaQueries: true,
   });
+  // The inliner's HTML parser mangles the source XHTML doctype
+  // (`doctype PUBLIC "…"`) into a broken `<!DOCTYPE public>`. Restore a proper
+  // XHTML 1.0 Strict doctype so clients don't fall into quirks mode.
+  return out.replace(/<!DOCTYPE[^>]*>/i,
+    '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">');
 }
 
 async function main() {

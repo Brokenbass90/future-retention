@@ -27,8 +27,11 @@
  */
 
 import { placeholderizeHtml, fixLocaleTxt, translateLocaleTxt } from "./locale-ai.js";
-import { normalizeLocaleConventions } from "./locale-conventions.js";
+import { normalizeLocaleConventions, parseNormalizedBlocks, alignLocaleToReference, serializeAligned, localePrefix } from "./locale-conventions.js";
 import { analyzeLocaleAgainstHtml } from "./locale-analyze.js";
+import { compareLocales } from "./locale-cross-check.js";
+import { listHtmlSections, insertHtml, removeHtml } from "./html-blocks.js";
+import { validateHtml } from "./html-validate.js";
 import { composeEmailFromBlocks, listCanonicalBlocks } from "./compose-email.js";
 
 function serializeBlocks(blocks) {
@@ -102,6 +105,50 @@ export const TOOL_DEFINITIONS = [
         refLocale: { type: "string", description: "Reference locale code (default 'en')." },
       },
       required: ["namespace"],
+    },
+  },
+  {
+    type: "function",
+    name: "align_locales_to_reference",
+    description:
+      "Bring EVERY locale of a namespace to the SAME block structure as the reference " +
+      "(usually en): same number of blocks, same order, platform {{variables}} in the same " +
+      "positions. Deterministic, zero-AI, offline. Missing blocks are padded with empty " +
+      "spacers; conventions ({{embedded.*}} variables, brace balance) are normalized first. " +
+      "This is the step that makes placeholderize land correctly — run it BEFORE placeholderize " +
+      "whenever locales drifted. Use for 'сверь все локали с английской и приведи к единому виду', " +
+      "'выровняй блоки по en', 'чтобы блоки шли по порядку как в английской'. It does NOT translate " +
+      "text — it only re-structures. Returns a per-locale report (before/after block counts, padded). " +
+      "Staged like other locale edits — applied after the user confirms.",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        namespace: { type: "string", description: "Namespace name (default: active namespace)." },
+        refLocale: { type: "string", description: "Reference locale to align to (default: en* or first)." },
+      },
+      required: [],
+    },
+  },
+  {
+    type: "function",
+    name: "compare_locales",
+    description:
+      "Cross-check ALL locales of a namespace against a reference locale (zero-AI, " +
+      "offline, cheap). Flags structural drift that breaks emails or signals bad " +
+      "translations: differing block counts, missing/extra {{variables}}, @@bold@@ " +
+      "mismatches, unbalanced bold markers, empty (untranslated) blocks, and blocks " +
+      "that are byte-identical to the reference (forgotten translation). Use when the " +
+      "user says 'сверь локали', 'сравни все локали', 'все ли локали совпадают', or " +
+      "before/after translating to verify consistency. Returns per-locale issue lists.",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        namespace: { type: "string", description: "Namespace name (default: active namespace)." },
+        refLocale: { type: "string", description: "Reference locale code (default: en* or first)." },
+      },
+      required: [],
     },
   },
   {
@@ -276,6 +323,67 @@ export const TOOL_DEFINITIONS = [
   },
   {
     type: "function",
+    name: "validate_html",
+    description:
+      "Structural check of the OPEN email: unclosed/mismatched HTML tags, unbalanced " +
+      "{{ }} variables, broken ${{ … }}$ placeholder tokens, odd @@bold@@ markers. " +
+      "Heuristic and instant (offline). Call it AFTER an HTML edit to confirm nothing " +
+      "broke, or when the user reports rendering glitches / 'съехало'.",
+    parameters: { type: "object", additionalProperties: false, properties: {}, required: [] },
+  },
+  {
+    type: "function",
+    name: "list_email_sections",
+    description:
+      "List the blocks/sections of the OPEN email when it carries rk:block markers " +
+      "(emails built by the constructor/compose pipeline). Returns index, id and a text " +
+      "preview per section. If the email has NO markers (most compiled emails), it says so — " +
+      "in that case locate the block to edit with find_in_html and use insert_block/remove_block " +
+      "with a unique anchor instead.",
+    parameters: { type: "object", additionalProperties: false, properties: {}, required: [] },
+  },
+  {
+    type: "function",
+    name: "insert_block",
+    description:
+      "Insert an HTML block/snippet into the OPEN email — this is how you ADD a block. " +
+      "Either anchor it to a UNIQUE existing substring (position before/after) or drop it at " +
+      "body_start / body_end. The anchor must match exactly ONE place — find it with find_in_html " +
+      "first. Provide the block markup in `html`. To add a block similar to an existing one, copy " +
+      "that block's markup (read_open_html / find_in_html), tweak it, and insert it. Staged like " +
+      "other HTML edits — applied after the user confirms.",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        anchor: { type: "string", description: "Unique existing substring to anchor to. Omit when using body_start/body_end." },
+        position: { type: "string", enum: ["before", "after", "body_start", "body_end"], description: "Where to place the snippet relative to the anchor (or body)." },
+        html: { type: "string", description: "The HTML markup to insert (one block at a time)." },
+      },
+      required: ["position", "html"],
+    },
+  },
+  {
+    type: "function",
+    name: "remove_block",
+    description:
+      "Remove a block/section from the OPEN email — this is how you DELETE a block. Pass either a " +
+      "single UNIQUE `block` substring (the whole block markup), or a `from`+`to` anchor pair to " +
+      "remove an inclusive region. Both must resolve to exactly one place (use find_in_html). " +
+      "Refuses to delete more than half the document. Staged like other HTML edits.",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        block: { type: "string", description: "The full unique markup of the block to remove." },
+        from: { type: "string", description: "Unique start anchor (use with `to`)." },
+        to: { type: "string", description: "End anchor after `from` (region removed inclusively)." },
+      },
+      required: [],
+    },
+  },
+  {
+    type: "function",
     name: "list_canonical_blocks",
     description:
       "List every block in the canonical library (data/block-library/canonical/). " +
@@ -428,6 +536,72 @@ export const TOOL_HANDLERS = {
         Object.entries(ns.locales || {}).map(([c, b]) => [c, serializeBlocks(b)])
       ),
     });
+  },
+
+  async align_locales_to_reference(args, ctx) {
+    const ns = pickNamespace(ctx, args.namespace);
+    if (!ns) return { error: `namespace not found: ${args.namespace}` };
+    const locales = ns.locales || {};
+    const raw = ns.localeRaw || {};
+    const codes = Object.keys(locales);
+    if (!codes.length) return { error: `no locales in namespace ${ns.namespace || ns.name}` };
+    const refCode = args.refLocale || ns.referenceLocale || (locales.en ? "en" : codes.find((c) => /^en/i.test(c)) || codes[0]);
+    const refTxtRaw = raw[refCode] || serializeBlocks(locales[refCode]);
+    const refTxt = normalizeLocaleConventions(refTxtRaw).txt;
+    const refBlocks = parseNormalizedBlocks(refTxt);
+    if (!refBlocks.length) return { error: `reference locale ${refCode} has no blocks` };
+
+    ctx.pendingLocaleUpdates = ctx.pendingLocaleUpdates || [];
+    const report = {};
+    const updated = [];
+    const nsName = ns.namespace || ns.name;
+
+    // Normalize the reference itself too, so ALL locales (incl. the reference)
+    // end up with the same structure. Conventions may split nested {{vars}}.
+    ns.locales[refCode] = refBlocks.slice();
+    if (refTxt.trim() !== refTxtRaw.trim()) {
+      ctx.pendingLocaleUpdates = ctx.pendingLocaleUpdates.filter((u) => !(u.namespace === nsName && u.locale === refCode));
+      ctx.pendingLocaleUpdates.push({ namespace: nsName, locale: refCode, txt: refTxt });
+      updated.push(refCode);
+    }
+
+    for (const code of codes) {
+      if (code === refCode) { report[code] = { reference: true, blocks: refBlocks.length }; continue; }
+      const locTxtRaw = raw[code] || serializeBlocks(locales[code]);
+      const normTxt = normalizeLocaleConventions(locTxtRaw).txt;
+      const locBlocks = parseNormalizedBlocks(normTxt);
+      const al = alignLocaleToReference(refBlocks, locBlocks);
+      const newTxt = serializeAligned(localePrefix(normTxt), al.blocks);
+      report[code] = { before: locBlocks.length, after: al.blocks.length, padded: al.padded, dropped: al.dropped };
+      // Update ctx so later reads / placeholderize see the aligned structure.
+      ns.locales[code] = parseNormalizedBlocks(newTxt);
+      if (newTxt.trim() !== locTxtRaw.trim()) {
+        ctx.pendingLocaleUpdates = ctx.pendingLocaleUpdates.filter((u) => !(u.namespace === nsName && u.locale === code));
+        ctx.pendingLocaleUpdates.push({ namespace: nsName, locale: code, txt: newTxt });
+        updated.push(code);
+      }
+    }
+    return { namespace: nsName, refCode, refBlockCount: refBlocks.length, locales: codes, updated, report };
+  },
+
+  async compare_locales(args, ctx) {
+    const ns = pickNamespace(ctx, args.namespace);
+    if (!ns) return { error: `namespace not found: ${args.namespace}` };
+    const locales = ns.locales || {};
+    if (!Object.keys(locales).length) return { error: `no locales in namespace ${ns.namespace || ns.name}` };
+    const refCode = args.refLocale || ns.referenceLocale || (locales.en ? "en" : undefined);
+    const res = compareLocales({ locales, refCode });
+    if (res.error) return res;
+    // Cap the issue list so the tool result stays compact for the model.
+    return {
+      namespace: ns.namespace || ns.name,
+      refCode: res.refCode,
+      refBlockCount: res.refBlockCount,
+      locales: res.locales,
+      summary: res.summary,
+      issues: res.issues.slice(0, 60),
+      issuesTruncated: res.issues.length > 60 ? res.issues.length - 60 : 0,
+    };
   },
 
   async placeholderize_html(args, ctx) {
@@ -727,6 +901,51 @@ export const TOOL_HANDLERS = {
           default: s.default, max: s.max, min: s.min, options: s.options,
         })),
       })),
+    };
+  },
+
+  async validate_html(_args, ctx) {
+    const html = String(ctx.modifiedHtml || ctx.html || "");
+    if (!html) return { error: "no HTML open in the editor" };
+    const r = validateHtml(html);
+    return { ok: r.ok, count: r.count, issues: r.issues.slice(0, 40), issuesTruncated: r.count > 40 ? r.count - 40 : 0 };
+  },
+
+  async list_email_sections(_args, ctx) {
+    const html = String(ctx.modifiedHtml || ctx.html || "");
+    if (!html) return { error: "no HTML open in the editor" };
+    const r = listHtmlSections(html);
+    if (!r.marked) {
+      return { marked: false, count: 0, note: "This email has no rk:block markers. Use find_in_html to locate the block, then insert_block / remove_block with a unique anchor." };
+    }
+    return { marked: true, count: r.count, sections: r.sections.map((s) => ({ index: s.index, id: s.id, preview: s.preview })) };
+  },
+
+  async insert_block(args, ctx) {
+    const html = String(ctx.modifiedHtml || ctx.html || "");
+    if (!html) return { error: "no HTML open in the editor" };
+    const r = insertHtml(html, { anchor: args.anchor, position: args.position, snippet: args.html });
+    if (r.error) return { error: r.error };
+    ctx.modifiedHtml = r.html;
+    return {
+      inserted: (args.html || "").length,
+      htmlLength: r.html.length,
+      delta: r.html.length - html.length,
+      note: "Block insert staged. It reaches the editor when you call finish (applied after user confirmation).",
+    };
+  },
+
+  async remove_block(args, ctx) {
+    const html = String(ctx.modifiedHtml || ctx.html || "");
+    if (!html) return { error: "no HTML open in the editor" };
+    const r = removeHtml(html, { from: args.from, to: args.to, block: args.block });
+    if (r.error) return { error: r.error };
+    ctx.modifiedHtml = r.html;
+    return {
+      removed: r.removed,
+      htmlLength: r.html.length,
+      delta: r.html.length - html.length,
+      note: "Block removal staged. It reaches the editor when you call finish (applied after user confirmation).",
     };
   },
 

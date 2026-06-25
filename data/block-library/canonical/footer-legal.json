@@ -1,0 +1,23 @@
+{
+  "id": "footer-legal",
+  "label": "Футер: риск + условия",
+  "description": "Легальный футер IQ-стиля: risk warning, адрес и ссылка на условия. Центрированный, без float (надёжно во всех клиентах).",
+  "placement": "section",
+  "category": "footer",
+  "version": 1,
+  "source": "base",
+  "pug": "table.row.legal-footer(role='presentation' align='center' width='100%')\n    tr\n        td.legal-cell(align='center')\n            p.legal-warning {{ risk_warning }}\n            p.legal-warning {{ company_address }}\n            p.legal-links\n                a.legal-link(href='{{ terms_link }}' target='_blank') {{ terms_label }}",
+  "styl": ".row.legal-footer { background: {{ footer_bg }}; width: 100%; }\n.row.legal-footer td.legal-cell { padding: {{ footer_padding }}; text-align: center; }\n.row.legal-footer p.legal-warning { font-family: 'Helvetica', 'Arial', sans-serif; font-weight: 400; font-size: 14px; line-height: 21px; color: {{ text_color }}; margin: 0 0 15px; padding: 0; text-align: center; }\n.row.legal-footer p.legal-links { margin: 0; padding: 0; text-align: center; }\n.row.legal-footer a.legal-link { font-family: 'Helvetica', 'Arial', sans-serif; font-weight: 400; font-size: 14px; color: {{ link_color }}; text-decoration: underline; }",
+  "slots": [
+    { "id": "risk_warning", "kind": "richText", "label": "Risk warning", "default": "{{embedded.risk_warning}}" },
+    { "id": "company_address", "kind": "richText", "label": "Адрес компании", "default": "{{embedded.company_address}}" },
+    { "id": "terms_link", "kind": "url", "label": "Ссылка на условия", "default": "{{embedded.company_terms_link}}" },
+    { "id": "terms_label", "kind": "text", "label": "Текст ссылки", "default": "Terms & Conditions", "max": 60 },
+    { "id": "text_color", "kind": "color", "label": "Цвет текста", "default": "#474a51" },
+    { "id": "link_color", "kind": "color", "label": "Цвет ссылки", "default": "#474a51" },
+    { "id": "footer_bg", "kind": "color", "label": "Фон футера", "default": "#f9f9f9" },
+    { "id": "footer_padding", "kind": "text", "label": "Отступы", "default": "40px 40px 50px" }
+  ],
+  "outlookSafe": true,
+  "tags": ["footer", "legal", "terms", "iqbroker", "base"]
+}

@@ -1,0 +1,20 @@
+{
+  "id": "hero-image",
+  "label": "Hero-картинка",
+  "description": "Полноширинная картинка-герой со скруглением и опциональной ссылкой. Outlook-safe.",
+  "placement": "section",
+  "category": "hero",
+  "version": 1,
+  "source": "base",
+  "pug": "table.row.hero-image(role='presentation' align='center' width='100%')\n    tr\n        td(align='center')\n            a(href='{{ image_link }}' target='_blank')\n                img.hero-image-img(src='{{ image_url }}' alt='{{ image_alt }}' width='{{ image_width }}')",
+  "styl": ".row.hero-image td { padding: 0; text-align: center; }\n.row.hero-image img.hero-image-img { display: block; margin: 0 auto; width: 100%; max-width: {{ image_width }}px; height: auto; border: 0; border-radius: {{ image_radius }}px; }",
+  "slots": [
+    { "id": "image_url", "kind": "image", "label": "Картинка (URL)", "default": "https://placehold.co/480x300?text=Hero" },
+    { "id": "image_alt", "kind": "text", "label": "Alt", "default": "Hero", "max": 80 },
+    { "id": "image_link", "kind": "url", "label": "Ссылка", "default": "#" },
+    { "id": "image_width", "kind": "number", "label": "Ширина (px)", "default": 480 },
+    { "id": "image_radius", "kind": "number", "label": "Скругление (px)", "default": 16 }
+  ],
+  "outlookSafe": true,
+  "tags": ["hero", "image", "base"]
+}

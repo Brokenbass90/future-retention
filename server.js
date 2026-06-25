@@ -18372,12 +18372,14 @@ const server = http.createServer(async (request, response) => {
           namespaces: namespaces.length,
           activeNamespace: activeNamespace ? activeNamespace.name : null,
           activeLocale: ctx.activeLocale,
+          images: Array.isArray(body?.images) ? body.images.length : 0,
         }});
 
         try {
           const result = await runAgent({
             userMessage,
             history: Array.isArray(body?.messages) ? body.messages : [],
+            images: Array.isArray(body?.images) ? body.images : [],
             ctx,
             apiKey: openAiApiKey,
             model: "gpt-4.1-mini",
@@ -18417,6 +18419,22 @@ const server = http.createServer(async (request, response) => {
     // ── Zero-AI: детерминированная починка локали по конвенциям проекта ──
     // (переменные {{embedded.*}}/{{user_name}} вне текстовых блоков, скобки,
     //  Subject-строка). См. src/locale-conventions.js.
+    // ── RTL: apply the SAME direction transform that AR/UR locales use at build,
+    //    to arbitrary HTML, so a ready (LTR) Arabic email can be RTL'd in one click. ──
+    if (request.method === "POST" && request.url === "/api/wb/rtl") {
+      try {
+        const body = await readRequestBody(request);
+        const html = String(body?.html || "");
+        if (!html.trim()) { sendJson(response, 400, { error: "html required" }); return; }
+        const locale = cleanText(body?.locale || "ar");
+        const out = applyLocaleDirectionToHtml(html, locale);
+        sendJson(response, 200, { ok: true, html: out });
+      } catch (err) {
+        sendJson(response, 500, { error: String(err && err.message ? err.message : err) });
+      }
+      return;
+    }
+
     if (request.method === "POST" && request.url === "/api/wb/locale-normalize") {
       try {
         const body = await readRequestBody(request);
