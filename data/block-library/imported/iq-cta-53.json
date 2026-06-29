@@ -1,0 +1,66 @@
+{
+  "id": "iq-cta-53",
+  "label": "CTA-секция",
+  "description": "Импортирован из X_IQ (1 писем). Секция.",
+  "placement": "section",
+  "category": "cta",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.brad-full.white-bg(style=\"border: 4px solid #FF7700;\")\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.middle-title.pb16.center {{ text_1 }}\n                        p.text.pb32 {{ text_2 }}\n                        p.text.pb12\n                                b {{ text_3 }}\n                        .promocode\n                            p.promo-text {{ text_4 }}\n                        .small-gray-text.pt6 {{ text_5 }}\n                        .h-40 &nbsp;\n                        table.w280(align=\"center\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"{{ href_1 }}\" universal=\"true\" target=\"_blank\") {{ text_6 }}",
+  "styl": ".w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { max-width: 100% !important; }\n}\n.brad-full { border-radius: 32px !important; }\n.butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.white-bg { background-color: #fff; }\n.middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 28px !important;\n    line-height: 34px !important; }\n}\n.text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n.pb12 { padding-bottom: 12px; }\n.pb16 { padding-bottom: 16px; }\n.pb32 { padding-bottom: 32px; }\n.pb44 { padding-bottom: 44px; }\n.pt6 { padding-top: 6px; }\n.pt44 { padding-top: 44px; }\n.h-40 { font-size: 8px;\n  line-height: 40px;\n  height: 40px; }\n.promocode { background: #ffefe0 url(\"https://fsms.quadcode.com/storage/public/d8/0s/sk13i8as70fje0kg/gift-img.png\") center right 22px no-repeat;\n  background-size: 32px;\n  padding: 16px 22px;\n  border: 2px dashed #f70;\n  border-radius: 16px; }\n.promo-text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  color: #f70; }\n.small-gray-text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 16px;\n  line-height: 24px;\n  color: #84868b; }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://api.iqoption.com/v1/multi-links/deposit?promocode=GET50S&aff=7&&afftrack=mail_IQ-RFM-3-1-5&retrack=IQ-RFM-3-1-5"
+    }
+  ],
+  "tags": [
+    "cta",
+    "section",
+    "X_IQ"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_IQ/mail-rfm-segmentation-2-315"
+  ],
+  "createdAt": "2026-06-29T07:08:36.208Z",
+  "validated": true
+}

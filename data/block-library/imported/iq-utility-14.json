@@ -1,0 +1,42 @@
+{
+  "id": "iq-utility-14",
+  "label": "Спейсер 20px",
+  "description": "Импортирован из X_IQ (33 писем). Секция.",
+  "placement": "inline",
+  "category": "utility",
+  "version": 1,
+  "source": "imported",
+  "pug": ".h-20 &nbsp;",
+  "styl": ".h-20 { font-size: 8px;\n  line-height: 20px;\n  height: 20px; }",
+  "slots": [],
+  "tags": [
+    "utility",
+    "section",
+    "X_IQ"
+  ],
+  "usageCount": 33,
+  "sourceMails": [
+    "X_IQ/mail-rfm-segmentation-2-111",
+    "X_IQ/mail-rfm-segmentation-2-112",
+    "X_IQ/mail-rfm-segmentation-2-113",
+    "X_IQ/mail-rfm-segmentation-2-114",
+    "X_IQ/mail-rfm-segmentation-2-115",
+    "X_IQ/mail-rfm-segmentation-2-121",
+    "X_IQ/mail-rfm-segmentation-2-122",
+    "X_IQ/mail-rfm-segmentation-2-123",
+    "X_IQ/mail-rfm-segmentation-2-124",
+    "X_IQ/mail-rfm-segmentation-2-125",
+    "X_IQ/mail-rfm-segmentation-2-131",
+    "X_IQ/mail-rfm-segmentation-2-132",
+    "X_IQ/mail-rfm-segmentation-2-133",
+    "X_IQ/mail-rfm-segmentation-2-134",
+    "X_IQ/mail-rfm-segmentation-2-135",
+    "X_IQ/mail-rfm-segmentation-2-211",
+    "X_IQ/mail-rfm-segmentation-2-212",
+    "X_IQ/mail-rfm-segmentation-2-213",
+    "X_IQ/mail-rfm-segmentation-2-214",
+    "X_IQ/mail-rfm-segmentation-2-215"
+  ],
+  "createdAt": "2026-06-29T07:08:36.206Z",
+  "validated": true
+}

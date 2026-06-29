@@ -1,0 +1,53 @@
+{
+  "id": "iq-cta-03",
+  "label": "CTA-кнопка (w280)",
+  "description": "Импортирован из X_IQ (30 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "cta",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.w280.centet(style=\"border-collapse: initial;\" align=\"center\")\n    tr\n        td.butt.pb0\n            a.butt-link(href=\"{{ href_1 }}\" universal=\"true\" target=\"_blank\") {{ text_1 }}",
+  "styl": ".w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { max-width: 100% !important; }\n}\n.butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://api.iqoption.com/v1/multi-links/deposit?promocode=NY2026&aff=7&afftrack=mail_IQ-RFM-3-1-1&retrack=IQ-RFM-3-1-1"
+    }
+  ],
+  "tags": [
+    "cta",
+    "inline",
+    "X_IQ"
+  ],
+  "usageCount": 30,
+  "sourceMails": [
+    "X_IQ/mail-rfm-311",
+    "X_IQ/mail-rfm-312",
+    "X_IQ/mail-rfm-313",
+    "X_IQ/mail-rfm-314",
+    "X_IQ/mail-rfm-321",
+    "X_IQ/mail-rfm-322",
+    "X_IQ/mail-rfm-323",
+    "X_IQ/mail-rfm-331",
+    "X_IQ/mail-rfm-332",
+    "X_IQ/mail-rfm-333",
+    "X_IQ/mail-rfm-334",
+    "X_IQ/mail-rfm-segmentation-2-113",
+    "X_IQ/mail-rfm-segmentation-2-114",
+    "X_IQ/mail-rfm-segmentation-2-125",
+    "X_IQ/mail-rfm-segmentation-2-133",
+    "X_IQ/mail-rfm-segmentation-2-134",
+    "X_IQ/mail-rfm-segmentation-2-335",
+    "X_IQ/mail-test"
+  ],
+  "createdAt": "2026-06-29T07:08:36.205Z",
+  "validated": true
+}

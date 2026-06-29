@@ -1,0 +1,48 @@
+{
+  "id": "iq-header-01",
+  "label": "Шапка с логотипом",
+  "description": "Импортирован из X_IQ (13 писем). Секция.",
+  "placement": "section",
+  "category": "header",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row\n    tr\n        td.wrapper.last.offset-by-one.pt0\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb0\n                        a(href=\"{{ href_1 }}\" universal=\"true\" target=\"_blank\")\n                            img.logo.center(src=\"{{ image_1 }}\")",
+  "styl": "",
+  "slots": [
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-3-1-1&retrack=mail_IQ-RFM-3-1-1&type=forex&asset=1"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://static.cdnroute.io/files/storage/public/60/b6/1b5cef3f19b7c9i0b2/logo_shadow_top_2.png"
+    }
+  ],
+  "tags": [
+    "header",
+    "section",
+    "X_IQ"
+  ],
+  "usageCount": 13,
+  "sourceMails": [
+    "X_IQ/mail-rfm-311",
+    "X_IQ/mail-rfm-312",
+    "X_IQ/mail-rfm-313",
+    "X_IQ/mail-rfm-314",
+    "X_IQ/mail-rfm-321",
+    "X_IQ/mail-rfm-322",
+    "X_IQ/mail-rfm-323",
+    "X_IQ/mail-rfm-324",
+    "X_IQ/mail-rfm-331",
+    "X_IQ/mail-rfm-332",
+    "X_IQ/mail-rfm-333",
+    "X_IQ/mail-rfm-334",
+    "X_IQ/mail-test"
+  ],
+  "createdAt": "2026-06-29T07:08:36.205Z",
+  "validated": true
+}

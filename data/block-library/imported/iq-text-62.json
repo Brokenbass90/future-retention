@@ -1,0 +1,36 @@
+{
+  "id": "iq-text-62",
+  "label": "Заголовок",
+  "description": "Импортирован из X_IQ (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.middle-title.pb16 {{ text_1 }} {{ text_2 }}",
+  "styl": ".middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 28px !important;\n    line-height: 34px !important; }\n}\n.pb16 { padding-bottom: 16px; }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_IQ"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_IQ/mail-rfm-segmentation-2-212"
+  ],
+  "createdAt": "2026-06-29T07:08:36.207Z",
+  "validated": true
+}

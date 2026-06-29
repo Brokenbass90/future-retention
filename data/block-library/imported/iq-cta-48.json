@@ -1,0 +1,72 @@
+{
+  "id": "iq-cta-48",
+  "label": "CTA-секция",
+  "description": "Импортирован из X_IQ (1 писем). Секция.",
+  "placement": "section",
+  "category": "cta",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.brad-full.white-bg\n    tr\n        td.wrapper.last.offset-by-one.pt0\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb40.pt44\n                        p.middle-title.pb16 {{ text_1 }}\n                        p.text.pb32 {{ text_2 }}\n                        a(href=\"#\" universal=\"true\" target=\"_blank\")\n                            img.center(src=\"{{ image_1 }}\")\n                        p.middle-title.pb16.pt32 {{ text_3 }}\n                        p.text.pb32 {{ text_4 }}\n                        a(href=\"#\" universal=\"true\" target=\"_blank\")\n                            img.center(src=\"{{ image_2 }}\")\n                        .h-40 &nbsp;\n                        table.w280(align=\"center\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"{{ href_1 }}\" universal=\"true\" target=\"_blank\") {{ text_5 }}",
+  "styl": ".w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { max-width: 100% !important; }\n}\n.brad-full { border-radius: 32px !important; }\n.butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.white-bg { background-color: #fff; }\n.middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 28px !important;\n    line-height: 34px !important; }\n}\n.text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n.pb16 { padding-bottom: 16px; }\n.pb32 { padding-bottom: 32px; }\n.pt32 { padding-top: 32px; }\n.pt44 { padding-top: 44px; }\n.h-40 { font-size: 8px;\n  line-height: 40px;\n  height: 40px; }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-2-3-4&retrack=mail_IQ-RFM-2-3-4"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/d6/t6/8jbursrq72d91a50/4-4.png"
+    },
+    {
+      "id": "image_2",
+      "kind": "image",
+      "label": "Картинка 2",
+      "default": "https://fsms.quadcode.com/storage/public/d6/t6/8j3ursrq72d91a4g/4-4-2.png"
+    }
+  ],
+  "tags": [
+    "cta",
+    "section",
+    "X_IQ"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_IQ/mail-rfm-segmentation-2-234"
+  ],
+  "createdAt": "2026-06-29T07:08:36.207Z",
+  "validated": true
+}

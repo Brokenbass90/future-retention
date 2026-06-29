@@ -1,0 +1,60 @@
+{
+  "id": "iq-utility-12",
+  "label": "Gmail blend wrapper",
+  "description": "Импортирован из X_IQ (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "utility",
+  "version": 1,
+  "source": "imported",
+  "pug": "div.gmail-blend-screen\n    div.gmail-blend-diff\n        p.white-title.pb16  {{ text_1 }}\n        p.white-text.pb16  {{ text_2 }}\n        .opacity-block\n            p.small-white-title.pb16 {{ text_3 }}\n            table.w100\n                tr\n                    td.pb0.m-w\n                        a(href=\"#\" universal=\"true\" target=\"_blank\")\n                            img.ava(src=\"{{ image_1 }}\")\n                    td.pb0.w-a\n                        p.white-text.pb10 <b>{{ text_4 }}</b>\n                        p.white-text {{ text_5 }}",
+  "styl": "u + .body .gmail-blend-screen { background: #000;\n  mix-blend-mode: screen; }\nu + .body .gmail-blend-diff { background: #000;\n  mix-blend-mode: difference; }\n.opacity-block { background: url(\"https://fsms.quadcode.com/storage/public/d6/1e/vbvvhhgea139ul90/rfm-324-backgroung.png\") center top no-repeat;\n  background-size: cover;\n  padding: 24px;\n  border-radius: 24px; }\n.white-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 40px;\n  line-height: 50px;\n  color: #fff;\n  word-break: break-word; }\n@media screen and (max-width: 600px) {\n  .white-title { font-size: 26px !important;\n    line-height: 32px !important; }\n}\n.small-white-title { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  color: #fff; }\n.white-text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #fff;\n  padding-right: 20px; }\n@media screen and (max-width: 600px) {\n  .white-text { padding-right: 0 !important; }\n}\n.ava { width: 50px !important;\n  float: none; }\n.pb16 { padding-bottom: 16px; }\n.w100 { width: 100%; }\n.w-a { width: auto !important;\n  vertical-align: middle; }\ntable[class=body] table.column td,\ntable[class=body] table.columns td.m-w { min-width: 74px !important;\n  width: 74px !important; }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/d6/1e/vbvvhhgea139ul80/rfm-324-ava.png"
+    }
+  ],
+  "tags": [
+    "utility",
+    "inline",
+    "X_IQ"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_IQ/mail-rfm-324"
+  ],
+  "createdAt": "2026-06-29T07:08:36.206Z",
+  "validated": true
+}

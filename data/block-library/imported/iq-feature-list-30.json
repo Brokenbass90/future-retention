@@ -1,0 +1,37 @@
+{
+  "id": "iq-feature-list-30",
+  "label": "Нумерованный пункт (gray-block)",
+  "description": "Импортирован из X_IQ (6 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "feature-list",
+  "version": 1,
+  "source": "imported",
+  "pug": ".gray-block\n    p.text-asset-block\n        img.asset-logo-2(src=\"{{ image_1 }}\")\n        |{{ text_1 }}",
+  "styl": ".gray-block { background: #f9f9f9 url(\"https://fsms.quadcode.com/storage/public/d6/0u/6tvvhhgea139ul10/link-img.png\") top 24px right 24px no-repeat;\n  background-size: 24px;\n  padding: 24px;\n  border-radius: 24px; }\n.asset-logo-2 { display: inline-block;\n  width: 56px !important;\n  float: none;\n  vertical-align: middle;\n  padding-right: 12px; }\n.text-asset-block { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  color: #393a44; }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/d6/pb/kcjs2mcraq8anac0/btc.png"
+    }
+  ],
+  "tags": [
+    "feature-list",
+    "inline",
+    "X_IQ"
+  ],
+  "usageCount": 6,
+  "sourceMails": [
+    "X_IQ/mail-rfm-segmentation-2-212",
+    "X_IQ/mail-rfm-segmentation-2-213"
+  ],
+  "createdAt": "2026-06-29T07:08:36.207Z",
+  "validated": true
+}

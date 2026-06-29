@@ -1,0 +1,49 @@
+{
+  "id": "iq-text-02",
+  "label": "Заголовок",
+  "description": "Импортирован из X_IQ (36 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.middle-title.pb32 {{ text_1 }}",
+  "styl": ".middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 24px !important;\n    line-height: 32px !important; }\n}\n.pb32 { padding-bottom: 32px; }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_IQ"
+  ],
+  "usageCount": 36,
+  "sourceMails": [
+    "X_IQ/mail-rfm-311",
+    "X_IQ/mail-rfm-312",
+    "X_IQ/mail-rfm-313",
+    "X_IQ/mail-rfm-321",
+    "X_IQ/mail-rfm-323",
+    "X_IQ/mail-rfm-331",
+    "X_IQ/mail-rfm-332",
+    "X_IQ/mail-rfm-333",
+    "X_IQ/mail-rfm-334",
+    "X_IQ/mail-rfm-segmentation-2-111",
+    "X_IQ/mail-rfm-segmentation-2-112",
+    "X_IQ/mail-rfm-segmentation-2-113",
+    "X_IQ/mail-rfm-segmentation-2-121",
+    "X_IQ/mail-rfm-segmentation-2-123",
+    "X_IQ/mail-rfm-segmentation-2-125",
+    "X_IQ/mail-rfm-segmentation-2-131",
+    "X_IQ/mail-rfm-segmentation-2-132",
+    "X_IQ/mail-rfm-segmentation-2-212",
+    "X_IQ/mail-rfm-segmentation-2-213",
+    "X_IQ/mail-rfm-segmentation-2-222"
+  ],
+  "createdAt": "2026-06-29T07:08:36.205Z",
+  "validated": true
+}

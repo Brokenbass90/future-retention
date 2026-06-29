@@ -1,0 +1,67 @@
+{
+  "id": "iq-footer-07",
+  "label": "Store badges",
+  "description": "Импортирован из X_IQ (31 писем). Секция.",
+  "placement": "section",
+  "category": "footer",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row\n    tr\n        td.wrapper.last.pt68.offset-by-one\n            table.ten.columns\n                tr\n                    td.pb0.text-pad-small\n                        .stor.center\n                            a(href=\"{{ href_1 }}\" target=\"_blank\")\n                                img.a-app(src=\"{{ image_1 }}\")\n                            a(href=\"{{ href_2 }}\" target=\"_blank\")\n                                img.a-google(src=\"{{ image_2 }}\")",
+  "styl": ".pt68 { padding-top: 68px; }\n.stor { width: 100% !important;\n  max-width: 450px;\n  margin: 0 auto; }\n@media screen and (max-width: 600px) {\n  .stor { width: 100% !important; }\n}\n.a-app { display: inline-block;\n  padding-right: 30px;\n  max-width: 120px;\n  height: 40px !important;\n  float: none; }\n@media screen and (max-width: 600px) {\n  .a-app { display: block !important;\n    padding-right: 0 !important;\n    float: none !important;\n    margin-bottom: 15px;\n    margin: 0 auto !important;\n    padding-bottom: 15px !important; }\n}\n.a-google { display: inline-block;\n  max-width: 135px;\n  height: 40px !important;\n  float: none; }\n@media screen and (max-width: 600px) {\n  .a-google { display: block !important;\n    float: none !important;\n    margin: 0 auto !important; }\n}",
+  "slots": [
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://app.appsflyer.com/id871125783?pid=7&c=mail_IQ-RFM-3-2-1"
+    },
+    {
+      "id": "href_2",
+      "kind": "url",
+      "label": "Ссылка 2",
+      "default": "https://app.appsflyer.com/com.iqoption?pid=7&c=mail_IQ-RFM-3-2-1"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjqg/app.png"
+    },
+    {
+      "id": "image_2",
+      "kind": "image",
+      "label": "Картинка 2",
+      "default": "https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjr0/play.png"
+    }
+  ],
+  "tags": [
+    "footer",
+    "section",
+    "X_IQ"
+  ],
+  "usageCount": 31,
+  "sourceMails": [
+    "X_IQ/mail-rfm-321",
+    "X_IQ/mail-rfm-323",
+    "X_IQ/mail-rfm-324",
+    "X_IQ/mail-rfm-331",
+    "X_IQ/mail-rfm-332",
+    "X_IQ/mail-rfm-333",
+    "X_IQ/mail-rfm-334",
+    "X_IQ/mail-rfm-segmentation-2-111",
+    "X_IQ/mail-rfm-segmentation-2-112",
+    "X_IQ/mail-rfm-segmentation-2-113",
+    "X_IQ/mail-rfm-segmentation-2-114",
+    "X_IQ/mail-rfm-segmentation-2-115",
+    "X_IQ/mail-rfm-segmentation-2-121",
+    "X_IQ/mail-rfm-segmentation-2-122",
+    "X_IQ/mail-rfm-segmentation-2-123",
+    "X_IQ/mail-rfm-segmentation-2-124",
+    "X_IQ/mail-rfm-segmentation-2-125",
+    "X_IQ/mail-rfm-segmentation-2-131",
+    "X_IQ/mail-rfm-segmentation-2-132",
+    "X_IQ/mail-rfm-segmentation-2-133"
+  ],
+  "createdAt": "2026-06-29T07:08:36.206Z",
+  "validated": true
+}

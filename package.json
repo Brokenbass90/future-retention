@@ -21,7 +21,14 @@
   "dependencies": {
     "html2pug": "^4.0.0",
     "pug": "^3.0.4",
-    "stylus": "^0.64.0"
+    "stylus": "^0.64.0",
+    "fs-extra": "^11.2.0",
+    "minimist": "^1.2.8",
+    "inline-css": "^4.0.0",
+    "postcss": "^8.4.38",
+    "postcss-safe-parser": "^7.0.0",
+    "csso": "^5.0.5",
+    "js-beautify": "^1.15.1"
   },
   "devDependencies": {
     "linkedom": "^0.18.12"

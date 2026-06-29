@@ -38,6 +38,7 @@ const REPO_ROOT = path.resolve(here, "..");
 
 const CANONICAL_DIR = path.join(REPO_ROOT, "data", "block-library", "canonical");
 const USER_BLOCK_DIR = path.join(REPO_ROOT, "data", "block-library", "user");
+const IMPORTED_DIR = path.join(REPO_ROOT, "data", "block-library", "imported");
 const EMAIL_BASE = path.join(REPO_ROOT, "email-base");
 const DEFAULT_SKELETON = path.join(EMAIL_BASE, "X_IQBroker", "mail-welcome");
 
@@ -98,16 +99,19 @@ export function loadCanonicalBlock(id) {
   if (existsSync(tryCanonical)) return JSON.parse(readFileSync(tryCanonical, "utf8"));
   const tryUser = path.join(USER_BLOCK_DIR, `${id}.json`);
   if (existsSync(tryUser)) return JSON.parse(readFileSync(tryUser, "utf8"));
+  const tryImported = path.join(IMPORTED_DIR, `${id}.json`);
+  if (existsSync(tryImported)) return JSON.parse(readFileSync(tryImported, "utf8"));
   throw new Error(`block not found: ${id}`);
 }
 
 function _readBlocksFromDir(dir, sourceTag) {
   if (!existsSync(dir)) return [];
   return readdirSync(dir)
-    .filter((f) => f.endsWith(".json"))
+    .filter((f) => f.endsWith(".json") && f !== "index.json" && !f.startsWith("_"))
     .map((f) => {
       try {
         const b = JSON.parse(readFileSync(path.join(dir, f), "utf8"));
+        if (b.validated === false) return null; // skip blocks that failed build validation
         return { ...b, source: b.source || sourceTag };
       } catch { return null; }
     })
@@ -117,8 +121,9 @@ function _readBlocksFromDir(dir, sourceTag) {
 export function listCanonicalBlocks() {
   // Returns canonical first, user-saved second. Same shape.
   const canonical = _readBlocksFromDir(CANONICAL_DIR, "canonical");
+  const imported  = _readBlocksFromDir(IMPORTED_DIR, "imported");
   const user      = _readBlocksFromDir(USER_BLOCK_DIR, "user");
-  return [...canonical, ...user];
+  return [...canonical, ...imported, ...user];
 }
 
 // Path resolver used by the server when it needs to write or delete a user

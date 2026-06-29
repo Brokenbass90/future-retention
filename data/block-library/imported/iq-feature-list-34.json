@@ -1,0 +1,84 @@
+{
+  "id": "iq-feature-list-34",
+  "label": "Список преимуществ (нумерованный)",
+  "description": "Импортирован из X_IQ (1 писем). Секция.",
+  "placement": "section",
+  "category": "feature-list",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.brad-full.white-bg\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.middle-title.pb24 {{ text_1 }}\n                        .fourth-block\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                img.right-top(src=\"{{ image_1 }}\")\n                            .block-220\n                                p.text.ta-mob {{ text_2 }}\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                img.right-img(src=\"{{ image_1 }}\")\n                        p.text.pt32.pb12 {{ text_3 }}\n                        .gray-block\n                            table.w100\n                                tr\n                                    td.pb0.m-w\n                                        p.number 1\n                                    td.pb0.w-a\n                                        p.text {{ text_4 }}\n                        .h-12 &nbsp;\n                        .gray-block\n                            table.w100\n                                tr\n                                    td.pb0.m-w\n                                        p.number 2\n                                    td.pb0.w-a\n                                        p.text {{ text_5 }}\n                        .h-12 &nbsp;\n                        .gray-block\n                            table.w100\n                                tr\n                                    td.pb0.m-w\n                                        p.number 3\n                                    td.pb0.w-a\n                                        p.text {{ text_6 }}\n                        .h-12 &nbsp;\n                        .gray-block\n                            table.w100\n                                tr\n                                    td.pb0.m-w\n                                        p.number 4\n                                    td.pb0.w-a\n                                        p.text {{ text_7 }}\n                        .h-40 &nbsp;\n                        table.w280(align=\"center\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"{{ href_1 }}\" universal=\"true\" target=\"_blank\") {{ text_8 }}",
+  "styl": ".w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { max-width: 100% !important; }\n}\n.brad-full { border-radius: 32px !important; }\n.butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.white-bg { background-color: #fff; }\n.middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 28px !important;\n    line-height: 34px !important; }\n}\n.text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n.pb12 { padding-bottom: 12px !important; }\n.pb24 { padding-bottom: 24px; }\n.pb44 { padding-bottom: 44px; }\n.pt32 { padding-top: 32px; }\n.pt44 { padding-top: 44px; }\n.h-12 { font-size: 8px;\n  line-height: 12px;\n  height: 12px; }\n.h-40 { font-size: 8px;\n  line-height: 40px;\n  height: 40px; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.w100 { width: 100%; }\n.w-a { width: auto !important;\n  vertical-align: middle; }\n.number { background: #ececed;\n  width: 54px;\n  max-height: 54px;\n  border-radius: 16px;\n  font-family: Helvetica !important;\n  color: #393a44;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 24px;\n  padding: 15px 0;\n  text-align: center; }\n.w-a { width: auto !important;\n  vertical-align: middle; }\ntable[class=body] table.column td,\ntable[class=body] table.columns td.m-w { min-width: 78px !important;\n  width: 78px !important; }\n.block-220 { max-width: 220px;\n  display: block;\n  display: inline-block;\n  padding: 24px 10px 24px 32px;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .block-220 { max-width: 100% !important;\n    display: block !important;\n    margin: 0 auto !important;\n    text-align: center !important;\n    padding: 0px 24px 0 24px !important;\n    width: auto !important; }\n}\n@media screen and (max-width: 600px) {\n  .ta-mob { text-align: center !important; }\n}\n.right-img { float: none;\n  display: inline-block;\n  width: 180px;\n  vertical-align: middle;\n  float: none; }\n@media screen and (max-width: 600px) {\n  .right-img { float: none !important;\n    display: block !important;\n    margin: 0 auto !important;\n    padding-right: 0 !important;\n    padding-bottom: 24px !important;\n    width: 1px !important;\n    max-width: 0.1px !important; }\n}\n.right-top { float: none;\n  display: inline-block;\n  width: 1px;\n  max-width: 0.1px;\n  vertical-align: middle;\n  float: none; }\n@media screen and (max-width: 600px) {\n  .right-top { float: none !important;\n    display: block !important;\n    margin: 0 auto !important;\n    padding-right: 0 !important;\n    padding-bottom: 24px !important;\n    padding-top: 20px !important;\n    width: 180px !important;\n    max-width: 180px !important; }\n}\n.fourth-block { background: url(\"https://fsms.quadcode.com/storage/public/d6/rs/39rs2mcraq8anbeg/back-orange.png\") center no-repeat;\n  background-color: #fff8f0;\n  background-size: cover !important;\n  border-radius: 24px; }\n.gray-block { padding: 24px;\n  background: #f9f9f9;\n  border-radius: 12px; }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_7",
+      "kind": "richText",
+      "label": "Текст 7",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_8",
+      "kind": "richText",
+      "label": "Текст 8",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://api.iqoption.com/v1/multi-links/promo-centre?aff=7&afftrack=mail_IQ-RFM-2-2-1&retrack=mail_IQ-RFM-2-2-1"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/d6/rs/39rursrq72d919b0/75.png"
+    }
+  ],
+  "tags": [
+    "feature-list",
+    "section",
+    "X_IQ"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_IQ/mail-rfm-segmentation-2-221"
+  ],
+  "createdAt": "2026-06-29T07:08:36.207Z",
+  "validated": true
+}

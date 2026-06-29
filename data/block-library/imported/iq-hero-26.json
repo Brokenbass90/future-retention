@@ -1,0 +1,66 @@
+{
+  "id": "iq-hero-26",
+  "label": "Hero с фоновой картинкой",
+  "description": "Импортирован из X_IQ (1 писем). Секция.",
+  "placement": "section",
+  "category": "hero",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.brad-full.bgr-image\n    tr\n        td.wrapper.last.pt0\n            table.twelve.columns\n                tr\n                    td.pb0\n                        a(href=\"{{ href_1 }}\" universal=\"true\" target=\"_blank\")\n                            img.logo.center(src=\"{{ image_1 }}\")\n                        .h-406 &nbsp;\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb50.pt10\n                        div.gmail-blend-screen\n                            div.gmail-blend-diff\n                                p.white-title.pb16 {{ text_1 }}\n                                p.white-text.pb8  {{ text_2 }}\n                                p.white-text.pb8\n                                    b {{ text_3 }}\n                                p.white-text  {{ text_4 }}\n                        //- .h-24 &nbsp;\n                        //- table.w280(align=\"left\")\n                        //-     tr\n                        //-         td.butt.pb0\n                        //-             a.butt-link(href=\"{{ href_2 }}\" universal=\"true\" target=\"_blank\") {{ text_3 }}",
+  "styl": "u + .body .gmail-blend-screen { background: #000;\n  mix-blend-mode: screen; }\nu + .body .gmail-blend-diff { background: #000;\n  mix-blend-mode: difference; }\n.bgr-image { background: url(\"https://fsms.quadcode.com/storage/public/d6/pd/13js2mcraq8anafg/2-1-3-head.png\") center top no-repeat;\n  background-size: cover;\n  background-color: #000; }\n.brad-full { border-radius: 32px !important; }\n.white-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 42px;\n  line-height: 52px;\n  color: #f9f9f9;\n  word-break: break-word; }\n@media screen and (max-width: 600px) {\n  .white-title { font-size: 26px !important;\n    line-height: 32px !important; }\n}\n.white-text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #fff; }\n.pb8 { padding-bottom: 8px; }\n.pb16 { padding-bottom: 16px; }\n.h-406 { font-size: 0;\n  line-height: 310px;\n  height: 310px; }\n@media screen and (max-width: 500px) {\n  .h-406 { line-height: 240px !important;\n    height: 240px !important; }\n}",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-2-1-3&retrack=mail_IQ-RFM-2-1-3&type=forex&asset=1"
+    },
+    {
+      "id": "href_2",
+      "kind": "url",
+      "label": "Ссылка 2",
+      "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-2-1-3&retrack=mail_IQ-RFM-2-1-3"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/d6/nu/493ursrq72d917kg/logo.png"
+    }
+  ],
+  "tags": [
+    "hero",
+    "section",
+    "X_IQ"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_IQ/mail-rfm-segmentation-2-213"
+  ],
+  "createdAt": "2026-06-29T07:08:36.207Z",
+  "validated": true
+}

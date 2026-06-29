@@ -1,0 +1,114 @@
+{
+  "id": "iq-footer-15",
+  "label": "Соцсети (иконки)",
+  "description": "Импортирован из X_IQ (7 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "footer",
+  "version": 1,
+  "source": "imported",
+  "pug": ".socials.center\n    a.first-link(href=\"{{ href_1 }}\" universal=\"true\" target=\"_blank\")\n        img.soc-icon.fb(src=\"{{ image_1 }}\")\n    a(href=\"{{ href_2 }}\" universal=\"true\" target=\"_blank\")\n        img.soc-icon.twitter(src=\"{{ image_2 }}\")\n    a(href=\"{{ href_3 }}\" universal=\"true\" target=\"_blank\")\n        img.soc-icon.twitter(src=\"{{ image_3 }}\")\n    a(href=\"{{ href_4 }}\" universal=\"true\" target=\"_blank\")\n        img.soc-icon.you(src=\"{{ image_4 }}\")\n    a.last-link(href=\"{{ href_5 }}\" universal=\"true\" target=\"_blank\")\n        img.soc-icon.ig(src=\"{{ image_5 }}\")",
+  "styl": ".ig { max-width: 20px;\n  margin-left: 6px; }\n@media screen and (max-width: 600px) {\n  .ig { width: 20px !important; }\n}\n.you { max-width: 24px;\n  margin: 0 6px; }\n@media screen and (max-width: 600px) {\n  .you { width: 24px !important; }\n}\n.twitter { max-width: 24px;\n  margin: 0 6px; }\n@media screen and (max-width: 600px) {\n  .twitter { width: 24px !important; }\n}\n.fb { max-width: 24px;\n  margin-right: 6px; }\n@media screen and (max-width: 600px) {\n  .fb { width: 24px !important; }\n}\n.socials { display: inline-block;\n  font-size: 0;\n  margin: 0 auto; }\n@media screen and (max-width: 600px) {\n  .socials { width: 100% !important; }\n}\n.socials a { display: inline-block;\n  vertical-align: middle;\n  margin: 0 10px; }\n@media screen and (max-width: 600px) {\n  .socials a { margin-bottom: 10px !important; }\n}\n.soc-icon { float: none !important;\n  max-width: 24px; }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "{{ text_1 }}"
+    },
+    {
+      "id": "href_2",
+      "kind": "url",
+      "label": "Ссылка 2",
+      "default": "{{ text_2 }}"
+    },
+    {
+      "id": "href_3",
+      "kind": "url",
+      "label": "Ссылка 3",
+      "default": "https://tradingdashboard.com?utm_source=iq&utm_medium=emai"
+    },
+    {
+      "id": "href_4",
+      "kind": "url",
+      "label": "Ссылка 4",
+      "default": "{{ text_3 }}"
+    },
+    {
+      "id": "href_5",
+      "kind": "url",
+      "label": "Ссылка 5",
+      "default": "{{ text_4 }}"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/d5/ka/q8fvhhge5gv5vatg/tiktok-logo.png"
+    },
+    {
+      "id": "image_2",
+      "kind": "image",
+      "label": "Картинка 2",
+      "default": "https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7ve0/ig.png"
+    },
+    {
+      "id": "image_3",
+      "kind": "image",
+      "label": "Картинка 3",
+      "default": "https://fsms.quadcode.com/storage/public/d7/u4/r9p3i8as70fjdvvg/trading-dash-icon.png"
+    },
+    {
+      "id": "image_4",
+      "kind": "image",
+      "label": "Картинка 4",
+      "default": "https://fsms.iqoption.com/storage/public/cn/td/gb285cee2vclvjq0/yt.png"
+    },
+    {
+      "id": "image_5",
+      "kind": "image",
+      "label": "Картинка 5",
+      "default": "https://fsms.quadcode.com/storage/public/d5/ka/rf7vhhge5gv5vau0/tg.png"
+    }
+  ],
+  "tags": [
+    "footer",
+    "inline",
+    "X_IQ"
+  ],
+  "usageCount": 7,
+  "sourceMails": [
+    "X_IQ/mail-rfm-segmentation-2-223",
+    "X_IQ/mail-rfm-segmentation-2-224",
+    "X_IQ/mail-rfm-segmentation-2-225",
+    "X_IQ/mail-rfm-segmentation-2-235",
+    "X_IQ/mail-rfm-segmentation-2-315",
+    "X_IQ/mail-rfm-segmentation-2-325",
+    "X_IQ/mail-rfm-segmentation-2-335"
+  ],
+  "createdAt": "2026-06-29T07:08:36.207Z",
+  "validated": true
+}

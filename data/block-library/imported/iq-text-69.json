@@ -1,0 +1,37 @@
+{
+  "id": "iq-text-69",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_IQ (2 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.brad-full.white-bg\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.data Web version only\n                        p.middle-title.pb16.pt24 {{ text_1 }}\n                        p.text {{ text_2 }}",
+  "styl": ".brad-full { border-radius: 32px !important; }\n.white-bg { background-color: #fff; }\n.data { display: inline-block;\n  padding: 6px 16px;\n  background: rgba(254,122,32,0.19);\n  border-radius: 12px;\n  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 16px;\n  line-height: 20px;\n  color: #ff8516;\n  text-align: left; }\n@media screen and (max-width: 600px) {\n  .data { font-size: 14px !important; }\n}\n.middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 28px !important;\n    line-height: 34px !important; }\n}\n.text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n.pb16 { padding-bottom: 16px; }\n.pb44 { padding-bottom: 44px; }\n.pt24 { padding-top: 24px; }\n.pt44 { padding-top: 44px; }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_IQ"
+  ],
+  "usageCount": 2,
+  "sourceMails": [
+    "X_IQ/mail-rfm-segmentation-2-222",
+    "X_IQ/mail-rfm-segmentation-2-231"
+  ],
+  "createdAt": "2026-06-29T07:08:36.207Z",
+  "validated": true
+}

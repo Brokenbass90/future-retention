@@ -1,0 +1,84 @@
+{
+  "id": "iq-hero-37",
+  "label": "Hero с фоновой картинкой",
+  "description": "Импортирован из X_IQ (1 писем). Секция.",
+  "placement": "section",
+  "category": "hero",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.brad-full.bgr-image\n    tr\n        td.wrapper.last.pt0\n            table.twelve.columns\n                tr\n                    td.pb5\n                        a(href=\"{{ href_1 }}\" universal=\"true\" target=\"_blank\")\n                            img.logo.center(src=\"{{ image_1 }}\")\n                        //- a(href=\"#\" universal=\"true\" target=\"_blank\")\n                        //-     img.center(src=\"{{ image_2 }}\")\n                        .h-406 &nbsp;\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb50.pt0\n                        div.gmail-blend-screen\n                            div.gmail-blend-diff\n                                p.white-title.pb16 {{ text_1 }}\n                                .opacity-block\n                                    p.small-white-title.pb16 {{ text_2 }}\n                                    table.w100\n                                        tr\n                                            td.pb0.m-w-2\n                                                a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                                    img.ava(src=\"{{ image_3 }}\")\n                                            td.pb0.w-a\n                                                p.white-text.pb10\n                                                    b {{ text_3 }}\n                                                p.white-text {{ text_4 }}\n                                .h-24 &nbsp;\n                                table.w280(align=\"left\")\n                                    tr\n                                        td.butt.pb0\n                                            a.butt-link(href=\"{{ href_2 }}\" universal=\"true\" target=\"_blank\") {{ text_5 }}",
+  "styl": "u + .body .gmail-blend-screen { background: #000;\n  mix-blend-mode: screen; }\nu + .body .gmail-blend-diff { background: #000;\n  mix-blend-mode: difference; }\n.bgr-image { background: url(\"https://fsms.quadcode.com/storage/public/d8/0q/5ha61bdc700vi71g/3-2-5-top-1.png\") center top no-repeat;\n  background-size: cover;\n  background-color: #000; }\n.opacity-block { background: url(\"https://fsms.quadcode.com/storage/public/d7/7o/os1cr7pkt9m67j50/orange-bg-opac.png\") center top no-repeat;\n  background-size: cover;\n  padding: 24px;\n  border-radius: 24px; }\n.w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { max-width: 100% !important; }\n}\n.brad-full { border-radius: 32px !important; }\n.butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.white-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 48px;\n  line-height: 58px;\n  color: #f9f9f9;\n  word-break: break-word; }\n@media screen and (max-width: 600px) {\n  .white-title { font-size: 26px !important;\n    line-height: 32px !important;\n    padding-right: 0 !important; }\n}\n.small-white-title { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  color: #fff; }\n.white-text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #fff;\n  padding-right: 45px; }\n@media screen and (max-width: 600px) {\n  .white-text { padding-right: 0 !important; }\n}\n.pb5 { padding-bottom: 5px; }\n.pb16 { padding-bottom: 16px; }\n.h-24 { font-size: 8px;\n  line-height: 24px;\n  height: 24px; }\n.h-406 { font-size: 8px;\n  line-height: 335px;\n  height: 335px; }\n@media screen and (max-width: 600px) {\n  .h-406 { line-height: 335px !important;\n    height: 335px !important; }\n}\n.w100 { width: 100%; }\n.w-a { width: auto !important;\n  vertical-align: middle; }\n.w-a { width: auto !important;\n  vertical-align: middle; }\n.ava { width: 50px !important;\n  float: none; }\n.m-w-2 { min-width: 74px !important;\n  width: 74px !important;\n  vertical-align: top; }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-3-2-5&retrack=mail_IQ-RFM-3-2-5&type=forex&asset=1"
+    },
+    {
+      "id": "href_2",
+      "kind": "url",
+      "label": "Ссылка 2",
+      "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-3-2-5&retrack=mail_IQ-RFM-3-2-5"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/d6/nu/493ursrq72d917kg/logo.png"
+    },
+    {
+      "id": "image_2",
+      "kind": "image",
+      "label": "Картинка 2",
+      "default": "https://fsms.quadcode.com/storage/public/d7/7m/jd1cr7pkt9m67j40/3-2-5-head.png"
+    },
+    {
+      "id": "image_3",
+      "kind": "image",
+      "label": "Картинка 3",
+      "default": "https://fsms.quadcode.com/storage/public/d6/1e/vbvvhhgea139ul80/rfm-324-ava.png"
+    }
+  ],
+  "tags": [
+    "hero",
+    "section",
+    "X_IQ"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_IQ/mail-rfm-segmentation-2-325"
+  ],
+  "createdAt": "2026-06-29T07:08:36.208Z",
+  "validated": true
+}

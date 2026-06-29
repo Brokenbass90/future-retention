@@ -1,0 +1,102 @@
+{
+  "id": "iq-feature-list-24",
+  "label": "Asset-секция",
+  "description": "Импортирован из X_IQ (1 писем). Секция.",
+  "placement": "section",
+  "category": "feature-list",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.brad-full.white-bg\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.middle-title.pb32 {{ text_1 }}\n                        .asset-big\n                            .pd20\n                                table.w100\n                                    tr\n                                        td.pb0.m-w\n                                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                                img.asset-logo-top(src=\"{{ image_1 }}\")\n                                        td.pb0.w-a\n                                            p.asset {{ text_2 }}\n                        .h-16 &nbsp;\n                        .asset-block.mr16\n                            .pd20\n                                table.w100\n                                    tr\n                                        td.pb0.m-w\n                                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                                img.asset-logo-top(src=\"{{ image_2 }}\")\n                                        td.pb0.w-a\n                                            p.asset {{ text_3 }}\n                        .asset-block\n                            .pd20\n                                table.w100\n                                    tr\n                                        td.pb0.m-w\n                                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                                img.asset-logo-top(src=\"{{ image_3 }}\")\n                                        td.pb0.w-a\n                                            p.asset {{ text_4 }}\n                        .asset-block.mr16\n                            .pd20\n                                table.w100\n                                    tr\n                                        td.pb0.m-w\n                                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                                img.asset-logo-top(src=\"{{ image_4 }}\")\n                                        td.pb0.w-a\n                                            p.asset {{ text_5 }}\n                        .asset-block\n                            .pd20\n                                table.w100\n                                    tr\n                                        td.pb0.m-w\n                                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                                img.asset-logo-top(src=\"{{ image_5 }}\")\n                                        td.pb0.w-a\n                                            p.asset {{ text_6 }}\n                        .h-28 &nbsp;\n                        table.w280(align=\"center\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"{{ href_1 }}\" universal=\"true\" target=\"_blank\") {{ text_7 }}",
+  "styl": ".w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { max-width: 100% !important; }\n}\n.brad-full { border-radius: 32px !important; }\n.butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.white-bg { background-color: #fff; }\n.middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 28px !important;\n    line-height: 34px !important; }\n}\n.pb32 { padding-bottom: 32px; }\n.pb44 { padding-bottom: 44px; }\n.pt44 { padding-top: 44px; }\n.h-16 { font-size: 8px;\n  line-height: 16px;\n  height: 16px; }\n.h-28 { font-size: 8px;\n  line-height: 28px;\n  height: 28px; }\n.w100 { width: 100%; }\n.w-a { width: auto !important;\n  vertical-align: middle; }\n.w-a { width: auto !important;\n  vertical-align: middle; }\ntable[class=body] table.column td,\ntable[class=body] table.columns td.m-w { min-width: 49px !important;\n  width: 49px !important;\n  vertical-align: middle; }\n.mr16 { margin-right: 14px; }\n@media screen and (max-width: 600px) {\n  .mr16 { margin-right: 0 !important; }\n}\n.asset-logo-top { display: inline-block;\n  width: 40px !important;\n  float: none;\n  vertical-align: middle; }\n.asset-big { border: 1px solid #ececed;\n  border-radius: 24px; }\n@media screen and (max-width: 600px) {\n  .asset-big { margin: 0 auto !important;\n    max-width: 222px !important; }\n}\n.asset-block { display: inline-block;\n  border: 1px solid #ececed;\n  border-radius: 24px;\n  width: 222px;\n  margin-bottom: 16px; }\n@media screen and (max-width: 600px) {\n  .asset-block { display: block !important;\n    margin: 0 auto 16px !important; }\n}\n.pd20 { padding: 20px; }\n@media screen and (max-width: 600px) {\n  .pd20 { padding: 20px !important; }\n}\n.asset { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 18px;\n  line-height: 27px;\n  color: #393a44; }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_7",
+      "kind": "richText",
+      "label": "Текст 7",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://iqoption.com/traderoom/deeplink/assetselector?category=etf&aff=7&afftrack=mail_IQ-RFM-1-3-2&retrack=mail_IQ-RFM-1-3-2"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/d6/pu/9lbs2mcraq8anaqg/Magnificent7.png"
+    },
+    {
+      "id": "image_2",
+      "kind": "image",
+      "label": "Картинка 2",
+      "default": "https://fsms.quadcode.com/storage/public/d6/pu/9lbs2mcraq8anarg/Airlines.png"
+    },
+    {
+      "id": "image_3",
+      "kind": "image",
+      "label": "Картинка 3",
+      "default": "https://fsms.quadcode.com/storage/public/d6/pu/9lbursrq72d918q0/Cannabis.png"
+    },
+    {
+      "id": "image_4",
+      "kind": "image",
+      "label": "Картинка 4",
+      "default": "https://fsms.quadcode.com/storage/public/d6/pu/9lbs2mcraq8anapg/Casinos.png"
+    },
+    {
+      "id": "image_5",
+      "kind": "image",
+      "label": "Картинка 5",
+      "default": "https://fsms.quadcode.com/storage/public/d6/pu/9lbs2mcraq8anaq0/Uranium.png"
+    }
+  ],
+  "tags": [
+    "feature-list",
+    "section",
+    "X_IQ"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_IQ/mail-rfm-segmentation-2-132"
+  ],
+  "createdAt": "2026-06-29T07:08:36.207Z",
+  "validated": true
+}

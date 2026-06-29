@@ -1,0 +1,48 @@
+{
+  "id": "iq-feature-list-46",
+  "label": "Нумерованный пункт (gray-block)",
+  "description": "Импортирован из X_IQ (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "feature-list",
+  "version": 1,
+  "source": "imported",
+  "pug": ".gray-block\n    table.w100\n        tr\n            td.m-w.pb0\n                p.number 2\n            td.w-a.pb0\n                p.text {{ text_1 }}\n    p.text.pt24.pb5\n        b {{ text_2 }}\n    p.promocode {{ text_3 }}\n    p.small-gray-text.pt5 {{ text_4 }}",
+  "styl": ".promocode { background: #ffefe0;\n  border: 2px dashed #f70;\n  border-radius: 16px;\n  color: #f70;\n  font-family: Helvetica !important;\n  font-size: 24px;\n  font-style: normal;\n  font-weight: 700;\n  line-height: 31px;\n  padding: 16px 22px; }\n.text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n.pb5 { padding-bottom: 5px; }\n.pt5 { padding-top: 5px; }\n.pt24 { padding-top: 24px; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.w100 { width: 100%; }\n.w-a { width: auto !important;\n  vertical-align: middle; }\n.number { background: #ececed;\n  width: 54px;\n  max-height: 54px;\n  border-radius: 16px;\n  font-family: Helvetica !important;\n  color: #393a44;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 24px;\n  padding: 15px 0;\n  text-align: center; }\n.w-a { width: auto !important;\n  vertical-align: middle; }\ntable[class=body] table.column td,\ntable[class=body] table.columns td.m-w { min-width: 78px !important;\n  width: 78px !important; }\n.small-gray-text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 16px;\n  line-height: 24px;\n  color: #84868b; }\n.gray-block { padding: 24px;\n  background: #f9f9f9;\n  border-radius: 12px; }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    }
+  ],
+  "tags": [
+    "feature-list",
+    "inline",
+    "X_IQ"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_IQ/mail-rfm-segmentation-2-224"
+  ],
+  "createdAt": "2026-06-29T07:08:36.207Z",
+  "validated": true
+}

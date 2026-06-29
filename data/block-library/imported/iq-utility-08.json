@@ -1,0 +1,32 @@
+{
+  "id": "iq-utility-08",
+  "label": "Спейсер 32px",
+  "description": "Импортирован из X_IQ (16 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "utility",
+  "version": 1,
+  "source": "imported",
+  "pug": ".h-32 &nbsp;",
+  "styl": ".h-32 { font-size: 8px;\n  line-height: 32px;\n  height: 32px; }",
+  "slots": [],
+  "tags": [
+    "utility",
+    "inline",
+    "X_IQ"
+  ],
+  "usageCount": 16,
+  "sourceMails": [
+    "X_IQ/mail-rfm-312",
+    "X_IQ/mail-rfm-segmentation-2-113",
+    "X_IQ/mail-rfm-segmentation-2-114",
+    "X_IQ/mail-rfm-segmentation-2-124",
+    "X_IQ/mail-rfm-segmentation-2-133",
+    "X_IQ/mail-rfm-segmentation-2-134",
+    "X_IQ/mail-rfm-segmentation-2-135",
+    "X_IQ/mail-rfm-segmentation-2-212",
+    "X_IQ/mail-rfm-segmentation-2-215",
+    "X_IQ/mail-rfm-segmentation-2-233"
+  ],
+  "createdAt": "2026-06-29T07:08:36.205Z",
+  "validated": true
+}

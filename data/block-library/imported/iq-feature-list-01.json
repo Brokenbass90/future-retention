@@ -1,0 +1,132 @@
+{
+  "id": "iq-feature-list-01",
+  "label": "Список преимуществ (нумерованный)",
+  "description": "Импортирован из X_IQ (1 писем). Секция.",
+  "placement": "section",
+  "category": "feature-list",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.brad-full.white-bg\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.middle-title.pb32 {{ text_1 }}\n                        .gray-block\n                            .left-block\n                                p.small-title.text-center-mob {{ text_2 }}\n                            .right-block\n                                p.big-green-number +236%\n                            .h-24.bb &nbsp;\n                            .h-24 &nbsp;\n                            .left-block\n                                p.small-title.text-center-mob\n                                    img.asset-logo(src=\"{{ image_1 }}\")\n                                    |{{ text_3 }}\n                            .right-block.text-center-mob\n                                .left-number\n                                    p.small-gray-text.text-center-mob {{ text_4 }}\n                                    p.small-number.text-center-mob $3,000\n                                a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                    img.small-arrow(src=\"{{ image_2 }}\")\n                                .right-number\n                                    p.small-gray-text.text-center-mob  {{ text_5 }}\n                                    p.small-green-number.text-center-mob $10,080\n                        .h-32 &nbsp;\n                        .gray-block\n                            .left-block\n                                p.small-title.text-center-mob {{ text_6 }}\n                            .right-block\n                                p.big-green-number +88%\n                            .h-24.bb &nbsp;\n                            .h-24 &nbsp;\n                            .left-block\n                                p.small-title.text-center-mob\n                                    img.asset-logo(src=\"{{ image_3 }}\")\n                                    |{{ text_7 }}\n                            .right-block.text-center-mob\n                                .left-number\n                                    p.small-gray-text.text-center-mob {{ text_4 }}\n                                    p.small-number.text-center-mob $3,500\n                                a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                    img.small-arrow(src=\"{{ image_2 }}\")\n                                .right-number\n                                    p.small-gray-text.text-center-mob  {{ text_5 }}\n                                    p.small-green-number.text-center-mob $6,580\n                        .h-32 &nbsp;\n                        .gray-block\n                            .left-block\n                                p.small-title.text-center-mob {{ text_8 }}\n                            .right-block\n                                p.big-green-number +67%\n                            .h-24.bb &nbsp;\n                            .h-24 &nbsp;\n                            .left-block\n                                p.small-title.text-center-mob\n                                    img.asset-logo(src=\"{{ image_4 }}\")\n                                    |{{ text_9 }}\n                            .right-block.text-center-mob\n                                .left-number\n                                    p.small-gray-text.text-center-mob {{ text_4 }}\n                                    p.small-number.text-center-mob $2,000\n                                a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                    img.small-arrow(src=\"{{ image_2 }}\")\n                                .right-number\n                                    p.small-gray-text.text-center-mob  {{ text_5 }}\n                                    p.small-green-number.text-center-mob $3,340\n                        .h-32 &nbsp;\n                        .gray-block\n                            .left-block\n                                p.small-title.text-center-mob {{ text_10 }}\n                            .right-block\n                                p.big-green-number +92%\n                            .h-24.bb &nbsp;\n                            .h-24 &nbsp;\n                            .left-block\n                                p.small-title.text-center-mob\n                                    img.asset-logo(src=\"{{ image_5 }}\")\n                                    |{{ text_11 }}\n                            .right-block.text-center-mob\n                                .left-number\n                                    p.small-gray-text.text-center-mob {{ text_4 }}\n                                    p.small-number.text-center-mob $2,200\n                                a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                    img.small-arrow(src=\"{{ image_2 }}\")\n                                .right-number\n                                    p.small-gray-text.text-center-mob  {{ text_5 }}\n                                    p.small-green-number.text-center-mob $4,224\n                        .h-40 &nbsp;\n                        table.w280.centet(style=\"border-collapse: initial;\" align=\"center\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"{{ href_1 }}\" universal=\"true\" target=\"_blank\") {{ text_12 }}",
+  "styl": ".w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { max-width: 100% !important; }\n}\n.brad-full { border-radius: 32px !important; }\n.bb { border-bottom: 1px solid #d9d9db; }\n.butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.white-bg { background-color: #fff; }\n.middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 24px !important;\n    line-height: 32px !important; }\n}\n.pb32 { padding-bottom: 32px; }\n.pb44 { padding-bottom: 44px; }\n.pt44 { padding-top: 44px; }\n.h-24 { font-size: 8px;\n  line-height: 24px;\n  height: 24px; }\n.h-32 { font-size: 8px;\n  line-height: 32px;\n  height: 32px; }\n.h-40 { font-size: 8px;\n  line-height: 40px;\n  height: 40px; }\n.left-block { display: inline-block;\n  width: 49%;\n  vertical-align: top; }\n@media screen and (max-width: 600px) {\n  .left-block { float: none !important;\n    display: block !important;\n    width: 100% !important; }\n}\n.right-block { display: inline-block;\n  width: 49%;\n  vertical-align: top;\n  text-align: right; }\n@media screen and (max-width: 600px) {\n  .right-block { float: none !important;\n    display: block !important;\n    width: 100% !important;\n    padding-top: 12px !important; }\n}\n.small-title { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  color: #393a44; }\n@media screen and (max-width: 600px) {\n  .small-title { font-size: 21px !important;\n    line-height: 29px !important; }\n}\n.asset-logo { display: inline-block;\n  width: 56px !important;\n  float: none;\n  vertical-align: middle;\n  padding-right: 16px; }\n.small-number { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 18px;\n  line-height: 27px;\n  color: #393a44; }\n.small-green-number { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 18px;\n  line-height: 27px;\n  color: #12a557; }\n.left-number { display: inline-block;\n  width: 60px;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .left-number { width: 100px !important;\n    text-align: center !important; }\n}\n.small-arrow { display: inline-block;\n  width: 27px !important;\n  vertical-align: middle;\n  float: none;\n  padding: 0 15px; }\n.right-number { display: inline-block;\n  width: 60px;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .right-number { width: 100px !important;\n    text-align: center !important; }\n}\n@media screen and (max-width: 600px) {\n  .text-center-mob { text-align: center !important;\n    margin: 0 auto !important; }\n}\n.big-green-number { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  text-align: right;\n  color: #12a557; }\n@media screen and (max-width: 600px) {\n  .big-green-number { text-align: center !important; }\n}\n.asset-logo { display: inline-block;\n  width: 40px !important;\n  float: none;\n  padding-right: 8px;\n  vertical-align: middle; }\n.small-gray-text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 16px;\n  line-height: 24px;\n  color: #84868b; }\n.gray-block { padding: 24px;\n  background: #f9f9f9;\n  border-radius: 12px; }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_7",
+      "kind": "richText",
+      "label": "Текст 7",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_8",
+      "kind": "richText",
+      "label": "Текст 8",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_9",
+      "kind": "richText",
+      "label": "Текст 9",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_10",
+      "kind": "richText",
+      "label": "Текст 10",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_11",
+      "kind": "richText",
+      "label": "Текст 11",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_12",
+      "kind": "richText",
+      "label": "Текст 12",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-3-1-2&retrack=mail_IQ-RFM-3-1-2"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/d5/s7/refvhhgea139ujj0/rfmbtc.png"
+    },
+    {
+      "id": "image_2",
+      "kind": "image",
+      "label": "Картинка 2",
+      "default": "https://fsms.quadcode.com/storage/public/d5/s7/re8ggnfnh4cs76u0/small-arrow.png"
+    },
+    {
+      "id": "image_3",
+      "kind": "image",
+      "label": "Картинка 3",
+      "default": "https://fsms.quadcode.com/storage/public/d5/s7/re8ggnfnh4cs76tg/rfm-intel.png"
+    },
+    {
+      "id": "image_4",
+      "kind": "image",
+      "label": "Картинка 4",
+      "default": "https://fsms.quadcode.com/storage/public/d5/s7/refvhhgea139ujig/rfmsep.png"
+    },
+    {
+      "id": "image_5",
+      "kind": "image",
+      "label": "Картинка 5",
+      "default": "https://fsms.quadcode.com/storage/public/d5/s7/refvhhgea139uji0/rfmlmt.png"
+    }
+  ],
+  "tags": [
+    "feature-list",
+    "section",
+    "X_IQ"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_IQ/mail-rfm-312"
+  ],
+  "createdAt": "2026-06-29T07:08:36.205Z",
+  "validated": true
+}

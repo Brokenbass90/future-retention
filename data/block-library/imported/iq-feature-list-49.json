@@ -1,0 +1,30 @@
+{
+  "id": "iq-feature-list-49",
+  "label": "Asset-карточка (лого + название)",
+  "description": "Импортирован из X_IQ (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "feature-list",
+  "version": 1,
+  "source": "imported",
+  "pug": ".asset-block\n    .pd27\n        table.w100\n            tr\n                td.pb0.m-w\n                    a(href=\"#\" universal=\"true\" target=\"_blank\")\n                        img.asset-logo-top(src=\"{{ image_1 }}\")\n                td.pb0.w-a\n                    p.asset Ganja",
+  "styl": ".w100 { width: 100%; }\n.w-a { width: auto !important;\n  vertical-align: middle; }\n.w-a { width: auto !important;\n  vertical-align: middle; }\ntable[class=body] table.column td,\ntable[class=body] table.columns td.m-w { min-width: 49px !important;\n  width: 49px !important;\n  vertical-align: middle; }\n.asset-logo-top { display: inline-block;\n  width: 40px !important;\n  float: none;\n  vertical-align: middle; }\n.asset-block { display: inline-block;\n  border: 1px solid #ececed;\n  border-radius: 24px;\n  width: 222px;\n  margin-bottom: 16px; }\n@media screen and (max-width: 600px) {\n  .asset-block { display: block !important;\n    margin: 0 auto 16px !important; }\n}\n.pd27 { padding: 27px 20px; }\n.asset { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 18px;\n  line-height: 27px;\n  color: #393a44; }",
+  "slots": [
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/d6/pu/9lbursrq72d918q0/Cannabis.png"
+    }
+  ],
+  "tags": [
+    "feature-list",
+    "inline",
+    "X_IQ"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_IQ/mail-rfm-segmentation-2-231"
+  ],
+  "createdAt": "2026-06-29T07:08:36.207Z",
+  "validated": true
+}

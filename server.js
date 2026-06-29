@@ -1424,6 +1424,26 @@ function buildEmailBaseDeepContext() {
     lines.push("  (block catalog not loaded)");
   }
 
+  // Imported X_IQ block library (real, build-validated {pug,styl,slots} blocks).
+  try {
+    const importedIndexPath = path.join(studioDataDir, "block-library", "imported", "index.json");
+    if (existsSync(importedIndexPath)) {
+      const idx = JSON.parse(readFileSync(importedIndexPath, "utf-8"));
+      const blocks = Array.isArray(idx?.blocks) ? idx.blocks : [];
+      if (blocks.length) {
+        lines.push("");
+        lines.push(`Imported X_IQ block library (${blocks.length} build-validated blocks — use these IDs with compose_email_from_blocks / insert_block):`);
+        const byCat = {};
+        for (const b of blocks) (byCat[b.category] ||= []).push(b);
+        for (const cat of Object.keys(byCat)) {
+          const top = byCat[cat].sort((a, b) => (b.usageCount || 0) - (a.usageCount || 0)).slice(0, 6);
+          lines.push(`  ${cat}: ` + top.map((b) => `[${b.id}]×${b.usageCount}`).join(", ") + (byCat[cat].length > 6 ? ` (+${byCat[cat].length - 6} more)` : ""));
+        }
+        lines.push("  These carry their own design CSS + responsive @media; text/href/image are editable slots.");
+      }
+    }
+  } catch { /* skip imported summary */ }
+
   lines.push("");
   lines.push("Template structure convention:");
   lines.push("  index.pug → include blocks/header → [content blocks] → include helpers/footer");

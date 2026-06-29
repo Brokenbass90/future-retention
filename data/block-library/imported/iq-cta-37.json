@@ -1,0 +1,114 @@
+{
+  "id": "iq-cta-37",
+  "label": "CTA-секция",
+  "description": "Импортирован из X_IQ (1 писем). Секция.",
+  "placement": "section",
+  "category": "cta",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.brad-full.white-bg\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.middle-title.pb16 {{ text_1 }} {{ text_2 }}\n                        p.text.pb32 {{ text_3 }}\n                        .gray-block-2\n                            table.w100\n                                tr\n                                    td.pb0.m-w\n                                        a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                            img.asset-logo-2(src=\"{{ image_1 }}\")\n                                    td.pb0.w-a\n                                        p.text-asset-block {{ text_4 }}\n                            ul.pt24\n                                li.text.pb8 {{ text_5 }}\n                                li.text.pb8 {{ text_6 }}\n                                li.text {{ text_7 }}\n                        .h-32 &nbsp;\n                        .gray-block-2\n                            table.w100\n                                tr\n                                    td.pb0.m-w\n                                        a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                            img.asset-logo-2(src=\"{{ image_2 }}\")\n                                    td.pb0.w-a\n                                        p.text-asset-block {{ text_8 }}\n                            ul.pt24\n                                li.text.pb8 {{ text_9 }}\n                                li.text.pb8 {{ text_10 }}\n                                li.text {{ text_11 }}\n                        .h-40 &nbsp;\n                        table.w280(align=\"center\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"{{ href_1 }}\" universal=\"true\" target=\"_blank\") {{ text_12 }}",
+  "styl": ".w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { max-width: 100% !important; }\n}\n.brad-full { border-radius: 32px !important; }\n.butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.white-bg { background-color: #fff; }\n.middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 28px !important;\n    line-height: 34px !important; }\n}\n.text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n.pb8 { padding-bottom: 8px; }\n.pb16 { padding-bottom: 16px; }\n.pb32 { padding-bottom: 32px; }\n.pb44 { padding-bottom: 44px; }\n.pt24 { padding-top: 24px; }\n.pt44 { padding-top: 44px; }\n.h-32 { font-size: 8px;\n  line-height: 32px;\n  height: 32px; }\n.h-40 { font-size: 8px;\n  line-height: 40px;\n  height: 40px; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.w100 { width: 100%; }\n.w-a { width: auto !important;\n  vertical-align: middle; }\n.w-a { width: auto !important;\n  vertical-align: middle; }\ntable[class=body] table.column td,\ntable[class=body] table.columns td.m-w { min-width: 72px !important;\n  width: 72px !important; }\n.gray-block-2 { padding: 24px;\n  background: #f9f9f9;\n  border-radius: 24px; }\n.asset-logo-2 { display: inline-block;\n  width: 56px !important;\n  float: none;\n  vertical-align: middle;\n  padding-right: 12px; }\n.text-asset-block { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  color: #393a44; }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_7",
+      "kind": "richText",
+      "label": "Текст 7",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_8",
+      "kind": "richText",
+      "label": "Текст 8",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_9",
+      "kind": "richText",
+      "label": "Текст 9",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_10",
+      "kind": "richText",
+      "label": "Текст 10",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_11",
+      "kind": "richText",
+      "label": "Текст 11",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_12",
+      "kind": "richText",
+      "label": "Текст 12",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://api.iqoption.com/v1/multi-links/apply-indicators?aff=7&afftrack=mail_IQ-RFM-2-1-2&retrack=mail_IQ-RFM-2-1-2"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/d6/pa/5l3s2mcraq8ana8g/green-arrow-top.png"
+    },
+    {
+      "id": "image_2",
+      "kind": "image",
+      "label": "Картинка 2",
+      "default": "https://fsms.quadcode.com/storage/public/d6/pa/5l3s2mcraq8ana90/red-arrow-bottom.png"
+    }
+  ],
+  "tags": [
+    "cta",
+    "section",
+    "X_IQ"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_IQ/mail-rfm-segmentation-2-212"
+  ],
+  "createdAt": "2026-06-29T07:08:36.207Z",
+  "validated": true
+}

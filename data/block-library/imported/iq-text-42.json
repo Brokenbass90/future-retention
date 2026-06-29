@@ -1,0 +1,60 @@
+{
+  "id": "iq-text-42",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_IQ (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.brad-full.white-bg\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.data {{ text_1 }}\n                        p.middle-title.pb16.pt16 {{ text_2 }}\n                        p.text.pb32 {{ text_3 }}\n                        .left-block.color-red\n                            .padd\n                                p.text.center {{ text_4 }}\n                        .right-block.color-green\n                            .padd\n                                p.text.center {{ text_5 }}\n                        .h-32 &nbsp;\n                        a(href=\"#\" universal=\"true\" target=\"_blank\")\n                            img.center(src=\"{{ image_1 }}\")",
+  "styl": ".brad-full { border-radius: 32px !important; }\n.white-bg { background-color: #fff; }\n.data { display: inline-block;\n  padding: 6px 16px;\n  background: #ffe6d5;\n  border-radius: 12px;\n  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 16px;\n  line-height: 20px;\n  color: #ff8516;\n  text-align: left; }\n@media screen and (max-width: 600px) {\n  .data { font-size: 14px !important; }\n}\n.middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 28px !important;\n    line-height: 34px !important; }\n}\n.text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n.pb16 { padding-bottom: 16px; }\n.pb32 { padding-bottom: 32px; }\n.pb44 { padding-bottom: 44px; }\n.pt16 { padding-top: 16px; }\n.pt44 { padding-top: 44px; }\n.h-32 { font-size: 8px;\n  line-height: 32px;\n  height: 32px; }\n.left-block { display: inline-block;\n  width: 232px;\n  border-radius: 24px;\n  margin-right: 8px; }\n@media screen and (max-width: 600px) {\n  .left-block { display: block !important;\n    margin: 0 auto 16px !important; }\n}\n.right-block { display: inline-block;\n  width: 232px;\n  border-radius: 24px; }\n@media screen and (max-width: 600px) {\n  .right-block { display: block !important;\n    margin: 0 auto 16px !important; }\n}\n.color-red { background: #fdebeb; }\n.color-green { background: #e7f6ee; }\n.padd { padding: 24px 40px; }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/d7/bp/ma9cr7pkt9m67kug/1-2-4-1.png"
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_IQ"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_IQ/mail-rfm-segmentation-2-124"
+  ],
+  "createdAt": "2026-06-29T07:08:36.207Z",
+  "validated": true
+}

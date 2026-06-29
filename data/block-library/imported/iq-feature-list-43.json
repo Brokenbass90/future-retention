@@ -1,0 +1,42 @@
+{
+  "id": "iq-feature-list-43",
+  "label": "Нумерованный пункт (gray-block)",
+  "description": "Импортирован из X_IQ (3 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "feature-list",
+  "version": 1,
+  "source": "imported",
+  "pug": ".gray-block\n    table.w100\n        tr\n            td.m-w\n                a(href=\"#\" universal=\"true\" target=\"_blank\")\n                    img.logo-asset(src=\"{{ image_1 }}\")\n            td.w-a\n                p.asset.pt8 {{ text_1 }}\n    p.text.pt8 {{ text_2 }}",
+  "styl": ".text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n.w100 { width: 100%; }\n.w-a { width: auto !important;\n  vertical-align: middle; }\n.w-a { width: auto !important;\n  vertical-align: middle; }\ntable[class=body] table.column td,\ntable[class=body] table.columns td.m-w { min-width: 60px !important;\n  width: 60px !important; }\n.logo-asset { width: 48px !important;\n  float: none; }\n.gray-block { background: #f9f9f9 url(\"https://fsms.quadcode.com/storage/public/d6/0u/6tvvhhgea139ul10/link-img.png\") top 24px right 24px no-repeat;\n  background-size: 24px;\n  padding: 24px;\n  border-radius: 24px; }\n.asset { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 18px;\n  line-height: 27px;\n  color: #393a44; }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/d7/38/a4pcr7pkt9m67i2g/nvda-2.png"
+    }
+  ],
+  "tags": [
+    "feature-list",
+    "inline",
+    "X_IQ"
+  ],
+  "usageCount": 3,
+  "sourceMails": [
+    "X_IQ/mail-rfm-segmentation-2-223"
+  ],
+  "createdAt": "2026-06-29T07:08:36.207Z",
+  "validated": true
+}

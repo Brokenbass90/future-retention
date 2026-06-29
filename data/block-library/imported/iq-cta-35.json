@@ -1,0 +1,37 @@
+{
+  "id": "iq-cta-35",
+  "label": "CTA-кнопка (w280)",
+  "description": "Импортирован из X_IQ (6 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "cta",
+  "version": 1,
+  "source": "imported",
+  "pug": "a.butt-link(href=\"{{ href_1 }}\" universal=\"true\" target=\"_blank\") {{ text_1 }}",
+  "styl": ".butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-2-2-1&retrack=mail_IQ-RFM-2-2-1"
+    }
+  ],
+  "tags": [
+    "cta",
+    "inline",
+    "X_IQ"
+  ],
+  "usageCount": 6,
+  "sourceMails": [
+    "X_IQ/mail-rfm-segmentation-2-211",
+    "X_IQ/mail-rfm-segmentation-2-221"
+  ],
+  "createdAt": "2026-06-29T07:08:36.207Z",
+  "validated": true
+}

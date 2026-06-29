@@ -1,0 +1,66 @@
+{
+  "id": "iq-text-24",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_IQ (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.brad-full.white-bg\n    tr\n        td.wrapper.last\n            table.twelve.columns\n                tr\n                    td.pb44.pt44.plr30\n                        p.middle-title.pb32 {{ text_1 }}\n                        .third-block\n                            .inside-padding\n                                p.fat-text {{ text_2 }}\n                        .fourth-block\n                            .inside-padding\n                                p.fat-text {{ text_3 }}\n                        .h-8 &nbsp;\n                        .first-block\n                            .inside-padding\n                                p.fat-text.mw-1 {{ text_4 }}\n                        .second-block\n                            .inside-padding\n                                p.fat-text {{ text_5 }}\n                        .h-8 &nbsp;\n                        .fiveth-block\n                            .inside-padding\n                                p.fat-text {{ text_6 }}\n                        .sixth-block\n                            .inside-padding\n                                p.fat-text {{ text_7 }}",
+  "styl": ".brad-full { border-radius: 32px !important; }\n.white-bg { background-color: #fff; }\n.middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 28px !important;\n    line-height: 34px !important; }\n}\n.pb32 { padding-bottom: 32px; }\n.pb44 { padding-bottom: 44px; }\n.pt44 { padding-top: 44px; }\n.plr30 { padding-left: 30px;\n  padding-right: 30px; }\n@media screen and (max-width: 600px) {\n  .plr30 { padding-left: 15px !important;\n    padding-right: 15px !important; }\n}\n.h-8 { font-size: 8px;\n  line-height: 8px;\n  height: 8px; }\n.inside-padding { padding: 24px; }\n.mw-1 { width: 50%;\n  vertical-align: middle; }\n.fat-text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 18px;\n  line-height: 20px;\n  color: #393a44; }\n@media screen and (max-width: 600px) {\n  .fat-text { font-size: 16px !important;\n    line-height: 18px !important; }\n}\n.first-block { display: inline-block;\n  background: url(\"https://fsms.quadcode.com/storage/public/d5/oe/ha8ggnfnh4cs75vg/rfm-first.png\") center no-repeat;\n  background-color: #f9f9f9;\n  background-size: cover;\n  border-radius: 24px;\n  vertical-align: middle;\n  width: 328px;\n  margin-right: 3px;\n  min-height: 180px;\n  vertical-align: top; }\n@media screen and (max-width: 600px) {\n  .first-block { display: block !important;\n    margin: 0 auto !important;\n    margin-bottom: 8px !important;\n    background-image: url(\"https://fsms.quadcode.com/storage/public/d5/rg/4foggnfnh4cs76gg/11.png\") center no-repeat !important;\n    background-size: cover !important;\n    width: 264px !important; }\n}\n.second-block { display: inline-block;\n  background: url(\"https://fsms.quadcode.com/storage/public/d5/ot/n00ggnfnh4cs7620/5.png\") center no-repeat;\n  background-color: #f9f9f9 !important;\n  background-size: cover;\n  border-radius: 24px;\n  width: 170px;\n  min-height: 180px;\n  vertical-align: top; }\n@media screen and (max-width: 600px) {\n  .second-block { display: block !important;\n    margin: 0 auto !important;\n    float: none !important;\n    width: 264px !important;\n    background: url(\"https://fsms.quadcode.com/storage/public/d5/rg/4ffvhhgea139uj40/66.png\") center no-repeat !important;\n    background-size: cover !important; }\n}\n.third-block { display: inline-block;\n  background: url(\"https://fsms.quadcode.com/storage/public/d5/ot/n07vhhgea139uilg/6.png\") center no-repeat;\n  background-color: #f9f9f9 !important;\n  background-size: cover;\n  border-radius: 24px;\n  width: 250px;\n  margin-right: 3px;\n  min-height: 180px;\n  vertical-align: top; }\n@media screen and (max-width: 600px) {\n  .third-block { display: block !important;\n    margin: 0 auto !important;\n    margin-bottom: 8px !important;\n    width: 264px !important;\n    background: url(\"https://fsms.quadcode.com/storage/public/d5/rg/4f7vhhgea139uj30/22.png\") center no-repeat !important;\n    background-size: cover !important; }\n}\n.fourth-block { display: inline-block;\n  border-radius: 24px;\n  width: 250px;\n  background: url(\"https://fsms.quadcode.com/storage/public/d5/oe/ha8ggnfnh4cs75ug/rfm-second.png\") center no-repeat;\n  background-color: #f9f9f9 !important;\n  background-size: cover;\n  min-height: 180px;\n  vertical-align: top; }\n@media screen and (max-width: 600px) {\n  .fourth-block { display: block !important;\n    margin: 0 auto !important;\n    width: 264px !important;\n    background: url(\"https://fsms.quadcode.com/storage/public/d5/rg/4fvvhhgea139uj4g/44.png\") center no-repeat !important;\n    background-size: cover !important; }\n}\n.fiveth-block { display: inline-block;\n  border-radius: 24px;\n  width: 250px;\n  margin-right: 3px;\n  background: url(\"https://fsms.quadcode.com/storage/public/d7/ab/7iansqgk5ucdfobg/1-1-1-left.png\") center no-repeat;\n  background-color: #f9f9f9 !important;\n  background-size: cover;\n  min-height: 180px;\n  vertical-align: top; }\n@media screen and (max-width: 600px) {\n  .fiveth-block { display: block !important;\n    margin: 0 auto !important;\n    margin-bottom: 8px !important;\n    width: 264px !important;\n    background: url(\"https://fsms.quadcode.com/storage/public/d5/rg/4ffvhhgea139uj3g/33.png\") center no-repeat !important;\n    background-size: cover !important; }\n}\n.sixth-block { display: inline-block;\n  border-radius: 24px;\n  width: 250px;\n  background: url(\"https://fsms.quadcode.com/storage/public/d7/ab/7i9cr7pkt9m67kag/1-1-1-right.png\") center no-repeat;\n  background-color: #f9f9f9 !important;\n  background-size: cover;\n  min-height: 180px;\n  vertical-align: top; }\n@media screen and (max-width: 600px) {\n  .sixth-block { display: block !important;\n    margin: 0 auto !important;\n    width: 264px !important;\n    background: url(\"https://fsms.quadcode.com/storage/public/d7/ac/0a9cr7pkt9m67kdg/5-6-1.png\") center right no-repeat !important;\n    background-size: cover !important; }\n}",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_7",
+      "kind": "richText",
+      "label": "Текст 7",
+      "default": "Текст блока — отредактируйте под кампанию."
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_IQ"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_IQ/mail-rfm-segmentation-2-111"
+  ],
+  "createdAt": "2026-06-29T07:08:36.206Z",
+  "validated": true
+}

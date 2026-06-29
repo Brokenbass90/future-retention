@@ -1,0 +1,42 @@
+{
+  "id": "iq-feature-list-70",
+  "label": "Список преимуществ (нумерованный)",
+  "description": "Импортирован из X_IQ (1 писем). Секция.",
+  "placement": "section",
+  "category": "feature-list",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.brad-full.white-bg\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        a(href=\"{{ href_1 }}\" universal=\"true\" target=\"_blank\")\n                            .gray-block\n                                .asset-logo-2\n                                    p.asset {{ text_1 }}\n                                    p.gray-text BTC\n                                .h-24 &nbsp;\n                                p.text.pt24.bt {{ text_2 }}",
+  "styl": ".brad-full { border-radius: 32px !important; }\n.bt { border-top: 1px solid #d9d9db; }\n.white-bg { background-color: #fff; }\n.text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n.pb44 { padding-bottom: 44px; }\n.pt24 { padding-top: 24px; }\n.pt44 { padding-top: 44px; }\n.h-24 { font-size: 8px;\n  line-height: 24px;\n  height: 24px; }\n.asset { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 18px;\n  line-height: 27px;\n  color: #393a44;\n  color: #393a44; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.gray-text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #a6a6ab; }\n.gray-block { background: #f9f9f9 url(\"https://fsms.quadcode.com/storage/public/d7/b1/3lansqgk5ucdfokg/right-arrow.png\") top 24px right 24px no-repeat;\n  background-size: 24px;\n  padding: 24px;\n  border-radius: 24px; }\n.asset-logo-2 { background: url(\"https://fsms.quadcode.com/storage/public/d7/38/a4pcr7pkt9m67i1g/btc.png\") center left no-repeat;\n  background-size: 56px;\n  padding: 5px 0;\n  padding-left: 76px !important; }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-3-3-5&retrack=mail_IQ-RFM-3-3-5&type=digital-option&asset=1916"
+    }
+  ],
+  "tags": [
+    "feature-list",
+    "section",
+    "X_IQ"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_IQ/mail-rfm-segmentation-2-335"
+  ],
+  "createdAt": "2026-06-29T07:08:36.208Z",
+  "validated": true
+}

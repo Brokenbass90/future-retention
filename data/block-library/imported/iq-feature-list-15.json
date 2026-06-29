@@ -1,0 +1,40 @@
+{
+  "id": "iq-feature-list-15",
+  "label": "Asset-карточка (лого + название)",
+  "description": "Импортирован из X_IQ (12 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "feature-list",
+  "version": 1,
+  "source": "imported",
+  "pug": ".asset-block.mr16\n    p.asset.pd20\n        img.asset-logo(src=\"{{ image_1 }}\")\n        |{{ text_1 }}",
+  "styl": ".asset-block { display: inline-block;\n  border: 1px solid #ececed;\n  border-radius: 24px;\n  width: 222px;\n  margin-bottom: 16px; }\n@media screen and (max-width: 600px) {\n  .asset-block { display: block !important;\n    margin: 0 auto 16px !important; }\n}\n.asset { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 18px;\n  line-height: 27px;\n  color: #393a44; }\n.pd20 { padding: 20px; }\n.mr16 { margin-right: 16px; }\n.asset-logo { display: inline-block;\n  width: 48px !important;\n  float: none;\n  vertical-align: middle;\n  padding-right: 10px; }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/d6/0u/6tvvhhgea139ul20/US500.png"
+    }
+  ],
+  "tags": [
+    "feature-list",
+    "inline",
+    "X_IQ"
+  ],
+  "usageCount": 12,
+  "sourceMails": [
+    "X_IQ/mail-rfm-322",
+    "X_IQ/mail-rfm-324",
+    "X_IQ/mail-rfm-segmentation-2-214",
+    "X_IQ/mail-rfm-segmentation-2-215",
+    "X_IQ/mail-rfm-segmentation-2-222"
+  ],
+  "createdAt": "2026-06-29T07:08:36.206Z",
+  "validated": true
+}
