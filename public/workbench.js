@@ -4195,7 +4195,7 @@ async function loadCatalogBlocks() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
       const items = (json.items || []).filter(it => it.pug);
-      _catalogBlocksCache = items.map(it => {
+      const baseCards = items.map(it => {
         const meta = CATALOG_KIND_META[it.sectionKind] || { icon: '◧', color: '#94a3b8' };
         return {
           id: `base:${it.id}`,
@@ -4210,6 +4210,35 @@ async function loadCatalogBlocks() {
           usageCount: it.usageCount || 0,
         };
       });
+      // Also pull the imported/canonical block library (the 291 X_IQ blocks).
+      let libCards = [];
+      try {
+        const libRes = await fetch('/api/blocks-library');
+        if (libRes.ok) {
+          const libJson = await libRes.json();
+          const KIND_META = { ...CATALOG_KIND_META, header: { icon: '⬓', color: '#f59e0b' }, utility: { icon: '┄', color: '#94a3b8' } };
+          libCards = (libJson.blocks || []).filter(b => b.pug && b.source !== 'base').map(b => {
+            const meta = KIND_META[b.category] || { icon: '◧', color: '#94a3b8' };
+            return {
+              id: b.id,
+              label: b.label || b.id,
+              icon: meta.icon,
+              color: meta.color,
+              source: b.source || 'imported',
+              pug: b.pug,
+              styl: b.styl || '',
+              slots: b.slots || [],
+              placement: b.placement,
+              category: b.category,
+              html: '',
+              description: b.description || '',
+              usageCount: b.usageCount || 0,
+            };
+          });
+        }
+      } catch (e) { console.warn('[blocks] library load failed:', e.message); }
+      // Library blocks first (richer, validated), then legacy base catalog.
+      _catalogBlocksCache = [...libCards, ...baseCards];
       return _catalogBlocksCache;
     } catch (err) {
       console.warn('[blocks] catalog load failed:', err.message);

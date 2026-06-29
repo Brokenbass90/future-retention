@@ -69,6 +69,7 @@ function renderCatalog() {
     const slotCount = (b.slots || []).length;
     const isUser = b.source === "user";
     el.innerHTML = `
+      <div class="cat-item-thumb" style="width:100%;height:140px;overflow:hidden;border-radius:8px;background:#fff;margin-bottom:8px;position:relative;display:flex;align-items:flex-start;justify-content:center;"><span style="color:#9aa3b2;font-size:11px;align-self:center">…</span></div>
       <div class="cat-item-head">
         <span class="cat-item-icon">${PLACEMENT_ICON[b.placement] || "📐"}</span>
         <span>${escapeHtml(b.label || b.id)}</span>
@@ -119,7 +120,43 @@ function renderCatalog() {
       clearIframeDropLine();
     });
     list.appendChild(el);
+    try { _thumbObserver.observe(el); } catch {}
   }
+}
+
+// ─── Lazy block thumbnails (live mini-render via /api/compose-preview) ──────
+const _thumbCache = new Map();
+const _thumbObserver = (typeof IntersectionObserver !== "undefined")
+  ? new IntersectionObserver((entries) => {
+      for (const en of entries) {
+        if (en.isIntersecting) { _thumbObserver.unobserve(en.target); loadBlockThumb(en.target); }
+      }
+    }, { rootMargin: "300px" })
+  : { observe(){}, unobserve(){} };
+
+async function loadBlockThumb(el) {
+  const id = el.dataset.blockId;
+  const holder = el.querySelector(".cat-item-thumb");
+  if (!id || !holder) return;
+  try {
+    let html = _thumbCache.get(id);
+    if (!html) {
+      const r = await fetch("/api/compose-preview", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ blocks: [{ id }] }),
+      });
+      const j = await r.json();
+      if (!j || !j.ok || !j.html) { holder.style.display = "none"; return; }
+      html = j.html; _thumbCache.set(id, html);
+    }
+    holder.innerHTML = "";
+    const f = document.createElement("iframe");
+    f.setAttribute("sandbox", "allow-same-origin");
+    f.setAttribute("scrolling", "no");
+    f.style.cssText = "width:600px;min-height:760px;border:0;transform:scale(.43);transform-origin:top center;pointer-events:none;background:#fff;";
+    holder.appendChild(f);
+    f.srcdoc = html;
+  } catch { holder.style.display = "none"; }
 }
 
 // ─── Canvas ─────────────────────────────────────────────────────────────
