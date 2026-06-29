@@ -106,6 +106,24 @@ export function loadCanonicalBlock(id) {
 
 function _readBlocksFromDir(dir, sourceTag) {
   if (!existsSync(dir)) return [];
+  if (dir === IMPORTED_DIR) {
+    const indexPath = path.join(dir, "index.json");
+    if (existsSync(indexPath)) {
+      try {
+        const index = JSON.parse(readFileSync(indexPath, "utf8"));
+        const ids = Array.isArray(index.blocks) ? index.blocks.map((b) => b && b.id).filter(Boolean) : [];
+        if (ids.length) {
+          return ids.map((id) => {
+            try {
+              const b = JSON.parse(readFileSync(path.join(dir, `${id}.json`), "utf8"));
+              if (b.validated === false) return null;
+              return { ...b, source: b.source || sourceTag };
+            } catch { return null; }
+          }).filter(Boolean);
+        }
+      } catch { /* fall through to directory scan */ }
+    }
+  }
   return readdirSync(dir)
     .filter((f) => f.endsWith(".json") && f !== "index.json" && !f.startsWith("_"))
     .map((f) => {
