@@ -111,6 +111,8 @@ const appAuthEnabled = Boolean(appAuthUser && appAuthPassword);
 const categoryIgnoreList = new Set(["vendor", "docs", "dist", "tools", "node_modules", "_legacy"]);
 const localeDirPattern = /^[A-Za-z]{2}([_-][A-Za-z]{2})?$/;
 const templateSourceExtensions = [".pug", ".jade"];
+const transparentPreviewPixel =
+  "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
 const clientProfiles = [
   {
     id: "standard",
@@ -138,6 +140,26 @@ const clientProfiles = [
     description: "Heuristic профиль для консервативной webmail среды."
   }
 ];
+
+function sanitizeHtmlForIframePreview(html) {
+  let s = String(html || "");
+  // Preview iframes must never execute arbitrary email JS. In production behind
+  // Basic Auth those scripts often request same-origin relative URLs and cause
+  // the browser's native auth prompt to appear over the app.
+  s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi, "");
+  s = s.replace(/<script\b[^>]*\/?>/gi, "");
+  s = s.replace(/<\s*(iframe|object|embed)\b[^>]*>[\s\S]*?<\/\s*\1\s*>/gi, "");
+  s = s.replace(/<\s*(iframe|object|embed)\b[^>]*\/?>/gi, "");
+  s = s.replace(/<base\b[^>]*>/gi, "");
+  s = s.replace(/<link\b(?=[^>]*\bhref\s*=\s*(['"])\s*(?:\/(?!\/)|\.{0,2}\/|[^"'#:]+(?:\.css|\/)))[^>]*>/gi, "");
+  s = s.replace(/\s+on[a-z][\w:-]*\s*=\s*"[^"]*"/gi, "");
+  s = s.replace(/\s+on[a-z][\w:-]*\s*=\s*'[^']*'/gi, "");
+  s = s.replace(/\s+on[a-z][\w:-]*\s*=\s*[^\s>]+/gi, "");
+  s = s.replace(/\s(src|poster)\s*=\s*(['"])\s*(\/(?!\/)|\.{0,2}\/|[^"'#:]+(?:\/|$))[^'"]*\2/gi, (_m, attr, q) => ` ${attr}=${q}${transparentPreviewPixel}${q}`);
+  s = s.replace(/\ssrcset\s*=\s*(['"])[^'"]*(?:\/(?!\/)|\.{0,2}\/)[^'"]*\1/gi, "");
+  s = s.replace(/\sbackground\s*=\s*(['"])\s*(\/(?!\/)|\.{0,2}\/|[^"'#:]+(?:\/|$))[^'"]*\1/gi, "");
+  return s;
+}
 
 const templateSelectionStopwords = new Set([
   "a", "an", "and", "are", "as", "at", "be", "by", "for", "from", "in", "is", "it", "of", "on", "or", "that", "the", "this", "to", "with",
@@ -16952,10 +16974,12 @@ const server = http.createServer(async (request, response) => {
           sendJson(response, 500, { error: "build succeeded but dist HTML missing" });
           return;
         }
-        const html = await readFile(distHtml, "utf8");
+        const rawHtml = await readFile(distHtml, "utf8");
+        const html = sanitizeHtmlForIframePreview(rawHtml);
         sendJson(response, 200, {
           ok: true, mailName, brand,
           html, htmlLength: html.length,
+          rawHtmlLength: rawHtml.length,
           blocksUsed: composed.blocksUsed, totalBlocks: composed.totalBlocks,
           warnings: composed.warnings,
         });

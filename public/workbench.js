@@ -3288,6 +3288,54 @@ function stripPreviewArtifacts(html) {
   return s;
 }
 
+const TRANSPARENT_PREVIEW_PIXEL = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+
+function isUnsafePreviewUrl(url) {
+  const v = String(url || '').trim();
+  if (!v || v[0] === '#') return false;
+  if (/^(?:data:|blob:|cid:|mailto:|tel:)/i.test(v)) return false;
+  if (/^https?:\/\//i.test(v)) {
+    try {
+      return new URL(v).origin === window.location.origin;
+    } catch {
+      return true;
+    }
+  }
+  if (v.startsWith('//')) return false;
+  return true;
+}
+
+function sanitizeHtmlForPassivePreview(html) {
+  let s = String(html || '');
+  // The browser Basic Auth dialog is native and can be triggered by email HTML
+  // running/loading same-origin relative resources inside the preview iframe.
+  // Keep the visual email body, but remove executable/embed runtime and neutralize
+  // relative resources. RetKit inspector scripts are added later by getRenderedHtml().
+  s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi, '');
+  s = s.replace(/<script\b[^>]*\/?>/gi, '');
+  s = s.replace(/<\s*(iframe|object|embed)\b[^>]*>[\s\S]*?<\/\s*\1\s*>/gi, '');
+  s = s.replace(/<\s*(iframe|object|embed)\b[^>]*\/?>/gi, '');
+  s = s.replace(/<base\b[^>]*>/gi, '');
+  s = s.replace(/<link\b(?=[^>]*\bhref\s*=\s*(['"])(.*?)\1)[^>]*>/gi, (tag, _q, href) => {
+    return isUnsafePreviewUrl(href) ? '' : tag;
+  });
+  s = s.replace(/\s+on[a-z][\w:-]*\s*=\s*"[^"]*"/gi, '');
+  s = s.replace(/\s+on[a-z][\w:-]*\s*=\s*'[^']*'/gi, '');
+  s = s.replace(/\s+on[a-z][\w:-]*\s*=\s*[^\s>]+/gi, '');
+  s = s.replace(/\s(src|poster|background)\s*=\s*(['"])(.*?)\2/gi, (m, attr, q, url) => {
+    return isUnsafePreviewUrl(url) ? ` ${attr}=${q}${TRANSPARENT_PREVIEW_PIXEL}${q}` : m;
+  });
+  s = s.replace(/\ssrcset\s*=\s*(['"])(.*?)\1/gi, (m, q, value) => {
+    const parts = String(value || '').split(',').map(x => x.trim()).filter(Boolean);
+    const safe = parts.filter((part) => {
+      const url = part.split(/\s+/)[0];
+      return !isUnsafePreviewUrl(url);
+    });
+    return safe.length ? ` srcset=${q}${safe.join(', ')}${q}` : '';
+  });
+  return s;
+}
+
 function getRenderedHtml(forExport = false) {
   if (!cm) return '';
   let rawHtml;
@@ -3300,7 +3348,7 @@ function getRenderedHtml(forExport = false) {
   }
   if (!rawHtml) return '';
 
-  let html = rawHtml;
+  let html = forExport ? rawHtml : sanitizeHtmlForPassivePreview(rawHtml);
   const isLocale = state.activeLocale !== 'original';
 
   if (isLocale) {
@@ -6107,12 +6155,13 @@ async function loadEbCardPreview(card) {
     if (!data.ok || !data.html) throw new Error('no html');
 
     const iframe = document.createElement('iframe');
-    // allow-same-origin needed for rendering; allow-scripts for email JS animations
-    iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts');
+    // Passive thumbnail only: never execute email runtime here. Raw email scripts
+    // can request same-origin protected URLs and trigger the browser Basic Auth prompt.
+    iframe.setAttribute('sandbox', '');
     previewEl.innerHTML = '';
     previewEl.appendChild(iframe);
     // srcdoc is safer and works without a server round-trip for rendering
-    iframe.srcdoc = data.html;
+    iframe.srcdoc = sanitizeHtmlForPassivePreview(data.html);
   } catch {
     previewEl.innerHTML = '<div class="eb-card-placeholder"><span>Нет превью</span></div>';
   }

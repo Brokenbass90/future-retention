@@ -29,6 +29,46 @@ const state = {
 };
 
 const $ = (id) => document.getElementById(id);
+const TRANSPARENT_PREVIEW_PIXEL = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+
+function isUnsafePreviewUrl(url) {
+  const v = String(url || "").trim();
+  if (!v || v[0] === "#") return false;
+  if (/^(?:data:|blob:|cid:|mailto:|tel:)/i.test(v)) return false;
+  if (/^https?:\/\//i.test(v)) {
+    try {
+      return new URL(v).origin === window.location.origin;
+    } catch {
+      return true;
+    }
+  }
+  if (v.startsWith("//")) return false;
+  return true;
+}
+
+function sanitizeIframePreviewHtml(html) {
+  let s = String(html || "");
+  s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi, "");
+  s = s.replace(/<script\b[^>]*\/?>/gi, "");
+  s = s.replace(/<\s*(iframe|object|embed)\b[^>]*>[\s\S]*?<\/\s*\1\s*>/gi, "");
+  s = s.replace(/<\s*(iframe|object|embed)\b[^>]*\/?>/gi, "");
+  s = s.replace(/<base\b[^>]*>/gi, "");
+  s = s.replace(/<link\b(?=[^>]*\bhref\s*=\s*(['"])(.*?)\1)[^>]*>/gi, (tag, _q, href) => (
+    isUnsafePreviewUrl(href) ? "" : tag
+  ));
+  s = s.replace(/\s+on[a-z][\w:-]*\s*=\s*"[^"]*"/gi, "");
+  s = s.replace(/\s+on[a-z][\w:-]*\s*=\s*'[^']*'/gi, "");
+  s = s.replace(/\s+on[a-z][\w:-]*\s*=\s*[^\s>]+/gi, "");
+  s = s.replace(/\s(src|poster|background)\s*=\s*(['"])(.*?)\2/gi, (m, attr, q, url) => (
+    isUnsafePreviewUrl(url) ? ` ${attr}=${q}${TRANSPARENT_PREVIEW_PIXEL}${q}` : m
+  ));
+  s = s.replace(/\ssrcset\s*=\s*(['"])(.*?)\1/gi, (m, q, value) => {
+    const parts = String(value || "").split(",").map((x) => x.trim()).filter(Boolean);
+    const safe = parts.filter((part) => !isUnsafePreviewUrl(part.split(/\s+/)[0]));
+    return safe.length ? ` srcset=${q}${safe.join(", ")}${q}` : "";
+  });
+  return s;
+}
 
 const PLACEMENT_ICON = {
   section: "📦",
@@ -151,11 +191,11 @@ async function loadBlockThumb(el) {
     }
     holder.innerHTML = "";
     const f = document.createElement("iframe");
-    f.setAttribute("sandbox", "allow-same-origin");
+    f.setAttribute("sandbox", "");
     f.setAttribute("scrolling", "no");
     f.style.cssText = "width:600px;min-height:760px;border:0;transform:scale(.43);transform-origin:top center;pointer-events:none;background:#fff;";
     holder.appendChild(f);
-    f.srcdoc = html;
+    f.srcdoc = sanitizeIframePreviewHtml(html);
   } catch { holder.style.display = "none"; }
 }
 
@@ -579,7 +619,7 @@ async function runLivePreview() {
       setLiveStatus("ошибка сборки", "err");
       return;
     }
-    _lastLiveHtml = data.html;
+    _lastLiveHtml = sanitizeIframePreviewHtml(data.html);
     stage?.classList.add("has-content");
     const frame = $("liveFrame");
     frame.onload = () => {
@@ -588,7 +628,7 @@ async function runLivePreview() {
       wireIframeInteractions();
       applyIframeSelection();
     };
-    frame.srcdoc = data.html;
+    frame.srcdoc = _lastLiveHtml;
     const warn = (data.warnings && data.warnings.length) ? ` · ⚠${data.warnings.length}` : "";
     setLiveStatus(`${data.blocksUsed}/${data.totalBlocks} блоков · ${(data.htmlLength/1024).toFixed(1)}KB${warn}`, "ok");
   } catch (err) {
@@ -862,7 +902,7 @@ async function preview() {
       $("previewStats").textContent = "Ошибка";
       return;
     }
-    $("previewFrame").srcdoc = data.html;
+    $("previewFrame").srcdoc = sanitizeIframePreviewHtml(data.html);
     $("previewStats").textContent = `${data.blocksUsed}/${data.totalBlocks} blocks · ${data.htmlLength} bytes`;
   } catch (err) {
     $("previewFrame").srcdoc = `<pre style="padding:20px;color:red">${escapeHtml(err.message)}</pre>`;
@@ -1105,7 +1145,7 @@ async function runAuthorPreview() {
       $("abStatus").className = "preview-pane-status err";
       return;
     }
-    $("abFrame").srcdoc = data.html;
+    $("abFrame").srcdoc = sanitizeIframePreviewHtml(data.html);
     $("abStatus").textContent = `OK · ${(data.htmlLength / 1024).toFixed(1)}KB`;
     $("abStatus").className = "preview-pane-status ok";
   } catch (err) {
