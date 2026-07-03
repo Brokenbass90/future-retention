@@ -105,6 +105,7 @@ async function main() {
   ];
   if (argv.noLivereload) serveArgs.push('--no-livereload');
   const server = spawn(process.execPath, serveArgs, { stdio: 'inherit', cwd: projectRoot });
+  let stopping = false;
 
   const locales = await listLocalesFromVendor();
   const firstLocale = locales[0] || 'en';
@@ -162,11 +163,33 @@ async function main() {
 
   watcher.on('all', () => rebuild());
 
-  process.on('SIGINT', () => {
-    watcher.close();
-    server.kill('SIGINT');
-    process.exit(0);
-  });
+  async function shutdown(signal) {
+    if (stopping) return;
+    stopping = true;
+    console.log(`\n[dev] ${signal} received — stopping watcher and preview server...`);
+    try { await watcher.close(); } catch {}
+    if (server.exitCode != null || server.signalCode != null) {
+      process.exit(0);
+      return;
+    }
+    if (!server.killed) {
+      try { server.kill(signal === 'SIGTERM' ? 'SIGTERM' : 'SIGINT'); } catch {}
+    }
+    const forceTimer = setTimeout(() => {
+      if (!server.killed) {
+        try { server.kill('SIGKILL'); } catch {}
+      }
+    }, 4_000);
+    forceTimer.unref();
+    server.once('exit', () => {
+      clearTimeout(forceTimer);
+      process.exit(0);
+    });
+  }
+
+  process.on('SIGINT', () => { shutdown('SIGINT'); });
+  process.on('SIGTERM', () => { shutdown('SIGTERM'); });
+  process.on('SIGHUP', () => { shutdown('SIGHUP'); });
 }
 
 main().catch((e) => die(e.stack || String(e)));

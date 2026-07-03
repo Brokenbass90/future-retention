@@ -25,6 +25,8 @@ const HOST = argv.host;
 const PORT = Number(argv.port || 3001);
 
 const clients = new Set(); // SSE connections
+const sockets = new Set();
+let shuttingDown = false;
 
 function contentType(p) {
   const ext = path.extname(p).toLowerCase();
@@ -146,6 +148,48 @@ const server = http.createServer(async (req, res) => {
     res.end(buf);
   }
 });
+
+server.on('connection', (socket) => {
+  sockets.add(socket);
+  socket.on('close', () => sockets.delete(socket));
+});
+
+function shutdown(signal) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  console.log(`\n[serve] ${signal} received — stopping ${HOST}:${PORT}...`);
+
+  for (const res of clients) {
+    try { res.end(); } catch {}
+  }
+  clients.clear();
+
+  server.close((err) => {
+    if (err) {
+      console.error('[serve] close failed:', err.message || err);
+      process.exit(1);
+      return;
+    }
+    console.log('[serve] stopped.');
+    process.exit(0);
+  });
+
+  // Keep shutdown bounded even when a browser keeps an SSE/socket open.
+  setTimeout(() => {
+    for (const socket of sockets) {
+      try { socket.destroy(); } catch {}
+    }
+  }, 750).unref();
+
+  setTimeout(() => {
+    console.error('[serve] forced shutdown timeout.');
+    process.exit(1);
+  }, 4_000).unref();
+}
+
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGHUP', () => shutdown('SIGHUP'));
 
 server.listen(PORT, HOST, () => {
   console.log(`[serve] dist: ${DIST_ROOT}`);

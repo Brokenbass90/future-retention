@@ -13,6 +13,8 @@
     "smoke": "node scripts/studio-smoke.mjs",
     "import:legacy-toolkit": "node scripts/import-legacy-toolkit.mjs",
     "watch:mail": "node email-base/tools/watch-mail.js",
+    "stop:3001": "node scripts/stop-port.mjs 3001",
+    "stop:mail": "node scripts/stop-port.mjs 3001",
     "build:mail": "node email-base/tools/build-mail.js",
     "enrich:catalog": "node scripts/enrich-block-catalog.mjs",
     "test": "node scripts/test-locale-align-tool.mjs && node scripts/test-locale-cross-check.mjs && node scripts/test-html-blocks.mjs && node scripts/test-agent-loop.mjs && node scripts/test-locale-crud-tools.mjs && node scripts/test-html-validate.mjs && node scripts/test-email-segment.mjs",
