@@ -6,8 +6,8 @@
   "category": "text",
   "version": 1,
   "source": "imported",
-  "pug": "p.middle-title.pb24.pr30-a {{ text_1 }}",
-  "styl": ".middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 28px !important;\n    line-height: 34px !important; }\n}\n.pb24 { padding-bottom: 24px; }\n.pr30-a { padding-right: 30px; }\n@media screen and (max-width: 600px) {\n  .pr30-a { padding-right: 0 !important; }\n}",
+  "pug": "p.middle-title.pb24.pr30-a.b-iq-text-45 {{ text_1 }}",
+  "styl": ".middle-title.b-iq-text-45 {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle;  }\n@media screen and (max-width: 600px) {\n  .middle-title.b-iq-text-45 {  font-size: 28px !important;\n    line-height: 34px !important;  }\n}\n.pb24.b-iq-text-45 {  padding-bottom: 24px;  }\n.pr30-a.b-iq-text-45 {  padding-right: 30px;  }\n@media screen and (max-width: 600px) {\n  .pr30-a.b-iq-text-45 {  padding-right: 0 !important;  }\n}\n.middle-title.b-iq-text-45 {  font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#393a44;vertical-align:middle  }\n@media screen and (max-width:600px) {\n  .middle-title.b-iq-text-45 {  font-size:28px!important;line-height:34px!important  }\n}\n.pb24.b-iq-text-45 {  padding-bottom:24px  }\n.pr30-a.b-iq-text-45 {  padding-right:30px  }\n@media screen and (max-width:600px) {\n  .pr30-a.b-iq-text-45 {  padding-right:0!important  }\n}",
   "slots": [
     {
       "id": "text_1",
@@ -25,6 +25,6 @@
   "sourceMails": [
     "X_IQ/mail-rfm-segmentation-2-125"
   ],
-  "createdAt": "2026-06-29T07:08:36.207Z",
+  "createdAt": "2026-07-06T07:31:35.014Z",
   "validated": true
 }

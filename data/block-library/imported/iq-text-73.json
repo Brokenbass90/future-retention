@@ -6,8 +6,8 @@
   "category": "text",
   "version": 1,
   "source": "imported",
-  "pug": "p.small-title\n    b {{ text_1 }}",
-  "styl": ".small-title { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  color: #393a44; }",
+  "pug": "p.small-title.b-iq-text-73\n    b {{ text_1 }}",
+  "styl": ".small-title.b-iq-text-73 {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  color: #393a44;  }\n.b-iq-text-73 .middle-title, .small-title.b-iq-text-73 {  font-family:Helvetica!important;font-weight:700;color:#393a44  }\n.small-title.b-iq-text-73 {  font-style:normal;font-size:24px;line-height:31px  }",
   "slots": [
     {
       "id": "text_1",
@@ -26,6 +26,6 @@
     "X_IQ/mail-rfm-segmentation-2-223",
     "X_IQ/mail-rfm-segmentation-2-225"
   ],
-  "createdAt": "2026-06-29T07:08:36.207Z",
+  "createdAt": "2026-07-06T07:31:35.024Z",
   "validated": true
 }

@@ -6,8 +6,8 @@
   "category": "text",
   "version": 1,
   "source": "imported",
-  "pug": "table.row.brad-full.white-bg\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.middle-title.pb16 {{ text_1 }}\n                        p.text {{ text_2 }}",
-  "styl": ".brad-full { border-radius: 32px !important; }\n.white-bg { background-color: #fff; }\n.middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 24px !important;\n    line-height: 32px !important; }\n}\n.text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n.pb16 { padding-bottom: 16px; }\n.pb44 { padding-bottom: 44px; }\n.pt44 { padding-top: 44px; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}",
+  "pug": "table.row.brad-full.white-bg.b-iq-text-18\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.middle-title.pb16 {{ text_1 }}\n                        p.text {{ text_2 }}",
+  "styl": ".brad-full.b-iq-text-18 {  border-radius: 32px !important;  }\n.white-bg.b-iq-text-18 {  background-color: #fff;  }\n.b-iq-text-18 .middle-title {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle;  }\n@media screen and (max-width: 600px) {\n  .b-iq-text-18 .middle-title {  font-size: 24px !important;\n    line-height: 32px !important;  }\n}\n.b-iq-text-18 .text {  font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400;  }\n.b-iq-text-18 .text.bold {  font-weight: 700;  }\n.b-iq-text-18 .pb16 {  padding-bottom: 16px;  }\n.b-iq-text-18 .pb44 {  padding-bottom: 44px;  }\n.b-iq-text-18 .pt44 {  padding-top: 44px;  }\n@media screen and (max-width: 600px) {\n  .b-iq-text-18 .text.mob-text, .b-iq-text-18 .grey-text.mob-text {  font-size: 17px !important;  }\n}\n.brad-full.b-iq-text-18, .b-iq-text-18 .brad-full-32 {  border-radius:32px!important  }\n.white-bg.b-iq-text-18 {  background-color:#fff  }\n.b-iq-text-18 .middle-title {  font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#393a44;vertical-align:middle  }\n@media screen and (max-width:600px) {\n  .b-iq-text-18 .middle-title {  font-size:24px!important;line-height:32px!important  }\n}\n.b-iq-text-18 .number-block, .b-iq-text-18 .text {  font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400  }\n.b-iq-text-18 .big, .b-iq-text-18 .text.bold {  font-weight:700  }\n.b-iq-text-18 .pb16 {  padding-bottom:16px  }\n.b-iq-text-18 .pb44 {  padding-bottom:44px  }\n.b-iq-text-18 .pt44 {  padding-top:44px  }\n@media screen and (max-width:600px) {\n  .b-iq-text-18 .grey-text.mob-text, .b-iq-text-18 .text.mob-text {  font-size:17px!important  }\n}",
   "slots": [
     {
       "id": "text_1",
@@ -32,6 +32,6 @@
     "X_IQ/mail-rfm-323",
     "X_IQ/mail-rfm-segmentation-2-112"
   ],
-  "createdAt": "2026-06-29T07:08:36.206Z",
+  "createdAt": "2026-07-06T07:31:35.009Z",
   "validated": true
 }

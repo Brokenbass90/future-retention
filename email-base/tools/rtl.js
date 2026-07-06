@@ -282,11 +282,70 @@ function forceAlignRightAttr(attrs) {
     .replace(/\balign\s*=\s*([^\s"'>]+)/i, 'align="right"');
 }
 
+/**
+ * A button shell is "centered by design" when:
+ *   - it carries align="center" itself, or
+ *   - its inline style centers it (margin: … auto / margin-left+right auto), or
+ *   - it sits inside a <center> element or a td/th with align="center"
+ *     (or inline text-align: center) and has no own align attribute.
+ * Centered buttons must STAY centered in RTL — mirroring only moves
+ * left-anchored buttons to the right. (User directive: ur/ar rebuild
+ * must not shove centered CTAs to the side.)
+ */
+function isSelfCentered(attrs) {
+  const align = readAttr(attrs, 'align').toLowerCase();
+  if (align === 'center' || align === 'middle') return true;
+  const styleM = String(attrs || '').match(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i);
+  if (styleM) {
+    const css = styleM[2];
+    if (/\bmargin\s*:\s*[^;]*\bauto\b/i.test(css)) return true;
+    if (/\bmargin-left\s*:\s*auto\b/i.test(css) && /\bmargin-right\s*:\s*auto\b/i.test(css)) return true;
+  }
+  return false;
+}
+
+function findCenteredContextStarts(html) {
+  // Token walk: mark every <table> open offset whose ancestor chain
+  // contains <center> or td/th centered via align/text-align.
+  const centered = new Set();
+  const stack = []; // true when the frame centers its children
+  const tagRe = /<(\/?)(table|td|th|center|div)\b([^>]*)>/gi;
+  let m;
+  while ((m = tagRe.exec(html)) !== null) {
+    const closing = m[1] === '/';
+    const tag = m[2].toLowerCase();
+    const attrs = m[3] || '';
+    if (closing) { stack.pop(); continue; }
+    // self-closing guard (rare for these tags)
+    if (/\/\s*$/.test(attrs)) continue;
+    let centersChildren = false;
+    if (tag === 'center') centersChildren = true;
+    else if (tag === 'td' || tag === 'th' || tag === 'div') {
+      const align = readAttr(attrs, 'align').toLowerCase();
+      if (align === 'center' || align === 'middle') centersChildren = true;
+      else {
+        const styleM = attrs.match(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i);
+        if (styleM && /\btext-align\s*:\s*center\b/i.test(styleM[2])) centersChildren = true;
+      }
+    }
+    if (tag === 'table' && (centersChildren || stack.some(Boolean))) {
+      // note: a table whose *ancestor* centers content
+      if (stack.some(Boolean)) centered.add(m.index);
+    }
+    stack.push(centersChildren);
+  }
+  return centered;
+}
+
 function alignButtonShellsRight(html) {
   const marked = findButtonShellTableStarts(html);
+  const centeredCtx = findCenteredContextStarts(html);
   return html.replace(/<table\b([^>]*)>/gi, (m, attrs, offset) => {
     const isShell = isButtonClassToken(attrs) || marked.has(offset);
     if (!isShell) return m;
+    // Centered by design → leave exactly as-is.
+    if (isSelfCentered(attrs)) return m;
+    if (!/\balign\s*=/i.test(attrs) && centeredCtx.has(offset)) return m;
     return `<table${forceAlignRightAttr(attrs)}>`;
   });
 }

@@ -1,13 +1,13 @@
 {
   "id": "iq-utility-15",
   "label": "Gmail blend wrapper",
-  "description": "Импортирован из X_IQ (2 писем). Inline-элемент.",
+  "description": "Импортирован из X_IQ (1 писем). Inline-элемент.",
   "placement": "inline",
   "category": "utility",
   "version": 1,
   "source": "imported",
-  "pug": "div.gmail-blend-screen\n    div.gmail-blend-diff\n        p.white-title.pb16 {{ text_1 }}\n        p.white-text  {{ text_2 }}\n        .h-30 &nbsp;\n        table.w280(align=\"left\")\n            tr\n                td.butt.pb0\n                    a.butt-link(href=\"{{ href_1 }}\" universal=\"true\" target=\"_blank\") {{ text_3 }}",
-  "styl": "u + .body .gmail-blend-screen { background: #000;\n  mix-blend-mode: screen; }\nu + .body .gmail-blend-diff { background: #000;\n  mix-blend-mode: difference; }\n.w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { max-width: 100% !important; }\n}\n.butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.white-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 48px;\n  line-height: 58px;\n  color: #f9f9f9;\n  word-break: break-word; }\n@media screen and (max-width: 600px) {\n  .white-title { font-size: 26px !important;\n    line-height: 32px !important; }\n}\n.white-text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #fff; }\n@media screen and (max-width: 600px) {\n  .white-text { padding-right: 0 !important; }\n}\n.pb16 { padding-bottom: 16px; }\n.h-30 { font-size: 8px;\n  line-height: 30px;\n  height: 30px; }",
+  "pug": "div.gmail-blend-screen.b-iq-utility-15\n    div.gmail-blend-diff\n        p.white-title.pb16 {{ text_1 }}\n        p.white-text.pb8  {{ text_2 }}\n        p.white-text.pb8\n            b {{ text_3 }}\n        p.white-text  {{ text_4 }}",
+  "styl": "u + .body .gmail-blend-screen.b-iq-utility-15 {  background: #000;\n  mix-blend-mode: screen;  }\n.b-iq-utility-15 u + .body .gmail-blend-diff {  background: #000;\n  mix-blend-mode: difference;  }\n.b-iq-utility-15 .white-title {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 42px;\n  line-height: 52px;\n  color: #f9f9f9;\n  word-break: break-word;  }\n@media screen and (max-width: 600px) {\n  .b-iq-utility-15 .white-title {  font-size: 26px !important;\n    line-height: 32px !important;  }\n}\n.b-iq-utility-15 .white-text {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #fff;  }\n.b-iq-utility-15 .pb8 {  padding-bottom: 8px;  }\n.b-iq-utility-15 .pb16 {  padding-bottom: 16px;  }\nu+.body .gmail-blend-screen.b-iq-utility-15 {  background:#000;mix-blend-mode:screen  }\n.b-iq-utility-15 u+.body .gmail-blend-diff {  background:#000;mix-blend-mode:difference  }\n.b-iq-utility-15 .white-title {  font-family:Helvetica!important;font-weight:700;font-size:42px;line-height:52px;color:#f9f9f9;word-break:break-word  }\n@media screen and (max-width:600px) {\n  .b-iq-utility-15 .white-title {  font-size:26px!important;line-height:32px!important  }\n}\n.b-iq-utility-15 .title, .b-iq-utility-15 .white-text {  font-family:Helvetica!important  }\n.b-iq-utility-15 .white-text {  font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#fff  }\n.b-iq-utility-15 .pb8 {  padding-bottom:8px  }\n.b-iq-utility-15 .pb16 {  padding-bottom:16px  }",
   "slots": [
     {
       "id": "text_1",
@@ -28,10 +28,10 @@
       "default": "Текст блока — отредактируйте под кампанию."
     },
     {
-      "id": "href_1",
-      "kind": "url",
-      "label": "Ссылка 1",
-      "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-1-1-1&retrack=mail_IQ-RFM-1-1-1"
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
     }
   ],
   "tags": [
@@ -39,11 +39,10 @@
     "inline",
     "X_IQ"
   ],
-  "usageCount": 2,
+  "usageCount": 1,
   "sourceMails": [
-    "X_IQ/mail-rfm-segmentation-2-111",
-    "X_IQ/mail-rfm-segmentation-2-124"
+    "X_IQ/mail-rfm-segmentation-2-213"
   ],
-  "createdAt": "2026-06-29T07:08:36.206Z",
+  "createdAt": "2026-07-06T07:31:35.019Z",
   "validated": true
 }

@@ -137,3 +137,54 @@ Snippet: ...
 3. [DEVELOPMENT-JOURNAL.md](/Users/nikolay.bulgakov/Documents/retantion-future/docs/DEVELOPMENT-JOURNAL.md)
 4. [server.js](/Users/nikolay.bulgakov/Documents/retantion-future/server.js)
 5. [public/app.js](/Users/nikolay.bulgakov/Documents/retantion-future/public/app.js)
+
+---
+
+## Сессия 2026-07-06 — RTL-кнопки, пересборка библиотеки блоков, scoping, AI-доступ
+
+### 1. RTL (ur/ar): центрированные кнопки остаются по центру
+- `email-base/tools/rtl.js` → `alignButtonShellsRight()` больше НЕ перезаписывает
+  `align="center"` на `align="right"`. Кнопка считается «центрированной по дизайну»,
+  если: свой `align="center"`, или `margin: … auto` в inline-style, или сидит внутри
+  `<center>` / td с `align="center"` / `text-align: center` (новые
+  `isSelfCentered()` + `findCenteredContextStarts()`). Лево-прибитые кнопки
+  по-прежнему зеркалятся вправо.
+- Тот же фикс в fallback-трансформере `src/rtl.js`.
+
+### 2. Слайсер базы (slice-mail-to-blocks.mjs) — стили и мобильная адаптация
+- **Главный баг прошлой сессии**: framework-классы определялись по common.styl
+  ИСХОДНОГО письма, а CSS брался только из blocks/dist/main.css. Итог: @media
+  правила из common.css письма (.grey-block, .plr32, .banner…) выбрасывались,
+  а в скелете compose их нет → мобильная адаптация терялась.
+- Теперь: baseline = классы, ГАРАНТИРОВАННЫЕ скелетом (vendor + X_IQBroker/mail-welcome
+  common/helpers); CSS тянется из blocks/dist/main.css + assets/styles/common.css
+  письма; всё, чего нет в скелете, блок несёт с собой (base + @media). Дубли правил
+  дедуплицируются. classesInPug ловит и `class="…"`-атрибуты.
+
+### 3. Промоут (promote-sliced-blocks.mjs) — scoping и унификация
+- **CSS scoping**: каждый imported-блок получает маркер-класс `b-<id>` на корневом
+  pug-элементе, все селекторы styl (включая @media) скоупятся к маркеру →
+  блоки из разных писем с одинаковыми классами (.banner и т.п.) больше не конфликтуют.
+- **Параметрический спейсер**: все `.h-NN &nbsp;` схлопнуты в один блок `iq-spacer`
+  со слотом height. Нормализация skeleton-ключа: `.h-\d+`→`.h-N`, `alt="…"`→`alt="A"`.
+- Валидация подставляет слоты и в styl (не только pug).
+- `scripts/validate-imported-chunk.mjs` (НОВЫЙ) — чанковая валидация через реальный
+  build, re-runnable (пропускает блоки с полем `validated`).
+- Итог: 1348 кандидатов → 284 уникальных → **281 валидных** (265 с mobile @media,
+  149 section / 132 inline). Провалены 3: iq-cta-37 (текст в плохой позиции),
+  iq-hero-23 (нецитированный кириллический url() в css), iq-cta-51 (смешанные
+  отступы) — исключены из index.json, лежат с validated:false.
+- E2E проверено: compose (canonical + imported + spacer) → build en+ur →
+  scoped-селекторы и @media в финальном head, кнопка по центру на ur.
+
+### 4. AI-агент — полная видимость и управление блоками (src/ai-tools.js)
+- `list_canonical_blocks` теперь отдаёт source/tags/usageCount/hasMobileStyles/stylBytes.
+- НОВЫЕ тулы: `get_block_source` (полный pug/styl/slots любого блока),
+  `save_user_block` (создать/обновить user-блок, canonical/imported защищены от
+  перезаписи), `delete_user_block`.
+
+### Известные хвосты
+- 3 невалидных блока (см. выше) — чинить в слайсере: квотирование url() и
+  нормализация отступов в reconstructPug.
+- Категории кроме X_IQ ещё не нарезаны новым слайсером (запуск:
+  `node scripts/slice-mail-to-blocks.mjs --category <cat> --all` → promote → chunk-validate).

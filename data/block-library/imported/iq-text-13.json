@@ -6,8 +6,8 @@
   "category": "text",
   "version": 1,
   "source": "imported",
-  "pug": "p.middle-title.pb16.pt16 {{ text_1 }}",
-  "styl": ".middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 24px !important;\n    line-height: 32px !important; }\n}\n.pb16 { padding-bottom: 16px; }\n.pt16 { padding-top: 16px; }",
+  "pug": "p.middle-title.pb16.pt16.b-iq-text-13 {{ text_1 }}",
+  "styl": ".middle-title.b-iq-text-13 {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle;  }\n@media screen and (max-width: 600px) {\n  .middle-title.b-iq-text-13 {  font-size: 24px !important;\n    line-height: 32px !important;  }\n}\n.pb16.b-iq-text-13 {  padding-bottom: 16px;  }\n.pt16.b-iq-text-13 {  padding-top: 16px;  }\n.middle-title.b-iq-text-13 {  font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#393a44;vertical-align:middle  }\n@media screen and (max-width:600px) {\n  .middle-title.b-iq-text-13 {  font-size:24px!important;line-height:32px!important  }\n}\n.pb16.b-iq-text-13 {  padding-bottom:16px  }\n.pt16.b-iq-text-13 {  padding-top:16px  }",
   "slots": [
     {
       "id": "text_1",
@@ -27,6 +27,6 @@
     "X_IQ/mail-rfm-segmentation-2-124",
     "X_IQ/mail-rfm-segmentation-2-235"
   ],
-  "createdAt": "2026-06-29T07:08:36.206Z",
+  "createdAt": "2026-07-06T07:31:35.007Z",
   "validated": true
 }

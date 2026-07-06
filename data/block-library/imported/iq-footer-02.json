@@ -6,8 +6,8 @@
   "category": "footer",
   "version": 1,
   "source": "imported",
-  "pug": ".stor.center\n    a(href=\"{{ href_1 }}\" target=\"_blank\")\n        img.a-app(src=\"{{ image_1 }}\")\n    a(href=\"{{ href_2 }}\" target=\"_blank\")\n        img.a-google(src=\"{{ image_2 }}\")",
-  "styl": ".stor { width: 100% !important;\n  max-width: 450px;\n  margin: 0 auto; }\n@media screen and (max-width: 600px) {\n  .stor { width: 100% !important; }\n}\n.a-app { display: inline-block;\n  padding-right: 30px;\n  max-width: 120px;\n  height: 40px !important;\n  float: none; }\n@media screen and (max-width: 600px) {\n  .a-app { display: block !important;\n    padding-right: 0 !important;\n    float: none !important;\n    margin-bottom: 15px;\n    margin: 0 auto !important;\n    padding-bottom: 15px !important; }\n}\n.a-google { display: inline-block;\n  max-width: 135px;\n  height: 40px !important;\n  float: none; }\n@media screen and (max-width: 600px) {\n  .a-google { display: block !important;\n    float: none !important;\n    margin: 0 auto !important; }\n}",
+  "pug": ".stor.center.b-iq-footer-02\n    a(href=\"{{ href_1 }}\" target=\"_blank\")\n        img.a-app(src=\"{{ image_1 }}\")\n    a(href=\"{{ href_2 }}\" target=\"_blank\")\n        img.a-google(src=\"{{ image_2 }}\")",
+  "styl": ".stor.b-iq-footer-02 {  width: 100% !important;\n  max-width: 450px;\n  margin: 0 auto;  }\n@media screen and (max-width: 600px) {\n  .stor.b-iq-footer-02 {  width: 100% !important;  }\n}\n.b-iq-footer-02 .a-app {  display: inline-block;\n  padding-right: 30px;\n  max-width: 120px;\n  height: 40px !important;\n  float: none;  }\n@media screen and (max-width: 600px) {\n  .b-iq-footer-02 .a-app {  display: block !important;\n    padding-right: 0 !important;\n    float: none !important;\n    margin-bottom: 15px;\n    margin: 0 auto !important;\n    padding-bottom: 15px !important;  }\n}\n.b-iq-footer-02 .a-google {  display: inline-block;\n  max-width: 135px;\n  height: 40px !important;\n  float: none;  }\n@media screen and (max-width: 600px) {\n  .b-iq-footer-02 .a-google {  display: block !important;\n    float: none !important;\n    margin: 0 auto !important;  }\n}\n.stor.b-iq-footer-02 {  width:100%!important;max-width:450px;margin:0 auto  }\n@media screen and (max-width:600px) {\n  .stor.b-iq-footer-02 {  width:100%!important  }\n}\n.b-iq-footer-02 .a-app {  display:inline-block;padding-right:30px;max-width:120px;height:40px!important;float:none  }\n@media screen and (max-width:600px) {\n  .b-iq-footer-02 .a-app {  display:block!important;padding-right:0!important;float:none!important;margin:0 auto!important;padding-bottom:15px!important  }\n}\n.b-iq-footer-02 .a-google {  display:inline-block;max-width:135px;height:40px!important;float:none  }\n@media screen and (max-width:600px) {\n  .b-iq-footer-02 .a-google {  display:block!important;float:none!important;margin:0 auto!important  }\n}",
   "slots": [
     {
       "id": "href_1",
@@ -62,6 +62,6 @@
     "X_IQ/mail-rfm-segmentation-2-122",
     "X_IQ/mail-rfm-segmentation-2-123"
   ],
-  "createdAt": "2026-06-29T07:08:36.205Z",
+  "createdAt": "2026-07-06T07:31:35.003Z",
   "validated": true
 }

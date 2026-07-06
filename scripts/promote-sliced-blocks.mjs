@@ -77,6 +77,8 @@ function skeleton(pug) {
   return pug
     .replace(/\$\{\{[^}]*\}\}\$/g, "T")          // locale tokens
     .replace(/\{\{[^}]*\}\}/g, "T")              // slot tokens
+    .replace(/\.h-\d+/g, ".h-N")                 // spacer heights are content, not layout
+    .replace(/\balt\s*=\s*"[^"]*"/g, 'alt="A"') // alt text is content
     .replace(/href\s*=\s*"[^"]*"/g, 'href="U"')  // urls
     .replace(/\bsrc\s*=\s*"[^"]*"/g, 'src="I"')  // images
     .replace(/&nbsp;|&#160;/g, " ")
@@ -130,11 +132,127 @@ async function validateBlock(block) {
   if (existsSync(jadeHeader)) rmSync(jadeHeader, { force: true });
   const mainStyl = path.join(dest, "app", "styles", "blocks", "main.styl");
   let base = ""; try { base = readFileSync(mainStyl, "utf8"); } catch {}
-  writeFileSync(mainStyl, base + "\n/* block */\n" + (block.styl || ""), "utf8");
+  writeFileSync(mainStyl, base + "\n/* block */\n" + fillDefaults(block.styl || "", block.slots), "utf8");
   const r = await runBuild(id);
   const distHtml = path.join(TEMP_ROOT, "dist", OUTPUT_CATEGORY, `mail-${id}`, "en", "index.html");
   const ok = r.code === 0 && existsSync(distHtml) && readFileSync(distHtml, "utf8").length > 400;
   return { ok, reason: ok ? "" : (r.stderr.split("\n").filter(Boolean).slice(-1)[0] || `exit ${r.code}`) };
+}
+
+
+// ─── CSS scoping (per-block namespace) ─────────────────────────────────────
+// Blocks sliced from DIFFERENT mails may define the same class (.banner,
+// .grey-block…) differently. When two such blocks land in one composed mail,
+// their styles collide. Fix: every promoted block gets a marker class
+// `b-<id>` on its root pug element, and every selector in its styl is scoped
+// to that marker. @media rules are scoped too → mobile adaptation survives
+// and stays block-local.
+function parseCssRulesLite(css) {
+  const rules = [];
+  let i = 0;
+  const n = css.length;
+  function readBlockBody() {
+    let depth = 0, start = i;
+    for (; i < n; i++) {
+      if (css[i] === "{") depth++;
+      else if (css[i] === "}") { depth--; if (depth === 0) { i++; return css.slice(start + 1, i - 1); } }
+    }
+    return css.slice(start + 1);
+  }
+  while (i < n) {
+    while (i < n && /\s/.test(css[i])) i++;
+    if (i >= n) break;
+    if (css[i] === "}") { i++; continue; }
+    const preludeStart = i;
+    while (i < n && css[i] !== "{" && css[i] !== "}" && css[i] !== ";") i++;
+    const prelude = css.slice(preludeStart, i).trim();
+    if (css[i] === ";") { i++; continue; }
+    if (css[i] !== "{") { i++; continue; }
+    const body = readBlockBody();
+    if (/^@media/i.test(prelude)) {
+      rules.push({ type: "media", query: prelude, rules: parseCssRulesLite(body) });
+    } else if (/^@/.test(prelude)) {
+      rules.push({ type: "raw", selector: prelude, body });
+    } else {
+      rules.push({ type: "rule", selector: prelude, body });
+    }
+  }
+  return rules;
+}
+
+function rootClassesOfPug(pug) {
+  const set = new Set();
+  for (const line of String(pug).split("\n")) {
+    if (!line.trim() || /^\s/.test(line)) continue; // root lines only (indent 0)
+    const m = line.trim().match(/^([A-Za-z][\w-]*)?((?:[.#][\w-]+)*)/);
+    if (m && m[2]) for (const tok of m[2].match(/\.[\w-]+/g) || []) set.add(tok.slice(1));
+  }
+  return set;
+}
+
+function addMarkerToPugRoot(pug, marker) {
+  return String(pug).split("\n").map((line) => {
+    if (/^\s/.test(line) || !line.trim()) return line;      // children untouched
+    const t = line;
+    const m = t.match(/^([A-Za-z][\w-]*)?((?:[.#][\w-]+)*)/);
+    if (!m || (!m[1] && !m[2])) return line;                  // text/pipe/comment root
+    if (/^\/\//.test(t) || /^\|/.test(t)) return line;
+    const head = m[0];
+    return head + "." + marker + t.slice(head.length);
+  }).join("\n");
+}
+
+function scopeSelector(selector, marker, rootClasses) {
+  return selector.split(",").map((one) => {
+    const s = one.trim();
+    if (!s) return s;
+    // split into compounds, keep combinators
+    const parts = s.split(/(\s*[>+~]\s*|\s+)/);
+    let attached = false;
+    for (let i = 0; i < parts.length; i += 2) {
+      const compound = parts[i];
+      if (!compound) continue;
+      const classes = (compound.match(/\.[\w-]+/g) || []).map((x) => x.slice(1));
+      if (classes.some((c) => rootClasses.has(c))) {
+        // attach marker before any pseudo (:hover etc.)
+        const pi = compound.search(/:(?!:)/);
+        parts[i] = pi === -1
+          ? compound + "." + marker
+          : compound.slice(0, pi) + "." + marker + compound.slice(pi);
+        attached = true;
+        break;
+      }
+    }
+    return attached ? parts.join("") : "." + marker + " " + s;
+  }).join(", ");
+}
+
+function scopeCss(css, marker, rootClasses) {
+  if (!css || !css.trim()) return css || "";
+  const out = [];
+  for (const r of parseCssRulesLite(css)) {
+    if (r.type === "rule") {
+      out.push(`${scopeSelector(r.selector, marker, rootClasses)} { ${r.body} }`);
+    } else if (r.type === "media") {
+      const inner = r.rules
+        .filter((ir) => ir.type === "rule")
+        .map((ir) => `  ${scopeSelector(ir.selector, marker, rootClasses)} { ${ir.body} }`)
+        .join("\n");
+      if (inner) out.push(`${r.query} {\n${inner}\n}`);
+    } else {
+      out.push(`${r.selector} { ${r.body} }`); // @font-face etc. — as-is
+    }
+  }
+  return out.join("\n");
+}
+
+// ─── Parametric spacer ─────────────────────────────────────────────────────
+// Every `.h-NN &nbsp;` spacer collapses into ONE imported block with a
+// height slot — instead of dozens of h-8/h-12/h-40 duplicates.
+const SPACER_PUG_RE = /^\.h-(\d+)\s*(?:&nbsp;)?\s*$/;
+function spacerHeightOf(pug) {
+  const m = String(pug).trim().match(SPACER_PUG_RE);
+  return m ? Number(m[1]) : null;
 }
 
 // ─── main ──────────────────────────────────────────────────────────────────
@@ -154,10 +272,13 @@ async function main() {
     }
   }
 
-  // dedup by skeleton
+  // dedup by skeleton; ALL spacers collapse into one parametric key
   const byKey = new Map();
+  const spacerHeights = [];
   for (const c of candidates) {
-    const key = (c.placement || "") + "|" + skeleton(c.pug);
+    const sh = spacerHeightOf(c.pug);
+    const key = sh !== null ? "inline|SPACER" : (c.placement || "") + "|" + skeleton(c.pug);
+    if (sh !== null) spacerHeights.push(sh);
     if (!byKey.has(key)) byKey.set(key, { rep: c, count: 0, mails: new Set() });
     const e = byKey.get(key);
     e.count += 1; e.mails.add(c.mailRef);
@@ -168,25 +289,40 @@ async function main() {
   const blocks = [];
   for (const [key, e] of byKey) {
     const rep = e.rep;
-    // skip degenerate: empty pug or no design + no slots + not a recognized utility
-    const isSpacer = /^\.h-\d+/.test(rep.pug.trim());
     if (!rep.pug.trim()) continue;
-    const cat = rep.category || "section";
+    const isSpacer = key === "inline|SPACER";
+    const cat = isSpacer ? "utility" : (rep.category || "section");
     catCounters[cat] = (catCounters[cat] || 0) + 1;
-    const { pug, slots } = isSpacer ? { pug: rep.pug, slots: [] } : tokenize(rep.pug);
+    let pug, slots, styl;
     const h = hash(key);
-    const id = `iq-${slug(cat)}-${String(catCounters[cat]).padStart(2, "0")}`;
+    const id = isSpacer ? "iq-spacer" : `iq-${slug(cat)}-${String(catCounters[cat]).padStart(2, "0")}`;
+    if (isSpacer) {
+      const def = spacerHeights.length
+        ? spacerHeights.sort((a, b) => a - b)[Math.floor(spacerHeights.length / 2)]
+        : 24;
+      pug = ".h-sp-{{ height }} &nbsp;";
+      styl = ".h-sp-{{ height }} { font-size: 0; line-height: {{ height }}px; height: {{ height }}px; }";
+      slots = [{ id: "height", kind: "number", label: "Высота, px", default: def, min: 4, max: 120 }];
+    } else {
+      const t = tokenize(rep.pug);
+      // scope: marker class on root pug element + all selectors namespaced
+      const marker = `b-${id}`;
+      const rootCls = rootClassesOfPug(t.pug);
+      pug = addMarkerToPugRoot(t.pug, marker);
+      styl = scopeCss(rep.styl || "", marker, rootCls);
+      slots = t.slots;
+    }
     blocks.push({
       id,
       hash: h,
-      label: rep.label || cat,
+      label: isSpacer ? "Спейсер (настраиваемая высота)" : (rep.label || cat),
       description: `Импортирован из X_IQ (${e.count} писем). ${rep.scope === "inline" ? "Inline-элемент." : "Секция."}`,
       placement: rep.placement || (rep.scope === "inline" ? "inline" : "section"),
       category: cat,
       version: 1,
       source: "imported",
       pug,
-      styl: rep.styl || "",
+      styl,
       slots,
       tags: Array.from(new Set([cat, rep.scope, "X_IQ"])),
       usageCount: e.count,

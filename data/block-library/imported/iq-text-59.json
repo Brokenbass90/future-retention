@@ -6,8 +6,8 @@
   "category": "text",
   "version": 1,
   "source": "imported",
-  "pug": "p.text.pb24.ta-mob {{ text_1 }}",
-  "styl": ".text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n.pb24 { padding-bottom: 24px; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n@media screen and (max-width: 600px) {\n  .ta-mob { text-align: center !important; }\n}",
+  "pug": "p.text.pb24.ta-mob.b-iq-text-59 {{ text_1 }}",
+  "styl": ".text.b-iq-text-59 {  font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400;  }\n.text.bold.b-iq-text-59 {  font-weight: 700;  }\n.pb24.b-iq-text-59 {  padding-bottom: 24px;  }\n@media screen and (max-width: 600px) {\n  .text.mob-text.b-iq-text-59, .b-iq-text-59 .grey-text.mob-text {  font-size: 17px !important;  }\n}\n@media screen and (max-width: 600px) {\n  .ta-mob.b-iq-text-59 {  text-align: center !important;  }\n}\n.b-iq-text-59 .number-block, .text.b-iq-text-59 {  font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400  }\n.b-iq-text-59 .big, .text.bold.b-iq-text-59 {  font-weight:700  }\n.pb24.b-iq-text-59 {  padding-bottom:24px  }\n@media screen and (max-width:600px) {\n  .b-iq-text-59 .grey-text.mob-text, .text.mob-text.b-iq-text-59 {  font-size:17px!important  }\n}\n@media screen and (max-width:600px) {\n  .b-iq-text-59 .block-220, .ta-mob.b-iq-text-59 {  text-align:center!important  }\n}",
   "slots": [
     {
       "id": "text_1",
@@ -26,6 +26,6 @@
     "X_IQ/mail-rfm-segmentation-2-211",
     "X_IQ/mail-rfm-segmentation-2-221"
   ],
-  "createdAt": "2026-06-29T07:08:36.207Z",
+  "createdAt": "2026-07-06T07:31:35.018Z",
   "validated": true
 }

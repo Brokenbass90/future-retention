@@ -1,0 +1,51 @@
+{
+  "id": "iq-spacer",
+  "label": "Спейсер (настраиваемая высота)",
+  "description": "Импортирован из X_IQ (360 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "utility",
+  "version": 1,
+  "source": "imported",
+  "pug": ".h-sp-{{ height }} &nbsp;",
+  "styl": ".h-sp-{{ height }} { font-size: 0; line-height: {{ height }}px; height: {{ height }}px; }",
+  "slots": [
+    {
+      "id": "height",
+      "kind": "number",
+      "label": "Высота, px",
+      "default": 12,
+      "min": 4,
+      "max": 120
+    }
+  ],
+  "tags": [
+    "utility",
+    "inline",
+    "X_IQ"
+  ],
+  "usageCount": 360,
+  "sourceMails": [
+    "X_IQ/mail-rfm-311",
+    "X_IQ/mail-rfm-312",
+    "X_IQ/mail-rfm-313",
+    "X_IQ/mail-rfm-314",
+    "X_IQ/mail-rfm-321",
+    "X_IQ/mail-rfm-322",
+    "X_IQ/mail-rfm-323",
+    "X_IQ/mail-rfm-324",
+    "X_IQ/mail-rfm-331",
+    "X_IQ/mail-rfm-332",
+    "X_IQ/mail-rfm-333",
+    "X_IQ/mail-rfm-334",
+    "X_IQ/mail-rfm-segmentation-2-111",
+    "X_IQ/mail-rfm-segmentation-2-112",
+    "X_IQ/mail-rfm-segmentation-2-113",
+    "X_IQ/mail-rfm-segmentation-2-114",
+    "X_IQ/mail-rfm-segmentation-2-115",
+    "X_IQ/mail-rfm-segmentation-2-121",
+    "X_IQ/mail-rfm-segmentation-2-122",
+    "X_IQ/mail-rfm-segmentation-2-123"
+  ],
+  "createdAt": "2026-07-06T07:31:35.001Z",
+  "validated": true
+}

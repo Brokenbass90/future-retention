@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-06-29T07:24:00.292Z",
+  "generatedAt": "2026-07-06T07:43:27.060399Z",
   "category": "X_IQ",
-  "count": 291,
+  "count": 281,
   "blocks": [
     {
       "id": "iq-footer-07",
@@ -11,7 +11,7 @@
       "usageCount": 31,
       "slots": 4,
       "hasMedia": true,
-      "sourceCount": 20
+      "validated": true
     },
     {
       "id": "iq-footer-09",
@@ -21,7 +21,7 @@
       "usageCount": 26,
       "slots": 12,
       "hasMedia": true,
-      "sourceCount": 20
+      "validated": true
     },
     {
       "id": "iq-footer-03",
@@ -31,7 +31,7 @@
       "usageCount": 13,
       "slots": 21,
       "hasMedia": true,
-      "sourceCount": 13
+      "validated": true
     },
     {
       "id": "iq-header-01",
@@ -41,7 +41,7 @@
       "usageCount": 13,
       "slots": 2,
       "hasMedia": false,
-      "sourceCount": 13
+      "validated": true
     },
     {
       "id": "iq-footer-14",
@@ -51,7 +51,7 @@
       "usageCount": 7,
       "slots": 14,
       "hasMedia": true,
-      "sourceCount": 7
+      "validated": true
     },
     {
       "id": "iq-hero-20",
@@ -61,7 +61,7 @@
       "usageCount": 4,
       "slots": 6,
       "hasMedia": true,
-      "sourceCount": 4
+      "validated": true
     },
     {
       "id": "iq-cta-06",
@@ -71,7 +71,7 @@
       "usageCount": 3,
       "slots": 4,
       "hasMedia": true,
-      "sourceCount": 3
+      "validated": true
     },
     {
       "id": "iq-footer-11",
@@ -81,27 +81,7 @@
       "usageCount": 3,
       "slots": 10,
       "hasMedia": true,
-      "sourceCount": 3
-    },
-    {
-      "id": "iq-cta-02",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 2,
-      "slots": 9,
-      "hasMedia": true,
-      "sourceCount": 2
-    },
-    {
-      "id": "iq-cta-04",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 2,
-      "slots": 12,
-      "hasMedia": true,
-      "sourceCount": 2
+      "validated": true
     },
     {
       "id": "iq-cta-16",
@@ -111,137 +91,7 @@
       "usageCount": 2,
       "slots": 4,
       "hasMedia": true,
-      "sourceCount": 2
-    },
-    {
-      "id": "iq-cta-34",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 2,
-      "slots": 19,
-      "hasMedia": true,
-      "sourceCount": 2
-    },
-    {
-      "id": "iq-cta-40",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 2,
-      "slots": 5,
-      "hasMedia": true,
-      "sourceCount": 2
-    },
-    {
-      "id": "iq-feature-list-14",
-      "label": "Asset-секция",
-      "placement": "section",
-      "category": "feature-list",
-      "usageCount": 2,
-      "slots": 12,
-      "hasMedia": true,
-      "sourceCount": 2
-    },
-    {
-      "id": "iq-feature-list-19",
-      "label": "Список преимуществ (нумерованный)",
-      "placement": "section",
-      "category": "feature-list",
-      "usageCount": 2,
-      "slots": 13,
-      "hasMedia": true,
-      "sourceCount": 2
-    },
-    {
-      "id": "iq-feature-list-29",
-      "label": "Список преимуществ (нумерованный)",
-      "placement": "section",
-      "category": "feature-list",
-      "usageCount": 2,
-      "slots": 10,
-      "hasMedia": true,
-      "sourceCount": 2
-    },
-    {
-      "id": "iq-footer-01",
-      "label": "Store badges",
-      "placement": "section",
-      "category": "footer",
-      "usageCount": 2,
-      "slots": 9,
-      "hasMedia": true,
-      "sourceCount": 2
-    },
-    {
-      "id": "iq-footer-06",
-      "label": "Store badges",
-      "placement": "section",
-      "category": "footer",
-      "usageCount": 2,
-      "slots": 9,
-      "hasMedia": true,
-      "sourceCount": 2
-    },
-    {
-      "id": "iq-footer-12",
-      "label": "Store badges",
-      "placement": "section",
-      "category": "footer",
-      "usageCount": 2,
-      "slots": 10,
-      "hasMedia": true,
-      "sourceCount": 2
-    },
-    {
-      "id": "iq-footer-16",
-      "label": "Store badges",
-      "placement": "section",
-      "category": "footer",
-      "usageCount": 2,
-      "slots": 9,
-      "hasMedia": true,
-      "sourceCount": 2
-    },
-    {
-      "id": "iq-hero-01",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 2,
-      "slots": 4,
-      "hasMedia": true,
-      "sourceCount": 2
-    },
-    {
-      "id": "iq-hero-03",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 2,
-      "slots": 5,
-      "hasMedia": true,
-      "sourceCount": 2
-    },
-    {
-      "id": "iq-hero-14",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 2,
-      "slots": 7,
-      "hasMedia": true,
-      "sourceCount": 2
-    },
-    {
-      "id": "iq-hero-22",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 2,
-      "slots": 5,
-      "hasMedia": true,
-      "sourceCount": 2
+      "validated": true
     },
     {
       "id": "iq-hero-33",
@@ -251,7 +101,27 @@
       "usageCount": 2,
       "slots": 5,
       "hasMedia": true,
-      "sourceCount": 2
+      "validated": true
+    },
+    {
+      "id": "iq-cta-40",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 2,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-footer-12",
+      "label": "Store badges",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 2,
+      "slots": 10,
+      "hasMedia": true,
+      "validated": true
     },
     {
       "id": "iq-text-01",
@@ -261,17 +131,77 @@
       "usageCount": 2,
       "slots": 7,
       "hasMedia": true,
-      "sourceCount": 2
+      "validated": true
     },
     {
-      "id": "iq-text-09",
-      "label": "Контентная карточка",
+      "id": "iq-hero-03",
+      "label": "Hero с фоновой картинкой",
       "placement": "section",
-      "category": "text",
+      "category": "hero",
+      "usageCount": 2,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-14",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 2,
+      "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-22",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 2,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-footer-06",
+      "label": "Store badges",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 2,
+      "slots": 9,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-01",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
       "usageCount": 2,
       "slots": 4,
       "hasMedia": true,
-      "sourceCount": 2
+      "validated": true
+    },
+    {
+      "id": "iq-cta-04",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 2,
+      "slots": 12,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-29",
+      "label": "Список преимуществ (нумерованный)",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 2,
+      "slots": 10,
+      "hasMedia": true,
+      "validated": true
     },
     {
       "id": "iq-text-18",
@@ -281,7 +211,57 @@
       "usageCount": 2,
       "slots": 2,
       "hasMedia": true,
-      "sourceCount": 2
+      "validated": true
+    },
+    {
+      "id": "iq-text-09",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-14",
+      "label": "Asset-секция",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 2,
+      "slots": 12,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-02",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 2,
+      "slots": 9,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-34",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 2,
+      "slots": 19,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-footer-16",
+      "label": "Store badges",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 2,
+      "slots": 9,
+      "hasMedia": true,
+      "validated": true
     },
     {
       "id": "iq-text-69",
@@ -291,937 +271,27 @@
       "usageCount": 2,
       "slots": 2,
       "hasMedia": true,
-      "sourceCount": 2
+      "validated": true
     },
     {
-      "id": "iq-cta-07",
-      "label": "CTA-секция",
+      "id": "iq-footer-01",
+      "label": "Store badges",
       "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 5,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-08",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 5,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-09",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 4,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-10",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 8,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-11",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
+      "category": "footer",
+      "usageCount": 2,
       "slots": 9,
       "hasMedia": true,
-      "sourceCount": 1
+      "validated": true
     },
     {
-      "id": "iq-cta-13",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 5,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-14",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 5,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-15",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 23,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-17",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 12,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-18",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 6,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-20",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 15,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-21",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 22,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-22",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 7,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-23",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 26,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-25",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 4,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-26",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 6,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-27",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 11,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-28",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 20,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-29",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 5,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-30",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 15,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-31",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 11,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-32",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 10,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-33",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 12,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-36",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 4,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-38",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 5,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-39",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 4,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-41",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 12,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-42",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 10,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-43",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 11,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-44",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 5,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-45",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 11,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-46",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 10,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-47",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 6,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-48",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 8,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-49",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 6,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-50",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 5,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-52",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 8,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-53",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 7,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-54",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 9,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-55",
-      "label": "CTA-секция",
-      "placement": "section",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 5,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-01",
+      "id": "iq-feature-list-19",
       "label": "Список преимуществ (нумерованный)",
       "placement": "section",
       "category": "feature-list",
-      "usageCount": 1,
-      "slots": 18,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-06",
-      "label": "Список преимуществ (нумерованный)",
-      "placement": "section",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 10,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-10",
-      "label": "Список преимуществ (нумерованный)",
-      "placement": "section",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 18,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-17",
-      "label": "Список преимуществ (нумерованный)",
-      "placement": "section",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 24,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-20",
-      "label": "Список преимуществ (нумерованный)",
-      "placement": "section",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 18,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-24",
-      "label": "Asset-секция",
-      "placement": "section",
-      "category": "feature-list",
-      "usageCount": 1,
+      "usageCount": 2,
       "slots": 13,
       "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-27",
-      "label": "Asset-секция",
-      "placement": "section",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 16,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-28",
-      "label": "Asset-секция",
-      "placement": "section",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 8,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-31",
-      "label": "Asset-секция",
-      "placement": "section",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 14,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-32",
-      "label": "Asset-секция",
-      "placement": "section",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 8,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-33",
-      "label": "Asset-секция",
-      "placement": "section",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 12,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-34",
-      "label": "Список преимуществ (нумерованный)",
-      "placement": "section",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 10,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-39",
-      "label": "Asset-секция",
-      "placement": "section",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 15,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-40",
-      "label": "Asset-секция",
-      "placement": "section",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 7,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-41",
-      "label": "Список преимуществ (нумерованный)",
-      "placement": "section",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 10,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-42",
-      "label": "Список преимуществ (нумерованный)",
-      "placement": "section",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 16,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-44",
-      "label": "Список преимуществ (нумерованный)",
-      "placement": "section",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 9,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-47",
-      "label": "Asset-секция",
-      "placement": "section",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 10,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-52",
-      "label": "Asset-секция",
-      "placement": "section",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 6,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-55",
-      "label": "Список преимуществ (нумерованный)",
-      "placement": "section",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 13,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-59",
-      "label": "Asset-секция",
-      "placement": "section",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 14,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-60",
-      "label": "Asset-секция",
-      "placement": "section",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 8,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-65",
-      "label": "Asset-секция",
-      "placement": "section",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 16,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-68",
-      "label": "Asset-секция",
-      "placement": "section",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 14,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-69",
-      "label": "Asset-секция",
-      "placement": "section",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 11,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-70",
-      "label": "Список преимуществ (нумерованный)",
-      "placement": "section",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 3,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-footer-05",
-      "label": "Store badges",
-      "placement": "section",
-      "category": "footer",
-      "usageCount": 1,
-      "slots": 8,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-footer-08",
-      "label": "Store badges",
-      "placement": "section",
-      "category": "footer",
-      "usageCount": 1,
-      "slots": 4,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-footer-13",
-      "label": "Store badges",
-      "placement": "section",
-      "category": "footer",
-      "usageCount": 1,
-      "slots": 9,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-footer-17",
-      "label": "Store badges",
-      "placement": "section",
-      "category": "footer",
-      "usageCount": 1,
-      "slots": 9,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-02",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 5,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-04",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 2,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-05",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 4,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-06",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 4,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-07",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 4,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-08",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 8,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-09",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 6,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-10",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 5,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-11",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 4,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-12",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 7,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-13",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 7,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-15",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 8,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-16",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 5,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-17",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 5,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-18",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 7,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-19",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 7,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-21",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 5,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-23",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 7,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-24",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 7,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-25",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 6,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-26",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 7,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-27",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 5,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-28",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 7,
-      "hasMedia": true,
-      "sourceCount": 1
+      "validated": true
     },
     {
       "id": "iq-hero-29",
@@ -1231,117 +301,7 @@
       "usageCount": 1,
       "slots": 6,
       "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-30",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 8,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-31",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 8,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-32",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 8,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-34",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 5,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-35",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 7,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-36",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 6,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-37",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 10,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-hero-38",
-      "label": "Hero с фоновой картинкой",
-      "placement": "section",
-      "category": "hero",
-      "usageCount": 1,
-      "slots": 7,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-text-15",
-      "label": "Контентная карточка",
-      "placement": "section",
-      "category": "text",
-      "usageCount": 1,
-      "slots": 6,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-text-19",
-      "label": "Контентная карточка",
-      "placement": "section",
-      "category": "text",
-      "usageCount": 1,
-      "slots": 8,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-text-24",
-      "label": "Контентная карточка",
-      "placement": "section",
-      "category": "text",
-      "usageCount": 1,
-      "slots": 7,
-      "hasMedia": true,
-      "sourceCount": 1
+      "validated": true
     },
     {
       "id": "iq-text-27",
@@ -1351,97 +311,97 @@
       "usageCount": 1,
       "slots": 8,
       "hasMedia": true,
-      "sourceCount": 1
+      "validated": true
     },
     {
-      "id": "iq-text-33",
-      "label": "Контентная карточка",
+      "id": "iq-cta-41",
+      "label": "CTA-секция",
       "placement": "section",
-      "category": "text",
+      "category": "cta",
       "usageCount": 1,
-      "slots": 20,
+      "slots": 12,
       "hasMedia": true,
-      "sourceCount": 1
+      "validated": true
     },
     {
-      "id": "iq-text-34",
-      "label": "Контентная карточка",
+      "id": "iq-hero-13",
+      "label": "Hero с фоновой картинкой",
       "placement": "section",
-      "category": "text",
+      "category": "hero",
       "usageCount": 1,
-      "slots": 20,
+      "slots": 7,
       "hasMedia": true,
-      "sourceCount": 1
+      "validated": true
     },
     {
-      "id": "iq-text-39",
-      "label": "Контентная карточка",
+      "id": "iq-feature-list-41",
+      "label": "Список преимуществ (нумерованный)",
       "placement": "section",
-      "category": "text",
+      "category": "feature-list",
       "usageCount": 1,
-      "slots": 5,
+      "slots": 10,
       "hasMedia": true,
-      "sourceCount": 1
+      "validated": true
     },
     {
-      "id": "iq-text-40",
-      "label": "Контентная карточка",
+      "id": "iq-hero-05",
+      "label": "Hero с фоновой картинкой",
       "placement": "section",
-      "category": "text",
-      "usageCount": 1,
-      "slots": 17,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-text-42",
-      "label": "Контентная карточка",
-      "placement": "section",
-      "category": "text",
-      "usageCount": 1,
-      "slots": 6,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-text-43",
-      "label": "Контентная карточка",
-      "placement": "section",
-      "category": "text",
-      "usageCount": 1,
-      "slots": 5,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-text-44",
-      "label": "Контентная карточка",
-      "placement": "section",
-      "category": "text",
-      "usageCount": 1,
-      "slots": 6,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-text-48",
-      "label": "Контентная карточка",
-      "placement": "section",
-      "category": "text",
+      "category": "hero",
       "usageCount": 1,
       "slots": 4,
       "hasMedia": true,
-      "sourceCount": 1
+      "validated": true
     },
     {
-      "id": "iq-text-49",
-      "label": "Контентная карточка",
+      "id": "iq-hero-25",
+      "label": "Hero с фоновой картинкой",
       "placement": "section",
-      "category": "text",
+      "category": "hero",
       "usageCount": 1,
-      "slots": 5,
+      "slots": 6,
       "hasMedia": true,
-      "sourceCount": 1
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-20",
+      "label": "Список преимуществ (нумерованный)",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 18,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-36",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-09",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-20",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 15,
+      "hasMedia": true,
+      "validated": true
     },
     {
       "id": "iq-text-50",
@@ -1451,7 +411,7 @@
       "usageCount": 1,
       "slots": 3,
       "hasMedia": true,
-      "sourceCount": 1
+      "validated": true
     },
     {
       "id": "iq-text-51",
@@ -1461,37 +421,177 @@
       "usageCount": 1,
       "slots": 6,
       "hasMedia": true,
-      "sourceCount": 1
+      "validated": true
     },
     {
-      "id": "iq-text-53",
+      "id": "iq-cta-21",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 22,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-08",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-60",
+      "label": "Asset-секция",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-32",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-24",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-01",
+      "label": "Список преимуществ (нумерованный)",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 18,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-04",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-12",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-40",
+      "label": "Asset-секция",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-17",
+      "label": "Список преимуществ (нумерованный)",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 24,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-17",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 12,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-28",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-35",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-30",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 15,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-40",
       "label": "Контентная карточка",
       "placement": "section",
       "category": "text",
+      "usageCount": 1,
+      "slots": 17,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-19",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-26",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
       "usageCount": 1,
       "slots": 6,
       "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-text-64",
-      "label": "Контентная карточка",
-      "placement": "section",
-      "category": "text",
-      "usageCount": 1,
-      "slots": 9,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-text-75",
-      "label": "Контентная карточка",
-      "placement": "section",
-      "category": "text",
-      "usageCount": 1,
-      "slots": 6,
-      "hasMedia": true,
-      "sourceCount": 1
+      "validated": true
     },
     {
       "id": "iq-text-76",
@@ -1501,27 +601,907 @@
       "usageCount": 1,
       "slots": 5,
       "hasMedia": true,
-      "sourceCount": 1
+      "validated": true
     },
     {
-      "id": "iq-utility-04",
-      "label": "Спейсер 12px",
+      "id": "iq-cta-10",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-footer-08",
+      "label": "Store badges",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-47",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-10",
+      "label": "Список преимуществ (нумерованный)",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 18,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-15",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-47",
+      "label": "Asset-секция",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 10,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-06",
+      "label": "Список преимуществ (нумерованный)",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 10,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-02",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-46",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 10,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-38",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-11",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 9,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-07",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-50",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-27",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 11,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-18",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-31",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 11,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-footer-05",
+      "label": "Store badges",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 1,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-34",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-31",
+      "label": "Asset-секция",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 14,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-27",
+      "label": "Asset-секция",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 16,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-70",
+      "label": "Список преимуществ (нумерованный)",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 3,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-footer-13",
+      "label": "Store badges",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 1,
+      "slots": 9,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-15",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-42",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-32",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 10,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-37",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 10,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-39",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-65",
+      "label": "Asset-секция",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 16,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-49",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-32",
+      "label": "Asset-секция",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-24",
+      "label": "Asset-секция",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 13,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-08",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-21",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-28",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 20,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-17",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-19",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-45",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 11,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-69",
+      "label": "Asset-секция",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 11,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-28",
+      "label": "Asset-секция",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-53",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-52",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-75",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-13",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-34",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 20,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-68",
+      "label": "Asset-секция",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 14,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-44",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-44",
+      "label": "Список преимуществ (нумерованный)",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 9,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-16",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-52",
+      "label": "Asset-секция",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-29",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-09",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-33",
+      "label": "Asset-секция",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 12,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-48",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-36",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-33",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 12,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-43",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-25",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-55",
+      "label": "Список преимуществ (нумерованный)",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 13,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-07",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-11",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-38",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-48",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-43",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 11,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-33",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 20,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-14",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-64",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 9,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-55",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-22",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-59",
+      "label": "Asset-секция",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 14,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-44",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-31",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-34",
+      "label": "Список преимуществ (нумерованный)",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 10,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-18",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-27",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-26",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-footer-17",
+      "label": "Store badges",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 1,
+      "slots": 9,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-30",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-23",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 26,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-53",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-24",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-54",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 9,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-39",
+      "label": "Asset-секция",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 15,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-15",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 23,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-42",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 10,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-49",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-39",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-42",
+      "label": "Список преимуществ (нумерованный)",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 16,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-10",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-06",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-spacer",
+      "label": "Спейсер (настраиваемая высота)",
       "placement": "inline",
       "category": "utility",
-      "usageCount": 180,
-      "slots": 0,
+      "usageCount": 360,
+      "slots": 1,
       "hasMedia": false,
-      "sourceCount": 20
-    },
-    {
-      "id": "iq-cta-12",
-      "label": "CTA-кнопка (w280)",
-      "placement": "inline",
-      "category": "cta",
-      "usageCount": 46,
-      "slots": 2,
-      "hasMedia": true,
-      "sourceCount": 20
+      "validated": true
     },
     {
       "id": "iq-footer-02",
@@ -1531,7 +1511,17 @@
       "usageCount": 46,
       "slots": 4,
       "hasMedia": true,
-      "sourceCount": 20
+      "validated": true
+    },
+    {
+      "id": "iq-cta-12",
+      "label": "CTA-кнопка (w280)",
+      "placement": "inline",
+      "category": "cta",
+      "usageCount": 46,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
     },
     {
       "id": "iq-text-04",
@@ -1541,17 +1531,7 @@
       "usageCount": 46,
       "slots": 1,
       "hasMedia": true,
-      "sourceCount": 20
-    },
-    {
-      "id": "iq-utility-06",
-      "label": "Спейсер 40px",
-      "placement": "inline",
-      "category": "utility",
-      "usageCount": 45,
-      "slots": 0,
-      "hasMedia": false,
-      "sourceCount": 20
+      "validated": true
     },
     {
       "id": "iq-text-08",
@@ -1561,7 +1541,7 @@
       "usageCount": 44,
       "slots": 1,
       "hasMedia": true,
-      "sourceCount": 20
+      "validated": true
     },
     {
       "id": "iq-text-07",
@@ -1571,7 +1551,7 @@
       "usageCount": 38,
       "slots": 1,
       "hasMedia": true,
-      "sourceCount": 20
+      "validated": true
     },
     {
       "id": "iq-text-02",
@@ -1581,17 +1561,7 @@
       "usageCount": 36,
       "slots": 1,
       "hasMedia": true,
-      "sourceCount": 20
-    },
-    {
-      "id": "iq-utility-14",
-      "label": "Спейсер 20px",
-      "placement": "inline",
-      "category": "utility",
-      "usageCount": 33,
-      "slots": 0,
-      "hasMedia": false,
-      "sourceCount": 20
+      "validated": true
     },
     {
       "id": "iq-cta-03",
@@ -1601,7 +1571,7 @@
       "usageCount": 30,
       "slots": 2,
       "hasMedia": true,
-      "sourceCount": 18
+      "validated": true
     },
     {
       "id": "iq-text-20",
@@ -1611,17 +1581,7 @@
       "usageCount": 28,
       "slots": 1,
       "hasMedia": true,
-      "sourceCount": 6
-    },
-    {
-      "id": "iq-utility-05",
-      "label": "Спейсер 8px",
-      "placement": "inline",
-      "category": "utility",
-      "usageCount": 27,
-      "slots": 0,
-      "hasMedia": false,
-      "sourceCount": 10
+      "validated": true
     },
     {
       "id": "iq-footer-10",
@@ -1631,37 +1591,17 @@
       "usageCount": 26,
       "slots": 12,
       "hasMedia": true,
-      "sourceCount": 20
+      "validated": true
     },
     {
-      "id": "iq-utility-01",
-      "label": "Спейсер 406px",
-      "placement": "inline",
-      "category": "utility",
-      "usageCount": 21,
-      "slots": 0,
-      "hasMedia": true,
-      "sourceCount": 20
-    },
-    {
-      "id": "iq-utility-03",
-      "label": "Спейсер 24px",
-      "placement": "inline",
-      "category": "utility",
-      "usageCount": 21,
-      "slots": 0,
-      "hasMedia": false,
-      "sourceCount": 19
-    },
-    {
-      "id": "iq-utility-10",
+      "id": "iq-utility-05",
       "label": "Gmail blend wrapper",
       "placement": "inline",
       "category": "utility",
       "usageCount": 19,
       "slots": 2,
       "hasMedia": true,
-      "sourceCount": 19
+      "validated": true
     },
     {
       "id": "iq-cta-01",
@@ -1671,7 +1611,7 @@
       "usageCount": 18,
       "slots": 2,
       "hasMedia": true,
-      "sourceCount": 18
+      "validated": true
     },
     {
       "id": "iq-text-36",
@@ -1681,17 +1621,7 @@
       "usageCount": 16,
       "slots": 1,
       "hasMedia": false,
-      "sourceCount": 3
-    },
-    {
-      "id": "iq-utility-08",
-      "label": "Спейсер 32px",
-      "placement": "inline",
-      "category": "utility",
-      "usageCount": 16,
-      "slots": 0,
-      "hasMedia": false,
-      "sourceCount": 10
+      "validated": true
     },
     {
       "id": "iq-footer-04",
@@ -1701,17 +1631,7 @@
       "usageCount": 13,
       "slots": 21,
       "hasMedia": true,
-      "sourceCount": 13
-    },
-    {
-      "id": "iq-feature-list-15",
-      "label": "Asset-карточка (лого + название)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 12,
-      "slots": 2,
-      "hasMedia": true,
-      "sourceCount": 5
+      "validated": true
     },
     {
       "id": "iq-feature-list-16",
@@ -1721,17 +1641,7 @@
       "usageCount": 12,
       "slots": 2,
       "hasMedia": true,
-      "sourceCount": 5
-    },
-    {
-      "id": "iq-feature-list-26",
-      "label": "Asset-карточка (лого + название)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 12,
-      "slots": 2,
-      "hasMedia": true,
-      "sourceCount": 4
+      "validated": true
     },
     {
       "id": "iq-text-30",
@@ -1741,27 +1651,27 @@
       "usageCount": 12,
       "slots": 1,
       "hasMedia": true,
-      "sourceCount": 8
+      "validated": true
     },
     {
-      "id": "iq-feature-list-18",
-      "label": "Нумерованный пункт (gray-block)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 11,
-      "slots": 3,
-      "hasMedia": true,
-      "sourceCount": 3
-    },
-    {
-      "id": "iq-feature-list-25",
+      "id": "iq-feature-list-26",
       "label": "Asset-карточка (лого + название)",
       "placement": "inline",
       "category": "feature-list",
-      "usageCount": 11,
+      "usageCount": 12,
       "slots": 2,
       "hasMedia": true,
-      "sourceCount": 4
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-15",
+      "label": "Asset-карточка (лого + название)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 12,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
     },
     {
       "id": "iq-text-21",
@@ -1771,7 +1681,27 @@
       "usageCount": 11,
       "slots": 1,
       "hasMedia": true,
-      "sourceCount": 3
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-25",
+      "label": "Asset-карточка (лого + название)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 11,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-18",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 11,
+      "slots": 3,
+      "hasMedia": true,
+      "validated": true
     },
     {
       "id": "iq-text-52",
@@ -1781,17 +1711,7 @@
       "usageCount": 8,
       "slots": 1,
       "hasMedia": true,
-      "sourceCount": 2
-    },
-    {
-      "id": "iq-utility-24",
-      "label": "Спейсер 30px",
-      "placement": "inline",
-      "category": "utility",
-      "usageCount": 8,
-      "slots": 0,
-      "hasMedia": false,
-      "sourceCount": 5
+      "validated": true
     },
     {
       "id": "iq-footer-15",
@@ -1801,27 +1721,7 @@
       "usageCount": 7,
       "slots": 14,
       "hasMedia": true,
-      "sourceCount": 7
-    },
-    {
-      "id": "iq-cta-24",
-      "label": "CTA-кнопка (w280)",
-      "placement": "inline",
-      "category": "cta",
-      "usageCount": 6,
-      "slots": 2,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-cta-35",
-      "label": "CTA-кнопка (w280)",
-      "placement": "inline",
-      "category": "cta",
-      "usageCount": 6,
-      "slots": 2,
-      "hasMedia": false,
-      "sourceCount": 2
+      "validated": true
     },
     {
       "id": "iq-feature-list-30",
@@ -1831,27 +1731,7 @@
       "usageCount": 6,
       "slots": 2,
       "hasMedia": false,
-      "sourceCount": 2
-    },
-    {
-      "id": "iq-text-03",
-      "label": "Заголовок",
-      "placement": "inline",
-      "category": "text",
-      "usageCount": 6,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 2
-    },
-    {
-      "id": "iq-text-14",
-      "label": "Текстовый абзац",
-      "placement": "inline",
-      "category": "text",
-      "usageCount": 6,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 6
+      "validated": true
     },
     {
       "id": "iq-text-57",
@@ -1861,7 +1741,27 @@
       "usageCount": 6,
       "slots": 1,
       "hasMedia": true,
-      "sourceCount": 2
+      "validated": true
+    },
+    {
+      "id": "iq-cta-24",
+      "label": "CTA-кнопка (w280)",
+      "placement": "inline",
+      "category": "cta",
+      "usageCount": 6,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-03",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 6,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
     },
     {
       "id": "iq-text-58",
@@ -1871,7 +1771,7 @@
       "usageCount": 6,
       "slots": 1,
       "hasMedia": true,
-      "sourceCount": 2
+      "validated": true
     },
     {
       "id": "iq-text-59",
@@ -1881,67 +1781,27 @@
       "usageCount": 6,
       "slots": 1,
       "hasMedia": true,
-      "sourceCount": 2
+      "validated": true
     },
     {
-      "id": "iq-cta-19",
+      "id": "iq-text-14",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 6,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-35",
       "label": "CTA-кнопка (w280)",
       "placement": "inline",
       "category": "cta",
-      "usageCount": 5,
+      "usageCount": 6,
       "slots": 2,
-      "hasMedia": true,
-      "sourceCount": 5
-    },
-    {
-      "id": "iq-text-11",
-      "label": "Заголовок",
-      "placement": "inline",
-      "category": "text",
-      "usageCount": 5,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 5
-    },
-    {
-      "id": "iq-text-12",
-      "label": "Текстовый абзац",
-      "placement": "inline",
-      "category": "text",
-      "usageCount": 5,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 5
-    },
-    {
-      "id": "iq-text-13",
-      "label": "Заголовок",
-      "placement": "inline",
-      "category": "text",
-      "usageCount": 5,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 3
-    },
-    {
-      "id": "iq-text-26",
-      "label": "Текстовый абзац",
-      "placement": "inline",
-      "category": "text",
-      "usageCount": 5,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 3
-    },
-    {
-      "id": "iq-text-28",
-      "label": "Заголовок",
-      "placement": "inline",
-      "category": "text",
-      "usageCount": 5,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 5
+      "hasMedia": false,
+      "validated": true
     },
     {
       "id": "iq-text-31",
@@ -1951,47 +1811,67 @@
       "usageCount": 5,
       "slots": 1,
       "hasMedia": false,
-      "sourceCount": 4
+      "validated": true
     },
     {
-      "id": "iq-utility-19",
-      "label": "Спейсер 16px",
-      "placement": "inline",
-      "category": "utility",
-      "usageCount": 5,
-      "slots": 0,
-      "hasMedia": false,
-      "sourceCount": 5
-    },
-    {
-      "id": "iq-text-05",
+      "id": "iq-text-11",
       "label": "Заголовок",
       "placement": "inline",
       "category": "text",
-      "usageCount": 4,
+      "usageCount": 5,
       "slots": 1,
       "hasMedia": true,
-      "sourceCount": 2
+      "validated": true
     },
     {
-      "id": "iq-text-10",
+      "id": "iq-text-26",
       "label": "Текстовый абзац",
       "placement": "inline",
       "category": "text",
-      "usageCount": 4,
+      "usageCount": 5,
       "slots": 1,
       "hasMedia": true,
-      "sourceCount": 4
+      "validated": true
     },
     {
-      "id": "iq-text-35",
+      "id": "iq-text-13",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 5,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-28",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 5,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-19",
+      "label": "CTA-кнопка (w280)",
+      "placement": "inline",
+      "category": "cta",
+      "usageCount": 5,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-12",
       "label": "Текстовый абзац",
       "placement": "inline",
       "category": "text",
-      "usageCount": 4,
+      "usageCount": 5,
       "slots": 1,
-      "hasMedia": false,
-      "sourceCount": 1
+      "hasMedia": true,
+      "validated": true
     },
     {
       "id": "iq-text-70",
@@ -2001,7 +1881,37 @@
       "usageCount": 4,
       "slots": 1,
       "hasMedia": true,
-      "sourceCount": 4
+      "validated": true
+    },
+    {
+      "id": "iq-text-10",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 4,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-35",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 4,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "iq-text-05",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 4,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
     },
     {
       "id": "iq-text-73",
@@ -2011,17 +1921,27 @@
       "usageCount": 4,
       "slots": 1,
       "hasMedia": false,
-      "sourceCount": 2
+      "validated": true
     },
     {
-      "id": "iq-utility-20",
-      "label": "Спейсер 28px",
+      "id": "iq-utility-11",
+      "label": "Gmail blend wrapper",
       "placement": "inline",
       "category": "utility",
-      "usageCount": 4,
-      "slots": 0,
-      "hasMedia": false,
-      "sourceCount": 2
+      "usageCount": 3,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-utility-04",
+      "label": "Gmail blend wrapper",
+      "placement": "inline",
+      "category": "utility",
+      "usageCount": 3,
+      "slots": 3,
+      "hasMedia": true,
+      "validated": true
     },
     {
       "id": "iq-feature-list-43",
@@ -2031,7 +1951,7 @@
       "usageCount": 3,
       "slots": 3,
       "hasMedia": false,
-      "sourceCount": 1
+      "validated": true
     },
     {
       "id": "iq-text-25",
@@ -2041,7 +1961,7 @@
       "usageCount": 3,
       "slots": 1,
       "hasMedia": true,
-      "sourceCount": 1
+      "validated": true
     },
     {
       "id": "iq-text-65",
@@ -2051,37 +1971,7 @@
       "usageCount": 3,
       "slots": 1,
       "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-utility-09",
-      "label": "Gmail blend wrapper",
-      "placement": "inline",
-      "category": "utility",
-      "usageCount": 3,
-      "slots": 3,
-      "hasMedia": true,
-      "sourceCount": 3
-    },
-    {
-      "id": "iq-utility-17",
-      "label": "Gmail blend wrapper",
-      "placement": "inline",
-      "category": "utility",
-      "usageCount": 3,
-      "slots": 4,
-      "hasMedia": true,
-      "sourceCount": 3
-    },
-    {
-      "id": "iq-feature-list-35",
-      "label": "Нумерованный пункт (gray-block)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 2,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 2
+      "validated": true
     },
     {
       "id": "iq-feature-list-36",
@@ -2091,97 +1981,7 @@
       "usageCount": 2,
       "slots": 1,
       "hasMedia": true,
-      "sourceCount": 2
-    },
-    {
-      "id": "iq-feature-list-37",
-      "label": "Нумерованный пункт (gray-block)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 2,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 2
-    },
-    {
-      "id": "iq-feature-list-38",
-      "label": "Нумерованный пункт (gray-block)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 2,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 2
-    },
-    {
-      "id": "iq-feature-list-66",
-      "label": "Asset-карточка (лого + название)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 2,
-      "slots": 2,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-67",
-      "label": "Asset-карточка (лого + название)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 2,
-      "slots": 2,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-text-06",
-      "label": "Текстовый абзац",
-      "placement": "inline",
-      "category": "text",
-      "usageCount": 2,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 2
-    },
-    {
-      "id": "iq-text-16",
-      "label": "Заголовок",
-      "placement": "inline",
-      "category": "text",
-      "usageCount": 2,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-text-37",
-      "label": "Текстовый абзац",
-      "placement": "inline",
-      "category": "text",
-      "usageCount": 2,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-text-38",
-      "label": "Текстовый абзац",
-      "placement": "inline",
-      "category": "text",
-      "usageCount": 2,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-text-41",
-      "label": "Заголовок",
-      "placement": "inline",
-      "category": "text",
-      "usageCount": 2,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 1
+      "validated": true
     },
     {
       "id": "iq-text-46",
@@ -2191,7 +1991,17 @@
       "usageCount": 2,
       "slots": 1,
       "hasMedia": true,
-      "sourceCount": 2
+      "validated": true
+    },
+    {
+      "id": "iq-text-06",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
     },
     {
       "id": "iq-text-47",
@@ -2201,17 +2011,17 @@
       "usageCount": 2,
       "slots": 1,
       "hasMedia": true,
-      "sourceCount": 1
+      "validated": true
     },
     {
-      "id": "iq-text-61",
-      "label": "Текстовый абзац",
+      "id": "iq-feature-list-37",
+      "label": "Нумерованный пункт (gray-block)",
       "placement": "inline",
-      "category": "text",
+      "category": "feature-list",
       "usageCount": 2,
       "slots": 1,
       "hasMedia": true,
-      "sourceCount": 2
+      "validated": true
     },
     {
       "id": "iq-text-71",
@@ -2221,7 +2031,77 @@
       "usageCount": 2,
       "slots": 2,
       "hasMedia": true,
-      "sourceCount": 2
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-67",
+      "label": "Asset-карточка (лого + название)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 2,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-37",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-61",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-16",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-41",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-66",
+      "label": "Asset-карточка (лого + название)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 2,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-utility-09",
+      "label": "Gmail blend wrapper",
+      "placement": "inline",
+      "category": "utility",
+      "usageCount": 2,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
     },
     {
       "id": "iq-text-74",
@@ -2231,7 +2111,47 @@
       "usageCount": 2,
       "slots": 1,
       "hasMedia": false,
-      "sourceCount": 2
+      "validated": true
+    },
+    {
+      "id": "iq-text-38",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-38",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 2,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-35",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 2,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-utility-14",
+      "label": "Gmail blend wrapper",
+      "placement": "inline",
+      "category": "utility",
+      "usageCount": 2,
+      "slots": 3,
+      "hasMedia": true,
+      "validated": true
     },
     {
       "id": "iq-utility-02",
@@ -2241,447 +2161,7 @@
       "usageCount": 2,
       "slots": 2,
       "hasMedia": true,
-      "sourceCount": 2
-    },
-    {
-      "id": "iq-utility-15",
-      "label": "Gmail blend wrapper",
-      "placement": "inline",
-      "category": "utility",
-      "usageCount": 2,
-      "slots": 4,
-      "hasMedia": true,
-      "sourceCount": 2
-    },
-    {
-      "id": "iq-utility-22",
-      "label": "Gmail blend wrapper",
-      "placement": "inline",
-      "category": "utility",
-      "usageCount": 2,
-      "slots": 3,
-      "hasMedia": true,
-      "sourceCount": 2
-    },
-    {
-      "id": "iq-cta-05",
-      "label": "CTA-кнопка (w280)",
-      "placement": "inline",
-      "category": "cta",
-      "usageCount": 1,
-      "slots": 2,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-02",
-      "label": "Нумерованный пункт (gray-block)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 6,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-03",
-      "label": "Нумерованный пункт (gray-block)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 6,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-04",
-      "label": "Нумерованный пункт (gray-block)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 6,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-05",
-      "label": "Нумерованный пункт (gray-block)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 6,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-07",
-      "label": "Нумерованный пункт (gray-block)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-08",
-      "label": "Нумерованный пункт (gray-block)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 4,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-09",
-      "label": "Нумерованный пункт (gray-block)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-11",
-      "label": "Нумерованный пункт (gray-block)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 6,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-12",
-      "label": "Нумерованный пункт (gray-block)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 4,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-13",
-      "label": "Нумерованный пункт (gray-block)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 5,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-21",
-      "label": "Нумерованный пункт (gray-block)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 6,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-22",
-      "label": "Нумерованный пункт (gray-block)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 4,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-23",
-      "label": "Нумерованный пункт (gray-block)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 5,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-45",
-      "label": "Нумерованный пункт (gray-block)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-46",
-      "label": "Нумерованный пункт (gray-block)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 4,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-48",
-      "label": "Asset-карточка (лого + название)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-49",
-      "label": "Asset-карточка (лого + название)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-50",
-      "label": "Asset-карточка (лого + название)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-51",
-      "label": "Asset-карточка (лого + название)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-53",
-      "label": "Asset-карточка (лого + название)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-54",
-      "label": "Asset-карточка (лого + название)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-56",
-      "label": "Нумерованный пункт (gray-block)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 2,
-      "hasMedia": false,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-57",
-      "label": "Нумерованный пункт (gray-block)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 5,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-58",
-      "label": "Нумерованный пункт (gray-block)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 5,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-61",
-      "label": "Asset-карточка (лого + название)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-62",
-      "label": "Asset-карточка (лого + название)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-63",
-      "label": "Asset-карточка (лого + название)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-64",
-      "label": "Asset-карточка (лого + название)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-feature-list-71",
-      "label": "Нумерованный пункт (gray-block)",
-      "placement": "inline",
-      "category": "feature-list",
-      "usageCount": 1,
-      "slots": 2,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-text-17",
-      "label": "Заголовок",
-      "placement": "inline",
-      "category": "text",
-      "usageCount": 1,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-text-22",
-      "label": "Текстовый абзац",
-      "placement": "inline",
-      "category": "text",
-      "usageCount": 1,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-text-23",
-      "label": "Текстовый абзац",
-      "placement": "inline",
-      "category": "text",
-      "usageCount": 1,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-text-29",
-      "label": "Текстовый абзац",
-      "placement": "inline",
-      "category": "text",
-      "usageCount": 1,
-      "slots": 1,
-      "hasMedia": false,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-text-32",
-      "label": "Текстовый абзац",
-      "placement": "inline",
-      "category": "text",
-      "usageCount": 1,
-      "slots": 1,
-      "hasMedia": false,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-text-45",
-      "label": "Заголовок",
-      "placement": "inline",
-      "category": "text",
-      "usageCount": 1,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-text-54",
-      "label": "Заголовок",
-      "placement": "inline",
-      "category": "text",
-      "usageCount": 1,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-text-55",
-      "label": "Текстовый абзац",
-      "placement": "inline",
-      "category": "text",
-      "usageCount": 1,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-text-56",
-      "label": "Заголовок",
-      "placement": "inline",
-      "category": "text",
-      "usageCount": 1,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-text-60",
-      "label": "Заголовок",
-      "placement": "inline",
-      "category": "text",
-      "usageCount": 1,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-text-62",
-      "label": "Заголовок",
-      "placement": "inline",
-      "category": "text",
-      "usageCount": 1,
-      "slots": 2,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-text-63",
-      "label": "Заголовок",
-      "placement": "inline",
-      "category": "text",
-      "usageCount": 1,
-      "slots": 1,
-      "hasMedia": true,
-      "sourceCount": 1
+      "validated": true
     },
     {
       "id": "iq-text-66",
@@ -2691,7 +2171,87 @@
       "usageCount": 1,
       "slots": 1,
       "hasMedia": true,
-      "sourceCount": 1
+      "validated": true
+    },
+    {
+      "id": "iq-utility-17",
+      "label": "Gmail blend wrapper",
+      "placement": "inline",
+      "category": "utility",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-57",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-utility-21",
+      "label": "Gmail blend wrapper",
+      "placement": "inline",
+      "category": "utility",
+      "usageCount": 1,
+      "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-61",
+      "label": "Asset-карточка (лого + название)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-21",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-utility-20",
+      "label": "Gmail blend wrapper",
+      "placement": "inline",
+      "category": "utility",
+      "usageCount": 1,
+      "slots": 3,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-56",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "iq-utility-16",
+      "label": "Gmail blend wrapper",
+      "placement": "inline",
+      "category": "utility",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
     },
     {
       "id": "iq-text-67",
@@ -2701,27 +2261,127 @@
       "usageCount": 1,
       "slots": 2,
       "hasMedia": true,
-      "sourceCount": 1
+      "validated": true
     },
     {
-      "id": "iq-text-68",
-      "label": "Текстовый абзац",
+      "id": "iq-feature-list-71",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-17",
+      "label": "Заголовок",
       "placement": "inline",
       "category": "text",
       "usageCount": 1,
       "slots": 1,
       "hasMedia": true,
-      "sourceCount": 1
+      "validated": true
     },
     {
-      "id": "iq-text-72",
-      "label": "Текстовый абзац",
+      "id": "iq-text-56",
+      "label": "Заголовок",
       "placement": "inline",
       "category": "text",
       "usageCount": 1,
       "slots": 1,
-      "hasMedia": false,
-      "sourceCount": 1
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-60",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-utility-07",
+      "label": "Gmail blend wrapper",
+      "placement": "inline",
+      "category": "utility",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-51",
+      "label": "Asset-карточка (лого + название)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-07",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-utility-06",
+      "label": "Gmail blend wrapper",
+      "placement": "inline",
+      "category": "utility",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-50",
+      "label": "Asset-карточка (лого + название)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-46",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-utility-10",
+      "label": "Gmail blend wrapper",
+      "placement": "inline",
+      "category": "utility",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-11",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
     },
     {
       "id": "iq-text-77",
@@ -2731,7 +2391,37 @@
       "usageCount": 1,
       "slots": 1,
       "hasMedia": true,
-      "sourceCount": 1
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-08",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-54",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-49",
+      "label": "Asset-карточка (лого + название)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
     },
     {
       "id": "iq-text-78",
@@ -2741,57 +2431,37 @@
       "usageCount": 1,
       "slots": 1,
       "hasMedia": true,
-      "sourceCount": 1
+      "validated": true
     },
     {
-      "id": "iq-text-79",
-      "label": "Текстовый абзац",
+      "id": "iq-feature-list-04",
+      "label": "Нумерованный пункт (gray-block)",
       "placement": "inline",
-      "category": "text",
-      "usageCount": 1,
-      "slots": 1,
-      "hasMedia": false,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-text-80",
-      "label": "Текстовый абзац",
-      "placement": "inline",
-      "category": "text",
-      "usageCount": 1,
-      "slots": 1,
-      "hasMedia": false,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-utility-07",
-      "label": "Gmail blend wrapper",
-      "placement": "inline",
-      "category": "utility",
-      "usageCount": 1,
-      "slots": 3,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-utility-11",
-      "label": "Gmail blend wrapper",
-      "placement": "inline",
-      "category": "utility",
-      "usageCount": 1,
-      "slots": 2,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-utility-12",
-      "label": "Gmail blend wrapper",
-      "placement": "inline",
-      "category": "utility",
+      "category": "feature-list",
       "usageCount": 1,
       "slots": 6,
       "hasMedia": true,
-      "sourceCount": 1
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-53",
+      "label": "Asset-карточка (лого + название)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-45",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
     },
     {
       "id": "iq-utility-13",
@@ -2801,17 +2471,297 @@
       "usageCount": 1,
       "slots": 3,
       "hasMedia": true,
-      "sourceCount": 1
+      "validated": true
     },
     {
-      "id": "iq-utility-16",
+      "id": "iq-feature-list-12",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-62",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-23",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-22",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-cta-05",
+      "label": "CTA-кнопка (w280)",
+      "placement": "inline",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-63",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-13",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-utility-12",
+      "label": "Gmail blend wrapper",
+      "placement": "inline",
+      "category": "utility",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-05",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-79",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "iq-text-80",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-64",
+      "label": "Asset-карточка (лого + название)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-48",
+      "label": "Asset-карточка (лого + название)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-utility-08",
+      "label": "Gmail blend wrapper",
+      "placement": "inline",
+      "category": "utility",
+      "usageCount": 1,
+      "slots": 3,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-09",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-55",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-02",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-utility-03",
+      "label": "Gmail blend wrapper",
+      "placement": "inline",
+      "category": "utility",
+      "usageCount": 1,
+      "slots": 3,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-utility-15",
       "label": "Gmail blend wrapper",
       "placement": "inline",
       "category": "utility",
       "usageCount": 1,
       "slots": 4,
       "hasMedia": true,
-      "sourceCount": 1
+      "validated": true
+    },
+    {
+      "id": "iq-text-72",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "iq-utility-19",
+      "label": "Gmail blend wrapper",
+      "placement": "inline",
+      "category": "utility",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-63",
+      "label": "Asset-карточка (лого + название)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-68",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-22",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-29",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "iq-utility-22",
+      "label": "Gmail blend wrapper",
+      "placement": "inline",
+      "category": "utility",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-23",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-feature-list-62",
+      "label": "Asset-карточка (лого + название)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-text-45",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
     },
     {
       "id": "iq-utility-18",
@@ -2821,97 +2771,47 @@
       "usageCount": 1,
       "slots": 5,
       "hasMedia": true,
-      "sourceCount": 1
+      "validated": true
     },
     {
-      "id": "iq-utility-21",
-      "label": "Gmail blend wrapper",
+      "id": "iq-feature-list-58",
+      "label": "Нумерованный пункт (gray-block)",
       "placement": "inline",
-      "category": "utility",
-      "usageCount": 1,
-      "slots": 3,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-utility-23",
-      "label": "Gmail blend wrapper",
-      "placement": "inline",
-      "category": "utility",
-      "usageCount": 1,
-      "slots": 4,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-utility-25",
-      "label": "Gmail blend wrapper",
-      "placement": "inline",
-      "category": "utility",
+      "category": "feature-list",
       "usageCount": 1,
       "slots": 5,
       "hasMedia": true,
-      "sourceCount": 1
+      "validated": true
     },
     {
-      "id": "iq-utility-26",
-      "label": "Gmail blend wrapper",
+      "id": "iq-text-32",
+      "label": "Текстовый абзац",
       "placement": "inline",
-      "category": "utility",
+      "category": "text",
       "usageCount": 1,
-      "slots": 5,
-      "hasMedia": true,
-      "sourceCount": 1
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
     },
     {
-      "id": "iq-utility-27",
-      "label": "Gmail blend wrapper",
+      "id": "iq-feature-list-54",
+      "label": "Asset-карточка (лого + название)",
       "placement": "inline",
-      "category": "utility",
+      "category": "feature-list",
       "usageCount": 1,
-      "slots": 5,
+      "slots": 1,
       "hasMedia": true,
-      "sourceCount": 1
+      "validated": true
     },
     {
-      "id": "iq-utility-28",
-      "label": "Gmail blend wrapper",
+      "id": "iq-feature-list-03",
+      "label": "Нумерованный пункт (gray-block)",
       "placement": "inline",
-      "category": "utility",
+      "category": "feature-list",
       "usageCount": 1,
-      "slots": 4,
+      "slots": 6,
       "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-utility-29",
-      "label": "Gmail blend wrapper",
-      "placement": "inline",
-      "category": "utility",
-      "usageCount": 1,
-      "slots": 3,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-utility-30",
-      "label": "Gmail blend wrapper",
-      "placement": "inline",
-      "category": "utility",
-      "usageCount": 1,
-      "slots": 7,
-      "hasMedia": true,
-      "sourceCount": 1
-    },
-    {
-      "id": "iq-utility-31",
-      "label": "Gmail blend wrapper",
-      "placement": "inline",
-      "category": "utility",
-      "usageCount": 1,
-      "slots": 4,
-      "hasMedia": true,
-      "sourceCount": 1
+      "validated": true
     }
   ]
 }

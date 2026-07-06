@@ -1,24 +1,42 @@
 {
   "id": "iq-utility-20",
-  "label": "Спейсер 28px",
-  "description": "Импортирован из X_IQ (4 писем). Inline-элемент.",
+  "label": "Gmail blend wrapper",
+  "description": "Импортирован из X_IQ (1 писем). Inline-элемент.",
   "placement": "inline",
   "category": "utility",
   "version": 1,
   "source": "imported",
-  "pug": ".h-28 &nbsp;",
-  "styl": ".h-28 { font-size: 8px;\n  line-height: 28px;\n  height: 28px; }",
-  "slots": [],
+  "pug": "div.gmail-blend-screen.b-iq-utility-20\n    div.gmail-blend-diff\n        p.date {{ text_1 }}\n        p.white-title.pb16.pt16 {{ text_2 }}\n        p.white-text  {{ text_3 }}",
+  "styl": "u + .body .gmail-blend-screen.b-iq-utility-20 {  background: #000;\n  mix-blend-mode: screen;  }\n.b-iq-utility-20 u + .body .gmail-blend-diff {  background: #000;\n  mix-blend-mode: difference;  }\n.b-iq-utility-20 .date {  border-radius: 10px;\n  color: #ff8516;\n  display: inline-block;\n  font-family: Helvetica !important;\n  font-size: 24px;\n  font-style: normal;\n  font-weight: 700;\n  line-height: 36px;\n  padding: 4px 12px;\n  background: url(\"https://fsms.quadcode.com/storage/public/d8/0t/39261bdc700vi72g/bg-orange.png\") center no-repeat;\n  background-size: cover;  }\n.b-iq-utility-20 .white-title {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 48px;\n  line-height: 58px;\n  color: #f9f9f9;\n  word-break: break-word;  }\n@media screen and (max-width: 600px) {\n  .b-iq-utility-20 .white-title {  font-size: 26px !important;\n    line-height: 32px !important;\n    padding-right: 0 !important;  }\n}\n.b-iq-utility-20 .white-text {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #fff;\n  padding-right: 45px;  }\n@media screen and (max-width: 600px) {\n  .b-iq-utility-20 .white-text {  padding-right: 0 !important;  }\n}\n.b-iq-utility-20 .pb16 {  padding-bottom: 16px;  }\n.b-iq-utility-20 .pt16 {  padding-top: 16px;  }\nu+.body .gmail-blend-screen.b-iq-utility-20 {  background:#000;mix-blend-mode:screen  }\n.b-iq-utility-20 u+.body .gmail-blend-diff {  background:#000;mix-blend-mode:difference  }\n.b-iq-utility-20 .date {  border-radius:10px;color:#ff8516;display:inline-block;font-family:Helvetica!important;font-size:24px;font-style:normal;font-weight:700;line-height:36px;padding:4px 12px;background:url(https://fsms.quadcode.com/storage/public/d8/0t/39261bdc700vi72g/bg-orange.png) center no-repeat  }\n.b-iq-utility-20 .bgr, .b-iq-utility-20 .bgr-image, .b-iq-utility-20 .date {  background-size:cover  }\n.b-iq-utility-20 .white-title {  font-family:Helvetica!important;font-weight:700;font-size:48px;line-height:58px;color:#f9f9f9;word-break:break-word  }\n@media screen and (max-width:600px) {\n  .b-iq-utility-20 .white-title {  font-size:26px!important;line-height:32px!important;padding-right:0!important  }\n}\n.b-iq-utility-20 .white-text {  font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#fff;padding-right:45px  }\n@media screen and (max-width:600px) {\n  .b-iq-utility-20 .white-text {  padding-right:0!important  }\n}\n.b-iq-utility-20 .pb16 {  padding-bottom:16px  }\n.b-iq-utility-20 .pt16 {  padding-top:16px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    }
+  ],
   "tags": [
     "utility",
     "inline",
     "X_IQ"
   ],
-  "usageCount": 4,
+  "usageCount": 1,
   "sourceMails": [
-    "X_IQ/mail-rfm-segmentation-2-132",
     "X_IQ/mail-rfm-segmentation-2-315"
   ],
-  "createdAt": "2026-06-29T07:08:36.207Z",
+  "createdAt": "2026-07-06T07:31:35.027Z",
   "validated": true
 }

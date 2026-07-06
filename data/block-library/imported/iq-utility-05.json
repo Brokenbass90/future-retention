@@ -1,32 +1,54 @@
 {
   "id": "iq-utility-05",
-  "label": "Спейсер 8px",
-  "description": "Импортирован из X_IQ (27 писем). Inline-элемент.",
+  "label": "Gmail blend wrapper",
+  "description": "Импортирован из X_IQ (19 писем). Inline-элемент.",
   "placement": "inline",
   "category": "utility",
   "version": 1,
   "source": "imported",
-  "pug": ".h-8 &nbsp;",
-  "styl": ".h-8 { font-size: 8px;\n  line-height: 8px;\n  height: 8px; }",
-  "slots": [],
+  "pug": "div.gmail-blend-screen.b-iq-utility-05\n    div.gmail-blend-diff\n        p.white-title.pb16 {{ text_1 }}\n        p.white-text  {{ text_2 }}",
+  "styl": "u + .body .gmail-blend-screen.b-iq-utility-05 {  background: #000;\n  mix-blend-mode: screen;  }\n.b-iq-utility-05 u + .body .gmail-blend-diff {  background: #000;\n  mix-blend-mode: difference;  }\n.b-iq-utility-05 .white-title {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 40px;\n  line-height: 50px;\n  color: #fff;\n  word-break: break-word;  }\n@media screen and (max-width: 600px) {\n  .b-iq-utility-05 .white-title {  font-size: 26px !important;\n    line-height: 32px !important;  }\n}\n.b-iq-utility-05 .white-text {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #fff;\n  padding-right: 20px;  }\n@media screen and (max-width: 600px) {\n  .b-iq-utility-05 .white-text {  padding-right: 0 !important;  }\n}\n.b-iq-utility-05 .pb16 {  padding-bottom: 16px;  }\nu+.body .gmail-blend-screen.b-iq-utility-05 {  background:#000;mix-blend-mode:screen  }\n.b-iq-utility-05 u+.body .gmail-blend-diff {  background:#000;mix-blend-mode:difference  }\n.b-iq-utility-05 .white-title {  font-family:Helvetica!important;font-weight:700;font-size:40px;line-height:50px;color:#fff;word-break:break-word  }\n@media screen and (max-width:600px) {\n  .b-iq-utility-05 .white-title {  font-size:26px!important;line-height:32px!important  }\n}\n.b-iq-utility-05 .white-text {  font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#fff;padding-right:20px  }\n@media screen and (max-width:600px) {\n  .b-iq-utility-05 .white-text {  padding-right:0!important  }\n}\n.b-iq-utility-05 .pb16 {  padding-bottom:16px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    }
+  ],
   "tags": [
     "utility",
     "inline",
     "X_IQ"
   ],
-  "usageCount": 27,
+  "usageCount": 19,
   "sourceMails": [
-    "X_IQ/mail-rfm-311",
+    "X_IQ/mail-rfm-314",
     "X_IQ/mail-rfm-321",
     "X_IQ/mail-rfm-322",
-    "X_IQ/mail-rfm-331",
-    "X_IQ/mail-rfm-segmentation-2-111",
+    "X_IQ/mail-rfm-332",
     "X_IQ/mail-rfm-segmentation-2-121",
-    "X_IQ/mail-rfm-segmentation-2-124",
+    "X_IQ/mail-rfm-segmentation-2-122",
+    "X_IQ/mail-rfm-segmentation-2-125",
+    "X_IQ/mail-rfm-segmentation-2-131",
+    "X_IQ/mail-rfm-segmentation-2-132",
+    "X_IQ/mail-rfm-segmentation-2-133",
+    "X_IQ/mail-rfm-segmentation-2-135",
     "X_IQ/mail-rfm-segmentation-2-212",
-    "X_IQ/mail-rfm-segmentation-2-213",
-    "X_IQ/mail-test"
+    "X_IQ/mail-rfm-segmentation-2-214",
+    "X_IQ/mail-rfm-segmentation-2-215",
+    "X_IQ/mail-rfm-segmentation-2-221",
+    "X_IQ/mail-rfm-segmentation-2-231",
+    "X_IQ/mail-rfm-segmentation-2-232",
+    "X_IQ/mail-rfm-segmentation-2-233",
+    "X_IQ/mail-rfm-segmentation-2-234"
   ],
-  "createdAt": "2026-06-29T07:08:36.205Z",
+  "createdAt": "2026-07-06T07:31:35.007Z",
   "validated": true
 }

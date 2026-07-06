@@ -1,32 +1,42 @@
 {
   "id": "iq-utility-08",
-  "label": "Спейсер 32px",
-  "description": "Импортирован из X_IQ (16 писем). Inline-элемент.",
+  "label": "Gmail blend wrapper",
+  "description": "Импортирован из X_IQ (1 писем). Inline-элемент.",
   "placement": "inline",
   "category": "utility",
   "version": 1,
   "source": "imported",
-  "pug": ".h-32 &nbsp;",
-  "styl": ".h-32 { font-size: 8px;\n  line-height: 32px;\n  height: 32px; }",
-  "slots": [],
+  "pug": "div.gmail-blend-screen.b-iq-utility-08\n    div.gmail-blend-diff\n        p.data {{ text_1 }}\n        p.white-title.pb16.pt16 {{ text_2 }}\n        p.white-text  {{ text_3 }}",
+  "styl": "u + .body .gmail-blend-screen.b-iq-utility-08 {  background: #000;\n  mix-blend-mode: screen;  }\n.b-iq-utility-08 u + .body .gmail-blend-diff {  background: #000;\n  mix-blend-mode: difference;  }\n.b-iq-utility-08 .data {  display: inline-block;\n  padding: 6px 16px;\n  background: #3f1907;\n  border-radius: 12px;\n  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 16px;\n  line-height: 20px;\n  color: #ff8516;\n  text-align: left;  }\n@media screen and (max-width: 600px) {\n  .b-iq-utility-08 .data {  font-size: 14px !important;  }\n}\n.b-iq-utility-08 .white-title {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 40px;\n  line-height: 50px;\n  color: #fff;\n  word-break: break-word;  }\n@media screen and (max-width: 600px) {\n  .b-iq-utility-08 .white-title {  font-size: 26px !important;\n    line-height: 32px !important;  }\n}\n.b-iq-utility-08 .white-text {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #fff;\n  padding-right: 20px;  }\n@media screen and (max-width: 600px) {\n  .b-iq-utility-08 .white-text {  padding-right: 0 !important;  }\n}\n.b-iq-utility-08 .pb16 {  padding-bottom: 16px;  }\n.b-iq-utility-08 .pt16 {  padding-top: 16px;  }\nu+.body .gmail-blend-screen.b-iq-utility-08 {  background:#000;mix-blend-mode:screen  }\n.b-iq-utility-08 u+.body .gmail-blend-diff {  background:#000;mix-blend-mode:difference  }\n.b-iq-utility-08 .data {  display:inline-block;padding:6px 16px;background:#3f1907;border-radius:12px;font-family:Helvetica!important;font-weight:700;font-size:16px;line-height:20px;color:#ff8516;text-align:left  }\n@media screen and (max-width:600px) {\n  .b-iq-utility-08 .data {  font-size:14px!important  }\n}\n.b-iq-utility-08 .white-title {  font-family:Helvetica!important;font-weight:700;font-size:40px;line-height:50px;color:#fff;word-break:break-word  }\n@media screen and (max-width:600px) {\n  .b-iq-utility-08 .white-title {  font-size:26px!important;line-height:32px!important  }\n}\n.b-iq-utility-08 .white-text {  font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#fff;padding-right:20px  }\n@media screen and (max-width:600px) {\n  .b-iq-utility-08 .white-text {  padding-right:0!important  }\n}\n.b-iq-utility-08 .pb16 {  padding-bottom:16px  }\n.b-iq-utility-08 .pt16 {  padding-top:16px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    }
+  ],
   "tags": [
     "utility",
     "inline",
     "X_IQ"
   ],
-  "usageCount": 16,
+  "usageCount": 1,
   "sourceMails": [
-    "X_IQ/mail-rfm-312",
-    "X_IQ/mail-rfm-segmentation-2-113",
-    "X_IQ/mail-rfm-segmentation-2-114",
-    "X_IQ/mail-rfm-segmentation-2-124",
-    "X_IQ/mail-rfm-segmentation-2-133",
-    "X_IQ/mail-rfm-segmentation-2-134",
-    "X_IQ/mail-rfm-segmentation-2-135",
-    "X_IQ/mail-rfm-segmentation-2-212",
-    "X_IQ/mail-rfm-segmentation-2-215",
-    "X_IQ/mail-rfm-segmentation-2-233"
+    "X_IQ/mail-rfm-333"
   ],
-  "createdAt": "2026-06-29T07:08:36.205Z",
+  "createdAt": "2026-07-06T07:31:35.011Z",
   "validated": true
 }

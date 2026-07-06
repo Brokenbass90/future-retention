@@ -6,7 +6,7 @@
   "category": "header",
   "version": 1,
   "source": "imported",
-  "pug": "table.row\n    tr\n        td.wrapper.last.offset-by-one.pt0\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb0\n                        a(href=\"{{ href_1 }}\" universal=\"true\" target=\"_blank\")\n                            img.logo.center(src=\"{{ image_1 }}\")",
+  "pug": "table.row.b-iq-header-01\n    tr\n        td.wrapper.last.offset-by-one.pt0\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb0\n                        a(href=\"{{ href_1 }}\" universal=\"true\" target=\"_blank\")\n                            img.logo.center(src=\"{{ image_1 }}\")",
   "styl": "",
   "slots": [
     {
@@ -43,6 +43,6 @@
     "X_IQ/mail-rfm-334",
     "X_IQ/mail-test"
   ],
-  "createdAt": "2026-06-29T07:08:36.205Z",
+  "createdAt": "2026-07-06T07:31:35.000Z",
   "validated": true
 }

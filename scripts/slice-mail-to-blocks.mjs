@@ -56,13 +56,25 @@ async function vendorFrameworkClasses() {
   _vendorFwCache = set;
   return set;
 }
-async function frameworkClassesForMail(mailAbs) {
+// The classes GUARANTEED by the compose scaffold (vendor + skeleton mail's
+// common.styl/helpers). A block may rely on these for free. Every OTHER class
+// the block references must carry its own CSS (base + @media) — otherwise
+// styles and mobile adaptation are silently lost when the block is composed
+// into a different mail (the exact bug this rewrite fixes).
+const SKELETON_MAIL = path.join(emailBase, "X_IQBroker", "mail-welcome");
+let _skelFwCache = null;
+async function skeletonFrameworkClasses() {
+  if (_skelFwCache) return _skelFwCache;
   const set = new Set(await vendorFrameworkClasses());
-  const stylesDir = path.join(mailAbs, "app", "styles");
+  const stylesDir = path.join(SKELETON_MAIL, "app", "styles");
   const srcFiles = [path.join(stylesDir, "common.styl")];
   try { srcFiles.push(...globSync(path.join(stylesDir, "helpers", "*.styl"))); } catch {}
   for (const f of srcFiles) classNamesIn(await readSafeText(f)).forEach((c) => set.add(c));
+  _skelFwCache = set;
   return set;
+}
+async function frameworkClassesForMail() {
+  return skeletonFrameworkClasses();
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -209,16 +221,18 @@ function selectorReferencesClass(selector, classSet) {
 function cssForClasses(parsedRules, designSet) {
   if (!designSet || designSet.size === 0) return "";
   const parts = [];
+  const seen = new Set(); // dedupe identical rules (blocks/main.css ∩ common.css)
+  const push = (s) => { const k = s.replace(/\s+/g, " "); if (!seen.has(k)) { seen.add(k); parts.push(s); } };
   for (const r of parsedRules) {
     if (r.type === "rule") {
       if (selectorReferencesClass(r.selector, designSet)) {
-        parts.push(`${r.selector} { ${r.body} }`);
+        push(`${r.selector} { ${r.body} }`);
       }
     } else if (r.type === "media") {
       const matched = r.rules.filter((ir) => selectorReferencesClass(ir.selector, designSet));
       if (matched.length) {
         const inner = matched.map((ir) => `  ${ir.selector} { ${ir.body} }`).join("\n");
-        parts.push(`${r.query} {\n${inner}\n}`);
+        push(`${r.query} {\n${inner}\n}`);
       }
     }
   }
@@ -229,10 +243,12 @@ function cssForClasses(parsedRules, designSet) {
 function classesInPug(pugLines) {
   const set = new Set();
   for (const l of pugLines) {
-    // class tokens appear as .foo at start-token AND inside class= maybe; capture leading-token classes per line
     const { classes } = parseClasses(l.trimmed);
     classes.forEach((c) => set.add(c));
-    // also nested tags on same indentation chains handled per-line already
+    // class="a b" / class='a b' attribute form
+    for (const m of l.trimmed.matchAll(/\bclass\s*=\s*(["'])([^"']*)\1/g)) {
+      m[2].split(/\s+/).filter(Boolean).forEach((c) => set.add(c));
+    }
   }
   return set;
 }
@@ -369,9 +385,16 @@ async function readMailContent(mailAbs) {
 }
 
 async function readCompiledCss(mailAbs) {
-  // Only the mail's compiled BLOCK styles — this is the design layer.
-  // (assets/common.css is the full framework and would re-introduce helpers.)
-  return await readSafeText(path.join(mailAbs, "app", "styles", "blocks", "dist", "main.css"));
+  // Block design layer + the mail's full compiled common.css. The latter is
+  // where most @media (mobile) rules live — including rules for classes that
+  // LOOK like framework helpers but are mail-specific (.grey-block, .plr32…).
+  // cssForClasses() filters by the block's non-skeleton classes, so skeleton
+  // framework rules (.row, .wrapper…) are still dropped.
+  const parts = [
+    await readSafeText(path.join(mailAbs, "app", "styles", "blocks", "dist", "main.css")),
+    await readSafeText(path.join(mailAbs, "app", "assets", "styles", "common.css")),
+  ];
+  return parts.filter(Boolean).join("\n");
 }
 
 async function sliceMail(category, mailId) {
@@ -380,7 +403,7 @@ async function sliceMail(category, mailId) {
   const contents = await readMailContent(mailAbs);
   const css = await readCompiledCss(mailAbs);
   const parsedCss = parseCssRules(css);
-  const fw = await frameworkClassesForMail(mailAbs);
+  const fw = await frameworkClassesForMail();
   const designOf = (classSet) => new Set([...classSet].filter((c) => !fw.has(c)));
 
   const blocks = [];

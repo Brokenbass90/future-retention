@@ -6,8 +6,8 @@
   "category": "text",
   "version": 1,
   "source": "imported",
-  "pug": "p.text.pb8.center-mob <b>{{ text_1 }}</b>",
-  "styl": ".text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n.pb8 { padding-bottom: 8px; }\n@media screen and (max-width: 600px) {\n  .center-mob { text-align: center !important; }\n}",
+  "pug": "p.text.pb8.center-mob.b-iq-text-37 <b>{{ text_1 }}</b>",
+  "styl": ".text.b-iq-text-37 {  font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400;  }\n.text.bold.b-iq-text-37 {  font-weight: 700;  }\n.pb8.b-iq-text-37 {  padding-bottom: 8px;  }\n@media screen and (max-width: 600px) {\n  .center-mob.b-iq-text-37 {  text-align: center !important;  }\n}\n.text.b-iq-text-37, .b-iq-text-37 .text-2 {  font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400  }\n.b-iq-text-37 .big, .text.bold.b-iq-text-37 {  font-weight:700  }\n.pb8.b-iq-text-37 {  padding-bottom:8px  }\n@media screen and (max-width:600px) {\n  .center-mob.b-iq-text-37 {  text-align:center!important  }\n}",
   "slots": [
     {
       "id": "text_1",
@@ -25,6 +25,6 @@
   "sourceMails": [
     "X_IQ/mail-rfm-segmentation-2-122"
   ],
-  "createdAt": "2026-06-29T07:08:36.206Z",
+  "createdAt": "2026-07-06T07:31:35.013Z",
   "validated": true
 }

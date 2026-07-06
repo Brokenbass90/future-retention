@@ -6,8 +6,8 @@
   "category": "utility",
   "version": 1,
   "source": "imported",
-  "pug": "div.gmail-blend-screen\n    div.gmail-blend-diff\n        p.white-title.pb16 {{embedded.user_first_name}}{{ text_1 }}\n        p.white-text  {{ text_2 }}",
-  "styl": "u + .body .gmail-blend-screen { background: #000;\n  mix-blend-mode: screen; }\nu + .body .gmail-blend-diff { background: #000;\n  mix-blend-mode: difference; }\n.white-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 40px;\n  line-height: 50px;\n  color: #fff;\n  word-break: break-word; }\n@media screen and (max-width: 600px) {\n  .white-title { font-size: 26px !important;\n    line-height: 32px !important; }\n}\n.white-text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #fff;\n  padding-right: 20px; }\n@media screen and (max-width: 600px) {\n  .white-text { padding-right: 0 !important; }\n}\n.pb16 { padding-bottom: 16px; }",
+  "pug": "div.gmail-blend-screen.b-iq-utility-02\n    div.gmail-blend-diff\n        p.white-title.pb16 {{embedded.user_first_name}}{{ text_1 }}\n        p.white-text  {{ text_2 }}",
+  "styl": "u + .body .gmail-blend-screen.b-iq-utility-02 {  background: #000;\n  mix-blend-mode: screen;  }\n.b-iq-utility-02 u + .body .gmail-blend-diff {  background: #000;\n  mix-blend-mode: difference;  }\n.b-iq-utility-02 .white-title {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 40px;\n  line-height: 50px;\n  color: #fff;\n  word-break: break-word;  }\n@media screen and (max-width: 600px) {\n  .b-iq-utility-02 .white-title {  font-size: 26px !important;\n    line-height: 32px !important;  }\n}\n.b-iq-utility-02 .white-text {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #fff;\n  padding-right: 20px;  }\n@media screen and (max-width: 600px) {\n  .b-iq-utility-02 .white-text {  padding-right: 0 !important;  }\n}\n.b-iq-utility-02 .pb16 {  padding-bottom: 16px;  }\nu+.body .gmail-blend-screen.b-iq-utility-02 {  background:#000;mix-blend-mode:screen  }\n.b-iq-utility-02 u+.body .gmail-blend-diff {  background:#000;mix-blend-mode:difference  }\n.b-iq-utility-02 .white-title {  font-family:Helvetica!important;font-weight:700;font-size:40px;line-height:50px;color:#fff;word-break:break-word  }\n@media screen and (max-width:600px) {\n  .b-iq-utility-02 .white-title {  font-size:26px!important;line-height:32px!important  }\n}\n.b-iq-utility-02 .white-text {  font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#fff;padding-right:20px  }\n@media screen and (max-width:600px) {\n  .b-iq-utility-02 .white-text {  padding-right:0!important  }\n}\n.b-iq-utility-02 .pb16 {  padding-bottom:16px  }",
   "slots": [
     {
       "id": "text_1",
@@ -32,6 +32,6 @@
     "X_IQ/mail-rfm-311",
     "X_IQ/mail-test"
   ],
-  "createdAt": "2026-06-29T07:08:36.205Z",
+  "createdAt": "2026-07-06T07:31:35.002Z",
   "validated": true
 }

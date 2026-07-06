@@ -6,8 +6,8 @@
   "category": "text",
   "version": 1,
   "source": "imported",
-  "pug": "p.small-title.pb40 {{ text_1 }}",
-  "styl": ".small-title { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  color: #393a44; }\n@media screen and (max-width: 600px) {\n  .small-title { font-size: 21px !important;\n    line-height: 29px !important; }\n}",
+  "pug": "p.small-title.pb40.b-iq-text-03 {{ text_1 }}",
+  "styl": ".small-title.b-iq-text-03 {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  color: #393a44;  }\n@media screen and (max-width: 600px) {\n  .small-title.b-iq-text-03 {  font-size: 21px !important;\n    line-height: 29px !important;  }\n}\n.small-title.b-iq-text-03 {  font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:24px;line-height:31px;color:#393a44  }\n@media screen and (max-width:600px) {\n  .small-title.b-iq-text-03 {  font-size:21px!important;line-height:29px!important  }\n}",
   "slots": [
     {
       "id": "text_1",
@@ -26,6 +26,6 @@
     "X_IQ/mail-rfm-311",
     "X_IQ/mail-test"
   ],
-  "createdAt": "2026-06-29T07:08:36.205Z",
+  "createdAt": "2026-07-06T07:31:35.002Z",
   "validated": true
 }

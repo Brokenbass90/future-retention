@@ -32,7 +32,8 @@ import { analyzeLocaleAgainstHtml } from "./locale-analyze.js";
 import { compareLocales } from "./locale-cross-check.js";
 import { listHtmlSections, insertHtml, removeHtml } from "./html-blocks.js";
 import { validateHtml } from "./html-validate.js";
-import { composeEmailFromBlocks, listCanonicalBlocks } from "./compose-email.js";
+import { composeEmailFromBlocks, listCanonicalBlocks, loadCanonicalBlock, userBlockPath, userBlockDir } from "./compose-email.js";
+import { readFileSync as _readFileSyncBlocks, writeFileSync as _writeFileSyncBlocks, mkdirSync as _mkdirSyncBlocks, rmSync as _rmSyncBlocks, existsSync as _existsSyncBlocks } from "node:fs";
 
 function serializeBlocks(blocks) {
   return Array.isArray(blocks) && blocks.length
@@ -394,6 +395,75 @@ export const TOOL_DEFINITIONS = [
       additionalProperties: false,
       properties: {},
       required: [],
+    },
+  },
+  {
+    type: "function",
+    name: "get_block_source",
+    description:
+      "Read the FULL source of one block from the library (canonical, imported or user): " +
+      "pug, styl (incl. @media mobile rules), slots with defaults, placement, category, tags, usage stats. " +
+      "Use when you need to understand exactly how a block is built, check its mobile adaptation, " +
+      "or prepare an edited copy for save_user_block.",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        id: { type: "string", description: "Block id from list_canonical_blocks." },
+      },
+      required: ["id"],
+    },
+  },
+  {
+    type: "function",
+    name: "save_user_block",
+    description:
+      "Create or update a USER block in data/block-library/user/. Blocks are {pug, styl} pairs " +
+      "with {{ slot }} tokens; styl may contain @media rules for mobile. " +
+      "Set force=true to overwrite an existing user block. Canonical/imported blocks cannot be " +
+      "overwritten — copy them via get_block_source, modify, and save under a NEW id.",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        id: { type: "string", description: "1-64 chars: letters/digits/_/-" },
+        label: { type: "string" },
+        description: { type: "string" },
+        placement: { type: "string", enum: ["section", "inline", "helper"] },
+        category: { type: "string", description: "hero / cta / text / image / feature-list / footer / utility / misc" },
+        pug: { type: "string", description: "Pug source with {{ slot }} tokens." },
+        styl: { type: "string", description: "Stylus/CSS source, may include @media blocks." },
+        slots: {
+          type: "array",
+          items: {
+            type: "object",
+            additionalProperties: true,
+            properties: {
+              id: { type: "string" },
+              kind: { type: "string" },
+              label: { type: "string" },
+              default: {},
+            },
+            required: ["id"],
+          },
+        },
+        tags: { type: "array", items: { type: "string" } },
+        force: { type: "boolean", description: "Overwrite existing user block with same id." },
+      },
+      required: ["id", "pug"],
+    },
+  },
+  {
+    type: "function",
+    name: "delete_user_block",
+    description: "Delete a USER block by id (only blocks in data/block-library/user/; canonical and imported are protected).",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        id: { type: "string" },
+      },
+      required: ["id"],
     },
   },
   {
@@ -896,12 +966,82 @@ export const TOOL_HANDLERS = {
         description: b.description,
         placement: b.placement,
         category: b.category,
+        source: b.source,
+        tags: b.tags || [],
+        usageCount: b.usageCount || 0,
+        hasMobileStyles: /@media/i.test(b.styl || ""),
+        stylBytes: (b.styl || "").length,
         slots: (b.slots || []).map((s) => ({
           id: s.id, kind: s.kind, label: s.label,
           default: s.default, max: s.max, min: s.min, options: s.options,
         })),
       })),
     };
+  },
+
+  async get_block_source(args, _ctx) {
+    const id = String(args?.id || "").trim();
+    if (!/^[a-z0-9][a-z0-9_-]{0,63}$/i.test(id)) throw new Error("invalid block id");
+    const b = loadCanonicalBlock(id);
+    return {
+      id: b.id, label: b.label, description: b.description,
+      placement: b.placement, category: b.category, source: b.source,
+      tags: b.tags || [], usageCount: b.usageCount || 0,
+      sourceMails: b.sourceMails || [],
+      pug: b.pug, styl: b.styl,
+      hasMobileStyles: /@media/i.test(b.styl || ""),
+      slots: b.slots || [],
+    };
+  },
+
+  async save_user_block(args, _ctx) {
+    const id = String(args?.id || "").trim();
+    if (!/^[a-z0-9][a-z0-9_-]{0,63}$/i.test(id)) throw new Error("id must be 1-64 chars, letters/digits/_/-");
+    const pug = String(args?.pug || "");
+    if (!pug.trim()) throw new Error("pug content required");
+    const target = userBlockPath(id);
+    // never allow shadowing canonical/imported ids
+    let existing = null;
+    try { existing = loadCanonicalBlock(id); } catch {}
+    if (existing && existing.source && existing.source !== "user") {
+      throw new Error(`id '${id}' belongs to a ${existing.source} block — save under a new id`);
+    }
+    if (_existsSyncBlocks(target) && !args?.force) {
+      throw new Error("user block already exists — pass force=true to overwrite");
+    }
+    _mkdirSyncBlocks(userBlockDir(), { recursive: true });
+    const slots = Array.isArray(args?.slots) ? args.slots.map((sl) => ({
+      id: String(sl?.id || "").trim(),
+      kind: String(sl?.kind || "text"),
+      label: String(sl?.label || sl?.id || ""),
+      default: sl?.default,
+      min: sl?.min, max: sl?.max, options: sl?.options,
+    })).filter((sl) => sl.id) : [];
+    const blockJson = {
+      id,
+      label: String(args?.label || id).trim().slice(0, 120),
+      description: String(args?.description || "").trim().slice(0, 400),
+      placement: ["section", "inline", "helper"].includes(args?.placement) ? args.placement : "inline",
+      category: String(args?.category || "misc").trim().slice(0, 40),
+      version: 1,
+      source: "user",
+      pug,
+      styl: String(args?.styl || ""),
+      slots,
+      tags: Array.isArray(args?.tags) ? args.tags.slice(0, 12).map(String) : [],
+      createdAt: new Date().toISOString(),
+    };
+    _writeFileSyncBlocks(target, JSON.stringify(blockJson, null, 2) + "\n", "utf8");
+    return { ok: true, id, slots: slots.length };
+  },
+
+  async delete_user_block(args, _ctx) {
+    const id = String(args?.id || "").trim();
+    if (!/^[a-z0-9][a-z0-9_-]{0,63}$/i.test(id)) throw new Error("invalid block id");
+    const target = userBlockPath(id);
+    if (!_existsSyncBlocks(target)) throw new Error("user block not found: " + id);
+    _rmSyncBlocks(target, { force: true });
+    return { ok: true, id };
   },
 
   async validate_html(_args, ctx) {

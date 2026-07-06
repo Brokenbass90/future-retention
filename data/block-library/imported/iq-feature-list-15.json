@@ -6,8 +6,8 @@
   "category": "feature-list",
   "version": 1,
   "source": "imported",
-  "pug": ".asset-block.mr16\n    p.asset.pd20\n        img.asset-logo(src=\"{{ image_1 }}\")\n        |{{ text_1 }}",
-  "styl": ".asset-block { display: inline-block;\n  border: 1px solid #ececed;\n  border-radius: 24px;\n  width: 222px;\n  margin-bottom: 16px; }\n@media screen and (max-width: 600px) {\n  .asset-block { display: block !important;\n    margin: 0 auto 16px !important; }\n}\n.asset { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 18px;\n  line-height: 27px;\n  color: #393a44; }\n.pd20 { padding: 20px; }\n.mr16 { margin-right: 16px; }\n.asset-logo { display: inline-block;\n  width: 48px !important;\n  float: none;\n  vertical-align: middle;\n  padding-right: 10px; }",
+  "pug": ".asset-block.mr16.b-iq-feature-list-15\n    p.asset.pd20\n        img.asset-logo(src=\"{{ image_1 }}\")\n        |{{ text_1 }}",
+  "styl": ".asset-block.b-iq-feature-list-15 {  display: inline-block;\n  border: 1px solid #ececed;\n  border-radius: 24px;\n  width: 222px;\n  margin-bottom: 16px;  }\n@media screen and (max-width: 600px) {\n  .asset-block.b-iq-feature-list-15 {  display: block !important;\n    margin: 0 auto 16px !important;  }\n}\n.b-iq-feature-list-15 .asset {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 18px;\n  line-height: 27px;\n  color: #393a44;  }\n.b-iq-feature-list-15 .pd20 {  padding: 20px;  }\n.mr16.b-iq-feature-list-15 {  margin-right: 16px;  }\n.b-iq-feature-list-15 .asset-logo {  display: inline-block;\n  width: 48px !important;\n  float: none;\n  vertical-align: middle;\n  padding-right: 10px;  }\n.asset-block.b-iq-feature-list-15 {  display:inline-block;border:1px solid #ececed;border-radius:24px;width:222px;margin-bottom:16px  }\n@media screen and (max-width:600px) {\n  .asset-block.b-iq-feature-list-15 {  display:block!important;margin:0 auto 16px!important  }\n}\n.b-iq-feature-list-15 .asset {  font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:18px;line-height:27px;color:#393a44  }\n.b-iq-feature-list-15 .pd20 {  padding:20px  }\n.mr16.b-iq-feature-list-15 {  margin-right:16px  }\n.b-iq-feature-list-15 .asset-logo, .b-iq-feature-list-15 .asset-logo-2 {  display:inline-block;width:48px!important;float:none;vertical-align:middle;padding-right:10px  }",
   "slots": [
     {
       "id": "text_1",
@@ -35,6 +35,6 @@
     "X_IQ/mail-rfm-segmentation-2-215",
     "X_IQ/mail-rfm-segmentation-2-222"
   ],
-  "createdAt": "2026-06-29T07:08:36.206Z",
+  "createdAt": "2026-07-06T07:31:35.009Z",
   "validated": true
 }

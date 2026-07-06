@@ -1,0 +1,1219 @@
+{
+  "category": "X_IQ",
+  "mailId": "rfm-321",
+  "mailAbs": "email-base/X_IQ/mail-rfm-321",
+  "blockCount": 8,
+  "blocks": [
+    {
+      "id": "x-iq-rfm-321-header-section-0",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "kind": "section",
+      "sourceFile": "X_IQ/mail-rfm-321/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.offset-by-one.pt0\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb0\n                        a(href=\"https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-3-2-1&retrack=mail_IQ-RFM-3-2-1&type=forex&asset=1\" universal=\"true\" target=\"_blank\")\n                            img.logo.center(src=\"https://static.cdnroute.io/files/storage/public/60/b6/1b5cef3f19b7c9i0b2/logo_shadow_top_2.png\")",
+      "styl": "table.row.header { background: #f9f9f9;\n  height: 86px; }\n@media screen and (max-width: 600px) {\n  .text-pad-small { padding-left: 20px !important;\n    padding-right: 20px !important; }\n}\n.center { text-align: center;\n  margin: 0 auto; }\n.logo { float: none;\n  max-width: 138px;\n  padding-top: 32px;\n  padding-bottom: 32px; }\n@media screen and (max-width: 600px) {\n  .logo { margin: 0 auto !important; }\n}\n.pb0 { padding-bottom: 0 !important; }\n.pt0 { padding-top: 0; }\n@media screen and (max-width: 600px) {\n  table[class=\"overbody\"] table.columns td.td-icon { width: 30px !important;\n    padding-right: 15px !important; }\n}\n@media screen and (max-width: 600px) {\n  table[class=\"body\"] table.columns td.bbb,\n  table[class=\"body\"] table.columns td.bb1 { width: auto !important; }\n}\n@media screen and (max-width: 600px) {\n  table[class=\"body\"] table.column td,\n  table[class=\"body\"] table.columns td.mob-td { background-size: 25px !important;\n    padding-left: 33px !important; }\n}\n@media screen and (max-width: 600px) {\n  table[class=\"body\"] table.columns td.plr1,\n  table[class=\"body\"] table.columns td.plr2,\n  table[class=\"body\"] table.columns td.plr3 { width: auto !important; }\n}\ntable[class=\"body\"] table.columns td.auto { width: auto !important; }\ntable[class=\"body\"] table.columns td.w74 { width: 74px !important; }\ntable[class=body] table.column td,\ntable[class=body] table.columns td.m-w { min-width: 48px !important;\n  width: 48px !important; }\ntable[class=body] table.columns td.m-w2 { min-width: 152px;\n  width: 152px; }\n@media screen and (max-width: 600px) {\n  table[class=body] table.columns td.m-w2 { min-width: 120px !important;\n    width: 120px !important; }\n}\nimg.center { margin:0 auto;float:none }\nimg,table.container table.row { display:block }\ntable.row { padding:0;width:100%;position:relative }\ntable.ten { width:480px }\ntable.ten center { min-width:480px }\ntable.ten .panel center { min-width:460px }\ntd.wrapper { padding:0;position:relative }\ntd.offset-by-one { padding-left:50px }\ntable.column,table.columns,ul { margin:0 }\ntable.column td,table.columns td { padding:0 0 10px }\ntable.column td.sub-column,table.column td.sub-columns,table.columns td.sub-column,table.columns td.sub-columns { padding-right:10px }\ntable.container td.last,table.row td.last { padding-right:0 }\n.body .column td.one,.body .columns td.one { width:8.333333% }\n.body .column td.two,.body .columns td.two { width:16.666666% }\n.body .column td.three,.body .columns td.three { width:25% }\n.body .column td.four,.body .columns td.four { width:33.333333% }\n.body .column td.five,.body .columns td.five { width:41.666666% }\n.body .column td.six,.body .columns td.six { width:50% }\n.body .column td.seven,.body .columns td.seven { width:58.333333% }\n.body .column td.eight,.body .columns td.eight { width:66.666666% }\n.body .column td.nine,.body .columns td.nine { width:75% }\n.body .column td.ten,.body .columns td.ten { width:83.333333% }\n.body .column td.eleven,.body .columns td.eleven { width:91.666666% }\n.body .column td.twelve,.body .columns td.twelve { width:100% }\ntable.column .text-pad,table.columns .text-pad { padding-left:10px;padding-right:10px }\ntable.column .left-text-pad,table.column .text-pad-left,table.columns .left-text-pad,table.columns .text-pad-left { padding-left:10px }\ntable.column .right-text-pad,table.column .text-pad-right,table.columns .right-text-pad,table.columns .text-pad-right { padding-right:10px }\nh1.center,h2.center,h3.center,h4.center,h5.center,h6.center,span.center,table.center,td.center { text-align:center }\nspan.center { display:block;width:100% }\n@media only screen and (max-width:600px) {\n  table[class=body] .row { width:100%!important;display:block!important }\n  table[class=body] .column,table[class=body] .columns,table[class=body] .wrapper { display:block!important;padding-right:0!important;padding-left:0!important }\n  table[class=body] table.columns td.expander { width:1px!important }\n  table[class=body] .column,table[class=body] .columns { table-layout:fixed!important;float:none!important;width:100%!important }\n  table[class=body] .wrapper.first .column,table[class=body] .wrapper.first .columns { display:table!important }\n  table[class=body] table.column td,table[class=body] table.columns td { width:100%!important }\n  table[class=body] .column td.one,table[class=body] .columns td.one { width:8.333333%!important }\n  table[class=body] .column td.two,table[class=body] .columns td.two { width:16.666666%!important }\n  table[class=body] .column td.three,table[class=body] .columns td.three { width:25%!important }\n  table[class=body] .column td.four,table[class=body] .columns td.four { width:33.333333%!important }\n  table[class=body] .column td.five,table[class=body] .columns td.five { width:41.666666%!important }\n  table[class=body] .column td.six,table[class=body] .columns td.six { width:50%!important }\n  table[class=body] .column td.seven,table[class=body] .columns td.seven { width:58.333333%!important }\n  table[class=body] .column td.eight,table[class=body] .columns td.eight { width:66.666666%!important }\n  table[class=body] .column td.nine,table[class=body] .columns td.nine { width:75%!important }\n  table[class=body] .column td.ten,table[class=body] .columns td.ten { width:83.333333%!important }\n  table[class=body] .column td.eleven,table[class=body] .columns td.eleven { width:91.666666%!important }\n  table[class=body] .column td.twelve,table[class=body] .columns td.twelve { width:100%!important }\n  table[class=body] td .offset-by-eight,table[class=body] td .offset-by-eleven,table[class=body] td .offset-by-five,table[class=body] td .offset-by-four,table[class=body] td .offset-by-nine,table[class=body] td .offset-by-one,table[class=body] td .offset-by-seven,table[class=body] td .offset-by-six,table[class=body] td .offset-by-ten,table[class=body] td .offset-by-three,table[class=body] td .offset-by-twelve,table[class=body] td .offset-by-two { padding-left:0!important }\n}\ntable.row.header { height:86px }\ntable.body,table.row.header { background:#f9f9f9 }\n@media screen and (max-width:600px) {\n  .text-pad-small { padding-left:20px!important }\n  .text-pad-small,.text-pad-small-right { padding-right:20px!important }\n}\n.center,.terms { text-align:center;margin:0 auto }\n.logo { float:none;max-width:138px;padding-top:32px;padding-bottom:32px }\n@media screen and (max-width:600px) {\n  .logo { margin:0 auto!important }\n}\n.pb0 { padding-bottom:0!important }\n.pt0 { padding-top:0 }\n@media screen and (max-width:600px) {\n  table[class=overbody] table.columns td.td-icon { width:30px!important;padding-right:15px!important }\n  table[class=body] table.columns td.bb1,table[class=body] table.columns td.bbb { width:auto!important }\n}\n@media screen and (max-width:600px) {\n  table[class=body] table.column td,table[class=body] table.columns td.mob-td { background-size:25px!important;padding-left:33px!important }\n}\n@media screen and (max-width:600px) {\n  table[class=body] table.columns td.plr1,table[class=body] table.columns td.plr2,table[class=body] table.columns td.plr3 { width:auto!important }\n}\ntable[class=body] table.columns td.auto { width:auto!important }\ntable[class=body] table.columns td.w74 { width:74px!important }\ntable[class=body] table.column td,table[class=body] table.columns td.m-w { min-width:48px!important;width:48px!important }\ntable[class=body] table.columns td.m-w2 { min-width:152px;width:152px }\n@media screen and (max-width:600px) {\n  table[class=body] table.columns td.m-w2 { min-width:120px!important;width:120px!important }\n}",
+      "classes": [
+        "center",
+        "columns",
+        "last",
+        "logo",
+        "offset-by-one",
+        "pb0",
+        "pt0",
+        "row",
+        "ten",
+        "text-pad-small",
+        "wrapper"
+      ],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-3-2-1&retrack=mail_IQ-RFM-3-2-1&type=forex&asset=1"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnroute.io/files/storage/public/60/b6/1b5cef3f19b7c9i0b2/logo_shadow_top_2.png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-iq-rfm-321-header-hero-1",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "kind": "section",
+      "sourceFile": "X_IQ/mail-rfm-321/app/templates/blocks/header.jade",
+      "pug": "table.row.brad-full.bgr-image\n    tr\n        td.wrapper.last.pt0\n            table.twelve.columns\n                tr\n                    td.pb0\n                        .h-406 &nbsp;\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb50.pt0\n                        div.gmail-blend-screen\n                            div.gmail-blend-diff\n                                p.white-title.pb16 ${{ rfm-iq-321.block_01 }}$\n                                p.white-text  ${{ rfm-iq-321.block_02 }}$\n                        .h-24 &nbsp;\n                        table.w280(align=\"left\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-3-2-1&retrack=mail_IQ-RFM-3-2-1\" universal=\"true\" target=\"_blank\") ${{ rfm-iq-321.block_03 }}$",
+      "styl": "table.row.header { background: #f9f9f9;\n  height: 86px; }\nu + .body .gmail-blend-screen { background: #000;\n  mix-blend-mode: screen; }\nu + .body .gmail-blend-diff { background: #000;\n  mix-blend-mode: difference; }\n.bgr-image { background: url(\"https://fsms.quadcode.com/storage/public/d6/0q/o9vvhhgea139uku0/3-2-1-1.png\") center no-repeat;\n  background-size: cover;\n  background-color: #000; }\n.w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { max-width: 100% !important; }\n}\n.brad-full { border-radius: 32px !important; }\n@media screen and (max-width: 600px) {\n  .text-pad-small { padding-left: 20px !important;\n    padding-right: 20px !important; }\n}\n.butt { background-size: cover;\n  background-color: #f70;\n  font-size: 18px !important;\n  font-weight: 700 !important;\n  border-radius: 16px !important;\n  text-transform: none;\n  font-family: Helvetica !important;\n  height: auto; }\n.butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.white-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 40px;\n  line-height: 50px;\n  color: #fff;\n  word-break: break-word; }\n@media screen and (max-width: 600px) {\n  .white-title { font-size: 26px !important;\n    line-height: 32px !important; }\n}\n.white-text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #fff;\n  padding-right: 20px; }\n@media screen and (max-width: 600px) {\n  .white-text { padding-right: 0 !important; }\n}\n.pb0 { padding-bottom: 0 !important; }\n.pb16 { padding-bottom: 16px; }\n.pb50 { padding-bottom: 50px; }\n.pt0 { padding-top: 0; }\n@media screen and (max-width: 600px) {\n  table[class=\"overbody\"] table.columns td.td-icon { width: 30px !important;\n    padding-right: 15px !important; }\n}\n@media screen and (max-width: 600px) {\n  table[class=\"body\"] table.columns td.bbb,\n  table[class=\"body\"] table.columns td.bb1 { width: auto !important; }\n}\n.h-24 { font-size: 8px;\n  line-height: 24px;\n  height: 24px; }\n.h-406 { font-size: 0;\n  line-height: 332px;\n  height: 332px; }\n@media screen and (max-width: 500px) {\n  .h-406 { font-size: 160px !important;\n    line-height: 290px !important;\n    height: 290px !important; }\n}\n@media screen and (max-width: 600px) {\n  table[class=\"body\"] table.column td,\n  table[class=\"body\"] table.columns td.mob-td { background-size: 25px !important;\n    padding-left: 33px !important; }\n}\n@media screen and (max-width: 600px) {\n  table[class=\"body\"] table.columns td.plr1,\n  table[class=\"body\"] table.columns td.plr2,\n  table[class=\"body\"] table.columns td.plr3 { width: auto !important; }\n}\ntable[class=\"body\"] table.columns td.auto { width: auto !important; }\ntable[class=\"body\"] table.columns td.w74 { width: 74px !important; }\ntable[class=body] table.column td,\ntable[class=body] table.columns td.m-w { min-width: 48px !important;\n  width: 48px !important; }\ntable[class=body] table.columns td.m-w2 { min-width: 152px;\n  width: 152px; }\n@media screen and (max-width: 600px) {\n  table[class=body] table.columns td.m-w2 { min-width: 120px !important;\n    width: 120px !important; }\n}\nimg,table.container table.row { display:block }\ntable.row { padding:0;width:100%;position:relative }\ntable.ten { width:480px }\ntable.ten center { min-width:480px }\ntable.ten .panel center { min-width:460px }\ntable.twelve { width:580px }\ntable.twelve center { min-width:580px }\ntable.twelve .panel center { min-width:560px }\ntd.wrapper { padding:0;position:relative }\ntd.offset-by-one { padding-left:50px }\ntable.column,table.columns,ul { margin:0 }\ntable.column td,table.columns td { padding:0 0 10px }\ntable.column td.sub-column,table.column td.sub-columns,table.columns td.sub-column,table.columns td.sub-columns { padding-right:10px }\ntable.container td.last,table.row td.last { padding-right:0 }\n.body .column td.one,.body .columns td.one { width:8.333333% }\n.body .column td.two,.body .columns td.two { width:16.666666% }\n.body .column td.three,.body .columns td.three { width:25% }\n.body .column td.four,.body .columns td.four { width:33.333333% }\n.body .column td.five,.body .columns td.five { width:41.666666% }\n.body .column td.six,.body .columns td.six { width:50% }\n.body .column td.seven,.body .columns td.seven { width:58.333333% }\n.body .column td.eight,.body .columns td.eight { width:66.666666% }\n.body .column td.nine,.body .columns td.nine { width:75% }\n.body .column td.ten,.body .columns td.ten { width:83.333333% }\n.body .column td.eleven,.body .columns td.eleven { width:91.666666% }\n.body .column td.twelve,.body .columns td.twelve { width:100% }\ntable.column .text-pad,table.columns .text-pad { padding-left:10px;padding-right:10px }\ntable.column .left-text-pad,table.column .text-pad-left,table.columns .left-text-pad,table.columns .text-pad-left { padding-left:10px }\ntable.column .right-text-pad,table.column .text-pad-right,table.columns .right-text-pad,table.columns .text-pad-right { padding-right:10px }\n@media only screen and (max-width:600px) {\n  table[class=body] .row { width:100%!important;display:block!important }\n  table[class=body] .column,table[class=body] .columns,table[class=body] .wrapper { display:block!important;padding-right:0!important;padding-left:0!important }\n  table[class=body] table.columns td.expander { width:1px!important }\n  table[class=body] .column,table[class=body] .columns { table-layout:fixed!important;float:none!important;width:100%!important }\n  table[class=body] .wrapper.first .column,table[class=body] .wrapper.first .columns { display:table!important }\n  table[class=body] table.column td,table[class=body] table.columns td { width:100%!important }\n  table[class=body] .column td.one,table[class=body] .columns td.one { width:8.333333%!important }\n  table[class=body] .column td.two,table[class=body] .columns td.two { width:16.666666%!important }\n  table[class=body] .column td.three,table[class=body] .columns td.three { width:25%!important }\n  table[class=body] .column td.four,table[class=body] .columns td.four { width:33.333333%!important }\n  table[class=body] .column td.five,table[class=body] .columns td.five { width:41.666666%!important }\n  table[class=body] .column td.six,table[class=body] .columns td.six { width:50%!important }\n  table[class=body] .column td.seven,table[class=body] .columns td.seven { width:58.333333%!important }\n  table[class=body] .column td.eight,table[class=body] .columns td.eight { width:66.666666%!important }\n  table[class=body] .column td.nine,table[class=body] .columns td.nine { width:75%!important }\n  table[class=body] .column td.ten,table[class=body] .columns td.ten { width:83.333333%!important }\n  table[class=body] .column td.eleven,table[class=body] .columns td.eleven { width:91.666666%!important }\n  table[class=body] .column td.twelve,table[class=body] .columns td.twelve { width:100%!important }\n  table[class=body] td .offset-by-eight,table[class=body] td .offset-by-eleven,table[class=body] td .offset-by-five,table[class=body] td .offset-by-four,table[class=body] td .offset-by-nine,table[class=body] td .offset-by-one,table[class=body] td .offset-by-seven,table[class=body] td .offset-by-six,table[class=body] td .offset-by-ten,table[class=body] td .offset-by-three,table[class=body] td .offset-by-twelve,table[class=body] td .offset-by-two { padding-left:0!important }\n}\n.butt { color:#fff;text-align:center;margin:0!important;letter-spacing:.05em;display:block;width:100%;padding:17px 0 15px }\ntable.row.header { height:86px }\nu+.body .gmail-blend-screen { background:#000;mix-blend-mode:screen }\nu+.body .gmail-blend-diff { background:#000;mix-blend-mode:difference }\n.bgr,.bgr-image { background-size:cover }\n.bgr-image { background:url(https://fsms.quadcode.com/storage/public/d6/0q/o9vvhhgea139uku0/3-2-1-1.png) center no-repeat;background-color:#000 }\n.w280 { width:100%;max-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { max-width:100%!important }\n}\n.brad-full,.brad-full-32 { border-radius:32px!important }\ntable.body,table.row.header { background:#f9f9f9 }\n@media screen and (max-width:600px) {\n  .text-pad-small { padding-left:20px!important }\n  .text-pad-small,.text-pad-small-right { padding-right:20px!important }\n}\n.butt { background-size:cover;background-color:#f70;font-size:18px!important;font-weight:700!important;border-radius:16px!important;text-transform:none;font-family:Helvetica!important;height:auto }\n.butt-link,.butt-link-2,.butt-link-small { font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#2f3749;display:block;line-height:27px;padding:16px 0;text-align:center;letter-spacing:0 }\n.butt-link,.butt-link-small { color:#f9f9f9 }\n.white-title { font-family:Helvetica!important;font-weight:700;font-size:40px;line-height:50px;color:#fff;word-break:break-word }\n@media screen and (max-width:600px) {\n  .white-title { font-size:26px!important;line-height:32px!important }\n}\n.white-text { font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#fff;padding-right:20px }\n@media screen and (max-width:600px) {\n  .white-text { padding-right:0!important }\n}\n.pb0 { padding-bottom:0!important }\n.pb16 { padding-bottom:16px }\n.pb50 { padding-bottom:50px }\n.pt0 { padding-top:0 }\n@media screen and (max-width:600px) {\n  table[class=overbody] table.columns td.td-icon { width:30px!important;padding-right:15px!important }\n  table[class=body] table.columns td.bb1,table[class=body] table.columns td.bbb { width:auto!important }\n}\n.h-16,.h-20,.h-24 { font-size:8px;line-height:16px;height:16px }\n.h-20,.h-24 { line-height:20px;height:20px }\n.h-24 { line-height:24px;height:24px }\n.h-406 { font-size:0;line-height:332px;height:332px }\n@media screen and (max-width:500px) {\n  .h-406 { font-size:160px!important;line-height:290px!important;height:290px!important }\n}\n@media screen and (max-width:600px) {\n  table[class=body] table.column td,table[class=body] table.columns td.mob-td { background-size:25px!important;padding-left:33px!important }\n}\n@media screen and (max-width:600px) {\n  table[class=body] table.columns td.plr1,table[class=body] table.columns td.plr2,table[class=body] table.columns td.plr3 { width:auto!important }\n}\ntable[class=body] table.columns td.auto { width:auto!important }\ntable[class=body] table.columns td.w74 { width:74px!important }\ntable[class=body] table.column td,table[class=body] table.columns td.m-w { min-width:48px!important;width:48px!important }\ntable[class=body] table.columns td.m-w2 { min-width:152px;width:152px }\n@media screen and (max-width:600px) {\n  table[class=body] table.columns td.m-w2 { min-width:120px!important;width:120px!important }\n}",
+      "classes": [
+        "bgr-image",
+        "brad-full",
+        "butt",
+        "butt-link",
+        "columns",
+        "gmail-blend-diff",
+        "gmail-blend-screen",
+        "h-24",
+        "h-406",
+        "last",
+        "offset-by-one",
+        "pb0",
+        "pb16",
+        "pb50",
+        "pt0",
+        "row",
+        "ten",
+        "text-pad-small",
+        "twelve",
+        "w280",
+        "white-text",
+        "white-title",
+        "wrapper"
+      ],
+      "slots": [
+        {
+          "id": "text_block_01",
+          "kind": "richText",
+          "label": "Текст rfm-iq-321.block_01",
+          "token": "${{ rfm-iq-321.block_01 }}$",
+          "ns": "rfm-iq-321",
+          "block": "block_01"
+        },
+        {
+          "id": "text_block_02",
+          "kind": "richText",
+          "label": "Текст rfm-iq-321.block_02",
+          "token": "${{ rfm-iq-321.block_02 }}$",
+          "ns": "rfm-iq-321",
+          "block": "block_02"
+        },
+        {
+          "id": "text_block_03",
+          "kind": "richText",
+          "label": "Текст rfm-iq-321.block_03",
+          "token": "${{ rfm-iq-321.block_03 }}$",
+          "ns": "rfm-iq-321",
+          "block": "block_03"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-3-2-1&retrack=mail_IQ-RFM-3-2-1"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-iq-rfm-321-header-hero-1-spacer-0",
+          "label": "Спейсер 406px",
+          "placement": "inline",
+          "category": "utility",
+          "pug": ".h-406 &nbsp;",
+          "styl": ".h-406 { font-size: 0;\n  line-height: 332px;\n  height: 332px; }\n@media screen and (max-width: 500px) {\n  .h-406 { font-size: 160px !important;\n    line-height: 290px !important;\n    height: 290px !important; }\n}\n.h-406 { font-size:0;line-height:332px;height:332px }\n@media screen and (max-width:500px) {\n  .h-406 { font-size:160px!important;line-height:290px!important;height:290px!important }\n}",
+          "classes": [
+            "h-406"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-iq-rfm-321-header-hero-1-gmail-blend-1",
+          "label": "Gmail blend wrapper",
+          "placement": "inline",
+          "category": "utility",
+          "pug": "div.gmail-blend-screen\n    div.gmail-blend-diff\n        p.white-title.pb16 ${{ rfm-iq-321.block_01 }}$\n        p.white-text  ${{ rfm-iq-321.block_02 }}$",
+          "styl": "u + .body .gmail-blend-screen { background: #000;\n  mix-blend-mode: screen; }\nu + .body .gmail-blend-diff { background: #000;\n  mix-blend-mode: difference; }\n.white-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 40px;\n  line-height: 50px;\n  color: #fff;\n  word-break: break-word; }\n@media screen and (max-width: 600px) {\n  .white-title { font-size: 26px !important;\n    line-height: 32px !important; }\n}\n.white-text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #fff;\n  padding-right: 20px; }\n@media screen and (max-width: 600px) {\n  .white-text { padding-right: 0 !important; }\n}\n.pb16 { padding-bottom: 16px; }\nu+.body .gmail-blend-screen { background:#000;mix-blend-mode:screen }\nu+.body .gmail-blend-diff { background:#000;mix-blend-mode:difference }\n.white-title { font-family:Helvetica!important;font-weight:700;font-size:40px;line-height:50px;color:#fff;word-break:break-word }\n@media screen and (max-width:600px) {\n  .white-title { font-size:26px!important;line-height:32px!important }\n}\n.white-text { font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#fff;padding-right:20px }\n@media screen and (max-width:600px) {\n  .white-text { padding-right:0!important }\n}\n.pb16 { padding-bottom:16px }",
+          "classes": [
+            "gmail-blend-diff",
+            "gmail-blend-screen",
+            "pb16",
+            "white-text",
+            "white-title"
+          ],
+          "slots": [
+            {
+              "id": "text_block_01",
+              "kind": "richText",
+              "label": "Текст rfm-iq-321.block_01",
+              "token": "${{ rfm-iq-321.block_01 }}$",
+              "ns": "rfm-iq-321",
+              "block": "block_01"
+            },
+            {
+              "id": "text_block_02",
+              "kind": "richText",
+              "label": "Текст rfm-iq-321.block_02",
+              "token": "${{ rfm-iq-321.block_02 }}$",
+              "ns": "rfm-iq-321",
+              "block": "block_02"
+            }
+          ]
+        },
+        {
+          "id": "x-iq-rfm-321-header-hero-1-spacer-2",
+          "label": "Спейсер 24px",
+          "placement": "inline",
+          "category": "utility",
+          "pug": ".h-24 &nbsp;",
+          "styl": ".h-24 { font-size: 8px;\n  line-height: 24px;\n  height: 24px; }\n.h-16,.h-20,.h-24 { font-size:8px;line-height:16px;height:16px }\n.h-20,.h-24 { line-height:20px;height:20px }\n.h-24 { line-height:24px;height:24px }",
+          "classes": [
+            "h-24"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-iq-rfm-321-header-hero-1-cta-button-3",
+          "label": "CTA-кнопка (w280)",
+          "placement": "inline",
+          "category": "cta",
+          "pug": "table.w280(align=\"left\")\n    tr\n        td.butt.pb0\n            a.butt-link(href=\"https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-3-2-1&retrack=mail_IQ-RFM-3-2-1\" universal=\"true\" target=\"_blank\") ${{ rfm-iq-321.block_03 }}$",
+          "styl": ".w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { max-width: 100% !important; }\n}\n.butt { background-size: cover;\n  background-color: #f70;\n  font-size: 18px !important;\n  font-weight: 700 !important;\n  border-radius: 16px !important;\n  text-transform: none;\n  font-family: Helvetica !important;\n  height: auto; }\n.butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.pb0 { padding-bottom: 0 !important; }\n.butt { color:#fff;text-align:center;margin:0!important;letter-spacing:.05em;display:block;width:100%;padding:17px 0 15px }\n.w280 { width:100%;max-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { max-width:100%!important }\n}\n.butt { background-size:cover;background-color:#f70;font-size:18px!important;font-weight:700!important;border-radius:16px!important;text-transform:none;font-family:Helvetica!important;height:auto }\n.butt-link,.butt-link-2,.butt-link-small { font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#2f3749;display:block;line-height:27px;padding:16px 0;text-align:center;letter-spacing:0 }\n.butt-link,.butt-link-small { color:#f9f9f9 }\n.pb0 { padding-bottom:0!important }",
+          "classes": [
+            "butt",
+            "butt-link",
+            "pb0",
+            "w280"
+          ],
+          "slots": [
+            {
+              "id": "text_block_03",
+              "kind": "richText",
+              "label": "Текст rfm-iq-321.block_03",
+              "token": "${{ rfm-iq-321.block_03 }}$",
+              "ns": "rfm-iq-321",
+              "block": "block_03"
+            },
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-3-2-1&retrack=mail_IQ-RFM-3-2-1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-iq-rfm-321-header-utility-2",
+      "label": "Спейсер 12px",
+      "placement": "inline",
+      "category": "utility",
+      "kind": "spacer",
+      "sourceFile": "X_IQ/mail-rfm-321/app/templates/blocks/header.jade",
+      "pug": ".h-12 &nbsp;",
+      "styl": ".h-12 { font-size: 8px;\n  line-height: 12px;\n  height: 12px; }\n.h-12,.h-8 { font-size:8px;line-height:8px;height:8px }\n.h-12 { line-height:12px;height:12px }",
+      "classes": [
+        "h-12"
+      ],
+      "slots": [],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-iq-rfm-321-header-text-3",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_IQ/mail-rfm-321/app/templates/blocks/header.jade",
+      "pug": "table.row.brad-full.white-bg\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.middle-title.pb32 ${{ rfm-iq-321.block_04 }}$\n                        .center\n                            .small-blocks.first-block\n                                .inside-padding\n                                    p.fat-text.center ${{ rfm-iq-321.block_06 }}$\n                            .small-blocks.second-block.plr8\n                                .inside-padding\n                                    p.fat-text.center ${{ rfm-iq-321.block_07 }}$\n                            .small-blocks.third-block\n                                .inside-padding\n                                    p.fat-text.center ${{ rfm-iq-321.block_08 }}$\n                        .h-8 &nbsp;\n                        .big-blocks.fourth-block\n                            .inside-padding\n                                p.fat-text ${{ rfm-iq-321.block_09 }}$\n                        .big-blocks.fiveth-block\n                            .inside-padding\n                                p.fat-text ${{ rfm-iq-321.block_05 }}$",
+      "styl": "table.row.header { background: #f9f9f9;\n  height: 86px; }\n.brad-full { border-radius: 32px !important; }\n@media screen and (max-width: 600px) {\n  .text-pad-small { padding-left: 20px !important;\n    padding-right: 20px !important; }\n}\n.center { text-align: center;\n  margin: 0 auto; }\n.white-bg { background-color: #fff; }\n.middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 24px !important;\n    line-height: 32px !important; }\n}\n.pb32 { padding-bottom: 32px; }\n.pb44 { padding-bottom: 44px; }\n.pt44 { padding-top: 44px; }\n@media screen and (max-width: 600px) {\n  table[class=\"overbody\"] table.columns td.td-icon { width: 30px !important;\n    padding-right: 15px !important; }\n}\n@media screen and (max-width: 600px) {\n  table[class=\"body\"] table.columns td.bbb,\n  table[class=\"body\"] table.columns td.bb1 { width: auto !important; }\n}\n.h-8 { font-size: 8px;\n  line-height: 8px;\n  height: 8px; }\n@media screen and (max-width: 600px) {\n  table[class=\"body\"] table.column td,\n  table[class=\"body\"] table.columns td.mob-td { background-size: 25px !important;\n    padding-left: 33px !important; }\n}\n@media screen and (max-width: 600px) {\n  table[class=\"body\"] table.columns td.plr1,\n  table[class=\"body\"] table.columns td.plr2,\n  table[class=\"body\"] table.columns td.plr3 { width: auto !important; }\n}\ntable[class=\"body\"] table.columns td.auto { width: auto !important; }\ntable[class=\"body\"] table.columns td.w74 { width: 74px !important; }\ntable[class=body] table.column td,\ntable[class=body] table.columns td.m-w { min-width: 48px !important;\n  width: 48px !important; }\ntable[class=body] table.columns td.m-w2 { min-width: 152px;\n  width: 152px; }\n@media screen and (max-width: 600px) {\n  table[class=body] table.columns td.m-w2 { min-width: 120px !important;\n    width: 120px !important; }\n}\n.inside-padding { padding: 24px; }\n.fat-text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 18px;\n  line-height: 20px;\n  color: #393a44; }\n@media screen and (max-width: 600px) {\n  .fat-text { font-size: 16px !important;\n    line-height: 18px !important; }\n}\n.small-blocks { display: inline-block;\n  background-color: #f9f9f9 !important;\n  border-radius: 24px;\n  width: 150px;\n  min-height: 220px !important;\n  vertical-align: top !important; }\n@media screen and (max-width: 600px) {\n  .small-blocks { display: block !important;\n    margin: 0 auto 8px !important;\n    width: 229px !important; }\n}\n.plr8 { margin-left: 8px;\n  margin-right: 8px; }\n.big-blocks { display: inline-block;\n  background-color: #f9f9f9;\n  border-radius: 24px;\n  width: 229px;\n  min-height: 220px;\n  vertical-align: top; }\n@media screen and (max-width: 600px) {\n  .big-blocks { display: block !important;\n    margin: 0 auto 8px !important; }\n}\n.first-block { background: url(\"https://fsms.quadcode.com/storage/public/d6/0q/o9gggnfnh4cs781g/3-2-1-2.png\") center no-repeat;\n  background-size: cover; }\n@media screen and (max-width: 600px) {\n  .first-block { background: url(\"https://fsms.quadcode.com/storage/public/d6/0r/fq0ggnfnh4cs7840/321-1-mob.png\") center no-repeat !important;\n    background-size: cover !important; }\n}\n.second-block { background: url(\"https://fsms.quadcode.com/storage/public/d6/0q/o9nvhhgea139uksg/3-2-1-3.png\") center no-repeat;\n  background-size: cover; }\n@media screen and (max-width: 600px) {\n  .second-block { background: #f9f9f9 url(\"https://fsms.quadcode.com/storage/public/d6/0r/fq0ggnfnh4cs7850/321-2-mob.png\") center no-repeat !important;\n    background-size: cover !important; }\n}\n.third-block { background: #f9f9f9 url(\"https://fsms.quadcode.com/storage/public/d6/0q/o9oggnfnh4cs7820/3-2-1-4.png\") center no-repeat;\n  background-size: cover; }\n@media screen and (max-width: 600px) {\n  .third-block { background: url(\"https://fsms.quadcode.com/storage/public/d6/0r/fq0ggnfnh4cs784g/321-3-mob.png\") center no-repeat !important;\n    background-size: cover !important; }\n}\n.fourth-block { background: #f9f9f9 url(\"https://fsms.quadcode.com/storage/public/d6/0q/o9vvhhgea139uktg/3-2-1-5.png\") center no-repeat;\n  background-size: cover;\n  margin-right: 8px; }\n.fiveth-block { background: url(\"https://fsms.quadcode.com/storage/public/d6/0q/o9vvhhgea139ukt0/3-2-1-6.png\") center no-repeat;\n  background-size: cover; }\nimg.center { margin:0 auto;float:none }\nimg,table.container table.row { display:block }\ntable.row { padding:0;width:100%;position:relative }\ntable.ten { width:480px }\ntable.ten center { min-width:480px }\ntable.ten .panel center { min-width:460px }\ntd.wrapper { padding:0;position:relative }\ntd.offset-by-one { padding-left:50px }\ntable.column,table.columns,ul { margin:0 }\ntable.column td,table.columns td { padding:0 0 10px }\ntable.column td.sub-column,table.column td.sub-columns,table.columns td.sub-column,table.columns td.sub-columns { padding-right:10px }\ntable.container td.last,table.row td.last { padding-right:0 }\n.body .column td.one,.body .columns td.one { width:8.333333% }\n.body .column td.two,.body .columns td.two { width:16.666666% }\n.body .column td.three,.body .columns td.three { width:25% }\n.body .column td.four,.body .columns td.four { width:33.333333% }\n.body .column td.five,.body .columns td.five { width:41.666666% }\n.body .column td.six,.body .columns td.six { width:50% }\n.body .column td.seven,.body .columns td.seven { width:58.333333% }\n.body .column td.eight,.body .columns td.eight { width:66.666666% }\n.body .column td.nine,.body .columns td.nine { width:75% }\n.body .column td.ten,.body .columns td.ten { width:83.333333% }\n.body .column td.eleven,.body .columns td.eleven { width:91.666666% }\n.body .column td.twelve,.body .columns td.twelve { width:100% }\ntable.column .text-pad,table.columns .text-pad { padding-left:10px;padding-right:10px }\ntable.column .left-text-pad,table.column .text-pad-left,table.columns .left-text-pad,table.columns .text-pad-left { padding-left:10px }\ntable.column .right-text-pad,table.column .text-pad-right,table.columns .right-text-pad,table.columns .text-pad-right { padding-right:10px }\nh1.center,h2.center,h3.center,h4.center,h5.center,h6.center,span.center,table.center,td.center { text-align:center }\nspan.center { display:block;width:100% }\n@media only screen and (max-width:600px) {\n  table[class=body] .row { width:100%!important;display:block!important }\n  table[class=body] .column,table[class=body] .columns,table[class=body] .wrapper { display:block!important;padding-right:0!important;padding-left:0!important }\n  table[class=body] table.columns td.expander { width:1px!important }\n  table[class=body] .column,table[class=body] .columns { table-layout:fixed!important;float:none!important;width:100%!important }\n  table[class=body] .wrapper.first .column,table[class=body] .wrapper.first .columns { display:table!important }\n  table[class=body] table.column td,table[class=body] table.columns td { width:100%!important }\n  table[class=body] .column td.one,table[class=body] .columns td.one { width:8.333333%!important }\n  table[class=body] .column td.two,table[class=body] .columns td.two { width:16.666666%!important }\n  table[class=body] .column td.three,table[class=body] .columns td.three { width:25%!important }\n  table[class=body] .column td.four,table[class=body] .columns td.four { width:33.333333%!important }\n  table[class=body] .column td.five,table[class=body] .columns td.five { width:41.666666%!important }\n  table[class=body] .column td.six,table[class=body] .columns td.six { width:50%!important }\n  table[class=body] .column td.seven,table[class=body] .columns td.seven { width:58.333333%!important }\n  table[class=body] .column td.eight,table[class=body] .columns td.eight { width:66.666666%!important }\n  table[class=body] .column td.nine,table[class=body] .columns td.nine { width:75%!important }\n  table[class=body] .column td.ten,table[class=body] .columns td.ten { width:83.333333%!important }\n  table[class=body] .column td.eleven,table[class=body] .columns td.eleven { width:91.666666%!important }\n  table[class=body] .column td.twelve,table[class=body] .columns td.twelve { width:100%!important }\n  table[class=body] td .offset-by-eight,table[class=body] td .offset-by-eleven,table[class=body] td .offset-by-five,table[class=body] td .offset-by-four,table[class=body] td .offset-by-nine,table[class=body] td .offset-by-one,table[class=body] td .offset-by-seven,table[class=body] td .offset-by-six,table[class=body] td .offset-by-ten,table[class=body] td .offset-by-three,table[class=body] td .offset-by-twelve,table[class=body] td .offset-by-two { padding-left:0!important }\n}\ntable.row.header { height:86px }\n.brad-full,.brad-full-32 { border-radius:32px!important }\ntable.body,table.row.header { background:#f9f9f9 }\n@media screen and (max-width:600px) {\n  .text-pad-small { padding-left:20px!important }\n  .text-pad-small,.text-pad-small-right { padding-right:20px!important }\n}\n.center,.terms { text-align:center;margin:0 auto }\n.white-bg { background-color:#fff }\n.middle-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#393a44;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:24px!important;line-height:32px!important }\n}\n.pb32 { padding-bottom:32px }\n.pb44 { padding-bottom:44px }\n.pt44 { padding-top:44px }\n@media screen and (max-width:600px) {\n  table[class=overbody] table.columns td.td-icon { width:30px!important;padding-right:15px!important }\n  table[class=body] table.columns td.bb1,table[class=body] table.columns td.bbb { width:auto!important }\n}\n.h-12,.h-8 { font-size:8px;line-height:8px;height:8px }\n@media screen and (max-width:600px) {\n  table[class=body] table.column td,table[class=body] table.columns td.mob-td { background-size:25px!important;padding-left:33px!important }\n}\n@media screen and (max-width:600px) {\n  table[class=body] table.columns td.plr1,table[class=body] table.columns td.plr2,table[class=body] table.columns td.plr3 { width:auto!important }\n}\ntable[class=body] table.columns td.auto { width:auto!important }\ntable[class=body] table.columns td.w74 { width:74px!important }\ntable[class=body] table.column td,table[class=body] table.columns td.m-w { min-width:48px!important;width:48px!important }\ntable[class=body] table.columns td.m-w2 { min-width:152px;width:152px }\n@media screen and (max-width:600px) {\n  table[class=body] table.columns td.m-w2 { min-width:120px!important;width:120px!important }\n}\n.inside-padding { padding:24px }\n.fat-text { font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:18px;line-height:20px;color:#393a44 }\n@media screen and (max-width:600px) {\n  .fat-text { font-size:16px!important;line-height:18px!important }\n}\n.small-blocks { display:inline-block;background-color:#f9f9f9!important;border-radius:24px;width:150px;min-height:220px!important;vertical-align:top!important }\n@media screen and (max-width:600px) {\n  .small-blocks { display:block!important;margin:0 auto 8px!important;width:229px!important }\n}\n.plr8 { margin-left:8px;margin-right:8px }\n.big-blocks { display:inline-block;background-color:#f9f9f9;border-radius:24px;width:229px;min-height:220px;vertical-align:top }\n@media screen and (max-width:600px) {\n  .big-blocks { display:block!important;margin:0 auto 8px!important }\n}\n.first-block { background:url(https://fsms.quadcode.com/storage/public/d6/0q/o9gggnfnh4cs781g/3-2-1-2.png) center no-repeat;background-size:cover }\n@media screen and (max-width:600px) {\n  .first-block { background:url(https://fsms.quadcode.com/storage/public/d6/0r/fq0ggnfnh4cs7840/321-1-mob.png) center no-repeat!important;background-size:cover!important }\n}\n.second-block { background:url(https://fsms.quadcode.com/storage/public/d6/0q/o9nvhhgea139uksg/3-2-1-3.png) center no-repeat;background-size:cover }\n@media screen and (max-width:600px) {\n  .second-block { background:#f9f9f9 url(https://fsms.quadcode.com/storage/public/d6/0r/fq0ggnfnh4cs7850/321-2-mob.png) center no-repeat!important;background-size:cover!important }\n}\n.third-block { background:#f9f9f9 url(https://fsms.quadcode.com/storage/public/d6/0q/o9oggnfnh4cs7820/3-2-1-4.png) center no-repeat;background-size:cover }\n@media screen and (max-width:600px) {\n  .third-block { background:url(https://fsms.quadcode.com/storage/public/d6/0r/fq0ggnfnh4cs784g/321-3-mob.png) center no-repeat!important;background-size:cover!important }\n}\n.fourth-block { background:#f9f9f9 url(https://fsms.quadcode.com/storage/public/d6/0q/o9vvhhgea139uktg/3-2-1-5.png) center no-repeat;background-size:cover;margin-right:8px }\n.fiveth-block { background:url(https://fsms.quadcode.com/storage/public/d6/0q/o9vvhhgea139ukt0/3-2-1-6.png) center no-repeat;background-size:cover }",
+      "classes": [
+        "big-blocks",
+        "brad-full",
+        "center",
+        "columns",
+        "fat-text",
+        "first-block",
+        "fiveth-block",
+        "fourth-block",
+        "h-8",
+        "inside-padding",
+        "last",
+        "middle-title",
+        "offset-by-one",
+        "pb32",
+        "pb44",
+        "plr8",
+        "pt44",
+        "row",
+        "second-block",
+        "small-blocks",
+        "ten",
+        "text-pad-small",
+        "third-block",
+        "white-bg",
+        "wrapper"
+      ],
+      "slots": [
+        {
+          "id": "text_block_04",
+          "kind": "richText",
+          "label": "Текст rfm-iq-321.block_04",
+          "token": "${{ rfm-iq-321.block_04 }}$",
+          "ns": "rfm-iq-321",
+          "block": "block_04"
+        },
+        {
+          "id": "text_block_06",
+          "kind": "richText",
+          "label": "Текст rfm-iq-321.block_06",
+          "token": "${{ rfm-iq-321.block_06 }}$",
+          "ns": "rfm-iq-321",
+          "block": "block_06"
+        },
+        {
+          "id": "text_block_07",
+          "kind": "richText",
+          "label": "Текст rfm-iq-321.block_07",
+          "token": "${{ rfm-iq-321.block_07 }}$",
+          "ns": "rfm-iq-321",
+          "block": "block_07"
+        },
+        {
+          "id": "text_block_08",
+          "kind": "richText",
+          "label": "Текст rfm-iq-321.block_08",
+          "token": "${{ rfm-iq-321.block_08 }}$",
+          "ns": "rfm-iq-321",
+          "block": "block_08"
+        },
+        {
+          "id": "text_block_09",
+          "kind": "richText",
+          "label": "Текст rfm-iq-321.block_09",
+          "token": "${{ rfm-iq-321.block_09 }}$",
+          "ns": "rfm-iq-321",
+          "block": "block_09"
+        },
+        {
+          "id": "text_block_05",
+          "kind": "richText",
+          "label": "Текст rfm-iq-321.block_05",
+          "token": "${{ rfm-iq-321.block_05 }}$",
+          "ns": "rfm-iq-321",
+          "block": "block_05"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-iq-rfm-321-header-text-3-heading-0",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.middle-title.pb32 ${{ rfm-iq-321.block_04 }}$",
+          "styl": ".middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 24px !important;\n    line-height: 32px !important; }\n}\n.pb32 { padding-bottom: 32px; }\n.middle-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#393a44;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:24px!important;line-height:32px!important }\n}\n.pb32 { padding-bottom:32px }",
+          "classes": [
+            "middle-title",
+            "pb32"
+          ],
+          "slots": [
+            {
+              "id": "text_block_04",
+              "kind": "richText",
+              "label": "Текст rfm-iq-321.block_04",
+              "token": "${{ rfm-iq-321.block_04 }}$",
+              "ns": "rfm-iq-321",
+              "block": "block_04"
+            }
+          ]
+        },
+        {
+          "id": "x-iq-rfm-321-header-text-3-spacer-1",
+          "label": "Спейсер 8px",
+          "placement": "inline",
+          "category": "utility",
+          "pug": ".h-8 &nbsp;",
+          "styl": ".h-8 { font-size: 8px;\n  line-height: 8px;\n  height: 8px; }\n.h-12,.h-8 { font-size:8px;line-height:8px;height:8px }",
+          "classes": [
+            "h-8"
+          ],
+          "slots": []
+        }
+      ]
+    },
+    {
+      "id": "x-iq-rfm-321-header-utility-4",
+      "label": "Спейсер 12px",
+      "placement": "inline",
+      "category": "utility",
+      "kind": "spacer",
+      "sourceFile": "X_IQ/mail-rfm-321/app/templates/blocks/header.jade",
+      "pug": ".h-12 &nbsp;",
+      "styl": ".h-12 { font-size: 8px;\n  line-height: 12px;\n  height: 12px; }\n.h-12,.h-8 { font-size:8px;line-height:8px;height:8px }\n.h-12 { line-height:12px;height:12px }",
+      "classes": [
+        "h-12"
+      ],
+      "slots": [],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-iq-rfm-321-header-cta-5",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "kind": "section",
+      "sourceFile": "X_IQ/mail-rfm-321/app/templates/blocks/header.jade",
+      "pug": "table.row.brad-full.white-bg\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.middle-title.pb32 ${{ rfm-iq-321.block_11 }}$\n                        .orange-back-1\n                            .left-block\n                                p.small-title.pb43 ${{ rfm-iq-321.block_12 }}$\n                                p.text ${{ rfm-iq-321.block_13 }}$\n                        .h-8 &nbsp;\n                        .orange-back-2\n                            .left-block\n                                p.small-title.pb43 ${{ rfm-iq-321.block_14 }}$\n                                p.text ${{ rfm-iq-321.block_15 }}$\n                        .h-8 &nbsp;\n                        .orange-back-3\n                            .left-block\n                                p.small-title.pb16 ${{ rfm-iq-321.block_16 }}$\n                                p.text ${{ rfm-iq-321.block_17 }}$\n                        .h-40 &nbsp;\n                        table.w280.centet(style=\"border-collapse: initial;\" align=\"center\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"https://api.iqoption.com/v1/multi-links/deposit?aff=7&afftrack=mail_IQ-RFM-3-2-1&retrack=IQ-RFM-3-2-1\" universal=\"true\" target=\"_blank\") ${{ rfm-iq-321.block_18 }}$",
+      "styl": "table.row.header { background: #f9f9f9;\n  height: 86px; }\n.w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { max-width: 100% !important; }\n}\n.brad-full { border-radius: 32px !important; }\n@media screen and (max-width: 600px) {\n  .text-pad-small { padding-left: 20px !important;\n    padding-right: 20px !important; }\n}\n.butt { background-size: cover;\n  background-color: #f70;\n  font-size: 18px !important;\n  font-weight: 700 !important;\n  border-radius: 16px !important;\n  text-transform: none;\n  font-family: Helvetica !important;\n  height: auto; }\n.butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.white-bg { background-color: #fff; }\n.middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 24px !important;\n    line-height: 32px !important; }\n}\n.small-title { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  color: #393a44; }\n@media screen and (max-width: 600px) {\n  .small-title { font-size: 21px !important;\n    line-height: 29px !important; }\n}\n.text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n.pb0 { padding-bottom: 0 !important; }\n.pb16 { padding-bottom: 16px; }\n.pb32 { padding-bottom: 32px; }\n.pb43 { padding-bottom: 43px; }\n.pb44 { padding-bottom: 44px; }\n.pt44 { padding-top: 44px; }\n@media screen and (max-width: 600px) {\n  table[class=\"overbody\"] table.columns td.td-icon { width: 30px !important;\n    padding-right: 15px !important; }\n}\n@media screen and (max-width: 600px) {\n  table[class=\"body\"] table.columns td.bbb,\n  table[class=\"body\"] table.columns td.bb1 { width: auto !important; }\n}\n.h-8 { font-size: 8px;\n  line-height: 8px;\n  height: 8px; }\n.h-40 { font-size: 8px;\n  line-height: 40px;\n  height: 40px; }\n@media screen and (max-width: 600px) {\n  table[class=\"body\"] table.column td,\n  table[class=\"body\"] table.columns td.mob-td { background-size: 25px !important;\n    padding-left: 33px !important; }\n}\n.left-block { display: block !important;\n  width: 44%;\n  padding: 24px 0 24px 24px;\n  vertical-align: top; }\n@media screen and (max-width: 600px) {\n  .left-block { float: none !important; }\n}\n@media screen and (max-width: 600px) {\n  table[class=\"body\"] table.columns td.plr1,\n  table[class=\"body\"] table.columns td.plr2,\n  table[class=\"body\"] table.columns td.plr3 { width: auto !important; }\n}\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\ntable[class=\"body\"] table.columns td.auto { width: auto !important; }\ntable[class=\"body\"] table.columns td.w74 { width: 74px !important; }\ntable[class=body] table.column td,\ntable[class=body] table.columns td.m-w { min-width: 48px !important;\n  width: 48px !important; }\ntable[class=body] table.columns td.m-w2 { min-width: 152px;\n  width: 152px; }\n@media screen and (max-width: 600px) {\n  table[class=body] table.columns td.m-w2 { min-width: 120px !important;\n    width: 120px !important; }\n}\n.orange-back-1 { background: #fff8f0 url(\"https://fsms.quadcode.com/storage/public/d6/0q/o9oggnfnh4cs782g/3-2-1-top.png\") center no-repeat;\n  background-size: cover;\n  border-radius: 24px; }\n.orange-back-2 { background: #fff8f0 url(\"https://fsms.quadcode.com/storage/public/d6/0q/o9oggnfnh4cs7830/3-2-1-middle.png\") center no-repeat;\n  background-size: cover;\n  border-radius: 24px; }\n.orange-back-3 { background: #fff8f0 url(\"https://fsms.quadcode.com/storage/public/d6/0q/o9oggnfnh4cs783g/3-2-1-bottom.png\") center no-repeat;\n  background-size: cover;\n  border-radius: 24px; }\nimg,table.container table.row { display:block }\ntable.row { padding:0;width:100%;position:relative }\ntable.ten { width:480px }\ntable.ten center { min-width:480px }\ntable.ten .panel center { min-width:460px }\ntd.wrapper { padding:0;position:relative }\ntd.offset-by-one { padding-left:50px }\ntable.column,table.columns,ul { margin:0 }\ntable.column td,table.columns td { padding:0 0 10px }\ntable.column td.sub-column,table.column td.sub-columns,table.columns td.sub-column,table.columns td.sub-columns { padding-right:10px }\ntable.container td.last,table.row td.last { padding-right:0 }\n.body .column td.one,.body .columns td.one { width:8.333333% }\n.body .column td.two,.body .columns td.two { width:16.666666% }\n.body .column td.three,.body .columns td.three { width:25% }\n.body .column td.four,.body .columns td.four { width:33.333333% }\n.body .column td.five,.body .columns td.five { width:41.666666% }\n.body .column td.six,.body .columns td.six { width:50% }\n.body .column td.seven,.body .columns td.seven { width:58.333333% }\n.body .column td.eight,.body .columns td.eight { width:66.666666% }\n.body .column td.nine,.body .columns td.nine { width:75% }\n.body .column td.ten,.body .columns td.ten { width:83.333333% }\n.body .column td.eleven,.body .columns td.eleven { width:91.666666% }\n.body .column td.twelve,.body .columns td.twelve { width:100% }\ntable.column .text-pad,table.columns .text-pad { padding-left:10px;padding-right:10px }\ntable.column .left-text-pad,table.column .text-pad-left,table.columns .left-text-pad,table.columns .text-pad-left { padding-left:10px }\ntable.column .right-text-pad,table.column .text-pad-right,table.columns .right-text-pad,table.columns .text-pad-right { padding-right:10px }\n@media only screen and (max-width:600px) {\n  table[class=body] .row { width:100%!important;display:block!important }\n  table[class=body] .column,table[class=body] .columns,table[class=body] .wrapper { display:block!important;padding-right:0!important;padding-left:0!important }\n  table[class=body] table.columns td.expander { width:1px!important }\n  table[class=body] .column,table[class=body] .columns { table-layout:fixed!important;float:none!important;width:100%!important }\n  table[class=body] .wrapper.first .column,table[class=body] .wrapper.first .columns { display:table!important }\n  table[class=body] table.column td,table[class=body] table.columns td { width:100%!important }\n  table[class=body] .column td.one,table[class=body] .columns td.one { width:8.333333%!important }\n  table[class=body] .column td.two,table[class=body] .columns td.two { width:16.666666%!important }\n  table[class=body] .column td.three,table[class=body] .columns td.three { width:25%!important }\n  table[class=body] .column td.four,table[class=body] .columns td.four { width:33.333333%!important }\n  table[class=body] .column td.five,table[class=body] .columns td.five { width:41.666666%!important }\n  table[class=body] .column td.six,table[class=body] .columns td.six { width:50%!important }\n  table[class=body] .column td.seven,table[class=body] .columns td.seven { width:58.333333%!important }\n  table[class=body] .column td.eight,table[class=body] .columns td.eight { width:66.666666%!important }\n  table[class=body] .column td.nine,table[class=body] .columns td.nine { width:75%!important }\n  table[class=body] .column td.ten,table[class=body] .columns td.ten { width:83.333333%!important }\n  table[class=body] .column td.eleven,table[class=body] .columns td.eleven { width:91.666666%!important }\n  table[class=body] .column td.twelve,table[class=body] .columns td.twelve { width:100%!important }\n  table[class=body] td .offset-by-eight,table[class=body] td .offset-by-eleven,table[class=body] td .offset-by-five,table[class=body] td .offset-by-four,table[class=body] td .offset-by-nine,table[class=body] td .offset-by-one,table[class=body] td .offset-by-seven,table[class=body] td .offset-by-six,table[class=body] td .offset-by-ten,table[class=body] td .offset-by-three,table[class=body] td .offset-by-twelve,table[class=body] td .offset-by-two { padding-left:0!important }\n}\n.butt { color:#fff;text-align:center;margin:0!important;letter-spacing:.05em;display:block;width:100%;padding:17px 0 15px }\ntable.row.header { height:86px }\n.w280 { width:100%;max-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { max-width:100%!important }\n}\n.brad-full,.brad-full-32 { border-radius:32px!important }\ntable.body,table.row.header { background:#f9f9f9 }\n@media screen and (max-width:600px) {\n  .text-pad-small { padding-left:20px!important }\n  .text-pad-small,.text-pad-small-right { padding-right:20px!important }\n}\n.butt { background-size:cover;background-color:#f70;font-size:18px!important;font-weight:700!important;border-radius:16px!important;text-transform:none;font-family:Helvetica!important;height:auto }\n.butt-link,.butt-link-2,.butt-link-small { font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#2f3749;display:block;line-height:27px;padding:16px 0;text-align:center;letter-spacing:0 }\n.butt-link,.butt-link-small { color:#f9f9f9 }\n.white-bg { background-color:#fff }\n.middle-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#393a44;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:24px!important;line-height:32px!important }\n}\n.small-title { font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:24px;line-height:31px;color:#393a44 }\n@media screen and (max-width:600px) {\n  .small-title { font-size:21px!important;line-height:29px!important }\n}\n.number-block,.text { font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400 }\n.big,.text.bold { font-weight:700 }\n.pb0 { padding-bottom:0!important }\n.pb16 { padding-bottom:16px }\n.pb32 { padding-bottom:32px }\n.pb43 { padding-bottom:43px }\n.pb44 { padding-bottom:44px }\n.pt44 { padding-top:44px }\n@media screen and (max-width:600px) {\n  table[class=overbody] table.columns td.td-icon { width:30px!important;padding-right:15px!important }\n  table[class=body] table.columns td.bb1,table[class=body] table.columns td.bbb { width:auto!important }\n}\n.h-12,.h-8 { font-size:8px;line-height:8px;height:8px }\n.h-28,.h-30,.h-40 { font-size:8px;line-height:28px;height:28px }\n.h-30,.h-40 { line-height:30px;height:30px }\n.h-40 { line-height:40px;height:40px }\n@media screen and (max-width:600px) {\n  table[class=body] table.column td,table[class=body] table.columns td.mob-td { background-size:25px!important;padding-left:33px!important }\n}\n.left-block { display:block!important;width:44%;padding:24px 0 24px 24px;vertical-align:top }\n@media screen and (max-width:600px) {\n  .left-block { float:none!important }\n}\n@media screen and (max-width:600px) {\n  table[class=body] table.columns td.plr1,table[class=body] table.columns td.plr2,table[class=body] table.columns td.plr3 { width:auto!important }\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}\ntable[class=body] table.columns td.auto { width:auto!important }\ntable[class=body] table.columns td.w74 { width:74px!important }\ntable[class=body] table.column td,table[class=body] table.columns td.m-w { min-width:48px!important;width:48px!important }\ntable[class=body] table.columns td.m-w2 { min-width:152px;width:152px }\n@media screen and (max-width:600px) {\n  table[class=body] table.columns td.m-w2 { min-width:120px!important;width:120px!important }\n}\n.orange-back-1 { background:#fff8f0 url(https://fsms.quadcode.com/storage/public/d6/0q/o9oggnfnh4cs782g/3-2-1-top.png) center no-repeat }\n.orange-back-1,.orange-back-2,.orange-back-3 { background-size:cover;border-radius:24px }\n.orange-back-2 { background:#fff8f0 url(https://fsms.quadcode.com/storage/public/d6/0q/o9oggnfnh4cs7830/3-2-1-middle.png) center no-repeat }\n.orange-back-3 { background:#fff8f0 url(https://fsms.quadcode.com/storage/public/d6/0q/o9oggnfnh4cs783g/3-2-1-bottom.png) center no-repeat }",
+      "classes": [
+        "brad-full",
+        "butt",
+        "butt-link",
+        "centet",
+        "columns",
+        "h-40",
+        "h-8",
+        "last",
+        "left-block",
+        "middle-title",
+        "offset-by-one",
+        "orange-back-1",
+        "orange-back-2",
+        "orange-back-3",
+        "pb0",
+        "pb16",
+        "pb32",
+        "pb43",
+        "pb44",
+        "pt44",
+        "row",
+        "small-title",
+        "ten",
+        "text",
+        "text-pad-small",
+        "w280",
+        "white-bg",
+        "wrapper"
+      ],
+      "slots": [
+        {
+          "id": "text_block_11",
+          "kind": "richText",
+          "label": "Текст rfm-iq-321.block_11",
+          "token": "${{ rfm-iq-321.block_11 }}$",
+          "ns": "rfm-iq-321",
+          "block": "block_11"
+        },
+        {
+          "id": "text_block_12",
+          "kind": "richText",
+          "label": "Текст rfm-iq-321.block_12",
+          "token": "${{ rfm-iq-321.block_12 }}$",
+          "ns": "rfm-iq-321",
+          "block": "block_12"
+        },
+        {
+          "id": "text_block_13",
+          "kind": "richText",
+          "label": "Текст rfm-iq-321.block_13",
+          "token": "${{ rfm-iq-321.block_13 }}$",
+          "ns": "rfm-iq-321",
+          "block": "block_13"
+        },
+        {
+          "id": "text_block_14",
+          "kind": "richText",
+          "label": "Текст rfm-iq-321.block_14",
+          "token": "${{ rfm-iq-321.block_14 }}$",
+          "ns": "rfm-iq-321",
+          "block": "block_14"
+        },
+        {
+          "id": "text_block_15",
+          "kind": "richText",
+          "label": "Текст rfm-iq-321.block_15",
+          "token": "${{ rfm-iq-321.block_15 }}$",
+          "ns": "rfm-iq-321",
+          "block": "block_15"
+        },
+        {
+          "id": "text_block_16",
+          "kind": "richText",
+          "label": "Текст rfm-iq-321.block_16",
+          "token": "${{ rfm-iq-321.block_16 }}$",
+          "ns": "rfm-iq-321",
+          "block": "block_16"
+        },
+        {
+          "id": "text_block_17",
+          "kind": "richText",
+          "label": "Текст rfm-iq-321.block_17",
+          "token": "${{ rfm-iq-321.block_17 }}$",
+          "ns": "rfm-iq-321",
+          "block": "block_17"
+        },
+        {
+          "id": "text_block_18",
+          "kind": "richText",
+          "label": "Текст rfm-iq-321.block_18",
+          "token": "${{ rfm-iq-321.block_18 }}$",
+          "ns": "rfm-iq-321",
+          "block": "block_18"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://api.iqoption.com/v1/multi-links/deposit?aff=7&afftrack=mail_IQ-RFM-3-2-1&retrack=IQ-RFM-3-2-1"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-iq-rfm-321-header-cta-5-heading-0",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.middle-title.pb32 ${{ rfm-iq-321.block_11 }}$",
+          "styl": ".middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 24px !important;\n    line-height: 32px !important; }\n}\n.pb32 { padding-bottom: 32px; }\n.middle-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#393a44;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:24px!important;line-height:32px!important }\n}\n.pb32 { padding-bottom:32px }",
+          "classes": [
+            "middle-title",
+            "pb32"
+          ],
+          "slots": [
+            {
+              "id": "text_block_11",
+              "kind": "richText",
+              "label": "Текст rfm-iq-321.block_11",
+              "token": "${{ rfm-iq-321.block_11 }}$",
+              "ns": "rfm-iq-321",
+              "block": "block_11"
+            }
+          ]
+        },
+        {
+          "id": "x-iq-rfm-321-header-cta-5-heading-1",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.small-title.pb43 ${{ rfm-iq-321.block_12 }}$",
+          "styl": ".small-title { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  color: #393a44; }\n@media screen and (max-width: 600px) {\n  .small-title { font-size: 21px !important;\n    line-height: 29px !important; }\n}\n.pb43 { padding-bottom: 43px; }\n.small-title { font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:24px;line-height:31px;color:#393a44 }\n@media screen and (max-width:600px) {\n  .small-title { font-size:21px!important;line-height:29px!important }\n}\n.pb43 { padding-bottom:43px }",
+          "classes": [
+            "pb43",
+            "small-title"
+          ],
+          "slots": [
+            {
+              "id": "text_block_12",
+              "kind": "richText",
+              "label": "Текст rfm-iq-321.block_12",
+              "token": "${{ rfm-iq-321.block_12 }}$",
+              "ns": "rfm-iq-321",
+              "block": "block_12"
+            }
+          ]
+        },
+        {
+          "id": "x-iq-rfm-321-header-cta-5-paragraph-2",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ rfm-iq-321.block_13 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.number-block,.text { font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400 }\n.big,.text.bold { font-weight:700 }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}",
+          "classes": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_13",
+              "kind": "richText",
+              "label": "Текст rfm-iq-321.block_13",
+              "token": "${{ rfm-iq-321.block_13 }}$",
+              "ns": "rfm-iq-321",
+              "block": "block_13"
+            }
+          ]
+        },
+        {
+          "id": "x-iq-rfm-321-header-cta-5-spacer-3",
+          "label": "Спейсер 8px",
+          "placement": "inline",
+          "category": "utility",
+          "pug": ".h-8 &nbsp;",
+          "styl": ".h-8 { font-size: 8px;\n  line-height: 8px;\n  height: 8px; }\n.h-12,.h-8 { font-size:8px;line-height:8px;height:8px }",
+          "classes": [
+            "h-8"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-iq-rfm-321-header-cta-5-heading-4",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.small-title.pb43 ${{ rfm-iq-321.block_14 }}$",
+          "styl": ".small-title { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  color: #393a44; }\n@media screen and (max-width: 600px) {\n  .small-title { font-size: 21px !important;\n    line-height: 29px !important; }\n}\n.pb43 { padding-bottom: 43px; }\n.small-title { font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:24px;line-height:31px;color:#393a44 }\n@media screen and (max-width:600px) {\n  .small-title { font-size:21px!important;line-height:29px!important }\n}\n.pb43 { padding-bottom:43px }",
+          "classes": [
+            "pb43",
+            "small-title"
+          ],
+          "slots": [
+            {
+              "id": "text_block_14",
+              "kind": "richText",
+              "label": "Текст rfm-iq-321.block_14",
+              "token": "${{ rfm-iq-321.block_14 }}$",
+              "ns": "rfm-iq-321",
+              "block": "block_14"
+            }
+          ]
+        },
+        {
+          "id": "x-iq-rfm-321-header-cta-5-paragraph-5",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ rfm-iq-321.block_15 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.number-block,.text { font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400 }\n.big,.text.bold { font-weight:700 }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}",
+          "classes": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_15",
+              "kind": "richText",
+              "label": "Текст rfm-iq-321.block_15",
+              "token": "${{ rfm-iq-321.block_15 }}$",
+              "ns": "rfm-iq-321",
+              "block": "block_15"
+            }
+          ]
+        },
+        {
+          "id": "x-iq-rfm-321-header-cta-5-spacer-6",
+          "label": "Спейсер 8px",
+          "placement": "inline",
+          "category": "utility",
+          "pug": ".h-8 &nbsp;",
+          "styl": ".h-8 { font-size: 8px;\n  line-height: 8px;\n  height: 8px; }\n.h-12,.h-8 { font-size:8px;line-height:8px;height:8px }",
+          "classes": [
+            "h-8"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-iq-rfm-321-header-cta-5-heading-7",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.small-title.pb16 ${{ rfm-iq-321.block_16 }}$",
+          "styl": ".small-title { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  color: #393a44; }\n@media screen and (max-width: 600px) {\n  .small-title { font-size: 21px !important;\n    line-height: 29px !important; }\n}\n.pb16 { padding-bottom: 16px; }\n.small-title { font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:24px;line-height:31px;color:#393a44 }\n@media screen and (max-width:600px) {\n  .small-title { font-size:21px!important;line-height:29px!important }\n}\n.pb16 { padding-bottom:16px }",
+          "classes": [
+            "pb16",
+            "small-title"
+          ],
+          "slots": [
+            {
+              "id": "text_block_16",
+              "kind": "richText",
+              "label": "Текст rfm-iq-321.block_16",
+              "token": "${{ rfm-iq-321.block_16 }}$",
+              "ns": "rfm-iq-321",
+              "block": "block_16"
+            }
+          ]
+        },
+        {
+          "id": "x-iq-rfm-321-header-cta-5-paragraph-8",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ rfm-iq-321.block_17 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.number-block,.text { font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400 }\n.big,.text.bold { font-weight:700 }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}",
+          "classes": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_17",
+              "kind": "richText",
+              "label": "Текст rfm-iq-321.block_17",
+              "token": "${{ rfm-iq-321.block_17 }}$",
+              "ns": "rfm-iq-321",
+              "block": "block_17"
+            }
+          ]
+        },
+        {
+          "id": "x-iq-rfm-321-header-cta-5-spacer-9",
+          "label": "Спейсер 40px",
+          "placement": "inline",
+          "category": "utility",
+          "pug": ".h-40 &nbsp;",
+          "styl": ".h-40 { font-size: 8px;\n  line-height: 40px;\n  height: 40px; }\n.h-28,.h-30,.h-40 { font-size:8px;line-height:28px;height:28px }\n.h-30,.h-40 { line-height:30px;height:30px }\n.h-40 { line-height:40px;height:40px }",
+          "classes": [
+            "h-40"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-iq-rfm-321-header-cta-5-cta-button-10",
+          "label": "CTA-кнопка (w280)",
+          "placement": "inline",
+          "category": "cta",
+          "pug": "table.w280.centet(style=\"border-collapse: initial;\" align=\"center\")\n    tr\n        td.butt.pb0\n            a.butt-link(href=\"https://api.iqoption.com/v1/multi-links/deposit?aff=7&afftrack=mail_IQ-RFM-3-2-1&retrack=IQ-RFM-3-2-1\" universal=\"true\" target=\"_blank\") ${{ rfm-iq-321.block_18 }}$",
+          "styl": ".w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { max-width: 100% !important; }\n}\n.butt { background-size: cover;\n  background-color: #f70;\n  font-size: 18px !important;\n  font-weight: 700 !important;\n  border-radius: 16px !important;\n  text-transform: none;\n  font-family: Helvetica !important;\n  height: auto; }\n.butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.pb0 { padding-bottom: 0 !important; }\n.butt { color:#fff;text-align:center;margin:0!important;letter-spacing:.05em;display:block;width:100%;padding:17px 0 15px }\n.w280 { width:100%;max-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { max-width:100%!important }\n}\n.butt { background-size:cover;background-color:#f70;font-size:18px!important;font-weight:700!important;border-radius:16px!important;text-transform:none;font-family:Helvetica!important;height:auto }\n.butt-link,.butt-link-2,.butt-link-small { font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#2f3749;display:block;line-height:27px;padding:16px 0;text-align:center;letter-spacing:0 }\n.butt-link,.butt-link-small { color:#f9f9f9 }\n.pb0 { padding-bottom:0!important }",
+          "classes": [
+            "butt",
+            "butt-link",
+            "centet",
+            "pb0",
+            "w280"
+          ],
+          "slots": [
+            {
+              "id": "text_block_18",
+              "kind": "richText",
+              "label": "Текст rfm-iq-321.block_18",
+              "token": "${{ rfm-iq-321.block_18 }}$",
+              "ns": "rfm-iq-321",
+              "block": "block_18"
+            },
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://api.iqoption.com/v1/multi-links/deposit?aff=7&afftrack=mail_IQ-RFM-3-2-1&retrack=IQ-RFM-3-2-1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-iq-rfm-321-header-footer-6",
+      "label": "Store badges",
+      "placement": "section",
+      "category": "footer",
+      "kind": "section",
+      "sourceFile": "X_IQ/mail-rfm-321/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.pt68.offset-by-one\n            table.ten.columns\n                tr\n                    td.pb0.text-pad-small\n                        .stor.center\n                            a(href=\"https://app.appsflyer.com/id871125783?pid=7&c=mail_IQ-RFM-3-2-1\" target=\"_blank\")\n                                img.a-app(src=\"https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjqg/app.png\")\n                            a(href=\"https://app.appsflyer.com/com.iqoption?pid=7&c=mail_IQ-RFM-3-2-1\" target=\"_blank\")\n                                img.a-google(src=\"https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjr0/play.png\")",
+      "styl": "table.row.header { background: #f9f9f9;\n  height: 86px; }\n@media screen and (max-width: 600px) {\n  .text-pad-small { padding-left: 20px !important;\n    padding-right: 20px !important; }\n}\n.center { text-align: center;\n  margin: 0 auto; }\n.pb0 { padding-bottom: 0 !important; }\n.pt68 { padding-top: 68px; }\n@media screen and (max-width: 600px) {\n  table[class=\"overbody\"] table.columns td.td-icon { width: 30px !important;\n    padding-right: 15px !important; }\n}\n@media screen and (max-width: 600px) {\n  table[class=\"body\"] table.columns td.bbb,\n  table[class=\"body\"] table.columns td.bb1 { width: auto !important; }\n}\n.stor { width: 100% !important;\n  max-width: 450px;\n  margin: 0 auto; }\n@media screen and (max-width: 600px) {\n  .stor { width: 100% !important; }\n}\n.a-app { display: inline-block;\n  padding-right: 30px;\n  max-width: 120px;\n  height: 40px !important;\n  float: none; }\n@media screen and (max-width: 600px) {\n  .a-app { display: block !important;\n    padding-right: 0 !important;\n    float: none !important;\n    margin-bottom: 15px;\n    margin: 0 auto !important;\n    padding-bottom: 15px !important; }\n}\n.a-google { display: inline-block;\n  max-width: 135px;\n  height: 40px !important;\n  float: none; }\n@media screen and (max-width: 600px) {\n  .a-google { display: block !important;\n    float: none !important;\n    margin: 0 auto !important; }\n}\n@media screen and (max-width: 600px) {\n  table[class=\"body\"] table.column td,\n  table[class=\"body\"] table.columns td.mob-td { background-size: 25px !important;\n    padding-left: 33px !important; }\n}\n@media screen and (max-width: 600px) {\n  table[class=\"body\"] table.columns td.plr1,\n  table[class=\"body\"] table.columns td.plr2,\n  table[class=\"body\"] table.columns td.plr3 { width: auto !important; }\n}\ntable[class=\"body\"] table.columns td.auto { width: auto !important; }\ntable[class=\"body\"] table.columns td.w74 { width: 74px !important; }\ntable[class=body] table.column td,\ntable[class=body] table.columns td.m-w { min-width: 48px !important;\n  width: 48px !important; }\ntable[class=body] table.columns td.m-w2 { min-width: 152px;\n  width: 152px; }\n@media screen and (max-width: 600px) {\n  table[class=body] table.columns td.m-w2 { min-width: 120px !important;\n    width: 120px !important; }\n}\nimg.center { margin:0 auto;float:none }\nimg,table.container table.row { display:block }\ntable.row { padding:0;width:100%;position:relative }\ntable.ten { width:480px }\ntable.ten center { min-width:480px }\ntable.ten .panel center { min-width:460px }\ntd.wrapper { padding:0;position:relative }\ntd.offset-by-one { padding-left:50px }\ntable.column,table.columns,ul { margin:0 }\ntable.column td,table.columns td { padding:0 0 10px }\ntable.column td.sub-column,table.column td.sub-columns,table.columns td.sub-column,table.columns td.sub-columns { padding-right:10px }\ntable.container td.last,table.row td.last { padding-right:0 }\n.body .column td.one,.body .columns td.one { width:8.333333% }\n.body .column td.two,.body .columns td.two { width:16.666666% }\n.body .column td.three,.body .columns td.three { width:25% }\n.body .column td.four,.body .columns td.four { width:33.333333% }\n.body .column td.five,.body .columns td.five { width:41.666666% }\n.body .column td.six,.body .columns td.six { width:50% }\n.body .column td.seven,.body .columns td.seven { width:58.333333% }\n.body .column td.eight,.body .columns td.eight { width:66.666666% }\n.body .column td.nine,.body .columns td.nine { width:75% }\n.body .column td.ten,.body .columns td.ten { width:83.333333% }\n.body .column td.eleven,.body .columns td.eleven { width:91.666666% }\n.body .column td.twelve,.body .columns td.twelve { width:100% }\ntable.column .text-pad,table.columns .text-pad { padding-left:10px;padding-right:10px }\ntable.column .left-text-pad,table.column .text-pad-left,table.columns .left-text-pad,table.columns .text-pad-left { padding-left:10px }\ntable.column .right-text-pad,table.column .text-pad-right,table.columns .right-text-pad,table.columns .text-pad-right { padding-right:10px }\nh1.center,h2.center,h3.center,h4.center,h5.center,h6.center,span.center,table.center,td.center { text-align:center }\nspan.center { display:block;width:100% }\n@media only screen and (max-width:600px) {\n  table[class=body] .row { width:100%!important;display:block!important }\n  table[class=body] .column,table[class=body] .columns,table[class=body] .wrapper { display:block!important;padding-right:0!important;padding-left:0!important }\n  table[class=body] table.columns td.expander { width:1px!important }\n  table[class=body] .column,table[class=body] .columns { table-layout:fixed!important;float:none!important;width:100%!important }\n  table[class=body] .wrapper.first .column,table[class=body] .wrapper.first .columns { display:table!important }\n  table[class=body] table.column td,table[class=body] table.columns td { width:100%!important }\n  table[class=body] .column td.one,table[class=body] .columns td.one { width:8.333333%!important }\n  table[class=body] .column td.two,table[class=body] .columns td.two { width:16.666666%!important }\n  table[class=body] .column td.three,table[class=body] .columns td.three { width:25%!important }\n  table[class=body] .column td.four,table[class=body] .columns td.four { width:33.333333%!important }\n  table[class=body] .column td.five,table[class=body] .columns td.five { width:41.666666%!important }\n  table[class=body] .column td.six,table[class=body] .columns td.six { width:50%!important }\n  table[class=body] .column td.seven,table[class=body] .columns td.seven { width:58.333333%!important }\n  table[class=body] .column td.eight,table[class=body] .columns td.eight { width:66.666666%!important }\n  table[class=body] .column td.nine,table[class=body] .columns td.nine { width:75%!important }\n  table[class=body] .column td.ten,table[class=body] .columns td.ten { width:83.333333%!important }\n  table[class=body] .column td.eleven,table[class=body] .columns td.eleven { width:91.666666%!important }\n  table[class=body] .column td.twelve,table[class=body] .columns td.twelve { width:100%!important }\n  table[class=body] td .offset-by-eight,table[class=body] td .offset-by-eleven,table[class=body] td .offset-by-five,table[class=body] td .offset-by-four,table[class=body] td .offset-by-nine,table[class=body] td .offset-by-one,table[class=body] td .offset-by-seven,table[class=body] td .offset-by-six,table[class=body] td .offset-by-ten,table[class=body] td .offset-by-three,table[class=body] td .offset-by-twelve,table[class=body] td .offset-by-two { padding-left:0!important }\n}\ntable.row.header { height:86px }\ntable.body,table.row.header { background:#f9f9f9 }\n@media screen and (max-width:600px) {\n  .text-pad-small { padding-left:20px!important }\n  .text-pad-small,.text-pad-small-right { padding-right:20px!important }\n}\n.center,.terms { text-align:center;margin:0 auto }\n.pb0 { padding-bottom:0!important }\n.pt68 { padding-top:68px }\n@media screen and (max-width:600px) {\n  table[class=overbody] table.columns td.td-icon { width:30px!important;padding-right:15px!important }\n  table[class=body] table.columns td.bb1,table[class=body] table.columns td.bbb { width:auto!important }\n}\n.stor { width:100%!important;max-width:450px;margin:0 auto }\n@media screen and (max-width:600px) {\n  .stor { width:100%!important }\n}\n.a-app { display:inline-block;padding-right:30px;max-width:120px;height:40px!important;float:none }\n@media screen and (max-width:600px) {\n  .a-app { display:block!important;padding-right:0!important;float:none!important;margin:0 auto!important;padding-bottom:15px!important }\n}\n.a-google { display:inline-block;max-width:135px;height:40px!important;float:none }\n@media screen and (max-width:600px) {\n  .a-google { display:block!important;float:none!important;margin:0 auto!important }\n}\n@media screen and (max-width:600px) {\n  table[class=body] table.column td,table[class=body] table.columns td.mob-td { background-size:25px!important;padding-left:33px!important }\n}\n@media screen and (max-width:600px) {\n  table[class=body] table.columns td.plr1,table[class=body] table.columns td.plr2,table[class=body] table.columns td.plr3 { width:auto!important }\n}\ntable[class=body] table.columns td.auto { width:auto!important }\ntable[class=body] table.columns td.w74 { width:74px!important }\ntable[class=body] table.column td,table[class=body] table.columns td.m-w { min-width:48px!important;width:48px!important }\ntable[class=body] table.columns td.m-w2 { min-width:152px;width:152px }\n@media screen and (max-width:600px) {\n  table[class=body] table.columns td.m-w2 { min-width:120px!important;width:120px!important }\n}",
+      "classes": [
+        "a-app",
+        "a-google",
+        "center",
+        "columns",
+        "last",
+        "offset-by-one",
+        "pb0",
+        "pt68",
+        "row",
+        "stor",
+        "ten",
+        "text-pad-small",
+        "wrapper"
+      ],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://app.appsflyer.com/id871125783?pid=7&c=mail_IQ-RFM-3-2-1"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://app.appsflyer.com/com.iqoption?pid=7&c=mail_IQ-RFM-3-2-1"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjqg/app.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjr0/play.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-iq-rfm-321-header-footer-6-store-badges-0",
+          "label": "Store badges (App Store / Google Play)",
+          "placement": "inline",
+          "category": "footer",
+          "pug": ".stor.center\n    a(href=\"https://app.appsflyer.com/id871125783?pid=7&c=mail_IQ-RFM-3-2-1\" target=\"_blank\")\n        img.a-app(src=\"https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjqg/app.png\")\n    a(href=\"https://app.appsflyer.com/com.iqoption?pid=7&c=mail_IQ-RFM-3-2-1\" target=\"_blank\")\n        img.a-google(src=\"https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjr0/play.png\")",
+          "styl": ".center { text-align: center;\n  margin: 0 auto; }\n.stor { width: 100% !important;\n  max-width: 450px;\n  margin: 0 auto; }\n@media screen and (max-width: 600px) {\n  .stor { width: 100% !important; }\n}\n.a-app { display: inline-block;\n  padding-right: 30px;\n  max-width: 120px;\n  height: 40px !important;\n  float: none; }\n@media screen and (max-width: 600px) {\n  .a-app { display: block !important;\n    padding-right: 0 !important;\n    float: none !important;\n    margin-bottom: 15px;\n    margin: 0 auto !important;\n    padding-bottom: 15px !important; }\n}\n.a-google { display: inline-block;\n  max-width: 135px;\n  height: 40px !important;\n  float: none; }\n@media screen and (max-width: 600px) {\n  .a-google { display: block !important;\n    float: none !important;\n    margin: 0 auto !important; }\n}\nimg.center { margin:0 auto;float:none }\nh1.center,h2.center,h3.center,h4.center,h5.center,h6.center,span.center,table.center,td.center { text-align:center }\nspan.center { display:block;width:100% }\n.center,.terms { text-align:center;margin:0 auto }\n.stor { width:100%!important;max-width:450px;margin:0 auto }\n@media screen and (max-width:600px) {\n  .stor { width:100%!important }\n}\n.a-app { display:inline-block;padding-right:30px;max-width:120px;height:40px!important;float:none }\n@media screen and (max-width:600px) {\n  .a-app { display:block!important;padding-right:0!important;float:none!important;margin:0 auto!important;padding-bottom:15px!important }\n}\n.a-google { display:inline-block;max-width:135px;height:40px!important;float:none }\n@media screen and (max-width:600px) {\n  .a-google { display:block!important;float:none!important;margin:0 auto!important }\n}",
+          "classes": [
+            "a-app",
+            "a-google",
+            "center",
+            "stor"
+          ],
+          "slots": [
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://app.appsflyer.com/id871125783?pid=7&c=mail_IQ-RFM-3-2-1"
+            },
+            {
+              "id": "href_1",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://app.appsflyer.com/com.iqoption?pid=7&c=mail_IQ-RFM-3-2-1"
+            },
+            {
+              "id": "image_0",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjqg/app.png"
+            },
+            {
+              "id": "image_1",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjr0/play.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-iq-rfm-321-header-footer-7",
+      "label": "Соцсети",
+      "placement": "section",
+      "category": "footer",
+      "kind": "section",
+      "sourceFile": "X_IQ/mail-rfm-321/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.pt30\n            table.twelve.columns\n                tr\n                    td(align=\"center\").pb0.center\n                        .socials.center\n                            a.first-link(href=\"${{ iq-soc.block_00 }}$\" target=\"_blank\")\n                                img.soc-icon.fb(src=\"https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7vdg/fb.png\")\n                            a(href=\"${{ iq-soc.block_01 }}$\" target=\"_blank\")\n                                img.soc-icon.twitter(src=\"https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7ve0/ig.png\")\n                            a(href=\"${{ iq-soc.block_02 }}$\" target=\"_blank\")\n                                img.soc-icon.you(src=\"https://fsms.iqoption.com/storage/public/cn/td/gb285cee2vclvjq0/yt.png\")\n                            a(href=\"${{ iq-soc.block_03 }}$\" target=\"_blank\")\n                                img.soc-icon.you(src=\"https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7vf0/tw.png\")\n                            a(href=\"${{ iq-soc.block_04 }}$\" target=\"_blank\")\n                                img.soc-icon.you(src=\"https://fsms.quadcode.com/storage/public/d5/ka/q8fvhhge5gv5vatg/tiktok-logo.png\")\n                            a(href=\"${{ iq-soc.block_05 }}$\" target=\"_blank\")\n                                img.soc-icon.you(src=\"https://fsms.quadcode.com/storage/public/d5/ka/dr7vhhge5gv5vat0/discord-logo.png\")\n                            a.last-link(href=\"${{ iq-soc.block_06 }}$\" target=\"_blank\")\n                                img.soc-icon.ig(src=\"https://fsms.quadcode.com/storage/public/d5/ka/rf7vhhge5gv5vau0/tg.png\")",
+      "styl": "table.row.header { background: #f9f9f9;\n  height: 86px; }\n.center { text-align: center;\n  margin: 0 auto; }\n.pt30 { padding-top: 30px; }\n.ig { max-width: 20px;\n  margin-left: 6px; }\n@media screen and (max-width: 600px) {\n  .ig { width: 20px !important; }\n}\n.you { max-width: 24px;\n  margin: 0 6px; }\n@media screen and (max-width: 600px) {\n  .you { width: 24px !important; }\n}\n.twitter { max-width: 24px;\n  margin: 0 6px; }\n@media screen and (max-width: 600px) {\n  .twitter { width: 24px !important; }\n}\n.fb { max-width: 24px;\n  margin-right: 6px; }\n@media screen and (max-width: 600px) {\n  .fb { width: 24px !important; }\n}\n@media screen and (max-width: 600px) {\n  table[class=\"overbody\"] table.columns td.td-icon { width: 30px !important;\n    padding-right: 15px !important; }\n}\n@media screen and (max-width: 600px) {\n  table[class=\"body\"] table.columns td.bbb,\n  table[class=\"body\"] table.columns td.bb1 { width: auto !important; }\n}\n.socials { display: inline-block;\n  font-size: 0;\n  margin: 0 auto; }\n@media screen and (max-width: 600px) {\n  .socials { width: 100% !important; }\n}\n.socials a { display: inline-block;\n  vertical-align: middle;\n  margin: 0 10px; }\n@media screen and (max-width: 600px) {\n  .socials a { margin-bottom: 10px !important; }\n}\n.soc-icon { float: none !important;\n  max-width: 24px; }\n@media screen and (max-width: 600px) {\n  table[class=\"body\"] table.column td,\n  table[class=\"body\"] table.columns td.mob-td { background-size: 25px !important;\n    padding-left: 33px !important; }\n}\n@media screen and (max-width: 600px) {\n  table[class=\"body\"] table.columns td.plr1,\n  table[class=\"body\"] table.columns td.plr2,\n  table[class=\"body\"] table.columns td.plr3 { width: auto !important; }\n}\ntable[class=\"body\"] table.columns td.auto { width: auto !important; }\ntable[class=\"body\"] table.columns td.w74 { width: 74px !important; }\ntable[class=body] table.column td,\ntable[class=body] table.columns td.m-w { min-width: 48px !important;\n  width: 48px !important; }\ntable[class=body] table.columns td.m-w2 { min-width: 152px;\n  width: 152px; }\n@media screen and (max-width: 600px) {\n  table[class=body] table.columns td.m-w2 { min-width: 120px !important;\n    width: 120px !important; }\n}\nimg.center { margin:0 auto;float:none }\nimg,table.container table.row { display:block }\ntable.row { padding:0;width:100%;position:relative }\ntable.twelve { width:580px }\ntable.twelve center { min-width:580px }\ntable.twelve .panel center { min-width:560px }\ntd.wrapper { padding:0;position:relative }\ntable.column,table.columns,ul { margin:0 }\ntable.column td,table.columns td { padding:0 0 10px }\ntable.column td.sub-column,table.column td.sub-columns,table.columns td.sub-column,table.columns td.sub-columns { padding-right:10px }\ntable.container td.last,table.row td.last { padding-right:0 }\n.body .column td.one,.body .columns td.one { width:8.333333% }\n.body .column td.two,.body .columns td.two { width:16.666666% }\n.body .column td.three,.body .columns td.three { width:25% }\n.body .column td.four,.body .columns td.four { width:33.333333% }\n.body .column td.five,.body .columns td.five { width:41.666666% }\n.body .column td.six,.body .columns td.six { width:50% }\n.body .column td.seven,.body .columns td.seven { width:58.333333% }\n.body .column td.eight,.body .columns td.eight { width:66.666666% }\n.body .column td.nine,.body .columns td.nine { width:75% }\n.body .column td.ten,.body .columns td.ten { width:83.333333% }\n.body .column td.eleven,.body .columns td.eleven { width:91.666666% }\n.body .column td.twelve,.body .columns td.twelve { width:100% }\ntable.column .text-pad,table.columns .text-pad { padding-left:10px;padding-right:10px }\ntable.column .left-text-pad,table.column .text-pad-left,table.columns .left-text-pad,table.columns .text-pad-left { padding-left:10px }\ntable.column .right-text-pad,table.column .text-pad-right,table.columns .right-text-pad,table.columns .text-pad-right { padding-right:10px }\nh1.center,h2.center,h3.center,h4.center,h5.center,h6.center,span.center,table.center,td.center { text-align:center }\nspan.center { display:block;width:100% }\n@media only screen and (max-width:600px) {\n  table[class=body] .row { width:100%!important;display:block!important }\n  table[class=body] .column,table[class=body] .columns,table[class=body] .wrapper { display:block!important;padding-right:0!important;padding-left:0!important }\n  table[class=body] table.columns td.expander { width:1px!important }\n  table[class=body] .column,table[class=body] .columns { table-layout:fixed!important;float:none!important;width:100%!important }\n  table[class=body] .wrapper.first .column,table[class=body] .wrapper.first .columns { display:table!important }\n  table[class=body] table.column td,table[class=body] table.columns td { width:100%!important }\n  table[class=body] .column td.one,table[class=body] .columns td.one { width:8.333333%!important }\n  table[class=body] .column td.two,table[class=body] .columns td.two { width:16.666666%!important }\n  table[class=body] .column td.three,table[class=body] .columns td.three { width:25%!important }\n  table[class=body] .column td.four,table[class=body] .columns td.four { width:33.333333%!important }\n  table[class=body] .column td.five,table[class=body] .columns td.five { width:41.666666%!important }\n  table[class=body] .column td.six,table[class=body] .columns td.six { width:50%!important }\n  table[class=body] .column td.seven,table[class=body] .columns td.seven { width:58.333333%!important }\n  table[class=body] .column td.eight,table[class=body] .columns td.eight { width:66.666666%!important }\n  table[class=body] .column td.nine,table[class=body] .columns td.nine { width:75%!important }\n  table[class=body] .column td.ten,table[class=body] .columns td.ten { width:83.333333%!important }\n  table[class=body] .column td.eleven,table[class=body] .columns td.eleven { width:91.666666%!important }\n  table[class=body] .column td.twelve,table[class=body] .columns td.twelve { width:100%!important }\n}\ntable.row.header { height:86px }\ntable.body,table.row.header { background:#f9f9f9 }\n.center,.terms { text-align:center;margin:0 auto }\n.pt30 { padding-top:30px }\n.ig { max-width:20px;margin-left:6px }\n@media screen and (max-width:600px) {\n  .ig { width:20px!important }\n}\n.you { max-width:24px;margin:0 6px }\n@media screen and (max-width:600px) {\n  .you { width:24px!important }\n}\n.twitter { max-width:24px;margin:0 6px }\n@media screen and (max-width:600px) {\n  .twitter { width:24px!important }\n}\n.fb { max-width:24px;margin-right:6px }\n@media screen and (max-width:600px) {\n  .fb { width:24px!important }\n  table[class=overbody] table.columns td.td-icon { width:30px!important;padding-right:15px!important }\n  table[class=body] table.columns td.bb1,table[class=body] table.columns td.bbb { width:auto!important }\n}\n.socials { display:inline-block;font-size:0;margin:0 auto }\n@media screen and (max-width:600px) {\n  .socials { width:100%!important }\n}\n.arrow-icon,.socials a { display:inline-block;vertical-align:middle }\n.socials a { margin:0 10px }\n@media screen and (max-width:600px) {\n  .socials a { margin-bottom:10px!important }\n}\n.arrow-icon,.soc-icon { float:none!important;max-width:24px }\n@media screen and (max-width:600px) {\n  table[class=body] table.column td,table[class=body] table.columns td.mob-td { background-size:25px!important;padding-left:33px!important }\n}\n@media screen and (max-width:600px) {\n  table[class=body] table.columns td.plr1,table[class=body] table.columns td.plr2,table[class=body] table.columns td.plr3 { width:auto!important }\n}\ntable[class=body] table.columns td.auto { width:auto!important }\ntable[class=body] table.columns td.w74 { width:74px!important }\ntable[class=body] table.column td,table[class=body] table.columns td.m-w { min-width:48px!important;width:48px!important }\ntable[class=body] table.columns td.m-w2 { min-width:152px;width:152px }\n@media screen and (max-width:600px) {\n  table[class=body] table.columns td.m-w2 { min-width:120px!important;width:120px!important }\n}",
+      "classes": [
+        "center",
+        "columns",
+        "fb",
+        "first-link",
+        "ig",
+        "last",
+        "last-link",
+        "pt30",
+        "row",
+        "soc-icon",
+        "socials",
+        "twelve",
+        "twitter",
+        "wrapper",
+        "you"
+      ],
+      "slots": [
+        {
+          "id": "text_block_00",
+          "kind": "richText",
+          "label": "Текст iq-soc.block_00",
+          "token": "${{ iq-soc.block_00 }}$",
+          "ns": "iq-soc",
+          "block": "block_00"
+        },
+        {
+          "id": "text_block_01",
+          "kind": "richText",
+          "label": "Текст iq-soc.block_01",
+          "token": "${{ iq-soc.block_01 }}$",
+          "ns": "iq-soc",
+          "block": "block_01"
+        },
+        {
+          "id": "text_block_02",
+          "kind": "richText",
+          "label": "Текст iq-soc.block_02",
+          "token": "${{ iq-soc.block_02 }}$",
+          "ns": "iq-soc",
+          "block": "block_02"
+        },
+        {
+          "id": "text_block_03",
+          "kind": "richText",
+          "label": "Текст iq-soc.block_03",
+          "token": "${{ iq-soc.block_03 }}$",
+          "ns": "iq-soc",
+          "block": "block_03"
+        },
+        {
+          "id": "text_block_04",
+          "kind": "richText",
+          "label": "Текст iq-soc.block_04",
+          "token": "${{ iq-soc.block_04 }}$",
+          "ns": "iq-soc",
+          "block": "block_04"
+        },
+        {
+          "id": "text_block_05",
+          "kind": "richText",
+          "label": "Текст iq-soc.block_05",
+          "token": "${{ iq-soc.block_05 }}$",
+          "ns": "iq-soc",
+          "block": "block_05"
+        },
+        {
+          "id": "text_block_06",
+          "kind": "richText",
+          "label": "Текст iq-soc.block_06",
+          "token": "${{ iq-soc.block_06 }}$",
+          "ns": "iq-soc",
+          "block": "block_06"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ iq-soc.block_00 }}$"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ iq-soc.block_01 }}$"
+        },
+        {
+          "id": "href_2",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ iq-soc.block_02 }}$"
+        },
+        {
+          "id": "href_3",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ iq-soc.block_03 }}$"
+        },
+        {
+          "id": "href_4",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ iq-soc.block_04 }}$"
+        },
+        {
+          "id": "href_5",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ iq-soc.block_05 }}$"
+        },
+        {
+          "id": "href_6",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ iq-soc.block_06 }}$"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7vdg/fb.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7ve0/ig.png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.iqoption.com/storage/public/cn/td/gb285cee2vclvjq0/yt.png"
+        },
+        {
+          "id": "image_3",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7vf0/tw.png"
+        },
+        {
+          "id": "image_4",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d5/ka/q8fvhhge5gv5vatg/tiktok-logo.png"
+        },
+        {
+          "id": "image_5",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d5/ka/dr7vhhge5gv5vat0/discord-logo.png"
+        },
+        {
+          "id": "image_6",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d5/ka/rf7vhhge5gv5vau0/tg.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-iq-rfm-321-header-footer-7-socials-0",
+          "label": "Соцсети (иконки)",
+          "placement": "inline",
+          "category": "footer",
+          "pug": ".socials.center\n    a.first-link(href=\"${{ iq-soc.block_00 }}$\" target=\"_blank\")\n        img.soc-icon.fb(src=\"https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7vdg/fb.png\")\n    a(href=\"${{ iq-soc.block_01 }}$\" target=\"_blank\")\n        img.soc-icon.twitter(src=\"https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7ve0/ig.png\")\n    a(href=\"${{ iq-soc.block_02 }}$\" target=\"_blank\")\n        img.soc-icon.you(src=\"https://fsms.iqoption.com/storage/public/cn/td/gb285cee2vclvjq0/yt.png\")\n    a(href=\"${{ iq-soc.block_03 }}$\" target=\"_blank\")\n        img.soc-icon.you(src=\"https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7vf0/tw.png\")\n    a(href=\"${{ iq-soc.block_04 }}$\" target=\"_blank\")\n        img.soc-icon.you(src=\"https://fsms.quadcode.com/storage/public/d5/ka/q8fvhhge5gv5vatg/tiktok-logo.png\")\n    a(href=\"${{ iq-soc.block_05 }}$\" target=\"_blank\")\n        img.soc-icon.you(src=\"https://fsms.quadcode.com/storage/public/d5/ka/dr7vhhge5gv5vat0/discord-logo.png\")\n    a.last-link(href=\"${{ iq-soc.block_06 }}$\" target=\"_blank\")\n        img.soc-icon.ig(src=\"https://fsms.quadcode.com/storage/public/d5/ka/rf7vhhge5gv5vau0/tg.png\")",
+          "styl": ".center { text-align: center;\n  margin: 0 auto; }\n.ig { max-width: 20px;\n  margin-left: 6px; }\n@media screen and (max-width: 600px) {\n  .ig { width: 20px !important; }\n}\n.you { max-width: 24px;\n  margin: 0 6px; }\n@media screen and (max-width: 600px) {\n  .you { width: 24px !important; }\n}\n.twitter { max-width: 24px;\n  margin: 0 6px; }\n@media screen and (max-width: 600px) {\n  .twitter { width: 24px !important; }\n}\n.fb { max-width: 24px;\n  margin-right: 6px; }\n@media screen and (max-width: 600px) {\n  .fb { width: 24px !important; }\n}\n.socials { display: inline-block;\n  font-size: 0;\n  margin: 0 auto; }\n@media screen and (max-width: 600px) {\n  .socials { width: 100% !important; }\n}\n.socials a { display: inline-block;\n  vertical-align: middle;\n  margin: 0 10px; }\n@media screen and (max-width: 600px) {\n  .socials a { margin-bottom: 10px !important; }\n}\n.soc-icon { float: none !important;\n  max-width: 24px; }\nimg.center { margin:0 auto;float:none }\nh1.center,h2.center,h3.center,h4.center,h5.center,h6.center,span.center,table.center,td.center { text-align:center }\nspan.center { display:block;width:100% }\n.center,.terms { text-align:center;margin:0 auto }\n.ig { max-width:20px;margin-left:6px }\n@media screen and (max-width:600px) {\n  .ig { width:20px!important }\n}\n.you { max-width:24px;margin:0 6px }\n@media screen and (max-width:600px) {\n  .you { width:24px!important }\n}\n.twitter { max-width:24px;margin:0 6px }\n@media screen and (max-width:600px) {\n  .twitter { width:24px!important }\n}\n.fb { max-width:24px;margin-right:6px }\n@media screen and (max-width:600px) {\n  .fb { width:24px!important }\n}\n.socials { display:inline-block;font-size:0;margin:0 auto }\n@media screen and (max-width:600px) {\n  .socials { width:100%!important }\n}\n.arrow-icon,.socials a { display:inline-block;vertical-align:middle }\n.socials a { margin:0 10px }\n@media screen and (max-width:600px) {\n  .socials a { margin-bottom:10px!important }\n}\n.arrow-icon,.soc-icon { float:none!important;max-width:24px }",
+          "classes": [
+            "center",
+            "fb",
+            "first-link",
+            "ig",
+            "last-link",
+            "soc-icon",
+            "socials",
+            "twitter",
+            "you"
+          ],
+          "slots": [
+            {
+              "id": "text_block_00",
+              "kind": "richText",
+              "label": "Текст iq-soc.block_00",
+              "token": "${{ iq-soc.block_00 }}$",
+              "ns": "iq-soc",
+              "block": "block_00"
+            },
+            {
+              "id": "text_block_01",
+              "kind": "richText",
+              "label": "Текст iq-soc.block_01",
+              "token": "${{ iq-soc.block_01 }}$",
+              "ns": "iq-soc",
+              "block": "block_01"
+            },
+            {
+              "id": "text_block_02",
+              "kind": "richText",
+              "label": "Текст iq-soc.block_02",
+              "token": "${{ iq-soc.block_02 }}$",
+              "ns": "iq-soc",
+              "block": "block_02"
+            },
+            {
+              "id": "text_block_03",
+              "kind": "richText",
+              "label": "Текст iq-soc.block_03",
+              "token": "${{ iq-soc.block_03 }}$",
+              "ns": "iq-soc",
+              "block": "block_03"
+            },
+            {
+              "id": "text_block_04",
+              "kind": "richText",
+              "label": "Текст iq-soc.block_04",
+              "token": "${{ iq-soc.block_04 }}$",
+              "ns": "iq-soc",
+              "block": "block_04"
+            },
+            {
+              "id": "text_block_05",
+              "kind": "richText",
+              "label": "Текст iq-soc.block_05",
+              "token": "${{ iq-soc.block_05 }}$",
+              "ns": "iq-soc",
+              "block": "block_05"
+            },
+            {
+              "id": "text_block_06",
+              "kind": "richText",
+              "label": "Текст iq-soc.block_06",
+              "token": "${{ iq-soc.block_06 }}$",
+              "ns": "iq-soc",
+              "block": "block_06"
+            },
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ iq-soc.block_00 }}$"
+            },
+            {
+              "id": "href_1",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ iq-soc.block_01 }}$"
+            },
+            {
+              "id": "href_2",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ iq-soc.block_02 }}$"
+            },
+            {
+              "id": "href_3",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ iq-soc.block_03 }}$"
+            },
+            {
+              "id": "href_4",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ iq-soc.block_04 }}$"
+            },
+            {
+              "id": "href_5",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ iq-soc.block_05 }}$"
+            },
+            {
+              "id": "href_6",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ iq-soc.block_06 }}$"
+            },
+            {
+              "id": "image_0",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7vdg/fb.png"
+            },
+            {
+              "id": "image_1",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7ve0/ig.png"
+            },
+            {
+              "id": "image_2",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.iqoption.com/storage/public/cn/td/gb285cee2vclvjq0/yt.png"
+            },
+            {
+              "id": "image_3",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7vf0/tw.png"
+            },
+            {
+              "id": "image_4",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d5/ka/q8fvhhge5gv5vatg/tiktok-logo.png"
+            },
+            {
+              "id": "image_5",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d5/ka/dr7vhhge5gv5vat0/discord-logo.png"
+            },
+            {
+              "id": "image_6",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d5/ka/rf7vhhge5gv5vau0/tg.png"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "validatedAt": "2026-06-29T06:57:51.290Z",
+  "results": [
+    {
+      "index": 0,
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "classes": 11,
+      "slots": 2,
+      "stylBytes": 7544,
+      "mediaQueries": 14,
+      "inlineChildren": 0,
+      "pass": true,
+      "reason": ""
+    },
+    {
+      "index": 1,
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "classes": 23,
+      "slots": 4,
+      "stylBytes": 10828,
+      "mediaQueries": 20,
+      "inlineChildren": 4,
+      "pass": true,
+      "reason": ""
+    },
+    {
+      "index": 2,
+      "label": "Спейсер 12px",
+      "placement": "inline",
+      "category": "utility",
+      "classes": 1,
+      "slots": 0,
+      "stylBytes": 157,
+      "mediaQueries": 0,
+      "inlineChildren": 0,
+      "pass": true,
+      "reason": ""
+    },
+    {
+      "index": 3,
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "classes": 25,
+      "slots": 6,
+      "stylBytes": 12835,
+      "mediaQueries": 26,
+      "inlineChildren": 2,
+      "pass": true,
+      "reason": ""
+    },
+    {
+      "index": 4,
+      "label": "Спейсер 12px",
+      "placement": "inline",
+      "category": "utility",
+      "classes": 1,
+      "slots": 0,
+      "stylBytes": 157,
+      "mediaQueries": 0,
+      "inlineChildren": 0,
+      "pass": true,
+      "reason": ""
+    },
+    {
+      "index": 5,
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "classes": 28,
+      "slots": 9,
+      "stylBytes": 11988,
+      "mediaQueries": 21,
+      "inlineChildren": 11,
+      "pass": true,
+      "reason": ""
+    },
+    {
+      "index": 6,
+      "label": "Store badges",
+      "placement": "section",
+      "category": "footer",
+      "classes": 13,
+      "slots": 4,
+      "stylBytes": 8600,
+      "mediaQueries": 18,
+      "inlineChildren": 1,
+      "pass": true,
+      "reason": ""
+    },
+    {
+      "index": 7,
+      "label": "Соцсети",
+      "placement": "section",
+      "category": "footer",
+      "classes": 15,
+      "slots": 21,
+      "stylBytes": 8014,
+      "mediaQueries": 21,
+      "inlineChildren": 1,
+      "pass": true,
+      "reason": ""
+    }
+  ]
+}

@@ -6,8 +6,8 @@
   "category": "text",
   "version": 1,
   "source": "imported",
-  "pug": "p.middle-title.center {{ text_1 }}",
-  "styl": ".middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 28px !important;\n    line-height: 34px !important; }\n}",
+  "pug": "p.middle-title.center.b-iq-text-41 {{ text_1 }}",
+  "styl": ".middle-title.b-iq-text-41 {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle;  }\n@media screen and (max-width: 600px) {\n  .middle-title.b-iq-text-41 {  font-size: 28px !important;\n    line-height: 34px !important;  }\n}\n.middle-title.b-iq-text-41 {  font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#393a44;vertical-align:middle  }\n@media screen and (max-width:600px) {\n  .middle-title.b-iq-text-41 {  font-size:28px!important;line-height:34px!important  }\n}",
   "slots": [
     {
       "id": "text_1",
@@ -25,6 +25,6 @@
   "sourceMails": [
     "X_IQ/mail-rfm-segmentation-2-123"
   ],
-  "createdAt": "2026-06-29T07:08:36.206Z",
+  "createdAt": "2026-07-06T07:31:35.014Z",
   "validated": true
 }

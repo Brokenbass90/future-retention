@@ -110,6 +110,12 @@ function rtlInlineFallback(source) {
   const isButtonClassToken = (attrs) =>
     hasClassToken(attrs, /^(?:button|tiny-button|small-button|medium-button(?:-[\w-]+)?|large-button)$/i) ||
     hasClassToken(attrs, /(?:^|-)button(?:-|$)/i);
+  const isSelfCentered = (attrs) => {
+    if (/\balign\s*=\s*(["']?)(?:center|middle)\1/i.test(attrs)) return true;
+    const styleM = String(attrs || "").match(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i);
+    if (styleM && /\bmargin\s*:\s*[^;]*\bauto\b/i.test(styleM[2])) return true;
+    return false;
+  };
   const forceAlignRight = (attrs) =>
     /\balign\s*=/i.test(attrs)
       ? attrs
@@ -135,9 +141,11 @@ function rtlInlineFallback(source) {
       if (/^(?:style|script)$/i.test(tag) || !/\balign\s*=/i.test(attrs)) return m;
       return `<${tag}${flipAlign(attrs)}>`;
     })
-    // 4) button class tables → force align="right" (no dir)
+    // 4) button class tables → force align="right" (no dir).
+    //    Centered-by-design buttons (align="center" / margin auto) stay centered.
     .replace(/<table\b([^>]*)>/gi, (m, attrs) => {
       if (!isButtonClassToken(attrs)) return m;
+      if (isSelfCentered(attrs)) return m;
       return `<table${forceAlignRight(attrs)}>`;
     });
   return html;

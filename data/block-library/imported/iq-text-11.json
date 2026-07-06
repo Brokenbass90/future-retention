@@ -6,8 +6,8 @@
   "category": "text",
   "version": 1,
   "source": "imported",
-  "pug": "p.middle-title.pb32.center {{ text_1 }}",
-  "styl": ".middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 24px !important;\n    line-height: 32px !important; }\n}\n.pb32 { padding-bottom: 32px; }",
+  "pug": "p.middle-title.pb32.center.b-iq-text-11 {{ text_1 }}",
+  "styl": ".middle-title.b-iq-text-11 {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle;  }\n@media screen and (max-width: 600px) {\n  .middle-title.b-iq-text-11 {  font-size: 24px !important;\n    line-height: 32px !important;  }\n}\n.pb32.b-iq-text-11 {  padding-bottom: 32px;  }\n.middle-title.b-iq-text-11 {  font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#393a44;vertical-align:middle  }\n@media screen and (max-width:600px) {\n  .middle-title.b-iq-text-11 {  font-size:24px!important;line-height:32px!important  }\n}\n.pb32.b-iq-text-11 {  padding-bottom:32px  }",
   "slots": [
     {
       "id": "text_1",
@@ -29,6 +29,6 @@
     "X_IQ/mail-rfm-segmentation-2-125",
     "X_IQ/mail-rfm-segmentation-2-133"
   ],
-  "createdAt": "2026-06-29T07:08:36.206Z",
+  "createdAt": "2026-07-06T07:31:35.006Z",
   "validated": true
 }
