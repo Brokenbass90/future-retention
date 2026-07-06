@@ -1,0 +1,32 @@
+{
+  "id": "exnova-text-51",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_Exnova (3 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.pb15.b-exnova-text-51  {{ text_1 }}",
+  "styl": ".text.b-exnova-text-51 {  font-family: Helvetica !important;\n  color: #262832;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 25px;  }\n.text.b-exnova-text-51 a {  color: #0173ca !important;  }\n.text.bold.b-exnova-text-51 {  font-weight: 700;  }\n.pb15.b-exnova-text-51 {  padding-bottom: 15px;  }\n.b-exnova-text-51 .grey-text, .text.b-exnova-text-51 {  font-family:Helvetica!important;color:#262832;font-size:18px;font-weight:400;line-height:25px  }\n.text.b-exnova-text-51 a {  color:#0173ca!important  }\n.text.bold.b-exnova-text-51 {  font-weight:700  }\n.pb15.b-exnova-text-51 {  padding-bottom:15px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_Exnova"
+  ],
+  "usageCount": 3,
+  "sourceMails": [
+    "X_Exnova/mail-Teaser-email-4",
+    "X_Exnova/mail-Trade-on-weekend-B",
+    "X_Exnova/mail-trade-rush-2"
+  ],
+  "createdAt": "2026-07-06T12:09:50.966Z",
+  "validated": true
+}

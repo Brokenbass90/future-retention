@@ -1,0 +1,1077 @@
+{
+  "category": "X_new",
+  "mailId": "recap-2025",
+  "mailAbs": "email-base/X_new/mail-recap-2025",
+  "blockCount": 6,
+  "blocks": [
+    {
+      "id": "x-new-recap-2025-header-header-0",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "kind": "section",
+      "sourceFile": "X_new/mail-recap-2025/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.offset-by-one.last.pt0\n            table.ten.columns\n                tr\n                    td.six.sub-columns.pt0.pb0\n                        a(href=\"https://affstore.com\" target=\"_blank\")\n                            img.logo.center(src=\"https://fsms.quadcode.com/storage/public/cn/9i/i4285cee2vclvf1g/logo-affstore-shadow.png\")",
+      "styl": "",
+      "classes": [
+        "center",
+        "columns",
+        "last",
+        "logo",
+        "offset-by-one",
+        "pb0",
+        "pt0",
+        "row",
+        "six",
+        "sub-columns",
+        "ten",
+        "wrapper"
+      ],
+      "designClasses": [],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://affstore.com"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cn/9i/i4285cee2vclvf1g/logo-affstore-shadow.png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-new-recap-2025-header-section-1",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "kind": "section",
+      "sourceFile": "X_new/mail-recap-2025/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.pt10.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb16\n                        p.title-top.center ${{ aff-recap-2025.block_01 }}$\n    tr\n        td.wrapper.last.pt0\n            table.tvelwe.columns\n                tr\n                    td.pb0\n                        a(href=\"#\" target=\"_blank\")\n                            img.center(src=\"https://fsms.quadcode.com/storage/public/d4/ru/9j2nkfh42o2fbne0/Header-affstore.png\")",
+      "styl": ".title-top { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 56px;\n  line-height: 67px;\n  color: #413e43; }\n@media screen and (max-width: 600px) {\n  .title-top { font-size: 32px !important;\n    line-height: 42px !important; }\n}\n.pb16 { padding-bottom: 16px; }\n.title-top { font-family:Helvetica!important;font-weight:700;font-size:56px;line-height:67px;color:#413e43 }\n@media screen and (max-width:600px) {\n  .title-top { font-size:32px!important;line-height:42px!important }\n}\n.pb16 { padding-bottom:16px }",
+      "classes": [
+        "center",
+        "columns",
+        "last",
+        "offset-by-one",
+        "pb0",
+        "pb16",
+        "pt0",
+        "pt10",
+        "row",
+        "ten",
+        "text-pad-small",
+        "title-top",
+        "tvelwe",
+        "wrapper"
+      ],
+      "designClasses": [
+        "pb16",
+        "title-top",
+        "tvelwe"
+      ],
+      "slots": [
+        {
+          "id": "text_block_01",
+          "kind": "richText",
+          "label": "Текст aff-recap-2025.block_01",
+          "token": "${{ aff-recap-2025.block_01 }}$",
+          "ns": "aff-recap-2025",
+          "block": "block_01"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d4/ru/9j2nkfh42o2fbne0/Header-affstore.png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-new-recap-2025-header-text-2",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_new/mail-recap-2025/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg.br-full-16\n    tr\n        td.wrapper.last.offset-by-one.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44\n                        p.hello.wb-bw.pb12 ${{ aff-recap-2025.block_02 }}$\n                        p.text ${{ aff-recap-2025.block_03 }}$",
+      "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  line-height: 27px;\n  font-weight: 400;\n  letter-spacing: 0; }\n.white-bg { background: #fff; }\n.hello { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 24px;\n  color: #413e43;\n  letter-spacing: 0;\n  line-height: 36px;\n  word-break: break-word; }\n.wb-bw { word-break: break-word; }\n.text.list { display: list-item; }\n.pb12 { padding-bottom: 12px; }\n.pb44 { padding-bottom: 44px; }\n.pt44 { padding-top: 44px; }\n.br-full-16 { border-radius: 16px;\n  -moz-border-radius: 16px;\n  -webkit-border-radius: 16px; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #86ad00 !important; }\n.text { font-family:Helvetica!important;color:#413e43;font-size:18px;line-height:27px;font-weight:400;letter-spacing:0 }\n.white-bg { background:#fff }\n.hello { font-family:Helvetica!important;font-weight:700;font-size:24px;color:#413e43;letter-spacing:0;line-height:36px;word-break:break-word }\n.wb-bw { word-break:break-word }\n.text.list { display:list-item }\n.pb12 { padding-bottom:12px }\n.pb44 { padding-bottom:44px }\n.pt44,.pt45 { padding-top:44px }\n.br-full-16 { border-radius:16px;-moz-border-radius:16px;-webkit-border-radius:16px }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#86ad00!important }",
+      "classes": [
+        "br-full-16",
+        "columns",
+        "hello",
+        "last",
+        "offset-by-one",
+        "pb12",
+        "pb44",
+        "pt44",
+        "row",
+        "ten",
+        "text",
+        "text-pad-small",
+        "wb-bw",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "br-full-16",
+        "hello",
+        "pb12",
+        "pb44",
+        "pt44",
+        "text",
+        "wb-bw",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_02",
+          "kind": "richText",
+          "label": "Текст aff-recap-2025.block_02",
+          "token": "${{ aff-recap-2025.block_02 }}$",
+          "ns": "aff-recap-2025",
+          "block": "block_02"
+        },
+        {
+          "id": "text_block_03",
+          "kind": "richText",
+          "label": "Текст aff-recap-2025.block_03",
+          "token": "${{ aff-recap-2025.block_03 }}$",
+          "ns": "aff-recap-2025",
+          "block": "block_03"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-recap-2025-header-text-2-heading-0",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.hello.wb-bw.pb12 ${{ aff-recap-2025.block_02 }}$",
+          "styl": ".hello { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 24px;\n  color: #413e43;\n  letter-spacing: 0;\n  line-height: 36px;\n  word-break: break-word; }\n.wb-bw { word-break: break-word; }\n.pb12 { padding-bottom: 12px; }\n.hello { font-family:Helvetica!important;font-weight:700;font-size:24px;color:#413e43;letter-spacing:0;line-height:36px;word-break:break-word }\n.wb-bw { word-break:break-word }\n.pb12 { padding-bottom:12px }",
+          "classes": [
+            "hello",
+            "pb12",
+            "wb-bw"
+          ],
+          "designClasses": [
+            "hello",
+            "pb12",
+            "wb-bw"
+          ],
+          "slots": [
+            {
+              "id": "text_block_02",
+              "kind": "richText",
+              "label": "Текст aff-recap-2025.block_02",
+              "token": "${{ aff-recap-2025.block_02 }}$",
+              "ns": "aff-recap-2025",
+              "block": "block_02"
+            }
+          ]
+        },
+        {
+          "id": "x-new-recap-2025-header-text-2-paragraph-1",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ aff-recap-2025.block_03 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  line-height: 27px;\n  font-weight: 400;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #86ad00 !important; }\n.text { font-family:Helvetica!important;color:#413e43;font-size:18px;line-height:27px;font-weight:400;letter-spacing:0 }\n.text.list { display:list-item }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#86ad00!important }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_03",
+              "kind": "richText",
+              "label": "Текст aff-recap-2025.block_03",
+              "token": "${{ aff-recap-2025.block_03 }}$",
+              "ns": "aff-recap-2025",
+              "block": "block_03"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-new-recap-2025-header-feature-list-4",
+      "label": "Список преимуществ (нумерованный)",
+      "placement": "section",
+      "category": "feature-list",
+      "kind": "section",
+      "sourceFile": "X_new/mail-recap-2025/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg.br-full-16\n    tr\n        td.wrapper.last.offset-by-one.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44\n                        p.subtitle.pb32 ${{ aff-recap-2025.block_04 }}$\n                        .gray-block\n                            a(href=\"#\" target=\"_blank\")\n                                img.left-img(src=\"https://fsms.quadcode.com/storage/public/d4/ru/9iqqubga63ldcnp0/one-aff.png\")\n                            .right-block\n                                p.small-title.pb10  ${{ aff-recap-2025.block_05 }}$\n                                p.text ${{ aff-recap-2025.block_06 }}$\n                        .block-empty-12 &nbsp;\n                        .gray-block\n                            a(href=\"#\" target=\"_blank\")\n                                img.left-img(src=\"https://fsms.quadcode.com/storage/public/d4/ru/9iqqubga63ldcnog/two-aff.png\")\n                            .right-block\n                                p.small-title.pb10  ${{ aff-recap-2025.block_07 }}$\n                                p.text ${{ aff-recap-2025.block_08 }}$\n                        .block-empty-12 &nbsp;\n                        .gray-block\n                            a(href=\"#\" target=\"_blank\")\n                                img.left-img(src=\"https://fsms.quadcode.com/storage/public/d4/ru/9iqnkfh42o2fbndg/three-aff.png\")\n                            .right-block\n                                p.small-title.pb10  ${{ aff-recap-2025.block_09 }}$\n                                p.text ${{ aff-recap-2025.block_10 }}$\n                        .block-empty-12 &nbsp;\n                        .gray-block\n                            a(href=\"#\" target=\"_blank\")\n                                img.left-img(src=\"https://fsms.quadcode.com/storage/public/d4/ru/9iqqubga63ldcnpg/four-aff.png\")\n                            .right-block\n                                p.small-title.pb10  ${{ aff-recap-2025.block_11 }}$\n                                p.text ${{ aff-recap-2025.block_12 }}$\n                        .block-empty-12 &nbsp;\n                        .gray-block\n                            a(href=\"#\" target=\"_blank\")\n                                img.left-img(src=\"https://fsms.quadcode.com/storage/public/d4/ru/9iqnkfh42o2fbnd0/five-aff.png\")\n                            .right-block\n                                p.small-title.pb10  ${{ aff-recap-2025.block_13 }}$\n                                p.text ${{ aff-recap-2025.block_14 }}$\n                        .block-empty-12 &nbsp;\n                        .gray-block\n                            a(href=\"#\" target=\"_blank\")\n                                img.left-img(src=\"https://fsms.quadcode.com/storage/public/d4/ru/9iqqubga63ldcnq0/six-aff.png\")\n                            .right-block\n                                p.small-title.pb10  ${{ aff-recap-2025.block_15 }}$\n                                p.text ${{ aff-recap-2025.block_16 }}$\n                        .block-empty-12 &nbsp;\n                        .gray-block\n                            a(href=\"#\" target=\"_blank\")\n                                img.left-img(src=\"https://fsms.quadcode.com/storage/public/d4/ru/9iqqubga63ldcno0/seven-aff.png\")\n                            .right-block\n                                p.small-title.pb10  ${{ aff-recap-2025.block_17 }}$\n                                p.text ${{ aff-recap-2025.block_18 }}$",
+      "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  line-height: 27px;\n  font-weight: 400;\n  letter-spacing: 0; }\n.block-empty-12 { height: 12px;\n  line-height: 12px;\n  font-size: 12px; }\n.white-bg { background: #fff; }\n.subtitle { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #413e43; }\n@media screen and (max-width: 600px) {\n  .subtitle { font-size: 24px !important;\n    line-height: 32px !important; }\n}\n.text.list { display: list-item; }\n.pb32 { padding-bottom: 32px; }\n.pb44 { padding-bottom: 44px; }\n.pt44 { padding-top: 44px; }\n.br-full-16 { border-radius: 16px;\n  -moz-border-radius: 16px;\n  -webkit-border-radius: 16px; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #86ad00 !important; }\n.right-block { display: inline-block;\n  width: 48%;\n  vertical-align: top; }\n@media screen and (max-width: 600px) {\n  .right-block { width: 100% !important; }\n}\n.left-img { float: none;\n  width: 44px; }\n.gray-block { background: #f9f9f9;\n  border-radius: 12px;\n  padding: 32px;\n  vertical-align: top; }\n.small-title { font-family: Helvetica !important;\n  font-weight: 400;\n  font-size: 20px;\n  line-height: 30px;\n  color: #413e43; }\n@media screen and (max-width: 600px) {\n  .small-title { font-size: 18px !important;\n    line-height: 27px !important; }\n}\n.text { font-family:Helvetica!important;color:#413e43;font-size:18px;line-height:27px;font-weight:400;letter-spacing:0 }\n.block-empty-12 { height:12px;line-height:12px;font-size:12px }\n.white-bg { background:#fff }\n.butt-2,.subtitle { font-family:Helvetica!important }\n.subtitle { font-weight:700;font-size:32px;line-height:42px;color:#413e43 }\n@media screen and (max-width:600px) {\n  .subtitle { font-size:24px!important;line-height:32px!important }\n}\n.text.list { display:list-item }\n.pb32,.pb32-a { padding-bottom:32px }\n.pb44 { padding-bottom:44px }\n.pt44,.pt45 { padding-top:44px }\n.br-full-16 { border-radius:16px;-moz-border-radius:16px;-webkit-border-radius:16px }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#86ad00!important }\n.right-block { vertical-align:top }\n@media screen and (max-width:600px) {\n  .right-block { width:100%!important }\n}\n.gray-block { background:#f9f9f9;border-radius:24px;padding:32px;vertical-align:top }\n.small-title { font-family:Helvetica!important;font-weight:400;font-size:24px;line-height:31px;color:#413e43 }\n@media screen and (max-width:600px) {\n  .small-title { font-size:18px!important;line-height:27px!important }\n}\n.right-block { display:inline-block;width:265px }\n@media screen and (max-width:600px) {\n  .right-block { display:block!important;width:100%!important }\n}\n.left-img { float:none;display:inline-block;width:120px!important;padding-right:22px }\n@media screen and (max-width:600px) {\n  .left-img { display:block!important;margin:0 auto!important;padding-right:0!important;padding-bottom:15px!important }\n}",
+      "classes": [
+        "block-empty-12",
+        "br-full-16",
+        "columns",
+        "gray-block",
+        "last",
+        "left-img",
+        "offset-by-one",
+        "pb10",
+        "pb32",
+        "pb44",
+        "pt44",
+        "right-block",
+        "row",
+        "small-title",
+        "subtitle",
+        "ten",
+        "text",
+        "text-pad-small",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "block-empty-12",
+        "br-full-16",
+        "gray-block",
+        "left-img",
+        "pb32",
+        "pb44",
+        "pt44",
+        "right-block",
+        "small-title",
+        "subtitle",
+        "text",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_04",
+          "kind": "richText",
+          "label": "Текст aff-recap-2025.block_04",
+          "token": "${{ aff-recap-2025.block_04 }}$",
+          "ns": "aff-recap-2025",
+          "block": "block_04"
+        },
+        {
+          "id": "text_block_05",
+          "kind": "richText",
+          "label": "Текст aff-recap-2025.block_05",
+          "token": "${{ aff-recap-2025.block_05 }}$",
+          "ns": "aff-recap-2025",
+          "block": "block_05"
+        },
+        {
+          "id": "text_block_06",
+          "kind": "richText",
+          "label": "Текст aff-recap-2025.block_06",
+          "token": "${{ aff-recap-2025.block_06 }}$",
+          "ns": "aff-recap-2025",
+          "block": "block_06"
+        },
+        {
+          "id": "text_block_07",
+          "kind": "richText",
+          "label": "Текст aff-recap-2025.block_07",
+          "token": "${{ aff-recap-2025.block_07 }}$",
+          "ns": "aff-recap-2025",
+          "block": "block_07"
+        },
+        {
+          "id": "text_block_08",
+          "kind": "richText",
+          "label": "Текст aff-recap-2025.block_08",
+          "token": "${{ aff-recap-2025.block_08 }}$",
+          "ns": "aff-recap-2025",
+          "block": "block_08"
+        },
+        {
+          "id": "text_block_09",
+          "kind": "richText",
+          "label": "Текст aff-recap-2025.block_09",
+          "token": "${{ aff-recap-2025.block_09 }}$",
+          "ns": "aff-recap-2025",
+          "block": "block_09"
+        },
+        {
+          "id": "text_block_10",
+          "kind": "richText",
+          "label": "Текст aff-recap-2025.block_10",
+          "token": "${{ aff-recap-2025.block_10 }}$",
+          "ns": "aff-recap-2025",
+          "block": "block_10"
+        },
+        {
+          "id": "text_block_11",
+          "kind": "richText",
+          "label": "Текст aff-recap-2025.block_11",
+          "token": "${{ aff-recap-2025.block_11 }}$",
+          "ns": "aff-recap-2025",
+          "block": "block_11"
+        },
+        {
+          "id": "text_block_12",
+          "kind": "richText",
+          "label": "Текст aff-recap-2025.block_12",
+          "token": "${{ aff-recap-2025.block_12 }}$",
+          "ns": "aff-recap-2025",
+          "block": "block_12"
+        },
+        {
+          "id": "text_block_13",
+          "kind": "richText",
+          "label": "Текст aff-recap-2025.block_13",
+          "token": "${{ aff-recap-2025.block_13 }}$",
+          "ns": "aff-recap-2025",
+          "block": "block_13"
+        },
+        {
+          "id": "text_block_14",
+          "kind": "richText",
+          "label": "Текст aff-recap-2025.block_14",
+          "token": "${{ aff-recap-2025.block_14 }}$",
+          "ns": "aff-recap-2025",
+          "block": "block_14"
+        },
+        {
+          "id": "text_block_15",
+          "kind": "richText",
+          "label": "Текст aff-recap-2025.block_15",
+          "token": "${{ aff-recap-2025.block_15 }}$",
+          "ns": "aff-recap-2025",
+          "block": "block_15"
+        },
+        {
+          "id": "text_block_16",
+          "kind": "richText",
+          "label": "Текст aff-recap-2025.block_16",
+          "token": "${{ aff-recap-2025.block_16 }}$",
+          "ns": "aff-recap-2025",
+          "block": "block_16"
+        },
+        {
+          "id": "text_block_17",
+          "kind": "richText",
+          "label": "Текст aff-recap-2025.block_17",
+          "token": "${{ aff-recap-2025.block_17 }}$",
+          "ns": "aff-recap-2025",
+          "block": "block_17"
+        },
+        {
+          "id": "text_block_18",
+          "kind": "richText",
+          "label": "Текст aff-recap-2025.block_18",
+          "token": "${{ aff-recap-2025.block_18 }}$",
+          "ns": "aff-recap-2025",
+          "block": "block_18"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d4/ru/9iqqubga63ldcnp0/one-aff.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d4/ru/9iqqubga63ldcnog/two-aff.png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d4/ru/9iqnkfh42o2fbndg/three-aff.png"
+        },
+        {
+          "id": "image_3",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d4/ru/9iqqubga63ldcnpg/four-aff.png"
+        },
+        {
+          "id": "image_4",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d4/ru/9iqnkfh42o2fbnd0/five-aff.png"
+        },
+        {
+          "id": "image_5",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d4/ru/9iqqubga63ldcnq0/six-aff.png"
+        },
+        {
+          "id": "image_6",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d4/ru/9iqqubga63ldcno0/seven-aff.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-recap-2025-header-feature-list-4-numbered-",
+          "label": "Нумерованный пункт (gray-block)",
+          "placement": "inline",
+          "category": "feature-list",
+          "pug": ".gray-block\n    a(href=\"#\" target=\"_blank\")\n        img.left-img(src=\"https://fsms.quadcode.com/storage/public/d4/ru/9iqqubga63ldcnp0/one-aff.png\")\n    .right-block\n        p.small-title.pb10  ${{ aff-recap-2025.block_05 }}$\n        p.text ${{ aff-recap-2025.block_06 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  line-height: 27px;\n  font-weight: 400;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #86ad00 !important; }\n.right-block { display: inline-block;\n  width: 48%;\n  vertical-align: top; }\n@media screen and (max-width: 600px) {\n  .right-block { width: 100% !important; }\n}\n.left-img { float: none;\n  width: 44px; }\n.gray-block { background: #f9f9f9;\n  border-radius: 12px;\n  padding: 32px;\n  vertical-align: top; }\n.small-title { font-family: Helvetica !important;\n  font-weight: 400;\n  font-size: 20px;\n  line-height: 30px;\n  color: #413e43; }\n@media screen and (max-width: 600px) {\n  .small-title { font-size: 18px !important;\n    line-height: 27px !important; }\n}\n.text { font-family:Helvetica!important;color:#413e43;font-size:18px;line-height:27px;font-weight:400;letter-spacing:0 }\n.text.list { display:list-item }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#86ad00!important }\n.right-block { vertical-align:top }\n@media screen and (max-width:600px) {\n  .right-block { width:100%!important }\n}\n.gray-block { background:#f9f9f9;border-radius:24px;padding:32px;vertical-align:top }\n.small-title { font-family:Helvetica!important;font-weight:400;font-size:24px;line-height:31px;color:#413e43 }\n@media screen and (max-width:600px) {\n  .small-title { font-size:18px!important;line-height:27px!important }\n}\n.right-block { display:inline-block;width:265px }\n@media screen and (max-width:600px) {\n  .right-block { display:block!important;width:100%!important }\n}\n.left-img { float:none;display:inline-block;width:120px!important;padding-right:22px }\n@media screen and (max-width:600px) {\n  .left-img { display:block!important;margin:0 auto!important;padding-right:0!important;padding-bottom:15px!important }\n}",
+          "classes": [
+            "gray-block",
+            "left-img",
+            "pb10",
+            "right-block",
+            "small-title",
+            "text"
+          ],
+          "designClasses": [
+            "gray-block",
+            "left-img",
+            "right-block",
+            "small-title",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_05",
+              "kind": "richText",
+              "label": "Текст aff-recap-2025.block_05",
+              "token": "${{ aff-recap-2025.block_05 }}$",
+              "ns": "aff-recap-2025",
+              "block": "block_05"
+            },
+            {
+              "id": "text_block_06",
+              "kind": "richText",
+              "label": "Текст aff-recap-2025.block_06",
+              "token": "${{ aff-recap-2025.block_06 }}$",
+              "ns": "aff-recap-2025",
+              "block": "block_06"
+            },
+            {
+              "id": "image_0",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d4/ru/9iqqubga63ldcnp0/one-aff.png"
+            }
+          ]
+        },
+        {
+          "id": "x-new-recap-2025-header-feature-list-4-numbered-",
+          "label": "Нумерованный пункт (gray-block)",
+          "placement": "inline",
+          "category": "feature-list",
+          "pug": ".gray-block\n    a(href=\"#\" target=\"_blank\")\n        img.left-img(src=\"https://fsms.quadcode.com/storage/public/d4/ru/9iqqubga63ldcnog/two-aff.png\")\n    .right-block\n        p.small-title.pb10  ${{ aff-recap-2025.block_07 }}$\n        p.text ${{ aff-recap-2025.block_08 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  line-height: 27px;\n  font-weight: 400;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #86ad00 !important; }\n.right-block { display: inline-block;\n  width: 48%;\n  vertical-align: top; }\n@media screen and (max-width: 600px) {\n  .right-block { width: 100% !important; }\n}\n.left-img { float: none;\n  width: 44px; }\n.gray-block { background: #f9f9f9;\n  border-radius: 12px;\n  padding: 32px;\n  vertical-align: top; }\n.small-title { font-family: Helvetica !important;\n  font-weight: 400;\n  font-size: 20px;\n  line-height: 30px;\n  color: #413e43; }\n@media screen and (max-width: 600px) {\n  .small-title { font-size: 18px !important;\n    line-height: 27px !important; }\n}\n.text { font-family:Helvetica!important;color:#413e43;font-size:18px;line-height:27px;font-weight:400;letter-spacing:0 }\n.text.list { display:list-item }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#86ad00!important }\n.right-block { vertical-align:top }\n@media screen and (max-width:600px) {\n  .right-block { width:100%!important }\n}\n.gray-block { background:#f9f9f9;border-radius:24px;padding:32px;vertical-align:top }\n.small-title { font-family:Helvetica!important;font-weight:400;font-size:24px;line-height:31px;color:#413e43 }\n@media screen and (max-width:600px) {\n  .small-title { font-size:18px!important;line-height:27px!important }\n}\n.right-block { display:inline-block;width:265px }\n@media screen and (max-width:600px) {\n  .right-block { display:block!important;width:100%!important }\n}\n.left-img { float:none;display:inline-block;width:120px!important;padding-right:22px }\n@media screen and (max-width:600px) {\n  .left-img { display:block!important;margin:0 auto!important;padding-right:0!important;padding-bottom:15px!important }\n}",
+          "classes": [
+            "gray-block",
+            "left-img",
+            "pb10",
+            "right-block",
+            "small-title",
+            "text"
+          ],
+          "designClasses": [
+            "gray-block",
+            "left-img",
+            "right-block",
+            "small-title",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_07",
+              "kind": "richText",
+              "label": "Текст aff-recap-2025.block_07",
+              "token": "${{ aff-recap-2025.block_07 }}$",
+              "ns": "aff-recap-2025",
+              "block": "block_07"
+            },
+            {
+              "id": "text_block_08",
+              "kind": "richText",
+              "label": "Текст aff-recap-2025.block_08",
+              "token": "${{ aff-recap-2025.block_08 }}$",
+              "ns": "aff-recap-2025",
+              "block": "block_08"
+            },
+            {
+              "id": "image_0",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d4/ru/9iqqubga63ldcnog/two-aff.png"
+            }
+          ]
+        },
+        {
+          "id": "x-new-recap-2025-header-feature-list-4-numbered-",
+          "label": "Нумерованный пункт (gray-block)",
+          "placement": "inline",
+          "category": "feature-list",
+          "pug": ".gray-block\n    a(href=\"#\" target=\"_blank\")\n        img.left-img(src=\"https://fsms.quadcode.com/storage/public/d4/ru/9iqnkfh42o2fbndg/three-aff.png\")\n    .right-block\n        p.small-title.pb10  ${{ aff-recap-2025.block_09 }}$\n        p.text ${{ aff-recap-2025.block_10 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  line-height: 27px;\n  font-weight: 400;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #86ad00 !important; }\n.right-block { display: inline-block;\n  width: 48%;\n  vertical-align: top; }\n@media screen and (max-width: 600px) {\n  .right-block { width: 100% !important; }\n}\n.left-img { float: none;\n  width: 44px; }\n.gray-block { background: #f9f9f9;\n  border-radius: 12px;\n  padding: 32px;\n  vertical-align: top; }\n.small-title { font-family: Helvetica !important;\n  font-weight: 400;\n  font-size: 20px;\n  line-height: 30px;\n  color: #413e43; }\n@media screen and (max-width: 600px) {\n  .small-title { font-size: 18px !important;\n    line-height: 27px !important; }\n}\n.text { font-family:Helvetica!important;color:#413e43;font-size:18px;line-height:27px;font-weight:400;letter-spacing:0 }\n.text.list { display:list-item }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#86ad00!important }\n.right-block { vertical-align:top }\n@media screen and (max-width:600px) {\n  .right-block { width:100%!important }\n}\n.gray-block { background:#f9f9f9;border-radius:24px;padding:32px;vertical-align:top }\n.small-title { font-family:Helvetica!important;font-weight:400;font-size:24px;line-height:31px;color:#413e43 }\n@media screen and (max-width:600px) {\n  .small-title { font-size:18px!important;line-height:27px!important }\n}\n.right-block { display:inline-block;width:265px }\n@media screen and (max-width:600px) {\n  .right-block { display:block!important;width:100%!important }\n}\n.left-img { float:none;display:inline-block;width:120px!important;padding-right:22px }\n@media screen and (max-width:600px) {\n  .left-img { display:block!important;margin:0 auto!important;padding-right:0!important;padding-bottom:15px!important }\n}",
+          "classes": [
+            "gray-block",
+            "left-img",
+            "pb10",
+            "right-block",
+            "small-title",
+            "text"
+          ],
+          "designClasses": [
+            "gray-block",
+            "left-img",
+            "right-block",
+            "small-title",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_09",
+              "kind": "richText",
+              "label": "Текст aff-recap-2025.block_09",
+              "token": "${{ aff-recap-2025.block_09 }}$",
+              "ns": "aff-recap-2025",
+              "block": "block_09"
+            },
+            {
+              "id": "text_block_10",
+              "kind": "richText",
+              "label": "Текст aff-recap-2025.block_10",
+              "token": "${{ aff-recap-2025.block_10 }}$",
+              "ns": "aff-recap-2025",
+              "block": "block_10"
+            },
+            {
+              "id": "image_0",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d4/ru/9iqnkfh42o2fbndg/three-aff.png"
+            }
+          ]
+        },
+        {
+          "id": "x-new-recap-2025-header-feature-list-4-numbered-",
+          "label": "Нумерованный пункт (gray-block)",
+          "placement": "inline",
+          "category": "feature-list",
+          "pug": ".gray-block\n    a(href=\"#\" target=\"_blank\")\n        img.left-img(src=\"https://fsms.quadcode.com/storage/public/d4/ru/9iqqubga63ldcnpg/four-aff.png\")\n    .right-block\n        p.small-title.pb10  ${{ aff-recap-2025.block_11 }}$\n        p.text ${{ aff-recap-2025.block_12 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  line-height: 27px;\n  font-weight: 400;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #86ad00 !important; }\n.right-block { display: inline-block;\n  width: 48%;\n  vertical-align: top; }\n@media screen and (max-width: 600px) {\n  .right-block { width: 100% !important; }\n}\n.left-img { float: none;\n  width: 44px; }\n.gray-block { background: #f9f9f9;\n  border-radius: 12px;\n  padding: 32px;\n  vertical-align: top; }\n.small-title { font-family: Helvetica !important;\n  font-weight: 400;\n  font-size: 20px;\n  line-height: 30px;\n  color: #413e43; }\n@media screen and (max-width: 600px) {\n  .small-title { font-size: 18px !important;\n    line-height: 27px !important; }\n}\n.text { font-family:Helvetica!important;color:#413e43;font-size:18px;line-height:27px;font-weight:400;letter-spacing:0 }\n.text.list { display:list-item }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#86ad00!important }\n.right-block { vertical-align:top }\n@media screen and (max-width:600px) {\n  .right-block { width:100%!important }\n}\n.gray-block { background:#f9f9f9;border-radius:24px;padding:32px;vertical-align:top }\n.small-title { font-family:Helvetica!important;font-weight:400;font-size:24px;line-height:31px;color:#413e43 }\n@media screen and (max-width:600px) {\n  .small-title { font-size:18px!important;line-height:27px!important }\n}\n.right-block { display:inline-block;width:265px }\n@media screen and (max-width:600px) {\n  .right-block { display:block!important;width:100%!important }\n}\n.left-img { float:none;display:inline-block;width:120px!important;padding-right:22px }\n@media screen and (max-width:600px) {\n  .left-img { display:block!important;margin:0 auto!important;padding-right:0!important;padding-bottom:15px!important }\n}",
+          "classes": [
+            "gray-block",
+            "left-img",
+            "pb10",
+            "right-block",
+            "small-title",
+            "text"
+          ],
+          "designClasses": [
+            "gray-block",
+            "left-img",
+            "right-block",
+            "small-title",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_11",
+              "kind": "richText",
+              "label": "Текст aff-recap-2025.block_11",
+              "token": "${{ aff-recap-2025.block_11 }}$",
+              "ns": "aff-recap-2025",
+              "block": "block_11"
+            },
+            {
+              "id": "text_block_12",
+              "kind": "richText",
+              "label": "Текст aff-recap-2025.block_12",
+              "token": "${{ aff-recap-2025.block_12 }}$",
+              "ns": "aff-recap-2025",
+              "block": "block_12"
+            },
+            {
+              "id": "image_0",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d4/ru/9iqqubga63ldcnpg/four-aff.png"
+            }
+          ]
+        },
+        {
+          "id": "x-new-recap-2025-header-feature-list-4-numbered-",
+          "label": "Нумерованный пункт (gray-block)",
+          "placement": "inline",
+          "category": "feature-list",
+          "pug": ".gray-block\n    a(href=\"#\" target=\"_blank\")\n        img.left-img(src=\"https://fsms.quadcode.com/storage/public/d4/ru/9iqnkfh42o2fbnd0/five-aff.png\")\n    .right-block\n        p.small-title.pb10  ${{ aff-recap-2025.block_13 }}$\n        p.text ${{ aff-recap-2025.block_14 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  line-height: 27px;\n  font-weight: 400;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #86ad00 !important; }\n.right-block { display: inline-block;\n  width: 48%;\n  vertical-align: top; }\n@media screen and (max-width: 600px) {\n  .right-block { width: 100% !important; }\n}\n.left-img { float: none;\n  width: 44px; }\n.gray-block { background: #f9f9f9;\n  border-radius: 12px;\n  padding: 32px;\n  vertical-align: top; }\n.small-title { font-family: Helvetica !important;\n  font-weight: 400;\n  font-size: 20px;\n  line-height: 30px;\n  color: #413e43; }\n@media screen and (max-width: 600px) {\n  .small-title { font-size: 18px !important;\n    line-height: 27px !important; }\n}\n.text { font-family:Helvetica!important;color:#413e43;font-size:18px;line-height:27px;font-weight:400;letter-spacing:0 }\n.text.list { display:list-item }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#86ad00!important }\n.right-block { vertical-align:top }\n@media screen and (max-width:600px) {\n  .right-block { width:100%!important }\n}\n.gray-block { background:#f9f9f9;border-radius:24px;padding:32px;vertical-align:top }\n.small-title { font-family:Helvetica!important;font-weight:400;font-size:24px;line-height:31px;color:#413e43 }\n@media screen and (max-width:600px) {\n  .small-title { font-size:18px!important;line-height:27px!important }\n}\n.right-block { display:inline-block;width:265px }\n@media screen and (max-width:600px) {\n  .right-block { display:block!important;width:100%!important }\n}\n.left-img { float:none;display:inline-block;width:120px!important;padding-right:22px }\n@media screen and (max-width:600px) {\n  .left-img { display:block!important;margin:0 auto!important;padding-right:0!important;padding-bottom:15px!important }\n}",
+          "classes": [
+            "gray-block",
+            "left-img",
+            "pb10",
+            "right-block",
+            "small-title",
+            "text"
+          ],
+          "designClasses": [
+            "gray-block",
+            "left-img",
+            "right-block",
+            "small-title",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_13",
+              "kind": "richText",
+              "label": "Текст aff-recap-2025.block_13",
+              "token": "${{ aff-recap-2025.block_13 }}$",
+              "ns": "aff-recap-2025",
+              "block": "block_13"
+            },
+            {
+              "id": "text_block_14",
+              "kind": "richText",
+              "label": "Текст aff-recap-2025.block_14",
+              "token": "${{ aff-recap-2025.block_14 }}$",
+              "ns": "aff-recap-2025",
+              "block": "block_14"
+            },
+            {
+              "id": "image_0",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d4/ru/9iqnkfh42o2fbnd0/five-aff.png"
+            }
+          ]
+        },
+        {
+          "id": "x-new-recap-2025-header-feature-list-4-numbered-",
+          "label": "Нумерованный пункт (gray-block)",
+          "placement": "inline",
+          "category": "feature-list",
+          "pug": ".gray-block\n    a(href=\"#\" target=\"_blank\")\n        img.left-img(src=\"https://fsms.quadcode.com/storage/public/d4/ru/9iqqubga63ldcnq0/six-aff.png\")\n    .right-block\n        p.small-title.pb10  ${{ aff-recap-2025.block_15 }}$\n        p.text ${{ aff-recap-2025.block_16 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  line-height: 27px;\n  font-weight: 400;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #86ad00 !important; }\n.right-block { display: inline-block;\n  width: 48%;\n  vertical-align: top; }\n@media screen and (max-width: 600px) {\n  .right-block { width: 100% !important; }\n}\n.left-img { float: none;\n  width: 44px; }\n.gray-block { background: #f9f9f9;\n  border-radius: 12px;\n  padding: 32px;\n  vertical-align: top; }\n.small-title { font-family: Helvetica !important;\n  font-weight: 400;\n  font-size: 20px;\n  line-height: 30px;\n  color: #413e43; }\n@media screen and (max-width: 600px) {\n  .small-title { font-size: 18px !important;\n    line-height: 27px !important; }\n}\n.text { font-family:Helvetica!important;color:#413e43;font-size:18px;line-height:27px;font-weight:400;letter-spacing:0 }\n.text.list { display:list-item }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#86ad00!important }\n.right-block { vertical-align:top }\n@media screen and (max-width:600px) {\n  .right-block { width:100%!important }\n}\n.gray-block { background:#f9f9f9;border-radius:24px;padding:32px;vertical-align:top }\n.small-title { font-family:Helvetica!important;font-weight:400;font-size:24px;line-height:31px;color:#413e43 }\n@media screen and (max-width:600px) {\n  .small-title { font-size:18px!important;line-height:27px!important }\n}\n.right-block { display:inline-block;width:265px }\n@media screen and (max-width:600px) {\n  .right-block { display:block!important;width:100%!important }\n}\n.left-img { float:none;display:inline-block;width:120px!important;padding-right:22px }\n@media screen and (max-width:600px) {\n  .left-img { display:block!important;margin:0 auto!important;padding-right:0!important;padding-bottom:15px!important }\n}",
+          "classes": [
+            "gray-block",
+            "left-img",
+            "pb10",
+            "right-block",
+            "small-title",
+            "text"
+          ],
+          "designClasses": [
+            "gray-block",
+            "left-img",
+            "right-block",
+            "small-title",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_15",
+              "kind": "richText",
+              "label": "Текст aff-recap-2025.block_15",
+              "token": "${{ aff-recap-2025.block_15 }}$",
+              "ns": "aff-recap-2025",
+              "block": "block_15"
+            },
+            {
+              "id": "text_block_16",
+              "kind": "richText",
+              "label": "Текст aff-recap-2025.block_16",
+              "token": "${{ aff-recap-2025.block_16 }}$",
+              "ns": "aff-recap-2025",
+              "block": "block_16"
+            },
+            {
+              "id": "image_0",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d4/ru/9iqqubga63ldcnq0/six-aff.png"
+            }
+          ]
+        },
+        {
+          "id": "x-new-recap-2025-header-feature-list-4-numbered-",
+          "label": "Нумерованный пункт (gray-block)",
+          "placement": "inline",
+          "category": "feature-list",
+          "pug": ".gray-block\n    a(href=\"#\" target=\"_blank\")\n        img.left-img(src=\"https://fsms.quadcode.com/storage/public/d4/ru/9iqqubga63ldcno0/seven-aff.png\")\n    .right-block\n        p.small-title.pb10  ${{ aff-recap-2025.block_17 }}$\n        p.text ${{ aff-recap-2025.block_18 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  line-height: 27px;\n  font-weight: 400;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #86ad00 !important; }\n.right-block { display: inline-block;\n  width: 48%;\n  vertical-align: top; }\n@media screen and (max-width: 600px) {\n  .right-block { width: 100% !important; }\n}\n.left-img { float: none;\n  width: 44px; }\n.gray-block { background: #f9f9f9;\n  border-radius: 12px;\n  padding: 32px;\n  vertical-align: top; }\n.small-title { font-family: Helvetica !important;\n  font-weight: 400;\n  font-size: 20px;\n  line-height: 30px;\n  color: #413e43; }\n@media screen and (max-width: 600px) {\n  .small-title { font-size: 18px !important;\n    line-height: 27px !important; }\n}\n.text { font-family:Helvetica!important;color:#413e43;font-size:18px;line-height:27px;font-weight:400;letter-spacing:0 }\n.text.list { display:list-item }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#86ad00!important }\n.right-block { vertical-align:top }\n@media screen and (max-width:600px) {\n  .right-block { width:100%!important }\n}\n.gray-block { background:#f9f9f9;border-radius:24px;padding:32px;vertical-align:top }\n.small-title { font-family:Helvetica!important;font-weight:400;font-size:24px;line-height:31px;color:#413e43 }\n@media screen and (max-width:600px) {\n  .small-title { font-size:18px!important;line-height:27px!important }\n}\n.right-block { display:inline-block;width:265px }\n@media screen and (max-width:600px) {\n  .right-block { display:block!important;width:100%!important }\n}\n.left-img { float:none;display:inline-block;width:120px!important;padding-right:22px }\n@media screen and (max-width:600px) {\n  .left-img { display:block!important;margin:0 auto!important;padding-right:0!important;padding-bottom:15px!important }\n}",
+          "classes": [
+            "gray-block",
+            "left-img",
+            "pb10",
+            "right-block",
+            "small-title",
+            "text"
+          ],
+          "designClasses": [
+            "gray-block",
+            "left-img",
+            "right-block",
+            "small-title",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_17",
+              "kind": "richText",
+              "label": "Текст aff-recap-2025.block_17",
+              "token": "${{ aff-recap-2025.block_17 }}$",
+              "ns": "aff-recap-2025",
+              "block": "block_17"
+            },
+            {
+              "id": "text_block_18",
+              "kind": "richText",
+              "label": "Текст aff-recap-2025.block_18",
+              "token": "${{ aff-recap-2025.block_18 }}$",
+              "ns": "aff-recap-2025",
+              "block": "block_18"
+            },
+            {
+              "id": "image_0",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d4/ru/9iqqubga63ldcno0/seven-aff.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-new-recap-2025-header-cta-6",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "kind": "section",
+      "sourceFile": "X_new/mail-recap-2025/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg.br-full-16(style=\"border: 2px solid #A8D900\")\n    tr\n        td.wrapper.last.offset-by-one.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44\n                        p.middle-title.pb16.center ${{ aff-recap-2025.block_19 }}$\n                        p.text.center.pb40 ${{ aff-recap-2025.block_20 }}$\n                        table.w280(align=\"center\")\n                            tr\n                                td.butt.pb0.pt0\n                                    a.butt(href=\"https://my.affstore.com/offers?source=email&utm_source=email&utm_medium=emails\" target=\"_blank\") ${{ aff-recap-2025.block_21 }}$",
+      "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  line-height: 27px;\n  font-weight: 400;\n  letter-spacing: 0; }\n.white-bg { background: #fff; }\n.w280 { width: 100%;\n  max-width: 280px;\n  min-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { min-width: 100% !important; }\n}\n.text.list { display: list-item; }\n.pb16 { padding-bottom: 16px; }\n.pb44 { padding-bottom: 44px; }\n.pt44 { padding-top: 44px; }\n.br-full-16 { border-radius: 16px;\n  -moz-border-radius: 16px;\n  -webkit-border-radius: 16px; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #86ad00 !important; }\n.text { font-family:Helvetica!important;color:#413e43;font-size:18px;line-height:27px;font-weight:400;letter-spacing:0 }\n.white-bg { background:#fff }\n.w280 { width:100%;max-width:280px;min-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { min-width:100%!important }\n}\n.text.list { display:list-item }\n.pb16 { padding-bottom:16px }\n.pb44 { padding-bottom:44px }\n.pt44,.pt45 { padding-top:44px }\n.br-full-16 { border-radius:16px;-moz-border-radius:16px;-webkit-border-radius:16px }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#86ad00!important }\n.middle-title { font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:32px;line-height:42px;color:#413e43 }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:22px!important;line-height:32px!important }\n}",
+      "classes": [
+        "br-full-16",
+        "butt",
+        "center",
+        "columns",
+        "last",
+        "middle-title",
+        "offset-by-one",
+        "pb0",
+        "pb16",
+        "pb40",
+        "pb44",
+        "pt0",
+        "pt44",
+        "row",
+        "ten",
+        "text",
+        "text-pad-small",
+        "w280",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "br-full-16",
+        "middle-title",
+        "pb16",
+        "pb44",
+        "pt44",
+        "text",
+        "w280",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_19",
+          "kind": "richText",
+          "label": "Текст aff-recap-2025.block_19",
+          "token": "${{ aff-recap-2025.block_19 }}$",
+          "ns": "aff-recap-2025",
+          "block": "block_19"
+        },
+        {
+          "id": "text_block_20",
+          "kind": "richText",
+          "label": "Текст aff-recap-2025.block_20",
+          "token": "${{ aff-recap-2025.block_20 }}$",
+          "ns": "aff-recap-2025",
+          "block": "block_20"
+        },
+        {
+          "id": "text_block_21",
+          "kind": "richText",
+          "label": "Текст aff-recap-2025.block_21",
+          "token": "${{ aff-recap-2025.block_21 }}$",
+          "ns": "aff-recap-2025",
+          "block": "block_21"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://my.affstore.com/offers?source=email&utm_source=email&utm_medium=emails"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-recap-2025-header-cta-6-heading-0",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.middle-title.pb16.center ${{ aff-recap-2025.block_19 }}$",
+          "styl": ".pb16 { padding-bottom: 16px; }\n.pb16 { padding-bottom:16px }\n.middle-title { font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:32px;line-height:42px;color:#413e43 }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:22px!important;line-height:32px!important }\n}",
+          "classes": [
+            "center",
+            "middle-title",
+            "pb16"
+          ],
+          "designClasses": [
+            "middle-title",
+            "pb16"
+          ],
+          "slots": [
+            {
+              "id": "text_block_19",
+              "kind": "richText",
+              "label": "Текст aff-recap-2025.block_19",
+              "token": "${{ aff-recap-2025.block_19 }}$",
+              "ns": "aff-recap-2025",
+              "block": "block_19"
+            }
+          ]
+        },
+        {
+          "id": "x-new-recap-2025-header-cta-6-paragraph-1",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.center.pb40 ${{ aff-recap-2025.block_20 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  line-height: 27px;\n  font-weight: 400;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #86ad00 !important; }\n.text { font-family:Helvetica!important;color:#413e43;font-size:18px;line-height:27px;font-weight:400;letter-spacing:0 }\n.text.list { display:list-item }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#86ad00!important }",
+          "classes": [
+            "center",
+            "pb40",
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_20",
+              "kind": "richText",
+              "label": "Текст aff-recap-2025.block_20",
+              "token": "${{ aff-recap-2025.block_20 }}$",
+              "ns": "aff-recap-2025",
+              "block": "block_20"
+            }
+          ]
+        },
+        {
+          "id": "x-new-recap-2025-header-cta-6-cta-button-2",
+          "label": "CTA-кнопка (w280)",
+          "placement": "inline",
+          "category": "cta",
+          "pug": "table.w280(align=\"center\")\n    tr\n        td.butt.pb0.pt0\n            a.butt(href=\"https://my.affstore.com/offers?source=email&utm_source=email&utm_medium=emails\" target=\"_blank\") ${{ aff-recap-2025.block_21 }}$",
+          "styl": ".w280 { width: 100%;\n  max-width: 280px;\n  min-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { min-width: 100% !important; }\n}\n.w280 { width:100%;max-width:280px;min-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { min-width:100%!important }\n}",
+          "classes": [
+            "butt",
+            "pb0",
+            "pt0",
+            "w280"
+          ],
+          "designClasses": [
+            "w280"
+          ],
+          "slots": [
+            {
+              "id": "text_block_21",
+              "kind": "richText",
+              "label": "Текст aff-recap-2025.block_21",
+              "token": "${{ aff-recap-2025.block_21 }}$",
+              "ns": "aff-recap-2025",
+              "block": "block_21"
+            },
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://my.affstore.com/offers?source=email&utm_source=email&utm_medium=emails"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-new-recap-2025-header-section-7",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "kind": "section",
+      "sourceFile": "X_new/mail-recap-2025/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.pt50.offset-by-one\n            table.ten.columns\n                tr\n                    td.pb0.text-pad-small\n                        p.subtitle-min.center.pb8 ${{ aff-payment-activation-affstore.block_09 }}$\n                        p.text.center ${{ aff-payment-activation-affstore.block_10 }}$\n                        p.text.center.pb15 ${{ aff-payment-activation-affstore.block_11 }}$\n                        .social-links.pb20\n                            a(href=\"https://www.facebook.com/Affstore.affiliate\" target=\"_blank\")\n                                img.soc(src=\"https://fsms.quadcode.com/storage/public/cn/jj/e9i85cee2vclvhog/socfacebook.png\")\n                            a(href=\"https://www.instagram.com/affstore_affiliate/\" target=\"_blank\")\n                                img.soc.mar12(src=\"https://fsms.quadcode.com/storage/public/cn/jj/e9i85cee2vclvhng/socinstagram.png\")\n                            a(href=\"https://affstore.com/\" target=\"_blank\")\n                                img.soc(src=\"https://fsms.quadcode.com/storage/public/cn/jj/e9q03qqv4qln7tig/socaffstore.png\")\n                            a(href=\"https://www.linkedin.com/company/affstore/\" target=\"_blank\")\n                                img.mar12-left.soc(src=\"https://fsms.quadcode.com/storage/public/cn/jj/e9i85cee2vclvho0/link.png\")",
+      "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  line-height: 27px;\n  font-weight: 400;\n  letter-spacing: 0; }\n.mar12-left { padding-left: 20px; }\n.subtitle-min { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 26px;\n  line-height: 26px;\n  color: #373437; }\n.text.list { display: list-item; }\n.pb8 { padding-bottom: 8px; }\n.pb15 { padding-bottom: 15px !important; }\n.social-links { display: block;\n  text-align: center; }\n.mar12 { padding-left: 20px;\n  padding-right: 20px; }\n.soc { display: inline-block;\n  float: none;\n  max-width: 50px; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #86ad00 !important; }\n.text { font-family:Helvetica!important;color:#413e43;font-size:18px;line-height:27px;font-weight:400;letter-spacing:0 }\n.mar12-left { padding-left:20px }\n.subtitle-min,.text-strong { font-family:Helvetica!important;font-weight:700;font-size:24px;line-height:29px;color:#413e43 }\n.subtitle-min { font-size:26px;line-height:26px;color:#373437 }\n.text.list { display:list-item }\n.pb8 { padding-bottom:8px }\n.pb15 { padding-bottom:15px!important }\n.social-links { display:block;text-align:center }\n.mar12 { padding-left:20px;padding-right:20px }\n.soc { display:inline-block;float:none;max-width:50px }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#86ad00!important }",
+      "classes": [
+        "center",
+        "columns",
+        "last",
+        "mar12",
+        "mar12-left",
+        "offset-by-one",
+        "pb0",
+        "pb15",
+        "pb20",
+        "pb8",
+        "pt50",
+        "row",
+        "soc",
+        "social-links",
+        "subtitle-min",
+        "ten",
+        "text",
+        "text-pad-small",
+        "wrapper"
+      ],
+      "designClasses": [
+        "mar12",
+        "mar12-left",
+        "pb15",
+        "pb8",
+        "soc",
+        "social-links",
+        "subtitle-min",
+        "text"
+      ],
+      "slots": [
+        {
+          "id": "text_block_09",
+          "kind": "richText",
+          "label": "Текст aff-payment-activation-affstore.block_09",
+          "token": "${{ aff-payment-activation-affstore.block_09 }}$",
+          "ns": "aff-payment-activation-affstore",
+          "block": "block_09"
+        },
+        {
+          "id": "text_block_10",
+          "kind": "richText",
+          "label": "Текст aff-payment-activation-affstore.block_10",
+          "token": "${{ aff-payment-activation-affstore.block_10 }}$",
+          "ns": "aff-payment-activation-affstore",
+          "block": "block_10"
+        },
+        {
+          "id": "text_block_11",
+          "kind": "richText",
+          "label": "Текст aff-payment-activation-affstore.block_11",
+          "token": "${{ aff-payment-activation-affstore.block_11 }}$",
+          "ns": "aff-payment-activation-affstore",
+          "block": "block_11"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://www.facebook.com/Affstore.affiliate"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://www.instagram.com/affstore_affiliate/"
+        },
+        {
+          "id": "href_2",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://affstore.com/"
+        },
+        {
+          "id": "href_3",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://www.linkedin.com/company/affstore/"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cn/jj/e9i85cee2vclvhog/socfacebook.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cn/jj/e9i85cee2vclvhng/socinstagram.png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cn/jj/e9q03qqv4qln7tig/socaffstore.png"
+        },
+        {
+          "id": "image_3",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cn/jj/e9i85cee2vclvho0/link.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-recap-2025-header-section-7-paragraph-0",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.center ${{ aff-payment-activation-affstore.block_10 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  line-height: 27px;\n  font-weight: 400;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #86ad00 !important; }\n.text { font-family:Helvetica!important;color:#413e43;font-size:18px;line-height:27px;font-weight:400;letter-spacing:0 }\n.text.list { display:list-item }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#86ad00!important }",
+          "classes": [
+            "center",
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_10",
+              "kind": "richText",
+              "label": "Текст aff-payment-activation-affstore.block_10",
+              "token": "${{ aff-payment-activation-affstore.block_10 }}$",
+              "ns": "aff-payment-activation-affstore",
+              "block": "block_10"
+            }
+          ]
+        },
+        {
+          "id": "x-new-recap-2025-header-section-7-paragraph-1",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.center.pb15 ${{ aff-payment-activation-affstore.block_11 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  line-height: 27px;\n  font-weight: 400;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.pb15 { padding-bottom: 15px !important; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #86ad00 !important; }\n.text { font-family:Helvetica!important;color:#413e43;font-size:18px;line-height:27px;font-weight:400;letter-spacing:0 }\n.text.list { display:list-item }\n.pb15 { padding-bottom:15px!important }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#86ad00!important }",
+          "classes": [
+            "center",
+            "pb15",
+            "text"
+          ],
+          "designClasses": [
+            "pb15",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_11",
+              "kind": "richText",
+              "label": "Текст aff-payment-activation-affstore.block_11",
+              "token": "${{ aff-payment-activation-affstore.block_11 }}$",
+              "ns": "aff-payment-activation-affstore",
+              "block": "block_11"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

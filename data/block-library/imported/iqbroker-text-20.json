@@ -1,0 +1,32 @@
+{
+  "id": "iqbroker-text-20",
+  "label": "Заголовок",
+  "description": "Импортирован из X_IQBroker (3 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.middle-title.pb32.b-iqbroker-text-20 {{ text_1 }}",
+  "styl": ".middle-title.b-iqbroker-text-20 {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #ececed;  }\n@media screen and (max-width: 600px) {\n  .middle-title.b-iqbroker-text-20 {  font-size: 26px !important;\n    line-height: 32px !important;  }\n}\n.pb32.b-iqbroker-text-20 {  padding-bottom: 32px;  }\n.middle-title.b-iqbroker-text-20 {  font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:32px;line-height:42px;color:#ececed  }\n@media screen and (max-width:600px) {\n  .middle-title.b-iqbroker-text-20 {  font-size:26px!important;line-height:32px!important  }\n}\n.pb32.b-iqbroker-text-20 {  padding-bottom:32px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_IQBroker"
+  ],
+  "usageCount": 3,
+  "sourceMails": [
+    "X_IQBroker/mail-tools",
+    "X_IQBroker/mail-welcome",
+    "X_IQBroker/mail-welcome-test-clone"
+  ],
+  "createdAt": "2026-07-06T12:09:51.738Z",
+  "validated": true
+}

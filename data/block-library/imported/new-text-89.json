@@ -1,0 +1,30 @@
+{
+  "id": "new-text-89",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_new (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.pb16.b-new-text-89\n    b {{ text_1 }}",
+  "styl": ".text.b-new-text-89 {  font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400;  }\n.text.bold.b-new-text-89 {  font-weight: 700;  }\n.pb16.b-new-text-89 {  padding-bottom: 16px;  }\n@media screen and (max-width: 600px) {\n  .text.mob-text.b-new-text-89, .b-new-text-89 .grey-text.mob-text {  font-size: 17px !important;  }\n}\n.b-new-text-89 .number-block, .text.b-new-text-89 {  font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400  }\n.b-new-text-89 .big, .text.bold.b-new-text-89 {  font-weight:700  }\n.pb16.b-new-text-89 {  padding-bottom:16px  }\n@media screen and (max-width:600px) {\n  .b-new-text-89 .grey-text.mob-text, .text.mob-text.b-new-text-89 {  font-size:17px!important  }\n}",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-rfm-segmentation-2-125"
+  ],
+  "createdAt": "2026-07-06T12:10:00.068Z",
+  "validated": true
+}

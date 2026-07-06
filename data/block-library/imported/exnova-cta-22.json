@@ -1,0 +1,216 @@
+{
+  "id": "exnova-cta-22",
+  "label": "CTA-секция",
+  "description": "Импортирован из X_Exnova (1 писем). Секция.",
+  "placement": "section",
+  "category": "cta",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.b-exnova-cta-22\n    tr\n        td.wrapper.last.pt0\n            table.twelve.columns\n                tr\n                    td.pb12.pt5.plr4\n                        .first-block\n                            .max-width280\n                                p.block-title.pb16 {{ text_1 }}\n                                p.text {{ text_2 }}\n                        .h-12 &nbsp;\n                        .left-block\n                            .padding\n                                p.text.pb14 {{ text_3 }}\n                                a(href=\"#\" target=\"_blank\")\n                                    img.center.fl-none(src=\"{{ image_1 }}\")\n                                p.number 100K%\n                        .right-block\n                            .padding\n                                p.text {{ text_4 }}\n                        p.middle-title.pt50.pb24 {{ text_5 }}\n                        .gray-box-first\n                            .w280\n                                p.small-title.pb12 {{ text_6 }}\n                                p.text-2.pb32 {{ text_7 }}\n                                p.grey-text.pb32 {{ text_8 }}\n                                table.w280(align=\"center\" style=\"float: none;\")\n                                    tr\n                                        td.butt-2.pb0\n                                            a.butt-link-2(href=\"{{ href_1 }}\" target=\"_blank\") {{ text_9 }}\n                        p.middle-title.pt32.pb24 {{ text_10 }}\n                        .gray-box-second\n                            .w280\n                                p.small-title.pb12 {{ text_11 }}\n                                p.text-2.pb32 {{ text_12 }}\n                                p.grey-text.pb32 {{ text_13 }}\n                                table.w280(align=\"center\" style=\"float: none;\")\n                                    tr\n                                        td.butt-2.pb0\n                                            a.butt-link-2(href=\"{{ href_1 }}\" target=\"_blank\") {{ text_14 }}\n                //-         p.middle-title.pt44.pb16 {{ text_15 }}\n                //-         p.text-2.pb32 {{ text_16 }}\n                //-         p.middle-title.pb44 {{ text_17 }}\n                //-         .center\n                //-             .small-box\n                //-                 .center-block\n                //-                     a(href=\"#\" target=\"_blank\" universal=\"true\")\n                //-                         img.w100px.center.pt25(src=\"{{ image_2 }}\")\n                //-                     p.block-text.center {{ text_18 }} {{embedded.brand_name}} {{ text_19 }}\n                //-             .small-box.plr10.middle-block-back\n                //-                 .center-block\n                //-                     a(href=\"#\" target=\"_blank\" universal=\"true\")\n                //-                         img.w100px.center.pt12(src=\"{{ image_3 }}\")\n                //-                     p.block-text.center {{ text_20 }}\n                //-             .small-box\n                //-                 .center-block\n                //-                     a(href=\"#\" target=\"_blank\" universal=\"true\")\n                //-                         img.w100px.center.pt12(src=\"{{ image_4 }}\")\n                //-                     p.block-text.center {{ text_21 }}\n                //- tr\n                //-     td.text-pad-small.pb12.pt0\n                //-         table.w280(align=\"center\")\n                //-             tr\n                //-                 td.butt-2.pb0.shadow-button-blue\n                //-                     a.butt-link-2(href=\"{{ href_2 }}\" target=\"_blank\") {{ text_22 }}\n                //- tr\n                //-     td.text-pad-small.pb12.pt0\n                //-         .blue-block\n                //-             //- .block-text.pb8  {{ text_21 }}\n                //-             //- p.promocode {{ text_22 }}\n                //-             p.text.pb28 {{ text_23 }}\n                //-             p.text {{ text_24 }}&nbsp;\n                //-                 a.link(href=\"{{ href_3 }}\" target=\"_blank\") {{ text_25 }}",
+  "styl": ".b-exnova-cta-22 .fl-none {  float: none;  }\n.b-exnova-cta-22 .first-block {  background: url(\"https://fsms.quadcode.com/storage/public/d0/ad/mc3jqaku8utgegsg/first-block-new.png\") center top no-repeat;\n  background-color: #171717;\n  background-size: cover;\n  padding: 32px;\n  border-radius: 32px;  }\n.b-exnova-cta-22 .max-width280 {  max-width: 280px;  }\n.b-exnova-cta-22 .left-block {  display: inline-block;\n  background-color: #171717;\n  background-size: cover;\n  width: 277px;\n  border-radius: 32px;\n  min-height: 150px;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-cta-22 .left-block {  display: block !important;\n    margin: 0 auto !important;\n    margin-bottom: 18px !important;\n    min-height: auto !important;  }\n}\n.b-exnova-cta-22 .right-block {  background: url(\"https://fsms.quadcode.com/storage/public/d0/ad/mc1msj7rr6s524bg/two-block-new.png\") center top no-repeat;\n  background-color: #171717;\n  background-size: cover;\n  display: inline-block;\n  width: 277px;\n  float: right;\n  border-radius: 32px;\n  min-height: 150px;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-cta-22 .right-block {  display: block !important;\n    margin: 0 auto !important;\n    float: none !important;\n    min-height: auto !important;  }\n}\n.b-exnova-cta-22 .padding {  padding: 32px;  }\n.b-exnova-cta-22 .butt-2 {  background-position: 100%;\n  background-repeat: no-repeat;\n  background-color: #2e33d1;\n  font-size: 18px !important;\n  font-weight: 700 !important;\n  border-radius: 12px !important;\n  text-transform: none;\n  font-family: Helvetica !important;\n  height: auto;  }\n.b-exnova-cta-22 .butt-link-2 {  font-size: 18px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #fff;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;  }\n.b-exnova-cta-22 .middle-title {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #fff;  }\n.b-exnova-cta-22 .small-title {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  color: #fff;  }\n.b-exnova-cta-22 .block-title {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 32px;\n  color: #fff;  }\n.b-exnova-cta-22 .text {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 16px;\n  line-height: 22px;\n  color: #e8e8e8;  }\n.b-exnova-cta-22 .text-2 {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #e8e8e8;  }\n.b-exnova-cta-22 .grey-text {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #b0b0b0;  }\n.b-exnova-cta-22 .text.bold {  font-weight: 700;  }\n.b-exnova-cta-22 .pb12 {  padding-bottom: 12px;  }\n.b-exnova-cta-22 .pb14 {  padding-bottom: 14px;  }\n.b-exnova-cta-22 .pb24 {  padding-bottom: 24px;  }\n.b-exnova-cta-22 .pt32 {  padding-top: 32px;  }\n.b-exnova-cta-22 .plr4 {  padding-left: 4px;\n  padding-right: 4px;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-cta-22 .plr4 {  padding-left: 0px !important;\n    padding-right: 0px !important;  }\n}\n.b-exnova-cta-22 .pb16 {  padding-bottom: 16px;  }\n.b-exnova-cta-22 .pb32 {  padding-bottom: 32px;  }\n.b-exnova-cta-22 .number {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 32px;\n  color: #fff;\n  padding-top: 12px;  }\n.b-exnova-cta-22 .gray-box-first {  background: url(\"https://fsms.quadcode.com/storage/public/d0/c7/jhrjqaku8utgeh4g/first-image.png\") no-repeat center center;\n  background-size: cover;\n  padding: 32px;\n  background-color: #171717;\n  border-radius: 32px;  }\n.b-exnova-cta-22 .gray-box-second {  background: url(\"https://fsms.quadcode.com/storage/public/d0/c7/jhpmsj7rr6s524h0/second-image.png\") no-repeat center center;\n  background-size: cover;\n  padding: 32px;\n  background-color: #171717;\n  border-radius: 32px;  }\n.b-exnova-cta-22 .w280 {  width: 100%;\n  max-width: 280px;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-cta-22 .w280 {  min-width: 90% !important;  }\n}\n.b-exnova-cta-22 .fl-none {  float:none  }\n.b-exnova-cta-22 .first-block {  background:url(https://fsms.quadcode.com/storage/public/d0/ad/mc3jqaku8utgegsg/first-block-new.png) center top no-repeat;background-color:#171717;background-size:cover;padding:32px;border-radius:32px  }\n.b-exnova-cta-22 .max-width280 {  max-width:280px  }\n.b-exnova-cta-22 .left-block {  display:inline-block;background-color:#171717;background-size:cover;width:277px;border-radius:32px;min-height:150px  }\n@media screen and (max-width:600px) {\n  .b-exnova-cta-22 .left-block {  display:block!important;margin:0 auto 18px!important;min-height:auto!important  }\n}\n.b-exnova-cta-22 .right-block {  background:url(https://fsms.quadcode.com/storage/public/d0/ad/mc1msj7rr6s524bg/two-block-new.png) center top no-repeat;background-color:#171717;background-size:cover;display:inline-block;width:277px;float:right;border-radius:32px;min-height:150px  }\n@media screen and (max-width:600px) {\n  .b-exnova-cta-22 .right-block {  display:block!important;margin:0 auto!important;float:none!important;min-height:auto!important  }\n}\n.b-exnova-cta-22 .padding {  padding:32px  }\n.b-exnova-cta-22 .butt, .b-exnova-cta-22 .butt-2 {  background-position:100%;background-repeat:no-repeat;font-size:18px!important;font-weight:700!important;border-radius:12px!important;text-transform:none;font-family:Helvetica!important;height:auto  }\n.b-exnova-cta-22 .butt-2 {  background-color:#2e33d1  }\n.b-exnova-cta-22 .butt-link, .b-exnova-cta-22 .butt-link-2 {  font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#000;display:block;padding:16px 0;text-align:center  }\n.b-exnova-cta-22 .butt-link-2 {  color:#fff  }\n.b-exnova-cta-22 .middle-title, .b-exnova-cta-22 .small-title, .b-exnova-cta-22 .strong-text {  font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#fff  }\n.b-exnova-cta-22 .small-title, .b-exnova-cta-22 .strong-text {  font-size:24px;line-height:31px  }\n.b-exnova-cta-22 .block-title, .b-exnova-cta-22 .text {  font-family:Helvetica!important  }\n.b-exnova-cta-22 .block-title {  font-style:normal;font-weight:700;color:#fff;font-size:32px;line-height:32px  }\n.b-exnova-cta-22 .text {  font-size:16px;line-height:22px  }\n.b-exnova-cta-22 .text, .b-exnova-cta-22 .text-2 {  font-style:normal;font-weight:400;color:#e8e8e8  }\n.b-exnova-cta-22 .block-text, .b-exnova-cta-22 .grey-text, .b-exnova-cta-22 .text-2 {  font-family:Helvetica!important;font-size:18px;line-height:27px  }\n.b-exnova-cta-22 .grey-text {  font-style:normal;font-weight:400;color:#b0b0b0  }\n.b-exnova-cta-22 .text.bold {  font-weight:700  }\n.b-exnova-cta-22 .pb12 {  padding-bottom:12px  }\n.b-exnova-cta-22 .pb14 {  padding-bottom:14px  }\n.b-exnova-cta-22 .pb24 {  padding-bottom:24px  }\n.b-exnova-cta-22 .pt32 {  padding-top:32px  }\n.b-exnova-cta-22 .plr4 {  padding-left:4px;padding-right:4px  }\n@media screen and (max-width:600px) {\n  .b-exnova-cta-22 .plr4 {  padding-left:0!important;padding-right:0!important  }\n}\n.b-exnova-cta-22 .pb16 {  padding-bottom:16px  }\n.b-exnova-cta-22 .pb32 {  padding-bottom:32px  }\n.b-exnova-cta-22 .number, .b-exnova-cta-22 .winner-text {  font-family:Helvetica!important;font-style:normal;font-weight:700  }\n.b-exnova-cta-22 .number {  padding-top:12px;font-size:32px;line-height:32px;color:#fff  }\n.b-exnova-cta-22 .gray-box-first, .b-exnova-cta-22 .gray-box-second {  background-size:cover;padding:32px;background-color:#171717;border-radius:32px  }\n.b-exnova-cta-22 .gray-box-first {  background:url(https://fsms.quadcode.com/storage/public/d0/c7/jhrjqaku8utgeh4g/first-image.png) no-repeat center center  }\n.b-exnova-cta-22 .gray-box-second {  background:url(https://fsms.quadcode.com/storage/public/d0/c7/jhpmsj7rr6s524h0/second-image.png) no-repeat center center  }\n.b-exnova-cta-22 .w280 {  width:100%;max-width:280px  }\n@media screen and (max-width:600px) {\n  .b-exnova-cta-22 .w280 {  min-width:90%!important  }\n}",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_7",
+      "kind": "richText",
+      "label": "Текст 7",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_8",
+      "kind": "richText",
+      "label": "Текст 8",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_9",
+      "kind": "richText",
+      "label": "Текст 9",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_10",
+      "kind": "richText",
+      "label": "Текст 10",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_11",
+      "kind": "richText",
+      "label": "Текст 11",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_12",
+      "kind": "richText",
+      "label": "Текст 12",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_13",
+      "kind": "richText",
+      "label": "Текст 13",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_14",
+      "kind": "richText",
+      "label": "Текст 14",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_15",
+      "kind": "richText",
+      "label": "Текст 15",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_16",
+      "kind": "richText",
+      "label": "Текст 16",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_17",
+      "kind": "richText",
+      "label": "Текст 17",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_18",
+      "kind": "richText",
+      "label": "Текст 18",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_19",
+      "kind": "richText",
+      "label": "Текст 19",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_20",
+      "kind": "richText",
+      "label": "Текст 20",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_21",
+      "kind": "richText",
+      "label": "Текст 21",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_22",
+      "kind": "richText",
+      "label": "Текст 22",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_23",
+      "kind": "richText",
+      "label": "Текст 23",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_24",
+      "kind": "richText",
+      "label": "Текст 24",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_25",
+      "kind": "richText",
+      "label": "Текст 25",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://trade.exnova.com/traderoom/deeplink/openasset?&instrument=trade-rush?aff=7&afftrack=mail_trade-rush&retrack=trade-rushe"
+    },
+    {
+      "id": "href_2",
+      "kind": "url",
+      "label": "Ссылка 2",
+      "default": "https://api.trade.exnova.com/v1/multi-links/open-asset?aff=7&afftrack=mail_exnova-Trading-Challenge&retrack=exnova-Trading-Challenge&type=forex&asset=1"
+    },
+    {
+      "id": "href_3",
+      "kind": "url",
+      "label": "Ссылка 3",
+      "default": "https://exnova.com/terms/promocodes-policy/?aff=7&afftrack=mail_exnova-Trading-Challenge&retrack=exnova-Trading-Challenge&type=forex&asset=1"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/d0/a8/s5hmsj7rr6s52480/loader.png"
+    },
+    {
+      "id": "image_2",
+      "kind": "image",
+      "label": "Картинка 2",
+      "default": "https://fsms.quadcode.com/storage/public/d0/a7/m53jqaku8utgegig/left.png"
+    },
+    {
+      "id": "image_3",
+      "kind": "image",
+      "label": "Картинка 3",
+      "default": "https://fsms.quadcode.com/storage/public/d0/a7/m4rjqaku8utgegh0/center.png"
+    },
+    {
+      "id": "image_4",
+      "kind": "image",
+      "label": "Картинка 4",
+      "default": "https://fsms.quadcode.com/storage/public/d0/a7/m53jqaku8utgeghg/right.png"
+    }
+  ],
+  "tags": [
+    "cta",
+    "section",
+    "X_Exnova"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_Exnova/mail-trade-rush"
+  ],
+  "createdAt": "2026-07-06T12:09:50.974Z",
+  "validated": true
+}

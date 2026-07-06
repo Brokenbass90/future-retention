@@ -1,0 +1,39 @@
+{
+  "id": "iqbroker-text-02",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_IQBroker (10 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.pb16.b-iqbroker-text-02\n    b {{ text_1 }}",
+  "styl": ".text.b-iqbroker-text-02 {  font-family: Helvetica !important;\n  color: #3c3939;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 28px;  }\n.text.b-iqbroker-text-02 a {  color: #213e8f;\n  font-weight: 700;\n  font-family: Helvetica !important;  }\n.text.b-iqbroker-text-02 a {  color: #5165ff !important;  }\n.text.b-iqbroker-text-02 {  color:#3c3939;font-size:18px;font-weight:400;line-height:28px  }\n.text.b-iqbroker-text-02 a {  font-weight:700  }\n.b-iqbroker-text-02 .small-text, .b-iqbroker-text-02 .small-text a, .text.b-iqbroker-text-02, .text.b-iqbroker-text-02 a {  font-family:Helvetica!important  }\n.pb16.b-iqbroker-text-02 {  padding-bottom:16px  }\n.text.b-iqbroker-text-02 a {  color:#5165ff!important  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_IQBroker"
+  ],
+  "usageCount": 10,
+  "sourceMails": [
+    "X_IQBroker/mail-15-days-general-termination",
+    "X_IQBroker/mail-blacklisted-chargeback-termination",
+    "X_IQBroker/mail-blacklisted-general-termination",
+    "X_IQBroker/mail-epq_update",
+    "X_IQBroker/mail-fraud-front-running-termination",
+    "X_IQBroker/mail-fraud-high-frequency-trading-termination",
+    "X_IQBroker/mail-fraud-scheme-termination",
+    "X_IQBroker/mail-fraud-termination",
+    "X_IQBroker/mail-multiple-account-termination",
+    "X_IQBroker/mail-restricted-country-termination"
+  ],
+  "createdAt": "2026-07-06T12:09:51.734Z",
+  "validated": true
+}

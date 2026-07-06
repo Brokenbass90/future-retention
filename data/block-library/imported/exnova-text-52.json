@@ -1,0 +1,96 @@
+{
+  "id": "exnova-text-52",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_Exnova (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.b-exnova-text-52\n    tr\n        td.wrapper.offset-by-one.last.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb32\n                        p.small-title {{ text_1 }}\n    tr\n        td.wrapper.last.pt0.pb40\n            table.twelve.columns\n                tr\n                    td.pb0.text-pad-small.plr50.background-arrow\n                        .social-links.pt0.pb0\n                            .countries-block-new.fisrt-block\n                                    img.block-img.center(src=\"{{ image_1 }}\")\n                                    p.text.pt12.center {{ text_2 }} {{ text_3 }} {{ text_4 }}\n                            .countries-block-new.mar-mob\n                                    img.block-img.center(src=\"{{ image_2 }}\")\n                                    p.text.pt12.center {{ text_5 }}\n                            .countries-block-new\n                                    img.block-img.center(src=\"{{ image_3 }}\")\n                                    p.text.pt12.center {{ text_6 }}\n    tr\n        td.wrapper.offset-by-one.last.pt0\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb32\n                        table.w245(align=\"center\")\n                            tr\n                                td.pt0.pb0\n                                    .button-wrapper_bot.pt0\n                                        table.medium-button.radius.blue-button\n                                            tr\n                                                td.iq.blue-button\n                                                    a.butt(href=\"{{ href_1 }}\" target=\"_blank\") {{ text_7 }}\n    tr\n        td.wrapper.offset-by-one.last.pt0\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44\n                        p.grey-text.bt.pt20 {{ text_8 }}",
+  "styl": ".b-exnova-text-52 .w245 {  width: 100%;\n  max-width: 245px;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-text-52 .w245 {  min-width: 100% !important;  }\n}\n.b-exnova-text-52 .bt {  border-top: 1px dashed #c0e3fe;  }\n.b-exnova-text-52 .blue-button {  background: #0173ca !important;\n  border-radius: 8px !important;  }\n.white-bg.b-exnova-text-52 {  background: #fff;\n  border-radius: 16px;  }\n.b-exnova-text-52 .small-title {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #413e43;  }\n@media screen and (max-width: 420px) {\n  .b-exnova-text-52 .small-title {  font-size: 22px !important;\n    line-height: 32px !important;  }\n}\n.b-exnova-text-52 .text {  font-family: Helvetica !important;\n  color: #262832;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 25px;  }\n.b-exnova-text-52 .text a {  color: #0173ca !important;  }\n.b-exnova-text-52 .grey-text {  font-family: Helvetica !important;\n  font-weight: 400;\n  font-size: 16px;\n  line-height: 24px;\n  text-align: center;\n  color: #71717d;  }\n.b-exnova-text-52 .text.bold {  font-weight: 700;  }\n.b-exnova-text-52 .pb32 {  padding-bottom: 32px;  }\n.b-exnova-text-52 .pb44 {  padding-bottom: 44px;  }\n.b-exnova-text-52 .pt12 {  padding-top: 12px;  }\n.b-exnova-text-52 .pt44 {  padding-top: 44px;  }\n.b-exnova-text-52 .plr50 {  padding-left: 40px;\n  padding-right: 40px;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-text-52 .plr50 {  padding-left: 20px !important;\n    padding-right: 20px !important;  }\n}\n.b-exnova-text-52 .social-links {  display: block;\n  text-align: center;\n  margin: 0 auto;  }\n.b-exnova-text-52 .countries-block-new {  width: 146px;\n  display: inline-block;\n  float: none;\n  vertical-align: top;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-text-52 .countries-block-new {  display: block !important;\n    margin: 10px auto 0 !important;  }\n}\n@media screen and (max-width: 600px) {\n  .b-exnova-text-52 .countries-block-new.fisrt-block {  margin: 0px auto 0 !important;  }\n}\n.b-exnova-text-52 .block-img {  float: none !important;\n  display: block !important;\n  max-width: 230px !important;  }\n.b-exnova-text-52 .mar-mob {  margin: 0 16px;  }\n.b-exnova-text-52 .background-arrow {  background: url(\"https://fsms.quadcode.com/storage/public/cn/1p/e9i85cee2vclvdkg/arrow-1.png\") top 50px center no-repeat;\n  background-size: 186px;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-text-52 .background-arrow {  background: none !important;\n    background-size: 0 !important;  }\n}\n.b-exnova-text-52 .background-arrow {  background: url(\"https://fsms.quadcode.com/storage/public/cr/8s/6gefu8jqbm985f30/arrows.png\") top 20px center no-repeat;\n  background-size: 186px;  }\n.b-exnova-text-52 .block-img {  float: none !important;\n  display: block !important;\n  max-width: 112px !important;  }\n.b-exnova-text-52 .plr50 {  padding-left: 48px;\n  padding-right: 48px;  }\n.b-exnova-text-52 .mar-mob {  margin: 0 10px;  }\n.b-exnova-text-52 .w245 {  width:100%;max-width:245px  }\n@media screen and (max-width:600px) {\n  .b-exnova-text-52 .w245 {  min-width:100%!important  }\n}\n.b-exnova-text-52 .bt {  border-top:1px dashed #c0e3fe  }\n.b-exnova-text-52 .blue-button {  background:#0173ca!important;border-radius:8px!important  }\n.white-bg.b-exnova-text-52 {  background:#fff;border-radius:16px  }\n.b-exnova-text-52 .small-title {  font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#413e43  }\n@media screen and (max-width:420px) {\n  .b-exnova-text-52 .small-title {  font-size:22px!important;line-height:32px!important  }\n}\n.b-exnova-text-52 .grey-text, .b-exnova-text-52 .text {  font-family:Helvetica!important;color:#262832;font-size:18px;font-weight:400;line-height:25px  }\n.b-exnova-text-52 .text a {  color:#0173ca!important  }\n.b-exnova-text-52 .grey-text {  font-size:16px;line-height:24px;text-align:center;color:#71717d  }\n.b-exnova-text-52 .text.bold {  font-weight:700  }\n.b-exnova-text-52 .pb32 {  padding-bottom:32px  }\n.b-exnova-text-52 .pb44 {  padding-bottom:44px  }\n.b-exnova-text-52 .pt12 {  padding-top:12px  }\n.b-exnova-text-52 .pt44 {  padding-top:44px  }\n@media screen and (max-width:600px) {\n  .b-exnova-text-52 .plr50 {  padding-left:20px!important;padding-right:20px!important  }\n}\n.b-exnova-text-52 .social-links {  display:block;text-align:center;margin:0 auto  }\n@media screen and (max-width:600px) {\n  .b-exnova-text-52 .countries-block-new {  display:block!important;margin:10px auto 0!important  }\n  .b-exnova-text-52 .countries-block-new.fisrt-block {  margin:0 auto!important  }\n}\n.b-exnova-text-52 .background-arrow {  background:url(https://fsms.quadcode.com/storage/public/cn/1p/e9i85cee2vclvdkg/arrow-1.png) top 50px center no-repeat  }\n@media screen and (max-width:600px) {\n  .b-exnova-text-52 .background-arrow {  background:0 0!important;background-size:0!important  }\n}\n.b-exnova-text-52 .background-arrow {  background:url(https://fsms.quadcode.com/storage/public/cr/8s/6gefu8jqbm985f30/arrows.png) top 20px center no-repeat;background-size:186px  }\n.b-exnova-text-52 .countries-block-new {  width:146px;display:inline-block;float:none;vertical-align:top  }\n.b-exnova-text-52 .block-img {  float:none!important;display:block!important;max-width:112px!important  }\n.b-exnova-text-52 .plr50 {  padding-left:48px;padding-right:48px  }\n.b-exnova-text-52 .mar-mob {  margin:0 10px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_7",
+      "kind": "richText",
+      "label": "Текст 7",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_8",
+      "kind": "richText",
+      "label": "Текст 8",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://exnovatorneios.com/?aff=7afftrack=mail_car-tournament-email-4&retrack=car-tournament-email-4"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/cr/8r/ehufu8jqbm985f10/stepspics.png"
+    },
+    {
+      "id": "image_2",
+      "kind": "image",
+      "label": "Картинка 2",
+      "default": "https://fsms.quadcode.com/storage/public/cr/8r/ehudi3umufautse0/stepspics (1).png"
+    },
+    {
+      "id": "image_3",
+      "kind": "image",
+      "label": "Картинка 3",
+      "default": "https://fsms.quadcode.com/storage/public/cr/8r/ehufu8jqbm985f00/stepspics (2).png"
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_Exnova"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_Exnova/mail-Teaser-email-4"
+  ],
+  "createdAt": "2026-07-06T12:09:50.967Z",
+  "validated": true
+}

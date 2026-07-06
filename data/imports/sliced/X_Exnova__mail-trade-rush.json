@@ -1,0 +1,1349 @@
+{
+  "category": "X_Exnova",
+  "mailId": "trade-rush",
+  "mailAbs": "email-base/X_Exnova/mail-trade-rush",
+  "blockCount": 6,
+  "blocks": [
+    {
+      "id": "x-exnova-trade-rush-header-header-0",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "kind": "section",
+      "sourceFile": "X_Exnova/mail-trade-rush/app/templates/blocks/header.jade",
+      "pug": "table.row.brad-top\n    tr\n        td.wrapper.last.pt0\n            table.row\n                tr\n                    td.wrapper.offset-by-one.last.pt26\n                        table.ten.columns\n                            tr\n                                td.pb30.text-pad-small\n                                    a(href=\"https://api.trade.exnova.com/v1/multi-links/open-asset?aff=7&afftrack=mail_trade-rush&retrack=trade-rush&type=forex&asset=1\" target=\"_blank\" universal=\"true\")\n                                        img.logo(src=\"https://fsms.quadcode.com/storage/public/d0/ad/vv3jqaku8utgegt0/exnova-logo-blue-2.png\")\n                                    a.go-invest(href=\"https://trade.exnova.com/traderoom/deeplink/openasset?&instrument=trade-rush?aff=7&afftrack=mail_trade-rush&retrack=trade-rushe\" target=\"_blank\" universal=\"true\") ${{ exnova-robot.block_02 }}$",
+      "styl": ".brad-top { border-top-left-radius: 3px !important;\n  border-top-right-radius: 3px !important; }\n.go-invest { display: inline-block;\n  font-family: Helvetica !important;\n  font-weight: 600;\n  font-size: 16px;\n  line-height: 22px;\n  letter-spacing: -0.25px;\n  color: #fff;\n  text-align: right;\n  float: right;\n  padding-top: 5px; }\n.pt26 { padding-top: 26px; }\n.brad-top { border-top-left-radius:3px!important;border-top-right-radius:3px!important }\n.go-invest { display:inline-block;font-family:Helvetica!important;font-weight:600;font-size:16px;line-height:22px;letter-spacing:-.25px;color:#fff;text-align:right;float:right;padding-top:5px }\n.pt26 { padding-top:26px }",
+      "classes": [
+        "brad-top",
+        "columns",
+        "go-invest",
+        "last",
+        "logo",
+        "offset-by-one",
+        "pb30",
+        "pt0",
+        "pt26",
+        "row",
+        "ten",
+        "text-pad-small",
+        "wrapper"
+      ],
+      "designClasses": [
+        "brad-top",
+        "go-invest",
+        "pt26"
+      ],
+      "slots": [
+        {
+          "id": "text_block_02",
+          "kind": "richText",
+          "label": "Текст exnova-robot.block_02",
+          "token": "${{ exnova-robot.block_02 }}$",
+          "ns": "exnova-robot",
+          "block": "block_02"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://api.trade.exnova.com/v1/multi-links/open-asset?aff=7&afftrack=mail_trade-rush&retrack=trade-rush&type=forex&asset=1"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://trade.exnova.com/traderoom/deeplink/openasset?&instrument=trade-rush?aff=7&afftrack=mail_trade-rush&retrack=trade-rushe"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d0/ad/vv3jqaku8utgegt0/exnova-logo-blue-2.png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-exnova-trade-rush-header-cta-1",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "kind": "section",
+      "sourceFile": "X_Exnova/mail-trade-rush/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.pt0\n            table.twelve.columns\n                tr\n                    td.text-pad-small.pb30.pt0.plr20\n                        a(href=\"#\" target=\"_blank\" universal=\"true\")\n                            img.center(src=\"https://fsms.quadcode.com/storage/public/d0/ae/261msj7rr6s524cg/top-exnova-1.png\")\n                tr\n                    td.text-pad-small.pb50.pt0.plr20\n                        p.title.pb16.center ${{ trade-rush.block_01 }}$\n                        p.strong-text.pb30.center ${{ trade-rush.block_03 }}$ ${{ trade-rush.block_04 }}$\n                        table.w280(align=\"center\")\n                            tr\n                                td.butt.pb0.shadow-button\n                                    a.butt-link(href=\"https://trade.exnova.com/traderoom/deeplink/openasset?&instrument=trade-rush?aff=7&afftrack=mail_trade-rush&retrack=trade-rushe\" target=\"_blank\") Start Trading Now",
+      "styl": ".shadow-button { box-shadow: 0px 8px 50px rgba(139,251,91,0.5); }\n.butt-link { font-size: 18px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #000;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center; }\n.title { font-family: Helvetica !important;\n  color: #fff;\n  font-size: 42px;\n  line-height: 44px;\n  font-weight: 700; }\n@media screen and (max-width: 600px) {\n  .title { font-size: 36px !important;\n    line-height: 42px !important; }\n}\n@media screen and (max-width: 420px) {\n  .title { font-size: 28px !important;\n    line-height: 36px !important; }\n}\n.strong-text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 18px;\n  line-height: 27px;\n  color: #fff; }\n.plr20 { padding-left: 20px;\n  padding-right: 20px; }\n@media screen and (max-width: 600px) {\n  .plr20 { padding-left: 1px !important;\n    padding-right: 1px !important; }\n}\n.pb16 { padding-bottom: 16px; }\n.w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { min-width: 90% !important; }\n}\n.shadow-button { box-shadow:0 8px 50px rgba(139,251,91,.5) }\n.butt-link,.butt-link-2 { font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#000;display:block;padding:16px 0;text-align:center }\n.title { font-family:Helvetica!important;color:#fff;font-size:42px;line-height:44px;font-weight:700 }\n@media screen and (max-width:600px) {\n  .title { font-size:36px!important;line-height:42px!important }\n}\n@media screen and (max-width:420px) {\n  .title { font-size:28px!important;line-height:36px!important }\n}\n.middle-title,.small-title,.strong-text { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#fff }\n.small-title,.strong-text { font-size:24px;line-height:31px }\n.strong-text { font-style:normal;font-size:18px;line-height:27px }\n.plr20 { padding-left:20px;padding-right:20px }\n@media screen and (max-width:600px) {\n  .plr20 { padding-left:1px!important;padding-right:1px!important }\n}\n.pb16 { padding-bottom:16px }\n.w280 { width:100%;max-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { min-width:90%!important }\n}",
+      "classes": [
+        "butt",
+        "butt-link",
+        "center",
+        "columns",
+        "last",
+        "pb0",
+        "pb16",
+        "pb30",
+        "pb50",
+        "plr20",
+        "pt0",
+        "row",
+        "shadow-button",
+        "strong-text",
+        "text-pad-small",
+        "title",
+        "twelve",
+        "w280",
+        "wrapper"
+      ],
+      "designClasses": [
+        "butt-link",
+        "pb16",
+        "plr20",
+        "shadow-button",
+        "strong-text",
+        "title",
+        "w280"
+      ],
+      "slots": [
+        {
+          "id": "text_block_01",
+          "kind": "richText",
+          "label": "Текст trade-rush.block_01",
+          "token": "${{ trade-rush.block_01 }}$",
+          "ns": "trade-rush",
+          "block": "block_01"
+        },
+        {
+          "id": "text_block_03",
+          "kind": "richText",
+          "label": "Текст trade-rush.block_03",
+          "token": "${{ trade-rush.block_03 }}$",
+          "ns": "trade-rush",
+          "block": "block_03"
+        },
+        {
+          "id": "text_block_04",
+          "kind": "richText",
+          "label": "Текст trade-rush.block_04",
+          "token": "${{ trade-rush.block_04 }}$",
+          "ns": "trade-rush",
+          "block": "block_04"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://trade.exnova.com/traderoom/deeplink/openasset?&instrument=trade-rush?aff=7&afftrack=mail_trade-rush&retrack=trade-rushe"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d0/ae/261msj7rr6s524cg/top-exnova-1.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-exnova-trade-rush-header-cta-1-heading-0",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.title.pb16.center ${{ trade-rush.block_01 }}$",
+          "styl": ".title { font-family: Helvetica !important;\n  color: #fff;\n  font-size: 42px;\n  line-height: 44px;\n  font-weight: 700; }\n@media screen and (max-width: 600px) {\n  .title { font-size: 36px !important;\n    line-height: 42px !important; }\n}\n@media screen and (max-width: 420px) {\n  .title { font-size: 28px !important;\n    line-height: 36px !important; }\n}\n.pb16 { padding-bottom: 16px; }\n.title { font-family:Helvetica!important;color:#fff;font-size:42px;line-height:44px;font-weight:700 }\n@media screen and (max-width:600px) {\n  .title { font-size:36px!important;line-height:42px!important }\n}\n@media screen and (max-width:420px) {\n  .title { font-size:28px!important;line-height:36px!important }\n}\n.pb16 { padding-bottom:16px }",
+          "classes": [
+            "center",
+            "pb16",
+            "title"
+          ],
+          "designClasses": [
+            "pb16",
+            "title"
+          ],
+          "slots": [
+            {
+              "id": "text_block_01",
+              "kind": "richText",
+              "label": "Текст trade-rush.block_01",
+              "token": "${{ trade-rush.block_01 }}$",
+              "ns": "trade-rush",
+              "block": "block_01"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-trade-rush-header-cta-1-cta-button-1",
+          "label": "CTA-кнопка (w280)",
+          "placement": "inline",
+          "category": "cta",
+          "pug": "table.w280(align=\"center\")\n    tr\n        td.butt.pb0.shadow-button\n            a.butt-link(href=\"https://trade.exnova.com/traderoom/deeplink/openasset?&instrument=trade-rush?aff=7&afftrack=mail_trade-rush&retrack=trade-rushe\" target=\"_blank\") Start Trading Now",
+          "styl": ".shadow-button { box-shadow: 0px 8px 50px rgba(139,251,91,0.5); }\n.butt-link { font-size: 18px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #000;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center; }\n.w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { min-width: 90% !important; }\n}\n.shadow-button { box-shadow:0 8px 50px rgba(139,251,91,.5) }\n.butt-link,.butt-link-2 { font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#000;display:block;padding:16px 0;text-align:center }\n.w280 { width:100%;max-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { min-width:90%!important }\n}",
+          "classes": [
+            "butt",
+            "butt-link",
+            "pb0",
+            "shadow-button",
+            "w280"
+          ],
+          "designClasses": [
+            "butt-link",
+            "shadow-button",
+            "w280"
+          ],
+          "slots": [
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://trade.exnova.com/traderoom/deeplink/openasset?&instrument=trade-rush?aff=7&afftrack=mail_trade-rush&retrack=trade-rushe"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-exnova-trade-rush-header-cta-2",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "kind": "section",
+      "sourceFile": "X_Exnova/mail-trade-rush/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.pt0\n            table.twelve.columns\n                tr\n                    td.pb12.pt5.plr4\n                        .first-block\n                            .max-width280\n                                p.block-title.pb16 ${{ trade-rush.block_05 }}$\n                                p.text ${{ trade-rush.block_06 }}$\n                        .h-12 &nbsp;\n                        .left-block\n                            .padding\n                                p.text.pb14 ${{ trade-rush.block_07 }}$\n                                a(href=\"#\" target=\"_blank\")\n                                    img.center.fl-none(src=\"https://fsms.quadcode.com/storage/public/d0/a8/s5hmsj7rr6s52480/loader.png\")\n                                p.number 100K%\n                        .right-block\n                            .padding\n                                p.text ${{ trade-rush.block_08 }}$\n                        p.middle-title.pt50.pb24 ${{ trade-rush.block_09 }}$\n                        .gray-box-first\n                            .w280\n                                p.small-title.pb12 ${{ trade-rush.block_10 }}$\n                                p.text-2.pb32 ${{ trade-rush.block_11 }}$\n                                p.grey-text.pb32 ${{ trade-rush.block_12 }}$\n                                table.w280(align=\"center\" style=\"float: none;\")\n                                    tr\n                                        td.butt-2.pb0\n                                            a.butt-link-2(href=\"https://trade.exnova.com/traderoom/deeplink/openasset?&instrument=trade-rush?aff=7&afftrack=mail_trade-rush&retrack=trade-rushe\" target=\"_blank\") ${{ trade-rush.block_13 }}$\n                        p.middle-title.pt32.pb24 ${{ trade-rush.block_14 }}$\n                        .gray-box-second\n                            .w280\n                                p.small-title.pb12 ${{ trade-rush.block_15 }}$\n                                p.text-2.pb32 ${{ trade-rush.block_16 }}$\n                                p.grey-text.pb32 ${{ trade-rush.block_17 }}$\n                                table.w280(align=\"center\" style=\"float: none;\")\n                                    tr\n                                        td.butt-2.pb0\n                                            a.butt-link-2(href=\"https://trade.exnova.com/traderoom/deeplink/openasset?&instrument=trade-rush?aff=7&afftrack=mail_trade-rush&retrack=trade-rushe\" target=\"_blank\") ${{ trade-rush.block_18 }}$\n                //-         p.middle-title.pt44.pb16 ${{ trade-rush.block_19 }}$\n                //-         p.text-2.pb32 ${{ trade-rush.block_20 }}$\n                //-         p.middle-title.pb44 ${{ trade-rush.block_21 }}$\n                //-         .center\n                //-             .small-box\n                //-                 .center-block\n                //-                     a(href=\"#\" target=\"_blank\" universal=\"true\")\n                //-                         img.w100px.center.pt25(src=\"https://fsms.quadcode.com/storage/public/d0/a7/m53jqaku8utgegig/left.png\")\n                //-                     p.block-text.center ${{ trade-rush.block_22 }}$ {{embedded.brand_name}} ${{ trade-rush.block_24 }}$\n                //-             .small-box.plr10.middle-block-back\n                //-                 .center-block\n                //-                     a(href=\"#\" target=\"_blank\" universal=\"true\")\n                //-                         img.w100px.center.pt12(src=\"https://fsms.quadcode.com/storage/public/d0/a7/m4rjqaku8utgegh0/center.png\")\n                //-                     p.block-text.center ${{ trade-rush.block_25 }}$\n                //-             .small-box\n                //-                 .center-block\n                //-                     a(href=\"#\" target=\"_blank\" universal=\"true\")\n                //-                         img.w100px.center.pt12(src=\"https://fsms.quadcode.com/storage/public/d0/a7/m53jqaku8utgeghg/right.png\")\n                //-                     p.block-text.center ${{ trade-rush.block_26 }}$\n                //- tr\n                //-     td.text-pad-small.pb12.pt0\n                //-         table.w280(align=\"center\")\n                //-             tr\n                //-                 td.butt-2.pb0.shadow-button-blue\n                //-                     a.butt-link-2(href=\"https://api.trade.exnova.com/v1/multi-links/open-asset?aff=7&afftrack=mail_exnova-Trading-Challenge&retrack=exnova-Trading-Challenge&type=forex&asset=1\" target=\"_blank\") ${{ trade-rush.block_27 }}$\n                //- tr\n                //-     td.text-pad-small.pb12.pt0\n                //-         .blue-block\n                //-             //- .block-text.pb8  ${{ trade-rush.block_26 }}$\n                //-             //- p.promocode ${{ trade-rush.block_27 }}$\n                //-             p.text.pb28 ${{ trade-rush.block_28 }}$\n                //-             p.text ${{ trade-rush.block_29 }}$&nbsp;\n                //-                 a.link(href=\"https://exnova.com/terms/promocodes-policy/?aff=7&afftrack=mail_exnova-Trading-Challenge&retrack=exnova-Trading-Challenge&type=forex&asset=1\" target=\"_blank\") ${{ trade-rush.block_30 }}$",
+      "styl": ".fl-none { float: none; }\n.first-block { background: url(\"https://fsms.quadcode.com/storage/public/d0/ad/mc3jqaku8utgegsg/first-block-new.png\") center top no-repeat;\n  background-color: #171717;\n  background-size: cover;\n  padding: 32px;\n  border-radius: 32px; }\n.max-width280 { max-width: 280px; }\n.left-block { display: inline-block;\n  background-color: #171717;\n  background-size: cover;\n  width: 277px;\n  border-radius: 32px;\n  min-height: 150px; }\n@media screen and (max-width: 600px) {\n  .left-block { display: block !important;\n    margin: 0 auto !important;\n    margin-bottom: 18px !important;\n    min-height: auto !important; }\n}\n.right-block { background: url(\"https://fsms.quadcode.com/storage/public/d0/ad/mc1msj7rr6s524bg/two-block-new.png\") center top no-repeat;\n  background-color: #171717;\n  background-size: cover;\n  display: inline-block;\n  width: 277px;\n  float: right;\n  border-radius: 32px;\n  min-height: 150px; }\n@media screen and (max-width: 600px) {\n  .right-block { display: block !important;\n    margin: 0 auto !important;\n    float: none !important;\n    min-height: auto !important; }\n}\n.padding { padding: 32px; }\n.butt-2 { background-position: 100%;\n  background-repeat: no-repeat;\n  background-color: #2e33d1;\n  font-size: 18px !important;\n  font-weight: 700 !important;\n  border-radius: 12px !important;\n  text-transform: none;\n  font-family: Helvetica !important;\n  height: auto; }\n.butt-link-2 { font-size: 18px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #fff;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center; }\n.middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #fff; }\n.small-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  color: #fff; }\n.block-title { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 32px;\n  color: #fff; }\n.text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 16px;\n  line-height: 22px;\n  color: #e8e8e8; }\n.text-2 { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #e8e8e8; }\n.grey-text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #b0b0b0; }\n.text.bold { font-weight: 700; }\n.pb12 { padding-bottom: 12px; }\n.pb14 { padding-bottom: 14px; }\n.pb24 { padding-bottom: 24px; }\n.pt32 { padding-top: 32px; }\n.plr4 { padding-left: 4px;\n  padding-right: 4px; }\n@media screen and (max-width: 600px) {\n  .plr4 { padding-left: 0px !important;\n    padding-right: 0px !important; }\n}\n.pb16 { padding-bottom: 16px; }\n.pb32 { padding-bottom: 32px; }\n.number { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 32px;\n  color: #fff;\n  padding-top: 12px; }\n.gray-box-first { background: url(\"https://fsms.quadcode.com/storage/public/d0/c7/jhrjqaku8utgeh4g/first-image.png\") no-repeat center center;\n  background-size: cover;\n  padding: 32px;\n  background-color: #171717;\n  border-radius: 32px; }\n.gray-box-second { background: url(\"https://fsms.quadcode.com/storage/public/d0/c7/jhpmsj7rr6s524h0/second-image.png\") no-repeat center center;\n  background-size: cover;\n  padding: 32px;\n  background-color: #171717;\n  border-radius: 32px; }\n.w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { min-width: 90% !important; }\n}\n.fl-none { float:none }\n.first-block { background:url(https://fsms.quadcode.com/storage/public/d0/ad/mc3jqaku8utgegsg/first-block-new.png) center top no-repeat;background-color:#171717;background-size:cover;padding:32px;border-radius:32px }\n.max-width280 { max-width:280px }\n.left-block { display:inline-block;background-color:#171717;background-size:cover;width:277px;border-radius:32px;min-height:150px }\n@media screen and (max-width:600px) {\n  .left-block { display:block!important;margin:0 auto 18px!important;min-height:auto!important }\n}\n.right-block { background:url(https://fsms.quadcode.com/storage/public/d0/ad/mc1msj7rr6s524bg/two-block-new.png) center top no-repeat;background-color:#171717;background-size:cover;display:inline-block;width:277px;float:right;border-radius:32px;min-height:150px }\n@media screen and (max-width:600px) {\n  .right-block { display:block!important;margin:0 auto!important;float:none!important;min-height:auto!important }\n}\n.padding { padding:32px }\n.butt,.butt-2 { background-position:100%;background-repeat:no-repeat;font-size:18px!important;font-weight:700!important;border-radius:12px!important;text-transform:none;font-family:Helvetica!important;height:auto }\n.butt-2 { background-color:#2e33d1 }\n.butt-link,.butt-link-2 { font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#000;display:block;padding:16px 0;text-align:center }\n.butt-link-2 { color:#fff }\n.middle-title,.small-title,.strong-text { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#fff }\n.small-title,.strong-text { font-size:24px;line-height:31px }\n.block-title,.text { font-family:Helvetica!important }\n.block-title { font-style:normal;font-weight:700;color:#fff;font-size:32px;line-height:32px }\n.text { font-size:16px;line-height:22px }\n.text,.text-2 { font-style:normal;font-weight:400;color:#e8e8e8 }\n.block-text,.grey-text,.text-2 { font-family:Helvetica!important;font-size:18px;line-height:27px }\n.grey-text { font-style:normal;font-weight:400;color:#b0b0b0 }\n.text.bold { font-weight:700 }\n.pb12 { padding-bottom:12px }\n.pb14 { padding-bottom:14px }\n.pb24 { padding-bottom:24px }\n.pt32 { padding-top:32px }\n.plr4 { padding-left:4px;padding-right:4px }\n@media screen and (max-width:600px) {\n  .plr4 { padding-left:0!important;padding-right:0!important }\n}\n.pb16 { padding-bottom:16px }\n.pb32 { padding-bottom:32px }\n.number,.winner-text { font-family:Helvetica!important;font-style:normal;font-weight:700 }\n.number { padding-top:12px;font-size:32px;line-height:32px;color:#fff }\n.gray-box-first,.gray-box-second { background-size:cover;padding:32px;background-color:#171717;border-radius:32px }\n.gray-box-first { background:url(https://fsms.quadcode.com/storage/public/d0/c7/jhrjqaku8utgeh4g/first-image.png) no-repeat center center }\n.gray-box-second { background:url(https://fsms.quadcode.com/storage/public/d0/c7/jhpmsj7rr6s524h0/second-image.png) no-repeat center center }\n.w280 { width:100%;max-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { min-width:90%!important }\n}",
+      "classes": [
+        "block-title",
+        "butt-2",
+        "butt-link-2",
+        "center",
+        "columns",
+        "first-block",
+        "fl-none",
+        "gray-box-first",
+        "gray-box-second",
+        "grey-text",
+        "h-12",
+        "last",
+        "left-block",
+        "max-width280",
+        "middle-title",
+        "number",
+        "padding",
+        "pb0",
+        "pb12",
+        "pb14",
+        "pb16",
+        "pb24",
+        "pb32",
+        "plr4",
+        "pt0",
+        "pt32",
+        "pt5",
+        "pt50",
+        "right-block",
+        "row",
+        "small-title",
+        "text",
+        "text-2",
+        "twelve",
+        "w280",
+        "wrapper"
+      ],
+      "designClasses": [
+        "block-title",
+        "butt-2",
+        "butt-link-2",
+        "first-block",
+        "fl-none",
+        "gray-box-first",
+        "gray-box-second",
+        "grey-text",
+        "h-12",
+        "left-block",
+        "max-width280",
+        "middle-title",
+        "number",
+        "padding",
+        "pb12",
+        "pb14",
+        "pb16",
+        "pb24",
+        "pb32",
+        "plr4",
+        "pt32",
+        "pt5",
+        "right-block",
+        "small-title",
+        "text",
+        "text-2",
+        "w280"
+      ],
+      "slots": [
+        {
+          "id": "text_block_05",
+          "kind": "richText",
+          "label": "Текст trade-rush.block_05",
+          "token": "${{ trade-rush.block_05 }}$",
+          "ns": "trade-rush",
+          "block": "block_05"
+        },
+        {
+          "id": "text_block_06",
+          "kind": "richText",
+          "label": "Текст trade-rush.block_06",
+          "token": "${{ trade-rush.block_06 }}$",
+          "ns": "trade-rush",
+          "block": "block_06"
+        },
+        {
+          "id": "text_block_07",
+          "kind": "richText",
+          "label": "Текст trade-rush.block_07",
+          "token": "${{ trade-rush.block_07 }}$",
+          "ns": "trade-rush",
+          "block": "block_07"
+        },
+        {
+          "id": "text_block_08",
+          "kind": "richText",
+          "label": "Текст trade-rush.block_08",
+          "token": "${{ trade-rush.block_08 }}$",
+          "ns": "trade-rush",
+          "block": "block_08"
+        },
+        {
+          "id": "text_block_09",
+          "kind": "richText",
+          "label": "Текст trade-rush.block_09",
+          "token": "${{ trade-rush.block_09 }}$",
+          "ns": "trade-rush",
+          "block": "block_09"
+        },
+        {
+          "id": "text_block_10",
+          "kind": "richText",
+          "label": "Текст trade-rush.block_10",
+          "token": "${{ trade-rush.block_10 }}$",
+          "ns": "trade-rush",
+          "block": "block_10"
+        },
+        {
+          "id": "text_block_11",
+          "kind": "richText",
+          "label": "Текст trade-rush.block_11",
+          "token": "${{ trade-rush.block_11 }}$",
+          "ns": "trade-rush",
+          "block": "block_11"
+        },
+        {
+          "id": "text_block_12",
+          "kind": "richText",
+          "label": "Текст trade-rush.block_12",
+          "token": "${{ trade-rush.block_12 }}$",
+          "ns": "trade-rush",
+          "block": "block_12"
+        },
+        {
+          "id": "text_block_13",
+          "kind": "richText",
+          "label": "Текст trade-rush.block_13",
+          "token": "${{ trade-rush.block_13 }}$",
+          "ns": "trade-rush",
+          "block": "block_13"
+        },
+        {
+          "id": "text_block_14",
+          "kind": "richText",
+          "label": "Текст trade-rush.block_14",
+          "token": "${{ trade-rush.block_14 }}$",
+          "ns": "trade-rush",
+          "block": "block_14"
+        },
+        {
+          "id": "text_block_15",
+          "kind": "richText",
+          "label": "Текст trade-rush.block_15",
+          "token": "${{ trade-rush.block_15 }}$",
+          "ns": "trade-rush",
+          "block": "block_15"
+        },
+        {
+          "id": "text_block_16",
+          "kind": "richText",
+          "label": "Текст trade-rush.block_16",
+          "token": "${{ trade-rush.block_16 }}$",
+          "ns": "trade-rush",
+          "block": "block_16"
+        },
+        {
+          "id": "text_block_17",
+          "kind": "richText",
+          "label": "Текст trade-rush.block_17",
+          "token": "${{ trade-rush.block_17 }}$",
+          "ns": "trade-rush",
+          "block": "block_17"
+        },
+        {
+          "id": "text_block_18",
+          "kind": "richText",
+          "label": "Текст trade-rush.block_18",
+          "token": "${{ trade-rush.block_18 }}$",
+          "ns": "trade-rush",
+          "block": "block_18"
+        },
+        {
+          "id": "text_block_19",
+          "kind": "richText",
+          "label": "Текст trade-rush.block_19",
+          "token": "${{ trade-rush.block_19 }}$",
+          "ns": "trade-rush",
+          "block": "block_19"
+        },
+        {
+          "id": "text_block_20",
+          "kind": "richText",
+          "label": "Текст trade-rush.block_20",
+          "token": "${{ trade-rush.block_20 }}$",
+          "ns": "trade-rush",
+          "block": "block_20"
+        },
+        {
+          "id": "text_block_21",
+          "kind": "richText",
+          "label": "Текст trade-rush.block_21",
+          "token": "${{ trade-rush.block_21 }}$",
+          "ns": "trade-rush",
+          "block": "block_21"
+        },
+        {
+          "id": "text_block_22",
+          "kind": "richText",
+          "label": "Текст trade-rush.block_22",
+          "token": "${{ trade-rush.block_22 }}$",
+          "ns": "trade-rush",
+          "block": "block_22"
+        },
+        {
+          "id": "text_block_24",
+          "kind": "richText",
+          "label": "Текст trade-rush.block_24",
+          "token": "${{ trade-rush.block_24 }}$",
+          "ns": "trade-rush",
+          "block": "block_24"
+        },
+        {
+          "id": "text_block_25",
+          "kind": "richText",
+          "label": "Текст trade-rush.block_25",
+          "token": "${{ trade-rush.block_25 }}$",
+          "ns": "trade-rush",
+          "block": "block_25"
+        },
+        {
+          "id": "text_block_26",
+          "kind": "richText",
+          "label": "Текст trade-rush.block_26",
+          "token": "${{ trade-rush.block_26 }}$",
+          "ns": "trade-rush",
+          "block": "block_26"
+        },
+        {
+          "id": "text_block_27",
+          "kind": "richText",
+          "label": "Текст trade-rush.block_27",
+          "token": "${{ trade-rush.block_27 }}$",
+          "ns": "trade-rush",
+          "block": "block_27"
+        },
+        {
+          "id": "text_block_28",
+          "kind": "richText",
+          "label": "Текст trade-rush.block_28",
+          "token": "${{ trade-rush.block_28 }}$",
+          "ns": "trade-rush",
+          "block": "block_28"
+        },
+        {
+          "id": "text_block_29",
+          "kind": "richText",
+          "label": "Текст trade-rush.block_29",
+          "token": "${{ trade-rush.block_29 }}$",
+          "ns": "trade-rush",
+          "block": "block_29"
+        },
+        {
+          "id": "text_block_30",
+          "kind": "richText",
+          "label": "Текст trade-rush.block_30",
+          "token": "${{ trade-rush.block_30 }}$",
+          "ns": "trade-rush",
+          "block": "block_30"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://trade.exnova.com/traderoom/deeplink/openasset?&instrument=trade-rush?aff=7&afftrack=mail_trade-rush&retrack=trade-rushe"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://api.trade.exnova.com/v1/multi-links/open-asset?aff=7&afftrack=mail_exnova-Trading-Challenge&retrack=exnova-Trading-Challenge&type=forex&asset=1"
+        },
+        {
+          "id": "href_2",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://exnova.com/terms/promocodes-policy/?aff=7&afftrack=mail_exnova-Trading-Challenge&retrack=exnova-Trading-Challenge&type=forex&asset=1"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d0/a8/s5hmsj7rr6s52480/loader.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d0/a7/m53jqaku8utgegig/left.png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d0/a7/m4rjqaku8utgegh0/center.png"
+        },
+        {
+          "id": "image_3",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d0/a7/m53jqaku8utgeghg/right.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-exnova-trade-rush-header-cta-2-paragraph-0",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ trade-rush.block_06 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 16px;\n  line-height: 22px;\n  color: #e8e8e8; }\n.text.bold { font-weight: 700; }\n.block-title,.text { font-family:Helvetica!important }\n.text { font-size:16px;line-height:22px }\n.text,.text-2 { font-style:normal;font-weight:400;color:#e8e8e8 }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_06",
+              "kind": "richText",
+              "label": "Текст trade-rush.block_06",
+              "token": "${{ trade-rush.block_06 }}$",
+              "ns": "trade-rush",
+              "block": "block_06"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-trade-rush-header-cta-2-spacer-1",
+          "label": "Спейсер 12px",
+          "placement": "inline",
+          "category": "utility",
+          "pug": ".h-12 &nbsp;",
+          "styl": "",
+          "classes": [
+            "h-12"
+          ],
+          "designClasses": [
+            "h-12"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-exnova-trade-rush-header-cta-2-paragraph-2",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb14 ${{ trade-rush.block_07 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 16px;\n  line-height: 22px;\n  color: #e8e8e8; }\n.text.bold { font-weight: 700; }\n.pb14 { padding-bottom: 14px; }\n.block-title,.text { font-family:Helvetica!important }\n.text { font-size:16px;line-height:22px }\n.text,.text-2 { font-style:normal;font-weight:400;color:#e8e8e8 }\n.text.bold { font-weight:700 }\n.pb14 { padding-bottom:14px }",
+          "classes": [
+            "pb14",
+            "text"
+          ],
+          "designClasses": [
+            "pb14",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_07",
+              "kind": "richText",
+              "label": "Текст trade-rush.block_07",
+              "token": "${{ trade-rush.block_07 }}$",
+              "ns": "trade-rush",
+              "block": "block_07"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-trade-rush-header-cta-2-paragraph-3",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ trade-rush.block_08 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 16px;\n  line-height: 22px;\n  color: #e8e8e8; }\n.text.bold { font-weight: 700; }\n.block-title,.text { font-family:Helvetica!important }\n.text { font-size:16px;line-height:22px }\n.text,.text-2 { font-style:normal;font-weight:400;color:#e8e8e8 }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_08",
+              "kind": "richText",
+              "label": "Текст trade-rush.block_08",
+              "token": "${{ trade-rush.block_08 }}$",
+              "ns": "trade-rush",
+              "block": "block_08"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-trade-rush-header-cta-2-heading-4",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.middle-title.pt50.pb24 ${{ trade-rush.block_09 }}$",
+          "styl": ".middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #fff; }\n.pb24 { padding-bottom: 24px; }\n.middle-title,.small-title,.strong-text { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#fff }\n.pb24 { padding-bottom:24px }",
+          "classes": [
+            "middle-title",
+            "pb24",
+            "pt50"
+          ],
+          "designClasses": [
+            "middle-title",
+            "pb24"
+          ],
+          "slots": [
+            {
+              "id": "text_block_09",
+              "kind": "richText",
+              "label": "Текст trade-rush.block_09",
+              "token": "${{ trade-rush.block_09 }}$",
+              "ns": "trade-rush",
+              "block": "block_09"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-trade-rush-header-cta-2-cta-button-5",
+          "label": "CTA-кнопка (w280)",
+          "placement": "inline",
+          "category": "cta",
+          "pug": ".w280\n    p.small-title.pb12 ${{ trade-rush.block_10 }}$\n    p.text-2.pb32 ${{ trade-rush.block_11 }}$\n    p.grey-text.pb32 ${{ trade-rush.block_12 }}$\n    table.w280(align=\"center\" style=\"float: none;\")\n        tr\n            td.butt-2.pb0\n                a.butt-link-2(href=\"https://trade.exnova.com/traderoom/deeplink/openasset?&instrument=trade-rush?aff=7&afftrack=mail_trade-rush&retrack=trade-rushe\" target=\"_blank\") ${{ trade-rush.block_13 }}$",
+          "styl": ".butt-2 { background-position: 100%;\n  background-repeat: no-repeat;\n  background-color: #2e33d1;\n  font-size: 18px !important;\n  font-weight: 700 !important;\n  border-radius: 12px !important;\n  text-transform: none;\n  font-family: Helvetica !important;\n  height: auto; }\n.butt-link-2 { font-size: 18px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #fff;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center; }\n.small-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  color: #fff; }\n.text-2 { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #e8e8e8; }\n.grey-text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #b0b0b0; }\n.pb12 { padding-bottom: 12px; }\n.pb32 { padding-bottom: 32px; }\n.w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { min-width: 90% !important; }\n}\n.butt,.butt-2 { background-position:100%;background-repeat:no-repeat;font-size:18px!important;font-weight:700!important;border-radius:12px!important;text-transform:none;font-family:Helvetica!important;height:auto }\n.butt-2 { background-color:#2e33d1 }\n.butt-link,.butt-link-2 { font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#000;display:block;padding:16px 0;text-align:center }\n.butt-link-2 { color:#fff }\n.middle-title,.small-title,.strong-text { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#fff }\n.small-title,.strong-text { font-size:24px;line-height:31px }\n.text,.text-2 { font-style:normal;font-weight:400;color:#e8e8e8 }\n.block-text,.grey-text,.text-2 { font-family:Helvetica!important;font-size:18px;line-height:27px }\n.grey-text { font-style:normal;font-weight:400;color:#b0b0b0 }\n.pb12 { padding-bottom:12px }\n.pb32 { padding-bottom:32px }\n.w280 { width:100%;max-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { min-width:90%!important }\n}",
+          "classes": [
+            "butt-2",
+            "butt-link-2",
+            "grey-text",
+            "pb0",
+            "pb12",
+            "pb32",
+            "small-title",
+            "text-2",
+            "w280"
+          ],
+          "designClasses": [
+            "butt-2",
+            "butt-link-2",
+            "grey-text",
+            "pb12",
+            "pb32",
+            "small-title",
+            "text-2",
+            "w280"
+          ],
+          "slots": [
+            {
+              "id": "text_block_10",
+              "kind": "richText",
+              "label": "Текст trade-rush.block_10",
+              "token": "${{ trade-rush.block_10 }}$",
+              "ns": "trade-rush",
+              "block": "block_10"
+            },
+            {
+              "id": "text_block_11",
+              "kind": "richText",
+              "label": "Текст trade-rush.block_11",
+              "token": "${{ trade-rush.block_11 }}$",
+              "ns": "trade-rush",
+              "block": "block_11"
+            },
+            {
+              "id": "text_block_12",
+              "kind": "richText",
+              "label": "Текст trade-rush.block_12",
+              "token": "${{ trade-rush.block_12 }}$",
+              "ns": "trade-rush",
+              "block": "block_12"
+            },
+            {
+              "id": "text_block_13",
+              "kind": "richText",
+              "label": "Текст trade-rush.block_13",
+              "token": "${{ trade-rush.block_13 }}$",
+              "ns": "trade-rush",
+              "block": "block_13"
+            },
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://trade.exnova.com/traderoom/deeplink/openasset?&instrument=trade-rush?aff=7&afftrack=mail_trade-rush&retrack=trade-rushe"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-trade-rush-header-cta-2-heading-6",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.middle-title.pt32.pb24 ${{ trade-rush.block_14 }}$",
+          "styl": ".middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #fff; }\n.pb24 { padding-bottom: 24px; }\n.pt32 { padding-top: 32px; }\n.middle-title,.small-title,.strong-text { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#fff }\n.pb24 { padding-bottom:24px }\n.pt32 { padding-top:32px }",
+          "classes": [
+            "middle-title",
+            "pb24",
+            "pt32"
+          ],
+          "designClasses": [
+            "middle-title",
+            "pb24",
+            "pt32"
+          ],
+          "slots": [
+            {
+              "id": "text_block_14",
+              "kind": "richText",
+              "label": "Текст trade-rush.block_14",
+              "token": "${{ trade-rush.block_14 }}$",
+              "ns": "trade-rush",
+              "block": "block_14"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-trade-rush-header-cta-2-cta-button-7",
+          "label": "CTA-кнопка (w280)",
+          "placement": "inline",
+          "category": "cta",
+          "pug": ".w280\n    p.small-title.pb12 ${{ trade-rush.block_15 }}$\n    p.text-2.pb32 ${{ trade-rush.block_16 }}$\n    p.grey-text.pb32 ${{ trade-rush.block_17 }}$\n    table.w280(align=\"center\" style=\"float: none;\")\n        tr\n            td.butt-2.pb0\n                a.butt-link-2(href=\"https://trade.exnova.com/traderoom/deeplink/openasset?&instrument=trade-rush?aff=7&afftrack=mail_trade-rush&retrack=trade-rushe\" target=\"_blank\") ${{ trade-rush.block_18 }}$",
+          "styl": ".butt-2 { background-position: 100%;\n  background-repeat: no-repeat;\n  background-color: #2e33d1;\n  font-size: 18px !important;\n  font-weight: 700 !important;\n  border-radius: 12px !important;\n  text-transform: none;\n  font-family: Helvetica !important;\n  height: auto; }\n.butt-link-2 { font-size: 18px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #fff;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center; }\n.small-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  color: #fff; }\n.text-2 { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #e8e8e8; }\n.grey-text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #b0b0b0; }\n.pb12 { padding-bottom: 12px; }\n.pb32 { padding-bottom: 32px; }\n.w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { min-width: 90% !important; }\n}\n.butt,.butt-2 { background-position:100%;background-repeat:no-repeat;font-size:18px!important;font-weight:700!important;border-radius:12px!important;text-transform:none;font-family:Helvetica!important;height:auto }\n.butt-2 { background-color:#2e33d1 }\n.butt-link,.butt-link-2 { font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#000;display:block;padding:16px 0;text-align:center }\n.butt-link-2 { color:#fff }\n.middle-title,.small-title,.strong-text { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#fff }\n.small-title,.strong-text { font-size:24px;line-height:31px }\n.text,.text-2 { font-style:normal;font-weight:400;color:#e8e8e8 }\n.block-text,.grey-text,.text-2 { font-family:Helvetica!important;font-size:18px;line-height:27px }\n.grey-text { font-style:normal;font-weight:400;color:#b0b0b0 }\n.pb12 { padding-bottom:12px }\n.pb32 { padding-bottom:32px }\n.w280 { width:100%;max-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { min-width:90%!important }\n}",
+          "classes": [
+            "butt-2",
+            "butt-link-2",
+            "grey-text",
+            "pb0",
+            "pb12",
+            "pb32",
+            "small-title",
+            "text-2",
+            "w280"
+          ],
+          "designClasses": [
+            "butt-2",
+            "butt-link-2",
+            "grey-text",
+            "pb12",
+            "pb32",
+            "small-title",
+            "text-2",
+            "w280"
+          ],
+          "slots": [
+            {
+              "id": "text_block_15",
+              "kind": "richText",
+              "label": "Текст trade-rush.block_15",
+              "token": "${{ trade-rush.block_15 }}$",
+              "ns": "trade-rush",
+              "block": "block_15"
+            },
+            {
+              "id": "text_block_16",
+              "kind": "richText",
+              "label": "Текст trade-rush.block_16",
+              "token": "${{ trade-rush.block_16 }}$",
+              "ns": "trade-rush",
+              "block": "block_16"
+            },
+            {
+              "id": "text_block_17",
+              "kind": "richText",
+              "label": "Текст trade-rush.block_17",
+              "token": "${{ trade-rush.block_17 }}$",
+              "ns": "trade-rush",
+              "block": "block_17"
+            },
+            {
+              "id": "text_block_18",
+              "kind": "richText",
+              "label": "Текст trade-rush.block_18",
+              "token": "${{ trade-rush.block_18 }}$",
+              "ns": "trade-rush",
+              "block": "block_18"
+            },
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://trade.exnova.com/traderoom/deeplink/openasset?&instrument=trade-rush?aff=7&afftrack=mail_trade-rush&retrack=trade-rushe"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-exnova-trade-rush-header-section-3",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "kind": "section",
+      "sourceFile": "X_Exnova/mail-trade-rush/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.pt0\n            table.twelve.columns\n                tr\n                    td.pb0.plr4\n                        .last-block\n                            p.up-footer-text.center ${{ trade-rush.block_31 }}$\n                        .small-diw\n                            &nbsp;\n                        .diw-smaller\n                            &nbsp;",
+      "styl": ".plr4 { padding-left: 4px;\n  padding-right: 4px; }\n@media screen and (max-width: 600px) {\n  .plr4 { padding-left: 0px !important;\n    padding-right: 0px !important; }\n}\n.last-block { background-size: cover;\n  background-color: #171717;\n  padding: 32px;\n  border-radius: 32px; }\n.up-footer-text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  color: #fff; }\n.small-diw { width: 90%;\n  margin: 0 auto;\n  background-color: #121212;\n  border-radius: 0 0 32px 32px;\n  height: 20px !important; }\n.diw-smaller { width: 80%;\n  margin: 0 auto;\n  background-color: #0e0e0e;\n  border-radius: 0 0 32px 32px;\n  height: 20px !important; }\n.plr4 { padding-left:4px;padding-right:4px }\n@media screen and (max-width:600px) {\n  .plr4 { padding-left:0!important;padding-right:0!important }\n}\n.last-block { background-size:cover;background-color:#171717;padding:32px;border-radius:32px }\n.up-footer-text { font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:24px;line-height:31px;color:#fff }\n.diw-smaller,.small-diw { width:90%;margin:0 auto;background-color:#121212;border-radius:0 0 32px 32px;height:20px!important }\n.diw-smaller { width:80%;background-color:#0e0e0e }",
+      "classes": [
+        "center",
+        "columns",
+        "diw-smaller",
+        "last",
+        "last-block",
+        "pb0",
+        "plr4",
+        "pt0",
+        "row",
+        "small-diw",
+        "twelve",
+        "up-footer-text",
+        "wrapper"
+      ],
+      "designClasses": [
+        "diw-smaller",
+        "last-block",
+        "plr4",
+        "small-diw",
+        "up-footer-text"
+      ],
+      "slots": [
+        {
+          "id": "text_block_31",
+          "kind": "richText",
+          "label": "Текст trade-rush.block_31",
+          "token": "${{ trade-rush.block_31 }}$",
+          "ns": "trade-rush",
+          "block": "block_31"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-exnova-trade-rush-third-footer-0",
+      "label": "Store badges",
+      "placement": "section",
+      "category": "footer",
+      "kind": "section",
+      "sourceFile": "X_Exnova/mail-trade-rush/app/templates/blocks/third.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.pt40.offset-by-one\n            table.ten.columns\n                tr\n                    td.pb0\n                        .stor.center\n                            //- a(href=\"https://testflight.apple.com/join/vwJsQ4m1?aff=7&afftrack=mail_exnova-raffle-mail1&retrack=exnova-raffle-mail1\" target=\"_blank\")\n                                img.a-app(src=\"https://fsms.quadcode.com/storage/public/cn/td/oo285cee2vclvjqg/app.png\")\n                            a(href=\"https://app.appsflyer.com/com.exnova?pid=7&c=mail_exnova-raffle-mail1\" target=\"_blank\")\n                                img.a-google(src=\"https://fsms.quadcode.com/storage/public/d0/ae/hd3jqaku8utgeh10/googleplaybadge.png\")\n                            a(href=\"https://trade.exnova.com/pwa?aff=7&afftrack=mail_exnova-raffle-mail1&retrack=exnova-raffle-mail1\" target=\"_blank\")\n                                img.a-app(src=\"https://fsms.quadcode.com/storage/public/d0/ae/e13jqaku8utgeh00/instant.png\")",
+      "styl": ".stor { width: 100% !important;\n  max-width: 450px;\n  margin: 0 auto; }\n@media screen and (max-width: 600px) {\n  .stor { width: 100% !important; }\n}\n.a-app { display: inline-block;\n  margin: 10px 12px;\n  max-width: 155px;\n  height: 50px !important;\n  float: none !important; }\n.a-google { display: inline-block;\n  margin: 10px 12px !important;\n  max-width: 190px !important;\n  height: 52px !important;\n  float: none !important; }\n.stor { width:100%!important;max-width:450px;margin:0 auto }\n@media screen and (max-width:600px) {\n  .stor { width:100%!important }\n}\n.a-app,.a-google { display:inline-block;margin:10px 12px;max-width:155px;height:50px!important;float:none!important }\n.a-google { margin:10px 12px!important;max-width:190px!important;height:52px!important }",
+      "classes": [
+        "a-app",
+        "a-google",
+        "center",
+        "columns",
+        "last",
+        "offset-by-one",
+        "pb0",
+        "pt40",
+        "row",
+        "stor",
+        "ten",
+        "wrapper"
+      ],
+      "designClasses": [
+        "a-app",
+        "a-google",
+        "stor"
+      ],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://testflight.apple.com/join/vwJsQ4m1?aff=7&afftrack=mail_exnova-raffle-mail1&retrack=exnova-raffle-mail1"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://app.appsflyer.com/com.exnova?pid=7&c=mail_exnova-raffle-mail1"
+        },
+        {
+          "id": "href_2",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://trade.exnova.com/pwa?aff=7&afftrack=mail_exnova-raffle-mail1&retrack=exnova-raffle-mail1"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cn/td/oo285cee2vclvjqg/app.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d0/ae/hd3jqaku8utgeh10/googleplaybadge.png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d0/ae/e13jqaku8utgeh00/instant.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-exnova-trade-rush-third-footer-0-store-badges-",
+          "label": "Store badges (App Store / Google Play)",
+          "placement": "inline",
+          "category": "footer",
+          "pug": ".stor.center\n    //- a(href=\"https://testflight.apple.com/join/vwJsQ4m1?aff=7&afftrack=mail_exnova-raffle-mail1&retrack=exnova-raffle-mail1\" target=\"_blank\")\n        img.a-app(src=\"https://fsms.quadcode.com/storage/public/cn/td/oo285cee2vclvjqg/app.png\")\n    a(href=\"https://app.appsflyer.com/com.exnova?pid=7&c=mail_exnova-raffle-mail1\" target=\"_blank\")\n        img.a-google(src=\"https://fsms.quadcode.com/storage/public/d0/ae/hd3jqaku8utgeh10/googleplaybadge.png\")\n    a(href=\"https://trade.exnova.com/pwa?aff=7&afftrack=mail_exnova-raffle-mail1&retrack=exnova-raffle-mail1\" target=\"_blank\")\n        img.a-app(src=\"https://fsms.quadcode.com/storage/public/d0/ae/e13jqaku8utgeh00/instant.png\")",
+          "styl": ".stor { width: 100% !important;\n  max-width: 450px;\n  margin: 0 auto; }\n@media screen and (max-width: 600px) {\n  .stor { width: 100% !important; }\n}\n.a-app { display: inline-block;\n  margin: 10px 12px;\n  max-width: 155px;\n  height: 50px !important;\n  float: none !important; }\n.a-google { display: inline-block;\n  margin: 10px 12px !important;\n  max-width: 190px !important;\n  height: 52px !important;\n  float: none !important; }\n.stor { width:100%!important;max-width:450px;margin:0 auto }\n@media screen and (max-width:600px) {\n  .stor { width:100%!important }\n}\n.a-app,.a-google { display:inline-block;margin:10px 12px;max-width:155px;height:50px!important;float:none!important }\n.a-google { margin:10px 12px!important;max-width:190px!important;height:52px!important }",
+          "classes": [
+            "a-app",
+            "a-google",
+            "center",
+            "stor"
+          ],
+          "designClasses": [
+            "a-app",
+            "a-google",
+            "stor"
+          ],
+          "slots": [
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://testflight.apple.com/join/vwJsQ4m1?aff=7&afftrack=mail_exnova-raffle-mail1&retrack=exnova-raffle-mail1"
+            },
+            {
+              "id": "href_1",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://app.appsflyer.com/com.exnova?pid=7&c=mail_exnova-raffle-mail1"
+            },
+            {
+              "id": "href_2",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://trade.exnova.com/pwa?aff=7&afftrack=mail_exnova-raffle-mail1&retrack=exnova-raffle-mail1"
+            },
+            {
+              "id": "image_0",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/cn/td/oo285cee2vclvjqg/app.png"
+            },
+            {
+              "id": "image_1",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d0/ae/hd3jqaku8utgeh10/googleplaybadge.png"
+            },
+            {
+              "id": "image_2",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d0/ae/e13jqaku8utgeh00/instant.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-exnova-trade-rush-third-footer-1",
+      "label": "Соцсети",
+      "placement": "section",
+      "category": "footer",
+      "kind": "section",
+      "sourceFile": "X_Exnova/mail-trade-rush/app/templates/blocks/third.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.pt30\n            table.twelve.columns\n                tr\n                    td.pb20\n                        .socials.center\n                            a.first-link(href=\"${{ exnova-soc-new.block_00 }}$\" target=\"_blank\")\n                                img.soc-icon.fb(src=\"https://fsms.quadcode.com/storage/public/d0/ae/7gjjqaku8utgegv0/fb-1.png\")\n                            a(href=\"${{ exnova-soc-new.block_01 }}$\" target=\"_blank\")\n                                img.soc-icon.twitter(src=\"https://fsms.quadcode.com/storage/public/d0/ae/7gjjqaku8utgegu0/ig-1.png\")\n                            a(href=\"${{ exnova-soc-new.block_02 }}$\" target=\"_blank\")\n                                img.soc-icon.twitter(src=\"https://fsms.quadcode.com/storage/public/d0/ae/7ghmsj7rr6s524d0/yt-1.png\")\n                            a(href=\"${{ exnova-soc-new.block_03 }}$\" target=\"_blank\")\n                                img.soc-icon.twitter(src=\"https://fsms.quadcode.com/storage/public/d0/ae/7gjjqaku8utgegtg/tg-1.png\")\n                            a(href=\"${{ exnova-soc-new.block_06 }}$\" target=\"_blank\")\n                                img.soc-icon.twitter(src=\"https://fsms.quadcode.com/storage/public/d0/ae/aorjqaku8utgegvg/discord.png\")\n                            a(href=\"${{ exnova-soc-new.block_04 }}$\" target=\"_blank\")\n                                img.soc-icon.twitter(src=\"https://fsms.quadcode.com/storage/public/d0/ae/aopmsj7rr6s524dg/tik-tok.png\")\n                            //- a(href=\"https://www.tiktok.com/@exnova_trading\" target=\"_blank\")\n                            //-     img.soc-icon.twitter(src=\"https://fsms.quadcode.com/storage/public/ct/7h/kl76f6cetv899s1g/tik-tok-icon.png\")\n                            a.last-link(href=\"${{ exnova-soc-new.block_05 }}$\" target=\"_blank\")\n                                img.soc-icon.ig(src=\"https://fsms.quadcode.com/storage/public/d0/ae/shbjqaku8utgeh1g/tw02025.png\")",
+      "styl": ".socials { display: block;\n  font-size: 0;\n  margin: 0 auto;\n  text-align: center; }\n.socials a { display: inline-block;\n  vertical-align: middle;\n  margin: 0 10px; }\n@media screen and (max-width: 600px) {\n  .socials a { margin-bottom: 10px !important; }\n}\n.soc-icon { float: none;\n  max-width: 40px; }\n.ig { max-width: 40px;\n  margin-left: 6px; }\n@media screen and (max-width: 600px) {\n  .ig { width: 20px !important; }\n}\n.twitter { max-width: 40px;\n  margin: 0 6px; }\n@media screen and (max-width: 600px) {\n  .twitter { width: 24px !important; }\n}\n.fb { max-width: 40px;\n  margin-right: 6px; }\n@media screen and (max-width: 600px) {\n  .fb { width: 24px !important; }\n}\n.socials { display:block;font-size:0;margin:0 auto;text-align:center }\n.socials a { display:inline-block;vertical-align:middle;margin:0 10px }\n@media screen and (max-width:600px) {\n  .socials a { margin-bottom:10px!important }\n}\n.soc-icon { float:none;max-width:40px }\n.ig { max-width:40px;margin-left:6px }\n@media screen and (max-width:600px) {\n  .ig { width:20px!important }\n}\n.twitter { max-width:40px;margin:0 6px }\n@media screen and (max-width:600px) {\n  .twitter { width:24px!important }\n}\n.fb { max-width:40px;margin-right:6px }\n@media screen and (max-width:600px) {\n  .fb { width:24px!important }\n}",
+      "classes": [
+        "center",
+        "columns",
+        "fb",
+        "first-link",
+        "ig",
+        "last",
+        "last-link",
+        "pb20",
+        "pt30",
+        "row",
+        "soc-icon",
+        "socials",
+        "twelve",
+        "twitter",
+        "wrapper"
+      ],
+      "designClasses": [
+        "fb",
+        "first-link",
+        "ig",
+        "last-link",
+        "soc-icon",
+        "socials",
+        "twitter"
+      ],
+      "slots": [
+        {
+          "id": "text_block_00",
+          "kind": "richText",
+          "label": "Текст exnova-soc-new.block_00",
+          "token": "${{ exnova-soc-new.block_00 }}$",
+          "ns": "exnova-soc-new",
+          "block": "block_00"
+        },
+        {
+          "id": "text_block_01",
+          "kind": "richText",
+          "label": "Текст exnova-soc-new.block_01",
+          "token": "${{ exnova-soc-new.block_01 }}$",
+          "ns": "exnova-soc-new",
+          "block": "block_01"
+        },
+        {
+          "id": "text_block_02",
+          "kind": "richText",
+          "label": "Текст exnova-soc-new.block_02",
+          "token": "${{ exnova-soc-new.block_02 }}$",
+          "ns": "exnova-soc-new",
+          "block": "block_02"
+        },
+        {
+          "id": "text_block_03",
+          "kind": "richText",
+          "label": "Текст exnova-soc-new.block_03",
+          "token": "${{ exnova-soc-new.block_03 }}$",
+          "ns": "exnova-soc-new",
+          "block": "block_03"
+        },
+        {
+          "id": "text_block_06",
+          "kind": "richText",
+          "label": "Текст exnova-soc-new.block_06",
+          "token": "${{ exnova-soc-new.block_06 }}$",
+          "ns": "exnova-soc-new",
+          "block": "block_06"
+        },
+        {
+          "id": "text_block_04",
+          "kind": "richText",
+          "label": "Текст exnova-soc-new.block_04",
+          "token": "${{ exnova-soc-new.block_04 }}$",
+          "ns": "exnova-soc-new",
+          "block": "block_04"
+        },
+        {
+          "id": "text_block_05",
+          "kind": "richText",
+          "label": "Текст exnova-soc-new.block_05",
+          "token": "${{ exnova-soc-new.block_05 }}$",
+          "ns": "exnova-soc-new",
+          "block": "block_05"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ exnova-soc-new.block_00 }}$"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ exnova-soc-new.block_01 }}$"
+        },
+        {
+          "id": "href_2",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ exnova-soc-new.block_02 }}$"
+        },
+        {
+          "id": "href_3",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ exnova-soc-new.block_03 }}$"
+        },
+        {
+          "id": "href_4",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ exnova-soc-new.block_06 }}$"
+        },
+        {
+          "id": "href_5",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ exnova-soc-new.block_04 }}$"
+        },
+        {
+          "id": "href_6",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://www.tiktok.com/@exnova_trading"
+        },
+        {
+          "id": "href_7",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ exnova-soc-new.block_05 }}$"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d0/ae/7gjjqaku8utgegv0/fb-1.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d0/ae/7gjjqaku8utgegu0/ig-1.png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d0/ae/7ghmsj7rr6s524d0/yt-1.png"
+        },
+        {
+          "id": "image_3",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d0/ae/7gjjqaku8utgegtg/tg-1.png"
+        },
+        {
+          "id": "image_4",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d0/ae/aorjqaku8utgegvg/discord.png"
+        },
+        {
+          "id": "image_5",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d0/ae/aopmsj7rr6s524dg/tik-tok.png"
+        },
+        {
+          "id": "image_6",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/ct/7h/kl76f6cetv899s1g/tik-tok-icon.png"
+        },
+        {
+          "id": "image_7",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d0/ae/shbjqaku8utgeh1g/tw02025.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-exnova-trade-rush-third-footer-1-socials-0",
+          "label": "Соцсети (иконки)",
+          "placement": "inline",
+          "category": "footer",
+          "pug": ".socials.center\n    a.first-link(href=\"${{ exnova-soc-new.block_00 }}$\" target=\"_blank\")\n        img.soc-icon.fb(src=\"https://fsms.quadcode.com/storage/public/d0/ae/7gjjqaku8utgegv0/fb-1.png\")\n    a(href=\"${{ exnova-soc-new.block_01 }}$\" target=\"_blank\")\n        img.soc-icon.twitter(src=\"https://fsms.quadcode.com/storage/public/d0/ae/7gjjqaku8utgegu0/ig-1.png\")\n    a(href=\"${{ exnova-soc-new.block_02 }}$\" target=\"_blank\")\n        img.soc-icon.twitter(src=\"https://fsms.quadcode.com/storage/public/d0/ae/7ghmsj7rr6s524d0/yt-1.png\")\n    a(href=\"${{ exnova-soc-new.block_03 }}$\" target=\"_blank\")\n        img.soc-icon.twitter(src=\"https://fsms.quadcode.com/storage/public/d0/ae/7gjjqaku8utgegtg/tg-1.png\")\n    a(href=\"${{ exnova-soc-new.block_06 }}$\" target=\"_blank\")\n        img.soc-icon.twitter(src=\"https://fsms.quadcode.com/storage/public/d0/ae/aorjqaku8utgegvg/discord.png\")\n    a(href=\"${{ exnova-soc-new.block_04 }}$\" target=\"_blank\")\n        img.soc-icon.twitter(src=\"https://fsms.quadcode.com/storage/public/d0/ae/aopmsj7rr6s524dg/tik-tok.png\")\n    //- a(href=\"https://www.tiktok.com/@exnova_trading\" target=\"_blank\")\n    //-     img.soc-icon.twitter(src=\"https://fsms.quadcode.com/storage/public/ct/7h/kl76f6cetv899s1g/tik-tok-icon.png\")\n    a.last-link(href=\"${{ exnova-soc-new.block_05 }}$\" target=\"_blank\")\n        img.soc-icon.ig(src=\"https://fsms.quadcode.com/storage/public/d0/ae/shbjqaku8utgeh1g/tw02025.png\")",
+          "styl": ".socials { display: block;\n  font-size: 0;\n  margin: 0 auto;\n  text-align: center; }\n.socials a { display: inline-block;\n  vertical-align: middle;\n  margin: 0 10px; }\n@media screen and (max-width: 600px) {\n  .socials a { margin-bottom: 10px !important; }\n}\n.soc-icon { float: none;\n  max-width: 40px; }\n.ig { max-width: 40px;\n  margin-left: 6px; }\n@media screen and (max-width: 600px) {\n  .ig { width: 20px !important; }\n}\n.twitter { max-width: 40px;\n  margin: 0 6px; }\n@media screen and (max-width: 600px) {\n  .twitter { width: 24px !important; }\n}\n.fb { max-width: 40px;\n  margin-right: 6px; }\n@media screen and (max-width: 600px) {\n  .fb { width: 24px !important; }\n}\n.socials { display:block;font-size:0;margin:0 auto;text-align:center }\n.socials a { display:inline-block;vertical-align:middle;margin:0 10px }\n@media screen and (max-width:600px) {\n  .socials a { margin-bottom:10px!important }\n}\n.soc-icon { float:none;max-width:40px }\n.ig { max-width:40px;margin-left:6px }\n@media screen and (max-width:600px) {\n  .ig { width:20px!important }\n}\n.twitter { max-width:40px;margin:0 6px }\n@media screen and (max-width:600px) {\n  .twitter { width:24px!important }\n}\n.fb { max-width:40px;margin-right:6px }\n@media screen and (max-width:600px) {\n  .fb { width:24px!important }\n}",
+          "classes": [
+            "center",
+            "fb",
+            "first-link",
+            "ig",
+            "last-link",
+            "soc-icon",
+            "socials",
+            "twitter"
+          ],
+          "designClasses": [
+            "fb",
+            "first-link",
+            "ig",
+            "last-link",
+            "soc-icon",
+            "socials",
+            "twitter"
+          ],
+          "slots": [
+            {
+              "id": "text_block_00",
+              "kind": "richText",
+              "label": "Текст exnova-soc-new.block_00",
+              "token": "${{ exnova-soc-new.block_00 }}$",
+              "ns": "exnova-soc-new",
+              "block": "block_00"
+            },
+            {
+              "id": "text_block_01",
+              "kind": "richText",
+              "label": "Текст exnova-soc-new.block_01",
+              "token": "${{ exnova-soc-new.block_01 }}$",
+              "ns": "exnova-soc-new",
+              "block": "block_01"
+            },
+            {
+              "id": "text_block_02",
+              "kind": "richText",
+              "label": "Текст exnova-soc-new.block_02",
+              "token": "${{ exnova-soc-new.block_02 }}$",
+              "ns": "exnova-soc-new",
+              "block": "block_02"
+            },
+            {
+              "id": "text_block_03",
+              "kind": "richText",
+              "label": "Текст exnova-soc-new.block_03",
+              "token": "${{ exnova-soc-new.block_03 }}$",
+              "ns": "exnova-soc-new",
+              "block": "block_03"
+            },
+            {
+              "id": "text_block_06",
+              "kind": "richText",
+              "label": "Текст exnova-soc-new.block_06",
+              "token": "${{ exnova-soc-new.block_06 }}$",
+              "ns": "exnova-soc-new",
+              "block": "block_06"
+            },
+            {
+              "id": "text_block_04",
+              "kind": "richText",
+              "label": "Текст exnova-soc-new.block_04",
+              "token": "${{ exnova-soc-new.block_04 }}$",
+              "ns": "exnova-soc-new",
+              "block": "block_04"
+            },
+            {
+              "id": "text_block_05",
+              "kind": "richText",
+              "label": "Текст exnova-soc-new.block_05",
+              "token": "${{ exnova-soc-new.block_05 }}$",
+              "ns": "exnova-soc-new",
+              "block": "block_05"
+            },
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ exnova-soc-new.block_00 }}$"
+            },
+            {
+              "id": "href_1",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ exnova-soc-new.block_01 }}$"
+            },
+            {
+              "id": "href_2",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ exnova-soc-new.block_02 }}$"
+            },
+            {
+              "id": "href_3",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ exnova-soc-new.block_03 }}$"
+            },
+            {
+              "id": "href_4",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ exnova-soc-new.block_06 }}$"
+            },
+            {
+              "id": "href_5",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ exnova-soc-new.block_04 }}$"
+            },
+            {
+              "id": "href_6",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://www.tiktok.com/@exnova_trading"
+            },
+            {
+              "id": "href_7",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ exnova-soc-new.block_05 }}$"
+            },
+            {
+              "id": "image_0",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d0/ae/7gjjqaku8utgegv0/fb-1.png"
+            },
+            {
+              "id": "image_1",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d0/ae/7gjjqaku8utgegu0/ig-1.png"
+            },
+            {
+              "id": "image_2",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d0/ae/7ghmsj7rr6s524d0/yt-1.png"
+            },
+            {
+              "id": "image_3",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d0/ae/7gjjqaku8utgegtg/tg-1.png"
+            },
+            {
+              "id": "image_4",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d0/ae/aorjqaku8utgegvg/discord.png"
+            },
+            {
+              "id": "image_5",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d0/ae/aopmsj7rr6s524dg/tik-tok.png"
+            },
+            {
+              "id": "image_6",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/ct/7h/kl76f6cetv899s1g/tik-tok-icon.png"
+            },
+            {
+              "id": "image_7",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d0/ae/shbjqaku8utgeh1g/tw02025.png"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

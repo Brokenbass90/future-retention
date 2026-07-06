@@ -39,32 +39,63 @@ function build(id) {
     c.on("error", (e) => { clearTimeout(to); res({ code: -1, err: String(e) }); });
   });
 }
+let seq = 0;
+async function buildGroup(blocks) {
+  // One scaffold, all blocks concatenated. Scoped CSS makes joint compilation
+  // safe; on failure the caller bisects to find the culprit.
+  const vid = "g" + (++seq);
+  const dest = path.join(TEMP_ROOT, OUT, `mail-${vid}`);
+  try { rmSync(dest, { recursive: true, force: true }); } catch {}
+  copyTpl(TEMPLATE_SOURCE, dest);
+  const pug = blocks.map((b) => fill(b.pug, b.slots)).join("\n");
+  writeFileSync(path.join(dest, "app", "templates", "blocks", "header.pug"), pug + "\n");
+  const ms = path.join(dest, "app", "styles", "blocks", "main.styl");
+  let base = ""; try { base = readFileSync(ms, "utf8"); } catch {}
+  const styl = blocks.map((b) => fill(b.styl || "", b.slots)).join("\n");
+  writeFileSync(ms, base + "\n/* blocks */\n" + styl);
+  const r = await build(vid);
+  const distHtml = path.join(TEMP_ROOT, "dist", OUT, `mail-${vid}`, "en", "index.html");
+  const ok = r.code === 0 && existsSync(distHtml) && readFileSync(distHtml, "utf8").length > 400;
+  return { ok, reason: ok ? "" : (r.err.split("\n").filter(Boolean).slice(-1)[0] || `exit ${r.code}`).slice(0, 200) };
+}
+
+async function validateSet(blocks, results, deadline) {
+  if (!blocks.length) return;
+  if (Date.now() > deadline) return; // leave unvalidated for next run
+  const r = await buildGroup(blocks);
+  if (r.ok) { for (const b of blocks) results.set(b.id, { ok: true }); return; }
+  if (blocks.length === 1) { results.set(blocks[0].id, { ok: false, reason: r.reason }); return; }
+  const mid = Math.ceil(blocks.length / 2);
+  await validateSet(blocks.slice(0, mid), results, deadline);
+  await validateSet(blocks.slice(mid), results, deadline);
+}
+
 async function main() {
   setup();
   const files = readdirSync(importedDir).filter((f) => f.endsWith(".json") && f !== "index.json" && !f.startsWith("_"));
-  let done = 0, pass = 0, fail = 0, remaining = 0;
-  const t0 = Date.now();
+  const pending = [];
   for (const f of files) {
     const fp = path.join(importedDir, f);
     const b = JSON.parse(readFileSync(fp, "utf8"));
     if (typeof b.validated === "boolean") continue;
-    if (done >= limit || Date.now() - t0 > 36000) { remaining++; continue; }
-    const vid = "v" + b.id.replace(/[^a-z0-9]/gi, "");
-    const dest = path.join(TEMP_ROOT, OUT, `mail-${vid}`);
-    try { rmSync(dest, { recursive: true, force: true }); } catch {}
-    copyTpl(TEMPLATE_SOURCE, dest);
-    writeFileSync(path.join(dest, "app", "templates", "blocks", "header.pug"), fill(b.pug, b.slots) + "\n");
-    const ms = path.join(dest, "app", "styles", "blocks", "main.styl");
-    let base = ""; try { base = readFileSync(ms, "utf8"); } catch {}
-    writeFileSync(ms, base + "\n/* block */\n" + fill(b.styl || "", b.slots));
-    const r = await build(vid);
-    const distHtml = path.join(TEMP_ROOT, "dist", OUT, `mail-${vid}`, "en", "index.html");
-    const ok = r.code === 0 && existsSync(distHtml) && readFileSync(distHtml, "utf8").length > 400;
-    b.validated = ok;
-    if (!ok) b.failReason = (r.err.split("\n").filter(Boolean).slice(-1)[0] || `exit ${r.code}`).slice(0, 200);
-    writeFileSync(fp, JSON.stringify(b, null, 2) + "\n");
-    done++; ok ? pass++ : fail++;
+    pending.push({ ...b, __file: fp });
   }
-  console.log(`validated ${done} (pass ${pass} / fail ${fail}), remaining: ${remaining}`);
+  const deadline = Date.now() + 34000;
+  const results = new Map();
+  const BATCH = 8;
+  for (let i = 0; i < Math.min(pending.length, limit) && Date.now() < deadline; i += BATCH) {
+    await validateSet(pending.slice(i, i + BATCH), results, deadline);
+  }
+  let pass = 0, fail = 0;
+  for (const b of pending) {
+    const r = results.get(b.id);
+    if (!r) continue;
+    const { __file, ...clean } = b;
+    clean.validated = r.ok;
+    if (!r.ok) clean.failReason = r.reason;
+    writeFileSync(__file, JSON.stringify(clean, null, 2) + "\n");
+    r.ok ? pass++ : fail++;
+  }
+  console.log(`validated ${pass + fail} (pass ${pass} / fail ${fail}), remaining: ${pending.length - pass - fail}`);
 }
 main().catch((e) => { console.error(e); process.exit(1); });

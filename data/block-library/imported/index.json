@@ -1,7 +1,6 @@
 {
-  "generatedAt": "2026-07-06T07:43:27.060399Z",
-  "category": "X_IQ",
-  "count": 281,
+  "generatedAt": "2026-07-06T12:17:35.944180Z",
+  "count": 955,
   "blocks": [
     {
       "id": "iq-footer-07",
@@ -21,6 +20,26 @@
       "usageCount": 26,
       "slots": 12,
       "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-header-01",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "usageCount": 19,
+      "slots": 6,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-header-01",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "usageCount": 16,
+      "slots": 2,
+      "hasMedia": false,
       "validated": true
     },
     {
@@ -44,12 +63,242 @@
       "validated": true
     },
     {
+      "id": "new-footer-10",
+      "label": "Store badges",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 13,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-footer-06",
+      "label": "Соцсети",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 12,
+      "slots": 21,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-header-05",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "usageCount": 12,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-section-03",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 9,
+      "slots": 11,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-footer-12",
+      "label": "Соцсети",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 9,
+      "slots": 12,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-footer-15",
+      "label": "Store badges",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 8,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-header-02",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "usageCount": 8,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-header-03",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "usageCount": 8,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-header-02",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "usageCount": 8,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-footer-14",
       "label": "Соцсети",
       "placement": "section",
       "category": "footer",
       "usageCount": 7,
       "slots": 14,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-footer-13",
+      "label": "Соцсети",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 7,
+      "slots": 10,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-section-01",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 7,
+      "slots": 11,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "affsystem-header-01",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "usageCount": 7,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "affsystem-section-03",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 7,
+      "slots": 9,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-section-10",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 7,
+      "slots": 9,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-49",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 6,
+      "slots": 16,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-footer-01",
+      "label": "Store badges",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 6,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-header-02",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "usageCount": 6,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-header-01",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "usageCount": 6,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-54",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 6,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-section-01",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 5,
+      "slots": 9,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-footer-09",
+      "label": "Store badges",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 4,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-26",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 4,
+      "slots": 13,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-11",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 4,
+      "slots": 2,
       "hasMedia": true,
       "validated": true
     },
@@ -64,12 +313,112 @@
       "validated": true
     },
     {
+      "id": "exnova-header-02",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "usageCount": 4,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-hero-12",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 4,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-footer-14",
+      "label": "Store badges",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 3,
+      "slots": 10,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "casatradeaffiliate-header-01",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "usageCount": 3,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-18",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 3,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-section-04",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 3,
+      "slots": 10,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-cta-06",
       "label": "CTA-секция",
       "placement": "section",
       "category": "cta",
       "usageCount": 3,
       "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-footer-23",
+      "label": "Соцсети",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 3,
+      "slots": 23,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-cta-11",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 3,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-footer-05",
+      "label": "Соцсети",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 3,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-footer-21",
+      "label": "Store badges",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 3,
+      "slots": 6,
       "hasMedia": true,
       "validated": true
     },
@@ -84,6 +433,36 @@
       "validated": true
     },
     {
+      "id": "exnova-footer-11",
+      "label": "Соцсети",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 3,
+      "slots": 14,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-header-05",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "usageCount": 3,
+      "slots": 3,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-footer-03",
+      "label": "Соцсети",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 3,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-cta-16",
       "label": "CTA-секция",
       "placement": "section",
@@ -94,10 +473,70 @@
       "validated": true
     },
     {
+      "id": "exnova-text-41",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 9,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-73",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-cta-01",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 2,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-34",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 4,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-header-07",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "usageCount": 2,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-hero-33",
       "label": "Hero с фоновой картинкой",
       "placement": "section",
       "category": "hero",
+      "usageCount": 2,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-05",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
       "usageCount": 2,
       "slots": 5,
       "hasMedia": true,
@@ -154,6 +593,26 @@
       "validated": true
     },
     {
+      "id": "system-text-91",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-03",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-hero-22",
       "label": "Hero с фоновой картинкой",
       "placement": "section",
@@ -164,12 +623,52 @@
       "validated": true
     },
     {
+      "id": "new-footer-09",
+      "label": "Store badges",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 2,
+      "slots": 9,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-section-06",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 2,
+      "slots": 10,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-section-01",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 2,
+      "slots": 3,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-footer-06",
       "label": "Store badges",
       "placement": "section",
       "category": "footer",
       "usageCount": 2,
       "slots": 9,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-feature-list-28",
+      "label": "Список преимуществ (нумерованный)",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 2,
+      "slots": 10,
       "hasMedia": true,
       "validated": true
     },
@@ -204,12 +703,72 @@
       "validated": true
     },
     {
+      "id": "new-hero-03",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 2,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-cta-05",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 2,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-text-18",
       "label": "Контентная карточка",
       "placement": "section",
       "category": "text",
       "usageCount": 2,
       "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-cta-12",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 2,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-40",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-cta-15",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 2,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-cta-21",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 2,
+      "slots": 4,
       "hasMedia": true,
       "validated": true
     },
@@ -224,12 +783,42 @@
       "validated": true
     },
     {
+      "id": "iqbroker-cta-03",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 2,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-14",
       "label": "Asset-секция",
       "placement": "section",
       "category": "feature-list",
       "usageCount": 2,
       "slots": 12,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-43",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 11,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-38",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 10,
       "hasMedia": true,
       "validated": true
     },
@@ -254,6 +843,26 @@
       "validated": true
     },
     {
+      "id": "exnova-text-34",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-feature-list-18",
+      "label": "Asset-секция",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 2,
+      "slots": 12,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-footer-16",
       "label": "Store badges",
       "placement": "section",
@@ -270,6 +879,16 @@
       "category": "text",
       "usageCount": 2,
       "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-07",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 4,
       "hasMedia": true,
       "validated": true
     },
@@ -294,6 +913,46 @@
       "validated": true
     },
     {
+      "id": "new-feature-list-23",
+      "label": "Список преимуществ (нумерованный)",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 2,
+      "slots": 13,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-header-03",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "usageCount": 2,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-cta-14",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 2,
+      "slots": 25,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-01",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-hero-29",
       "label": "Hero с фоновой картинкой",
       "placement": "section",
@@ -314,12 +973,72 @@
       "validated": true
     },
     {
+      "id": "affsystem-text-38",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 23,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-hero-10",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-section-05",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 3,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-cta-19",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-cta-41",
       "label": "CTA-секция",
       "placement": "section",
       "category": "cta",
       "usageCount": 1,
       "slots": 12,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-hero-06",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-109",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
       "hasMedia": true,
       "validated": true
     },
@@ -344,12 +1063,102 @@
       "validated": true
     },
     {
+      "id": "system-text-102",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-section-09",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-hero-05",
       "label": "Hero с фоновой картинкой",
       "placement": "section",
       "category": "hero",
       "usageCount": 1,
       "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-cta-23",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 11,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-footer-25",
+      "label": "Соцсети",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 1,
+      "slots": 10,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-65",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-43",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-section-09",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-footer-05",
+      "label": "Store badges",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-cta-03",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 22,
       "hasMedia": true,
       "validated": true
     },
@@ -374,6 +1183,46 @@
       "validated": true
     },
     {
+      "id": "system-text-34",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 9,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-cta-20",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-cta-15",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "casatradeaffiliate-section-01",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-cta-36",
       "label": "CTA-секция",
       "placement": "section",
@@ -384,12 +1233,62 @@
       "validated": true
     },
     {
+      "id": "casatradeaffiliate-cta-04",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-section-13",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-section-14",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 20,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-59",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-hero-09",
       "label": "Hero с фоновой картинкой",
       "placement": "section",
       "category": "hero",
       "usageCount": 1,
       "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-section-05",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 1,
       "hasMedia": true,
       "validated": true
     },
@@ -424,6 +1323,36 @@
       "validated": true
     },
     {
+      "id": "new-feature-list-21",
+      "label": "Список преимуществ (нумерованный)",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 24,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-68",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-87",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-cta-21",
       "label": "CTA-секция",
       "placement": "section",
@@ -440,6 +1369,76 @@
       "category": "hero",
       "usageCount": 1,
       "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-section-03",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 10,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-section-04",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 7,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-19",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-section-12",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "casatradeaffiliate-cta-05",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 14,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-91",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-cta-14",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 4,
       "hasMedia": true,
       "validated": true
     },
@@ -464,12 +1463,132 @@
       "validated": true
     },
     {
+      "id": "affsystem-text-23",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-62",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-99",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-header-06",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-hero-24",
       "label": "Hero с фоновой картинкой",
       "placement": "section",
       "category": "hero",
       "usageCount": 1,
       "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-74",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-35",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-section-08",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-13",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 3,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-64",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-42",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-56",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 12,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-cta-17",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 8,
       "hasMedia": true,
       "validated": true
     },
@@ -484,12 +1603,62 @@
       "validated": true
     },
     {
+      "id": "system-text-54",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-15",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 3,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-section-08",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 11,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-01",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-hero-04",
       "label": "Hero с фоновой картинкой",
       "placement": "section",
       "category": "hero",
       "usageCount": 1,
       "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-cta-22",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 15,
       "hasMedia": true,
       "validated": true
     },
@@ -504,12 +1673,32 @@
       "validated": true
     },
     {
+      "id": "new-cta-34",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 12,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-40",
       "label": "Asset-секция",
       "placement": "section",
       "category": "feature-list",
       "usageCount": 1,
       "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-cta-01",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 6,
       "hasMedia": true,
       "validated": true
     },
@@ -524,6 +1713,36 @@
       "validated": true
     },
     {
+      "id": "exnova-section-12",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-hero-07",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-cta-18",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-cta-17",
       "label": "CTA-секция",
       "placement": "section",
@@ -531,6 +1750,66 @@
       "usageCount": 1,
       "slots": 12,
       "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-48",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-feature-list-01",
+      "label": "Список преимуществ (нумерованный)",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-95",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-97",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-hero-11",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-section-04",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
       "validated": true
     },
     {
@@ -544,12 +1823,132 @@
       "validated": true
     },
     {
+      "id": "new-footer-03",
+      "label": "Соцсети",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 1,
+      "slots": 12,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-footer-03",
+      "label": "Соцсети",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 1,
+      "slots": 12,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-14",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-cta-05",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iq-hero-23",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-footer-08",
+      "label": "Store badges",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 1,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-24",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-header-01",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-55",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-cta-13",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-30",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-hero-35",
       "label": "Hero с фоновой картинкой",
       "placement": "section",
       "category": "hero",
       "usageCount": 1,
       "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-96",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 6,
       "hasMedia": true,
       "validated": true
     },
@@ -574,6 +1973,26 @@
       "validated": true
     },
     {
+      "id": "new-feature-list-30",
+      "label": "Asset-секция",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 14,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-08",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-hero-19",
       "label": "Hero с фоновой картинкой",
       "placement": "section",
@@ -584,12 +2003,62 @@
       "validated": true
     },
     {
+      "id": "iqbroker-section-12",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-cta-26",
       "label": "CTA-секция",
       "placement": "section",
       "category": "cta",
       "usageCount": 1,
       "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-cta-09",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 12,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-hero-16",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-section-03",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 10,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-18",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 2,
       "hasMedia": true,
       "validated": true
     },
@@ -604,12 +2073,32 @@
       "validated": true
     },
     {
+      "id": "new-feature-list-10",
+      "label": "Список преимуществ (нумерованный)",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 10,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-cta-10",
       "label": "CTA-секция",
       "placement": "section",
       "category": "cta",
       "usageCount": 1,
       "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-59",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 7,
       "hasMedia": true,
       "validated": true
     },
@@ -624,12 +2113,52 @@
       "validated": true
     },
     {
+      "id": "system-text-69",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-cta-47",
       "label": "CTA-секция",
       "placement": "section",
       "category": "cta",
       "usageCount": 1,
       "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-footer-19",
+      "label": "Соцсети",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 1,
+      "slots": 9,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-47",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-cta-06",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 14,
       "hasMedia": true,
       "validated": true
     },
@@ -644,12 +2173,32 @@
       "validated": true
     },
     {
+      "id": "system-text-12",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-hero-15",
       "label": "Hero с фоновой картинкой",
       "placement": "section",
       "category": "hero",
       "usageCount": 1,
       "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-cta-33",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 5,
       "hasMedia": true,
       "validated": true
     },
@@ -664,12 +2213,112 @@
       "validated": true
     },
     {
+      "id": "iqbroker-section-08",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 13,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-cta-25",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 12,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-12",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-cta-10",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 13,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-06",
       "label": "Список преимуществ (нумерованный)",
       "placement": "section",
       "category": "feature-list",
       "usageCount": 1,
       "slots": 10,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-63",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 3,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-cta-11",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 25,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-45",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 3,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-cta-10",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-44",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-50",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 7,
       "hasMedia": true,
       "validated": true
     },
@@ -684,12 +2333,102 @@
       "validated": true
     },
     {
+      "id": "iqbroker-section-09",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 11,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-cta-24",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 10,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-23",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 12,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-44",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-cta-32",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-cta-06",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 15,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-cta-07",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-68",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-cta-46",
       "label": "CTA-секция",
       "placement": "section",
       "category": "cta",
       "usageCount": 1,
       "slots": 10,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-hero-01",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 4,
       "hasMedia": true,
       "validated": true
     },
@@ -724,6 +2463,16 @@
       "validated": true
     },
     {
+      "id": "casatradeaffiliate-text-18",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-cta-50",
       "label": "CTA-секция",
       "placement": "section",
@@ -734,12 +2483,102 @@
       "validated": true
     },
     {
+      "id": "new-hero-17",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-section-02",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-19",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 11,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-footer-05",
+      "label": "Store badges",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 1,
+      "slots": 9,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-48",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 14,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-cta-27",
       "label": "CTA-секция",
       "placement": "section",
       "category": "cta",
       "usageCount": 1,
       "slots": 11,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-81",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-section-05",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 9,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-section-02",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 7,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-cta-28",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 4,
       "hasMedia": true,
       "validated": true
     },
@@ -754,12 +2593,82 @@
       "validated": true
     },
     {
+      "id": "new-section-14",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-section-13",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-48",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "casatradeaffiliate-cta-03",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 10,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-feature-list-31",
+      "label": "Asset-секция",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-78",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-cta-31",
       "label": "CTA-секция",
       "placement": "section",
       "category": "cta",
       "usageCount": 1,
       "slots": 11,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-cta-12",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 5,
       "hasMedia": true,
       "validated": true
     },
@@ -804,6 +2713,26 @@
       "validated": true
     },
     {
+      "id": "casatradeaffiliate-text-14",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-25",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-70",
       "label": "Список преимуществ (нумерованный)",
       "placement": "section",
@@ -824,12 +2753,72 @@
       "validated": true
     },
     {
+      "id": "new-text-15",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-feature-list-24",
+      "label": "Список преимуществ (нумерованный)",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 18,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-82",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-text-15",
       "label": "Контентная карточка",
       "placement": "section",
       "category": "text",
       "usageCount": 1,
       "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-section-10",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-feature-list-32",
+      "label": "Asset-секция",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 12,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-cta-08",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 11,
       "hasMedia": true,
       "validated": true
     },
@@ -844,12 +2833,42 @@
       "validated": true
     },
     {
+      "id": "affsystem-section-02",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 9,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-cta-32",
       "label": "CTA-секция",
       "placement": "section",
       "category": "cta",
       "usageCount": 1,
       "slots": 10,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-94",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 3,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-cta-09",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 16,
       "hasMedia": true,
       "validated": true
     },
@@ -874,12 +2893,32 @@
       "validated": true
     },
     {
+      "id": "exnova-text-32",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-65",
       "label": "Asset-секция",
       "placement": "section",
       "category": "feature-list",
       "usageCount": 1,
       "slots": 16,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-footer-17",
+      "label": "Соцсети",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 1,
+      "slots": 2,
       "hasMedia": true,
       "validated": true
     },
@@ -894,12 +2933,32 @@
       "validated": true
     },
     {
+      "id": "system-text-67",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-32",
       "label": "Asset-секция",
       "placement": "section",
       "category": "feature-list",
       "usageCount": 1,
       "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-30",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 6,
       "hasMedia": true,
       "validated": true
     },
@@ -914,12 +2973,32 @@
       "validated": true
     },
     {
+      "id": "new-text-41",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-cta-08",
       "label": "CTA-секция",
       "placement": "section",
       "category": "cta",
       "usageCount": 1,
       "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-24",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 20,
       "hasMedia": true,
       "validated": true
     },
@@ -934,12 +3013,82 @@
       "validated": true
     },
     {
+      "id": "new-cta-07",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 9,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-footer-01",
+      "label": "Соцсети",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-16",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 14,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-cta-28",
       "label": "CTA-секция",
       "placement": "section",
       "category": "cta",
       "usageCount": 1,
       "slots": 20,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-47",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 8,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-cta-12",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 21,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-53",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-04",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 34,
       "hasMedia": true,
       "validated": true
     },
@@ -964,6 +3113,56 @@
       "validated": true
     },
     {
+      "id": "iqbroker-cta-05",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "casatradeaffiliate-text-21",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-cta-04",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-hero-02",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-84",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-cta-45",
       "label": "CTA-секция",
       "placement": "section",
@@ -984,6 +3183,26 @@
       "validated": true
     },
     {
+      "id": "new-header-04",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-90",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-28",
       "label": "Asset-секция",
       "placement": "section",
@@ -994,12 +3213,52 @@
       "validated": true
     },
     {
+      "id": "new-hero-14",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-section-01",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-cta-53",
       "label": "CTA-секция",
       "placement": "section",
       "category": "cta",
       "usageCount": 1,
       "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-29",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 21,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-hero-15",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 6,
       "hasMedia": true,
       "validated": true
     },
@@ -1024,12 +3283,52 @@
       "validated": true
     },
     {
+      "id": "new-feature-list-05",
+      "label": "Список преимуществ (нумерованный)",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 18,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-91",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-68",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-cta-13",
       "label": "CTA-секция",
       "placement": "section",
       "category": "cta",
       "usageCount": 1,
       "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-footer-11",
+      "label": "Store badges",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 1,
+      "slots": 4,
       "hasMedia": true,
       "validated": true
     },
@@ -1074,12 +3373,42 @@
       "validated": true
     },
     {
+      "id": "new-cta-30",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-hero-16",
       "label": "Hero с фоновой картинкой",
       "placement": "section",
       "category": "hero",
       "usageCount": 1,
       "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-46",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-cta-26",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 19,
       "hasMedia": true,
       "validated": true
     },
@@ -1094,12 +3423,62 @@
       "validated": true
     },
     {
+      "id": "exnova-footer-20",
+      "label": "Соцсети",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 1,
+      "slots": 21,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-37",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-52",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 12,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-cta-29",
       "label": "CTA-секция",
       "placement": "section",
       "category": "cta",
       "usageCount": 1,
       "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-17",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 13,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-106",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 9,
       "hasMedia": true,
       "validated": true
     },
@@ -1111,6 +3490,26 @@
       "usageCount": 1,
       "slots": 4,
       "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-56",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 13,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-64",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 7,
+      "hasMedia": false,
       "validated": true
     },
     {
@@ -1134,12 +3533,32 @@
       "validated": true
     },
     {
+      "id": "system-text-66",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-hero-36",
       "label": "Hero с фоновой картинкой",
       "placement": "section",
       "category": "hero",
       "usageCount": 1,
       "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-33",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 7,
       "hasMedia": true,
       "validated": true
     },
@@ -1154,6 +3573,26 @@
       "validated": true
     },
     {
+      "id": "iqbroker-cta-08",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-cta-09",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-text-43",
       "label": "Контентная карточка",
       "placement": "section",
@@ -1164,12 +3603,52 @@
       "validated": true
     },
     {
+      "id": "iqbroker-section-11",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-section-07",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 12,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-cta-25",
       "label": "CTA-секция",
       "placement": "section",
       "category": "cta",
       "usageCount": 1,
       "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-41",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-57",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 3,
       "hasMedia": true,
       "validated": true
     },
@@ -1204,6 +3683,16 @@
       "validated": true
     },
     {
+      "id": "affsystem-text-57",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-cta-38",
       "label": "CTA-секция",
       "placement": "section",
@@ -1220,6 +3709,36 @@
       "category": "text",
       "usageCount": 1,
       "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-section-11",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 24,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-hero-04",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-82",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 5,
       "hasMedia": true,
       "validated": true
     },
@@ -1264,12 +3783,42 @@
       "validated": true
     },
     {
+      "id": "new-feature-list-14",
+      "label": "Список преимуществ (нумерованный)",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 18,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-section-07",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-cta-55",
       "label": "CTA-секция",
       "placement": "section",
       "category": "cta",
       "usageCount": 1,
       "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-cta-18",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 6,
       "hasMedia": true,
       "validated": true
     },
@@ -1294,12 +3843,42 @@
       "validated": true
     },
     {
+      "id": "new-section-07",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-section-11",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 3,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-text-44",
       "label": "Контентная карточка",
       "placement": "section",
       "category": "text",
       "usageCount": 1,
       "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-92",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 5,
       "hasMedia": true,
       "validated": true
     },
@@ -1314,12 +3893,52 @@
       "validated": true
     },
     {
+      "id": "new-hero-08",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-cta-22",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 32,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-63",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-34",
       "label": "Список преимуществ (нумерованный)",
       "placement": "section",
       "category": "feature-list",
       "usageCount": 1,
       "slots": 10,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-36",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
       "hasMedia": true,
       "validated": true
     },
@@ -1344,6 +3963,46 @@
       "validated": true
     },
     {
+      "id": "new-cta-01",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 12,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-footer-07",
+      "label": "Соцсети",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 1,
+      "slots": 21,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-10",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-36",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 9,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-hero-26",
       "label": "Hero с фоновой картинкой",
       "placement": "section",
@@ -1364,6 +4023,56 @@
       "validated": true
     },
     {
+      "id": "exnova-header-04",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "casatradeaffiliate-text-06",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 10,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-hero-09",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-21",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 3,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "casatradeaffiliate-section-02",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-hero-30",
       "label": "Hero с фоновой картинкой",
       "placement": "section",
@@ -1374,12 +4083,62 @@
       "validated": true
     },
     {
+      "id": "new-cta-16",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 9,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-106",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-section-06",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-hero-01",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-cta-23",
       "label": "CTA-секция",
       "placement": "section",
       "category": "cta",
       "usageCount": 1,
       "slots": 26,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-cta-19",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 3,
       "hasMedia": true,
       "validated": true
     },
@@ -1404,12 +4163,62 @@
       "validated": true
     },
     {
+      "id": "new-footer-01",
+      "label": "Store badges",
+      "placement": "section",
+      "category": "footer",
+      "usageCount": 1,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-hero-13",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 7,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-section-06",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-cta-54",
       "label": "CTA-секция",
       "placement": "section",
       "category": "cta",
       "usageCount": 1,
       "slots": 9,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-feature-list-03",
+      "label": "Список преимуществ (нумерованный)",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 22,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-81",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 3,
       "hasMedia": true,
       "validated": true
     },
@@ -1434,12 +4243,42 @@
       "validated": true
     },
     {
+      "id": "exnova-section-10",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-hero-05",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-cta-42",
       "label": "CTA-секция",
       "placement": "section",
       "category": "cta",
       "usageCount": 1,
       "slots": 10,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-cta-03",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 15,
       "hasMedia": true,
       "validated": true
     },
@@ -1484,10 +4323,70 @@
       "validated": true
     },
     {
+      "id": "affsystem-text-01",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 12,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-27",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 17,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "casatradeaffiliate-feature-list-01",
+      "label": "Список преимуществ (нумерованный)",
+      "placement": "section",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 12,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-cta-20",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 23,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-hero-06",
       "label": "Hero с фоновой картинкой",
       "placement": "section",
       "category": "hero",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-56",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 9,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-cta-15",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
       "usageCount": 1,
       "slots": 4,
       "hasMedia": true,
@@ -1499,6 +4398,26 @@
       "placement": "inline",
       "category": "utility",
       "usageCount": 360,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-spacer",
+      "label": "Спейсер (настраиваемая высота)",
+      "placement": "inline",
+      "category": "utility",
+      "usageCount": 173,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-12",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 51,
       "slots": 1,
       "hasMedia": false,
       "validated": true
@@ -1544,6 +4463,26 @@
       "validated": true
     },
     {
+      "id": "iqbroker-spacer",
+      "label": "Спейсер (настраиваемая высота)",
+      "placement": "inline",
+      "category": "utility",
+      "usageCount": 43,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-spacer",
+      "label": "Спейсер (настраиваемая высота)",
+      "placement": "inline",
+      "category": "utility",
+      "usageCount": 42,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-text-07",
       "label": "Заголовок",
       "placement": "inline",
@@ -1574,6 +4513,16 @@
       "validated": true
     },
     {
+      "id": "exnova-text-03",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 30,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-text-20",
       "label": "Заголовок",
       "placement": "inline",
@@ -1584,12 +4533,62 @@
       "validated": true
     },
     {
+      "id": "new-text-06",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 27,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-footer-10",
       "label": "Соцсети (иконки)",
       "placement": "inline",
       "category": "footer",
       "usageCount": 26,
       "slots": 12,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-text-03",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 23,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-footer-02",
+      "label": "Store badges (App Store / Google Play)",
+      "placement": "inline",
+      "category": "footer",
+      "usageCount": 22,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-cta-08",
+      "label": "CTA-кнопка (w280)",
+      "placement": "inline",
+      "category": "cta",
+      "usageCount": 22,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-38",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 21,
+      "slots": 1,
       "hasMedia": true,
       "validated": true
     },
@@ -1614,6 +4613,76 @@
       "validated": true
     },
     {
+      "id": "affsystem-text-04",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 18,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-06",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 18,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-51",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 18,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "casatradeaffiliate-spacer",
+      "label": "Спейсер (настраиваемая высота)",
+      "placement": "inline",
+      "category": "utility",
+      "usageCount": 17,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-08",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 17,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-text-04",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 17,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-21",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 17,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-text-36",
       "label": "Текстовый абзац",
       "placement": "inline",
@@ -1621,6 +4690,36 @@
       "usageCount": 16,
       "slots": 1,
       "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-cta-06",
+      "label": "CTA-кнопка (w280)",
+      "placement": "inline",
+      "category": "cta",
+      "usageCount": 16,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-07",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 15,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-72",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 14,
+      "slots": 1,
+      "hasMedia": true,
       "validated": true
     },
     {
@@ -1634,6 +4733,16 @@
       "validated": true
     },
     {
+      "id": "new-cta-17",
+      "label": "CTA-кнопка (w280)",
+      "placement": "inline",
+      "category": "cta",
+      "usageCount": 13,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-16",
       "label": "Asset-карточка (лого + название)",
       "placement": "inline",
@@ -1641,6 +4750,16 @@
       "usageCount": 12,
       "slots": 2,
       "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-52",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 12,
+      "slots": 1,
+      "hasMedia": false,
       "validated": true
     },
     {
@@ -1664,6 +4783,26 @@
       "validated": true
     },
     {
+      "id": "iqbroker-cta-07",
+      "label": "CTA-кнопка (w280)",
+      "placement": "inline",
+      "category": "cta",
+      "usageCount": 12,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-footer-07",
+      "label": "Соцсети (иконки)",
+      "placement": "inline",
+      "category": "footer",
+      "usageCount": 12,
+      "slots": 21,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-15",
       "label": "Asset-карточка (лого + название)",
       "placement": "inline",
@@ -1671,6 +4810,16 @@
       "usageCount": 12,
       "slots": 2,
       "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-28",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 11,
+      "slots": 1,
+      "hasMedia": false,
       "validated": true
     },
     {
@@ -1694,12 +4843,132 @@
       "validated": true
     },
     {
+      "id": "new-feature-list-22",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 11,
+      "slots": 3,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-18",
       "label": "Нумерованный пункт (gray-block)",
       "placement": "inline",
       "category": "feature-list",
       "usageCount": 11,
       "slots": 3,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-text-02",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 10,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-32",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 10,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-utility-05",
+      "label": "Gmail blend wrapper",
+      "placement": "inline",
+      "category": "utility",
+      "usageCount": 10,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-text-01",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 10,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-feature-list-20",
+      "label": "Asset-карточка (лого + название)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 9,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-footer-13",
+      "label": "Соцсети (иконки)",
+      "placement": "inline",
+      "category": "footer",
+      "usageCount": 9,
+      "slots": 12,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-footer-14",
+      "label": "Соцсети (иконки)",
+      "placement": "inline",
+      "category": "footer",
+      "usageCount": 9,
+      "slots": 9,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-cta-02",
+      "label": "CTA-кнопка (w280)",
+      "placement": "inline",
+      "category": "cta",
+      "usageCount": 9,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-feature-list-19",
+      "label": "Asset-карточка (лого + название)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 9,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-footer-16",
+      "label": "Store badges (App Store / Google Play)",
+      "placement": "inline",
+      "category": "footer",
+      "usageCount": 8,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-95",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 8,
+      "slots": 1,
       "hasMedia": true,
       "validated": true
     },
@@ -1714,6 +4983,56 @@
       "validated": true
     },
     {
+      "id": "new-text-93",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 8,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-39",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 8,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-02",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 7,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-32",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 7,
+      "slots": 4,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-02",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 7,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-footer-15",
       "label": "Соцсети (иконки)",
       "placement": "inline",
@@ -1724,12 +5043,102 @@
       "validated": true
     },
     {
+      "id": "exnova-text-40",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 7,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-10",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 7,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-feature-list-04",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 7,
+      "slots": 3,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-text-06",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 7,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-20",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 6,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-53",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 6,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-04",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 6,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-30",
       "label": "Нумерованный пункт (gray-block)",
       "placement": "inline",
       "category": "feature-list",
       "usageCount": 6,
       "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-text-05",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 6,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-46",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 6,
+      "slots": 1,
       "hasMedia": false,
       "validated": true
     },
@@ -1764,6 +5173,16 @@
       "validated": true
     },
     {
+      "id": "iqbroker-text-07",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 6,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-text-58",
       "label": "Текстовый абзац",
       "placement": "inline",
@@ -1771,6 +5190,26 @@
       "usageCount": 6,
       "slots": 1,
       "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-11",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 6,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-feature-list-29",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 6,
+      "slots": 2,
+      "hasMedia": false,
       "validated": true
     },
     {
@@ -1784,6 +5223,26 @@
       "validated": true
     },
     {
+      "id": "iqbroker-footer-04",
+      "label": "Соцсети (иконки)",
+      "placement": "inline",
+      "category": "footer",
+      "usageCount": 6,
+      "slots": 8,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-01",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 6,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-text-14",
       "label": "Текстовый абзац",
       "placement": "inline",
@@ -1791,6 +5250,56 @@
       "usageCount": 6,
       "slots": 1,
       "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-18",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 6,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-22",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 6,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-37",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 6,
+      "slots": 4,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-footer-02",
+      "label": "Store badges (App Store / Google Play)",
+      "placement": "inline",
+      "category": "footer",
+      "usageCount": 6,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-50",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 6,
+      "slots": 1,
+      "hasMedia": false,
       "validated": true
     },
     {
@@ -1804,12 +5313,52 @@
       "validated": true
     },
     {
+      "id": "exnova-text-42",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 6,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "casatradeaffiliate-text-09",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 5,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-text-31",
       "label": "Текстовый абзац",
       "placement": "inline",
       "category": "text",
       "usageCount": 5,
       "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-24",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 5,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-14",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 5,
+      "slots": 4,
       "hasMedia": false,
       "validated": true
     },
@@ -1834,8 +5383,58 @@
       "validated": true
     },
     {
+      "id": "iqbroker-text-09",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 5,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-57",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 5,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-60",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 5,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-text-10",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 5,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-text-13",
       "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 5,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-23",
+      "label": "Текстовый абзац",
       "placement": "inline",
       "category": "text",
       "usageCount": 5,
@@ -1894,7 +5493,157 @@
       "validated": true
     },
     {
+      "id": "affsystem-text-32",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 4,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "casatradeaffiliate-cta-02",
+      "label": "CTA-кнопка (w280)",
+      "placement": "inline",
+      "category": "cta",
+      "usageCount": 4,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-28",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 4,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-29",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 4,
+      "slots": 4,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-09",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 4,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-33",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 4,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-text-11",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 4,
+      "slots": 3,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-30",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 4,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-10",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 4,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-text-35",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 4,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-cta-04",
+      "label": "CTA-кнопка (w280)",
+      "placement": "inline",
+      "category": "cta",
+      "usageCount": 4,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-31",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 4,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-31",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 4,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-27",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 4,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-83",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 4,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-55",
       "label": "Текстовый абзац",
       "placement": "inline",
       "category": "text",
@@ -1914,6 +5663,36 @@
       "validated": true
     },
     {
+      "id": "casatradeaffiliate-text-07",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 4,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-11",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 4,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-footer-10",
+      "label": "Store badges (App Store / Google Play)",
+      "placement": "inline",
+      "category": "footer",
+      "usageCount": 4,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-text-73",
       "label": "Заголовок",
       "placement": "inline",
@@ -1924,12 +5703,252 @@
       "validated": true
     },
     {
+      "id": "iqbroker-cta-02",
+      "label": "CTA-кнопка (w280)",
+      "placement": "inline",
+      "category": "cta",
+      "usageCount": 4,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-40",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 4,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-38",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 3,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-43",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 3,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-69",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 3,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-footer-12",
+      "label": "Соцсети (иконки)",
+      "placement": "inline",
+      "category": "footer",
+      "usageCount": 3,
+      "slots": 14,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-102",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 3,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-footer-24",
+      "label": "Соцсети (иконки)",
+      "placement": "inline",
+      "category": "footer",
+      "usageCount": 3,
+      "slots": 23,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-42",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 3,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-54",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 3,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-75",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 3,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-utility-11",
       "label": "Gmail blend wrapper",
       "placement": "inline",
       "category": "utility",
       "usageCount": 3,
       "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-51",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 3,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-62",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 3,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-footer-22",
+      "label": "Store badges (App Store / Google Play)",
+      "placement": "inline",
+      "category": "footer",
+      "usageCount": 3,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-74",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 3,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-utility-04",
+      "label": "Gmail blend wrapper",
+      "placement": "inline",
+      "category": "utility",
+      "usageCount": 3,
+      "slots": 3,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-text-12",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 3,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-31",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 3,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-27",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 3,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-107",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 3,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-cta-27",
+      "label": "CTA-кнопка (w280)",
+      "placement": "inline",
+      "category": "cta",
+      "usageCount": 3,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-77",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 3,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-45",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 3,
+      "slots": 3,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-44",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 3,
+      "slots": 1,
       "hasMedia": true,
       "validated": true
     },
@@ -1944,6 +5963,66 @@
       "validated": true
     },
     {
+      "id": "exnova-text-05",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 3,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-cta-13",
+      "label": "CTA-кнопка (w280)",
+      "placement": "inline",
+      "category": "cta",
+      "usageCount": 3,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-25",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 3,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-30",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 3,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-02",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 3,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-41",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 3,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-43",
       "label": "Нумерованный пункт (gray-block)",
       "placement": "inline",
@@ -1954,12 +6033,62 @@
       "validated": true
     },
     {
+      "id": "new-feature-list-02",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 3,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-text-25",
       "label": "Заголовок",
       "placement": "inline",
       "category": "text",
       "usageCount": 3,
       "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-101",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 3,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-100",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 3,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-74",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 3,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-37",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 3,
+      "slots": 0,
       "hasMedia": true,
       "validated": true
     },
@@ -1974,10 +6103,80 @@
       "validated": true
     },
     {
+      "id": "iqbroker-text-20",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 3,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-96",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-16",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-cta-16",
+      "label": "CTA-кнопка (w280)",
+      "placement": "inline",
+      "category": "cta",
+      "usageCount": 2,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-36",
       "label": "Нумерованный пункт (gray-block)",
       "placement": "inline",
       "category": "feature-list",
+      "usageCount": 2,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-63",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-36",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-90",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
       "usageCount": 2,
       "slots": 1,
       "hasMedia": true,
@@ -2014,6 +6213,16 @@
       "validated": true
     },
     {
+      "id": "exnova-text-37",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 4,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-37",
       "label": "Нумерованный пункт (gray-block)",
       "placement": "inline",
@@ -2024,8 +6233,78 @@
       "validated": true
     },
     {
+      "id": "casatradeaffiliate-text-04",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-03",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-39",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-text-22",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-83",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-text-71",
       "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-footer-08",
+      "label": "Соцсети (иконки)",
+      "placement": "inline",
+      "category": "footer",
+      "usageCount": 2,
+      "slots": 21,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-26",
+      "label": "Текстовый абзац",
       "placement": "inline",
       "category": "text",
       "usageCount": 2,
@@ -2044,6 +6323,36 @@
       "validated": true
     },
     {
+      "id": "new-text-79",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-49",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-08",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-text-37",
       "label": "Текстовый абзац",
       "placement": "inline",
@@ -2051,6 +6360,56 @@
       "usageCount": 2,
       "slots": 1,
       "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-22",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-45",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-04",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-05",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-85",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 2,
+      "hasMedia": false,
       "validated": true
     },
     {
@@ -2074,6 +6433,16 @@
       "validated": true
     },
     {
+      "id": "affsystem-text-09",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-text-41",
       "label": "Заголовок",
       "placement": "inline",
@@ -2094,12 +6463,82 @@
       "validated": true
     },
     {
+      "id": "exnova-text-66",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-42",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-cta-04",
+      "label": "CTA-кнопка (w280)",
+      "placement": "inline",
+      "category": "cta",
+      "usageCount": 2,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-utility-09",
       "label": "Gmail blend wrapper",
       "placement": "inline",
       "category": "utility",
       "usageCount": 2,
       "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-06",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-cta-13",
+      "label": "CTA-кнопка (w280)",
+      "placement": "inline",
+      "category": "cta",
+      "usageCount": 2,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-20",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-cta-31",
+      "label": "CTA-кнопка (w280)",
+      "placement": "inline",
+      "category": "cta",
+      "usageCount": 2,
+      "slots": 2,
       "hasMedia": true,
       "validated": true
     },
@@ -2114,6 +6553,36 @@
       "validated": true
     },
     {
+      "id": "system-text-92",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-93",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-07",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-text-38",
       "label": "Текстовый абзац",
       "placement": "inline",
@@ -2121,6 +6590,26 @@
       "usageCount": 2,
       "slots": 1,
       "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-16",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-text-21",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 1,
+      "hasMedia": false,
       "validated": true
     },
     {
@@ -2134,10 +6623,100 @@
       "validated": true
     },
     {
+      "id": "system-text-94",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-84",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-111",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-47",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-cta-23",
+      "label": "CTA-кнопка (w280)",
+      "placement": "inline",
+      "category": "cta",
+      "usageCount": 2,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-35",
       "label": "Нумерованный пункт (gray-block)",
       "placement": "inline",
       "category": "feature-list",
+      "usageCount": 2,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-35",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-text-16",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-95",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 2,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-70",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
       "usageCount": 2,
       "slots": 1,
       "hasMedia": true,
@@ -2164,6 +6743,46 @@
       "validated": true
     },
     {
+      "id": "system-text-79",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-94",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 3,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-82",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-feature-list-16",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-text-66",
       "label": "Текстовый абзац",
       "placement": "inline",
@@ -2174,12 +6793,62 @@
       "validated": true
     },
     {
+      "id": "system-text-80",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-utility-03",
+      "label": "Gmail blend wrapper",
+      "placement": "inline",
+      "category": "utility",
+      "usageCount": 1,
+      "slots": 3,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-14",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-55",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-utility-17",
       "label": "Gmail blend wrapper",
       "placement": "inline",
       "category": "utility",
       "usageCount": 1,
       "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "casatradeaffiliate-feature-list-02",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 3,
       "hasMedia": true,
       "validated": true
     },
@@ -2194,6 +6863,56 @@
       "validated": true
     },
     {
+      "id": "system-text-55",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-57",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-text-19",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-75",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-103",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-utility-21",
       "label": "Gmail blend wrapper",
       "placement": "inline",
@@ -2204,12 +6923,222 @@
       "validated": true
     },
     {
+      "id": "system-text-22",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-45",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-98",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-77",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "casatradeaffiliate-text-13",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-61",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-22",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-61",
       "label": "Asset-карточка (лого + название)",
       "placement": "inline",
       "category": "feature-list",
       "usageCount": 1,
       "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-105",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-18",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-text-15",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 3,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-113",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-86",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-text-14",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-112",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-58",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 3,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-29",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-104",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-19",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-cta-21",
+      "label": "CTA-кнопка (w280)",
+      "placement": "inline",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-60",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-35",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 3,
       "hasMedia": true,
       "validated": true
     },
@@ -2224,6 +7153,56 @@
       "validated": true
     },
     {
+      "id": "exnova-text-76",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "casatradeaffiliate-text-12",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-23",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-44",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-cta-02",
+      "label": "CTA-кнопка (w280)",
+      "placement": "inline",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 3,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-utility-20",
       "label": "Gmail blend wrapper",
       "placement": "inline",
@@ -2234,10 +7213,80 @@
       "validated": true
     },
     {
+      "id": "exnova-text-21",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-footer-04",
+      "label": "Соцсети (иконки)",
+      "placement": "inline",
+      "category": "footer",
+      "usageCount": 1,
+      "slots": 12,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-text-18",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-33",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-56",
       "label": "Нумерованный пункт (gray-block)",
       "placement": "inline",
       "category": "feature-list",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-25",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-03",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-17",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
       "usageCount": 1,
       "slots": 2,
       "hasMedia": false,
@@ -2254,12 +7303,112 @@
       "validated": true
     },
     {
+      "id": "exnova-text-108",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-utility-02",
+      "label": "Gmail blend wrapper",
+      "placement": "inline",
+      "category": "utility",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-15",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-81",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-09",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-feature-list-17",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-text-67",
       "label": "Заголовок",
       "placement": "inline",
       "category": "text",
       "usageCount": 1,
       "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "casatradeaffiliate-text-08",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 3,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-39",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-78",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-73",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
       "hasMedia": true,
       "validated": true
     },
@@ -2274,7 +7423,167 @@
       "validated": true
     },
     {
+      "id": "new-text-105",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-43",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-71",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "casatradeaffiliate-text-15",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-88",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "casatradeaffiliate-text-03",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-67",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-65",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-24",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-02",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-103",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-utility-09",
+      "label": "Gmail blend wrapper",
+      "placement": "inline",
+      "category": "utility",
+      "usageCount": 1,
+      "slots": 3,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-text-17",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-115",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-text-13",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 3,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-49",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-80",
       "label": "Заголовок",
       "placement": "inline",
       "category": "text",
@@ -2294,6 +7603,96 @@
       "validated": true
     },
     {
+      "id": "new-feature-list-26",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-109",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-footer-04",
+      "label": "Соцсети (иконки)",
+      "placement": "inline",
+      "category": "footer",
+      "usageCount": 1,
+      "slots": 12,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-90",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-92",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-feature-list-06",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "casatradeaffiliate-text-19",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-28",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-84",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-text-60",
       "label": "Заголовок",
       "placement": "inline",
@@ -2301,6 +7700,46 @@
       "usageCount": 1,
       "slots": 1,
       "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-86",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-53",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-10",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-06",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
       "validated": true
     },
     {
@@ -2324,6 +7763,36 @@
       "validated": true
     },
     {
+      "id": "new-text-34",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-53",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-cta-11",
+      "label": "CTA-кнопка (w280)",
+      "placement": "inline",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-07",
       "label": "Нумерованный пункт (gray-block)",
       "placement": "inline",
@@ -2331,6 +7800,46 @@
       "usageCount": 1,
       "slots": 1,
       "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-35",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 3,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-13",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-52",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-07",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": false,
       "validated": true
     },
     {
@@ -2354,6 +7863,26 @@
       "validated": true
     },
     {
+      "id": "affsystem-text-05",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-11",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-46",
       "label": "Нумерованный пункт (gray-block)",
       "placement": "inline",
@@ -2374,7 +7903,117 @@
       "validated": true
     },
     {
+      "id": "iqbroker-text-08",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-52",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-13",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "casatradeaffiliate-text-22",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-11",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-footer-18",
+      "label": "Соцсети (иконки)",
+      "placement": "inline",
+      "category": "footer",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-87",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-58",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-feature-list-11",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-29",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-93",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-feature-list-07",
       "label": "Нумерованный пункт (gray-block)",
       "placement": "inline",
       "category": "feature-list",
@@ -2390,6 +8029,166 @@
       "category": "text",
       "usageCount": 1,
       "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-108",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-feature-list-27",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-114",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-39",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-102",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-97",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-utility-08",
+      "label": "Gmail blend wrapper",
+      "placement": "inline",
+      "category": "utility",
+      "usageCount": 1,
+      "slots": 3,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-64",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-25",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-89",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "casatradeaffiliate-text-02",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-33",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-70",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-104",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-72",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-footer-02",
+      "label": "Соцсети (иконки)",
+      "placement": "inline",
+      "category": "footer",
+      "usageCount": 1,
+      "slots": 4,
       "hasMedia": true,
       "validated": true
     },
@@ -2414,6 +8213,16 @@
       "validated": true
     },
     {
+      "id": "exnova-text-08",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-49",
       "label": "Asset-карточка (лого + название)",
       "placement": "inline",
@@ -2424,7 +8233,117 @@
       "validated": true
     },
     {
+      "id": "exnova-text-49",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-101",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-88",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-65",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-73",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-text-78",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "casatradeaffiliate-text-17",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-feature-list-08",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-26",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-71",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-utility-11",
+      "label": "Gmail blend wrapper",
+      "placement": "inline",
+      "category": "utility",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-61",
       "label": "Заголовок",
       "placement": "inline",
       "category": "text",
@@ -2444,12 +8363,42 @@
       "validated": true
     },
     {
+      "id": "system-text-51",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-36",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-53",
       "label": "Asset-карточка (лого + название)",
       "placement": "inline",
       "category": "feature-list",
       "usageCount": 1,
       "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-47",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
       "hasMedia": true,
       "validated": true
     },
@@ -2474,6 +8423,46 @@
       "validated": true
     },
     {
+      "id": "exnova-text-12",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-utility-07",
+      "label": "Gmail blend wrapper",
+      "placement": "inline",
+      "category": "utility",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-98",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-51",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-12",
       "label": "Нумерованный пункт (gray-block)",
       "placement": "inline",
@@ -2490,6 +8479,46 @@
       "category": "text",
       "usageCount": 1,
       "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-69",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-86",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-feature-list-12",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-28",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
       "hasMedia": true,
       "validated": true
     },
@@ -2534,12 +8563,92 @@
       "validated": true
     },
     {
+      "id": "exnova-text-87",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-feature-list-13",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-85",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-13",
       "label": "Нумерованный пункт (gray-block)",
       "placement": "inline",
       "category": "feature-list",
       "usageCount": 1,
       "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "casatradeaffiliate-text-20",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-utility-06",
+      "label": "Gmail blend wrapper",
+      "placement": "inline",
+      "category": "utility",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-99",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-50",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-76",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
       "hasMedia": true,
       "validated": true
     },
@@ -2554,12 +8663,82 @@
       "validated": true
     },
     {
+      "id": "exnova-text-13",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-50",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-05",
       "label": "Нумерованный пункт (gray-block)",
       "placement": "inline",
       "category": "feature-list",
       "usageCount": 1,
       "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-46",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-utility-10",
+      "label": "Gmail blend wrapper",
+      "placement": "inline",
+      "category": "utility",
+      "usageCount": 1,
+      "slots": 3,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-70",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-27",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-72",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
       "hasMedia": true,
       "validated": true
     },
@@ -2574,6 +8753,26 @@
       "validated": true
     },
     {
+      "id": "casatradeaffiliate-text-16",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-feature-list-09",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-text-80",
       "label": "Текстовый абзац",
       "placement": "inline",
@@ -2584,12 +8783,62 @@
       "validated": true
     },
     {
+      "id": "system-text-89",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-64",
       "label": "Asset-карточка (лого + название)",
       "placement": "inline",
       "category": "feature-list",
       "usageCount": 1,
       "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-cta-10",
+      "label": "CTA-кнопка (w280)",
+      "placement": "inline",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-110",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-100",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-48",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 2,
       "hasMedia": true,
       "validated": true
     },
@@ -2614,6 +8863,36 @@
       "validated": true
     },
     {
+      "id": "exnova-text-09",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-116",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-feature-list-25",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-09",
       "label": "Нумерованный пункт (gray-block)",
       "placement": "inline",
@@ -2634,12 +8913,42 @@
       "validated": true
     },
     {
+      "id": "new-text-88",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-67",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 3,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-02",
       "label": "Нумерованный пункт (gray-block)",
       "placement": "inline",
       "category": "feature-list",
       "usageCount": 1,
       "slots": 6,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-cta-14",
+      "label": "CTA-кнопка (w280)",
+      "placement": "inline",
+      "category": "cta",
+      "usageCount": 1,
+      "slots": 2,
       "hasMedia": true,
       "validated": true
     },
@@ -2654,6 +8963,26 @@
       "validated": true
     },
     {
+      "id": "system-text-100",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-26",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-utility-15",
       "label": "Gmail blend wrapper",
       "placement": "inline",
@@ -2664,7 +8993,87 @@
       "validated": true
     },
     {
+      "id": "exnova-text-14",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-16",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-71",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-80",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-79",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-text-72",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-96",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-59",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "iqbroker-text-17",
       "label": "Текстовый абзац",
       "placement": "inline",
       "category": "text",
@@ -2684,12 +9093,42 @@
       "validated": true
     },
     {
+      "id": "exnova-text-107",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-63",
       "label": "Asset-карточка (лого + название)",
       "placement": "inline",
       "category": "feature-list",
       "usageCount": 1,
       "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-20",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 3,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-61",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 7,
       "hasMedia": true,
       "validated": true
     },
@@ -2704,12 +9143,42 @@
       "validated": true
     },
     {
+      "id": "exnova-text-75",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "casatradeaffiliate-text-11",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-22",
       "label": "Нумерованный пункт (gray-block)",
       "placement": "inline",
       "category": "feature-list",
       "usageCount": 1,
       "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-20",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
       "hasMedia": true,
       "validated": true
     },
@@ -2724,6 +9193,56 @@
       "validated": true
     },
     {
+      "id": "system-text-98",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-77",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-footer-06",
+      "label": "Store badges (App Store / Google Play)",
+      "placement": "inline",
+      "category": "footer",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-99",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-76",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-utility-22",
       "label": "Gmail blend wrapper",
       "placement": "inline",
@@ -2734,12 +9253,52 @@
       "validated": true
     },
     {
+      "id": "new-text-46",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-21",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-23",
       "label": "Нумерованный пункт (gray-block)",
       "placement": "inline",
       "category": "feature-list",
       "usageCount": 1,
       "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-62",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-60",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
       "hasMedia": true,
       "validated": true
     },
@@ -2774,12 +9333,82 @@
       "validated": true
     },
     {
+      "id": "exnova-text-19",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-58",
       "label": "Нумерованный пункт (gray-block)",
       "placement": "inline",
       "category": "feature-list",
       "usageCount": 1,
       "slots": 5,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-85",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-110",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-58",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-78",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-97",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-feature-list-15",
+      "label": "Нумерованный пункт (gray-block)",
+      "placement": "inline",
+      "category": "feature-list",
+      "usageCount": 1,
+      "slots": 6,
       "hasMedia": true,
       "validated": true
     },
@@ -2794,6 +9423,66 @@
       "validated": true
     },
     {
+      "id": "system-text-83",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 4,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-17",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "affsystem-text-56",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-15",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 5,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "system-text-101",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "system-text-40",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 0,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-54",
       "label": "Asset-карточка (лого + название)",
       "placement": "inline",
@@ -2804,6 +9493,26 @@
       "validated": true
     },
     {
+      "id": "affsystem-text-17",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
+      "id": "new-text-31",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": false,
+      "validated": true
+    },
+    {
       "id": "iq-feature-list-03",
       "label": "Нумерованный пункт (gray-block)",
       "placement": "inline",
@@ -2811,6 +9520,36 @@
       "usageCount": 1,
       "slots": 6,
       "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "exnova-text-54",
+      "label": "Заголовок",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-89",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 1,
+      "hasMedia": true,
+      "validated": true
+    },
+    {
+      "id": "new-text-66",
+      "label": "Текстовый абзац",
+      "placement": "inline",
+      "category": "text",
+      "usageCount": 1,
+      "slots": 2,
+      "hasMedia": false,
       "validated": true
     }
   ]

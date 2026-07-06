@@ -1,0 +1,30 @@
+{
+  "id": "new-text-61",
+  "label": "Заголовок",
+  "description": "Импортирован из X_new (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.middle-title.pb16.center.b-new-text-61 {{ text_1 }}",
+  "styl": ".pb16.b-new-text-61 {  padding-bottom: 16px;  }\n.pb16.b-new-text-61 {  padding-bottom:16px  }\n.middle-title.b-new-text-61 {  font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:32px;line-height:42px;color:#413e43  }\n@media screen and (max-width:600px) {\n  .middle-title.b-new-text-61 {  font-size:22px!important;line-height:32px!important  }\n}",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-recap-2025"
+  ],
+  "createdAt": "2026-07-06T12:10:00.061Z",
+  "validated": true
+}

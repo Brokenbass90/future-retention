@@ -1,0 +1,132 @@
+{
+  "id": "new-feature-list-24",
+  "label": "Список преимуществ (нумерованный)",
+  "description": "Импортирован из X_new (1 писем). Секция.",
+  "placement": "section",
+  "category": "feature-list",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.brad-full.white-bg.b-new-feature-list-24\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.middle-title.pb32 {{ text_1 }}\n                        .gray-block\n                            table.w100\n                                tr\n                                    td.m-w.pb0(style=\"vertical-align: top;\")\n                                        p.number 1\n                                    td.w-a.pb0(style=\"vertical-align: middle;\")\n                                        p.text <b>{{ text_2 }}</b>\n                            p.text.pb16.pt24 {{ text_3 }}\n                            p.text.pb16 {{ text_4 }}\n                            ul(style=\"margin: 0;\")\n                                li.text.pb8 {{ text_5 }}\n                                li.text.pb8 {{ text_6 }}\n                                li.text {{ text_7 }}\n                        .h-12 &nbsp;\n                        .gray-block\n                            table.w100\n                                tr\n                                    td.m-w.pb0(style=\"vertical-align: top;\")\n                                        p.number 2\n                                    td.w-a.pb0(style=\"vertical-align: middle;\")\n                                        p.text <b>{{ text_8 }}</b>\n                            ul(style=\"margin: 0;\").pt24\n                                li.text.pb8 {{ text_9 }}\n                                li.text.pb8 {{ text_10 }}\n                                li.text {{ text_11 }}\n                        .h-12 &nbsp;\n                        .gray-block\n                            table.w100\n                                tr\n                                    td.m-w.pb0(style=\"vertical-align: top;\")\n                                        p.number 3\n                                    td.w-a.pb0(style=\"vertical-align: middle;\")\n                                        p.text <b>{{ text_12 }}</b>\n                            ul(style=\"margin: 0;\").pt24\n                                li.text.pb8 {{ text_13 }}\n                                li.text.pb8 {{ text_14 }}\n                                li.text.pb8 {{ text_15 }}\n                                li.text {{ text_16 }}\n                        .h-40 &nbsp;\n                        table.w280.centet(style=\"border-collapse: initial;\" align=\"center\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"{{ href_1 }}\" universal=\"true\" target=\"_blank\") {{ text_17 }}",
+  "styl": ".b-new-feature-list-24 .w280 {  width: 100%;\n  max-width: 280px;  }\n@media screen and (max-width: 600px) {\n  .b-new-feature-list-24 .w280 {  max-width: 100% !important;  }\n}\n.brad-full.b-new-feature-list-24 {  border-radius: 32px !important;  }\n.b-new-feature-list-24 .butt-link {  font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px;  }\n.white-bg.b-new-feature-list-24 {  background-color: #fff;  }\n.b-new-feature-list-24 .middle-title {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle;  }\n@media screen and (max-width: 600px) {\n  .b-new-feature-list-24 .middle-title {  font-size: 24px !important;\n    line-height: 32px !important;  }\n}\n.b-new-feature-list-24 .text {  font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400;  }\n.b-new-feature-list-24 .text.bold {  font-weight: 700;  }\n.b-new-feature-list-24 .pb8 {  padding-bottom: 8px;  }\n.b-new-feature-list-24 .pb16 {  padding-bottom: 16px;  }\n.b-new-feature-list-24 .pb32 {  padding-bottom: 32px;  }\n.b-new-feature-list-24 .pb44 {  padding-bottom: 44px;  }\n.b-new-feature-list-24 .pt24 {  padding-top: 24px;  }\n.b-new-feature-list-24 .pt44 {  padding-top: 44px;  }\n.b-new-feature-list-24 .h-12 {  font-size: 8px;\n  line-height: 12px;\n  height: 12px;  }\n.b-new-feature-list-24 .h-40 {  font-size: 8px;\n  line-height: 40px;\n  height: 40px;  }\n@media screen and (max-width: 600px) {\n  .b-new-feature-list-24 .text.mob-text, .b-new-feature-list-24 .grey-text.mob-text {  font-size: 17px !important;  }\n}\n.b-new-feature-list-24 .w100 {  width: 100%;  }\n.b-new-feature-list-24 .w-a {  width: auto !important;\n  vertical-align: middle;  }\n.b-new-feature-list-24 .number {  background: #ececed;\n  width: 54px;\n  max-height: 54px;\n  border-radius: 16px;\n  font-family: Helvetica !important;\n  color: #393a44;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 24px;\n  padding: 15px 0;\n  text-align: center;  }\n.b-new-feature-list-24 table[class=body] table.column td, .b-new-feature-list-24 table[class=body] table.columns td.m-w {  min-width: 78px !important;\n  width: 78px !important;  }\n.b-new-feature-list-24 .gray-block {  padding: 24px;\n  background: #f9f9f9;\n  border-radius: 12px;  }\n.b-new-feature-list-24 .w280 {  width:100%;max-width:280px  }\n@media screen and (max-width:600px) {\n  .b-new-feature-list-24 .w280 {  max-width:100%!important  }\n}\n.brad-full.b-new-feature-list-24, .b-new-feature-list-24 .brad-full-32 {  border-radius:32px!important  }\n.b-new-feature-list-24 .butt-link, .b-new-feature-list-24 .butt-link-2, .b-new-feature-list-24 .butt-link-small {  font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#2f3749;display:block;line-height:27px;padding:16px 0;text-align:center;letter-spacing:0  }\n.b-new-feature-list-24 .butt-link, .b-new-feature-list-24 .butt-link-small {  color:#f9f9f9  }\n.white-bg.b-new-feature-list-24 {  background-color:#fff  }\n.b-new-feature-list-24 .middle-title {  font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#393a44;vertical-align:middle  }\n@media screen and (max-width:600px) {\n  .b-new-feature-list-24 .middle-title {  font-size:24px!important;line-height:32px!important  }\n}\n.b-new-feature-list-24 .number-block, .b-new-feature-list-24 .text {  font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400  }\n.b-new-feature-list-24 .big, .b-new-feature-list-24 .text.bold {  font-weight:700  }\n.b-new-feature-list-24 .pb8 {  padding-bottom:8px  }\n.b-new-feature-list-24 .pb16 {  padding-bottom:16px  }\n.b-new-feature-list-24 .pb32 {  padding-bottom:32px  }\n.b-new-feature-list-24 .pb44 {  padding-bottom:44px  }\n.b-new-feature-list-24 .pt24 {  padding-top:24px  }\n.b-new-feature-list-24 .pt44 {  padding-top:44px  }\n.b-new-feature-list-24 .h-12, .b-new-feature-list-24 .h-16, .b-new-feature-list-24 .h-8 {  font-size:8px;line-height:8px;height:8px  }\n.b-new-feature-list-24 .h-12, .b-new-feature-list-24 .h-16 {  line-height:12px;height:12px  }\n.b-new-feature-list-24 .h-30, .b-new-feature-list-24 .h-32, .b-new-feature-list-24 .h-40 {  font-size:8px;line-height:30px;height:30px  }\n.b-new-feature-list-24 .h-32, .b-new-feature-list-24 .h-40 {  line-height:32px;height:32px  }\n.b-new-feature-list-24 .h-40 {  line-height:40px;height:40px  }\n@media screen and (max-width:600px) {\n  .b-new-feature-list-24 .grey-text.mob-text, .b-new-feature-list-24 .text.mob-text {  font-size:17px!important  }\n}\n.b-new-feature-list-24 .w100 {  width:100%  }\n.b-new-feature-list-24 .asst-text, .b-new-feature-list-24 .number, .b-new-feature-list-24 .number-black, .b-new-feature-list-24 .orange-text {  font-family:Helvetica!important;font-weight:700  }\n.b-new-feature-list-24 .asst-text, .b-new-feature-list-24 .number, .b-new-feature-list-24 .number-black {  color:#413e43  }\n.b-new-feature-list-24 .asst-text, .b-new-feature-list-24 .number {  font-size:31px;line-height:42px  }\n.b-new-feature-list-24 .number {  background:#ececed;width:54px;max-height:54px;border-radius:16px;color:#393a44;font-size:24px;line-height:24px;padding:15px 0;text-align:center  }\n.b-new-feature-list-24 .w-a {  width:auto!important;vertical-align:middle  }\n.b-new-feature-list-24 table[class=body] table.column td, .b-new-feature-list-24 table[class=body] table.columns td.m-w {  min-width:78px!important;width:78px!important  }\n.b-new-feature-list-24 .gray-block {  padding:24px;background:#f9f9f9;border-radius:12px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_7",
+      "kind": "richText",
+      "label": "Текст 7",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_8",
+      "kind": "richText",
+      "label": "Текст 8",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_9",
+      "kind": "richText",
+      "label": "Текст 9",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_10",
+      "kind": "richText",
+      "label": "Текст 10",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_11",
+      "kind": "richText",
+      "label": "Текст 11",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_12",
+      "kind": "richText",
+      "label": "Текст 12",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_13",
+      "kind": "richText",
+      "label": "Текст 13",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_14",
+      "kind": "richText",
+      "label": "Текст 14",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_15",
+      "kind": "richText",
+      "label": "Текст 15",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_16",
+      "kind": "richText",
+      "label": "Текст 16",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_17",
+      "kind": "richText",
+      "label": "Текст 17",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-3-3-4&retrack=mail_IQ-RFM-3-3-4&type=binary&asset=1916"
+    }
+  ],
+  "tags": [
+    "feature-list",
+    "section",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-rfm-334"
+  ],
+  "createdAt": "2026-07-06T12:10:00.067Z",
+  "validated": true
+}

@@ -1,0 +1,48 @@
+{
+  "id": "new-hero-07",
+  "label": "Hero с фоновой картинкой",
+  "description": "Импортирован из X_new (1 писем). Секция.",
+  "placement": "section",
+  "category": "hero",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.brad-full.bgr-image.b-new-hero-07\n    tr\n        td.wrapper.last.pt0\n            table.twelve.columns\n                tr\n                    td.pb0\n                        .h-406 &nbsp;\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb50.pt0\n                        div.gmail-blend-screen\n                            div.gmail-blend-diff\n                                p.data Web version only\n                                p.white-title.pb16.pt16  {{ text_1 }}\n                                p.white-text  {{ text_2 }}\n                        .h-24 &nbsp;\n                        table.w280(align=\"left\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"{{ href_1 }}\" universal=\"true\" target=\"_blank\") {{ text_3 }}",
+  "styl": ".b-new-hero-07 u + .body .gmail-blend-screen {  background: #000;\n  mix-blend-mode: screen;  }\n.b-new-hero-07 u + .body .gmail-blend-diff {  background: #000;\n  mix-blend-mode: difference;  }\n.bgr-image.b-new-hero-07 {  background: url(\"https://fsms.quadcode.com/storage/public/d6/1c/pt8ggnfnh4cs78g0/323-top.png\") center top no-repeat;\n  background-size: cover;\n  background-color: #000;  }\n.b-new-hero-07 .w280 {  width: 100%;\n  max-width: 280px;  }\n@media screen and (max-width: 600px) {\n  .b-new-hero-07 .w280 {  max-width: 100% !important;  }\n}\n.brad-full.b-new-hero-07 {  border-radius: 32px !important;  }\n.b-new-hero-07 .butt-link {  font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px;  }\n.b-new-hero-07 .data {  display: inline-block;\n  padding: 6px 16px;\n  background: rgba(254,122,32,0.19);\n  border-radius: 12px;\n  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 16px;\n  line-height: 20px;\n  color: #ff8516;\n  text-align: left;  }\n@media screen and (max-width: 600px) {\n  .b-new-hero-07 .data {  font-size: 14px !important;  }\n}\n.b-new-hero-07 .white-title {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 40px;\n  line-height: 50px;\n  color: #fff;\n  word-break: break-word;  }\n@media screen and (max-width: 600px) {\n  .b-new-hero-07 .white-title {  font-size: 26px !important;\n    line-height: 32px !important;  }\n}\n.b-new-hero-07 .white-text {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #fff;\n  padding-right: 20px;  }\n@media screen and (max-width: 600px) {\n  .b-new-hero-07 .white-text {  padding-right: 0 !important;  }\n}\n.b-new-hero-07 .pb16 {  padding-bottom: 16px;  }\n.b-new-hero-07 .pt16 {  padding-top: 16px;  }\n.b-new-hero-07 .h-24 {  font-size: 8px;\n  line-height: 24px;\n  height: 24px;  }\n.b-new-hero-07 .h-406 {  font-size: 0;\n  line-height: 336px;\n  height: 336px;  }\n@media screen and (max-width: 500px) {\n  .b-new-hero-07 .h-406 {  font-size: 160px !important;\n    line-height: 300px !important;\n    height: 300px !important;  }\n}\n.b-new-hero-07 u+.body .gmail-blend-screen {  background:#000;mix-blend-mode:screen  }\n.b-new-hero-07 u+.body .gmail-blend-diff {  background:#000;mix-blend-mode:difference  }\n.b-new-hero-07 .bgr, .bgr-image.b-new-hero-07 {  background-size:cover  }\n.bgr-image.b-new-hero-07 {  background:url(https://fsms.quadcode.com/storage/public/d6/1c/pt8ggnfnh4cs78g0/323-top.png) center top no-repeat;background-color:#000  }\n.b-new-hero-07 .w280 {  width:100%;max-width:280px  }\n@media screen and (max-width:600px) {\n  .b-new-hero-07 .w280 {  max-width:100%!important  }\n}\n.brad-full.b-new-hero-07, .b-new-hero-07 .brad-full-32 {  border-radius:32px!important  }\n.b-new-hero-07 .butt-link, .b-new-hero-07 .butt-link-2, .b-new-hero-07 .butt-link-small {  font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#2f3749;display:block;line-height:27px;padding:16px 0;text-align:center;letter-spacing:0  }\n.b-new-hero-07 .butt-link, .b-new-hero-07 .butt-link-small {  color:#f9f9f9  }\n.b-new-hero-07 .data {  display:inline-block;padding:6px 16px;background:rgba(254,122,32,.19);border-radius:12px;font-family:Helvetica!important;font-weight:700;font-size:16px;line-height:20px;color:#ff8516;text-align:left  }\n@media screen and (max-width:600px) {\n  .b-new-hero-07 .data {  font-size:14px!important  }\n}\n.b-new-hero-07 .white-title {  font-family:Helvetica!important;font-weight:700;font-size:40px;line-height:50px;color:#fff;word-break:break-word  }\n@media screen and (max-width:600px) {\n  .b-new-hero-07 .white-title {  font-size:26px!important;line-height:32px!important  }\n}\n.b-new-hero-07 .white-text {  font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#fff;padding-right:20px  }\n@media screen and (max-width:600px) {\n  .b-new-hero-07 .white-text {  padding-right:0!important  }\n}\n.b-new-hero-07 .pb16 {  padding-bottom:16px  }\n.b-new-hero-07 .pt16 {  padding-top:16px  }\n.b-new-hero-07 .h-16, .b-new-hero-07 .h-20, .b-new-hero-07 .h-24 {  font-size:8px;line-height:16px;height:16px  }\n.b-new-hero-07 .h-20, .b-new-hero-07 .h-24 {  line-height:20px;height:20px  }\n.b-new-hero-07 .h-24 {  line-height:24px;height:24px  }\n.b-new-hero-07 .h-406 {  font-size:0;line-height:336px;height:336px  }\n@media screen and (max-width:500px) {\n  .b-new-hero-07 .h-406 {  font-size:160px!important;line-height:300px!important;height:300px!important  }\n}",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://api.iqoption.com/v1/multi-links/performance-dashboard?aff=7&afftrack=mail_IQ-RFM-3-2-3&retrack=IQ-RFM-3-2-3"
+    }
+  ],
+  "tags": [
+    "hero",
+    "section",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-rfm-323"
+  ],
+  "createdAt": "2026-07-06T12:10:00.066Z",
+  "validated": true
+}

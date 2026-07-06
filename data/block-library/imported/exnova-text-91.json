@@ -1,0 +1,60 @@
+{
+  "id": "exnova-text-91",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_Exnova (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.b-exnova-text-91\n    tr\n        td.wrapper.last.pt44.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44\n                        p.hello.pb12 {{ text_1 }} {{embedded.user_first_name}} 👋\n                        p.text.pb12 {{ text_2 }}\n                        p.text\n                            a.link-blue(href=\"{{ href_1 }}\" target=\"_blank\") {{ text_3 }}\n                            |&nbsp;{{ text_4 }}\n                        table.w245(align=\"center\")\n                            tr\n                                td.pt40.pb0\n                                    .button-wrapper_bot.pt0\n                                        table.medium-button.radius.blue-button\n                                            tr\n                                                td.iq.blue-button\n                                                    a.butt(href=\"{{ href_1 }}\" target=\"_blank\") {{ text_5 }}",
+  "styl": ".b-exnova-text-91 .w245 {  width: 100%;\n  max-width: 245px;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-text-91 .w245 {  min-width: 100% !important;  }\n}\n.b-exnova-text-91 .blue-button {  background: #0173ca !important;\n  border-radius: 8px !important;  }\n.white-bg.b-exnova-text-91 {  background: #fff;\n  border-radius: 16px;  }\n.b-exnova-text-91 .hello {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 36px;\n  color: #413e43;\n  word-break: break-word;  }\n.b-exnova-text-91 .text {  font-family: Helvetica !important;\n  color: #262832;\n  font-size: 16px;\n  font-weight: 400;\n  line-height: 24px;  }\n.b-exnova-text-91 .link-blue {  color: #0081e3 !important;  }\n.b-exnova-text-91 .text.bold {  font-weight: 700;  }\n.b-exnova-text-91 .pb12 {  padding-bottom: 12px;  }\n.b-exnova-text-91 .pb44 {  padding-bottom: 44px;  }\n.b-exnova-text-91 .pt44 {  padding-top: 44px;  }\n.b-exnova-text-91 .w245 {  width:100%;max-width:245px  }\n@media screen and (max-width:600px) {\n  .b-exnova-text-91 .w245 {  min-width:100%!important  }\n}\n.b-exnova-text-91 .blue-button {  background:#0173ca!important;border-radius:8px!important  }\n.white-bg.b-exnova-text-91 {  background:#fff;border-radius:16px  }\n.b-exnova-text-91 .hello, .b-exnova-text-91 .subtitle-2, .b-exnova-text-91 .title {  font-family:Helvetica!important;font-weight:700  }\n.b-exnova-text-91 .hello {  word-break:break-word;font-size:24px;line-height:36px;color:#413e43  }\n.b-exnova-text-91 .text {  font-family:Helvetica!important;color:#262832;font-size:16px;font-weight:400;line-height:24px  }\n.b-exnova-text-91 .link-blue {  color:#0081e3!important  }\n.b-exnova-text-91 .text.bold {  font-weight:700  }\n.b-exnova-text-91 .pb12 {  padding-bottom:12px  }\n.b-exnova-text-91 .pb44 {  padding-bottom:44px  }\n.b-exnova-text-91 .pt44 {  padding-top:44px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://trade.exnova.com/traderoom/deeplink/openasset?aff=7&afftrack=mail_Exnova_ton&retrack=Exnova_ton&instrument=crypto&assetId=2077"
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_Exnova"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_Exnova/mail-ton"
+  ],
+  "createdAt": "2026-07-06T12:09:50.973Z",
+  "validated": true
+}

@@ -1,0 +1,30 @@
+{
+  "id": "exnova-text-96",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_Exnova (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.pt32.pb40.b-exnova-text-96 {{ text_1 }}",
+  "styl": ".text.b-exnova-text-96 {  font-family: Helvetica !important;\n  color: #262832;\n  font-size: 16px;\n  font-weight: 400;\n  line-height: 24px;  }\n.text.bold.b-exnova-text-96 {  font-weight: 700;  }\n.pt32.b-exnova-text-96 {  padding-top: 32px;  }\n.text.b-exnova-text-96 {  font-family:Helvetica!important;color:#262832;font-size:16px;font-weight:400;line-height:24px  }\n.text.bold.b-exnova-text-96 {  font-weight:700  }\n.pt32.b-exnova-text-96 {  padding-top:32px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_Exnova"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_Exnova/mail-ton"
+  ],
+  "createdAt": "2026-07-06T12:09:50.973Z",
+  "validated": true
+}

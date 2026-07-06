@@ -1,0 +1,24 @@
+{
+  "id": "system-text-95",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_System (2 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.b-system-text-95 Please note&nbsp;\n    strong these changes are only applicable to Forex.\n    | &nbsp;They will affect both new positions and positions that are currently open. Commission fees will be deducted from the respective investment. The maximum possible swap is up to 0.6%.",
+  "styl": ".text.b-system-text-95 {  color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px  }\n@media screen and (max-width:600px) {\n  .text.b-system-text-95 {  padding-left:20px!important;padding-right:20px!important  }\n}\n.text.b-system-text-95 a {  color:#2473d7;text-decoration:underline  }\n.text.bold.b-system-text-95 {  font-weight:700  }",
+  "slots": [],
+  "tags": [
+    "text",
+    "inline",
+    "X_System"
+  ],
+  "usageCount": 2,
+  "sourceMails": [
+    "X_System/mail-sowwy",
+    "X_System/mail-terms-change"
+  ],
+  "createdAt": "2026-07-06T12:09:59.370Z",
+  "validated": true
+}

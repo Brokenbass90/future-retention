@@ -1,0 +1,83 @@
+{
+  "id": "exnova-section-03",
+  "label": "Секция",
+  "description": "Импортирован из X_Exnova (1 писем). Секция.",
+  "placement": "section",
+  "category": "section",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.dark-bg.b-exnova-section-03\n    tr\n        td.wrapper.last.pt35\n            table.twelve.columns\n                tr\n                    td.text-pad-small.pb20\n                        a.nopoint(href=\"{{ href_1 }}\" target=\"_blank\")\n                            img(src=\"{{ image_1 }}\" style=\"max-width: 413px; margin: 0 auto; float: none; width: 100% !important;\")\n    tr\n        td.wrapper.last.pt0.offset-by-two\n            table.eight.columns\n                tr\n                    td.text-pad-small.pb20\n                        p.title-blitz.center {{ text_4 }}&nbsp;\n                            span.yell {{ text_5 }}\n                            |&nbsp;{{ text_6 }}\n    tr\n        td.wrapper.last.offset-by-three.pt0\n            table.six.columns\n                tr\n                    td.pb35.text-pad-small.pt0\n                        .button-wrapper.button-wrapper_top\n                            table.medium-button.radius\n                                tr\n                                    td.iq.green-button\n                                        a.butt(href=\"{{ href_2 }}\" target=\"_blank\") {{ text_7 }}",
+  "styl": ".b-exnova-section-03 .nopoint {  cursor:default!important  }\n.dark-bg.b-exnova-section-03 {  background:#24262f;border-radius:10px;border:1px solid #3e4048  }\n.b-exnova-section-03 .green-button {  background:#00bd72!important  }\n.b-exnova-section-03 .button-wrapper {  padding-top:0;padding-bottom:0  }\n.b-exnova-section-03 .title-blitz {  font-family:Helvetica!important;font-weight:700;font-size:26px;line-height:30px;text-align:center;color:#fff  }\n@media screen and (max-width:600px) {\n  .b-exnova-section-03 .title-blitz {  font-size:22px!important;line-height:26px!important  }\n}\n.b-exnova-section-03 .yell {  color:#ffad00!important  }\n.b-exnova-section-03 .pb35 {  padding-bottom:35px  }\n.b-exnova-section-03 .pt35 {  padding-top:35px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_7",
+      "kind": "richText",
+      "label": "Текст 7",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "{{ text_1 }}?aff=7&afftrack=mail_Sprint-Strategy&retrack=Sprint-Strategy&{{ text_2 }}=forex&{{ text_3 }}=1"
+    },
+    {
+      "id": "href_2",
+      "kind": "url",
+      "label": "Ссылка 2",
+      "default": "https://trade.exnova.com/traderoom/asset?aff=7&afftrack=mail_market-exnova&retrack=market-exnova"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/ci/v3/sl9iuavv9levmasg/banner.png"
+    }
+  ],
+  "tags": [
+    "section",
+    "X_Exnova"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_Exnova/mail-Short-E-mail"
+  ],
+  "createdAt": "2026-07-06T12:09:50.959Z",
+  "validated": true
+}

@@ -1,0 +1,36 @@
+{
+  "id": "affsystem-text-42",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_AffSystem (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.bg-bord-lr.br-bot.bg-bord-bot.b-affsystem-text-42\n    tr\n        td.wrapper.last.offset-by-three.pt0\n            table.six.columns\n                tr\n                    td.pb40.plr20-a\n                        .button-wrapper\n                            table.medium-button.radius\n                                tr\n                                    td.iq\n                                        a.butt(href=\"{{ href_1 }}\" target=\"_blank\") {{ text_1 }}",
+  "styl": ".white-bg.b-affsystem-text-42 {  background:#fff  }\n@media screen and (max-width:600px) {\n  .b-affsystem-text-42 .plr20-a, .b-affsystem-text-42 .plr30 {  padding-left:20px!important;padding-right:20px!important  }\n}\n.bg-bord-lr.b-affsystem-text-42 {  border-left:1px solid #e9ebea;border-right:1px solid #e9ebea  }\n.bg-bord-bot.b-affsystem-text-42 {  border-bottom:1px solid #e9ebea  }\n.br-bot.b-affsystem-text-42 {  border-radius:0 0 5px 5px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://affiliate.iqoption.com/dashboard"
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_AffSystem"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_AffSystem/mail-onboarding-survey-affiliate"
+  ],
+  "createdAt": "2026-07-06T12:09:51.511Z",
+  "validated": true
+}

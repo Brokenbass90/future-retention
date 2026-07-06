@@ -1,0 +1,30 @@
+{
+  "id": "exnova-text-82",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_Exnova (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.pb40.center.b-exnova-text-82 {{ text_1 }}",
+  "styl": ".text.b-exnova-text-82 {  font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 26px;  }\n@media screen and (max-width: 600px) {\n  .text.b-exnova-text-82 {  font-size: 16px !important;\n    line-height: 24px !important;  }\n}\n.text.bold.b-exnova-text-82 {  font-weight: 700;  }\n.text.b-exnova-text-82 {  font-family:Helvetica!important;color:#413e43;font-size:18px;font-weight:400;line-height:26px  }\n@media screen and (max-width:600px) {\n  .text.b-exnova-text-82 {  font-size:16px!important;line-height:24px!important  }\n}\n.text.bold.b-exnova-text-82 {  font-weight:700  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_Exnova"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_Exnova/mail-Trading-Challenge"
+  ],
+  "createdAt": "2026-07-06T12:09:50.973Z",
+  "validated": true
+}

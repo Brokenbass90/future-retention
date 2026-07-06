@@ -1,0 +1,59 @@
+{
+  "id": "exnova-section-07",
+  "label": "Секция",
+  "description": "Импортирован из X_Exnova (1 писем). Секция.",
+  "placement": "section",
+  "category": "section",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.brad-top.bb.b-exnova-section-07\n    tr\n        td.wrapper.last.offset-by-one.pt40\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb30\n                        p.title.pb20 {{ text_1 }}\n                        p.text.pb10\n                            strong {{ text_2 }}\n                        p.text.pb20 {{ text_3 }}\n                        p.text.list\n                            a(href=\"{{ href_1 }}\" target=\"_blank\") {{ text_4 }}\n                        p.text.list\n                            a(href=\"{{ href_1 }}\" target=\"_blank\") {{ text_5 }}",
+  "styl": ".brad-top.b-exnova-section-07 {  border-top-left-radius:4px;border-top-right-radius:4px  }\n.bb.b-exnova-section-07 {  border-bottom:6px solid #f8fafb  }\n.b-exnova-section-07 .list {  padding-left:16px;background:url(https://static.cdnroute.io/files/storage/public/61/a3/b97a1b0ad8a7j5h5i9/dot.png) top 9px left no-repeat;background-size:5px;padding-bottom:5px  }\n.b-exnova-section-07 .title {  color:#27282D;font-size:38px;line-height:49px;font-weight:700;font-family:Helvetica!important  }\n.b-exnova-section-07 .text {  color:#3e414b;font-size:16px;font-weight:400;line-height:24px  }\n.b-exnova-section-07 .small-text, .b-exnova-section-07 .text, .b-exnova-section-07 .text a {  font-family:Helvetica!important  }\n.b-exnova-section-07 .text a {  word-break:keep-all!important;word-wrap:normal!important;display:inline-block  }\n.b-exnova-section-07 .small-text a, .b-exnova-section-07 .text a {  color:#2d51b6  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "{{embeded_domain}}/profile/security"
+    }
+  ],
+  "tags": [
+    "section",
+    "X_Exnova"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_Exnova/mail-sus-geo"
+  ],
+  "createdAt": "2026-07-06T12:09:50.973Z",
+  "validated": true
+}

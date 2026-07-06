@@ -1,0 +1,48 @@
+{
+  "id": "affsystem-text-08",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_AffSystem (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.bg-bord-r.br-top.bg-bord-top.b-affsystem-text-08\n    tr.bg-bord-l\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pt17.pb20\n                        p.subtitle.center.pb10 {{ text_1 }}\n                        p.text.pb15  {{ text_2 }} IQ Option {{ text_3 }}\n                        p.text {{ text_4 }}",
+  "styl": ".white-bg.b-affsystem-text-08 {  background:#fff  }\n.b-affsystem-text-08 .min-text, .b-affsystem-text-08 .text {  font-family:Helvetica!important;color:#2e3851;letter-spacing:0  }\n.b-affsystem-text-08 .text {  font-weight:400;font-size:16px;line-height:26px  }\n.b-affsystem-text-08 .big-text, .b-affsystem-text-08 .subtitle, .b-affsystem-text-08 b, .b-affsystem-text-08 p.warning, .b-affsystem-text-08 p.warning .upper {  font-family:Helvetica!important  }\n.b-affsystem-text-08 .subtitle {  font-weight:700;letter-spacing:0;font-size:30px;color:#20242f;line-height:26px  }\n.b-affsystem-text-08 .text.italic {  font-style:italic  }\n.b-affsystem-text-08 .text.list {  display:list-item  }\n.b-affsystem-text-08 .pb15 {  padding-bottom:15px!important  }\n.b-affsystem-text-08 .pt17 {  padding-top:17px  }\n.bg-bord-top.b-affsystem-text-08 {  border-top:1px solid #e9ebea  }\n.br-top.b-affsystem-text-08 {  border-radius:5px 5px 0 0  }\n.b-affsystem-text-08 .text a {  font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important  }\n.b-affsystem-text-08 .bg-bord-l {  border-left:1px solid #e9ebea  }\n.bg-bord-r.b-affsystem-text-08 {  border-right:1px solid #e9ebea  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_AffSystem"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_AffSystem/mail-aff-registration-affiliate"
+  ],
+  "createdAt": "2026-07-06T12:09:51.509Z",
+  "validated": true
+}

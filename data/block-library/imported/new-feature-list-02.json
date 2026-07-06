@@ -1,0 +1,36 @@
+{
+  "id": "new-feature-list-02",
+  "label": "Нумерованный пункт (gray-block)",
+  "description": "Импортирован из X_new (3 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "feature-list",
+  "version": 1,
+  "source": "imported",
+  "pug": ".gray-block.b-new-feature-list-02\n    table.w100\n        tr\n            td.pb0.w-a.m-w-2\n                a(href=\"#\" target=\"_blank\")\n                    img.left-img(src=\"{{ image_1 }}\")\n            td.pb0.w-a\n                p.text {{ text_1 }}",
+  "styl": ".b-new-feature-list-02 .text {  font-family: Helvetica !important;\n  color: #413e43;\n  font-weight: 400;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0;  }\n.b-new-feature-list-02 .text.list {  display: list-item;  }\n.b-new-feature-list-02 .text a {  font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #1466fe !important;  }\n.b-new-feature-list-02 .w100 {  width: 100% !important;  }\n@media screen and (max-width: 600px) {\n  .b-new-feature-list-02 .text.mob-text, .b-new-feature-list-02 .grey-text.mob-text {  font-size: 17px !important;  }\n}\n.b-new-feature-list-02 .w-a {  width: auto !important;\n  vertical-align: top;\n  padding-bottom: 0 !important;  }\n.b-new-feature-list-02 .m-w-2 {  min-width: 80px;  }\n.gray-block.b-new-feature-list-02 {  padding: 24px;\n  background: #f9f9f9;\n  border-radius: 24px;  }\n.b-new-feature-list-02 .left-img {  float: none;\n  width: 56px !important;  }\n.b-new-feature-list-02 .text, .b-new-feature-list-02 .text-2, .b-new-feature-list-02 .text-3 {  font-family:Helvetica!important;font-weight:400  }\n.b-new-feature-list-02 .text, .b-new-feature-list-02 .text-2 {  letter-spacing:0;color:#413e43;font-size:18px;line-height:27px  }\n.b-new-feature-list-02 .text.list {  display:list-item  }\n.b-new-feature-list-02 .text a, .b-new-feature-list-02 b {  font-family:Helvetica!important  }\n.b-new-feature-list-02 .text a {  text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#1466fe!important  }\n.b-new-feature-list-02 .w100 {  width:100%!important  }\n@media screen and (max-width:600px) {\n  .b-new-feature-list-02 .grey-text.mob-text, .b-new-feature-list-02 .text.mob-text {  font-size:17px!important  }\n}\n.b-new-feature-list-02 .w-a {  width:auto!important;vertical-align:top;padding-bottom:0!important  }\n.b-new-feature-list-02 .m-w-2 {  min-width:80px  }\n.gray-block.b-new-feature-list-02 {  padding:24px;background:#f9f9f9;border-radius:24px  }\n.b-new-feature-list-02 .left-img {  float:none;width:56px!important  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/cv/qi/973jqakhdj8lo7e0/Icon Glass Sound.png"
+    }
+  ],
+  "tags": [
+    "feature-list",
+    "inline",
+    "X_new"
+  ],
+  "usageCount": 3,
+  "sourceMails": [
+    "X_new/mail-Raffle-Exnova"
+  ],
+  "createdAt": "2026-07-06T12:10:00.058Z",
+  "validated": true
+}

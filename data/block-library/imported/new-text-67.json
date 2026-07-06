@@ -1,0 +1,42 @@
+{
+  "id": "new-text-67",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_new (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.pt25.center.b-new-text-67 {{ text_1 }}&nbsp;\n    a(href=\"{{ href_1 }}\" target=\"_blank\") support@affstore.com\n    |{{ text_2 }}",
+  "styl": ".b-new-text-67 .min-text, .text.b-new-text-67 {  font-family:Helvetica!important;letter-spacing:0  }\n.text.b-new-text-67 {  font-weight:400;color:#373437;font-size:16px;line-height:26px  }\n.text.italic.b-new-text-67 {  font-style:italic  }\n.text.list.b-new-text-67 {  display:list-item  }\n.pt25.b-new-text-67 {  padding-top:24px  }\n.text.b-new-text-67 a {  font-family:Helvetica!important;text-decoration:underline!important;color:#86ad00!important  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "mailto:support@affstore.com"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-registration-affstore"
+  ],
+  "createdAt": "2026-07-06T12:10:00.061Z",
+  "validated": true
+}

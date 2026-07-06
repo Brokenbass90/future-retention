@@ -1,0 +1,30 @@
+{
+  "id": "exnova-text-58",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_Exnova (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.list.pb6.b-exnova-text-58 {{ text_1 }}",
+  "styl": ".text.b-exnova-text-58 {  font-family: Helvetica !important;\n  color: #262832;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 25px;  }\n.text.b-exnova-text-58 a {  color: #0173ca !important;  }\n.text.bold.b-exnova-text-58 {  font-weight: 700;  }\n.pb6.b-exnova-text-58 {  padding-bottom: 6px;  }\n.list.b-exnova-text-58 {  font-size: 16px;\n  padding-left: 16px;\n  background: url(\"https://static.cdnroute.io/files/storage/public/61/a3/b97a1b0ad8a7j5h5i9/dot.png\") top 11px left no-repeat;\n  -webkit-background-size: 5px;\n  background-size: 5px;\n  padding-bottom: 10px;  }\n.b-exnova-text-58 .grey-text, .text.b-exnova-text-58 {  font-family:Helvetica!important;color:#262832;font-size:18px;font-weight:400;line-height:25px  }\n.text.b-exnova-text-58 a {  color:#0173ca!important  }\n.text.bold.b-exnova-text-58 {  font-weight:700  }\n.pb6.b-exnova-text-58 {  padding-bottom:6px  }\n.list.b-exnova-text-58 {  font-size:16px;padding-left:16px;background:url(https://static.cdnroute.io/files/storage/public/61/a3/b97a1b0ad8a7j5h5i9/dot.png) top 11px left no-repeat;background-size:5px;padding-bottom:10px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_Exnova"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_Exnova/mail-Teaser-email-5"
+  ],
+  "createdAt": "2026-07-06T12:09:50.968Z",
+  "validated": true
+}

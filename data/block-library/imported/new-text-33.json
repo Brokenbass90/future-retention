@@ -1,0 +1,36 @@
+{
+  "id": "new-text-33",
+  "label": "Заголовок",
+  "description": "Импортирован из X_new (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.title.pb32.b-new-text-33 {{ text_1 }} {{bonus_percent}} {{ text_2 }}",
+  "styl": ".title.b-new-text-33 {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 48px;\n  color: #393a44;\n  line-height: 58px;  }\n@media screen and (max-width: 600px) {\n  .title.b-new-text-33 {  font-size: 32px !important;\n    line-height: 40px !important;  }\n}\n.pb32.b-new-text-33 {  padding-bottom: 32px;  }\n.title.b-new-text-33 {  font-family:Helvetica!important;font-weight:700;font-size:48px;color:#393a44;line-height:58px  }\n@media screen and (max-width:600px) {\n  .title.b-new-text-33 {  font-size:32px!important;line-height:40px!important  }\n}\n.pb32.b-new-text-33 {  padding-bottom:32px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-RFM-dep"
+  ],
+  "createdAt": "2026-07-06T12:10:00.057Z",
+  "validated": true
+}

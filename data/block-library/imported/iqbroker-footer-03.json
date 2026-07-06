@@ -1,0 +1,74 @@
+{
+  "id": "iqbroker-footer-03",
+  "label": "Соцсети",
+  "description": "Импортирован из X_IQBroker (3 писем). Секция.",
+  "placement": "section",
+  "category": "footer",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.b-iqbroker-footer-03\n    tr\n        td.wrapper.last.pt0\n            table.twelve.columns\n                tr\n                    td(align=\"center\").pb0.center\n                        .socials.center\n                            a.first-link(href=\"{{ href_1 }}\" target=\"_blank\")\n                                img.soc-icon.fb(src=\"{{ image_1 }}\")\n                            a(href=\"{{ href_2 }}\" target=\"_blank\")\n                                img.soc-icon.twitter(src=\"{{ image_2 }}\")\n                            a(href=\"{{ href_3 }}\" target=\"_blank\")\n                                img.soc-icon.you(src=\"{{ image_3 }}\")\n                            a.last-link(href=\"{{ href_4 }}\" target=\"_blank\")\n                                img.soc-icon.ig(src=\"{{ image_4 }}\")",
+  "styl": ".b-iqbroker-footer-03 .ig {  max-width: 20px;\n  margin-left: 6px;  }\n@media screen and (max-width: 600px) {\n  .b-iqbroker-footer-03 .ig {  width: 20px !important;  }\n}\n.b-iqbroker-footer-03 .you {  max-width: 24px;\n  margin: 0 6px;  }\n@media screen and (max-width: 600px) {\n  .b-iqbroker-footer-03 .you {  width: 24px !important;  }\n}\n.b-iqbroker-footer-03 .twitter {  max-width: 24px;\n  margin: 0 6px;  }\n@media screen and (max-width: 600px) {\n  .b-iqbroker-footer-03 .twitter {  width: 24px !important;  }\n}\n.b-iqbroker-footer-03 .fb {  max-width: 24px;\n  margin-right: 6px;  }\n@media screen and (max-width: 600px) {\n  .b-iqbroker-footer-03 .fb {  width: 24px !important;  }\n}\n.b-iqbroker-footer-03 .socials {  display: inline-block;\n  font-size: 0;\n  margin: 0 auto;  }\n@media screen and (max-width: 600px) {\n  .b-iqbroker-footer-03 .socials {  width: 100% !important;  }\n}\n.b-iqbroker-footer-03 .socials a {  display: inline-block;\n  vertical-align: middle;\n  margin: 0 10px;  }\n@media screen and (max-width: 600px) {\n  .b-iqbroker-footer-03 .socials a {  margin-bottom: 10px !important;  }\n}\n.b-iqbroker-footer-03 .soc-icon {  float: none !important;\n  max-width: 24px;  }\n.b-iqbroker-footer-03 .ig {  max-width:20px;margin-left:6px  }\n@media screen and (max-width:600px) {\n  .b-iqbroker-footer-03 .ig {  width:20px!important  }\n}\n.b-iqbroker-footer-03 .you {  max-width:24px;margin:0 6px  }\n@media screen and (max-width:600px) {\n  .b-iqbroker-footer-03 .you {  width:24px!important  }\n}\n.b-iqbroker-footer-03 .twitter {  max-width:24px;margin:0 6px  }\n@media screen and (max-width:600px) {\n  .b-iqbroker-footer-03 .twitter {  width:24px!important  }\n}\n.b-iqbroker-footer-03 .fb {  max-width:24px;margin-right:6px  }\n@media screen and (max-width:600px) {\n  .b-iqbroker-footer-03 .fb {  width:24px!important  }\n}\n.b-iqbroker-footer-03 .mar-mob, .b-iqbroker-footer-03 .socials a {  margin:0 10px  }\n.b-iqbroker-footer-03 .socials {  display:inline-block;font-size:0;margin:0 auto  }\n@media screen and (max-width:600px) {\n  .b-iqbroker-footer-03 .socials {  width:100%!important  }\n}\n.b-iqbroker-footer-03 .socials a {  display:inline-block;vertical-align:middle  }\n@media screen and (max-width:600px) {\n  .b-iqbroker-footer-03 .socials a {  margin-bottom:10px!important  }\n}\n.b-iqbroker-footer-03 .soc-icon {  float:none!important;max-width:24px  }",
+  "slots": [
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://www.facebook.com/iqbroker.global/"
+    },
+    {
+      "id": "href_2",
+      "kind": "url",
+      "label": "Ссылка 2",
+      "default": "https://www.instagram.com/iq_broker_official/"
+    },
+    {
+      "id": "href_3",
+      "kind": "url",
+      "label": "Ссылка 3",
+      "default": "https://www.youtube.com/@iqbroker"
+    },
+    {
+      "id": "href_4",
+      "kind": "url",
+      "label": "Ссылка 4",
+      "default": "https://x.com/iqbroker_off"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/d5/su/7b8ggnfnh4cs7730/fb.png"
+    },
+    {
+      "id": "image_2",
+      "kind": "image",
+      "label": "Картинка 2",
+      "default": "https://fsms.quadcode.com/storage/public/d5/su/7b8ggnfnh4cs772g/ig.png"
+    },
+    {
+      "id": "image_3",
+      "kind": "image",
+      "label": "Картинка 3",
+      "default": "https://fsms.quadcode.com/storage/public/d5/su/7bfvhhgea139ujqg/yt.png"
+    },
+    {
+      "id": "image_4",
+      "kind": "image",
+      "label": "Картинка 4",
+      "default": "https://fsms.quadcode.com/storage/public/d5/su/7bfvhhgea139ujr0/tw.png"
+    }
+  ],
+  "tags": [
+    "footer",
+    "section",
+    "X_IQBroker"
+  ],
+  "usageCount": 3,
+  "sourceMails": [
+    "X_IQBroker/mail-FAQ",
+    "X_IQBroker/mail-strategies",
+    "X_IQBroker/mail-success"
+  ],
+  "createdAt": "2026-07-06T12:09:51.736Z",
+  "validated": true
+}

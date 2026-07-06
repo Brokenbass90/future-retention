@@ -1,0 +1,44 @@
+{
+  "id": "affsystem-text-07",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_AffSystem (15 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.center.pb15.b-affsystem-text-07 {{ text_1 }}",
+  "styl": ".text.b-affsystem-text-07, .b-affsystem-text-07 .text-table, .b-affsystem-text-07 .text-title {  font-family:Helvetica!important;color:#20242f  }\n.text.b-affsystem-text-07, .b-affsystem-text-07 .text-table {  font-weight:400;font-size:16px;line-height:24px;letter-spacing:0  }\n.text.b-affsystem-text-07 {  color:#2e3851;line-height:26px  }\n.text.list.b-affsystem-text-07 {  display:list-item  }\n.pb15.b-affsystem-text-07 {  padding-bottom:15px!important  }\n.text.b-affsystem-text-07 a {  font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_AffSystem"
+  ],
+  "usageCount": 15,
+  "sourceMails": [
+    "X_AffSystem/mail-aff-non-movers",
+    "X_AffSystem/mail-aff-registration-affiliate",
+    "X_AffSystem/mail-affiliate-kyc-doc-status-changed",
+    "X_AffSystem/mail-email-activation-affiliate",
+    "X_AffSystem/mail-ib-affiliate-termination",
+    "X_AffSystem/mail-iq-affiliate-termination",
+    "X_AffSystem/mail-iq-affiliate-termination040124",
+    "X_AffSystem/mail-iq-affiliate-termination040124-IB",
+    "X_AffSystem/mail-iq-affiliate-termination24",
+    "X_AffSystem/mail-iq-affiliate-termination24-IB",
+    "X_AffSystem/mail-new-ticket-reply-affiliate",
+    "X_AffSystem/mail-onboarding-survey-affiliate",
+    "X_AffSystem/mail-password-retrieving-affiliate",
+    "X_AffSystem/mail-payment-activation-affiliate",
+    "X_AffSystem/mail-verification-reminder-affiliate"
+  ],
+  "createdAt": "2026-07-06T12:09:51.509Z",
+  "validated": true
+}

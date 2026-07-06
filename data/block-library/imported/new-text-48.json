@@ -1,0 +1,60 @@
+{
+  "id": "new-text-48",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_new (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.br-ful.b-new-text-48\n    tr\n        td.wrapper.last.offset-by-one.pt40\n            table.row.ten.columns\n                tr\n                    td.text-pad-small.pb30\n                        p.hello.pb20 {{ text_1 }}\n                        p.text.pb15 {{ text_2 }}\n                        p.text.pb15 {{ text_3 }}\n                        p.text {{ text_4 }}\n    tr\n        td.wrapper.last.offset-by-three.pt0\n            table.six.columns\n                tr\n                    td.pb40.text-pad-small.pt0\n                        .button-wrapper.button-wrapper_top\n                            table.medium-button.radius\n                                tr\n                                    td.iq\n                                        a.butt(href=\"{{ href_1 }}\" target=\"_blank\") {{ text_5 }}",
+  "styl": ".white-bg.b-new-text-48 {  background:#fff  }\n.b-new-text-48 .min-text, .b-new-text-48 .text {  font-family:Helvetica!important;letter-spacing:0  }\n.b-new-text-48 .text {  font-weight:400;color:#373437;font-size:16px;line-height:26px  }\n.b-new-text-48 .big-text, .b-new-text-48 .hello, .b-new-text-48 b, .b-new-text-48 p.warning, .b-new-text-48 p.warning .upper {  font-family:Helvetica!important  }\n.b-new-text-48 .hello {  line-height:26px;color:#373437;font-weight:700;font-size:22px  }\n.b-new-text-48 .text.italic {  font-style:italic  }\n.b-new-text-48 .text.list {  display:list-item  }\n.b-new-text-48 .pb15 {  padding-bottom:16px!important  }\n.b-new-text-48 .text a {  font-family:Helvetica!important;text-decoration:underline!important;color:#86ad00!important  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://my.affstore.com/offers"
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-Rate-change"
+  ],
+  "createdAt": "2026-07-06T12:10:00.060Z",
+  "validated": true
+}

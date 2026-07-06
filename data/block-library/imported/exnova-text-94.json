@@ -1,0 +1,42 @@
+{
+  "id": "exnova-text-94",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_Exnova (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.b-exnova-text-94\n    a.link-blue(href=\"{{ href_1 }}\" target=\"_blank\") {{ text_1 }}\n    |&nbsp;{{ text_2 }}",
+  "styl": ".text.b-exnova-text-94 {  font-family: Helvetica !important;\n  color: #262832;\n  font-size: 16px;\n  font-weight: 400;\n  line-height: 24px;  }\n.b-exnova-text-94 .link-blue {  color: #0081e3 !important;  }\n.text.bold.b-exnova-text-94 {  font-weight: 700;  }\n.text.b-exnova-text-94 {  font-family:Helvetica!important;color:#262832;font-size:16px;font-weight:400;line-height:24px  }\n.b-exnova-text-94 .link-blue {  color:#0081e3!important  }\n.text.bold.b-exnova-text-94 {  font-weight:700  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://trade.exnova.com/traderoom/deeplink/openasset?aff=7&afftrack=mail_Exnova_ton&retrack=Exnova_ton&instrument=crypto&assetId=2077"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_Exnova"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_Exnova/mail-ton"
+  ],
+  "createdAt": "2026-07-06T12:09:50.973Z",
+  "validated": true
+}

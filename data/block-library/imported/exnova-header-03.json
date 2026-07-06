@@ -1,0 +1,61 @@
+{
+  "id": "exnova-header-03",
+  "label": "Шапка с логотипом",
+  "description": "Импортирован из X_Exnova (8 писем). Секция.",
+  "placement": "section",
+  "category": "header",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.brad-top.b-exnova-header-03\n    tr\n        td.wrapper.last.pt30.pb30\n            table.row\n                tr\n                    td.wrapper.offset-by-one.last.pt0\n                        table.ten.columns\n                            tr\n                                td.pb0.text-pad-small\n                                    a(href=\"{{ href_1 }}\" target=\"_blank\")\n                                        img.logo(src=\"{{ image_1 }}\")\n                                    a.go-invest(href=\"{{ href_2 }}\" target=\"_blank\") {{ text_1 }}\n                                        img.arr(src=\"{{ image_2 }}\")",
+  "styl": ".brad-top.b-exnova-header-03 {  border-top-left-radius: 3px !important;\n  border-top-right-radius: 3px !important;  }\n.b-exnova-header-03 .arr {  float: none;\n  display: inline-block;\n  max-width: 18px;\n  padding-left: 5px;\n  vertical-align: middle;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-header-03 .arr {  margin: o auto !important;  }\n}\n.b-exnova-header-03 .go-invest {  display: inline-block;\n  font-family: Helvetica !important;\n  font-weight: 600;\n  font-size: 16px;\n  line-height: 22px;\n  letter-spacing: -0.25px;\n  color: #00589e;\n  text-align: right;\n  float: right;\n  padding-top: 5px;  }\n.brad-top.b-exnova-header-03 {  border-top-left-radius:3px!important;border-top-right-radius:3px!important  }\n.b-exnova-header-03 .arr {  float:none;display:inline-block;max-width:18px;padding-left:5px;vertical-align:middle  }\n@media screen and (max-width:600px) {\n  .b-exnova-header-03 .arr {  margin:o auto!important  }\n}\n.b-exnova-header-03 .go-invest {  display:inline-block;font-family:Helvetica!important;font-weight:600;font-size:16px;line-height:22px;letter-spacing:-.25px;color:#00589e;text-align:right;float:right;padding-top:5px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://trade.exnova.com/traderoom/asset?aff=7&afftrack=mail_Teaser-1d&retrack=Teaser-1"
+    },
+    {
+      "id": "href_2",
+      "kind": "url",
+      "label": "Ссылка 2",
+      "default": "https://trade.exnova.com/traderoom/asset?aff=7&afftrack=mail_Teaser-1d&retrack=Teaser-1d"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/cp/av/8ncds9kt1nhaukfg/logo-exnova.png"
+    },
+    {
+      "id": "image_2",
+      "kind": "image",
+      "label": "Картинка 2",
+      "default": "https://static.cdnroute.io/files/storage/public/62/a2/fef50cbea6d4j8b4d4/icon_arrow.png"
+    }
+  ],
+  "tags": [
+    "header",
+    "section",
+    "X_Exnova"
+  ],
+  "usageCount": 8,
+  "sourceMails": [
+    "X_Exnova/mail-Teaser-1",
+    "X_Exnova/mail-Teaser-2",
+    "X_Exnova/mail-Teaser-3",
+    "X_Exnova/mail-Teaser-email-1",
+    "X_Exnova/mail-Teaser-email-2",
+    "X_Exnova/mail-Teaser-email-4",
+    "X_Exnova/mail-Teaser-email-5",
+    "X_Exnova/mail-ton"
+  ],
+  "createdAt": "2026-07-06T12:09:50.965Z",
+  "validated": true
+}

@@ -1,0 +1,67 @@
+{
+  "id": "new-text-03",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_new (2 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.br-full-16.bg-bord-full.b-new-text-03\n    tr\n        td.wrapper.last.offset-by-one.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44\n                        p.big-text.pb32 {{ text_1 }}\n                        .gray-blodck-big\n                            .top-block\n                                p.text.pb8 {{ text_2 }}\n                                p.small-text {{ text_3 }}\n                        .block-empty-16 &nbsp;\n                        .gray-left-block\n                            .pd32-a\n                                p.text.pb8 {{ text_4 }}\n                                p.small-text {{ text_5 }}\n                        .gray-right-block\n                            .pd32-a\n                                p.text.pb8 {{ text_6 }}\n                                p.small-text {{ text_7 }}",
+  "styl": ".b-new-text-03 .block-empty-16 {  height: 16px;\n  line-height: 16px;\n  font-size: 16px;  }\n.white-bg.b-new-text-03 {  background: #fff;  }\n.b-new-text-03 .text {  font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0;  }\n.b-new-text-03 .small-text {  font-family: Helvetica !important;\n  font-weight: 400;\n  font-size: 16px;\n  line-height: 24px;\n  color: #413e43;  }\n.b-new-text-03 .text.list {  display: list-item;  }\n.b-new-text-03 .pb8 {  padding-bottom: 8px;  }\n.b-new-text-03 .pb32 {  padding-bottom: 32px;  }\n.b-new-text-03 .pb44 {  padding-bottom: 44px;  }\n.b-new-text-03 .pt44 {  padding-top: 44px;  }\n.br-full-16.b-new-text-03 {  border-radius: 16px;\n  -moz-border-radius: 16px;\n  -webkit-border-radius: 16px;  }\n.bg-bord-full.b-new-text-03 {  border: 1px solid #eae9e9;  }\n.b-new-text-03 .text a {  font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #6a8a00 !important;  }\n.b-new-text-03 .big-text {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 38px;\n  color: #413e43;  }\n@media screen and (max-width: 600px) {\n  .b-new-text-03 .big-text {  font-size: 24px !important;\n    line-height: 32px !important;  }\n}\n.b-new-text-03 .gray-blodck-big {  padding: 32px;\n  background: #f5f5f7;\n  border-radius: 20px;\n  background-image: url(\"https://fsms.quadcode.com/storage/public/cq/ae/146fu8jqbm9856f0/Frame 2.png\");\n  background-repeat: no-repeat;\n  background-position: center;\n  background-size: cover;  }\n.b-new-text-03 .top-block {  max-width: 232px;  }\n.b-new-text-03 .gray-left-block {  display: inline-block;\n  background: #f5f5f7;\n  border-radius: 20px;\n  width: 230px;\n  background-image: url(\"https://fsms.quadcode.com/storage/public/cq/ae/146di3umufautjhg/Frame 3.png\");\n  background-repeat: no-repeat;\n  background-position: center;\n  background-size: cover;\n  min-height: 290px;  }\n@media screen and (max-width: 600px) {\n  .b-new-text-03 .gray-left-block {  width: 100% !important;\n    display: block !important;\n    margin-bottom: 16px !important;\n    height: auto !important;\n    min-height: auto !important;  }\n}\n.b-new-text-03 .pd32-a {  padding: 32px;  }\n@media screen and (max-width: 600px) {\n  .b-new-text-03 .pd32-a {  padding-bottom: 90px !important;  }\n}\n.b-new-text-03 .gray-right-block {  display: inline-block;\n  background: #f5f5f7;\n  border-radius: 20px;\n  width: 230px;\n  float: right;\n  background-image: url(\"https://fsms.quadcode.com/storage/public/cq/ae/146di3umufautjh0/Frame 4.png\");\n  background-repeat: no-repeat;\n  background-position: center;\n  background-size: cover;\n  min-height: 290px;  }\n@media screen and (max-width: 600px) {\n  .b-new-text-03 .gray-right-block {  width: 100% !important;\n    display: block !important;\n    float: none !important;\n    height: auto !important;\n    min-height: auto !important;  }\n}\n.b-new-text-03 .block-empty-16 {  height:16px;line-height:16px;font-size:16px  }\n.white-bg.b-new-text-03 {  background:#fff  }\n.b-new-text-03 .small-text, .b-new-text-03 .subtitle-min, .b-new-text-03 .text, .b-new-text-03 .text-fat, .b-new-text-03 .text-strong {  font-family:Helvetica!important;font-weight:400;color:#413e43  }\n.b-new-text-03 .text {  letter-spacing:0;font-size:18px;line-height:27px  }\n.b-new-text-03 .small-text, .b-new-text-03 .subtitle-min, .b-new-text-03 .text-fat, .b-new-text-03 .text-strong {  font-size:16px;line-height:24px  }\n.b-new-text-03 .text.list {  display:list-item  }\n.b-new-text-03 .pb8 {  padding-bottom:8px  }\n.b-new-text-03 .pb32, .b-new-text-03 .pb32-a {  padding-bottom:32px  }\n.b-new-text-03 .pb44 {  padding-bottom:44px  }\n.b-new-text-03 .pt44, .b-new-text-03 .pt45 {  padding-top:44px  }\n.br-full-16.b-new-text-03 {  border-radius:16px;-moz-border-radius:16px;-webkit-border-radius:16px  }\n.bg-bord-full.b-new-text-03 {  border:1px solid #eae9e9  }\n.b-new-text-03 .text a, .b-new-text-03 b {  font-family:Helvetica!important  }\n.b-new-text-03 .text a {  text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#6a8a00!important  }\n.b-new-text-03 .big-text {  font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:38px;color:#413e43  }\n@media screen and (max-width:600px) {\n  .b-new-text-03 .big-text {  font-size:24px!important;line-height:32px!important  }\n}\n.b-new-text-03 .gray-blodck-big {  padding:32px;background:#f5f5f7;border-radius:20px;background-image:url(\"https://fsms.quadcode.com/storage/public/cq/ae/146fu8jqbm9856f0/Frame 2.png\");background-repeat:no-repeat;background-position:center;background-size:cover  }\n.b-new-text-03 .top-block {  max-width:232px  }\n.b-new-text-03 .gray-left-block {  display:inline-block;background:#f5f5f7;border-radius:20px;width:230px;background-image:url(\"https://fsms.quadcode.com/storage/public/cq/ae/146di3umufautjhg/Frame 3.png\");background-repeat:no-repeat;background-position:center;background-size:cover;min-height:290px  }\n@media screen and (max-width:600px) {\n  .b-new-text-03 .gray-left-block {  width:100%!important;display:block!important;margin-bottom:16px!important;height:auto!important;min-height:auto!important  }\n}\n.b-new-text-03 .pd32-a {  padding:32px  }\n@media screen and (max-width:600px) {\n  .b-new-text-03 .pd32-a {  padding-bottom:90px!important  }\n}\n.b-new-text-03 .gray-right-block {  display:inline-block;background:#f5f5f7;border-radius:20px;width:230px;float:right;background-image:url(\"https://fsms.quadcode.com/storage/public/cq/ae/146di3umufautjh0/Frame 4.png\");background-repeat:no-repeat;background-position:center;background-size:cover;min-height:290px  }\n@media screen and (max-width:600px) {\n  .b-new-text-03 .gray-right-block {  width:100%!important;display:block!important;float:none!important;height:auto!important;min-height:auto!important  }\n}",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_7",
+      "kind": "richText",
+      "label": "Текст 7",
+      "default": "Текст блока — отредактируйте под кампанию."
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_new"
+  ],
+  "usageCount": 2,
+  "sourceMails": [
+    "X_new/mail-PWA",
+    "X_new/mail-PWA-2"
+  ],
+  "createdAt": "2026-07-06T12:10:00.055Z",
+  "validated": true
+}

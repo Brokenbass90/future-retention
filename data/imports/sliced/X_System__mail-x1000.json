@@ -1,0 +1,228 @@
+{
+  "category": "X_System",
+  "mailId": "x1000",
+  "mailAbs": "email-base/X_System/mail-x1000",
+  "blockCount": 3,
+  "blocks": [
+    {
+      "id": "x-system-x1000-header-header-0",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "kind": "section",
+      "sourceFile": "X_System/mail-x1000/app/templates/blocks/header.jade",
+      "pug": "table.row.header\n    tr\n        td.wrapper\n            table.six.columns\n                tr\n                    td.left\n                        a(href=\"https://iqoption.com/traderoom/?aff=7&afftrack=mail&retrack=call-from-iq\", target=\"_blank\")\n                            img.logo(src=\"https://images01.iqoption.com/89/0689/static-01503674720413810689.png\")\n        td.wrapper.last.hide-for-small\n            table.three.columns\n                tr\n                    td.apps\n                        a(href=\"https://app.appsflyer.com/id871125783?pid=7&c=mail\")\n                            img.app_btn(src=\"https://images01.iqoption.com/21/8721/static-00636246823765278721.png\")\n        td.wrapper.last.hide-for-small\n            table.three.columns\n                tr\n                    td.apps\n                        a(href=\"https://app.appsflyer.com/com.iqoption?pid=7&c=mail\")\n                            img.app_btn(src=\"https://images01.iqoption.com/17/9217/static-01920501695922569217.png\")",
+      "styl": "table.row.header { background:#f6f9fc url(https://images01.iqoption.com/01/5201/static-00115704862028595201.png) center top no-repeat;height:113px }\n.app_btn { width:116px;height:34px;padding-top:30px }",
+      "classes": [
+        "app_btn",
+        "apps",
+        "columns",
+        "header",
+        "hide-for-small",
+        "last",
+        "left",
+        "logo",
+        "row",
+        "six",
+        "three",
+        "wrapper"
+      ],
+      "designClasses": [
+        "app_btn",
+        "apps",
+        "header"
+      ],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://iqoption.com/traderoom/?aff=7&afftrack=mail&retrack=call-from-iq"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://app.appsflyer.com/id871125783?pid=7&c=mail"
+        },
+        {
+          "id": "href_2",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://app.appsflyer.com/com.iqoption?pid=7&c=mail"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://images01.iqoption.com/89/0689/static-01503674720413810689.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://images01.iqoption.com/21/8721/static-00636246823765278721.png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://images01.iqoption.com/17/9217/static-01920501695922569217.png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-system-x1000-header-text-1",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_System/mail-x1000/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg\n    tr\n        td.offset-by-one\n            table.ten.columns\n                tr\n                    td.no-padding-bottom\n                        p.title Dear Trader,\n                        p.text We tried to reach you telephonically this week, without success.\n                        p.text The purpose of the call was a courtesy call to discuss your investment in our platform, to inquire what else you would like to see on IQ Option and in general to see if you have questions or queries.\n                        p.text Our purpose is to offer support and deliver useful information to you to enhance your experience with our company.\n                        p.text Kindly advise when is a convenient time for us to call you, alternatively, I invite you to direct your queries here to our 24-hour customer support at&nbsp;\n                            a(href=\"mailto:support@iqoption.com\" target=\"_blank\") support@iqoption.com",
+      "styl": ".white-bg { background:#fff }\n.title { color:#2473d7;font-size:24px;font-weight:500;line-height:32px;padding-top:30px;padding-bottom:25px }\n@media screen and (max-width:600px) {\n  .title { padding-left:20px!important;padding-right:20px!important }\n}\n.text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }",
+      "classes": [
+        "columns",
+        "no-padding-bottom",
+        "offset-by-one",
+        "row",
+        "ten",
+        "text",
+        "title",
+        "white-bg"
+      ],
+      "designClasses": [
+        "text",
+        "title",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "mailto:support@iqoption.com"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-system-x1000-header-text-1-heading-0",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.title Dear Trader,",
+          "styl": ".title { color:#2473d7;font-size:24px;font-weight:500;line-height:32px;padding-top:30px;padding-bottom:25px }\n@media screen and (max-width:600px) {\n  .title { padding-left:20px!important;padding-right:20px!important }\n}",
+          "classes": [
+            "title"
+          ],
+          "designClasses": [
+            "title"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-system-x1000-header-text-1-paragraph-1",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text We tried to reach you telephonically this week, without success.",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-system-x1000-header-text-1-paragraph-2",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text The purpose of the call was a courtesy call to discuss your investment in our platform, to inquire what else you would like to see on IQ Option and in general to see if you have questions or queries.",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-system-x1000-header-text-1-paragraph-3",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text Our purpose is to offer support and deliver useful information to you to enhance your experience with our company.",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-system-x1000-header-text-1-paragraph-4",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text Kindly advise when is a convenient time for us to call you, alternatively, I invite you to direct your queries here to our 24-hour customer support at&nbsp;\n    a(href=\"mailto:support@iqoption.com\" target=\"_blank\") support@iqoption.com",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "mailto:support@iqoption.com"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-system-x1000-header-text-2",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_System/mail-x1000/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg\n    tr\n        td.offset-by-three\n            table.six.columns\n                tr\n                    td\n                        .button-wrapper\n                            table.medium-button.radius\n                                tr\n                                    td.iq\n                                        a.butt(href=\"https://iqoption.com/traderoom/?aff=7&afftrack=mail&retrack=call-from-iq\" target=\"_blank\") Proceed to IQ Option",
+      "styl": ".button-wrapper { padding-top:25px;padding-bottom:0 }\n@media screen and (max-width:600px) {\n  .button-wrapper { padding-left:30px!important;padding-right:30px!important }\n}\n.white-bg { background:#fff }",
+      "classes": [
+        "butt",
+        "button-wrapper",
+        "columns",
+        "iq",
+        "medium-button",
+        "offset-by-three",
+        "radius",
+        "row",
+        "six",
+        "white-bg"
+      ],
+      "designClasses": [
+        "button-wrapper",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://iqoption.com/traderoom/?aff=7&afftrack=mail&retrack=call-from-iq"
+        }
+      ],
+      "inlineChildren": []
+    }
+  ]
+}

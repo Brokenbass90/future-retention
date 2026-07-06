@@ -1,0 +1,24 @@
+{
+  "id": "system-text-92",
+  "label": "Заголовок",
+  "description": "Импортирован из X_System (2 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.title.b-system-text-92 New Changes for Overnight Fees",
+  "styl": ".title.b-system-text-92 {  color:#2473d7;font-size:24px;font-weight:500;line-height:32px;padding-top:30px;padding-bottom:25px  }\n@media screen and (max-width:600px) {\n  .title.b-system-text-92 {  padding-left:20px!important;padding-right:20px!important  }\n}",
+  "slots": [],
+  "tags": [
+    "text",
+    "inline",
+    "X_System"
+  ],
+  "usageCount": 2,
+  "sourceMails": [
+    "X_System/mail-sowwy",
+    "X_System/mail-terms-change"
+  ],
+  "createdAt": "2026-07-06T12:09:59.370Z",
+  "validated": true
+}

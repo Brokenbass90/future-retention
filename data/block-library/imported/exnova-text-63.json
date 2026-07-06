@@ -1,0 +1,60 @@
+{
+  "id": "exnova-text-63",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_Exnova (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.b-exnova-text-63\n    tr\n        td.wrapper.last.pt0.offset-by-one\n            table.ten.columns\n                tr\n                    td.pb28.text-pad-small.pt25\n                        p.black-title.pb20 {{ text_1 }}\n                            span.blue\n                        p.text {{ text_2 }}\n    tr\n        td.wrapper.last.offset-by-three.pt0\n            table.six.columns\n                tr\n                    td.pb25\n                        .button-wrapper.button-wrapper_bot.pt0\n                            table.medium-button.radius.blue-button\n                                tr\n                                    td.iq.blue-button\n                                        a.butt(href=\"{{ href_1 }}\" target=\"_blank\")\n                                            |{{ text_4 }}\n                                            img.arrow-icon(src=\"{{ image_1 }}\")",
+  "styl": ".b-exnova-text-63 .blue-button {  background:#0081e3!important  }\n.b-exnova-text-63 .button-wrapper {  padding-top:0;padding-bottom:0  }\n@media screen and (max-width:600px) {\n  .b-exnova-text-63 .button-wrapper {  padding-left:30px!important;padding-right:30px!important  }\n}\n.b-exnova-text-63 .arrow-icon {  float:none;display:inline-block;vertical-align:middle;max-width:18px;padding-left:15px  }\n.white-bg.b-exnova-text-63 {  background:#fff  }\n.b-exnova-text-63 .black-title {  font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:37px;color:#27282d  }\n@media screen and (max-width:600px) {\n  .b-exnova-text-63 .black-title {  font-size:26px!important;line-height:38px!important  }\n}\n.b-exnova-text-63 .blue {  background:#0081e3  }\n.b-exnova-text-63 .text {  font-family:Helvetica!important;color:#262832;font-size:16px;font-weight:400;line-height:24px  }\n.b-exnova-text-63 .text.bold {  font-weight:700  }\n.b-exnova-text-63 .pb25 {  padding-bottom:25px  }\n.b-exnova-text-63 .pb28 {  padding-bottom:28px  }\n.b-exnova-text-63 .pt25 {  padding-top:25px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "{{ text_3 }}"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://static.cdnroute.io/files/storage/public/62/a8/50b90d0d72f8b6c6g8/icon_arrow__1___1_.png"
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_Exnova"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_Exnova/mail-Telegram-signals"
+  ],
+  "createdAt": "2026-07-06T12:09:50.968Z",
+  "validated": true
+}

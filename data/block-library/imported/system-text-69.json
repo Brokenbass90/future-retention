@@ -1,0 +1,23 @@
+{
+  "id": "system-text-69",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_System (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.b-system-text-69\n    tr\n        td.offset-by-one\n            table.ten.columns\n                tr\n                    td.no-padding-bottom\n                        p.title Dear Traders,\n                        p.text It has been an absolute pleasure working with you all however I have been appointed a new role within the company which means you will be assigned a new Account Manager who shall take good care of your Accounts.\n                        p.text I wish you all the best with your future trading\n                        p.text Kind Regards,\n                            br\n                            | Jake Storey.",
+  "styl": ".white-bg.b-system-text-69 {  background:#fff  }\n.b-system-text-69 .title {  color:#2473d7;font-size:24px;font-weight:500;line-height:32px;padding-top:30px;padding-bottom:25px  }\n@media screen and (max-width:600px) {\n  .b-system-text-69 .title {  padding-left:20px!important;padding-right:20px!important  }\n}\n.b-system-text-69 .text {  color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px  }\n@media screen and (max-width:600px) {\n  .b-system-text-69 .text {  padding-left:20px!important;padding-right:20px!important  }\n}\n.b-system-text-69 .text a {  color:#2473d7;text-decoration:underline  }\n.b-system-text-69 .text.bold {  font-weight:700  }",
+  "slots": [],
+  "tags": [
+    "text",
+    "section",
+    "X_System"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_System/mail-jake"
+  ],
+  "createdAt": "2026-07-06T12:09:59.369Z",
+  "validated": true
+}

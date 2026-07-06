@@ -1,0 +1,90 @@
+{
+  "id": "new-text-19",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_new (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.br-full-16.bg-bord-full.b-new-text-19\n    tr\n        td.wrapper.last.offset-by-one.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44\n                        p.small-title.pb12 {{ text_1 }}\n                        p.text.pb32 {{ text_2 }}\n                        .left-block\n                            .pdd\n                                p.min-grey.pb12.center {{ text_3 }}\n                                p.big-blue-text.fw-min-blue.pb8.center {{ text_4 }}\n                                p.little-big-text.pb8.center {{ text_5 }}\n                                p.text.center.pb32 {{ text_6 }}\n                                a(href=\"{{ href_1 }}\" target=\"_blank\")\n                                    p.little-button {{ text_7 }}\n                        .right-block\n                            .pdd\n                                p.min-grey.pb12.center {{ text_3 }}\n                                p.big-blue-text.fw-min-blue.pb8.center {{ text_8 }}\n                                p.little-big-text.pb8.center {{ text_9 }}\n                                p.text.center.pb32 {{ text_10 }}\n                                a(href=\"{{ href_1 }}\" target=\"_blank\")\n                                    p.little-button {{ text_7 }}",
+  "styl": ".white-bg.b-new-text-19 {  background:#fff  }\n.b-new-text-19 .small-title, .b-new-text-19 .title-top {  font-family:Helvetica!important;font-weight:700;color:#413e43  }\n.b-new-text-19 .small-title {  letter-spacing:-.5px;font-size:32px;line-height:38px  }\n.b-new-text-19 .little-big-text {  font-family:Helvetica!important;font-weight:700;font-size:18px;line-height:25px;color:#413e43  }\n.b-new-text-19 .subtitle-min, .b-new-text-19 .text {  font-family:Helvetica!important  }\n.b-new-text-19 .text {  letter-spacing:0;color:#413e43;font-size:18px;font-weight:400;line-height:27px  }\n.b-new-text-19 .text.list {  display:list-item  }\n.b-new-text-19 .pb8 {  padding-bottom:8px  }\n.b-new-text-19 .pb12 {  padding-bottom:12px  }\n.b-new-text-19 .pb44 {  padding-bottom:44px  }\n.b-new-text-19 .pt44, .b-new-text-19 .pt45 {  padding-top:44px  }\n.br-full-16.b-new-text-19 {  border-radius:16px;-moz-border-radius:16px;-webkit-border-radius:16px  }\n.bg-bord-full.b-new-text-19 {  border:1px solid #eae9e9  }\n.b-new-text-19 .text a, .b-new-text-19 b {  font-family:Helvetica!important  }\n.b-new-text-19 .text a {  text-decoration:underline!important;font-weight:400;font-size:18px;line-height:27px;color:#1466fe!important  }\n.b-new-text-19 .pb32 {  padding-bottom:32px  }\n.b-new-text-19 .big-blue-text {  font-family:Helvetica!important;font-weight:700;font-size:56px;line-height:67px;color:#4575fe  }\n@media screen and (max-width:600px) {\n  .b-new-text-19 .big-blue-text {  font-size:36px!important;line-height:47px!important;text-align:center!important  }\n}\n.b-new-text-19 .fw-min-blue {  font-size:48px!important  }\n.b-new-text-19 .left-block {  display:inline-block;width:230px;background:#f6f6f6;border-radius:24px;margin-right:10px;min-height:368px;vertical-align:top  }\n@media screen and (max-width:600px) {\n  .b-new-text-19 .left-block {  margin-right:0!important;width:100%!important;margin-bottom:20px!important;min-height:auto!important  }\n}\n.b-new-text-19 .pdd {  padding:24px  }\n.b-new-text-19 .right-block {  display:inline-block;width:230px;background:#f6f6f6;border-radius:24px;min-height:368px;vertical-align:top  }\n@media screen and (max-width:600px) {\n  .b-new-text-19 .right-block {  width:100%!important;min-height:auto!important  }\n}\n.b-new-text-19 .blocks-text, .b-new-text-19 .min-grey {  font-family:Helvetica!important;font-weight:400;font-size:16px;line-height:24px;color:#7f7f7f  }\n.b-new-text-19 .little-button {  padding:20px 0;width:100%;border:2px solid #3f3f3f;border-radius:12px;font-family:Helvetica!important;font-weight:700;font-size:18px;text-align:center;color:#3f3f3f  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_7",
+      "kind": "richText",
+      "label": "Текст 7",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_8",
+      "kind": "richText",
+      "label": "Текст 8",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_9",
+      "kind": "richText",
+      "label": "Текст 9",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_10",
+      "kind": "richText",
+      "label": "Текст 10",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://my.affstore.com/offers?source=email&utm_source=email&utm_medium=email&utm_campaign=qcm_global_intro"
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-QCM-Offer-2"
+  ],
+  "createdAt": "2026-07-06T12:10:00.056Z",
+  "validated": true
+}

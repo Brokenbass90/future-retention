@@ -1,0 +1,30 @@
+{
+  "id": "casatradeaffiliate-text-20",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_CasaTradeAffiliate (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.pb15.b-casatradeaffiliate-text-20 {{ text_1 }}",
+  "styl": ".text.b-casatradeaffiliate-text-20 {  font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 24px;  }\n.text.bold.b-casatradeaffiliate-text-20 {  font-weight: 700;  }\n.pb15.b-casatradeaffiliate-text-20 {  padding-bottom: 15px;  }\n.text.mob-text.b-casatradeaffiliate-text-20, .b-casatradeaffiliate-text-20 .img-box {  float: none !important;\n  max-width: 232px !important;\n  display: block !important;  }\n.b-casatradeaffiliate-text-20 .small-dot, .text.b-casatradeaffiliate-text-20 {  font-family:Helvetica!important;font-size:18px;line-height:27px;color:#3e3752  }\n.text.b-casatradeaffiliate-text-20 {  letter-spacing:0  }\n.b-casatradeaffiliate-text-20 .big, .text.bold.b-casatradeaffiliate-text-20 {  font-weight:700  }\n.pb15.b-casatradeaffiliate-text-20 {  padding-bottom:15px  }\n.b-casatradeaffiliate-text-20 .img-box, .text.mob-text.b-casatradeaffiliate-text-20 {  float:none!important;max-width:232px!important;display:block!important  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_CasaTradeAffiliate"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_CasaTradeAffiliate/mail-First-Contest"
+  ],
+  "createdAt": "2026-07-06T12:09:59.794Z",
+  "validated": true
+}

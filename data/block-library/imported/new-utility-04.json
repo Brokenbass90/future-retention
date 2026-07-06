@@ -1,0 +1,44 @@
+{
+  "id": "new-utility-04",
+  "label": "Gmail blend wrapper",
+  "description": "Импортирован из X_new (3 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "utility",
+  "version": 1,
+  "source": "imported",
+  "pug": "div.gmail-blend-screen.b-new-utility-04\n    div.gmail-blend-diff\n        p.white-title.pb16 {{ text_1 }}\n        p.white-text.pb8  {{ text_2 }}\n        p.white-text  {{ text_3 }}",
+  "styl": "u + .body .gmail-blend-screen.b-new-utility-04 {  background: #000;\n  mix-blend-mode: screen;  }\n.b-new-utility-04 u + .body .gmail-blend-diff {  background: #000;\n  mix-blend-mode: difference;  }\n.b-new-utility-04 .white-title {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 40px;\n  line-height: 50px;\n  color: #fff;\n  word-break: break-word;  }\n@media screen and (max-width: 600px) {\n  .b-new-utility-04 .white-title {  font-size: 26px !important;\n    line-height: 32px !important;  }\n}\n.b-new-utility-04 .white-text {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #fff;\n  padding-right: 20px;  }\n@media screen and (max-width: 600px) {\n  .b-new-utility-04 .white-text {  padding-right: 0 !important;  }\n}\n.b-new-utility-04 .pb8 {  padding-bottom: 8px;  }\n.b-new-utility-04 .pb16 {  padding-bottom: 16px;  }\nu+.body .gmail-blend-screen.b-new-utility-04 {  background:#000;mix-blend-mode:screen  }\n.b-new-utility-04 u+.body .gmail-blend-diff {  background:#000;mix-blend-mode:difference  }\n.b-new-utility-04 .white-title {  font-family:Helvetica!important;font-weight:700;font-size:40px;line-height:50px;color:#fff;word-break:break-word  }\n@media screen and (max-width:600px) {\n  .b-new-utility-04 .white-title {  font-size:26px!important;line-height:32px!important  }\n}\n.b-new-utility-04 .white-text {  font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#fff;padding-right:20px  }\n@media screen and (max-width:600px) {\n  .b-new-utility-04 .white-text {  padding-right:0!important  }\n}\n.b-new-utility-04 .pb8 {  padding-bottom:8px  }\n.b-new-utility-04 .pb16 {  padding-bottom:16px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    }
+  ],
+  "tags": [
+    "utility",
+    "inline",
+    "X_new"
+  ],
+  "usageCount": 3,
+  "sourceMails": [
+    "X_new/mail-rfm-313",
+    "X_new/mail-rfm-331",
+    "X_new/mail-rfm-334"
+  ],
+  "createdAt": "2026-07-06T12:10:00.063Z",
+  "validated": true
+}

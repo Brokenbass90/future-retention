@@ -1,0 +1,281 @@
+{
+  "category": "X_IQBroker",
+  "mailId": "epq_update",
+  "mailAbs": "email-base/X_IQBroker/mail-epq_update",
+  "blockCount": 2,
+  "blocks": [
+    {
+      "id": "x-iqbroker-epq-update-header-header-0",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "kind": "section",
+      "sourceFile": "X_IQBroker/mail-epq_update/app/templates/blocks/header.jade",
+      "pug": "table.center\n    tr\n        td\n            table.ten.columns\n                tr\n                    td.pb0\n                        a(href=\"{{embedded.domain}}\" target=\"_blank\")\n                            img.logo(src=\"https://fsms.quadcode.com/storage/public/d3/hq/9eiqubga63ldcae0/Logo.png\")",
+      "styl": "",
+      "classes": [
+        "center",
+        "columns",
+        "logo",
+        "pb0",
+        "ten"
+      ],
+      "designClasses": [],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "{{embedded.domain}}"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d3/hq/9eiqubga63ldcae0/Logo.png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-iqbroker-epq-update-header-section-1",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "kind": "section",
+      "sourceFile": "X_IQBroker/mail-epq_update/app/templates/blocks/header.jade",
+      "pug": "table.row.border-full\n    tr\n        td.wrapper.last.offset-by-one.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb40\n                        p.middle-title.pb30 ${{ epq-update.block_00 }}$\n                        p.text.pb16\n                            b ${{ epq-update.block_01 }}$\n                        p.text.pb12 ${{ epq-update.block_02 }}$\n                        p.text ${{ epq-update.block_03 }}$\n                tr\n                    td.text-pad-small.vam.center.pb32.bb\n                        .left-side\n                            .button-wrapper.button-wrapper_left\n                                table.medium-button.radius\n                                    tr\n                                        td.butt-td\n                                            a.butt(href=\"{{embedded.domain}}/verification/docs-po\" target=\"_blank\") ${{ epq-update.block_04 }}$\n                tr\n                    td.text-pad-small.pb44.pt24\n                        p.small-text ${{ epq-update.block_05 }}$&nbsp;\n                            a(href=\"mailto:{{embedded.company_email}}\" target=\"_blank\") ${{ epq-update.block_06 }}$\n                            |&nbsp;${{ epq-update.block_07 }}$",
+      "styl": ".vam { vertical-align: middle !important; }\n.butt-td { padding: 0 !important; }\n.bb { border-bottom: 1px solid #f9f9f9; }\n.text { font-family: Helvetica !important;\n  color: #3c3939;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 28px; }\n.text a { color: #213e8f;\n  font-weight: 700;\n  font-family: Helvetica !important; }\n.small-text { color: #84868b;\n  font-size: 18px;\n  line-height: 27px;\n  font-weight: 400;\n  font-family: Helvetica !important;\n  text-align: center; }\n.small-text a { color: #5165ff !important;\n  font-family: Helvetica !important;\n  text-decoration: none; }\n.button-wrapper { padding-top: 0;\n  padding-bottom: 0; }\n@media screen and (max-width: 600px) {\n  .button-wrapper { padding-left: 30px !important;\n    padding-right: 30px !important; }\n}\n.left-side { display: inline-block;\n  width: 60%;\n  max-width: 280px;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .left-side { width: 100% !important;\n    max-width: 100% !important;\n    display: block !important; }\n}\n.pt24 { padding-top: 24px; }\n.text a { color: #5165ff !important; }\n.vam { vertical-align:middle!important }\n.butt-td { padding:0!important }\n.bb { border-bottom:1px dashed #d9d9db }\n.border-full { border-radius:16px }\n.middle-title,.title { color:#2e292a;font-size:48px;line-height:57.6px;font-weight:700;font-family:Helvetica!important }\n.middle-title { font-style:normal;font-size:32px;line-height:42px;color:#393a44 }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:24px!important;line-height:32px!important }\n}\n.text { color:#3c3939;font-size:18px;font-weight:400;line-height:28px }\n.text a { font-weight:700 }\n.small-text,.small-text a,.text,.text a { font-family:Helvetica!important }\n.small-text { font-size:18px;line-height:27px;font-weight:400;text-align:center;color:#84868b }\n.small-text a { color:#5165ff!important;text-decoration:none }\n.button-wrapper { padding-top:0;padding-bottom:0 }\n@media screen and (max-width:600px) {\n  .button-wrapper { padding-left:30px!important;padding-right:30px!important }\n}\n.left-side { display:inline-block;width:60%;max-width:280px;box-sizing:border-box;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .left-side { width:100%!important;max-width:100%!important;display:block!important }\n}\n.pb12 { padding-bottom:12px }\n.pb16 { padding-bottom:16px }\n.pb32 { padding-bottom:32px }\n.pb44 { padding-bottom:44px }\n.pt24 { padding-top:24px }\n.pt44 { padding-top:44px }\n.text a { color:#5165ff!important }",
+      "classes": [
+        "bb",
+        "border-full",
+        "butt",
+        "butt-td",
+        "button-wrapper",
+        "button-wrapper_left",
+        "center",
+        "columns",
+        "last",
+        "left-side",
+        "medium-button",
+        "middle-title",
+        "offset-by-one",
+        "pb12",
+        "pb16",
+        "pb30",
+        "pb32",
+        "pb40",
+        "pb44",
+        "pt24",
+        "pt44",
+        "radius",
+        "row",
+        "small-text",
+        "ten",
+        "text",
+        "text-pad-small",
+        "vam",
+        "wrapper"
+      ],
+      "designClasses": [
+        "bb",
+        "border-full",
+        "butt-td",
+        "button-wrapper",
+        "button-wrapper_left",
+        "left-side",
+        "middle-title",
+        "pb12",
+        "pb16",
+        "pb32",
+        "pb44",
+        "pt24",
+        "pt44",
+        "small-text",
+        "text",
+        "vam"
+      ],
+      "slots": [
+        {
+          "id": "text_block_00",
+          "kind": "richText",
+          "label": "Текст epq-update.block_00",
+          "token": "${{ epq-update.block_00 }}$",
+          "ns": "epq-update",
+          "block": "block_00"
+        },
+        {
+          "id": "text_block_01",
+          "kind": "richText",
+          "label": "Текст epq-update.block_01",
+          "token": "${{ epq-update.block_01 }}$",
+          "ns": "epq-update",
+          "block": "block_01"
+        },
+        {
+          "id": "text_block_02",
+          "kind": "richText",
+          "label": "Текст epq-update.block_02",
+          "token": "${{ epq-update.block_02 }}$",
+          "ns": "epq-update",
+          "block": "block_02"
+        },
+        {
+          "id": "text_block_03",
+          "kind": "richText",
+          "label": "Текст epq-update.block_03",
+          "token": "${{ epq-update.block_03 }}$",
+          "ns": "epq-update",
+          "block": "block_03"
+        },
+        {
+          "id": "text_block_04",
+          "kind": "richText",
+          "label": "Текст epq-update.block_04",
+          "token": "${{ epq-update.block_04 }}$",
+          "ns": "epq-update",
+          "block": "block_04"
+        },
+        {
+          "id": "text_block_05",
+          "kind": "richText",
+          "label": "Текст epq-update.block_05",
+          "token": "${{ epq-update.block_05 }}$",
+          "ns": "epq-update",
+          "block": "block_05"
+        },
+        {
+          "id": "text_block_06",
+          "kind": "richText",
+          "label": "Текст epq-update.block_06",
+          "token": "${{ epq-update.block_06 }}$",
+          "ns": "epq-update",
+          "block": "block_06"
+        },
+        {
+          "id": "text_block_07",
+          "kind": "richText",
+          "label": "Текст epq-update.block_07",
+          "token": "${{ epq-update.block_07 }}$",
+          "ns": "epq-update",
+          "block": "block_07"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "{{embedded.domain}}/verification/docs-po"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "mailto:{{embedded.company_email}}"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-iqbroker-epq-update-header-section-1-heading-0",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.middle-title.pb30 ${{ epq-update.block_00 }}$",
+          "styl": ".middle-title,.title { color:#2e292a;font-size:48px;line-height:57.6px;font-weight:700;font-family:Helvetica!important }\n.middle-title { font-style:normal;font-size:32px;line-height:42px;color:#393a44 }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:24px!important;line-height:32px!important }\n}",
+          "classes": [
+            "middle-title",
+            "pb30"
+          ],
+          "designClasses": [
+            "middle-title"
+          ],
+          "slots": [
+            {
+              "id": "text_block_00",
+              "kind": "richText",
+              "label": "Текст epq-update.block_00",
+              "token": "${{ epq-update.block_00 }}$",
+              "ns": "epq-update",
+              "block": "block_00"
+            }
+          ]
+        },
+        {
+          "id": "x-iqbroker-epq-update-header-section-1-paragraph",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb16\n    b ${{ epq-update.block_01 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #3c3939;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 28px; }\n.text a { color: #213e8f;\n  font-weight: 700;\n  font-family: Helvetica !important; }\n.text a { color: #5165ff !important; }\n.text { color:#3c3939;font-size:18px;font-weight:400;line-height:28px }\n.text a { font-weight:700 }\n.small-text,.small-text a,.text,.text a { font-family:Helvetica!important }\n.pb16 { padding-bottom:16px }\n.text a { color:#5165ff!important }",
+          "classes": [
+            "pb16",
+            "text"
+          ],
+          "designClasses": [
+            "pb16",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_01",
+              "kind": "richText",
+              "label": "Текст epq-update.block_01",
+              "token": "${{ epq-update.block_01 }}$",
+              "ns": "epq-update",
+              "block": "block_01"
+            }
+          ]
+        },
+        {
+          "id": "x-iqbroker-epq-update-header-section-1-paragraph",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb12 ${{ epq-update.block_02 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #3c3939;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 28px; }\n.text a { color: #213e8f;\n  font-weight: 700;\n  font-family: Helvetica !important; }\n.text a { color: #5165ff !important; }\n.text { color:#3c3939;font-size:18px;font-weight:400;line-height:28px }\n.text a { font-weight:700 }\n.small-text,.small-text a,.text,.text a { font-family:Helvetica!important }\n.pb12 { padding-bottom:12px }\n.text a { color:#5165ff!important }",
+          "classes": [
+            "pb12",
+            "text"
+          ],
+          "designClasses": [
+            "pb12",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_02",
+              "kind": "richText",
+              "label": "Текст epq-update.block_02",
+              "token": "${{ epq-update.block_02 }}$",
+              "ns": "epq-update",
+              "block": "block_02"
+            }
+          ]
+        },
+        {
+          "id": "x-iqbroker-epq-update-header-section-1-paragraph",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ epq-update.block_03 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #3c3939;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 28px; }\n.text a { color: #213e8f;\n  font-weight: 700;\n  font-family: Helvetica !important; }\n.text a { color: #5165ff !important; }\n.text { color:#3c3939;font-size:18px;font-weight:400;line-height:28px }\n.text a { font-weight:700 }\n.small-text,.small-text a,.text,.text a { font-family:Helvetica!important }\n.text a { color:#5165ff!important }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_03",
+              "kind": "richText",
+              "label": "Текст epq-update.block_03",
+              "token": "${{ epq-update.block_03 }}$",
+              "ns": "epq-update",
+              "block": "block_03"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

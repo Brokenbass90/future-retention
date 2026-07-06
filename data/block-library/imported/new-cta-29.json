@@ -1,0 +1,115 @@
+{
+  "id": "new-cta-29",
+  "label": "CTA-секция",
+  "description": "Импортирован из X_new (1 писем). Секция.",
+  "placement": "section",
+  "category": "cta",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.brad-full.white-bg.b-new-cta-29\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.middle-title.pb16 {{ text_1 }} {{ text_2 }}\n                        p.text.pb32 {{ text_3 }}\n                        .gray-block-2\n                            table.w100\n                                tr\n                                    td.pb0.m-w\n                                        a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                            img.asset-logo-2(src=\"{{ image_1 }}\")\n                                    td.pb0.w-a\n                                        p.text-asset-block{{ text_4 }}\n                            ul.pt24\n                                li.text.pb8 {{ text_5 }}\n                                li.text.pb8 {{ text_6 }}\n                                li.text {{ text_7 }}\n                        .h-32 &nbsp;\n                        .gray-block-2\n                            table.w100\n                                tr\n                                    td.pb0.m-w\n                                        a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                            img.asset-logo-2(src=\"{{ image_2 }}\")\n                                    td.pb0.w-a\n                                        p.text-asset-block{{ text_8 }}\n                            ul.pt24\n                                li.text.pb8 {{ text_9 }}\n                                li.text.pb8 {{ text_10 }}\n                                li.text {{ text_11 }}\n                        .h-40 &nbsp;\n                        table.w280(align=\"center\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"{{ href_1 }}\" universal=\"true\" target=\"_blank\") {{ text_12 }}",
+  "styl": ".b-new-cta-29 .w280 {  width: 100%;\n  max-width: 280px;  }\n@media screen and (max-width: 600px) {\n  .b-new-cta-29 .w280 {  max-width: 100% !important;  }\n}\n.brad-full.b-new-cta-29 {  border-radius: 32px !important;  }\n.b-new-cta-29 .butt-link {  font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px;  }\n.white-bg.b-new-cta-29 {  background-color: #fff;  }\n.b-new-cta-29 .middle-title {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle;  }\n@media screen and (max-width: 600px) {\n  .b-new-cta-29 .middle-title {  font-size: 28px !important;\n    line-height: 34px !important;  }\n}\n.b-new-cta-29 .text {  font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400;  }\n.b-new-cta-29 .text.bold {  font-weight: 700;  }\n.b-new-cta-29 .pb8 {  padding-bottom: 8px;  }\n.b-new-cta-29 .pb16 {  padding-bottom: 16px;  }\n.b-new-cta-29 .pb32 {  padding-bottom: 32px;  }\n.b-new-cta-29 .pb44 {  padding-bottom: 44px;  }\n.b-new-cta-29 .pt24 {  padding-top: 24px;  }\n.b-new-cta-29 .pt44 {  padding-top: 44px;  }\n.b-new-cta-29 .h-32 {  font-size: 8px;\n  line-height: 32px;\n  height: 32px;  }\n.b-new-cta-29 .h-40 {  font-size: 8px;\n  line-height: 40px;\n  height: 40px;  }\n@media screen and (max-width: 600px) {\n  .b-new-cta-29 .text.mob-text, .b-new-cta-29 .grey-text.mob-text {  font-size: 17px !important;  }\n}\n.b-new-cta-29 .w100 {  width: 100%;  }\n.b-new-cta-29 .w-a {  width: auto !important;\n  vertical-align: middle;  }\n.b-new-cta-29 table[class=body] table.column td, .b-new-cta-29 table[class=body] table.columns td.m-w {  min-width: 72px !important;\n  width: 72px !important;  }\n.b-new-cta-29 .gray-block-2 {  padding: 24px;\n  background: #f9f9f9;\n  border-radius: 24px;  }\n.b-new-cta-29 .asset-logo-2 {  display: inline-block;\n  width: 56px !important;\n  float: none;\n  vertical-align: middle;\n  padding-right: 12px;  }\n.b-new-cta-29 .text-asset-block {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  color: #393a44;  }\n.b-new-cta-29 .w280 {  width:100%;max-width:280px  }\n@media screen and (max-width:600px) {\n  .b-new-cta-29 .w280 {  max-width:100%!important  }\n}\n.brad-full.b-new-cta-29, .b-new-cta-29 .brad-full-32 {  border-radius:32px!important  }\n.b-new-cta-29 .butt-link, .b-new-cta-29 .butt-link-2, .b-new-cta-29 .butt-link-small {  font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#2f3749;display:block;line-height:27px;padding:16px 0;text-align:center;letter-spacing:0  }\n.b-new-cta-29 .butt-link, .b-new-cta-29 .butt-link-small {  color:#f9f9f9  }\n.white-bg.b-new-cta-29 {  background-color:#fff  }\n.b-new-cta-29 .middle-title {  font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#393a44;vertical-align:middle  }\n@media screen and (max-width:600px) {\n  .b-new-cta-29 .middle-title {  font-size:28px!important;line-height:34px!important  }\n}\n.b-new-cta-29 .number-block, .b-new-cta-29 .text {  font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400  }\n.b-new-cta-29 .big, .b-new-cta-29 .text.bold {  font-weight:700  }\n.b-new-cta-29 .pb8 {  padding-bottom:8px  }\n.b-new-cta-29 .pb16 {  padding-bottom:16px  }\n.b-new-cta-29 .pb32 {  padding-bottom:32px  }\n.b-new-cta-29 .pb44 {  padding-bottom:44px  }\n.b-new-cta-29 .pt24 {  padding-top:24px  }\n.b-new-cta-29 .pt44 {  padding-top:44px  }\n.b-new-cta-29 .h-30, .b-new-cta-29 .h-32, .b-new-cta-29 .h-40 {  font-size:8px;line-height:30px;height:30px  }\n.b-new-cta-29 .h-32, .b-new-cta-29 .h-40 {  line-height:32px;height:32px  }\n.b-new-cta-29 .h-40 {  line-height:40px;height:40px  }\n@media screen and (max-width:600px) {\n  .b-new-cta-29 .grey-text.mob-text, .b-new-cta-29 .text.mob-text {  font-size:17px!important  }\n}\n.b-new-cta-29 .w100 {  width:100%  }\n.b-new-cta-29 .w-a {  width:auto!important;vertical-align:middle  }\n.b-new-cta-29 table[class=body] table.column td, .b-new-cta-29 table[class=body] table.columns td.m-w {  min-width:72px!important;width:72px!important  }\n.b-new-cta-29 .gray-block, .b-new-cta-29 .gray-block-2 {  padding:24px;border-radius:24px  }\n.b-new-cta-29 .gray-block-2 {  background:#f9f9f9  }\n.b-new-cta-29 .asset-logo-2 {  display:inline-block;width:56px!important;float:none;vertical-align:middle;padding-right:12px  }\n.b-new-cta-29 .text-asset-block {  font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:24px;line-height:31px;color:#393a44  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_7",
+      "kind": "richText",
+      "label": "Текст 7",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_8",
+      "kind": "richText",
+      "label": "Текст 8",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_9",
+      "kind": "richText",
+      "label": "Текст 9",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_10",
+      "kind": "richText",
+      "label": "Текст 10",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_11",
+      "kind": "richText",
+      "label": "Текст 11",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_12",
+      "kind": "richText",
+      "label": "Текст 12",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://api.iqoption.com/v1/multi-links/apply-indicators?aff=7&afftrack=mail_IQ-RFM-2-1-2&retrack=mail_IQ-RFM-2-1-2"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/d6/pa/5l3s2mcraq8ana8g/green-arrow-top.png"
+    },
+    {
+      "id": "image_2",
+      "kind": "image",
+      "label": "Картинка 2",
+      "default": "https://fsms.quadcode.com/storage/public/d6/pa/5l3s2mcraq8ana90/red-arrow-bottom.png"
+    }
+  ],
+  "tags": [
+    "cta",
+    "section",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-rfm-segmentation-2-212"
+  ],
+  "createdAt": "2026-07-06T12:10:00.073Z",
+  "validated": false,
+  "failReason": "unexpected text \"Текст\""
+}

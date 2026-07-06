@@ -1,0 +1,29 @@
+{
+  "id": "iqbroker-section-12",
+  "label": "Секция",
+  "description": "Импортирован из X_IQBroker (1 писем). Секция.",
+  "placement": "section",
+  "category": "section",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.b-iqbroker-section-12\n    tr\n        td.wrapper.last.offset-by-one.pt0\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb20\n                        p.text {{ text_1 }}&nbsp;\n                            strong.code {{short_code}}",
+  "styl": ".b-iqbroker-section-12 .text {  font-family: Helvetica !important;\n  color: #3c3939;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 28px;  }\n.b-iqbroker-section-12 .text a {  color: #213e8f;\n  font-weight: 700;\n  font-family: Helvetica !important;  }\n.b-iqbroker-section-12 .text a {  color: #5165ff !important;  }\n.b-iqbroker-section-12 .text {  color:#3c3939;font-size:18px;font-weight:400;line-height:28px  }\n.b-iqbroker-section-12 .text a {  font-weight:700  }\n.b-iqbroker-section-12 .small-text, .b-iqbroker-section-12 .small-text a, .b-iqbroker-section-12 .text, .b-iqbroker-section-12 .text a {  font-family:Helvetica!important  }\n.b-iqbroker-section-12 .text a {  color:#5165ff!important  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    }
+  ],
+  "tags": [
+    "section",
+    "X_IQBroker"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_IQBroker/mail-s-confirm"
+  ],
+  "createdAt": "2026-07-06T12:09:51.737Z",
+  "validated": true
+}

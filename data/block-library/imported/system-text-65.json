@@ -1,0 +1,30 @@
+{
+  "id": "system-text-65",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_System (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.icon-text.icon-text_2.b-system-text-65 {{ text_1 }}",
+  "styl": ".text.b-system-text-65 {  font-family:Arial!important;color:#5b6e88;font-size:16px;font-weight:400;line-height:26px;padding-bottom:20px  }\n@media screen and (max-width:600px) {\n  .text.b-system-text-65 {  padding-left:20px!important;padding-right:20px!important  }\n}\n.b-system-text-65 .grey-text a, .text.b-system-text-65 a {  color:#0b8bd8;text-decoration:underline  }\n.icon-text.b-system-text-65 {  padding-left:80px  }\n@media screen and (max-width:600px) {\n  .icon-text.b-system-text-65 {  padding-left:50px!important  }\n}\n.icon-text_2.b-system-text-65 {  background:url(https://images01.iqoption.com/89/3089/static-03344689742204633089.png) left top 10px no-repeat;background-size:42px auto  }\n@media screen and (max-width:600px) {\n  .icon-text_2.b-system-text-65 {  background-size:35px auto!important  }\n}\n.text.bold.b-system-text-65 {  font-weight:700  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_System"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_System/mail-gdrp"
+  ],
+  "createdAt": "2026-07-06T12:09:59.369Z",
+  "validated": true
+}

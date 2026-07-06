@@ -1,0 +1,42 @@
+{
+  "id": "new-text-13",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_new (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.br-full.bg-bord-full.b-new-text-13\n    tr\n        td.wrapper.last.offset-by-one.pt40\n            table.row.ten.columns\n                tr\n                    td.text-pad-small.pb20\n                        p.big-text.center {{ text_1 }}\n    tr\n        td.wrapper.last.offset-by-two.pt0\n            table.eight.columns\n                tr\n                    td.pb40.text-pad-small.pt0\n                        .button-wrapper.button-wrapper_top\n                            table.medium-button.radius\n                                tr\n                                    td.iq\n                                        a.butt(href=\"{{ href_1 }}\" target=\"_blank\") {{ text_2 }}",
+  "styl": ".white-bg.b-new-text-13 {  background:#201e1f  }\n.b-new-text-13 .big-text {  font-family:Helvetica!important;font-weight:700!important;font-size:21px;line-height:28px;color:#f6f6f6  }\n.br-full.b-new-text-13 {  border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px  }\n.bg-bord-full.b-new-text-13 {  border:1px solid #403e43  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://affstore.com/en/?source=event"
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-Post-IGB-party-email"
+  ],
+  "createdAt": "2026-07-06T12:10:00.056Z",
+  "validated": true
+}

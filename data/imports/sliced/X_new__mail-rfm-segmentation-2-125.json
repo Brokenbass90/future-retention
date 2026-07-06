@@ -1,0 +1,1396 @@
+{
+  "category": "X_new",
+  "mailId": "rfm-segmentation-2-125",
+  "mailAbs": "email-base/X_new/mail-rfm-segmentation-2-125",
+  "blockCount": 14,
+  "blocks": [
+    {
+      "id": "x-new-rfm-segmentation-2-125-header-utility-0",
+      "label": "Спейсер 20px",
+      "placement": "inline",
+      "category": "utility",
+      "kind": "spacer",
+      "sourceFile": "X_new/mail-rfm-segmentation-2-125/app/templates/blocks/header.jade",
+      "pug": ".h-20 &nbsp;",
+      "styl": ".h-20 { font-size: 8px;\n  line-height: 20px;\n  height: 20px; }\n.h-20,.h-24,.h-28 { font-size:8px;line-height:20px;height:20px }",
+      "classes": [
+        "h-20"
+      ],
+      "designClasses": [
+        "h-20"
+      ],
+      "slots": [],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-new-rfm-segmentation-2-125-header-hero-1",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "kind": "section",
+      "sourceFile": "X_new/mail-rfm-segmentation-2-125/app/templates/blocks/header.jade",
+      "pug": "table.row.brad-full.bgr-image\n    tr\n        td.wrapper.last.pt0\n            table.twelve.columns\n                tr\n                    td.pb0\n                        a(href=\"https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-1-2-5&retrack=mail_IQ-RFM-1-2-5&type=forex&asset=1\" universal=\"true\" target=\"_blank\")\n                            img.logo.center(src=\"https://fsms.quadcode.com/storage/public/d6/nu/493ursrq72d917kg/logo.png\")\n                        .h-406 &nbsp;\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb50.pt10\n                        div.gmail-blend-screen\n                            div.gmail-blend-diff\n                                p.white-title.pb16 ${{ rfm-segmentation-2-125.block_01 }}$\n                                p.white-text  ${{ rfm-segmentation-2-125.block_02 }}$\n                        .h-24 &nbsp;\n                        table.w280(align=\"left\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-1-2-5&retrack=mail_IQ-RFM-1-2-5\" universal=\"true\" target=\"_blank\") ${{ rfm-segmentation-2-125.block_03 }}$",
+      "styl": "u + .body .gmail-blend-screen { background: #000;\n  mix-blend-mode: screen; }\nu + .body .gmail-blend-diff { background: #000;\n  mix-blend-mode: difference; }\n.bgr-image { background: url(\"https://fsms.quadcode.com/storage/public/d6/o2/uabs2mcraq8an9e0/1-2-5.png\") center top no-repeat;\n  background-size: cover;\n  background-color: #000; }\n.w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { max-width: 100% !important; }\n}\n.brad-full { border-radius: 32px !important; }\n.butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.white-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 48px;\n  line-height: 58px;\n  color: #f9f9f9;\n  word-break: break-word;\n  padding-right: 30px; }\n@media screen and (max-width: 600px) {\n  .white-title { font-size: 26px !important;\n    line-height: 32px !important; }\n}\n.white-text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #fff;\n  padding-right: 20px; }\n@media screen and (max-width: 600px) {\n  .white-text { padding-right: 0 !important; }\n}\n.pb16 { padding-bottom: 16px; }\n.h-24 { font-size: 8px;\n  line-height: 24px;\n  height: 24px; }\n.h-406 { font-size: 0;\n  line-height: 304px;\n  height: 304px; }\n@media screen and (max-width: 500px) {\n  .h-406 { font-size: 160px !important;\n    line-height: 260px !important;\n    height: 260px !important; }\n}\nu+.body .gmail-blend-screen { background:#000;mix-blend-mode:screen }\nu+.body .gmail-blend-diff { background:#000;mix-blend-mode:difference }\n.bgr,.bgr-image { background-size:cover }\n.bgr-image { background:url(https://fsms.quadcode.com/storage/public/d6/o2/uabs2mcraq8an9e0/1-2-5.png) center top no-repeat;background-color:#000 }\n.w280 { width:100%;max-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { max-width:100%!important }\n}\n.brad-full,.brad-full-32 { border-radius:32px!important }\n.butt-link,.butt-link-2,.butt-link-small { font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#2f3749;display:block;line-height:27px;padding:16px 0;text-align:center;letter-spacing:0 }\n.butt-link,.butt-link-small { color:#f9f9f9 }\n.white-title { font-family:Helvetica!important;font-weight:700;font-size:48px;line-height:58px;color:#f9f9f9;word-break:break-word;padding-right:30px }\n@media screen and (max-width:600px) {\n  .white-title { font-size:26px!important;line-height:32px!important }\n}\n.white-text { font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#fff;padding-right:20px }\n@media screen and (max-width:600px) {\n  .white-text { padding-right:0!important }\n}\n.pb16 { padding-bottom:16px }\n.h-20,.h-24,.h-28 { font-size:8px;line-height:20px;height:20px }\n.h-24,.h-28 { line-height:24px;height:24px }\n.h-406 { font-size:0;line-height:304px;height:304px }\n@media screen and (max-width:500px) {\n  .h-406 { font-size:160px!important;line-height:260px!important;height:260px!important }\n}",
+      "classes": [
+        "bgr-image",
+        "brad-full",
+        "butt",
+        "butt-link",
+        "center",
+        "columns",
+        "gmail-blend-diff",
+        "gmail-blend-screen",
+        "h-24",
+        "h-406",
+        "last",
+        "logo",
+        "offset-by-one",
+        "pb0",
+        "pb16",
+        "pb50",
+        "pt0",
+        "pt10",
+        "row",
+        "ten",
+        "text-pad-small",
+        "twelve",
+        "w280",
+        "white-text",
+        "white-title",
+        "wrapper"
+      ],
+      "designClasses": [
+        "bgr-image",
+        "brad-full",
+        "butt-link",
+        "gmail-blend-diff",
+        "gmail-blend-screen",
+        "h-24",
+        "h-406",
+        "pb16",
+        "w280",
+        "white-text",
+        "white-title"
+      ],
+      "slots": [
+        {
+          "id": "text_block_01",
+          "kind": "richText",
+          "label": "Текст rfm-segmentation-2-125.block_01",
+          "token": "${{ rfm-segmentation-2-125.block_01 }}$",
+          "ns": "rfm-segmentation-2-125",
+          "block": "block_01"
+        },
+        {
+          "id": "text_block_02",
+          "kind": "richText",
+          "label": "Текст rfm-segmentation-2-125.block_02",
+          "token": "${{ rfm-segmentation-2-125.block_02 }}$",
+          "ns": "rfm-segmentation-2-125",
+          "block": "block_02"
+        },
+        {
+          "id": "text_block_03",
+          "kind": "richText",
+          "label": "Текст rfm-segmentation-2-125.block_03",
+          "token": "${{ rfm-segmentation-2-125.block_03 }}$",
+          "ns": "rfm-segmentation-2-125",
+          "block": "block_03"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-1-2-5&retrack=mail_IQ-RFM-1-2-5&type=forex&asset=1"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-1-2-5&retrack=mail_IQ-RFM-1-2-5"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d6/nu/493ursrq72d917kg/logo.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-rfm-segmentation-2-125-header-hero-1-space",
+          "label": "Спейсер 406px",
+          "placement": "inline",
+          "category": "utility",
+          "pug": ".h-406 &nbsp;",
+          "styl": ".h-406 { font-size: 0;\n  line-height: 304px;\n  height: 304px; }\n@media screen and (max-width: 500px) {\n  .h-406 { font-size: 160px !important;\n    line-height: 260px !important;\n    height: 260px !important; }\n}\n.h-406 { font-size:0;line-height:304px;height:304px }\n@media screen and (max-width:500px) {\n  .h-406 { font-size:160px!important;line-height:260px!important;height:260px!important }\n}",
+          "classes": [
+            "h-406"
+          ],
+          "designClasses": [
+            "h-406"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-new-rfm-segmentation-2-125-header-hero-1-gmail",
+          "label": "Gmail blend wrapper",
+          "placement": "inline",
+          "category": "utility",
+          "pug": "div.gmail-blend-screen\n    div.gmail-blend-diff\n        p.white-title.pb16 ${{ rfm-segmentation-2-125.block_01 }}$\n        p.white-text  ${{ rfm-segmentation-2-125.block_02 }}$",
+          "styl": "u + .body .gmail-blend-screen { background: #000;\n  mix-blend-mode: screen; }\nu + .body .gmail-blend-diff { background: #000;\n  mix-blend-mode: difference; }\n.white-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 48px;\n  line-height: 58px;\n  color: #f9f9f9;\n  word-break: break-word;\n  padding-right: 30px; }\n@media screen and (max-width: 600px) {\n  .white-title { font-size: 26px !important;\n    line-height: 32px !important; }\n}\n.white-text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #fff;\n  padding-right: 20px; }\n@media screen and (max-width: 600px) {\n  .white-text { padding-right: 0 !important; }\n}\n.pb16 { padding-bottom: 16px; }\nu+.body .gmail-blend-screen { background:#000;mix-blend-mode:screen }\nu+.body .gmail-blend-diff { background:#000;mix-blend-mode:difference }\n.white-title { font-family:Helvetica!important;font-weight:700;font-size:48px;line-height:58px;color:#f9f9f9;word-break:break-word;padding-right:30px }\n@media screen and (max-width:600px) {\n  .white-title { font-size:26px!important;line-height:32px!important }\n}\n.white-text { font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#fff;padding-right:20px }\n@media screen and (max-width:600px) {\n  .white-text { padding-right:0!important }\n}\n.pb16 { padding-bottom:16px }",
+          "classes": [
+            "gmail-blend-diff",
+            "gmail-blend-screen",
+            "pb16",
+            "white-text",
+            "white-title"
+          ],
+          "designClasses": [
+            "gmail-blend-diff",
+            "gmail-blend-screen",
+            "pb16",
+            "white-text",
+            "white-title"
+          ],
+          "slots": [
+            {
+              "id": "text_block_01",
+              "kind": "richText",
+              "label": "Текст rfm-segmentation-2-125.block_01",
+              "token": "${{ rfm-segmentation-2-125.block_01 }}$",
+              "ns": "rfm-segmentation-2-125",
+              "block": "block_01"
+            },
+            {
+              "id": "text_block_02",
+              "kind": "richText",
+              "label": "Текст rfm-segmentation-2-125.block_02",
+              "token": "${{ rfm-segmentation-2-125.block_02 }}$",
+              "ns": "rfm-segmentation-2-125",
+              "block": "block_02"
+            }
+          ]
+        },
+        {
+          "id": "x-new-rfm-segmentation-2-125-header-hero-1-space",
+          "label": "Спейсер 24px",
+          "placement": "inline",
+          "category": "utility",
+          "pug": ".h-24 &nbsp;",
+          "styl": ".h-24 { font-size: 8px;\n  line-height: 24px;\n  height: 24px; }\n.h-20,.h-24,.h-28 { font-size:8px;line-height:20px;height:20px }\n.h-24,.h-28 { line-height:24px;height:24px }",
+          "classes": [
+            "h-24"
+          ],
+          "designClasses": [
+            "h-24"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-new-rfm-segmentation-2-125-header-hero-1-cta-b",
+          "label": "CTA-кнопка (w280)",
+          "placement": "inline",
+          "category": "cta",
+          "pug": "table.w280(align=\"left\")\n    tr\n        td.butt.pb0\n            a.butt-link(href=\"https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-1-2-5&retrack=mail_IQ-RFM-1-2-5\" universal=\"true\" target=\"_blank\") ${{ rfm-segmentation-2-125.block_03 }}$",
+          "styl": ".w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { max-width: 100% !important; }\n}\n.butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.w280 { width:100%;max-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { max-width:100%!important }\n}\n.butt-link,.butt-link-2,.butt-link-small { font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#2f3749;display:block;line-height:27px;padding:16px 0;text-align:center;letter-spacing:0 }\n.butt-link,.butt-link-small { color:#f9f9f9 }",
+          "classes": [
+            "butt",
+            "butt-link",
+            "pb0",
+            "w280"
+          ],
+          "designClasses": [
+            "butt-link",
+            "w280"
+          ],
+          "slots": [
+            {
+              "id": "text_block_03",
+              "kind": "richText",
+              "label": "Текст rfm-segmentation-2-125.block_03",
+              "token": "${{ rfm-segmentation-2-125.block_03 }}$",
+              "ns": "rfm-segmentation-2-125",
+              "block": "block_03"
+            },
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-1-2-5&retrack=mail_IQ-RFM-1-2-5"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-new-rfm-segmentation-2-125-header-utility-2",
+      "label": "Спейсер 12px",
+      "placement": "inline",
+      "category": "utility",
+      "kind": "spacer",
+      "sourceFile": "X_new/mail-rfm-segmentation-2-125/app/templates/blocks/header.jade",
+      "pug": ".h-12 &nbsp;",
+      "styl": ".h-12 { font-size: 8px;\n  line-height: 12px;\n  height: 12px; }\n.h-12,.h-16,.h-8 { font-size:8px;line-height:8px;height:8px }\n.h-12,.h-16 { line-height:12px;height:12px }",
+      "classes": [
+        "h-12"
+      ],
+      "designClasses": [
+        "h-12"
+      ],
+      "slots": [],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-new-rfm-segmentation-2-125-header-text-3",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_new/mail-rfm-segmentation-2-125/app/templates/blocks/header.jade",
+      "pug": "table.row.brad-full.white-bg\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.middle-title.pb24.pr30-a ${{ rfm-segmentation-2-125.block_04 }}$\n                        p.text.pb16\n                            b ${{ rfm-segmentation-2-125.block_05 }}$\n                        .left-block\n                            p.text.center.padd-text\n                                b ${{ rfm-segmentation-2-125.block_06 }}$\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                img.center(src=\"https://fsms.quadcode.com/storage/public/d6/o2/ua3s2mcraq8an9c0/left.png\")\n                        .right-block\n                            p.text.center.padd-text\n                                b ${{ rfm-segmentation-2-125.block_07 }}$\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                img.center(src=\"https://fsms.quadcode.com/storage/public/d6/o2/uabs2mcraq8an9d0/rigt.png\")",
+      "styl": ".brad-full { border-radius: 32px !important; }\n.white-bg { background-color: #fff; }\n.middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 28px !important;\n    line-height: 34px !important; }\n}\n.text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n.pb16 { padding-bottom: 16px; }\n.pb24 { padding-bottom: 24px; }\n.pb44 { padding-bottom: 44px; }\n.pt44 { padding-top: 44px; }\n.left-block { display: inline-block;\n  width: 220px !important;\n  vertical-align: top;\n  background: #f9f9f9;\n  border-radius: 24px;\n  margin: 0 10px 0 0; }\n@media screen and (max-width: 600px) {\n  .left-block { float: none !important;\n    display: block !important;\n    margin: 0 auto 12px !important; }\n}\n.pr30-a { padding-right: 30px; }\n@media screen and (max-width: 600px) {\n  .pr30-a { padding-right: 0 !important; }\n}\n.right-block { display: inline-block;\n  width: 220px !important;\n  vertical-align: top;\n  text-align: right;\n  background: #f9f9f9;\n  border-radius: 24px; }\n@media screen and (max-width: 600px) {\n  .right-block { float: none !important;\n    display: block !important;\n    width: 100% !important;\n    margin: 0 auto !important; }\n}\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.padd-text { padding: 24px 10px 16px 10px; }\n.brad-full,.brad-full-32 { border-radius:32px!important }\n.white-bg { background-color:#fff }\n.middle-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#393a44;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:28px!important;line-height:34px!important }\n}\n.number-block,.text { font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400 }\n.big,.text.bold { font-weight:700 }\n.pb16 { padding-bottom:16px }\n.pb24 { padding-bottom:24px }\n.pb44 { padding-bottom:44px }\n.pt44 { padding-top:44px }\n.left-block { display:inline-block;width:220px!important;vertical-align:top;background:#f9f9f9;border-radius:24px;margin:0 10px 0 0 }\n@media screen and (max-width:600px) {\n  .left-block { float:none!important;display:block!important;margin:0 auto 12px!important }\n}\n.pr30-a { padding-right:30px }\n@media screen and (max-width:600px) {\n  .pr30-a { padding-right:0!important }\n}\n.right-block { display:inline-block;width:220px!important;vertical-align:top;text-align:right;background:#f9f9f9;border-radius:24px }\n@media screen and (max-width:600px) {\n  .right-block { float:none!important;display:block!important;width:100%!important;margin:0 auto!important }\n}\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}\n.padd-text { padding:24px 10px 16px }",
+      "classes": [
+        "brad-full",
+        "center",
+        "columns",
+        "last",
+        "left-block",
+        "middle-title",
+        "offset-by-one",
+        "padd-text",
+        "pb16",
+        "pb24",
+        "pb44",
+        "pr30-a",
+        "pt44",
+        "right-block",
+        "row",
+        "ten",
+        "text",
+        "text-pad-small",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "brad-full",
+        "left-block",
+        "middle-title",
+        "padd-text",
+        "pb16",
+        "pb24",
+        "pb44",
+        "pr30-a",
+        "pt44",
+        "right-block",
+        "text",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_04",
+          "kind": "richText",
+          "label": "Текст rfm-segmentation-2-125.block_04",
+          "token": "${{ rfm-segmentation-2-125.block_04 }}$",
+          "ns": "rfm-segmentation-2-125",
+          "block": "block_04"
+        },
+        {
+          "id": "text_block_05",
+          "kind": "richText",
+          "label": "Текст rfm-segmentation-2-125.block_05",
+          "token": "${{ rfm-segmentation-2-125.block_05 }}$",
+          "ns": "rfm-segmentation-2-125",
+          "block": "block_05"
+        },
+        {
+          "id": "text_block_06",
+          "kind": "richText",
+          "label": "Текст rfm-segmentation-2-125.block_06",
+          "token": "${{ rfm-segmentation-2-125.block_06 }}$",
+          "ns": "rfm-segmentation-2-125",
+          "block": "block_06"
+        },
+        {
+          "id": "text_block_07",
+          "kind": "richText",
+          "label": "Текст rfm-segmentation-2-125.block_07",
+          "token": "${{ rfm-segmentation-2-125.block_07 }}$",
+          "ns": "rfm-segmentation-2-125",
+          "block": "block_07"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d6/o2/ua3s2mcraq8an9c0/left.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d6/o2/uabs2mcraq8an9d0/rigt.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-rfm-segmentation-2-125-header-text-3-headi",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.middle-title.pb24.pr30-a ${{ rfm-segmentation-2-125.block_04 }}$",
+          "styl": ".middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 28px !important;\n    line-height: 34px !important; }\n}\n.pb24 { padding-bottom: 24px; }\n.pr30-a { padding-right: 30px; }\n@media screen and (max-width: 600px) {\n  .pr30-a { padding-right: 0 !important; }\n}\n.middle-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#393a44;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:28px!important;line-height:34px!important }\n}\n.pb24 { padding-bottom:24px }\n.pr30-a { padding-right:30px }\n@media screen and (max-width:600px) {\n  .pr30-a { padding-right:0!important }\n}",
+          "classes": [
+            "middle-title",
+            "pb24",
+            "pr30-a"
+          ],
+          "designClasses": [
+            "middle-title",
+            "pb24",
+            "pr30-a"
+          ],
+          "slots": [
+            {
+              "id": "text_block_04",
+              "kind": "richText",
+              "label": "Текст rfm-segmentation-2-125.block_04",
+              "token": "${{ rfm-segmentation-2-125.block_04 }}$",
+              "ns": "rfm-segmentation-2-125",
+              "block": "block_04"
+            }
+          ]
+        },
+        {
+          "id": "x-new-rfm-segmentation-2-125-header-text-3-parag",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb16\n    b ${{ rfm-segmentation-2-125.block_05 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n.pb16 { padding-bottom: 16px; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.number-block,.text { font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400 }\n.big,.text.bold { font-weight:700 }\n.pb16 { padding-bottom:16px }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}",
+          "classes": [
+            "pb16",
+            "text"
+          ],
+          "designClasses": [
+            "pb16",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_05",
+              "kind": "richText",
+              "label": "Текст rfm-segmentation-2-125.block_05",
+              "token": "${{ rfm-segmentation-2-125.block_05 }}$",
+              "ns": "rfm-segmentation-2-125",
+              "block": "block_05"
+            }
+          ]
+        },
+        {
+          "id": "x-new-rfm-segmentation-2-125-header-text-3-parag",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.center.padd-text\n    b ${{ rfm-segmentation-2-125.block_06 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.padd-text { padding: 24px 10px 16px 10px; }\n.number-block,.text { font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400 }\n.big,.text.bold { font-weight:700 }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}\n.padd-text { padding:24px 10px 16px }",
+          "classes": [
+            "center",
+            "padd-text",
+            "text"
+          ],
+          "designClasses": [
+            "padd-text",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_06",
+              "kind": "richText",
+              "label": "Текст rfm-segmentation-2-125.block_06",
+              "token": "${{ rfm-segmentation-2-125.block_06 }}$",
+              "ns": "rfm-segmentation-2-125",
+              "block": "block_06"
+            }
+          ]
+        },
+        {
+          "id": "x-new-rfm-segmentation-2-125-header-text-3-parag",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.center.padd-text\n    b ${{ rfm-segmentation-2-125.block_07 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.padd-text { padding: 24px 10px 16px 10px; }\n.number-block,.text { font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400 }\n.big,.text.bold { font-weight:700 }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}\n.padd-text { padding:24px 10px 16px }",
+          "classes": [
+            "center",
+            "padd-text",
+            "text"
+          ],
+          "designClasses": [
+            "padd-text",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_07",
+              "kind": "richText",
+              "label": "Текст rfm-segmentation-2-125.block_07",
+              "token": "${{ rfm-segmentation-2-125.block_07 }}$",
+              "ns": "rfm-segmentation-2-125",
+              "block": "block_07"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-new-rfm-segmentation-2-125-header-utility-4",
+      "label": "Спейсер 12px",
+      "placement": "inline",
+      "category": "utility",
+      "kind": "spacer",
+      "sourceFile": "X_new/mail-rfm-segmentation-2-125/app/templates/blocks/header.jade",
+      "pug": ".h-12 &nbsp;",
+      "styl": ".h-12 { font-size: 8px;\n  line-height: 12px;\n  height: 12px; }\n.h-12,.h-16,.h-8 { font-size:8px;line-height:8px;height:8px }\n.h-12,.h-16 { line-height:12px;height:12px }",
+      "classes": [
+        "h-12"
+      ],
+      "designClasses": [
+        "h-12"
+      ],
+      "slots": [],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-new-rfm-segmentation-2-125-header-text-5",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_new/mail-rfm-segmentation-2-125/app/templates/blocks/header.jade",
+      "pug": "table.row.brad-full.white-bg\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.middle-title.pb32 ${{ rfm-segmentation-2-125.block_08 }}$\n                        .orange-block\n                            .left-text-block\n                                p.text.pb12 ${{ rfm-segmentation-2-125.block_09 }}$\n                                p.text ${{ rfm-segmentation-2-125.block_10 }}$\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                img.right-img(src=\"https://fsms.quadcode.com/storage/public/d6/o2/uabs2mcraq8an9dg/right-2.png\")",
+      "styl": ".brad-full { border-radius: 32px !important; }\n.white-bg { background-color: #fff; }\n.middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 28px !important;\n    line-height: 34px !important; }\n}\n.text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n.pb12 { padding-bottom: 12px !important; }\n.pb32 { padding-bottom: 32px; }\n.pb44 { padding-bottom: 44px; }\n.pt44 { padding-top: 44px; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.orange-block { background: url(\"https://fsms.quadcode.com/storage/public/d6/o2/ua3ursrq72d917s0/bcg.png\") center no-repeat;\n  background-size: cover;\n  background-color: #fff8f0;\n  border-radius: 24px; }\n.left-text-block { display: inline-block;\n  width: 232px;\n  vertical-align: top;\n  padding: 24px 12px 24px 32px; }\n@media screen and (max-width: 600px) {\n  .left-text-block { width: auto !important;\n    display: block !important;\n    padding-bottom: 16px !important; }\n}\n.right-img { float: none;\n  display: inline-block;\n  width: 170px !important;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .right-img { float: none !important;\n    display: block !important;\n    margin: 0 auto !important; }\n}\n.brad-full,.brad-full-32 { border-radius:32px!important }\n.white-bg { background-color:#fff }\n.middle-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#393a44;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:28px!important;line-height:34px!important }\n}\n.number-block,.text { font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400 }\n.big,.text.bold { font-weight:700 }\n.pb12 { padding-bottom:12px!important }\n.pb32 { padding-bottom:32px }\n.pb44 { padding-bottom:44px }\n.pt44 { padding-top:44px }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}\n.orange-block { background:url(https://fsms.quadcode.com/storage/public/d6/o2/ua3ursrq72d917s0/bcg.png) center no-repeat;background-size:cover;background-color:#fff8f0;border-radius:24px }\n.left-text-block { display:inline-block;width:232px;vertical-align:top;padding:24px 12px 24px 32px }\n@media screen and (max-width:600px) {\n  .left-text-block { width:auto!important;display:block!important;padding-bottom:16px!important }\n}\n.right-img { float:none;display:inline-block;width:170px!important;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .right-img { float:none!important;display:block!important;margin:0 auto!important }\n}",
+      "classes": [
+        "brad-full",
+        "columns",
+        "last",
+        "left-text-block",
+        "middle-title",
+        "offset-by-one",
+        "orange-block",
+        "pb12",
+        "pb32",
+        "pb44",
+        "pt44",
+        "right-img",
+        "row",
+        "ten",
+        "text",
+        "text-pad-small",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "brad-full",
+        "left-text-block",
+        "middle-title",
+        "orange-block",
+        "pb12",
+        "pb32",
+        "pb44",
+        "pt44",
+        "right-img",
+        "text",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_08",
+          "kind": "richText",
+          "label": "Текст rfm-segmentation-2-125.block_08",
+          "token": "${{ rfm-segmentation-2-125.block_08 }}$",
+          "ns": "rfm-segmentation-2-125",
+          "block": "block_08"
+        },
+        {
+          "id": "text_block_09",
+          "kind": "richText",
+          "label": "Текст rfm-segmentation-2-125.block_09",
+          "token": "${{ rfm-segmentation-2-125.block_09 }}$",
+          "ns": "rfm-segmentation-2-125",
+          "block": "block_09"
+        },
+        {
+          "id": "text_block_10",
+          "kind": "richText",
+          "label": "Текст rfm-segmentation-2-125.block_10",
+          "token": "${{ rfm-segmentation-2-125.block_10 }}$",
+          "ns": "rfm-segmentation-2-125",
+          "block": "block_10"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d6/o2/uabs2mcraq8an9dg/right-2.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-rfm-segmentation-2-125-header-text-5-headi",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.middle-title.pb32 ${{ rfm-segmentation-2-125.block_08 }}$",
+          "styl": ".middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 28px !important;\n    line-height: 34px !important; }\n}\n.pb32 { padding-bottom: 32px; }\n.middle-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#393a44;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:28px!important;line-height:34px!important }\n}\n.pb32 { padding-bottom:32px }",
+          "classes": [
+            "middle-title",
+            "pb32"
+          ],
+          "designClasses": [
+            "middle-title",
+            "pb32"
+          ],
+          "slots": [
+            {
+              "id": "text_block_08",
+              "kind": "richText",
+              "label": "Текст rfm-segmentation-2-125.block_08",
+              "token": "${{ rfm-segmentation-2-125.block_08 }}$",
+              "ns": "rfm-segmentation-2-125",
+              "block": "block_08"
+            }
+          ]
+        },
+        {
+          "id": "x-new-rfm-segmentation-2-125-header-text-5-parag",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb12 ${{ rfm-segmentation-2-125.block_09 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n.pb12 { padding-bottom: 12px !important; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.number-block,.text { font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400 }\n.big,.text.bold { font-weight:700 }\n.pb12 { padding-bottom:12px!important }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}",
+          "classes": [
+            "pb12",
+            "text"
+          ],
+          "designClasses": [
+            "pb12",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_09",
+              "kind": "richText",
+              "label": "Текст rfm-segmentation-2-125.block_09",
+              "token": "${{ rfm-segmentation-2-125.block_09 }}$",
+              "ns": "rfm-segmentation-2-125",
+              "block": "block_09"
+            }
+          ]
+        },
+        {
+          "id": "x-new-rfm-segmentation-2-125-header-text-5-parag",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ rfm-segmentation-2-125.block_10 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.number-block,.text { font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400 }\n.big,.text.bold { font-weight:700 }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_10",
+              "kind": "richText",
+              "label": "Текст rfm-segmentation-2-125.block_10",
+              "token": "${{ rfm-segmentation-2-125.block_10 }}$",
+              "ns": "rfm-segmentation-2-125",
+              "block": "block_10"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-new-rfm-segmentation-2-125-header-utility-6",
+      "label": "Спейсер 12px",
+      "placement": "inline",
+      "category": "utility",
+      "kind": "spacer",
+      "sourceFile": "X_new/mail-rfm-segmentation-2-125/app/templates/blocks/header.jade",
+      "pug": ".h-12 &nbsp;",
+      "styl": ".h-12 { font-size: 8px;\n  line-height: 12px;\n  height: 12px; }\n.h-12,.h-16,.h-8 { font-size:8px;line-height:8px;height:8px }\n.h-12,.h-16 { line-height:12px;height:12px }",
+      "classes": [
+        "h-12"
+      ],
+      "designClasses": [
+        "h-12"
+      ],
+      "slots": [],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-new-rfm-segmentation-2-125-header-text-7",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_new/mail-rfm-segmentation-2-125/app/templates/blocks/header.jade",
+      "pug": "table.row.brad-full.white-bg\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.middle-title.pb24 ${{ rfm-segmentation-2-125.block_11 }}$\n                        a(href=\"#\" universal=\"true\" target=\"_blank\")\n                            img.center.pb24(src=\"https://fsms.quadcode.com/storage/public/d6/o2/uabursrq72d917sg/one.png\")\n                        ul\n                            li.text.pb8 ${{ rfm-segmentation-2-125.block_12 }}$\n                            li.text.pb8 ${{ rfm-segmentation-2-125.block_13 }}$\n                            li.text ${{ rfm-segmentation-2-125.block_14 }}$",
+      "styl": ".brad-full { border-radius: 32px !important; }\n.white-bg { background-color: #fff; }\n.middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 28px !important;\n    line-height: 34px !important; }\n}\n.text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n.pb8 { padding-bottom: 8px; }\n.pb24 { padding-bottom: 24px; }\n.pb44 { padding-bottom: 44px; }\n.pt44 { padding-top: 44px; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.brad-full,.brad-full-32 { border-radius:32px!important }\n.white-bg { background-color:#fff }\n.middle-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#393a44;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:28px!important;line-height:34px!important }\n}\n.number-block,.text { font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400 }\n.big,.text.bold { font-weight:700 }\n.pb8 { padding-bottom:8px }\n.pb24 { padding-bottom:24px }\n.pb44 { padding-bottom:44px }\n.pt44 { padding-top:44px }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}",
+      "classes": [
+        "brad-full",
+        "center",
+        "columns",
+        "last",
+        "middle-title",
+        "offset-by-one",
+        "pb24",
+        "pb44",
+        "pb8",
+        "pt44",
+        "row",
+        "ten",
+        "text",
+        "text-pad-small",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "brad-full",
+        "middle-title",
+        "pb24",
+        "pb44",
+        "pb8",
+        "pt44",
+        "text",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_11",
+          "kind": "richText",
+          "label": "Текст rfm-segmentation-2-125.block_11",
+          "token": "${{ rfm-segmentation-2-125.block_11 }}$",
+          "ns": "rfm-segmentation-2-125",
+          "block": "block_11"
+        },
+        {
+          "id": "text_block_12",
+          "kind": "richText",
+          "label": "Текст rfm-segmentation-2-125.block_12",
+          "token": "${{ rfm-segmentation-2-125.block_12 }}$",
+          "ns": "rfm-segmentation-2-125",
+          "block": "block_12"
+        },
+        {
+          "id": "text_block_13",
+          "kind": "richText",
+          "label": "Текст rfm-segmentation-2-125.block_13",
+          "token": "${{ rfm-segmentation-2-125.block_13 }}$",
+          "ns": "rfm-segmentation-2-125",
+          "block": "block_13"
+        },
+        {
+          "id": "text_block_14",
+          "kind": "richText",
+          "label": "Текст rfm-segmentation-2-125.block_14",
+          "token": "${{ rfm-segmentation-2-125.block_14 }}$",
+          "ns": "rfm-segmentation-2-125",
+          "block": "block_14"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d6/o2/uabursrq72d917sg/one.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-rfm-segmentation-2-125-header-text-7-headi",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.middle-title.pb24 ${{ rfm-segmentation-2-125.block_11 }}$",
+          "styl": ".middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 28px !important;\n    line-height: 34px !important; }\n}\n.pb24 { padding-bottom: 24px; }\n.middle-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#393a44;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:28px!important;line-height:34px!important }\n}\n.pb24 { padding-bottom:24px }",
+          "classes": [
+            "middle-title",
+            "pb24"
+          ],
+          "designClasses": [
+            "middle-title",
+            "pb24"
+          ],
+          "slots": [
+            {
+              "id": "text_block_11",
+              "kind": "richText",
+              "label": "Текст rfm-segmentation-2-125.block_11",
+              "token": "${{ rfm-segmentation-2-125.block_11 }}$",
+              "ns": "rfm-segmentation-2-125",
+              "block": "block_11"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-new-rfm-segmentation-2-125-header-utility-8",
+      "label": "Спейсер 12px",
+      "placement": "inline",
+      "category": "utility",
+      "kind": "spacer",
+      "sourceFile": "X_new/mail-rfm-segmentation-2-125/app/templates/blocks/header.jade",
+      "pug": ".h-12 &nbsp;",
+      "styl": ".h-12 { font-size: 8px;\n  line-height: 12px;\n  height: 12px; }\n.h-12,.h-16,.h-8 { font-size:8px;line-height:8px;height:8px }\n.h-12,.h-16 { line-height:12px;height:12px }",
+      "classes": [
+        "h-12"
+      ],
+      "designClasses": [
+        "h-12"
+      ],
+      "slots": [],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-new-rfm-segmentation-2-125-header-text-9",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_new/mail-rfm-segmentation-2-125/app/templates/blocks/header.jade",
+      "pug": "table.row.brad-full.white-bg\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.middle-title.pb24 ${{ rfm-segmentation-2-125.block_15 }}$\n                        p.text.pb24 ${{ rfm-segmentation-2-125.block_16 }}$\n                        a(href=\"#\" universal=\"true\" target=\"_blank\")\n                            img.center(src=\"https://fsms.quadcode.com/storage/public/d6/o2/uabs2mcraq8an9cg/two.png\")",
+      "styl": ".brad-full { border-radius: 32px !important; }\n.white-bg { background-color: #fff; }\n.middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 28px !important;\n    line-height: 34px !important; }\n}\n.text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n.pb24 { padding-bottom: 24px; }\n.pb44 { padding-bottom: 44px; }\n.pt44 { padding-top: 44px; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.brad-full,.brad-full-32 { border-radius:32px!important }\n.white-bg { background-color:#fff }\n.middle-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#393a44;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:28px!important;line-height:34px!important }\n}\n.number-block,.text { font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400 }\n.big,.text.bold { font-weight:700 }\n.pb24 { padding-bottom:24px }\n.pb44 { padding-bottom:44px }\n.pt44 { padding-top:44px }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}",
+      "classes": [
+        "brad-full",
+        "center",
+        "columns",
+        "last",
+        "middle-title",
+        "offset-by-one",
+        "pb24",
+        "pb44",
+        "pt44",
+        "row",
+        "ten",
+        "text",
+        "text-pad-small",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "brad-full",
+        "middle-title",
+        "pb24",
+        "pb44",
+        "pt44",
+        "text",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_15",
+          "kind": "richText",
+          "label": "Текст rfm-segmentation-2-125.block_15",
+          "token": "${{ rfm-segmentation-2-125.block_15 }}$",
+          "ns": "rfm-segmentation-2-125",
+          "block": "block_15"
+        },
+        {
+          "id": "text_block_16",
+          "kind": "richText",
+          "label": "Текст rfm-segmentation-2-125.block_16",
+          "token": "${{ rfm-segmentation-2-125.block_16 }}$",
+          "ns": "rfm-segmentation-2-125",
+          "block": "block_16"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d6/o2/uabs2mcraq8an9cg/two.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-rfm-segmentation-2-125-header-text-9-headi",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.middle-title.pb24 ${{ rfm-segmentation-2-125.block_15 }}$",
+          "styl": ".middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 28px !important;\n    line-height: 34px !important; }\n}\n.pb24 { padding-bottom: 24px; }\n.middle-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#393a44;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:28px!important;line-height:34px!important }\n}\n.pb24 { padding-bottom:24px }",
+          "classes": [
+            "middle-title",
+            "pb24"
+          ],
+          "designClasses": [
+            "middle-title",
+            "pb24"
+          ],
+          "slots": [
+            {
+              "id": "text_block_15",
+              "kind": "richText",
+              "label": "Текст rfm-segmentation-2-125.block_15",
+              "token": "${{ rfm-segmentation-2-125.block_15 }}$",
+              "ns": "rfm-segmentation-2-125",
+              "block": "block_15"
+            }
+          ]
+        },
+        {
+          "id": "x-new-rfm-segmentation-2-125-header-text-9-parag",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb24 ${{ rfm-segmentation-2-125.block_16 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n.pb24 { padding-bottom: 24px; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.number-block,.text { font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400 }\n.big,.text.bold { font-weight:700 }\n.pb24 { padding-bottom:24px }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}",
+          "classes": [
+            "pb24",
+            "text"
+          ],
+          "designClasses": [
+            "pb24",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_16",
+              "kind": "richText",
+              "label": "Текст rfm-segmentation-2-125.block_16",
+              "token": "${{ rfm-segmentation-2-125.block_16 }}$",
+              "ns": "rfm-segmentation-2-125",
+              "block": "block_16"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-new-rfm-segmentation-2-125-header-utility-10",
+      "label": "Спейсер 12px",
+      "placement": "inline",
+      "category": "utility",
+      "kind": "spacer",
+      "sourceFile": "X_new/mail-rfm-segmentation-2-125/app/templates/blocks/header.jade",
+      "pug": ".h-12 &nbsp;",
+      "styl": ".h-12 { font-size: 8px;\n  line-height: 12px;\n  height: 12px; }\n.h-12,.h-16,.h-8 { font-size:8px;line-height:8px;height:8px }\n.h-12,.h-16 { line-height:12px;height:12px }",
+      "classes": [
+        "h-12"
+      ],
+      "designClasses": [
+        "h-12"
+      ],
+      "slots": [],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-new-rfm-segmentation-2-125-header-cta-11",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "kind": "section",
+      "sourceFile": "X_new/mail-rfm-segmentation-2-125/app/templates/blocks/header.jade",
+      "pug": "table.row.brad-full.white-bg(style=\"border: 4px solid #FF7700;\")\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.middle-title.pb32.center ${{ rfm-segmentation-2-125.block_17 }}$\n                        p.text.pb40.center ${{ rfm-segmentation-2-125.block_18 }}$\n                        table.w280.centet(style=\"border-collapse: initial;\" align=\"center\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-1-2-5&retrack=mail_IQ-RFM-1-2-5\" universal=\"true\" target=\"_blank\") ${{ rfm-segmentation-2-125.block_19 }}$",
+      "styl": ".w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { max-width: 100% !important; }\n}\n.brad-full { border-radius: 32px !important; }\n.butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.white-bg { background-color: #fff; }\n.middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 28px !important;\n    line-height: 34px !important; }\n}\n.text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n.pb32 { padding-bottom: 32px; }\n.pb44 { padding-bottom: 44px; }\n.pt44 { padding-top: 44px; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.w280 { width:100%;max-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { max-width:100%!important }\n}\n.brad-full,.brad-full-32 { border-radius:32px!important }\n.butt-link,.butt-link-2,.butt-link-small { font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#2f3749;display:block;line-height:27px;padding:16px 0;text-align:center;letter-spacing:0 }\n.butt-link,.butt-link-small { color:#f9f9f9 }\n.white-bg { background-color:#fff }\n.middle-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#393a44;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:28px!important;line-height:34px!important }\n}\n.number-block,.text { font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400 }\n.big,.text.bold { font-weight:700 }\n.pb32 { padding-bottom:32px }\n.pb44 { padding-bottom:44px }\n.pt44 { padding-top:44px }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}",
+      "classes": [
+        "brad-full",
+        "butt",
+        "butt-link",
+        "center",
+        "centet",
+        "columns",
+        "last",
+        "middle-title",
+        "offset-by-one",
+        "pb0",
+        "pb32",
+        "pb40",
+        "pb44",
+        "pt44",
+        "row",
+        "ten",
+        "text",
+        "text-pad-small",
+        "w280",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "brad-full",
+        "butt-link",
+        "centet",
+        "middle-title",
+        "pb32",
+        "pb44",
+        "pt44",
+        "text",
+        "w280",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_17",
+          "kind": "richText",
+          "label": "Текст rfm-segmentation-2-125.block_17",
+          "token": "${{ rfm-segmentation-2-125.block_17 }}$",
+          "ns": "rfm-segmentation-2-125",
+          "block": "block_17"
+        },
+        {
+          "id": "text_block_18",
+          "kind": "richText",
+          "label": "Текст rfm-segmentation-2-125.block_18",
+          "token": "${{ rfm-segmentation-2-125.block_18 }}$",
+          "ns": "rfm-segmentation-2-125",
+          "block": "block_18"
+        },
+        {
+          "id": "text_block_19",
+          "kind": "richText",
+          "label": "Текст rfm-segmentation-2-125.block_19",
+          "token": "${{ rfm-segmentation-2-125.block_19 }}$",
+          "ns": "rfm-segmentation-2-125",
+          "block": "block_19"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-1-2-5&retrack=mail_IQ-RFM-1-2-5"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-rfm-segmentation-2-125-header-cta-11-headi",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.middle-title.pb32.center ${{ rfm-segmentation-2-125.block_17 }}$",
+          "styl": ".middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 28px !important;\n    line-height: 34px !important; }\n}\n.pb32 { padding-bottom: 32px; }\n.middle-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#393a44;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:28px!important;line-height:34px!important }\n}\n.pb32 { padding-bottom:32px }",
+          "classes": [
+            "center",
+            "middle-title",
+            "pb32"
+          ],
+          "designClasses": [
+            "middle-title",
+            "pb32"
+          ],
+          "slots": [
+            {
+              "id": "text_block_17",
+              "kind": "richText",
+              "label": "Текст rfm-segmentation-2-125.block_17",
+              "token": "${{ rfm-segmentation-2-125.block_17 }}$",
+              "ns": "rfm-segmentation-2-125",
+              "block": "block_17"
+            }
+          ]
+        },
+        {
+          "id": "x-new-rfm-segmentation-2-125-header-cta-11-parag",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb40.center ${{ rfm-segmentation-2-125.block_18 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.number-block,.text { font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400 }\n.big,.text.bold { font-weight:700 }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}",
+          "classes": [
+            "center",
+            "pb40",
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_18",
+              "kind": "richText",
+              "label": "Текст rfm-segmentation-2-125.block_18",
+              "token": "${{ rfm-segmentation-2-125.block_18 }}$",
+              "ns": "rfm-segmentation-2-125",
+              "block": "block_18"
+            }
+          ]
+        },
+        {
+          "id": "x-new-rfm-segmentation-2-125-header-cta-11-cta-b",
+          "label": "CTA-кнопка (w280)",
+          "placement": "inline",
+          "category": "cta",
+          "pug": "table.w280.centet(style=\"border-collapse: initial;\" align=\"center\")\n    tr\n        td.butt.pb0\n            a.butt-link(href=\"https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-1-2-5&retrack=mail_IQ-RFM-1-2-5\" universal=\"true\" target=\"_blank\") ${{ rfm-segmentation-2-125.block_19 }}$",
+          "styl": ".w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { max-width: 100% !important; }\n}\n.butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.w280 { width:100%;max-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { max-width:100%!important }\n}\n.butt-link,.butt-link-2,.butt-link-small { font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#2f3749;display:block;line-height:27px;padding:16px 0;text-align:center;letter-spacing:0 }\n.butt-link,.butt-link-small { color:#f9f9f9 }",
+          "classes": [
+            "butt",
+            "butt-link",
+            "centet",
+            "pb0",
+            "w280"
+          ],
+          "designClasses": [
+            "butt-link",
+            "centet",
+            "w280"
+          ],
+          "slots": [
+            {
+              "id": "text_block_19",
+              "kind": "richText",
+              "label": "Текст rfm-segmentation-2-125.block_19",
+              "token": "${{ rfm-segmentation-2-125.block_19 }}$",
+              "ns": "rfm-segmentation-2-125",
+              "block": "block_19"
+            },
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-1-2-5&retrack=mail_IQ-RFM-1-2-5"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-new-rfm-segmentation-2-125-header-footer-12",
+      "label": "Store badges",
+      "placement": "section",
+      "category": "footer",
+      "kind": "section",
+      "sourceFile": "X_new/mail-rfm-segmentation-2-125/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.pt68.offset-by-one\n            table.ten.columns\n                tr\n                    td.pb0.text-pad-small\n                        .stor.center\n                            a(href=\"https://app.appsflyer.com/id871125783?pid=7&c=mail_IQ-RFM-1-2-5\" target=\"_blank\")\n                                img.a-app(src=\"https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjqg/app.png\")\n                            a(href=\"https://app.appsflyer.com/com.iqoption?pid=7&c=mail_IQ-RFM-1-2-5\" target=\"_blank\")\n                                img.a-google(src=\"https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjr0/play.png\")",
+      "styl": ".pt68 { padding-top: 68px; }\n.stor { width: 100% !important;\n  max-width: 450px;\n  margin: 0 auto; }\n@media screen and (max-width: 600px) {\n  .stor { width: 100% !important; }\n}\n.a-app { display: inline-block;\n  padding: 0 15px 15px 15px;\n  max-width: 120px;\n  height: 40px !important;\n  float: none; }\n@media screen and (max-width: 600px) {\n  .a-app { display: block !important;\n    float: none !important;\n    margin: 0 auto !important; }\n}\n.a-google { display: inline-block;\n  max-width: 135px;\n  height: 40px !important;\n  float: none;\n  padding: 0 15px 15px 15px; }\n@media screen and (max-width: 600px) {\n  .a-google { display: block !important;\n    float: none !important;\n    margin: 0 auto !important; }\n}\n.pt68 { padding-top:68px }\n.stor { width:100%!important;max-width:450px;margin:0 auto }\n@media screen and (max-width:600px) {\n  .stor { width:100%!important }\n}\n.a-app { display:inline-block;padding:0 15px 15px;max-width:120px;height:40px!important;float:none }\n@media screen and (max-width:600px) {\n  .a-app { display:block!important;float:none!important;margin:0 auto!important }\n}\n.a-google { display:inline-block;max-width:135px;height:40px!important;float:none;padding:0 15px 15px }\n@media screen and (max-width:600px) {\n  .a-google { display:block!important;float:none!important;margin:0 auto!important }\n}",
+      "classes": [
+        "a-app",
+        "a-google",
+        "center",
+        "columns",
+        "last",
+        "offset-by-one",
+        "pb0",
+        "pt68",
+        "row",
+        "stor",
+        "ten",
+        "text-pad-small",
+        "wrapper"
+      ],
+      "designClasses": [
+        "a-app",
+        "a-google",
+        "pt68",
+        "stor"
+      ],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://app.appsflyer.com/id871125783?pid=7&c=mail_IQ-RFM-1-2-5"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://app.appsflyer.com/com.iqoption?pid=7&c=mail_IQ-RFM-1-2-5"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjqg/app.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjr0/play.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-rfm-segmentation-2-125-header-footer-12-st",
+          "label": "Store badges (App Store / Google Play)",
+          "placement": "inline",
+          "category": "footer",
+          "pug": ".stor.center\n    a(href=\"https://app.appsflyer.com/id871125783?pid=7&c=mail_IQ-RFM-1-2-5\" target=\"_blank\")\n        img.a-app(src=\"https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjqg/app.png\")\n    a(href=\"https://app.appsflyer.com/com.iqoption?pid=7&c=mail_IQ-RFM-1-2-5\" target=\"_blank\")\n        img.a-google(src=\"https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjr0/play.png\")",
+          "styl": ".stor { width: 100% !important;\n  max-width: 450px;\n  margin: 0 auto; }\n@media screen and (max-width: 600px) {\n  .stor { width: 100% !important; }\n}\n.a-app { display: inline-block;\n  padding: 0 15px 15px 15px;\n  max-width: 120px;\n  height: 40px !important;\n  float: none; }\n@media screen and (max-width: 600px) {\n  .a-app { display: block !important;\n    float: none !important;\n    margin: 0 auto !important; }\n}\n.a-google { display: inline-block;\n  max-width: 135px;\n  height: 40px !important;\n  float: none;\n  padding: 0 15px 15px 15px; }\n@media screen and (max-width: 600px) {\n  .a-google { display: block !important;\n    float: none !important;\n    margin: 0 auto !important; }\n}\n.stor { width:100%!important;max-width:450px;margin:0 auto }\n@media screen and (max-width:600px) {\n  .stor { width:100%!important }\n}\n.a-app { display:inline-block;padding:0 15px 15px;max-width:120px;height:40px!important;float:none }\n@media screen and (max-width:600px) {\n  .a-app { display:block!important;float:none!important;margin:0 auto!important }\n}\n.a-google { display:inline-block;max-width:135px;height:40px!important;float:none;padding:0 15px 15px }\n@media screen and (max-width:600px) {\n  .a-google { display:block!important;float:none!important;margin:0 auto!important }\n}",
+          "classes": [
+            "a-app",
+            "a-google",
+            "center",
+            "stor"
+          ],
+          "designClasses": [
+            "a-app",
+            "a-google",
+            "stor"
+          ],
+          "slots": [
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://app.appsflyer.com/id871125783?pid=7&c=mail_IQ-RFM-1-2-5"
+            },
+            {
+              "id": "href_1",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://app.appsflyer.com/com.iqoption?pid=7&c=mail_IQ-RFM-1-2-5"
+            },
+            {
+              "id": "image_0",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjqg/app.png"
+            },
+            {
+              "id": "image_1",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjr0/play.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-new-rfm-segmentation-2-125-header-footer-13",
+      "label": "Соцсети",
+      "placement": "section",
+      "category": "footer",
+      "kind": "section",
+      "sourceFile": "X_new/mail-rfm-segmentation-2-125/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.pt30\n            table.twelve.columns\n                tr\n                    td(align=\"center\").pb0.center\n                        .socials.center\n                            a.first-link(href=\"${{ socials-3.block_04 }}$\" universal=\"true\" target=\"_blank\")\n                                img.soc-icon.fb(src=\"https://fsms.quadcode.com/storage/public/d5/ka/q8fvhhge5gv5vatg/tiktok-logo.png\")\n                            a(href=\"${{ socials-3.block_01 }}$\" universal=\"true\" target=\"_blank\")\n                                img.soc-icon.twitter(src=\"https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7ve0/ig.png\")\n                            a(href=\"${{ socials-3.block_03 }}$\" universal=\"true\" target=\"_blank\")\n                                img.soc-icon.you(src=\"https://fsms.iqoption.com/storage/public/cn/td/gb285cee2vclvjq0/yt.png\")\n                            a.last-link(href=\"${{ socials-3.block_05 }}$\" universal=\"true\" target=\"_blank\")\n                                img.soc-icon.ig(src=\"https://fsms.quadcode.com/storage/public/d5/ka/rf7vhhge5gv5vau0/tg.png\")",
+      "styl": ".ig { max-width: 20px;\n  margin-left: 6px; }\n@media screen and (max-width: 600px) {\n  .ig { width: 20px !important; }\n}\n.you { max-width: 24px;\n  margin: 0 6px; }\n@media screen and (max-width: 600px) {\n  .you { width: 24px !important; }\n}\n.twitter { max-width: 24px;\n  margin: 0 6px; }\n@media screen and (max-width: 600px) {\n  .twitter { width: 24px !important; }\n}\n.fb { max-width: 24px;\n  margin-right: 6px; }\n@media screen and (max-width: 600px) {\n  .fb { width: 24px !important; }\n}\n.socials { display: inline-block;\n  font-size: 0;\n  margin: 0 auto; }\n@media screen and (max-width: 600px) {\n  .socials { width: 100% !important; }\n}\n.socials a { display: inline-block;\n  vertical-align: middle;\n  margin: 0 10px; }\n@media screen and (max-width: 600px) {\n  .socials a { margin-bottom: 10px !important; }\n}\n.soc-icon { float: none !important;\n  max-width: 24px; }\n.ig { max-width:20px;margin-left:6px }\n@media screen and (max-width:600px) {\n  .ig { width:20px!important }\n}\n.you { max-width:24px;margin:0 6px }\n@media screen and (max-width:600px) {\n  .you { width:24px!important }\n}\n.twitter { max-width:24px;margin:0 6px }\n@media screen and (max-width:600px) {\n  .twitter { width:24px!important }\n}\n.fb { max-width:24px;margin-right:6px }\n@media screen and (max-width:600px) {\n  .fb { width:24px!important }\n}\n.center-block,.socials a { margin:0 10px }\n.socials { display:inline-block;font-size:0;margin:0 auto }\n@media screen and (max-width:600px) {\n  .socials { width:100%!important }\n}\n.socials a { display:inline-block;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .socials a { margin-bottom:10px!important }\n}\n.soc-icon { float:none!important;max-width:24px }",
+      "classes": [
+        "center",
+        "columns",
+        "fb",
+        "first-link",
+        "ig",
+        "last",
+        "last-link",
+        "pt30",
+        "row",
+        "soc-icon",
+        "socials",
+        "twelve",
+        "twitter",
+        "wrapper",
+        "you"
+      ],
+      "designClasses": [
+        "fb",
+        "first-link",
+        "ig",
+        "last-link",
+        "soc-icon",
+        "socials",
+        "twitter",
+        "you"
+      ],
+      "slots": [
+        {
+          "id": "text_block_04",
+          "kind": "richText",
+          "label": "Текст socials-3.block_04",
+          "token": "${{ socials-3.block_04 }}$",
+          "ns": "socials-3",
+          "block": "block_04"
+        },
+        {
+          "id": "text_block_01",
+          "kind": "richText",
+          "label": "Текст socials-3.block_01",
+          "token": "${{ socials-3.block_01 }}$",
+          "ns": "socials-3",
+          "block": "block_01"
+        },
+        {
+          "id": "text_block_03",
+          "kind": "richText",
+          "label": "Текст socials-3.block_03",
+          "token": "${{ socials-3.block_03 }}$",
+          "ns": "socials-3",
+          "block": "block_03"
+        },
+        {
+          "id": "text_block_05",
+          "kind": "richText",
+          "label": "Текст socials-3.block_05",
+          "token": "${{ socials-3.block_05 }}$",
+          "ns": "socials-3",
+          "block": "block_05"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ socials-3.block_04 }}$"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ socials-3.block_01 }}$"
+        },
+        {
+          "id": "href_2",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ socials-3.block_03 }}$"
+        },
+        {
+          "id": "href_3",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ socials-3.block_05 }}$"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d5/ka/q8fvhhge5gv5vatg/tiktok-logo.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7ve0/ig.png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.iqoption.com/storage/public/cn/td/gb285cee2vclvjq0/yt.png"
+        },
+        {
+          "id": "image_3",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d5/ka/rf7vhhge5gv5vau0/tg.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-rfm-segmentation-2-125-header-footer-13-so",
+          "label": "Соцсети (иконки)",
+          "placement": "inline",
+          "category": "footer",
+          "pug": ".socials.center\n    a.first-link(href=\"${{ socials-3.block_04 }}$\" universal=\"true\" target=\"_blank\")\n        img.soc-icon.fb(src=\"https://fsms.quadcode.com/storage/public/d5/ka/q8fvhhge5gv5vatg/tiktok-logo.png\")\n    a(href=\"${{ socials-3.block_01 }}$\" universal=\"true\" target=\"_blank\")\n        img.soc-icon.twitter(src=\"https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7ve0/ig.png\")\n    a(href=\"${{ socials-3.block_03 }}$\" universal=\"true\" target=\"_blank\")\n        img.soc-icon.you(src=\"https://fsms.iqoption.com/storage/public/cn/td/gb285cee2vclvjq0/yt.png\")\n    a.last-link(href=\"${{ socials-3.block_05 }}$\" universal=\"true\" target=\"_blank\")\n        img.soc-icon.ig(src=\"https://fsms.quadcode.com/storage/public/d5/ka/rf7vhhge5gv5vau0/tg.png\")",
+          "styl": ".ig { max-width: 20px;\n  margin-left: 6px; }\n@media screen and (max-width: 600px) {\n  .ig { width: 20px !important; }\n}\n.you { max-width: 24px;\n  margin: 0 6px; }\n@media screen and (max-width: 600px) {\n  .you { width: 24px !important; }\n}\n.twitter { max-width: 24px;\n  margin: 0 6px; }\n@media screen and (max-width: 600px) {\n  .twitter { width: 24px !important; }\n}\n.fb { max-width: 24px;\n  margin-right: 6px; }\n@media screen and (max-width: 600px) {\n  .fb { width: 24px !important; }\n}\n.socials { display: inline-block;\n  font-size: 0;\n  margin: 0 auto; }\n@media screen and (max-width: 600px) {\n  .socials { width: 100% !important; }\n}\n.socials a { display: inline-block;\n  vertical-align: middle;\n  margin: 0 10px; }\n@media screen and (max-width: 600px) {\n  .socials a { margin-bottom: 10px !important; }\n}\n.soc-icon { float: none !important;\n  max-width: 24px; }\n.ig { max-width:20px;margin-left:6px }\n@media screen and (max-width:600px) {\n  .ig { width:20px!important }\n}\n.you { max-width:24px;margin:0 6px }\n@media screen and (max-width:600px) {\n  .you { width:24px!important }\n}\n.twitter { max-width:24px;margin:0 6px }\n@media screen and (max-width:600px) {\n  .twitter { width:24px!important }\n}\n.fb { max-width:24px;margin-right:6px }\n@media screen and (max-width:600px) {\n  .fb { width:24px!important }\n}\n.center-block,.socials a { margin:0 10px }\n.socials { display:inline-block;font-size:0;margin:0 auto }\n@media screen and (max-width:600px) {\n  .socials { width:100%!important }\n}\n.socials a { display:inline-block;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .socials a { margin-bottom:10px!important }\n}\n.soc-icon { float:none!important;max-width:24px }",
+          "classes": [
+            "center",
+            "fb",
+            "first-link",
+            "ig",
+            "last-link",
+            "soc-icon",
+            "socials",
+            "twitter",
+            "you"
+          ],
+          "designClasses": [
+            "fb",
+            "first-link",
+            "ig",
+            "last-link",
+            "soc-icon",
+            "socials",
+            "twitter",
+            "you"
+          ],
+          "slots": [
+            {
+              "id": "text_block_04",
+              "kind": "richText",
+              "label": "Текст socials-3.block_04",
+              "token": "${{ socials-3.block_04 }}$",
+              "ns": "socials-3",
+              "block": "block_04"
+            },
+            {
+              "id": "text_block_01",
+              "kind": "richText",
+              "label": "Текст socials-3.block_01",
+              "token": "${{ socials-3.block_01 }}$",
+              "ns": "socials-3",
+              "block": "block_01"
+            },
+            {
+              "id": "text_block_03",
+              "kind": "richText",
+              "label": "Текст socials-3.block_03",
+              "token": "${{ socials-3.block_03 }}$",
+              "ns": "socials-3",
+              "block": "block_03"
+            },
+            {
+              "id": "text_block_05",
+              "kind": "richText",
+              "label": "Текст socials-3.block_05",
+              "token": "${{ socials-3.block_05 }}$",
+              "ns": "socials-3",
+              "block": "block_05"
+            },
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ socials-3.block_04 }}$"
+            },
+            {
+              "id": "href_1",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ socials-3.block_01 }}$"
+            },
+            {
+              "id": "href_2",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ socials-3.block_03 }}$"
+            },
+            {
+              "id": "href_3",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ socials-3.block_05 }}$"
+            },
+            {
+              "id": "image_0",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d5/ka/q8fvhhge5gv5vatg/tiktok-logo.png"
+            },
+            {
+              "id": "image_1",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7ve0/ig.png"
+            },
+            {
+              "id": "image_2",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.iqoption.com/storage/public/cn/td/gb285cee2vclvjq0/yt.png"
+            },
+            {
+              "id": "image_3",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d5/ka/rf7vhhge5gv5vau0/tg.png"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "id": "system-text-56",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_System (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.b-system-text-56\n    tr\n        td.offset-by-one\n            table.ten.columns\n                tr\n                    td.pb30.text-pad-small\n                        table.table-margin\n                            tr\n                                td.first-td\n                                    p.table-title {{ text_1 }}\n                                td.last-td\n                                    p.table-title {{ text_2 }}\n                            tr\n                                td.first-td\n                                    p.table-text {{ text_3 }}\n                                td.last-td\n                                    p.table-text 1:20\n                            tr\n                                td.first-td\n                                    p.table-text {{ text_4 }}\n                                td.last-td\n                                    p.table-text 1:30\n                            tr\n                                td.first-td\n                                    p.table-text {{ text_5 }}\n                                td.last-td\n                                    p.table-text 1:10\n                            tr\n                                td.first-td\n                                    p.table-text {{ text_6 }}\n                                td.last-td\n                                    p.table-text 1:5\n                            tr\n                                td.first-td\n                                    p.table-text {{ text_7 }}\n                                td.last-td\n                                    p.table-text 1:5\n                            tr\n                                td.first-td\n                                    p.table-text {{ text_8 }}\n                                td.last-td\n                                    p.table-text 1:5\n                            tr\n                                td.first-td\n                                    p.table-text {{ text_9 }}\n                                td.last-td\n                                    p.table-text 1:2",
+  "styl": ".white-bg.b-system-text-56 {  background:#fff  }\n.b-system-text-56 table[class=body] table.columns td.first-td {  max-width:100%;height:40px;vertical-align:middle;padding-left:20px;padding-right:20px;border:1px solid #5b6e88;padding-bottom:0!important;border-collapse:collapse  }\n@media screen and (max-width:600px) {\n  .b-system-text-56 table[class=body] table.columns td.first-td {  padding-left:10px!important;padding-right:10px!important;width:150px!important  }\n}\n.b-system-text-56 table[class=body] table.columns td.last-td {  max-width:100%;height:40px;line-height:40px;vertical-align:middle;padding-left:20px;padding-right:20px;border:1px solid #5b6e88;padding-bottom:0!important;border-collapse:collapse  }\n@media screen and (max-width:600px) {\n  .b-system-text-56 table[class=body] table.columns td.last-td {  padding-left:10px!important;padding-right:10px!important;width:150px!important  }\n}\n.b-system-text-56 .table-title {  color:#5b6e88;font-size:16px;font-weight:700;padding:10px 0  }\n.b-system-text-56 .asterisk, .b-system-text-56 .table-text {  color:#5b6e88;font-size:16px;font-weight:400  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_7",
+      "kind": "richText",
+      "label": "Текст 7",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_8",
+      "kind": "richText",
+      "label": "Текст 8",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_9",
+      "kind": "richText",
+      "label": "Текст 9",
+      "default": "Текст блока — отредактируйте под кампанию."
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_System"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_System/mail-esma-restrict"
+  ],
+  "createdAt": "2026-07-06T12:09:59.369Z",
+  "validated": true
+}

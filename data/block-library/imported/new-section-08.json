@@ -1,0 +1,89 @@
+{
+  "id": "new-section-08",
+  "label": "Секция",
+  "description": "Импортирован из X_new (1 писем). Секция.",
+  "placement": "section",
+  "category": "section",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.light-black-col.br-top.b-new-section-08\n    tr\n        td.wrapper.last.pt32.offset-by-one\n            table.ten.columns\n                tr\n                    td.pb0.text-pad-small\n                        p.subtitle-min.center.pb8 {{ text_1 }}\n                        p.text.center {{ text_2 }}\n                        p.text.center.pb15 {{ text_3 }}\n                        .social-links\n                            a(href=\"{{ href_1 }}\" target=\"_blank\")\n                                img.soc.mar12(src=\"{{ image_1 }}\")\n                            a(href=\"{{ href_2 }}\" target=\"_blank\")\n                                img.soc.mar12(src=\"{{ image_2 }}\")\n                            a(href=\"{{ href_3 }}\" target=\"_blank\")\n                                img.soc.mar12(src=\"{{ image_3 }}\")\n                            a(href=\"{{ href_4 }}\" target=\"_blank\")\n                                img.soc(src=\"{{ image_4 }}\")",
+  "styl": ".light-black-col.b-new-section-08 {  background:#000001!important  }\n.b-new-section-08 .subtitle-min, .b-new-section-08 .text {  line-height:26px;color:#f6f6f6  }\n.b-new-section-08 .text {  font-family:Helvetica!important;font-weight:400;letter-spacing:0;font-size:16px  }\n.b-new-section-08 .subtitle-min {  font-size:26px  }\n.b-new-section-08 .bottom-title, .b-new-section-08 .subtitle-min, .b-new-section-08 .subtitle-text {  font-family:Helvetica!important;font-weight:700  }\n.b-new-section-08 .text.list {  display:list-item  }\n.b-new-section-08 .pb8 {  padding-bottom:8px  }\n.b-new-section-08 .pb15 {  padding-bottom:15px!important  }\n.b-new-section-08 .pt32 {  padding-top:32px  }\n.b-new-section-08 .social-links {  display:block;text-align:center;padding-bottom:20px  }\n.b-new-section-08 .mar12 {  padding-right:20px  }\n.b-new-section-08 .soc {  display:inline-block;float:none;max-width:45px  }\n.br-top.b-new-section-08 {  border-radius:5px 5px 0 0  }\n.b-new-section-08 .a-link, .b-new-section-08 .text a {  font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important  }\n.b-new-section-08 .text a {  text-decoration:underline!important;color:#b1e400!important  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://www.facebook.com/Affstore.affiliate"
+    },
+    {
+      "id": "href_2",
+      "kind": "url",
+      "label": "Ссылка 2",
+      "default": "https://www.instagram.com/affstore_affiliate/"
+    },
+    {
+      "id": "href_3",
+      "kind": "url",
+      "label": "Ссылка 3",
+      "default": "https://affstore.com/"
+    },
+    {
+      "id": "href_4",
+      "kind": "url",
+      "label": "Ссылка 4",
+      "default": "https://www.linkedin.com/company/affstore/"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.iqoption.com/storage/public/cg/ij/h3nm73k4mm2dgnog/soc_facebook (1).png"
+    },
+    {
+      "id": "image_2",
+      "kind": "image",
+      "label": "Картинка 2",
+      "default": "https://fsms.iqoption.com/storage/public/cg/ij/h3nm73k4mm2dgnp0/soc_instagram (1).png"
+    },
+    {
+      "id": "image_3",
+      "kind": "image",
+      "label": "Картинка 3",
+      "default": "https://fsms.iqoption.com/storage/public/cg/ij/h3nm73k4mm2dgno0/soc_affstore (1).png"
+    },
+    {
+      "id": "image_4",
+      "kind": "image",
+      "label": "Картинка 4",
+      "default": "https://fsms.quadcode.com/storage/public/cj/0f/p89iuavv9levmb5g/soc_affstore (1).png"
+    }
+  ],
+  "tags": [
+    "section",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-Post-IGB-party-email"
+  ],
+  "createdAt": "2026-07-06T12:10:00.056Z",
+  "validated": true
+}

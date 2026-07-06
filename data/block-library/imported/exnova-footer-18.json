@@ -1,0 +1,30 @@
+{
+  "id": "exnova-footer-18",
+  "label": "Соцсети (иконки)",
+  "description": "Импортирован из X_Exnova (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "footer",
+  "version": 1,
+  "source": "imported",
+  "pug": ".socials.center.b-exnova-footer-18\n    a.google-store(href=\"#\" target=\"_blank\")\n        img.google-store(src=\"{{ image_1 }}\")",
+  "styl": ".b-exnova-footer-18 .mar-mob, .socials.b-exnova-footer-18 a {  margin:0 10px  }\n.b-exnova-footer-18 .app-store, .b-exnova-footer-18 .google-store {  display:inline-block;padding-bottom:10px  }\n.b-exnova-footer-18 .google-store {  width:175px!important  }\n.socials.b-exnova-footer-18 {  display:block;font-size:0;margin:0 auto;text-align:center  }\n.socials.b-exnova-footer-18 a {  display:inline-block;vertical-align:middle  }\n@media screen and (max-width:600px) {\n  .socials.b-exnova-footer-18 a {  margin-bottom:10px!important  }\n}",
+  "slots": [
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/cg/er/jnfm73k4mm2dgmsg/google-play-badge (9).png"
+    }
+  ],
+  "tags": [
+    "footer",
+    "inline",
+    "X_Exnova"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_Exnova/mail-Telegram-signals"
+  ],
+  "createdAt": "2026-07-06T12:09:50.968Z",
+  "validated": true
+}

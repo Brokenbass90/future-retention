@@ -1,0 +1,67 @@
+{
+  "id": "new-footer-02",
+  "label": "Store badges (App Store / Google Play)",
+  "description": "Импортирован из X_new (22 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "footer",
+  "version": 1,
+  "source": "imported",
+  "pug": ".stor.center.b-new-footer-02\n    a(href=\"{{ href_1 }}\" target=\"_blank\")\n        img.a-app(src=\"{{ image_1 }}\")\n    a(href=\"{{ href_2 }}\" target=\"_blank\")\n        img.a-google(src=\"{{ image_2 }}\")",
+  "styl": ".stor.b-new-footer-02 {  width: 361px;\n  margin: 0 auto;  }\n@media screen and (max-width: 600px) {\n  .stor.b-new-footer-02 {  width: 100% !important;  }\n}\n.b-new-footer-02 .a-app {  display: inline-block;\n  padding-right: 30px;\n  max-width: 120px;\n  height: 40px !important;\n  float: none;  }\n@media screen and (max-width: 600px) {\n  .b-new-footer-02 .a-app {  display: block !important;\n    padding-right: 0 !important;\n    float: none !important;\n    margin-bottom: 15px;\n    margin: 0 auto !important;\n    padding-bottom: 15px !important;  }\n}\n.b-new-footer-02 .a-google {  display: inline-block;\n  max-width: 135px;\n  height: 40px !important;\n  float: none;  }\n@media screen and (max-width: 600px) {\n  .b-new-footer-02 .a-google {  display: block !important;\n    float: none !important;\n    margin: 0 auto !important;  }\n}\n.stor.b-new-footer-02 {  width:361px;margin:0 auto  }\n@media screen and (max-width:600px) {\n  .stor.b-new-footer-02 {  width:100%!important  }\n}\n.b-new-footer-02 .a-app {  display:inline-block;padding-right:30px;max-width:120px;height:40px!important;float:none  }\n@media screen and (max-width:600px) {\n  .b-new-footer-02 .a-app {  display:block!important;padding-right:0!important;float:none!important;margin:0 auto!important;padding-bottom:15px!important  }\n}\n.b-new-footer-02 .a-google {  display:inline-block;max-width:135px;height:40px!important;float:none  }\n@media screen and (max-width:600px) {\n  .b-new-footer-02 .a-google {  display:block!important;float:none!important;margin:0 auto!important  }\n}",
+  "slots": [
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://app.appsflyer.com/id871125783?pid=7&c=mail_depbonus_rfm"
+    },
+    {
+      "id": "href_2",
+      "kind": "url",
+      "label": "Ссылка 2",
+      "default": "https://app.appsflyer.com/com.iqoption?pid=7&c=mail_depbonus_rfm"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjqg/app.png"
+    },
+    {
+      "id": "image_2",
+      "kind": "image",
+      "label": "Картинка 2",
+      "default": "https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjr0/play.png"
+    }
+  ],
+  "tags": [
+    "footer",
+    "inline",
+    "X_new"
+  ],
+  "usageCount": 22,
+  "sourceMails": [
+    "X_new/mail-RFM-dep",
+    "X_new/mail-rfm-311",
+    "X_new/mail-rfm-312",
+    "X_new/mail-rfm-313",
+    "X_new/mail-rfm-314",
+    "X_new/mail-rfm-321",
+    "X_new/mail-rfm-322",
+    "X_new/mail-rfm-323",
+    "X_new/mail-rfm-324",
+    "X_new/mail-rfm-331",
+    "X_new/mail-rfm-332",
+    "X_new/mail-rfm-333",
+    "X_new/mail-rfm-334",
+    "X_new/mail-rfm-segmentation-2-125",
+    "X_new/mail-rfm-segmentation-2-133",
+    "X_new/mail-rfm-segmentation-2-134",
+    "X_new/mail-rfm-segmentation-2-135",
+    "X_new/mail-rfm-segmentation-2-211",
+    "X_new/mail-rfm-segmentation-2-212",
+    "X_new/mail-rfm-segmentation-2-213"
+  ],
+  "createdAt": "2026-07-06T12:10:00.057Z",
+  "validated": true
+}

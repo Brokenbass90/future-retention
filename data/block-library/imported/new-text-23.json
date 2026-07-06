@@ -1,0 +1,96 @@
+{
+  "id": "new-text-23",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_new (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.br-full-16.bg-bord-full.b-new-text-23\n    tr\n        td.wrapper.last.offset-by-one.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb32\n                        a(href=\"#\" target=\"_blank\")\n                            img.pb32(src=\"{{ image_1 }}\")\n                        p.small-title.pb12 {{ text_1 }}\n                        p.text.list-item.pb8 {{ text_2 }}\n                        p.text.list-item.pb8 {{ text_3 }}\n                        p.text.list-item.pb8 {{ text_4 }}\n                        p.text.list-item.pb15 {{ text_5 }}\n                        p.text.center <b>{{ text_6 }}</b>\n    tr\n        td.wrapper.last.offset-by-three.pt0.pb32\n            table.six.columns\n                tr\n                    td.pb0.text-pad-small.pt0\n                        .button-wrapper.button-wrapper_top.butt-border\n                            table.medium-button.radius\n                                tr\n                                    td.iq.bg-none\n                                        a.butt.butt-2(href=\"{{ href_1 }}\" target=\"_blank\") {{ text_7 }}\n    tr\n        td.wrapper.last.offset-by-one.pt0\n            table.ten.columns\n                tr\n                    td.text-pad-small.pt32.pb32.bt-dash\n                        p.text.center {{ text_8 }}\n    tr\n        td.wrapper.last.offset-by-three.pt0\n            table.six.columns\n                tr\n                    td.pb44.text-pad-small.pt0\n                        .button-wrapper.button-wrapper_top\n                            table.medium-button.radius\n                                tr\n                                    td.iq\n                                        a.butt(href=\"{{ href_2 }}\" target=\"_blank\") {{ text_9 }}",
+  "styl": ".white-bg.b-new-text-23 {  background:#fff  }\n.b-new-text-23 .butt-border {  border:2px solid #3f3f3f;border-radius:12px  }\n.b-new-text-23 .butt-2 {  color:#3f3f3f!important  }\n.b-new-text-23 .bg-none {  background:0 0!important  }\n.b-new-text-23 .small-title, .b-new-text-23 .title-top {  font-family:Helvetica!important;font-weight:700;color:#413e43  }\n.b-new-text-23 .small-title {  letter-spacing:-.5px;font-size:32px;line-height:38px  }\n.b-new-text-23 .subtitle-min, .b-new-text-23 .text {  font-family:Helvetica!important  }\n.b-new-text-23 .text {  letter-spacing:0;color:#413e43;font-size:18px;font-weight:400;line-height:27px  }\n.b-new-text-23 .text.list {  display:list-item  }\n.b-new-text-23 .pb8 {  padding-bottom:8px  }\n.b-new-text-23 .pb12 {  padding-bottom:12px  }\n.b-new-text-23 .pb15 {  padding-bottom:15px!important  }\n.b-new-text-23 .pb44 {  padding-bottom:44px  }\n.b-new-text-23 .pt32 {  padding-top:32px  }\n.b-new-text-23 .pt44, .b-new-text-23 .pt45 {  padding-top:44px  }\n.br-full-16.b-new-text-23 {  border-radius:16px;-moz-border-radius:16px;-webkit-border-radius:16px  }\n.bg-bord-full.b-new-text-23 {  border:1px solid #eae9e9  }\n.b-new-text-23 .text a, .b-new-text-23 b {  font-family:Helvetica!important  }\n.b-new-text-23 .bt-dash {  border-top:1px dashed #c4cbba  }\n.b-new-text-23 .list-item {  background:url(\"https://fsms.quadcode.com/storage/public/cn/jg/nfq85cee2vclvhhg/Ellipse 6.png\") left 4px top 10px no-repeat;background-size:6px;padding-left:22px  }\n.b-new-text-23 .text a {  text-decoration:underline!important;font-weight:400;font-size:18px;line-height:27px;color:#1466fe!important  }\n.b-new-text-23 .pb32 {  padding-bottom:32px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_7",
+      "kind": "richText",
+      "label": "Текст 7",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_8",
+      "kind": "richText",
+      "label": "Текст 8",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_9",
+      "kind": "richText",
+      "label": "Текст 9",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://my.affstore.com/offers"
+    },
+    {
+      "id": "href_2",
+      "kind": "url",
+      "label": "Ссылка 2",
+      "default": "https://my.affstore.com/offers?source=email&utm_source=email&utm_medium=email&utm_campaign=qcm_global_intro"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/cn/jg/ng285cee2vclvhl0/Frame 54.png"
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-QCM-Offer-2"
+  ],
+  "createdAt": "2026-07-06T12:10:00.057Z",
+  "validated": true
+}

@@ -1,0 +1,48 @@
+{
+  "id": "system-text-62",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_System (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.b-system-text-62\n    tr\n        td.wrapper.last\n            table.twelve.columns\n                tr\n                    td.plr30.pb30\n                        .blue-block\n                            p.text.center {{ text_1 }}\n                            p.text.icon-text.icon-text_1 {{ text_2 }}\n                            p.text.icon-text.icon-text_2 {{ text_3 }}\n                            p.text.center {{ text_4 }}",
+  "styl": ".white-bg.b-system-text-62 {  background:#fff  }\n.b-system-text-62 .text {  font-family:Arial!important;color:#5b6e88;font-size:16px;font-weight:400;line-height:26px;padding-bottom:20px  }\n@media screen and (max-width:600px) {\n  .b-system-text-62 .text {  padding-left:20px!important;padding-right:20px!important  }\n}\n.b-system-text-62 .grey-text a, .b-system-text-62 .text a {  color:#0b8bd8;text-decoration:underline  }\n.b-system-text-62 .icon-text {  padding-left:80px  }\n@media screen and (max-width:600px) {\n  .b-system-text-62 .icon-text {  padding-left:50px!important  }\n}\n.b-system-text-62 .icon-text_1 {  background:url(https://images01.iqoption.com/57/5857/static-02566133645999865857.png) left top 10px no-repeat;background-size:53px auto  }\n@media screen and (max-width:600px) {\n  .b-system-text-62 .icon-text_1 {  background-size:40px auto!important  }\n}\n.b-system-text-62 .icon-text_2 {  background:url(https://images01.iqoption.com/89/3089/static-03344689742204633089.png) left top 10px no-repeat;background-size:42px auto  }\n@media screen and (max-width:600px) {\n  .b-system-text-62 .icon-text_2 {  background-size:35px auto!important  }\n}\n.b-system-text-62 .text.bold {  font-weight:700  }\n.b-system-text-62 .plr30 {  padding-left:30px;padding-right:30px  }\n@media screen and (max-width:600px) {\n  .b-system-text-62 .plr30 {  padding-left:20px!important;padding-right:20px!important  }\n}\n.b-system-text-62 .blue-block {  background:#f7fbff;border-radius:7px;padding:20px  }\n@media screen and (max-width:600px) {\n  .b-system-text-62 .blue-block {  padding-left:15px!important;padding-right:15px!important  }\n}",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_System"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_System/mail-gdrp"
+  ],
+  "createdAt": "2026-07-06T12:09:59.369Z",
+  "validated": true
+}

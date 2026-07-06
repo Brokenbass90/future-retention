@@ -1,0 +1,24 @@
+{
+  "id": "system-text-06",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_System (2 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.list.b-system-text-06 €10,001 - €50,000",
+  "styl": ".text.b-system-text-06 {  color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px  }\n@media screen and (max-width:600px) {\n  .text.b-system-text-06 {  padding-left:20px!important;padding-right:20px!important  }\n}\n.text.b-system-text-06 a {  color:#2473d7;text-decoration:underline  }\n.text.bold.b-system-text-06 {  font-weight:700  }\n.list.b-system-text-06 {  display:list-item;padding-left:20px;list-style:decimal;list-style-position:inside;padding-bottom:10px  }",
+  "slots": [],
+  "tags": [
+    "text",
+    "inline",
+    "X_System"
+  ],
+  "usageCount": 2,
+  "sourceMails": [
+    "X_System/mail-annual-investment",
+    "X_System/mail-overnight"
+  ],
+  "createdAt": "2026-07-06T12:09:59.367Z",
+  "validated": true
+}

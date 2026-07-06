@@ -1,0 +1,39 @@
+{
+  "id": "iqbroker-text-01",
+  "label": "Заголовок",
+  "description": "Импортирован из X_IQBroker (10 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.title.pb30.b-iqbroker-text-01 {{ text_1 }}",
+  "styl": ".title.b-iqbroker-text-01 {  color: #2e292a;\n  font-size: 48px;\n  line-height: 57.6px;\n  font-weight: 700;\n  font-family: Helvetica !important;  }\n.title.b-iqbroker-text-01 {  font-family:Helvetica!important;color:#2e292a;font-size:48px;line-height:57px;font-weight:700  }\n@media screen and (max-width:600px) {\n  .title.b-iqbroker-text-01 {  font-size:32px!important;line-height:42px!important  }\n}",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_IQBroker"
+  ],
+  "usageCount": 10,
+  "sourceMails": [
+    "X_IQBroker/mail-15-days-general-termination",
+    "X_IQBroker/mail-blacklisted-chargeback-termination",
+    "X_IQBroker/mail-blacklisted-general-termination",
+    "X_IQBroker/mail-fraud-front-running-termination",
+    "X_IQBroker/mail-fraud-high-frequency-trading-termination",
+    "X_IQBroker/mail-fraud-scheme-termination",
+    "X_IQBroker/mail-fraud-termination",
+    "X_IQBroker/mail-multiple-account-termination",
+    "X_IQBroker/mail-restricted-country-termination",
+    "X_IQBroker/mail-s-confirm"
+  ],
+  "createdAt": "2026-07-06T12:09:51.734Z",
+  "validated": true
+}

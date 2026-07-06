@@ -1,0 +1,54 @@
+{
+  "id": "exnova-text-15",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_Exnova (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.b-exnova-text-15 {{ text_1 }}&nbsp;\n    span.green {{ text_2 }}\n    |&nbsp;{{ text_3 }}&nbsp;\n    span.red {{ text_4 }}\n    |&nbsp;{{ text_5 }}",
+  "styl": ".b-exnova-text-15 .green {  color:#22bb72!important  }\n.b-exnova-text-15 .hello-text, .text.b-exnova-text-15 {  font-family:Helvetica!important;font-weight:700;font-size:22px;line-height:26px;color:#20242f  }\n.text.b-exnova-text-15 {  color:#262832;font-size:16px;font-weight:400;line-height:24px  }\n.b-exnova-text-15 .green, .b-exnova-text-15 .number, .b-exnova-text-15 .red {  font-weight:700  }\n.b-exnova-text-15 .number, .b-exnova-text-15 .red {  color:#fb4547  }\n.text.bold.b-exnova-text-15 {  font-weight:700  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_Exnova"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_Exnova/mail-Short-E-mail"
+  ],
+  "createdAt": "2026-07-06T12:09:50.959Z",
+  "validated": true
+}

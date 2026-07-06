@@ -1,0 +1,30 @@
+{
+  "id": "exnova-text-65",
+  "label": "Заголовок",
+  "description": "Импортирован из X_Exnova (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.small-title.pb20.b-exnova-text-65 {{ text_1 }}\n    span.blue",
+  "styl": ".small-title.b-exnova-text-65 {  font-family:Helvetica!important;font-weight:700;font-size:24px;line-height:28px;color:#262832  }\n.b-exnova-text-65 .blue {  background:#0081e3  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_Exnova"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_Exnova/mail-Telegram-signals"
+  ],
+  "createdAt": "2026-07-06T12:09:50.968Z",
+  "validated": true
+}

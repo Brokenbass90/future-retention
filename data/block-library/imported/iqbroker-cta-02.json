@@ -1,0 +1,39 @@
+{
+  "id": "iqbroker-cta-02",
+  "label": "CTA-кнопка (w280)",
+  "description": "Импортирован из X_IQBroker (4 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "cta",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.w280.b-iqbroker-cta-02(align=\"left\" style=\"width: 100%;\")\n    tr\n        td.butt.pb0\n            a.butt-link(href=\"{{ href_1 }}\" universal=\"true\" target=\"_blank\") {{ text_1 }}",
+  "styl": ".w280.b-iqbroker-cta-02 {  width: 100%;\n  max-width: 280px;  }\n@media screen and (max-width: 600px) {\n  .w280.b-iqbroker-cta-02 {  max-width: 100% !important;  }\n}\n.b-iqbroker-cta-02 .butt-link {  font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px;  }\n.w280.b-iqbroker-cta-02 {  width:100%;max-width:280px  }\n@media screen and (max-width:600px) {\n  .w280.b-iqbroker-cta-02 {  max-width:100%!important  }\n}\n.b-iqbroker-cta-02 .butt-link, .b-iqbroker-cta-02 .butt-link-2 {  font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#f9f9f9;display:block;line-height:27px;padding:14px 0;text-align:center;letter-spacing:0  }\n.b-iqbroker-cta-02 .butt-link {  padding:16px 0  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://api.trade.iqbroker.com/v1/multi-links/open-asset?aff=7&afftrack=mail_faq&retrack=mail_faq"
+    }
+  ],
+  "tags": [
+    "cta",
+    "inline",
+    "X_IQBroker"
+  ],
+  "usageCount": 4,
+  "sourceMails": [
+    "X_IQBroker/mail-FAQ",
+    "X_IQBroker/mail-strategies",
+    "X_IQBroker/mail-success",
+    "X_IQBroker/mail-tools"
+  ],
+  "createdAt": "2026-07-06T12:09:51.735Z",
+  "validated": true
+}

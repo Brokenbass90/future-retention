@@ -1,0 +1,222 @@
+{
+  "id": "iqbroker-section-02",
+  "label": "Секция",
+  "description": "Импортирован из X_IQBroker (1 писем). Секция.",
+  "placement": "section",
+  "category": "section",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.brad-full.b-iqbroker-section-02(style=\"border: 4px solid #1A1D1E;\")\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44.bb\n                        table.w100\n                            tr\n                                td.pb0.w-a\n                                    p.question {{ text_1 }}\n                                td.pb0.m-w(align=\"right\" style=\"text-align: right;\")\n                                    a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                        img.ava-question(src=\"{{ image_1 }}\")\n                        .h-32 &nbsp;\n                        .orange-block\n                            table.w100\n                                tr\n                                    td.pb0.m-w(align=\"left\" style=\"text-align: left;\")\n                                        a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                            img.ava-broker(src=\"{{ image_2 }}\")\n                                    td.pb0.w-a\n                                        p.broker-text{{ text_2 }}\n                tr\n                    td.text-pad-small.pb44.pt44.bb\n                        table.w100\n                            tr\n                                td.pb0.w-a\n                                    p.question {{ text_3 }}\n                                td.pb0.m-w(align=\"right\" style=\"text-align: right;\")\n                                    a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                        img.ava-question(src=\"{{ image_3 }}\")\n                        .h-32 &nbsp;\n                        .orange-block\n                            table.w100\n                                tr\n                                    td.pb0.m-w(align=\"left\" style=\"text-align: left;\")\n                                        a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                            img.ava-broker(src=\"{{ image_2 }}\")\n                                    td.pb0.w-a\n                                        ul(style='margin: 0;')\n                                            li.broker-text.pb10\n                                                p.broker-text {{ text_4 }}\n                                            li.broker-text.pb10\n                                                p.broker-text {{ text_5 }}\n                                            li.broker-text\n                                                p.broker-text{{ text_6 }}\n                tr\n                    td.text-pad-small.pb44.pt44.bb\n                        table.w100\n                            tr\n                                td.pb0.w-a\n                                    p.question {{ text_7 }}\n                                td.pb0.m-w(align=\"right\" style=\"text-align: right;\")\n                                    a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                        img.ava-question(src=\"{{ image_4 }}\")\n                        .h-32 &nbsp;\n                        .orange-block\n                            table.w100\n                                tr\n                                    td.pb0.m-w(align=\"left\" style=\"text-align: left;\")\n                                        a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                            img.ava-broker(src=\"{{ image_2 }}\")\n                                    td.pb0.w-a\n                                        p.broker-text {{ text_8 }}\n                                        p.broker-text {{ text_9 }}\n                tr\n                    td.text-pad-small.pb44.pt44.bb\n                        table.w100\n                            tr\n                                td.pb0.w-a\n                                    p.question {{ text_10 }}\n                                td.pb0.m-w(align=\"right\" style=\"text-align: right;\")\n                                    a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                        img.ava-question(src=\"{{ image_5 }}\")\n                        .h-32 &nbsp;\n                        .orange-block\n                            table.w100\n                                tr\n                                    td.pb0.m-w(align=\"left\" style=\"text-align: left;\")\n                                        a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                            img.ava-broker(src=\"{{ image_2 }}\")\n                                    td.pb0.w-a\n                                        ul(style='margin: 0;')\n                                            li.broker-text.pb10\n                                                p.broker-text {{ text_11 }}\n                                            li.broker-text.pb10\n                                                p.broker-text{{ text_12 }}\n                                            li.broker-text\n                                                p.broker-text {{ text_13 }}\n                tr\n                    td.text-pad-small.pb44.pt44.bb\n                        table.w100\n                            tr\n                                td.pb0.w-a\n                                    p.question {{ text_14 }}\n                                td.pb0.m-w(align=\"right\" style=\"text-align: right;\")\n                                    a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                        img.ava-question(src=\"{{ image_6 }}\")\n                        .h-32 &nbsp;\n                        .orange-block\n                            table.w100\n                                tr\n                                    td.pb0.m-w(align=\"left\" style=\"text-align: left;\")\n                                        a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                            img.ava-broker(src=\"{{ image_2 }}\")\n                                    td.pb0.w-a\n                                        p.broker-text {{ text_15 }} {{ text_16 }}\n                tr\n                    td.text-pad-small.pb44.pt44.bb\n                        table.w100\n                            tr\n                                td.pb0.w-a\n                                    p.question {{ text_17 }}\n                                td.pb0.m-w(align=\"right\" style=\"text-align: right;\")\n                                    a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                        img.ava-question(src=\"{{ image_7 }}\")\n                        .h-32 &nbsp;\n                        .orange-block\n                            table.w100\n                                tr\n                                    td.pb0.m-w(align=\"left\" style=\"text-align: left;\")\n                                        a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                            img.ava-broker(src=\"{{ image_2 }}\")\n                                    td.pb0.w-a\n                                        p.broker-text {{ text_18 }}\n                                        p.broker-text {{ text_19 }}\n                                        p.broker-text {{ text_20 }}\n                tr\n                    td.text-pad-small.pb44.pt44\n                        table.w100\n                            tr\n                                td.pb0.w-a\n                                    p.question {{ text_21 }}\n                                td.pb0.m-w(align=\"right\" style=\"text-align: right;\")\n                                    a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                        img.ava-question(src=\"{{ image_8 }}\")\n                        .h-32 &nbsp;\n                        .orange-block\n                            table.w100\n                                tr\n                                    td.pb0.m-w(align=\"left\" style=\"text-align: left;\")\n                                        a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                            img.ava-broker(src=\"{{ image_2 }}\")\n                                    td.pb0.w-a\n                                        ul(style='margin: 0;')\n                                            li.broker-text.pb10\n                                                p.broker-text {{ text_22 }}\n                                            li.broker-text.pb10\n                                                p.broker-text {{ text_23 }}\n                                            li.broker-text.pb10\n                                                p.broker-text {{ text_24 }}\n                                            li.broker-text\n                                                p.broker-text{{ text_25 }}",
+  "styl": ".brad-full.b-iqbroker-section-02 {  border-radius: 32px !important;  }\n.b-iqbroker-section-02 .bb {  border-bottom: 1px solid #3a3f40;  }\n.b-iqbroker-section-02 .pb44 {  padding-bottom: 44px;  }\n.b-iqbroker-section-02 .pt44 {  padding-top: 44px;  }\n.b-iqbroker-section-02 .h-32 {  font-size: 8px;\n  line-height: 32px;\n  height: 32px;  }\n.b-iqbroker-section-02 .w100 {  width: 100%;  }\n.b-iqbroker-section-02 .w-a {  width: auto !important;\n  vertical-align: middle;  }\n.b-iqbroker-section-02 table[class=body] table.column td, .b-iqbroker-section-02 table[class=body] table.columns td.m-w {  min-width: 75px !important;\n  width: 75px !important;  }\n.b-iqbroker-section-02 .question {  padding: 20px 24px;\n  background: #101314;\n  border-radius: 16px;\n  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  color: #ececed;  }\n@media screen and (max-width: 600px) {\n  .b-iqbroker-section-02 .question {  font-size: 20px !important;\n    line-height: 29px !important;  }\n}\n.b-iqbroker-section-02 .ava-question {  float: right;\n  width: 60px !important;  }\n.b-iqbroker-section-02 .ava-broker {  float: none;\n  width: 50px !important;  }\n.b-iqbroker-section-02 .broker-text {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #ececed;  }\n.b-iqbroker-section-02 .orange-block {  padding: 24px;\n  background: #21150f;\n  border-radius: 16px;  }\n.brad-full.b-iqbroker-section-02, .b-iqbroker-section-02 .brad-full-32 {  border-radius:32px!important  }\n.b-iqbroker-section-02 .bb {  border-bottom:1px solid #3a3f40  }\n.b-iqbroker-section-02 .pb44 {  padding-bottom:44px  }\n.b-iqbroker-section-02 .pt44 {  padding-top:44px  }\n.b-iqbroker-section-02 .h-30, .b-iqbroker-section-02 .h-32, .b-iqbroker-section-02 .h-40 {  font-size:8px;line-height:30px;height:30px  }\n.b-iqbroker-section-02 .h-32, .b-iqbroker-section-02 .h-40 {  line-height:32px;height:32px  }\n.b-iqbroker-section-02 .w100 {  width:100%  }\n.b-iqbroker-section-02 .w-a {  width:auto!important;vertical-align:middle  }\n.b-iqbroker-section-02 table[class=body] table.column td, .b-iqbroker-section-02 table[class=body] table.columns td.m-w {  min-width:75px!important;width:75px!important  }\n.b-iqbroker-section-02 .gray-text, .b-iqbroker-section-02 .question {  font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#a6a6ab  }\n.b-iqbroker-section-02 .question {  padding:20px 24px;background:#101314;border-radius:16px;font-weight:700;font-size:24px;line-height:31px;color:#ececed  }\n@media screen and (max-width:600px) {\n  .b-iqbroker-section-02 .question {  font-size:20px!important;line-height:29px!important  }\n}\n.b-iqbroker-section-02 .ava-question {  float:right;width:60px!important  }\n.b-iqbroker-section-02 .ava-broker {  float:none;width:50px!important  }\n.b-iqbroker-section-02 .broker-text {  font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#ececed  }\n.b-iqbroker-section-02 .orange-block {  padding:24px;background:#21150f;border-radius:16px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_7",
+      "kind": "richText",
+      "label": "Текст 7",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_8",
+      "kind": "richText",
+      "label": "Текст 8",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_9",
+      "kind": "richText",
+      "label": "Текст 9",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_10",
+      "kind": "richText",
+      "label": "Текст 10",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_11",
+      "kind": "richText",
+      "label": "Текст 11",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_12",
+      "kind": "richText",
+      "label": "Текст 12",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_13",
+      "kind": "richText",
+      "label": "Текст 13",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_14",
+      "kind": "richText",
+      "label": "Текст 14",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_15",
+      "kind": "richText",
+      "label": "Текст 15",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_16",
+      "kind": "richText",
+      "label": "Текст 16",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_17",
+      "kind": "richText",
+      "label": "Текст 17",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_18",
+      "kind": "richText",
+      "label": "Текст 18",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_19",
+      "kind": "richText",
+      "label": "Текст 19",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_20",
+      "kind": "richText",
+      "label": "Текст 20",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_21",
+      "kind": "richText",
+      "label": "Текст 21",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_22",
+      "kind": "richText",
+      "label": "Текст 22",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_23",
+      "kind": "richText",
+      "label": "Текст 23",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_24",
+      "kind": "richText",
+      "label": "Текст 24",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_25",
+      "kind": "richText",
+      "label": "Текст 25",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/d5/tk/m3gggnfnh4cs77d0/faq-ava-1.png"
+    },
+    {
+      "id": "image_2",
+      "kind": "image",
+      "label": "Картинка 2",
+      "default": "https://fsms.quadcode.com/storage/public/d5/tk/m3vvhhgea139uk60/faq-ava-broker.png"
+    },
+    {
+      "id": "image_3",
+      "kind": "image",
+      "label": "Картинка 3",
+      "default": "https://fsms.quadcode.com/storage/public/d5/tk/m3oggnfnh4cs77dg/faq-ava-2.png"
+    },
+    {
+      "id": "image_4",
+      "kind": "image",
+      "label": "Картинка 4",
+      "default": "https://fsms.quadcode.com/storage/public/d5/tk/m3oggnfnh4cs77e0/faq-ava-3.png"
+    },
+    {
+      "id": "image_5",
+      "kind": "image",
+      "label": "Картинка 5",
+      "default": "https://fsms.quadcode.com/storage/public/d5/tk/m3vvhhgea139uk5g/faq-ava-5.png"
+    },
+    {
+      "id": "image_6",
+      "kind": "image",
+      "label": "Картинка 6",
+      "default": "https://fsms.quadcode.com/storage/public/d5/tk/m3oggnfnh4cs77eg/faq-ava-6.png"
+    },
+    {
+      "id": "image_7",
+      "kind": "image",
+      "label": "Картинка 7",
+      "default": "https://fsms.quadcode.com/storage/public/d5/tk/m3vvhhgea139uk4g/faq-ava-7.png"
+    },
+    {
+      "id": "image_8",
+      "kind": "image",
+      "label": "Картинка 8",
+      "default": "https://fsms.quadcode.com/storage/public/d5/tk/m3vvhhgea139uk50/faq-ava-8.png"
+    }
+  ],
+  "tags": [
+    "section",
+    "X_IQBroker"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_IQBroker/mail-FAQ"
+  ],
+  "createdAt": "2026-07-06T12:09:51.735Z",
+  "validated": false,
+  "failReason": "unexpected text \"Текст\""
+}

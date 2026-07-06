@@ -1,0 +1,30 @@
+{
+  "id": "system-text-66",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_System (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.b-system-text-66\n    tr\n        td.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small\n                        p.orange-text.center {{ text_1 }}",
+  "styl": ".white-bg.b-system-text-66 {  background:#fff  }\n.b-system-text-66 .blue-text, .b-system-text-66 .grey-text, .b-system-text-66 .orange-text {  font-family:Arial!important;color:#f50;font-weight:500;font-size:20px;line-height:30px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_System"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_System/mail-gdrp"
+  ],
+  "createdAt": "2026-07-06T12:09:59.369Z",
+  "validated": true
+}

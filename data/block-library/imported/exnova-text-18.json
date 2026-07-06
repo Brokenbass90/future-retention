@@ -1,0 +1,35 @@
+{
+  "id": "exnova-text-18",
+  "label": "Заголовок",
+  "description": "Импортирован из X_Exnova (6 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.title.pb32.b-exnova-text-18 {{ text_1 }}",
+  "styl": ".title.b-exnova-text-18 {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 48px;\n  color: #393a44;\n  line-height: 58px;  }\n@media screen and (max-width: 600px) {\n  .title.b-exnova-text-18 {  font-size: 32px !important;\n    line-height: 40px !important;  }\n}\n.pb32.b-exnova-text-18 {  padding-bottom: 32px;  }\n.title.b-exnova-text-18 {  font-family:Helvetica!important;font-weight:700;font-size:48px;color:#393a44;line-height:58px  }\n@media screen and (max-width:600px) {\n  .title.b-exnova-text-18 {  font-size:32px!important;line-height:40px!important  }\n}\n.pb32.b-exnova-text-18 {  padding-bottom:32px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_Exnova"
+  ],
+  "usageCount": 6,
+  "sourceMails": [
+    "X_Exnova/mail-Strategy-bonus_Exnova",
+    "X_Exnova/mail-Strategy-bonus_Exnova-250825",
+    "X_Exnova/mail-Strategy-bonus_Exnova-3",
+    "X_Exnova/mail-Teaser-3",
+    "X_Exnova/mail-Trading-Challenge",
+    "X_Exnova/mail-ton"
+  ],
+  "createdAt": "2026-07-06T12:09:50.959Z",
+  "validated": true
+}

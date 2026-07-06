@@ -1,0 +1,31 @@
+{
+  "id": "system-text-01",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_System (2 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.b-system-text-01\n    tr\n        td.offset-by-one\n            table.ten.columns\n                tr\n                    td.no-padding-bottom\n                        p.title Dear Client,\n                        p.text During the verification of your account it came to our attention that there is a mismatch in your Economic Profile between your anticipated annual investment and your deposits. Please note that the annual investment is the total amount of deposits you made.\n                        p.text Kindly confirm which of following applies as your anticipated annual investment:\n                        p.text.list €50,001 +\n                        p.text.list €10,001 - €50,000\n                        p.text.list €5,001 - €10,000\n                        p.text.list.pb20 €0 - €5,000\n                        p.text\n                            strong Please reply to&nbsp;\n                            a(href=\"{{ href_1 }}\", target=\"_blank\") compliance@iqoption.com\n                        p.text We appreciate your cooperation on this matter.\n                        p.text Kind regards,\n                            br\n                            | IQ Option Team",
+  "styl": ".white-bg.b-system-text-01 {  background:#fff  }\n.b-system-text-01 .title {  color:#2473d7;font-size:24px;font-weight:500;line-height:32px;padding-top:30px;padding-bottom:25px  }\n@media screen and (max-width:600px) {\n  .b-system-text-01 .title {  padding-left:20px!important;padding-right:20px!important  }\n}\n.b-system-text-01 .text {  color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px  }\n@media screen and (max-width:600px) {\n  .b-system-text-01 .text {  padding-left:20px!important;padding-right:20px!important  }\n}\n.b-system-text-01 .text a {  color:#2473d7;text-decoration:underline  }\n.b-system-text-01 .text.bold {  font-weight:700  }\n.b-system-text-01 .list {  display:list-item;padding-left:20px;list-style:decimal;list-style-position:inside;padding-bottom:10px  }",
+  "slots": [
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "mailto:compliance@iqoption.com"
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_System"
+  ],
+  "usageCount": 2,
+  "sourceMails": [
+    "X_System/mail-annual-investment",
+    "X_System/mail-overnight"
+  ],
+  "createdAt": "2026-07-06T12:09:59.367Z",
+  "validated": true
+}

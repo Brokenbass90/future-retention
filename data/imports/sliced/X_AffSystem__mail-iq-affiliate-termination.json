@@ -1,0 +1,665 @@
+{
+  "category": "X_AffSystem",
+  "mailId": "iq-affiliate-termination",
+  "mailAbs": "email-base/X_AffSystem/mail-iq-affiliate-termination",
+  "blockCount": 3,
+  "blocks": [
+    {
+      "id": "x-affsystem-iq-affiliate-termination-header-head",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "kind": "section",
+      "sourceFile": "X_AffSystem/mail-iq-affiliate-termination/app/templates/blocks/header.jade",
+      "pug": "table.row.bg-col\n    tr\n        td.wrapper.last.pt0.offset-by-one\n            table.ten.columns\n                tr\n                    td.pb0.text-pad-small\n                        a(href=\"https://affiliate.iqoption.com\" target=\"_blank\")\n                            img.logo.center(src=\"https://static.cdnroute.io/files/storage/public/5f/c8/d0517a03c1c8h5j9j4/logoaff_white_shadow__1_.png\")",
+      "styl": ".bg-col { background-color:#fbfbfd }",
+      "classes": [
+        "bg-col",
+        "center",
+        "columns",
+        "last",
+        "logo",
+        "offset-by-one",
+        "pb0",
+        "pt0",
+        "row",
+        "ten",
+        "text-pad-small",
+        "wrapper"
+      ],
+      "designClasses": [
+        "bg-col"
+      ],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://affiliate.iqoption.com"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnroute.io/files/storage/public/5f/c8/d0517a03c1c8h5j9j4/logoaff_white_shadow__1_.png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-affsystem-iq-affiliate-termination-header-text",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_AffSystem/mail-iq-affiliate-termination/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg.br-full.bg-bord-full\n    tr\n        td.wrapper.last.offset-by-one.pt0\n            table.ten.columns\n                tr\n                    td.text-pad-small.pt40.pb40\n                        p.hello.pb25 ${{ affstore-Confirmation-of-Termination-Auto-Email.block_00 }}$\n                        p.text.pb15 ${{ affstore-Confirmation-of-Termination-Auto-Email.block_01 }}$\n                        p.text.pb15 ${{ affstore-Confirmation-of-Termination-Auto-Email.block_02 }}$\n                        p.text.pb15\n                            span.green-number 1\n                            |${{ affstore-Confirmation-of-Termination-Auto-Email.block_03 }}$\n                        p.text.pb15\n                            span.green-number 2\n                            |${{ affstore-Confirmation-of-Termination-Auto-Email.block_04 }}$\n                        .ul-first.pb15\n                            p.text.pb5.list-item ${{ affstore-Confirmation-of-Termination-Auto-Email.block_05 }}$&nbsp;\n                                a(href=\"https://affstore.com/\" target=\"_blank\") ${{ affstore-Confirmation-of-Termination-Auto-Email.block_06 }}$\n                                |&nbsp;${{ affstore-Confirmation-of-Termination-Auto-Email.block_07 }}$\n                            p.text.list-item ${{ affstore-Confirmation-of-Termination-Auto-Email.block_08 }}$\n                        p.text.pb15\n                            span.green-number 3\n                            |${{ affstore-Confirmation-of-Termination-Auto-Email.block_09 }}$\n                        p.text.pb15.bb\n                            span.green-number 4\n                            |${{ affstore-Confirmation-of-Termination-Auto-Email.block_10 }}$\n                        p.text.pt15 ${{ affstore-Confirmation-of-Termination-Auto-Email.block_11 }}$",
+      "styl": ".white-bg { background:#fff }\n.hello,.subtitle,.subtitle-top { font-family:Helvetica!important;letter-spacing:0 }\n.hello { font-weight:700;font-size:22px;color:#20242f;line-height:26px }\n.text,.text-table,.text-title { font-family:Helvetica!important;color:#20242f }\n.text,.text-table { font-weight:400;font-size:16px;line-height:24px;letter-spacing:0 }\n.text { color:#2e3851;line-height:26px }\n.text.list { display:list-item }\n.pb5 { padding-bottom:5px }\n.pb15 { padding-bottom:15px!important }\n.pb25 { padding-bottom:25px }\n.pt15 { padding-top:15px }\n.br-full { border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }\n.bg-bord-full { border:1px solid #e9ebea }\n.list-item { background:url(\"https://static.cdnpub.info/files/storage/public/5e/8d/aa6a28c720a9i1g3f9/Oval Copy 3.png\") left 8px no-repeat;background-size:10px;padding-left:20px }\n.ul-first { padding-left:40px }\n@media screen and (max-width:600px) {\n  .ul-first { padding-left:8px!important }\n}\n.green-number { font-family:Helvetica!important;font-weight:700;font-size:14px;color:#fff;text-align:center;background:#01c689;border-radius:3px;padding:3px 12px;vertical-align:top;margin-right:10px }\n.bb { border-bottom:1px solid #e9ebea }",
+      "classes": [
+        "bb",
+        "bg-bord-full",
+        "br-full",
+        "columns",
+        "green-number",
+        "hello",
+        "last",
+        "list-item",
+        "offset-by-one",
+        "pb15",
+        "pb25",
+        "pb40",
+        "pb5",
+        "pt0",
+        "pt15",
+        "pt40",
+        "row",
+        "ten",
+        "text",
+        "text-pad-small",
+        "ul-first",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "bb",
+        "bg-bord-full",
+        "br-full",
+        "green-number",
+        "hello",
+        "list-item",
+        "pb15",
+        "pb25",
+        "pb5",
+        "pt15",
+        "text",
+        "ul-first",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_00",
+          "kind": "richText",
+          "label": "Текст affstore-Confirmation-of-Termination-Auto-Email.block_00",
+          "token": "${{ affstore-Confirmation-of-Termination-Auto-Email.block_00 }}$",
+          "ns": "affstore-Confirmation-of-Termination-Auto-Email",
+          "block": "block_00"
+        },
+        {
+          "id": "text_block_01",
+          "kind": "richText",
+          "label": "Текст affstore-Confirmation-of-Termination-Auto-Email.block_01",
+          "token": "${{ affstore-Confirmation-of-Termination-Auto-Email.block_01 }}$",
+          "ns": "affstore-Confirmation-of-Termination-Auto-Email",
+          "block": "block_01"
+        },
+        {
+          "id": "text_block_02",
+          "kind": "richText",
+          "label": "Текст affstore-Confirmation-of-Termination-Auto-Email.block_02",
+          "token": "${{ affstore-Confirmation-of-Termination-Auto-Email.block_02 }}$",
+          "ns": "affstore-Confirmation-of-Termination-Auto-Email",
+          "block": "block_02"
+        },
+        {
+          "id": "text_block_03",
+          "kind": "richText",
+          "label": "Текст affstore-Confirmation-of-Termination-Auto-Email.block_03",
+          "token": "${{ affstore-Confirmation-of-Termination-Auto-Email.block_03 }}$",
+          "ns": "affstore-Confirmation-of-Termination-Auto-Email",
+          "block": "block_03"
+        },
+        {
+          "id": "text_block_04",
+          "kind": "richText",
+          "label": "Текст affstore-Confirmation-of-Termination-Auto-Email.block_04",
+          "token": "${{ affstore-Confirmation-of-Termination-Auto-Email.block_04 }}$",
+          "ns": "affstore-Confirmation-of-Termination-Auto-Email",
+          "block": "block_04"
+        },
+        {
+          "id": "text_block_05",
+          "kind": "richText",
+          "label": "Текст affstore-Confirmation-of-Termination-Auto-Email.block_05",
+          "token": "${{ affstore-Confirmation-of-Termination-Auto-Email.block_05 }}$",
+          "ns": "affstore-Confirmation-of-Termination-Auto-Email",
+          "block": "block_05"
+        },
+        {
+          "id": "text_block_06",
+          "kind": "richText",
+          "label": "Текст affstore-Confirmation-of-Termination-Auto-Email.block_06",
+          "token": "${{ affstore-Confirmation-of-Termination-Auto-Email.block_06 }}$",
+          "ns": "affstore-Confirmation-of-Termination-Auto-Email",
+          "block": "block_06"
+        },
+        {
+          "id": "text_block_07",
+          "kind": "richText",
+          "label": "Текст affstore-Confirmation-of-Termination-Auto-Email.block_07",
+          "token": "${{ affstore-Confirmation-of-Termination-Auto-Email.block_07 }}$",
+          "ns": "affstore-Confirmation-of-Termination-Auto-Email",
+          "block": "block_07"
+        },
+        {
+          "id": "text_block_08",
+          "kind": "richText",
+          "label": "Текст affstore-Confirmation-of-Termination-Auto-Email.block_08",
+          "token": "${{ affstore-Confirmation-of-Termination-Auto-Email.block_08 }}$",
+          "ns": "affstore-Confirmation-of-Termination-Auto-Email",
+          "block": "block_08"
+        },
+        {
+          "id": "text_block_09",
+          "kind": "richText",
+          "label": "Текст affstore-Confirmation-of-Termination-Auto-Email.block_09",
+          "token": "${{ affstore-Confirmation-of-Termination-Auto-Email.block_09 }}$",
+          "ns": "affstore-Confirmation-of-Termination-Auto-Email",
+          "block": "block_09"
+        },
+        {
+          "id": "text_block_10",
+          "kind": "richText",
+          "label": "Текст affstore-Confirmation-of-Termination-Auto-Email.block_10",
+          "token": "${{ affstore-Confirmation-of-Termination-Auto-Email.block_10 }}$",
+          "ns": "affstore-Confirmation-of-Termination-Auto-Email",
+          "block": "block_10"
+        },
+        {
+          "id": "text_block_11",
+          "kind": "richText",
+          "label": "Текст affstore-Confirmation-of-Termination-Auto-Email.block_11",
+          "token": "${{ affstore-Confirmation-of-Termination-Auto-Email.block_11 }}$",
+          "ns": "affstore-Confirmation-of-Termination-Auto-Email",
+          "block": "block_11"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://affstore.com/"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-affsystem-iq-affiliate-termination-header-text",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.hello.pb25 ${{ affstore-Confirmation-of-Termination-Auto-Email.block_00 }}$",
+          "styl": ".hello,.subtitle,.subtitle-top { font-family:Helvetica!important;letter-spacing:0 }\n.hello { font-weight:700;font-size:22px;color:#20242f;line-height:26px }\n.pb25 { padding-bottom:25px }",
+          "classes": [
+            "hello",
+            "pb25"
+          ],
+          "designClasses": [
+            "hello",
+            "pb25"
+          ],
+          "slots": [
+            {
+              "id": "text_block_00",
+              "kind": "richText",
+              "label": "Текст affstore-Confirmation-of-Termination-Auto-Email.block_00",
+              "token": "${{ affstore-Confirmation-of-Termination-Auto-Email.block_00 }}$",
+              "ns": "affstore-Confirmation-of-Termination-Auto-Email",
+              "block": "block_00"
+            }
+          ]
+        },
+        {
+          "id": "x-affsystem-iq-affiliate-termination-header-text",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb15 ${{ affstore-Confirmation-of-Termination-Auto-Email.block_01 }}$",
+          "styl": ".text,.text-table,.text-title { font-family:Helvetica!important;color:#20242f }\n.text,.text-table { font-weight:400;font-size:16px;line-height:24px;letter-spacing:0 }\n.text { color:#2e3851;line-height:26px }\n.text.list { display:list-item }\n.pb15 { padding-bottom:15px!important }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }",
+          "classes": [
+            "pb15",
+            "text"
+          ],
+          "designClasses": [
+            "pb15",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_01",
+              "kind": "richText",
+              "label": "Текст affstore-Confirmation-of-Termination-Auto-Email.block_01",
+              "token": "${{ affstore-Confirmation-of-Termination-Auto-Email.block_01 }}$",
+              "ns": "affstore-Confirmation-of-Termination-Auto-Email",
+              "block": "block_01"
+            }
+          ]
+        },
+        {
+          "id": "x-affsystem-iq-affiliate-termination-header-text",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb15 ${{ affstore-Confirmation-of-Termination-Auto-Email.block_02 }}$",
+          "styl": ".text,.text-table,.text-title { font-family:Helvetica!important;color:#20242f }\n.text,.text-table { font-weight:400;font-size:16px;line-height:24px;letter-spacing:0 }\n.text { color:#2e3851;line-height:26px }\n.text.list { display:list-item }\n.pb15 { padding-bottom:15px!important }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }",
+          "classes": [
+            "pb15",
+            "text"
+          ],
+          "designClasses": [
+            "pb15",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_02",
+              "kind": "richText",
+              "label": "Текст affstore-Confirmation-of-Termination-Auto-Email.block_02",
+              "token": "${{ affstore-Confirmation-of-Termination-Auto-Email.block_02 }}$",
+              "ns": "affstore-Confirmation-of-Termination-Auto-Email",
+              "block": "block_02"
+            }
+          ]
+        },
+        {
+          "id": "x-affsystem-iq-affiliate-termination-header-text",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb15\n    span.green-number 1\n    |${{ affstore-Confirmation-of-Termination-Auto-Email.block_03 }}$",
+          "styl": ".text,.text-table,.text-title { font-family:Helvetica!important;color:#20242f }\n.text,.text-table { font-weight:400;font-size:16px;line-height:24px;letter-spacing:0 }\n.text { color:#2e3851;line-height:26px }\n.text.list { display:list-item }\n.pb15 { padding-bottom:15px!important }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }\n.green-number { font-family:Helvetica!important;font-weight:700;font-size:14px;color:#fff;text-align:center;background:#01c689;border-radius:3px;padding:3px 12px;vertical-align:top;margin-right:10px }",
+          "classes": [
+            "green-number",
+            "pb15",
+            "text"
+          ],
+          "designClasses": [
+            "green-number",
+            "pb15",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_03",
+              "kind": "richText",
+              "label": "Текст affstore-Confirmation-of-Termination-Auto-Email.block_03",
+              "token": "${{ affstore-Confirmation-of-Termination-Auto-Email.block_03 }}$",
+              "ns": "affstore-Confirmation-of-Termination-Auto-Email",
+              "block": "block_03"
+            }
+          ]
+        },
+        {
+          "id": "x-affsystem-iq-affiliate-termination-header-text",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb15\n    span.green-number 2\n    |${{ affstore-Confirmation-of-Termination-Auto-Email.block_04 }}$",
+          "styl": ".text,.text-table,.text-title { font-family:Helvetica!important;color:#20242f }\n.text,.text-table { font-weight:400;font-size:16px;line-height:24px;letter-spacing:0 }\n.text { color:#2e3851;line-height:26px }\n.text.list { display:list-item }\n.pb15 { padding-bottom:15px!important }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }\n.green-number { font-family:Helvetica!important;font-weight:700;font-size:14px;color:#fff;text-align:center;background:#01c689;border-radius:3px;padding:3px 12px;vertical-align:top;margin-right:10px }",
+          "classes": [
+            "green-number",
+            "pb15",
+            "text"
+          ],
+          "designClasses": [
+            "green-number",
+            "pb15",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_04",
+              "kind": "richText",
+              "label": "Текст affstore-Confirmation-of-Termination-Auto-Email.block_04",
+              "token": "${{ affstore-Confirmation-of-Termination-Auto-Email.block_04 }}$",
+              "ns": "affstore-Confirmation-of-Termination-Auto-Email",
+              "block": "block_04"
+            }
+          ]
+        },
+        {
+          "id": "x-affsystem-iq-affiliate-termination-header-text",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb5.list-item ${{ affstore-Confirmation-of-Termination-Auto-Email.block_05 }}$&nbsp;\n    a(href=\"https://affstore.com/\" target=\"_blank\") ${{ affstore-Confirmation-of-Termination-Auto-Email.block_06 }}$\n    |&nbsp;${{ affstore-Confirmation-of-Termination-Auto-Email.block_07 }}$",
+          "styl": ".text,.text-table,.text-title { font-family:Helvetica!important;color:#20242f }\n.text,.text-table { font-weight:400;font-size:16px;line-height:24px;letter-spacing:0 }\n.text { color:#2e3851;line-height:26px }\n.text.list { display:list-item }\n.pb5 { padding-bottom:5px }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }\n.list-item { background:url(\"https://static.cdnpub.info/files/storage/public/5e/8d/aa6a28c720a9i1g3f9/Oval Copy 3.png\") left 8px no-repeat;background-size:10px;padding-left:20px }",
+          "classes": [
+            "list-item",
+            "pb5",
+            "text"
+          ],
+          "designClasses": [
+            "list-item",
+            "pb5",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_05",
+              "kind": "richText",
+              "label": "Текст affstore-Confirmation-of-Termination-Auto-Email.block_05",
+              "token": "${{ affstore-Confirmation-of-Termination-Auto-Email.block_05 }}$",
+              "ns": "affstore-Confirmation-of-Termination-Auto-Email",
+              "block": "block_05"
+            },
+            {
+              "id": "text_block_06",
+              "kind": "richText",
+              "label": "Текст affstore-Confirmation-of-Termination-Auto-Email.block_06",
+              "token": "${{ affstore-Confirmation-of-Termination-Auto-Email.block_06 }}$",
+              "ns": "affstore-Confirmation-of-Termination-Auto-Email",
+              "block": "block_06"
+            },
+            {
+              "id": "text_block_07",
+              "kind": "richText",
+              "label": "Текст affstore-Confirmation-of-Termination-Auto-Email.block_07",
+              "token": "${{ affstore-Confirmation-of-Termination-Auto-Email.block_07 }}$",
+              "ns": "affstore-Confirmation-of-Termination-Auto-Email",
+              "block": "block_07"
+            },
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://affstore.com/"
+            }
+          ]
+        },
+        {
+          "id": "x-affsystem-iq-affiliate-termination-header-text",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.list-item ${{ affstore-Confirmation-of-Termination-Auto-Email.block_08 }}$",
+          "styl": ".text,.text-table,.text-title { font-family:Helvetica!important;color:#20242f }\n.text,.text-table { font-weight:400;font-size:16px;line-height:24px;letter-spacing:0 }\n.text { color:#2e3851;line-height:26px }\n.text.list { display:list-item }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }\n.list-item { background:url(\"https://static.cdnpub.info/files/storage/public/5e/8d/aa6a28c720a9i1g3f9/Oval Copy 3.png\") left 8px no-repeat;background-size:10px;padding-left:20px }",
+          "classes": [
+            "list-item",
+            "text"
+          ],
+          "designClasses": [
+            "list-item",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_08",
+              "kind": "richText",
+              "label": "Текст affstore-Confirmation-of-Termination-Auto-Email.block_08",
+              "token": "${{ affstore-Confirmation-of-Termination-Auto-Email.block_08 }}$",
+              "ns": "affstore-Confirmation-of-Termination-Auto-Email",
+              "block": "block_08"
+            }
+          ]
+        },
+        {
+          "id": "x-affsystem-iq-affiliate-termination-header-text",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb15\n    span.green-number 3\n    |${{ affstore-Confirmation-of-Termination-Auto-Email.block_09 }}$",
+          "styl": ".text,.text-table,.text-title { font-family:Helvetica!important;color:#20242f }\n.text,.text-table { font-weight:400;font-size:16px;line-height:24px;letter-spacing:0 }\n.text { color:#2e3851;line-height:26px }\n.text.list { display:list-item }\n.pb15 { padding-bottom:15px!important }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }\n.green-number { font-family:Helvetica!important;font-weight:700;font-size:14px;color:#fff;text-align:center;background:#01c689;border-radius:3px;padding:3px 12px;vertical-align:top;margin-right:10px }",
+          "classes": [
+            "green-number",
+            "pb15",
+            "text"
+          ],
+          "designClasses": [
+            "green-number",
+            "pb15",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_09",
+              "kind": "richText",
+              "label": "Текст affstore-Confirmation-of-Termination-Auto-Email.block_09",
+              "token": "${{ affstore-Confirmation-of-Termination-Auto-Email.block_09 }}$",
+              "ns": "affstore-Confirmation-of-Termination-Auto-Email",
+              "block": "block_09"
+            }
+          ]
+        },
+        {
+          "id": "x-affsystem-iq-affiliate-termination-header-text",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb15.bb\n    span.green-number 4\n    |${{ affstore-Confirmation-of-Termination-Auto-Email.block_10 }}$",
+          "styl": ".text,.text-table,.text-title { font-family:Helvetica!important;color:#20242f }\n.text,.text-table { font-weight:400;font-size:16px;line-height:24px;letter-spacing:0 }\n.text { color:#2e3851;line-height:26px }\n.text.list { display:list-item }\n.pb15 { padding-bottom:15px!important }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }\n.green-number { font-family:Helvetica!important;font-weight:700;font-size:14px;color:#fff;text-align:center;background:#01c689;border-radius:3px;padding:3px 12px;vertical-align:top;margin-right:10px }\n.bb { border-bottom:1px solid #e9ebea }",
+          "classes": [
+            "bb",
+            "green-number",
+            "pb15",
+            "text"
+          ],
+          "designClasses": [
+            "bb",
+            "green-number",
+            "pb15",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_10",
+              "kind": "richText",
+              "label": "Текст affstore-Confirmation-of-Termination-Auto-Email.block_10",
+              "token": "${{ affstore-Confirmation-of-Termination-Auto-Email.block_10 }}$",
+              "ns": "affstore-Confirmation-of-Termination-Auto-Email",
+              "block": "block_10"
+            }
+          ]
+        },
+        {
+          "id": "x-affsystem-iq-affiliate-termination-header-text",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pt15 ${{ affstore-Confirmation-of-Termination-Auto-Email.block_11 }}$",
+          "styl": ".text,.text-table,.text-title { font-family:Helvetica!important;color:#20242f }\n.text,.text-table { font-weight:400;font-size:16px;line-height:24px;letter-spacing:0 }\n.text { color:#2e3851;line-height:26px }\n.text.list { display:list-item }\n.pt15 { padding-top:15px }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }",
+          "classes": [
+            "pt15",
+            "text"
+          ],
+          "designClasses": [
+            "pt15",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_11",
+              "kind": "richText",
+              "label": "Текст affstore-Confirmation-of-Termination-Auto-Email.block_11",
+              "token": "${{ affstore-Confirmation-of-Termination-Auto-Email.block_11 }}$",
+              "ns": "affstore-Confirmation-of-Termination-Auto-Email",
+              "block": "block_11"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-affsystem-iq-affiliate-termination-header-sect",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "kind": "section",
+      "sourceFile": "X_AffSystem/mail-iq-affiliate-termination/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.pt30.offset-by-one\n            table.ten.columns\n                tr\n                    td.pb0.text-pad-small\n                        p.bottom-title.center.pb15 ${{ affbot.block_04 }}$\n                        p.text.center ${{ affbot.block_05 }}$\n                        p.text.center.pb15 ${{ affbot.block_06 }}$\n                        .social-links.pb20\n                            a.soc-link(href=\"https://www.facebook.com/iqaffiliate\" target=\"_blank\")\n                                img.soc(src=\"https://static.cdnpub.info/files/storage/public/5d/07/a92eb574b0i1d2e1b1/fb.png\")\n                            a.soc-link(href=\"https://www.instagram.com/iqoptionaffiliate\" target=\"_blank\")\n                                img.soc(src=\"https://static.cdnpub.info/files/storage/public/5d/07/a92eb5d095i9d0d6j7/ig.png\")\n                            a.soc-link(href=\"https://affiliate.iqoption.com/dashboard\" target=\"_blank\")\n                                img.soc(src=\"https://static.cdnpub.info/files/storage/public/5d/07/a92ed3d210j5f1h4d7/iq.png\")\n                            a.soc-link(href=\"https://www.linkedin.com/company/79753631/\" target=\"_blank\")\n                                img.soc(src=\"https://static.cdnroute.io/files/storage/public/61/32/1c51c76f82c7h9e7a4/lonkidin.png\")",
+      "styl": ".text,.text-table,.text-title { font-family:Helvetica!important;color:#20242f }\n.text,.text-table { font-weight:400;font-size:16px;line-height:24px;letter-spacing:0 }\n.text { color:#2e3851;line-height:26px }\n.bottom-title,.subtitle-text { font-family:Helvetica!important;font-weight:700;color:#20242f }\n.bottom-title { font-size:26px;line-height:26px }\n.text.list { display:list-item }\n.pb15 { padding-bottom:15px!important }\n.social-links { display:block;text-align:center }\n.soc-link { display:inline-block;float:none;margin:0 10px }\n.soc { float:none;display:block;max-width:30px }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }",
+      "classes": [
+        "bottom-title",
+        "center",
+        "columns",
+        "last",
+        "offset-by-one",
+        "pb0",
+        "pb15",
+        "pb20",
+        "pt30",
+        "row",
+        "soc",
+        "soc-link",
+        "social-links",
+        "ten",
+        "text",
+        "text-pad-small",
+        "wrapper"
+      ],
+      "designClasses": [
+        "bottom-title",
+        "pb15",
+        "soc",
+        "soc-link",
+        "social-links",
+        "text"
+      ],
+      "slots": [
+        {
+          "id": "text_block_04",
+          "kind": "richText",
+          "label": "Текст affbot.block_04",
+          "token": "${{ affbot.block_04 }}$",
+          "ns": "affbot",
+          "block": "block_04"
+        },
+        {
+          "id": "text_block_05",
+          "kind": "richText",
+          "label": "Текст affbot.block_05",
+          "token": "${{ affbot.block_05 }}$",
+          "ns": "affbot",
+          "block": "block_05"
+        },
+        {
+          "id": "text_block_06",
+          "kind": "richText",
+          "label": "Текст affbot.block_06",
+          "token": "${{ affbot.block_06 }}$",
+          "ns": "affbot",
+          "block": "block_06"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://www.facebook.com/iqaffiliate"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://www.instagram.com/iqoptionaffiliate"
+        },
+        {
+          "id": "href_2",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://affiliate.iqoption.com/dashboard"
+        },
+        {
+          "id": "href_3",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://www.linkedin.com/company/79753631/"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnpub.info/files/storage/public/5d/07/a92eb574b0i1d2e1b1/fb.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnpub.info/files/storage/public/5d/07/a92eb5d095i9d0d6j7/ig.png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnpub.info/files/storage/public/5d/07/a92ed3d210j5f1h4d7/iq.png"
+        },
+        {
+          "id": "image_3",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnroute.io/files/storage/public/61/32/1c51c76f82c7h9e7a4/lonkidin.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-affsystem-iq-affiliate-termination-header-sect",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.center ${{ affbot.block_05 }}$",
+          "styl": ".text,.text-table,.text-title { font-family:Helvetica!important;color:#20242f }\n.text,.text-table { font-weight:400;font-size:16px;line-height:24px;letter-spacing:0 }\n.text { color:#2e3851;line-height:26px }\n.text.list { display:list-item }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }",
+          "classes": [
+            "center",
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_05",
+              "kind": "richText",
+              "label": "Текст affbot.block_05",
+              "token": "${{ affbot.block_05 }}$",
+              "ns": "affbot",
+              "block": "block_05"
+            }
+          ]
+        },
+        {
+          "id": "x-affsystem-iq-affiliate-termination-header-sect",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.center.pb15 ${{ affbot.block_06 }}$",
+          "styl": ".text,.text-table,.text-title { font-family:Helvetica!important;color:#20242f }\n.text,.text-table { font-weight:400;font-size:16px;line-height:24px;letter-spacing:0 }\n.text { color:#2e3851;line-height:26px }\n.text.list { display:list-item }\n.pb15 { padding-bottom:15px!important }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }",
+          "classes": [
+            "center",
+            "pb15",
+            "text"
+          ],
+          "designClasses": [
+            "pb15",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_06",
+              "kind": "richText",
+              "label": "Текст affbot.block_06",
+              "token": "${{ affbot.block_06 }}$",
+              "ns": "affbot",
+              "block": "block_06"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

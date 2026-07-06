@@ -1,0 +1,30 @@
+{
+  "id": "new-text-20",
+  "label": "Заголовок",
+  "description": "Импортирован из X_new (2 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.small-title.pb12.b-new-text-20 {{ text_1 }}",
+  "styl": ".small-title.b-new-text-20, .b-new-text-20 .title-top {  font-family:Helvetica!important;font-weight:700;color:#413e43  }\n.small-title.b-new-text-20 {  letter-spacing:-.5px;font-size:32px;line-height:38px  }\n.pb12.b-new-text-20 {  padding-bottom:12px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_new"
+  ],
+  "usageCount": 2,
+  "sourceMails": [
+    "X_new/mail-QCM-Offer-2"
+  ],
+  "createdAt": "2026-07-06T12:10:00.056Z",
+  "validated": true
+}

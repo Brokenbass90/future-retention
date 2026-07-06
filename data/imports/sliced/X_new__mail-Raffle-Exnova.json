@@ -1,0 +1,1190 @@
+{
+  "category": "X_new",
+  "mailId": "Raffle-Exnova",
+  "mailAbs": "email-base/X_new/mail-Raffle-Exnova",
+  "blockCount": 7,
+  "blocks": [
+    {
+      "id": "x-new-raffle-exnova-header-header-0",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "kind": "section",
+      "sourceFile": "X_new/mail-Raffle-Exnova/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.offset-by-one.last.pt0\n            table.ten.columns\n                tr\n                    td.six.sub-columns.pt0.pb0\n                        a(href=\"https://affstore.com\" target=\"_blank\")\n                            img.logo.center(src=\"https://fsms.quadcode.com/storage/public/cn/9i/i4285cee2vclvf1g/logo-affstore-shadow.png\")",
+      "styl": "",
+      "classes": [
+        "center",
+        "columns",
+        "last",
+        "logo",
+        "offset-by-one",
+        "pb0",
+        "pt0",
+        "row",
+        "six",
+        "sub-columns",
+        "ten",
+        "wrapper"
+      ],
+      "designClasses": [],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://affstore.com"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cn/9i/i4285cee2vclvf1g/logo-affstore-shadow.png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-new-raffle-exnova-header-section-1",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "kind": "section",
+      "sourceFile": "X_new/mail-Raffle-Exnova/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.offset-by-one.pt10\n            table.tvelwe.columns\n                tr\n                    td.pb16\n                        p.title-top ${{ aff-Raffle-Exnova.block_01 }}$\n                        p.title-top ${{ aff-Raffle-Exnova.block_02 }}$\n    tr\n        td.wrapper.last.pt0\n            table.tvelwe.columns\n                tr\n                    td.pb0\n                        a(href=\"#\" target=\"_blank\")\n                            img.center.head-img(src=\"https://fsms.quadcode.com/storage/public/cv/qi/97bjqakhdj8lo7g0/head-img.png\")",
+      "styl": ".head-img { float: none;\n  width: 580px; }\n.title-top { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 56px;\n  line-height: 67px;\n  color: #413e43; }\n@media screen and (max-width: 600px) {\n  .title-top { font-size: 32px !important;\n    line-height: 42px !important; }\n}\n.pb16 { padding-bottom: 16px; }\n.head-img { float:none;width:580px }\n.title-top { font-family:Helvetica!important;font-weight:700;font-size:56px;line-height:67px;color:#413e43 }\n@media screen and (max-width:600px) {\n  .title-top { font-size:32px!important;line-height:42px!important }\n}\n.pb16 { padding-bottom:16px }",
+      "classes": [
+        "center",
+        "columns",
+        "head-img",
+        "last",
+        "offset-by-one",
+        "pb0",
+        "pb16",
+        "pt0",
+        "pt10",
+        "row",
+        "title-top",
+        "tvelwe",
+        "wrapper"
+      ],
+      "designClasses": [
+        "head-img",
+        "pb16",
+        "title-top",
+        "tvelwe"
+      ],
+      "slots": [
+        {
+          "id": "text_block_01",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_01",
+          "token": "${{ aff-Raffle-Exnova.block_01 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_01"
+        },
+        {
+          "id": "text_block_02",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_02",
+          "token": "${{ aff-Raffle-Exnova.block_02 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_02"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cv/qi/97bjqakhdj8lo7g0/head-img.png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-new-raffle-exnova-header-text-2",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_new/mail-Raffle-Exnova/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg.br-full-16\n    tr\n        td.wrapper.last.offset-by-one.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44\n                        p.hello.wb-bw.pb12 ${{ aff-Raffle-Exnova.block_03 }}$\n                        p.text ${{ aff-Raffle-Exnova.block_04 }}$",
+      "styl": ".white-bg { background: #fff; }\n.hello { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 24px;\n  color: #413e43;\n  letter-spacing: 0;\n  line-height: 36px;\n  word-break: break-word; }\n.wb-bw { word-break: break-word; }\n.text { font-family: Helvetica !important;\n  color: #413e43;\n  font-weight: 400;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.pb12 { padding-bottom: 12px; }\n.pb44 { padding-bottom: 44px; }\n.pt44 { padding-top: 44px; }\n.br-full-16 { border-radius: 16px;\n  -moz-border-radius: 16px;\n  -webkit-border-radius: 16px; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #1466fe !important; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.white-bg { background:#fff }\n.hello { font-family:Helvetica!important;font-weight:700;font-size:24px;color:#413e43;letter-spacing:0;line-height:36px;word-break:break-word }\n.wb-bw { word-break:break-word }\n.text,.text-2,.text-3 { font-family:Helvetica!important;font-weight:400 }\n.text,.text-2 { letter-spacing:0;color:#413e43;font-size:18px;line-height:27px }\n.text.list { display:list-item }\n.pb12 { padding-bottom:12px }\n.pb44 { padding-bottom:44px }\n.pt44,.pt45 { padding-top:44px }\n.br-full-16 { border-radius:16px;-moz-border-radius:16px;-webkit-border-radius:16px }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#1466fe!important }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}",
+      "classes": [
+        "br-full-16",
+        "columns",
+        "hello",
+        "last",
+        "offset-by-one",
+        "pb12",
+        "pb44",
+        "pt44",
+        "row",
+        "ten",
+        "text",
+        "text-pad-small",
+        "wb-bw",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "br-full-16",
+        "hello",
+        "pb12",
+        "pb44",
+        "pt44",
+        "text",
+        "wb-bw",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_03",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_03",
+          "token": "${{ aff-Raffle-Exnova.block_03 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_03"
+        },
+        {
+          "id": "text_block_04",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_04",
+          "token": "${{ aff-Raffle-Exnova.block_04 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_04"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-raffle-exnova-header-text-2-heading-0",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.hello.wb-bw.pb12 ${{ aff-Raffle-Exnova.block_03 }}$",
+          "styl": ".hello { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 24px;\n  color: #413e43;\n  letter-spacing: 0;\n  line-height: 36px;\n  word-break: break-word; }\n.wb-bw { word-break: break-word; }\n.pb12 { padding-bottom: 12px; }\n.hello { font-family:Helvetica!important;font-weight:700;font-size:24px;color:#413e43;letter-spacing:0;line-height:36px;word-break:break-word }\n.wb-bw { word-break:break-word }\n.pb12 { padding-bottom:12px }",
+          "classes": [
+            "hello",
+            "pb12",
+            "wb-bw"
+          ],
+          "designClasses": [
+            "hello",
+            "pb12",
+            "wb-bw"
+          ],
+          "slots": [
+            {
+              "id": "text_block_03",
+              "kind": "richText",
+              "label": "Текст aff-Raffle-Exnova.block_03",
+              "token": "${{ aff-Raffle-Exnova.block_03 }}$",
+              "ns": "aff-Raffle-Exnova",
+              "block": "block_03"
+            }
+          ]
+        },
+        {
+          "id": "x-new-raffle-exnova-header-text-2-paragraph-1",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ aff-Raffle-Exnova.block_04 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-weight: 400;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #1466fe !important; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.text,.text-2,.text-3 { font-family:Helvetica!important;font-weight:400 }\n.text,.text-2 { letter-spacing:0;color:#413e43;font-size:18px;line-height:27px }\n.text.list { display:list-item }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#1466fe!important }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_04",
+              "kind": "richText",
+              "label": "Текст aff-Raffle-Exnova.block_04",
+              "token": "${{ aff-Raffle-Exnova.block_04 }}$",
+              "ns": "aff-Raffle-Exnova",
+              "block": "block_04"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-new-raffle-exnova-header-feature-list-4",
+      "label": "Список преимуществ (нумерованный)",
+      "placement": "section",
+      "category": "feature-list",
+      "kind": "section",
+      "sourceFile": "X_new/mail-Raffle-Exnova/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg.br-full-16\n    tr\n        td.wrapper.last.offset-by-one.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44\n                        p.big-text.pb32 ${{ aff-Raffle-Exnova.block_05 }}$\n                        .gray-block\n                            table.w100\n                                tr\n                                    td.pb0.w-a.m-w-2\n                                        a(href=\"#\" target=\"_blank\")\n                                            img.left-img(src=\"https://fsms.quadcode.com/storage/public/cv/qi/973jqakhdj8lo7e0/Icon Glass Sound.png\")\n                                    td.pb0.w-a\n                                        p.text ${{ aff-Raffle-Exnova.block_06 }}$\n                        .block-empty-12 &nbsp;\n                        .gray-block\n                            table.w100\n                                tr\n                                    td.pb0.w-a.m-w-2\n                                        a(href=\"#\" target=\"_blank\")\n                                            img.left-img(src=\"https://fsms.quadcode.com/storage/public/cv/qi/97bjqakhdj8lo7f0/Icon Glass Sound-3.png\")\n                                    td.pb0.w-a\n                                        p.text ${{ aff-Raffle-Exnova.block_07 }}$\n                        .block-empty-12 &nbsp;\n                        .gray-block\n                            table.w100\n                                tr\n                                    td.pb0.w-a.m-w-2\n                                        a(href=\"#\" target=\"_blank\")\n                                            img.left-img(src=\"https://fsms.quadcode.com/storage/public/cv/qi/97bjqakhdj8lo7fg/Icon Glass Sound-2.png\")\n                                    td.pb0.w-a\n                                        p.text ${{ aff-Raffle-Exnova.block_08 }}$",
+      "styl": ".block-empty-12 { height: 12px;\n  line-height: 12px;\n  font-size: 12px; }\n.white-bg { background: #fff; }\n.text { font-family: Helvetica !important;\n  color: #413e43;\n  font-weight: 400;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.pb32 { padding-bottom: 32px; }\n.pb44 { padding-bottom: 44px; }\n.pt44 { padding-top: 44px; }\n.br-full-16 { border-radius: 16px;\n  -moz-border-radius: 16px;\n  -webkit-border-radius: 16px; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #1466fe !important; }\n.w100 { width: 100% !important; }\n.big-text { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #413e43; }\n@media screen and (max-width: 600px) {\n  .big-text { font-size: 26px !important;\n    line-height: 37px !important;\n    text-align: center !important; }\n}\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.w-a { width: auto !important;\n  vertical-align: top;\n  padding-bottom: 0 !important; }\n.m-w-2 { min-width: 80px; }\n.gray-block { padding: 24px;\n  background: #f9f9f9;\n  border-radius: 24px; }\n.left-img { float: none;\n  width: 56px !important; }\n.block-empty-12 { height:12px;line-height:12px;font-size:12px }\n.white-bg { background:#fff }\n.text,.text-2,.text-3 { font-family:Helvetica!important;font-weight:400 }\n.text,.text-2 { letter-spacing:0;color:#413e43;font-size:18px;line-height:27px }\n.text.list { display:list-item }\n.pb32,.pb32-a { padding-bottom:32px }\n.pb44 { padding-bottom:44px }\n.pt44,.pt45 { padding-top:44px }\n.br-full-16 { border-radius:16px;-moz-border-radius:16px;-webkit-border-radius:16px }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#1466fe!important }\n.w100 { width:100%!important }\n.big-text { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#413e43 }\n@media screen and (max-width:600px) {\n  .big-text { font-size:26px!important;line-height:37px!important;text-align:center!important }\n}\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}\n.w-a { width:auto!important;vertical-align:top;padding-bottom:0!important }\n.m-w-2 { min-width:80px }\n.gray-block { padding:24px;background:#f9f9f9;border-radius:24px }\n.left-img { float:none;width:56px!important }",
+      "classes": [
+        "big-text",
+        "block-empty-12",
+        "br-full-16",
+        "columns",
+        "gray-block",
+        "last",
+        "left-img",
+        "m-w-2",
+        "offset-by-one",
+        "pb0",
+        "pb32",
+        "pb44",
+        "pt44",
+        "row",
+        "ten",
+        "text",
+        "text-pad-small",
+        "w-a",
+        "w100",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "big-text",
+        "block-empty-12",
+        "br-full-16",
+        "gray-block",
+        "left-img",
+        "m-w-2",
+        "pb32",
+        "pb44",
+        "pt44",
+        "text",
+        "w-a",
+        "w100",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_05",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_05",
+          "token": "${{ aff-Raffle-Exnova.block_05 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_05"
+        },
+        {
+          "id": "text_block_06",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_06",
+          "token": "${{ aff-Raffle-Exnova.block_06 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_06"
+        },
+        {
+          "id": "text_block_07",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_07",
+          "token": "${{ aff-Raffle-Exnova.block_07 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_07"
+        },
+        {
+          "id": "text_block_08",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_08",
+          "token": "${{ aff-Raffle-Exnova.block_08 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_08"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cv/qi/973jqakhdj8lo7e0/Icon Glass Sound.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cv/qi/97bjqakhdj8lo7f0/Icon Glass Sound-3.png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cv/qi/97bjqakhdj8lo7fg/Icon Glass Sound-2.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-raffle-exnova-header-feature-list-4-number",
+          "label": "Нумерованный пункт (gray-block)",
+          "placement": "inline",
+          "category": "feature-list",
+          "pug": ".gray-block\n    table.w100\n        tr\n            td.pb0.w-a.m-w-2\n                a(href=\"#\" target=\"_blank\")\n                    img.left-img(src=\"https://fsms.quadcode.com/storage/public/cv/qi/973jqakhdj8lo7e0/Icon Glass Sound.png\")\n            td.pb0.w-a\n                p.text ${{ aff-Raffle-Exnova.block_06 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-weight: 400;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #1466fe !important; }\n.w100 { width: 100% !important; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.w-a { width: auto !important;\n  vertical-align: top;\n  padding-bottom: 0 !important; }\n.m-w-2 { min-width: 80px; }\n.gray-block { padding: 24px;\n  background: #f9f9f9;\n  border-radius: 24px; }\n.left-img { float: none;\n  width: 56px !important; }\n.text,.text-2,.text-3 { font-family:Helvetica!important;font-weight:400 }\n.text,.text-2 { letter-spacing:0;color:#413e43;font-size:18px;line-height:27px }\n.text.list { display:list-item }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#1466fe!important }\n.w100 { width:100%!important }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}\n.w-a { width:auto!important;vertical-align:top;padding-bottom:0!important }\n.m-w-2 { min-width:80px }\n.gray-block { padding:24px;background:#f9f9f9;border-radius:24px }\n.left-img { float:none;width:56px!important }",
+          "classes": [
+            "gray-block",
+            "left-img",
+            "m-w-2",
+            "pb0",
+            "text",
+            "w-a",
+            "w100"
+          ],
+          "designClasses": [
+            "gray-block",
+            "left-img",
+            "m-w-2",
+            "text",
+            "w-a",
+            "w100"
+          ],
+          "slots": [
+            {
+              "id": "text_block_06",
+              "kind": "richText",
+              "label": "Текст aff-Raffle-Exnova.block_06",
+              "token": "${{ aff-Raffle-Exnova.block_06 }}$",
+              "ns": "aff-Raffle-Exnova",
+              "block": "block_06"
+            },
+            {
+              "id": "image_0",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/cv/qi/973jqakhdj8lo7e0/Icon Glass Sound.png"
+            }
+          ]
+        },
+        {
+          "id": "x-new-raffle-exnova-header-feature-list-4-number",
+          "label": "Нумерованный пункт (gray-block)",
+          "placement": "inline",
+          "category": "feature-list",
+          "pug": ".gray-block\n    table.w100\n        tr\n            td.pb0.w-a.m-w-2\n                a(href=\"#\" target=\"_blank\")\n                    img.left-img(src=\"https://fsms.quadcode.com/storage/public/cv/qi/97bjqakhdj8lo7f0/Icon Glass Sound-3.png\")\n            td.pb0.w-a\n                p.text ${{ aff-Raffle-Exnova.block_07 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-weight: 400;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #1466fe !important; }\n.w100 { width: 100% !important; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.w-a { width: auto !important;\n  vertical-align: top;\n  padding-bottom: 0 !important; }\n.m-w-2 { min-width: 80px; }\n.gray-block { padding: 24px;\n  background: #f9f9f9;\n  border-radius: 24px; }\n.left-img { float: none;\n  width: 56px !important; }\n.text,.text-2,.text-3 { font-family:Helvetica!important;font-weight:400 }\n.text,.text-2 { letter-spacing:0;color:#413e43;font-size:18px;line-height:27px }\n.text.list { display:list-item }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#1466fe!important }\n.w100 { width:100%!important }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}\n.w-a { width:auto!important;vertical-align:top;padding-bottom:0!important }\n.m-w-2 { min-width:80px }\n.gray-block { padding:24px;background:#f9f9f9;border-radius:24px }\n.left-img { float:none;width:56px!important }",
+          "classes": [
+            "gray-block",
+            "left-img",
+            "m-w-2",
+            "pb0",
+            "text",
+            "w-a",
+            "w100"
+          ],
+          "designClasses": [
+            "gray-block",
+            "left-img",
+            "m-w-2",
+            "text",
+            "w-a",
+            "w100"
+          ],
+          "slots": [
+            {
+              "id": "text_block_07",
+              "kind": "richText",
+              "label": "Текст aff-Raffle-Exnova.block_07",
+              "token": "${{ aff-Raffle-Exnova.block_07 }}$",
+              "ns": "aff-Raffle-Exnova",
+              "block": "block_07"
+            },
+            {
+              "id": "image_0",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/cv/qi/97bjqakhdj8lo7f0/Icon Glass Sound-3.png"
+            }
+          ]
+        },
+        {
+          "id": "x-new-raffle-exnova-header-feature-list-4-number",
+          "label": "Нумерованный пункт (gray-block)",
+          "placement": "inline",
+          "category": "feature-list",
+          "pug": ".gray-block\n    table.w100\n        tr\n            td.pb0.w-a.m-w-2\n                a(href=\"#\" target=\"_blank\")\n                    img.left-img(src=\"https://fsms.quadcode.com/storage/public/cv/qi/97bjqakhdj8lo7fg/Icon Glass Sound-2.png\")\n            td.pb0.w-a\n                p.text ${{ aff-Raffle-Exnova.block_08 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-weight: 400;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #1466fe !important; }\n.w100 { width: 100% !important; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.w-a { width: auto !important;\n  vertical-align: top;\n  padding-bottom: 0 !important; }\n.m-w-2 { min-width: 80px; }\n.gray-block { padding: 24px;\n  background: #f9f9f9;\n  border-radius: 24px; }\n.left-img { float: none;\n  width: 56px !important; }\n.text,.text-2,.text-3 { font-family:Helvetica!important;font-weight:400 }\n.text,.text-2 { letter-spacing:0;color:#413e43;font-size:18px;line-height:27px }\n.text.list { display:list-item }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#1466fe!important }\n.w100 { width:100%!important }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}\n.w-a { width:auto!important;vertical-align:top;padding-bottom:0!important }\n.m-w-2 { min-width:80px }\n.gray-block { padding:24px;background:#f9f9f9;border-radius:24px }\n.left-img { float:none;width:56px!important }",
+          "classes": [
+            "gray-block",
+            "left-img",
+            "m-w-2",
+            "pb0",
+            "text",
+            "w-a",
+            "w100"
+          ],
+          "designClasses": [
+            "gray-block",
+            "left-img",
+            "m-w-2",
+            "text",
+            "w-a",
+            "w100"
+          ],
+          "slots": [
+            {
+              "id": "text_block_08",
+              "kind": "richText",
+              "label": "Текст aff-Raffle-Exnova.block_08",
+              "token": "${{ aff-Raffle-Exnova.block_08 }}$",
+              "ns": "aff-Raffle-Exnova",
+              "block": "block_08"
+            },
+            {
+              "id": "image_0",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/cv/qi/97bjqakhdj8lo7fg/Icon Glass Sound-2.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-new-raffle-exnova-header-text-6",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_new/mail-Raffle-Exnova/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg.br-full-16\n    tr\n        td.wrapper.last.offset-by-one.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44\n                        p.big-text.pb32 ${{ aff-Raffle-Exnova.block_09 }}$\n                        .gray-block-2\n                            p.text-2 ${{ aff-Raffle-Exnova.block_10 }}$\n                        p.text.pt32.pb32 ${{ aff-Raffle-Exnova.block_11 }}$\n                        table\n                            tr\n                                td.w-a.m-w\n                                    .block-0 1\n                                    .block-small\n                                    .block-line &nbsp;\n                                td.w-a\n                                    p.text.pt10 ${{ aff-Raffle-Exnova.block_12 }}$\n                            tr\n                                td.w-a.m-w\n                                    .block-small\n                                    .block-0 2\n                                    .block-small\n                                    .block-line &nbsp;\n                                td.w-a\n                                    p.text.pt15 ${{ aff-Raffle-Exnova.block_13 }}$\n                            tr\n                                td.w-a.m-w\n                                    .block-small\n                                    .block-0 3\n                                td.w-a\n                                    p.text.pt5 ${{ aff-Raffle-Exnova.block_14 }}$",
+      "styl": ".white-bg { background: #fff; }\n.text { font-family: Helvetica !important;\n  color: #413e43;\n  font-weight: 400;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.text-2 { font-family: Helvetica !important;\n  color: #413e43;\n  font-weight: 700;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.pb32 { padding-bottom: 32px; }\n.pb44 { padding-bottom: 44px; }\n.pt5 { padding-top: 5px; }\n.pt15 { padding-top: 15px; }\n.pt32 { padding-top: 32px; }\n.pt44 { padding-top: 44px; }\n.br-full-16 { border-radius: 16px;\n  -moz-border-radius: 16px;\n  -webkit-border-radius: 16px; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #1466fe !important; }\n.big-text { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #413e43; }\n@media screen and (max-width: 600px) {\n  .big-text { font-size: 26px !important;\n    line-height: 37px !important;\n    text-align: center !important; }\n}\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.block-0 { box-sizing: border-box;\n  width: 56px;\n  height: 56px;\n  border: 3px solid #86ad00;\n  border-radius: 82.0513px;\n  padding: 12px 15px 12px 16px;\n  display: block;\n  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 28px;\n  text-align: center;\n  color: #413e43;\n  vertical-align: middle; }\n.block-small { height: 6px;\n  font-size: 6px;\n  line-height: 6px; }\n.block-line { display: block;\n  width: 20px;\n  height: 25px;\n  border-right: 3px solid #86ad00;\n  padding-left: 7px; }\n.w-a { width: auto !important;\n  vertical-align: top;\n  padding-bottom: 0 !important; }\n.m-w { min-width: 76px; }\n.gray-block-2 { background: #f8f9f7 url(\"https://fsms.quadcode.com/storage/public/cv/qi/979msj7rr6s52080/Card.png\") right no-repeat;\n  background-size: cover;\n  padding: 64px 32px 52px;\n  border-radius: 16px; }\n.white-bg { background:#fff }\n.text,.text-2,.text-3 { font-family:Helvetica!important;font-weight:400 }\n.text,.text-2 { letter-spacing:0;color:#413e43;font-size:18px;line-height:27px }\n.text.list { display:list-item }\n.pb32,.pb32-a { padding-bottom:32px }\n.pb44 { padding-bottom:44px }\n.pt5 { padding-top:5px }\n.pt15 { padding-top:15px }\n.pt32 { padding-top:32px }\n.pt44,.pt45 { padding-top:44px }\n.br-full-16 { border-radius:16px;-moz-border-radius:16px;-webkit-border-radius:16px }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#1466fe!important }\n.big-text { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#413e43 }\n@media screen and (max-width:600px) {\n  .big-text { font-size:26px!important;line-height:37px!important;text-align:center!important }\n}\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}\n.block-0 { box-sizing:border-box;width:56px;height:56px;border:3px solid #86ad00;border-radius:82.0513px;padding:12px 15px 12px 16px;display:block;font-family:Helvetica!important;font-weight:700;font-size:24px;line-height:28px;text-align:center;color:#413e43;vertical-align:middle }\n.block-small { height:6px;font-size:6px;line-height:6px }\n.block-line { display:block;width:20px;height:25px;border-right:3px solid #86ad00;padding-left:7px }\n.w-a { width:auto!important;vertical-align:top;padding-bottom:0!important }\n.m-w { min-width:76px }\n.gray-block-2,.gray-block-3 { background-size:cover;border-radius:16px }\n.gray-block-2 { background:#f8f9f7 url(https://fsms.quadcode.com/storage/public/cv/qi/979msj7rr6s52080/Card.png) right no-repeat;padding:64px 32px 52px }",
+      "classes": [
+        "big-text",
+        "block-0",
+        "block-line",
+        "block-small",
+        "br-full-16",
+        "columns",
+        "gray-block-2",
+        "last",
+        "m-w",
+        "offset-by-one",
+        "pb32",
+        "pb44",
+        "pt10",
+        "pt15",
+        "pt32",
+        "pt44",
+        "pt5",
+        "row",
+        "ten",
+        "text",
+        "text-2",
+        "text-pad-small",
+        "w-a",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "big-text",
+        "block-0",
+        "block-line",
+        "block-small",
+        "br-full-16",
+        "gray-block-2",
+        "m-w",
+        "pb32",
+        "pb44",
+        "pt15",
+        "pt32",
+        "pt44",
+        "pt5",
+        "text",
+        "text-2",
+        "w-a",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_09",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_09",
+          "token": "${{ aff-Raffle-Exnova.block_09 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_09"
+        },
+        {
+          "id": "text_block_10",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_10",
+          "token": "${{ aff-Raffle-Exnova.block_10 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_10"
+        },
+        {
+          "id": "text_block_11",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_11",
+          "token": "${{ aff-Raffle-Exnova.block_11 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_11"
+        },
+        {
+          "id": "text_block_12",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_12",
+          "token": "${{ aff-Raffle-Exnova.block_12 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_12"
+        },
+        {
+          "id": "text_block_13",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_13",
+          "token": "${{ aff-Raffle-Exnova.block_13 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_13"
+        },
+        {
+          "id": "text_block_14",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_14",
+          "token": "${{ aff-Raffle-Exnova.block_14 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_14"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-raffle-exnova-header-text-6-paragraph-0",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pt32.pb32 ${{ aff-Raffle-Exnova.block_11 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-weight: 400;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.pb32 { padding-bottom: 32px; }\n.pt32 { padding-top: 32px; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #1466fe !important; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.text,.text-2,.text-3 { font-family:Helvetica!important;font-weight:400 }\n.text,.text-2 { letter-spacing:0;color:#413e43;font-size:18px;line-height:27px }\n.text.list { display:list-item }\n.pb32,.pb32-a { padding-bottom:32px }\n.pt32 { padding-top:32px }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#1466fe!important }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}",
+          "classes": [
+            "pb32",
+            "pt32",
+            "text"
+          ],
+          "designClasses": [
+            "pb32",
+            "pt32",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_11",
+              "kind": "richText",
+              "label": "Текст aff-Raffle-Exnova.block_11",
+              "token": "${{ aff-Raffle-Exnova.block_11 }}$",
+              "ns": "aff-Raffle-Exnova",
+              "block": "block_11"
+            }
+          ]
+        },
+        {
+          "id": "x-new-raffle-exnova-header-text-6-paragraph-1",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pt10 ${{ aff-Raffle-Exnova.block_12 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-weight: 400;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #1466fe !important; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.text,.text-2,.text-3 { font-family:Helvetica!important;font-weight:400 }\n.text,.text-2 { letter-spacing:0;color:#413e43;font-size:18px;line-height:27px }\n.text.list { display:list-item }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#1466fe!important }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}",
+          "classes": [
+            "pt10",
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_12",
+              "kind": "richText",
+              "label": "Текст aff-Raffle-Exnova.block_12",
+              "token": "${{ aff-Raffle-Exnova.block_12 }}$",
+              "ns": "aff-Raffle-Exnova",
+              "block": "block_12"
+            }
+          ]
+        },
+        {
+          "id": "x-new-raffle-exnova-header-text-6-paragraph-2",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pt15 ${{ aff-Raffle-Exnova.block_13 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-weight: 400;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.pt15 { padding-top: 15px; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #1466fe !important; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.text,.text-2,.text-3 { font-family:Helvetica!important;font-weight:400 }\n.text,.text-2 { letter-spacing:0;color:#413e43;font-size:18px;line-height:27px }\n.text.list { display:list-item }\n.pt15 { padding-top:15px }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#1466fe!important }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}",
+          "classes": [
+            "pt15",
+            "text"
+          ],
+          "designClasses": [
+            "pt15",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_13",
+              "kind": "richText",
+              "label": "Текст aff-Raffle-Exnova.block_13",
+              "token": "${{ aff-Raffle-Exnova.block_13 }}$",
+              "ns": "aff-Raffle-Exnova",
+              "block": "block_13"
+            }
+          ]
+        },
+        {
+          "id": "x-new-raffle-exnova-header-text-6-paragraph-3",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pt5 ${{ aff-Raffle-Exnova.block_14 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-weight: 400;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.pt5 { padding-top: 5px; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #1466fe !important; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.text,.text-2,.text-3 { font-family:Helvetica!important;font-weight:400 }\n.text,.text-2 { letter-spacing:0;color:#413e43;font-size:18px;line-height:27px }\n.text.list { display:list-item }\n.pt5 { padding-top:5px }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#1466fe!important }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}",
+          "classes": [
+            "pt5",
+            "text"
+          ],
+          "designClasses": [
+            "pt5",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_14",
+              "kind": "richText",
+              "label": "Текст aff-Raffle-Exnova.block_14",
+              "token": "${{ aff-Raffle-Exnova.block_14 }}$",
+              "ns": "aff-Raffle-Exnova",
+              "block": "block_14"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-new-raffle-exnova-header-cta-8",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "kind": "section",
+      "sourceFile": "X_new/mail-Raffle-Exnova/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg.br-full-16\n    tr\n        td.wrapper.last.offset-by-one.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb32\n                        p.big-text.pb32 ${{ aff-Raffle-Exnova.block_15 }}$\n                        .gray-block-3\n                            p.text-2 ${{ aff-Raffle-Exnova.block_16 }}$\n                        p.text.pt32.pb32 ${{ aff-Raffle-Exnova.block_17 }}$\n                        .green-line-block\n                            p.green-level ${{ aff-Raffle-Exnova.block_18 }}$\n                            .block-empty-12 &nbsp;\n                            .block-empty-12 &nbsp;\n                            .left-side-bottom\n                                p.text-3.text-left ${{ aff-Raffle-Exnova.block_19 }}$\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                img.arrow.center(src=\"https://fsms.quadcode.com/storage/public/cv/qi/97bjqakhdj8lo7eg/arrow-right.png\")\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                img.arrow-bottom.center(src=\"https://fsms.quadcode.com/storage/public/cv/qj/m9rjqakhdj8lo7h0/arrow-bottom-2.png\")\n                            .right-side-bottom.text-right\n                                p.text-3.text-right <b>${{ aff-Raffle-Exnova.block_20 }}$</b>\n                        .block-empty-12 &nbsp;\n                        .green-line-block\n                            p.green-level ${{ aff-Raffle-Exnova.block_21 }}$\n                            .block-empty-12 &nbsp;\n                                .block-empty-12 &nbsp;\n                            .left-side-bottom\n                                p.text-3.text-left ${{ aff-Raffle-Exnova.block_22 }}$\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                img.arrow.center(src=\"https://fsms.quadcode.com/storage/public/cv/qi/97bjqakhdj8lo7eg/arrow-right.png\")\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                img.arrow-bottom.center(src=\"https://fsms.quadcode.com/storage/public/cv/qj/m9rjqakhdj8lo7h0/arrow-bottom-2.png\")\n                            .right-side-bottom.text-right\n                                p.text-3.text-right <b> ${{ aff-Raffle-Exnova.block_23 }}$</b>\n                        .block-empty-12 &nbsp;\n                        .green-line-block\n                            p.green-level ${{ aff-Raffle-Exnova.block_24 }}$\n                            .block-empty-12 &nbsp;\n                            .block-empty-12 &nbsp;\n                            .left-side-bottom\n                                p.text-3.text-left ${{ aff-Raffle-Exnova.block_25 }}$\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                img.arrow.center(src=\"https://fsms.quadcode.com/storage/public/cv/qi/97bjqakhdj8lo7eg/arrow-right.png\")\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                img.arrow-bottom.center(src=\"https://fsms.quadcode.com/storage/public/cv/qj/m9rjqakhdj8lo7h0/arrow-bottom-2.png\")\n                            .right-side-bottom.text-right\n                                p.text-3.text-right <b> ${{ aff-Raffle-Exnova.block_26 }}$</b>\n                        .block-empty-12 &nbsp;\n                        .green-line-block\n                            p.green-level ${{ aff-Raffle-Exnova.block_27 }}$\n                            .block-empty-12 &nbsp;\n                            .block-empty-12 &nbsp;\n                            .left-side-bottom\n                                p.text-3.text-left ${{ aff-Raffle-Exnova.block_28 }}$\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                img.arrow.center(src=\"https://fsms.quadcode.com/storage/public/cv/qi/97bjqakhdj8lo7eg/arrow-right.png\")\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                img.arrow-bottom.center(src=\"https://fsms.quadcode.com/storage/public/cv/qj/m9rjqakhdj8lo7h0/arrow-bottom-2.png\")\n                            .right-side-bottom.text-right\n                                p.text-3.text-right <b> ${{ aff-Raffle-Exnova.block_29 }}$</b>\n                tr\n                    td.text-pad-small.pb32.bb-dash\n                        .green-block\n                            p.small-title.center.pb16 ${{ aff-Raffle-Exnova.block_30 }}$\n                            p.text.center.pb24 ${{ aff-Raffle-Exnova.block_31 }}$\n                            table.w280(align=\"center\")\n                                tr\n                                    td.butt.pb0.pt0\n                                        a.butt(href=\"https://my.affstore.com/profile/settings/personal\" target=\"_blank\") ${{ aff-Raffle-Exnova.block_32 }}$\n                tr\n                    td.text-pad-small.pt24.pb44\n                        p.gray-text-bottom.center ${{ aff-Raffle-Exnova.block_33 }}$",
+      "styl": ".block-empty-12 { height: 12px;\n  line-height: 12px;\n  font-size: 12px; }\n.white-bg { background: #fff; }\n.green-line-block { background: url(\"https://fsms.quadcode.com/storage/public/cv/qi/979msj7rr6s5208g/arrow-top.png\") right 24px top 24px no-repeat;\n  background-size: 36px;\n  padding: 24px 24px 28px;\n  border: 1px solid #91b904;\n  border-radius: 24px; }\n.green-level { display: inline-block;\n  padding: 8px 16px;\n  background: #f6ffe8;\n  border-radius: 12px;\n  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 16px;\n  line-height: 24px;\n  color: #2b2d36; }\n.w280 { width: 100%;\n  max-width: 280px;\n  min-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { min-width: 100% !important; }\n}\n.small-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 38px;\n  letter-spacing: -0.5px;\n  color: #413e43; }\n.text { font-family: Helvetica !important;\n  color: #413e43;\n  font-weight: 400;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.text-2 { font-family: Helvetica !important;\n  color: #413e43;\n  font-weight: 700;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.text-3 { display: inline-block;\n  font-family: Helvetica !important;\n  font-weight: 400;\n  font-size: 24px;\n  line-height: 31px;\n  color: #393a44;\n  vertical-align: middle;\n  text-align: center; }\n@media screen and (max-width: 600px) {\n  .text-3 { display: block !important;\n    font-size: 20px !important;\n    line-height: 31px !important;\n    text-align: center !important; }\n}\n.left-side-bottom { display: inline-block;\n  width: 177px;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .left-side-bottom { width: 100% !important; }\n}\n.right-side-bottom { display: inline-block;\n  width: 130px;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .right-side-bottom { width: 100% !important; }\n}\n.arrow { display: inline-block;\n  vertical-align: middle;\n  width: 76px;\n  padding: 0 12px;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .arrow { width: 1px !important;\n    max-width: 0.1px !important; }\n}\n.arrow-bottom { display: inline-block;\n  vertical-align: middle;\n  width: 1px;\n  max-width: 0.1px; }\n@media screen and (max-width: 600px) {\n  .arrow-bottom { display: block !important;\n    margin: 0 auto !important;\n    padding: 10px 0;\n    width: 10px !important;\n    max-width: 10px !important; }\n}\n.text-left { text-align: left; }\n@media screen and (max-width: 600px) {\n  .text-left { text-align: center !important; }\n}\n.text-right { text-align: right; }\n@media screen and (max-width: 600px) {\n  .text-right { text-align: center !important; }\n}\n.text.list { display: list-item; }\n.pb16 { padding-bottom: 16px; }\n.pb24 { padding-bottom: 24px; }\n.pb32 { padding-bottom: 32px; }\n.pb44 { padding-bottom: 44px; }\n.pt24 { padding-top: 24px; }\n.pt32 { padding-top: 32px; }\n.pt44 { padding-top: 44px; }\n.br-full-16 { border-radius: 16px;\n  -moz-border-radius: 16px;\n  -webkit-border-radius: 16px; }\n.bb-dash { border-bottom: 1px dashed #dedede; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #1466fe !important; }\n.big-text { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #413e43; }\n@media screen and (max-width: 600px) {\n  .big-text { font-size: 26px !important;\n    line-height: 37px !important;\n    text-align: center !important; }\n}\n.green-block { padding: 24px 32px;\n  background: #eeffd6;\n  border-radius: 16px; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.gray-text-bottom { font-family: Helvetica !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 25px;\n  color: #71717d; }\n.gray-block-3 { background: #f8f9f7 url(\"https://fsms.quadcode.com/storage/public/cv/qj/883jqakhdj8lo7gg/Card-2.png\") right no-repeat;\n  background-size: cover;\n  padding: 74px 32px 52px;\n  border-radius: 16px; }\n.small-title { font-family: Helvetica !important;\n  font-weight: 400;\n  font-size: 24px;\n  line-height: 34px;\n  color: #404040; }\n.block-empty-12 { height:12px;line-height:12px;font-size:12px }\n.white-bg { background:#fff }\n.green-line-block { background:url(https://fsms.quadcode.com/storage/public/cv/qi/979msj7rr6s5208g/arrow-top.png) right 24px top 24px no-repeat;background-size:36px;padding:24px 24px 28px;border:1px solid #91b904;border-radius:24px }\n.green-level { display:inline-block;padding:8px 16px;background:#f6ffe8;border-radius:12px;font-weight:700;font-size:16px;line-height:24px;color:#2b2d36 }\n.butt-2,.green-level,.subtitle { font-family:Helvetica!important }\n.w280 { width:100%;max-width:280px;min-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { min-width:100%!important }\n}\n.small-title { letter-spacing:-.5px }\n.text,.text-2,.text-3 { font-family:Helvetica!important;font-weight:400 }\n.text,.text-2 { letter-spacing:0;color:#413e43;font-size:18px;line-height:27px }\n.text-3 { display:inline-block;font-size:24px;line-height:31px;color:#393a44;vertical-align:middle;text-align:center }\n@media screen and (max-width:600px) {\n  .text-3 { display:block!important;font-size:20px!important;line-height:31px!important;text-align:center!important }\n}\n.left-side-bottom { display:inline-block;width:177px;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .left-side-bottom { width:100%!important }\n}\n.right-side-bottom { display:inline-block;width:130px;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .right-side-bottom { width:100%!important }\n}\n.arrow { display:inline-block;width:76px;padding:0 12px;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .arrow { width:1px!important;max-width:.1px!important }\n}\n.arrow-bottom { display:inline-block;vertical-align:middle;width:1px;max-width:.1px }\n@media screen and (max-width:600px) {\n  .arrow-bottom { display:block!important;margin:0 auto!important;padding:10px 0;width:10px!important;max-width:10px!important }\n}\n.text-left { text-align:left }\n@media screen and (max-width:600px) {\n  .text-left { text-align:center!important }\n}\n.text-right { text-align:right }\n@media screen and (max-width:600px) {\n  .text-right { text-align:center!important }\n}\n.text.list { display:list-item }\n.pb16 { padding-bottom:16px }\n.pb24 { padding-bottom:24px }\n.pb32,.pb32-a { padding-bottom:32px }\n.pb44 { padding-bottom:44px }\n.pt24 { padding-top:24px }\n.pt32 { padding-top:32px }\n.pt44,.pt45 { padding-top:44px }\n.br-full-16 { border-radius:16px;-moz-border-radius:16px;-webkit-border-radius:16px }\n.text a,b { font-family:Helvetica!important }\n.bb-dash { border-bottom:1px dashed #dedede }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#1466fe!important }\n.big-text { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#413e43 }\n@media screen and (max-width:600px) {\n  .big-text { font-size:26px!important;line-height:37px!important;text-align:center!important }\n}\n.green-block { padding:24px 32px;background:#eeffd6;border-radius:16px }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}\n.gray-text-bottom,.grey-text { font-family:Helvetica!important;font-weight:400;font-size:18px;line-height:25px;color:#71717d }\n.gray-block-2,.gray-block-3 { background-size:cover;border-radius:16px }\n.gray-block-3 { background:#f8f9f7 url(https://fsms.quadcode.com/storage/public/cv/qj/883jqakhdj8lo7gg/Card-2.png) right no-repeat;padding:74px 32px 52px }\n.small-title { font-family:Helvetica!important;font-weight:400;font-size:24px;line-height:34px;color:#404040 }",
+      "classes": [
+        "arrow",
+        "arrow-bottom",
+        "bb-dash",
+        "big-text",
+        "block-empty-12",
+        "br-full-16",
+        "butt",
+        "center",
+        "columns",
+        "gray-block-3",
+        "gray-text-bottom",
+        "green-block",
+        "green-level",
+        "green-line-block",
+        "last",
+        "left-side-bottom",
+        "offset-by-one",
+        "pb0",
+        "pb16",
+        "pb24",
+        "pb32",
+        "pb44",
+        "pt0",
+        "pt24",
+        "pt32",
+        "pt44",
+        "right-side-bottom",
+        "row",
+        "small-title",
+        "ten",
+        "text",
+        "text-2",
+        "text-3",
+        "text-left",
+        "text-pad-small",
+        "text-right",
+        "w280",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "arrow",
+        "arrow-bottom",
+        "bb-dash",
+        "big-text",
+        "block-empty-12",
+        "br-full-16",
+        "gray-block-3",
+        "gray-text-bottom",
+        "green-block",
+        "green-level",
+        "green-line-block",
+        "left-side-bottom",
+        "pb16",
+        "pb24",
+        "pb32",
+        "pb44",
+        "pt24",
+        "pt32",
+        "pt44",
+        "right-side-bottom",
+        "small-title",
+        "text",
+        "text-2",
+        "text-3",
+        "text-left",
+        "text-right",
+        "w280",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_15",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_15",
+          "token": "${{ aff-Raffle-Exnova.block_15 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_15"
+        },
+        {
+          "id": "text_block_16",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_16",
+          "token": "${{ aff-Raffle-Exnova.block_16 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_16"
+        },
+        {
+          "id": "text_block_17",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_17",
+          "token": "${{ aff-Raffle-Exnova.block_17 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_17"
+        },
+        {
+          "id": "text_block_18",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_18",
+          "token": "${{ aff-Raffle-Exnova.block_18 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_18"
+        },
+        {
+          "id": "text_block_19",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_19",
+          "token": "${{ aff-Raffle-Exnova.block_19 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_19"
+        },
+        {
+          "id": "text_block_20",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_20",
+          "token": "${{ aff-Raffle-Exnova.block_20 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_20"
+        },
+        {
+          "id": "text_block_21",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_21",
+          "token": "${{ aff-Raffle-Exnova.block_21 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_21"
+        },
+        {
+          "id": "text_block_22",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_22",
+          "token": "${{ aff-Raffle-Exnova.block_22 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_22"
+        },
+        {
+          "id": "text_block_23",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_23",
+          "token": "${{ aff-Raffle-Exnova.block_23 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_23"
+        },
+        {
+          "id": "text_block_24",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_24",
+          "token": "${{ aff-Raffle-Exnova.block_24 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_24"
+        },
+        {
+          "id": "text_block_25",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_25",
+          "token": "${{ aff-Raffle-Exnova.block_25 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_25"
+        },
+        {
+          "id": "text_block_26",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_26",
+          "token": "${{ aff-Raffle-Exnova.block_26 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_26"
+        },
+        {
+          "id": "text_block_27",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_27",
+          "token": "${{ aff-Raffle-Exnova.block_27 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_27"
+        },
+        {
+          "id": "text_block_28",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_28",
+          "token": "${{ aff-Raffle-Exnova.block_28 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_28"
+        },
+        {
+          "id": "text_block_29",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_29",
+          "token": "${{ aff-Raffle-Exnova.block_29 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_29"
+        },
+        {
+          "id": "text_block_30",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_30",
+          "token": "${{ aff-Raffle-Exnova.block_30 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_30"
+        },
+        {
+          "id": "text_block_31",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_31",
+          "token": "${{ aff-Raffle-Exnova.block_31 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_31"
+        },
+        {
+          "id": "text_block_32",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_32",
+          "token": "${{ aff-Raffle-Exnova.block_32 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_32"
+        },
+        {
+          "id": "text_block_33",
+          "kind": "richText",
+          "label": "Текст aff-Raffle-Exnova.block_33",
+          "token": "${{ aff-Raffle-Exnova.block_33 }}$",
+          "ns": "aff-Raffle-Exnova",
+          "block": "block_33"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://my.affstore.com/profile/settings/personal"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cv/qi/97bjqakhdj8lo7eg/arrow-right.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cv/qj/m9rjqakhdj8lo7h0/arrow-bottom-2.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-raffle-exnova-header-cta-8-paragraph-0",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pt32.pb32 ${{ aff-Raffle-Exnova.block_17 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-weight: 400;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.pb32 { padding-bottom: 32px; }\n.pt32 { padding-top: 32px; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #1466fe !important; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.text,.text-2,.text-3 { font-family:Helvetica!important;font-weight:400 }\n.text,.text-2 { letter-spacing:0;color:#413e43;font-size:18px;line-height:27px }\n.text.list { display:list-item }\n.pb32,.pb32-a { padding-bottom:32px }\n.pt32 { padding-top:32px }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#1466fe!important }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}",
+          "classes": [
+            "pb32",
+            "pt32",
+            "text"
+          ],
+          "designClasses": [
+            "pb32",
+            "pt32",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_17",
+              "kind": "richText",
+              "label": "Текст aff-Raffle-Exnova.block_17",
+              "token": "${{ aff-Raffle-Exnova.block_17 }}$",
+              "ns": "aff-Raffle-Exnova",
+              "block": "block_17"
+            }
+          ]
+        },
+        {
+          "id": "x-new-raffle-exnova-header-cta-8-heading-1",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.small-title.center.pb16 ${{ aff-Raffle-Exnova.block_30 }}$",
+          "styl": ".small-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 38px;\n  letter-spacing: -0.5px;\n  color: #413e43; }\n.pb16 { padding-bottom: 16px; }\n.small-title { font-family: Helvetica !important;\n  font-weight: 400;\n  font-size: 24px;\n  line-height: 34px;\n  color: #404040; }\n.small-title { letter-spacing:-.5px }\n.pb16 { padding-bottom:16px }\n.small-title { font-family:Helvetica!important;font-weight:400;font-size:24px;line-height:34px;color:#404040 }",
+          "classes": [
+            "center",
+            "pb16",
+            "small-title"
+          ],
+          "designClasses": [
+            "pb16",
+            "small-title"
+          ],
+          "slots": [
+            {
+              "id": "text_block_30",
+              "kind": "richText",
+              "label": "Текст aff-Raffle-Exnova.block_30",
+              "token": "${{ aff-Raffle-Exnova.block_30 }}$",
+              "ns": "aff-Raffle-Exnova",
+              "block": "block_30"
+            }
+          ]
+        },
+        {
+          "id": "x-new-raffle-exnova-header-cta-8-paragraph-2",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.center.pb24 ${{ aff-Raffle-Exnova.block_31 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-weight: 400;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.pb24 { padding-bottom: 24px; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #1466fe !important; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.text,.text-2,.text-3 { font-family:Helvetica!important;font-weight:400 }\n.text,.text-2 { letter-spacing:0;color:#413e43;font-size:18px;line-height:27px }\n.text.list { display:list-item }\n.pb24 { padding-bottom:24px }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#1466fe!important }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}",
+          "classes": [
+            "center",
+            "pb24",
+            "text"
+          ],
+          "designClasses": [
+            "pb24",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_31",
+              "kind": "richText",
+              "label": "Текст aff-Raffle-Exnova.block_31",
+              "token": "${{ aff-Raffle-Exnova.block_31 }}$",
+              "ns": "aff-Raffle-Exnova",
+              "block": "block_31"
+            }
+          ]
+        },
+        {
+          "id": "x-new-raffle-exnova-header-cta-8-cta-button-3",
+          "label": "CTA-кнопка (w280)",
+          "placement": "inline",
+          "category": "cta",
+          "pug": "table.w280(align=\"center\")\n    tr\n        td.butt.pb0.pt0\n            a.butt(href=\"https://my.affstore.com/profile/settings/personal\" target=\"_blank\") ${{ aff-Raffle-Exnova.block_32 }}$",
+          "styl": ".w280 { width: 100%;\n  max-width: 280px;\n  min-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { min-width: 100% !important; }\n}\n.w280 { width:100%;max-width:280px;min-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { min-width:100%!important }\n}",
+          "classes": [
+            "butt",
+            "pb0",
+            "pt0",
+            "w280"
+          ],
+          "designClasses": [
+            "w280"
+          ],
+          "slots": [
+            {
+              "id": "text_block_32",
+              "kind": "richText",
+              "label": "Текст aff-Raffle-Exnova.block_32",
+              "token": "${{ aff-Raffle-Exnova.block_32 }}$",
+              "ns": "aff-Raffle-Exnova",
+              "block": "block_32"
+            },
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://my.affstore.com/profile/settings/personal"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-new-raffle-exnova-header-section-9",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "kind": "section",
+      "sourceFile": "X_new/mail-Raffle-Exnova/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.pt50.offset-by-one\n            table.ten.columns\n                tr\n                    td.pb0.text-pad-small\n                        p.subtitle-min.center.pb8 ${{ aff-payment-activation-affstore.block_09 }}$\n                        p.text.center ${{ aff-payment-activation-affstore.block_10 }}$\n                        p.text.center.pb15 ${{ aff-payment-activation-affstore.block_11 }}$\n                        .social-links.pb20\n                            a(href=\"https://www.facebook.com/Affstore.affiliate\" target=\"_blank\")\n                                img.soc(src=\"https://fsms.quadcode.com/storage/public/cn/jj/e9i85cee2vclvhog/socfacebook.png\")\n                            a(href=\"https://www.instagram.com/affstore_affiliate/\" target=\"_blank\")\n                                img.soc.mar12(src=\"https://fsms.quadcode.com/storage/public/cn/jj/e9i85cee2vclvhng/socinstagram.png\")\n                            a(href=\"https://affstore.com/\" target=\"_blank\")\n                                img.soc(src=\"https://fsms.quadcode.com/storage/public/cn/jj/e9q03qqv4qln7tig/socaffstore.png\")\n                            a(href=\"https://www.linkedin.com/company/affstore/\" target=\"_blank\")\n                                img.mar12-left.soc(src=\"https://fsms.quadcode.com/storage/public/cn/jj/e9i85cee2vclvho0/link.png\")",
+      "styl": ".mar12-left { padding-left: 20px; }\n.text { font-family: Helvetica !important;\n  color: #413e43;\n  font-weight: 400;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.subtitle-min { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 26px;\n  line-height: 26px;\n  color: #373437; }\n.text.list { display: list-item; }\n.pb8 { padding-bottom: 8px; }\n.pb15 { padding-bottom: 15px !important; }\n.social-links { display: block;\n  text-align: center; }\n.mar12 { padding-left: 20px;\n  padding-right: 20px; }\n.soc { display: inline-block;\n  float: none;\n  max-width: 50px; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #1466fe !important; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.mar12-left { padding-left:20px }\n.text,.text-2,.text-3 { font-family:Helvetica!important;font-weight:400 }\n.text,.text-2 { letter-spacing:0;color:#413e43;font-size:18px;line-height:27px }\n.subtitle-min,.text-strong { font-family:Helvetica!important;font-weight:700;font-size:24px;line-height:29px;color:#413e43 }\n.subtitle-min { font-size:26px;line-height:26px;color:#373437 }\n.text.list { display:list-item }\n.pb8 { padding-bottom:8px }\n.pb15 { padding-bottom:15px!important }\n.social-links { display:block;text-align:center }\n.mar12 { padding-left:20px;padding-right:20px }\n.soc { display:inline-block;float:none;max-width:50px }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#1466fe!important }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}",
+      "classes": [
+        "center",
+        "columns",
+        "last",
+        "mar12",
+        "mar12-left",
+        "offset-by-one",
+        "pb0",
+        "pb15",
+        "pb20",
+        "pb8",
+        "pt50",
+        "row",
+        "soc",
+        "social-links",
+        "subtitle-min",
+        "ten",
+        "text",
+        "text-pad-small",
+        "wrapper"
+      ],
+      "designClasses": [
+        "mar12",
+        "mar12-left",
+        "pb15",
+        "pb8",
+        "soc",
+        "social-links",
+        "subtitle-min",
+        "text"
+      ],
+      "slots": [
+        {
+          "id": "text_block_09",
+          "kind": "richText",
+          "label": "Текст aff-payment-activation-affstore.block_09",
+          "token": "${{ aff-payment-activation-affstore.block_09 }}$",
+          "ns": "aff-payment-activation-affstore",
+          "block": "block_09"
+        },
+        {
+          "id": "text_block_10",
+          "kind": "richText",
+          "label": "Текст aff-payment-activation-affstore.block_10",
+          "token": "${{ aff-payment-activation-affstore.block_10 }}$",
+          "ns": "aff-payment-activation-affstore",
+          "block": "block_10"
+        },
+        {
+          "id": "text_block_11",
+          "kind": "richText",
+          "label": "Текст aff-payment-activation-affstore.block_11",
+          "token": "${{ aff-payment-activation-affstore.block_11 }}$",
+          "ns": "aff-payment-activation-affstore",
+          "block": "block_11"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://www.facebook.com/Affstore.affiliate"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://www.instagram.com/affstore_affiliate/"
+        },
+        {
+          "id": "href_2",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://affstore.com/"
+        },
+        {
+          "id": "href_3",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://www.linkedin.com/company/affstore/"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cn/jj/e9i85cee2vclvhog/socfacebook.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cn/jj/e9i85cee2vclvhng/socinstagram.png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cn/jj/e9q03qqv4qln7tig/socaffstore.png"
+        },
+        {
+          "id": "image_3",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cn/jj/e9i85cee2vclvho0/link.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-raffle-exnova-header-section-9-paragraph-0",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.center ${{ aff-payment-activation-affstore.block_10 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-weight: 400;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #1466fe !important; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.text,.text-2,.text-3 { font-family:Helvetica!important;font-weight:400 }\n.text,.text-2 { letter-spacing:0;color:#413e43;font-size:18px;line-height:27px }\n.text.list { display:list-item }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#1466fe!important }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}",
+          "classes": [
+            "center",
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_10",
+              "kind": "richText",
+              "label": "Текст aff-payment-activation-affstore.block_10",
+              "token": "${{ aff-payment-activation-affstore.block_10 }}$",
+              "ns": "aff-payment-activation-affstore",
+              "block": "block_10"
+            }
+          ]
+        },
+        {
+          "id": "x-new-raffle-exnova-header-section-9-paragraph-1",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.center.pb15 ${{ aff-payment-activation-affstore.block_11 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-weight: 400;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.pb15 { padding-bottom: 15px !important; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #1466fe !important; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.text,.text-2,.text-3 { font-family:Helvetica!important;font-weight:400 }\n.text,.text-2 { letter-spacing:0;color:#413e43;font-size:18px;line-height:27px }\n.text.list { display:list-item }\n.pb15 { padding-bottom:15px!important }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#1466fe!important }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}",
+          "classes": [
+            "center",
+            "pb15",
+            "text"
+          ],
+          "designClasses": [
+            "pb15",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_11",
+              "kind": "richText",
+              "label": "Текст aff-payment-activation-affstore.block_11",
+              "token": "${{ aff-payment-activation-affstore.block_11 }}$",
+              "ns": "aff-payment-activation-affstore",
+              "block": "block_11"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

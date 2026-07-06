@@ -1,0 +1,31 @@
+{
+  "id": "affsystem-text-16",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_AffSystem (2 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.pb15.big-text.center.b-affsystem-text-16 {{ text_1 }}",
+  "styl": ".b-affsystem-text-16 .min-text, .text.b-affsystem-text-16 {  font-family:Helvetica!important;color:#2e3851;letter-spacing:0  }\n.text.b-affsystem-text-16 {  font-weight:400;font-size:16px;line-height:26px  }\n.big-text.b-affsystem-text-16, .b-affsystem-text-16 .subtitle, .b-affsystem-text-16 b, .b-affsystem-text-16 p.warning, .b-affsystem-text-16 p.warning .upper {  font-family:Helvetica!important  }\n.big-text.b-affsystem-text-16 {  font-weight:700!important;font-size:16px!important  }\n.text.italic.b-affsystem-text-16 {  font-style:italic  }\n.text.list.b-affsystem-text-16 {  display:list-item  }\n.pb15.b-affsystem-text-16 {  padding-bottom:15px!important  }\n.text.b-affsystem-text-16 a {  font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_AffSystem"
+  ],
+  "usageCount": 2,
+  "sourceMails": [
+    "X_AffSystem/mail-affiliate-kyc-doc-status-changed",
+    "X_AffSystem/mail-verification-reminder-affiliate"
+  ],
+  "createdAt": "2026-07-06T12:09:51.510Z",
+  "validated": true
+}

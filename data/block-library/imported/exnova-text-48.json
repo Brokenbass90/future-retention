@@ -1,0 +1,36 @@
+{
+  "id": "exnova-text-48",
+  "label": "Заголовок",
+  "description": "Импортирован из X_Exnova (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.title.pb32.pt15.b-exnova-text-48 {{ text_1 }} {{ text_2 }}",
+  "styl": ".title.b-exnova-text-48 {  font-family: Helvetica !important;\n  color: #373437;\n  font-size: 48px;\n  line-height: 58px;\n  font-weight: 700;  }\n@media screen and (max-width: 600px) {\n  .title.b-exnova-text-48 {  font-size: 40px !important;\n    line-height: 50px !important;  }\n}\n@media screen and (max-width: 420px) {\n  .title.b-exnova-text-48 {  font-size: 32px !important;\n    line-height: 45px !important;  }\n}\n.pb32.b-exnova-text-48 {  padding-bottom: 32px;  }\n.pt15.b-exnova-text-48 {  padding-top: 15px;  }\n.b-exnova-text-48 .hello, .b-exnova-text-48 .subtitle-2, .title.b-exnova-text-48 {  font-family:Helvetica!important;font-weight:700  }\n.title.b-exnova-text-48 {  color:#373437;font-size:48px;line-height:58px  }\n@media screen and (max-width:600px) {\n  .title.b-exnova-text-48 {  font-size:40px!important;line-height:50px!important  }\n}\n@media screen and (max-width:420px) {\n  .title.b-exnova-text-48 {  font-size:32px!important;line-height:45px!important  }\n}\n.pb32.b-exnova-text-48 {  padding-bottom:32px  }\n.pt15.b-exnova-text-48 {  padding-top:15px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_Exnova"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_Exnova/mail-Teaser-email-4"
+  ],
+  "createdAt": "2026-07-06T12:09:50.966Z",
+  "validated": true
+}

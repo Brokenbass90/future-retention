@@ -1,0 +1,1051 @@
+{
+  "category": "X_CasaTradeAffiliate",
+  "mailId": "2nd-Newsletter",
+  "mailAbs": "email-base/X_CasaTradeAffiliate/mail-2nd-Newsletter",
+  "blockCount": 9,
+  "blocks": [
+    {
+      "id": "x-casatradeaffiliate-2nd-newsletter-header-heade",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "kind": "section",
+      "sourceFile": "X_CasaTradeAffiliate/mail-2nd-Newsletter/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.pb0\n            table.row.twelve.columns\n                tr\n                    td.offset-by-one.wrapper.last.pb0\n                        table.ten.columns\n                            tr\n                                td.wrapper.last.pb0\n                                    a(href=\"https://partner.casatrade.com/offers\" target=\"_blank\")\n                                        img.logo.center(src=\"https://fsms.quadcode.com/storage/public/cu/4h/ftt4nhqjshkklfbg/logo-casa.png\")",
+      "styl": "",
+      "classes": [
+        "center",
+        "columns",
+        "last",
+        "logo",
+        "offset-by-one",
+        "pb0",
+        "row",
+        "ten",
+        "twelve",
+        "wrapper"
+      ],
+      "designClasses": [],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://partner.casatrade.com/offers"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cu/4h/ftt4nhqjshkklfbg/logo-casa.png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-casatradeaffiliate-2nd-newsletter-header-secti",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "kind": "section",
+      "sourceFile": "X_CasaTradeAffiliate/mail-2nd-Newsletter/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb12.pt0\n                        a(href=\"#\" target=\"_blank\")\n                            img.under-img.center(src=\"https://fsms.quadcode.com/storage/public/d0/8u/j5rjqaksmetb0640/casa-top.png\")",
+      "styl": ".under-img { float: none;\n  width: 480px;\n  background: #f7f7fc;\n  border-radius: 16px; }\n.pb12 { padding-bottom: 12px !important; }\n.under-img { float:none;width:480px;background:#f7f7fc;border-radius:16px }\n.pb12 { padding-bottom:12px!important }",
+      "classes": [
+        "center",
+        "columns",
+        "last",
+        "offset-by-one",
+        "pb12",
+        "pt0",
+        "row",
+        "ten",
+        "text-pad-small",
+        "under-img",
+        "wrapper"
+      ],
+      "designClasses": [
+        "pb12",
+        "under-img"
+      ],
+      "slots": [
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d0/8u/j5rjqaksmetb0640/casa-top.png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-casatradeaffiliate-2nd-newsletter-header-text-",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_CasaTradeAffiliate/mail-2nd-Newsletter/app/templates/blocks/header.jade",
+      "pug": "table.row.brad-full.white-bg\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.title ${{ affCasa-2nd-Newsletter.block_01 }}$\n                        p.title.pb32 ${{ affCasa-2nd-Newsletter.block_02 }}$\n                        p.hello.pb12  ${{ affCasa-2nd-Newsletter.block_03 }}$\n                        p.text. ${{ affCasa-2nd-Newsletter.block_04 }}$",
+      "styl": ".brad-full { border-radius: 16px !important; }\n.white-bg { background: #fff; }\n.title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 48px;\n  color: #393a44;\n  line-height: 58px; }\n@media screen and (max-width: 600px) {\n  .title { font-size: 26px !important;\n    line-height: 32px !important; }\n}\n.hello { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  color: #3e3752;\n  word-break: break-word; }\n.text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #3e3752;\n  letter-spacing: 0;\n  line-height: 27px; }\n.text.bold { font-weight: 700; }\n.pb12 { padding-bottom: 12px !important; }\n.pb32 { padding-bottom: 32px; }\n.pb44 { padding-bottom: 44px; }\n.pt44 { padding-top: 44px; }\n.text.mob-text,\n.img-box { float: none !important;\n  max-width: 232px !important;\n  display: block !important; }\n.brad-full { border-radius:16px!important }\n.white-bg { background:#fff }\n.title { font-family:Helvetica!important;font-weight:700;font-size:48px;color:#393a44;line-height:58px }\n@media screen and (max-width:600px) {\n  .title { font-size:26px!important;line-height:32px!important }\n}\n.hello { font-family:Helvetica!important;font-weight:700;font-size:24px;line-height:31px;color:#3e3752;word-break:break-word }\n.small-dot,.text { font-family:Helvetica!important;font-size:18px;line-height:27px;color:#3e3752 }\n.text { letter-spacing:0 }\n.big,.text.bold { font-weight:700 }\n.pb12 { padding-bottom:12px!important }\n.pb32 { padding-bottom:32px }\n.pb44 { padding-bottom:44px }\n.pt44 { padding-top:44px }\n.img-box,.text.mob-text { float:none!important;max-width:232px!important;display:block!important }",
+      "classes": [
+        "brad-full",
+        "columns",
+        "hello",
+        "last",
+        "offset-by-one",
+        "pb12",
+        "pb32",
+        "pb44",
+        "pt44",
+        "row",
+        "ten",
+        "text",
+        "text-pad-small",
+        "title",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "brad-full",
+        "hello",
+        "pb12",
+        "pb32",
+        "pb44",
+        "pt44",
+        "text",
+        "title",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_01",
+          "kind": "richText",
+          "label": "Текст affCasa-2nd-Newsletter.block_01",
+          "token": "${{ affCasa-2nd-Newsletter.block_01 }}$",
+          "ns": "affCasa-2nd-Newsletter",
+          "block": "block_01"
+        },
+        {
+          "id": "text_block_02",
+          "kind": "richText",
+          "label": "Текст affCasa-2nd-Newsletter.block_02",
+          "token": "${{ affCasa-2nd-Newsletter.block_02 }}$",
+          "ns": "affCasa-2nd-Newsletter",
+          "block": "block_02"
+        },
+        {
+          "id": "text_block_03",
+          "kind": "richText",
+          "label": "Текст affCasa-2nd-Newsletter.block_03",
+          "token": "${{ affCasa-2nd-Newsletter.block_03 }}$",
+          "ns": "affCasa-2nd-Newsletter",
+          "block": "block_03"
+        },
+        {
+          "id": "text_block_04",
+          "kind": "richText",
+          "label": "Текст affCasa-2nd-Newsletter.block_04",
+          "token": "${{ affCasa-2nd-Newsletter.block_04 }}$",
+          "ns": "affCasa-2nd-Newsletter",
+          "block": "block_04"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-casatradeaffiliate-2nd-newsletter-header-text-",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.title ${{ affCasa-2nd-Newsletter.block_01 }}$",
+          "styl": ".title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 48px;\n  color: #393a44;\n  line-height: 58px; }\n@media screen and (max-width: 600px) {\n  .title { font-size: 26px !important;\n    line-height: 32px !important; }\n}\n.title { font-family:Helvetica!important;font-weight:700;font-size:48px;color:#393a44;line-height:58px }\n@media screen and (max-width:600px) {\n  .title { font-size:26px!important;line-height:32px!important }\n}",
+          "classes": [
+            "title"
+          ],
+          "designClasses": [
+            "title"
+          ],
+          "slots": [
+            {
+              "id": "text_block_01",
+              "kind": "richText",
+              "label": "Текст affCasa-2nd-Newsletter.block_01",
+              "token": "${{ affCasa-2nd-Newsletter.block_01 }}$",
+              "ns": "affCasa-2nd-Newsletter",
+              "block": "block_01"
+            }
+          ]
+        },
+        {
+          "id": "x-casatradeaffiliate-2nd-newsletter-header-text-",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.title.pb32 ${{ affCasa-2nd-Newsletter.block_02 }}$",
+          "styl": ".title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 48px;\n  color: #393a44;\n  line-height: 58px; }\n@media screen and (max-width: 600px) {\n  .title { font-size: 26px !important;\n    line-height: 32px !important; }\n}\n.pb32 { padding-bottom: 32px; }\n.title { font-family:Helvetica!important;font-weight:700;font-size:48px;color:#393a44;line-height:58px }\n@media screen and (max-width:600px) {\n  .title { font-size:26px!important;line-height:32px!important }\n}\n.pb32 { padding-bottom:32px }",
+          "classes": [
+            "pb32",
+            "title"
+          ],
+          "designClasses": [
+            "pb32",
+            "title"
+          ],
+          "slots": [
+            {
+              "id": "text_block_02",
+              "kind": "richText",
+              "label": "Текст affCasa-2nd-Newsletter.block_02",
+              "token": "${{ affCasa-2nd-Newsletter.block_02 }}$",
+              "ns": "affCasa-2nd-Newsletter",
+              "block": "block_02"
+            }
+          ]
+        },
+        {
+          "id": "x-casatradeaffiliate-2nd-newsletter-header-text-",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.hello.pb12  ${{ affCasa-2nd-Newsletter.block_03 }}$",
+          "styl": ".hello { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  color: #3e3752;\n  word-break: break-word; }\n.pb12 { padding-bottom: 12px !important; }\n.hello { font-family:Helvetica!important;font-weight:700;font-size:24px;line-height:31px;color:#3e3752;word-break:break-word }\n.pb12 { padding-bottom:12px!important }",
+          "classes": [
+            "hello",
+            "pb12"
+          ],
+          "designClasses": [
+            "hello",
+            "pb12"
+          ],
+          "slots": [
+            {
+              "id": "text_block_03",
+              "kind": "richText",
+              "label": "Текст affCasa-2nd-Newsletter.block_03",
+              "token": "${{ affCasa-2nd-Newsletter.block_03 }}$",
+              "ns": "affCasa-2nd-Newsletter",
+              "block": "block_03"
+            }
+          ]
+        },
+        {
+          "id": "x-casatradeaffiliate-2nd-newsletter-header-text-",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text. ${{ affCasa-2nd-Newsletter.block_04 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #3e3752;\n  letter-spacing: 0;\n  line-height: 27px; }\n.text.bold { font-weight: 700; }\n.text.mob-text,\n.img-box { float: none !important;\n  max-width: 232px !important;\n  display: block !important; }\n.small-dot,.text { font-family:Helvetica!important;font-size:18px;line-height:27px;color:#3e3752 }\n.text { letter-spacing:0 }\n.big,.text.bold { font-weight:700 }\n.img-box,.text.mob-text { float:none!important;max-width:232px!important;display:block!important }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_04",
+              "kind": "richText",
+              "label": "Текст affCasa-2nd-Newsletter.block_04",
+              "token": "${{ affCasa-2nd-Newsletter.block_04 }}$",
+              "ns": "affCasa-2nd-Newsletter",
+              "block": "block_04"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-casatradeaffiliate-2nd-newsletter-header-utili",
+      "label": "Спейсер 12px",
+      "placement": "inline",
+      "category": "utility",
+      "kind": "spacer",
+      "sourceFile": "X_CasaTradeAffiliate/mail-2nd-Newsletter/app/templates/blocks/header.jade",
+      "pug": ".h-12 &nbsp;",
+      "styl": ".h-12 { font-size: 8px;\n  line-height: 12px;\n  height: 12px; }\n.h-12,.h-8 { font-size:8px;line-height:8px;height:8px }\n.h-12 { line-height:12px;height:12px }",
+      "classes": [
+        "h-12"
+      ],
+      "designClasses": [
+        "h-12"
+      ],
+      "slots": [],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-casatradeaffiliate-2nd-newsletter-header-text-",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_CasaTradeAffiliate/mail-2nd-Newsletter/app/templates/blocks/header.jade",
+      "pug": "table.row.brad-full.white-bg\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.middle-title.pb32 ${{ affCasa-2nd-Newsletter.block_05 }}$\n                        .line-block\n                            table.w100\n                                tr\n                                    td.pb0.m-w\n                                        a(href=\"#\" target=\"_blank\")\n                                            img.list(src=\"https://fsms.quadcode.com/storage/public/cv/3h/tphmsj7jlq1dg9ig/green.png\")\n                                    td.pb0.w-a.pb24\n                                        p.text ${{ affCasa-2nd-Newsletter.block_06 }}$\n                                            a.link(href=\"#\" target=\"_blank\") ${{ affCasa-2nd-Newsletter.block_07 }}$\n                                            |${{ affCasa-2nd-Newsletter.block_08 }}$\n                            .min-block\n                                table.w100\n                                    tr\n                                        td.pb0.m-w-2(align=\"center\" style=\"vertical-align: middle;\")\n                                            a(href=\"#\" target=\"_blank\")\n                                                img.list-flag(src=\"https://fsms.quadcode.com/storage/public/d0/8u/j5pmsj7rr6s523t0/image.png\")\n                                        td.pb0.w-a(align=\"center\" style=\"vertical-align: middle;\")\n                                            p.text-promo Offers\n                            .h-4 &nbsp;\n                            .min-block-2\n                                table.w100\n                                    tr\n                                        td.pb0.m-w-2(align=\"center\" style=\"vertical-align: middle;\")\n                                            a(href=\"#\" target=\"_blank\")\n                                                img.list-flag(src=\"https://fsms.quadcode.com/storage/public/d0/8u/j5pmsj7rr6s523tg/Label.png\")\n                                        td.pb0.w-a(align=\"left\" style=\"vertical-align: middle;\")\n                                            p.text-promo Promo\n                                        td.pb0.m-w-3(align=\"right\" style=\"vertical-align: middle; text-align: right;\")\n                                            p.little-bottom New\n                            .h-4 &nbsp;\n                            .min-block\n                                table.w100\n                                    tr\n                                        td.pb0.m-w-2(align=\"center\" style=\"vertical-align: middle;\")\n                                            a(href=\"#\" target=\"_blank\")\n                                                img.list-flag(src=\"https://fsms.quadcode.com/storage/public/d0/8u/j5rjqaksmetb062g/wallet.png\")\n                                        td.pb0.w-a(align=\"center\" style=\"vertical-align: middle;\")\n                                            p.text-promo Payments\n                        .h-32 &nbsp;\n                        .line-block\n                            table.w100\n                                tr\n                                    td.pb0.m-w\n                                        a(href=\"#\" target=\"_blank\")\n                                            img.list(src=\"https://fsms.quadcode.com/storage/public/cv/3h/tphmsj7jlq1dg9ig/green.png\")\n                                    td.pb0.w-a.pb24\n                                        p.text ${{ affCasa-2nd-Newsletter.block_09 }}$\n                            a(href=\"#\" target=\"_blank\")\n                                img.center(src=\"https://fsms.quadcode.com/storage/public/d0/8u/j5rjqaksmetb0630/frame-casa.png\")",
+      "styl": ".brad-full { border-radius: 16px !important; }\n.white-bg { background: #fff; }\n.middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #3e3752; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 24px !important;\n    line-height: 32px !important; }\n}\n.text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #3e3752;\n  letter-spacing: 0;\n  line-height: 27px; }\n.text.bold { font-weight: 700; }\n.pb24 { padding-bottom: 24px; }\n.pb32 { padding-bottom: 32px; }\n.pb44 { padding-bottom: 44px; }\n.pt44 { padding-top: 44px; }\n.link { color: #4882ff; }\n.h-4 { font-size: 4px;\n  line-height: 4px;\n  height: 4px; }\n.min-block { padding: 16px 24px; }\n.min-block-2 { padding: 16px 24px;\n  background: #f7f7fc;\n  border-radius: 12px; }\n.h-32 { font-size: 32px;\n  line-height: 32px;\n  height: 32px; }\n.line-block { border-radius: 24px;\n  padding: 24px 32px;\n  border: 1px solid #ececed; }\n.w100 { width: 100%; }\n.text.mob-text,\n.img-box { float: none !important;\n  max-width: 232px !important;\n  display: block !important; }\n.m-w-2 { min-width: 52px !important;\n  width: 52px !important; }\n.m-w-3 { min-width: 56px !important;\n  width: 56px !important;\n  text-align: right !important; }\n.text-promo { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 24px;\n  line-height: 34px;\n  color: #3e3752;\n  word-break: break-word; }\n@media screen and (max-width: 600px) {\n  .text-promo { font-size: 20px !important;\n    line-height: 30px !important; }\n}\n.w-a { width: auto !important;\n  min-width: 50% !important; }\n.m-w { min-width: 48px !important;\n  width: 48px !important; }\n.list { width: 32px !important;\n  float: none; }\n.list-flag { width: 32px !important;\n  float: none; }\n.little-bottom { display: inline-block;\n  padding: 4px 8px;\n  background: #12a557;\n  border-radius: 8px;\n  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #fff; }\n.line-block { padding: 24px 32px;\n  border: 1px solid #ececed;\n  border-radius: 20px; }\n@media screen and (max-width: 600px) {\n  .line-block { padding: 20px !important; }\n}\n.brad-full { border-radius:16px!important }\n.white-bg { background:#fff }\n.middle-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#3e3752 }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:24px!important;line-height:32px!important }\n}\n.small-dot,.text { font-family:Helvetica!important;font-size:18px;line-height:27px;color:#3e3752 }\n.text { letter-spacing:0 }\n.big,.text.bold { font-weight:700 }\n.pb24 { padding-bottom:24px }\n.pb32 { padding-bottom:32px }\n.pb44 { padding-bottom:44px }\n.pt44 { padding-top:44px }\n.link { color:#4882ff }\n.h-4 { font-size:4px;line-height:4px;height:4px }\n.min-block,.min-block-2 { padding:16px 24px }\n.min-block-2 { background:#f7f7fc;border-radius:12px }\n.h-32 { font-size:32px;line-height:32px;height:32px }\n.w100,.w280 { width:100% }\n.img-box,.text.mob-text { float:none!important;max-width:232px!important;display:block!important }\n.m-w-2 { min-width:52px!important;width:52px!important }\n.m-w-3 { min-width:56px!important;width:56px!important;text-align:right!important }\n.text-promo { font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:24px;line-height:34px;color:#3e3752;word-break:break-word }\n@media screen and (max-width:600px) {\n  .text-promo { font-size:20px!important;line-height:30px!important }\n}\n.w-a { width:auto!important;min-width:50%!important }\n.m-w { min-width:48px!important;width:48px!important }\n.list,.list-flag { width:32px!important;float:none }\n.little-bottom { display:inline-block;padding:4px 8px;background:#12a557;border-radius:8px;font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#fff }\n.line-block { padding:24px 32px;border:1px solid #ececed;border-radius:20px }\n@media screen and (max-width:600px) {\n  .line-block { padding:20px!important }\n}",
+      "classes": [
+        "brad-full",
+        "center",
+        "columns",
+        "h-32",
+        "h-4",
+        "last",
+        "line-block",
+        "link",
+        "list",
+        "list-flag",
+        "little-bottom",
+        "m-w",
+        "m-w-2",
+        "m-w-3",
+        "middle-title",
+        "min-block",
+        "min-block-2",
+        "offset-by-one",
+        "pb0",
+        "pb24",
+        "pb32",
+        "pb44",
+        "pt44",
+        "row",
+        "ten",
+        "text",
+        "text-pad-small",
+        "text-promo",
+        "w-a",
+        "w100",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "brad-full",
+        "h-32",
+        "h-4",
+        "line-block",
+        "link",
+        "list",
+        "list-flag",
+        "little-bottom",
+        "m-w",
+        "m-w-2",
+        "m-w-3",
+        "middle-title",
+        "min-block",
+        "min-block-2",
+        "pb24",
+        "pb32",
+        "pb44",
+        "pt44",
+        "text",
+        "text-promo",
+        "w-a",
+        "w100",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_05",
+          "kind": "richText",
+          "label": "Текст affCasa-2nd-Newsletter.block_05",
+          "token": "${{ affCasa-2nd-Newsletter.block_05 }}$",
+          "ns": "affCasa-2nd-Newsletter",
+          "block": "block_05"
+        },
+        {
+          "id": "text_block_06",
+          "kind": "richText",
+          "label": "Текст affCasa-2nd-Newsletter.block_06",
+          "token": "${{ affCasa-2nd-Newsletter.block_06 }}$",
+          "ns": "affCasa-2nd-Newsletter",
+          "block": "block_06"
+        },
+        {
+          "id": "text_block_07",
+          "kind": "richText",
+          "label": "Текст affCasa-2nd-Newsletter.block_07",
+          "token": "${{ affCasa-2nd-Newsletter.block_07 }}$",
+          "ns": "affCasa-2nd-Newsletter",
+          "block": "block_07"
+        },
+        {
+          "id": "text_block_08",
+          "kind": "richText",
+          "label": "Текст affCasa-2nd-Newsletter.block_08",
+          "token": "${{ affCasa-2nd-Newsletter.block_08 }}$",
+          "ns": "affCasa-2nd-Newsletter",
+          "block": "block_08"
+        },
+        {
+          "id": "text_block_09",
+          "kind": "richText",
+          "label": "Текст affCasa-2nd-Newsletter.block_09",
+          "token": "${{ affCasa-2nd-Newsletter.block_09 }}$",
+          "ns": "affCasa-2nd-Newsletter",
+          "block": "block_09"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cv/3h/tphmsj7jlq1dg9ig/green.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d0/8u/j5pmsj7rr6s523t0/image.png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d0/8u/j5pmsj7rr6s523tg/Label.png"
+        },
+        {
+          "id": "image_3",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d0/8u/j5rjqaksmetb062g/wallet.png"
+        },
+        {
+          "id": "image_4",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d0/8u/j5rjqaksmetb0630/frame-casa.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-casatradeaffiliate-2nd-newsletter-header-text-",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.middle-title.pb32 ${{ affCasa-2nd-Newsletter.block_05 }}$",
+          "styl": ".middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #3e3752; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 24px !important;\n    line-height: 32px !important; }\n}\n.pb32 { padding-bottom: 32px; }\n.middle-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#3e3752 }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:24px!important;line-height:32px!important }\n}\n.pb32 { padding-bottom:32px }",
+          "classes": [
+            "middle-title",
+            "pb32"
+          ],
+          "designClasses": [
+            "middle-title",
+            "pb32"
+          ],
+          "slots": [
+            {
+              "id": "text_block_05",
+              "kind": "richText",
+              "label": "Текст affCasa-2nd-Newsletter.block_05",
+              "token": "${{ affCasa-2nd-Newsletter.block_05 }}$",
+              "ns": "affCasa-2nd-Newsletter",
+              "block": "block_05"
+            }
+          ]
+        },
+        {
+          "id": "x-casatradeaffiliate-2nd-newsletter-header-text-",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ affCasa-2nd-Newsletter.block_06 }}$\n    a.link(href=\"#\" target=\"_blank\") ${{ affCasa-2nd-Newsletter.block_07 }}$\n    |${{ affCasa-2nd-Newsletter.block_08 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #3e3752;\n  letter-spacing: 0;\n  line-height: 27px; }\n.text.bold { font-weight: 700; }\n.link { color: #4882ff; }\n.text.mob-text,\n.img-box { float: none !important;\n  max-width: 232px !important;\n  display: block !important; }\n.small-dot,.text { font-family:Helvetica!important;font-size:18px;line-height:27px;color:#3e3752 }\n.text { letter-spacing:0 }\n.big,.text.bold { font-weight:700 }\n.link { color:#4882ff }\n.img-box,.text.mob-text { float:none!important;max-width:232px!important;display:block!important }",
+          "classes": [
+            "link",
+            "text"
+          ],
+          "designClasses": [
+            "link",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_06",
+              "kind": "richText",
+              "label": "Текст affCasa-2nd-Newsletter.block_06",
+              "token": "${{ affCasa-2nd-Newsletter.block_06 }}$",
+              "ns": "affCasa-2nd-Newsletter",
+              "block": "block_06"
+            },
+            {
+              "id": "text_block_07",
+              "kind": "richText",
+              "label": "Текст affCasa-2nd-Newsletter.block_07",
+              "token": "${{ affCasa-2nd-Newsletter.block_07 }}$",
+              "ns": "affCasa-2nd-Newsletter",
+              "block": "block_07"
+            },
+            {
+              "id": "text_block_08",
+              "kind": "richText",
+              "label": "Текст affCasa-2nd-Newsletter.block_08",
+              "token": "${{ affCasa-2nd-Newsletter.block_08 }}$",
+              "ns": "affCasa-2nd-Newsletter",
+              "block": "block_08"
+            }
+          ]
+        },
+        {
+          "id": "x-casatradeaffiliate-2nd-newsletter-header-text-",
+          "label": "Спейсер 4px",
+          "placement": "inline",
+          "category": "utility",
+          "pug": ".h-4 &nbsp;",
+          "styl": ".h-4 { font-size: 4px;\n  line-height: 4px;\n  height: 4px; }\n.h-4 { font-size:4px;line-height:4px;height:4px }",
+          "classes": [
+            "h-4"
+          ],
+          "designClasses": [
+            "h-4"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-casatradeaffiliate-2nd-newsletter-header-text-",
+          "label": "Спейсер 4px",
+          "placement": "inline",
+          "category": "utility",
+          "pug": ".h-4 &nbsp;",
+          "styl": ".h-4 { font-size: 4px;\n  line-height: 4px;\n  height: 4px; }\n.h-4 { font-size:4px;line-height:4px;height:4px }",
+          "classes": [
+            "h-4"
+          ],
+          "designClasses": [
+            "h-4"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-casatradeaffiliate-2nd-newsletter-header-text-",
+          "label": "Спейсер 32px",
+          "placement": "inline",
+          "category": "utility",
+          "pug": ".h-32 &nbsp;",
+          "styl": ".h-32 { font-size: 32px;\n  line-height: 32px;\n  height: 32px; }\n.h-32 { font-size:32px;line-height:32px;height:32px }",
+          "classes": [
+            "h-32"
+          ],
+          "designClasses": [
+            "h-32"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-casatradeaffiliate-2nd-newsletter-header-text-",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ affCasa-2nd-Newsletter.block_09 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #3e3752;\n  letter-spacing: 0;\n  line-height: 27px; }\n.text.bold { font-weight: 700; }\n.text.mob-text,\n.img-box { float: none !important;\n  max-width: 232px !important;\n  display: block !important; }\n.small-dot,.text { font-family:Helvetica!important;font-size:18px;line-height:27px;color:#3e3752 }\n.text { letter-spacing:0 }\n.big,.text.bold { font-weight:700 }\n.img-box,.text.mob-text { float:none!important;max-width:232px!important;display:block!important }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_09",
+              "kind": "richText",
+              "label": "Текст affCasa-2nd-Newsletter.block_09",
+              "token": "${{ affCasa-2nd-Newsletter.block_09 }}$",
+              "ns": "affCasa-2nd-Newsletter",
+              "block": "block_09"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-casatradeaffiliate-2nd-newsletter-header-utili",
+      "label": "Спейсер 12px",
+      "placement": "inline",
+      "category": "utility",
+      "kind": "spacer",
+      "sourceFile": "X_CasaTradeAffiliate/mail-2nd-Newsletter/app/templates/blocks/header.jade",
+      "pug": ".h-12 &nbsp;",
+      "styl": ".h-12 { font-size: 8px;\n  line-height: 12px;\n  height: 12px; }\n.h-12,.h-8 { font-size:8px;line-height:8px;height:8px }\n.h-12 { line-height:12px;height:12px }",
+      "classes": [
+        "h-12"
+      ],
+      "designClasses": [
+        "h-12"
+      ],
+      "slots": [],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-casatradeaffiliate-2nd-newsletter-header-cta-6",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "kind": "section",
+      "sourceFile": "X_CasaTradeAffiliate/mail-2nd-Newsletter/app/templates/blocks/header.jade",
+      "pug": "table.row.brad-full.white-bg(style=\"border: 4px solid #8245EB;\")\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.middle-title.pb32.center${{ affCasa-2nd-Newsletter.block_10 }}$\n                        a(href=\"#\" target=\"_blank\")\n                            img.center(src=\"https://fsms.quadcode.com/storage/public/d0/8u/j5rjqaksmetb063g/casa-bottom.png\")\n                        p.text.pt32.pb40 ${{ affCasa-2nd-Newsletter.block_11 }}$\n                        table.w280.center\n                            tr\n                                td.butt.pb0(align=\"center\")\n                                    a.butt-link(href=\"https://partner.casatrade.com/contests/upcoming\" target=\"_blank\") ${{ affCasa-2nd-Newsletter.block_12 }}$",
+      "styl": ".brad-full { border-radius: 16px !important; }\n.butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f7f7fc;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.white-bg { background: #fff; }\n.middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #3e3752; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 24px !important;\n    line-height: 32px !important; }\n}\n.text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #3e3752;\n  letter-spacing: 0;\n  line-height: 27px; }\n.text.bold { font-weight: 700; }\n.pb32 { padding-bottom: 32px; }\n.pb44 { padding-bottom: 44px; }\n.pt32 { padding-top: 32px; }\n.pt44 { padding-top: 44px; }\n.w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { min-width: 100% !important; }\n}\n.text.mob-text,\n.img-box { float: none !important;\n  max-width: 232px !important;\n  display: block !important; }\n.brad-full { border-radius:16px!important }\n.butt-link,.butt-link-2 { font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#2f3749;display:block;line-height:27px;padding:16px 0;text-align:center;letter-spacing:0 }\n.butt-link { color:#f7f7fc }\n.white-bg { background:#fff }\n.middle-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#3e3752 }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:24px!important;line-height:32px!important }\n}\n.small-dot,.text { font-family:Helvetica!important;font-size:18px;line-height:27px;color:#3e3752 }\n.text { letter-spacing:0 }\n.big,.text.bold { font-weight:700 }\n.pb32 { padding-bottom:32px }\n.pb44 { padding-bottom:44px }\n.pt32 { padding-top:32px }\n.pt44 { padding-top:44px }\n.w100,.w280 { width:100% }\n.w280 { max-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { min-width:100%!important }\n}\n.img-box,.text.mob-text { float:none!important;max-width:232px!important;display:block!important }",
+      "classes": [
+        "brad-full",
+        "butt",
+        "butt-link",
+        "center",
+        "columns",
+        "last",
+        "middle-title",
+        "offset-by-one",
+        "pb0",
+        "pb32",
+        "pb40",
+        "pb44",
+        "pt32",
+        "pt44",
+        "row",
+        "ten",
+        "text",
+        "text-pad-small",
+        "w280",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "brad-full",
+        "butt-link",
+        "middle-title",
+        "pb32",
+        "pb44",
+        "pt32",
+        "pt44",
+        "text",
+        "w280",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_10",
+          "kind": "richText",
+          "label": "Текст affCasa-2nd-Newsletter.block_10",
+          "token": "${{ affCasa-2nd-Newsletter.block_10 }}$",
+          "ns": "affCasa-2nd-Newsletter",
+          "block": "block_10"
+        },
+        {
+          "id": "text_block_11",
+          "kind": "richText",
+          "label": "Текст affCasa-2nd-Newsletter.block_11",
+          "token": "${{ affCasa-2nd-Newsletter.block_11 }}$",
+          "ns": "affCasa-2nd-Newsletter",
+          "block": "block_11"
+        },
+        {
+          "id": "text_block_12",
+          "kind": "richText",
+          "label": "Текст affCasa-2nd-Newsletter.block_12",
+          "token": "${{ affCasa-2nd-Newsletter.block_12 }}$",
+          "ns": "affCasa-2nd-Newsletter",
+          "block": "block_12"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://partner.casatrade.com/contests/upcoming"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d0/8u/j5rjqaksmetb063g/casa-bottom.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-casatradeaffiliate-2nd-newsletter-header-cta-6",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.middle-title.pb32.center${{ affCasa-2nd-Newsletter.block_10 }}$",
+          "styl": ".middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #3e3752; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 24px !important;\n    line-height: 32px !important; }\n}\n.pb32 { padding-bottom: 32px; }\n.middle-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#3e3752 }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:24px!important;line-height:32px!important }\n}\n.pb32 { padding-bottom:32px }",
+          "classes": [
+            "center",
+            "middle-title",
+            "pb32"
+          ],
+          "designClasses": [
+            "middle-title",
+            "pb32"
+          ],
+          "slots": [
+            {
+              "id": "text_block_10",
+              "kind": "richText",
+              "label": "Текст affCasa-2nd-Newsletter.block_10",
+              "token": "${{ affCasa-2nd-Newsletter.block_10 }}$",
+              "ns": "affCasa-2nd-Newsletter",
+              "block": "block_10"
+            }
+          ]
+        },
+        {
+          "id": "x-casatradeaffiliate-2nd-newsletter-header-cta-6",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pt32.pb40 ${{ affCasa-2nd-Newsletter.block_11 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #3e3752;\n  letter-spacing: 0;\n  line-height: 27px; }\n.text.bold { font-weight: 700; }\n.pt32 { padding-top: 32px; }\n.text.mob-text,\n.img-box { float: none !important;\n  max-width: 232px !important;\n  display: block !important; }\n.small-dot,.text { font-family:Helvetica!important;font-size:18px;line-height:27px;color:#3e3752 }\n.text { letter-spacing:0 }\n.big,.text.bold { font-weight:700 }\n.pt32 { padding-top:32px }\n.img-box,.text.mob-text { float:none!important;max-width:232px!important;display:block!important }",
+          "classes": [
+            "pb40",
+            "pt32",
+            "text"
+          ],
+          "designClasses": [
+            "pt32",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_11",
+              "kind": "richText",
+              "label": "Текст affCasa-2nd-Newsletter.block_11",
+              "token": "${{ affCasa-2nd-Newsletter.block_11 }}$",
+              "ns": "affCasa-2nd-Newsletter",
+              "block": "block_11"
+            }
+          ]
+        },
+        {
+          "id": "x-casatradeaffiliate-2nd-newsletter-header-cta-6",
+          "label": "CTA-кнопка (w280)",
+          "placement": "inline",
+          "category": "cta",
+          "pug": "table.w280.center\n    tr\n        td.butt.pb0(align=\"center\")\n            a.butt-link(href=\"https://partner.casatrade.com/contests/upcoming\" target=\"_blank\") ${{ affCasa-2nd-Newsletter.block_12 }}$",
+          "styl": ".butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f7f7fc;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { min-width: 100% !important; }\n}\n.butt-link,.butt-link-2 { font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#2f3749;display:block;line-height:27px;padding:16px 0;text-align:center;letter-spacing:0 }\n.butt-link { color:#f7f7fc }\n.w100,.w280 { width:100% }\n.w280 { max-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { min-width:100%!important }\n}",
+          "classes": [
+            "butt",
+            "butt-link",
+            "center",
+            "pb0",
+            "w280"
+          ],
+          "designClasses": [
+            "butt-link",
+            "w280"
+          ],
+          "slots": [
+            {
+              "id": "text_block_12",
+              "kind": "richText",
+              "label": "Текст affCasa-2nd-Newsletter.block_12",
+              "token": "${{ affCasa-2nd-Newsletter.block_12 }}$",
+              "ns": "affCasa-2nd-Newsletter",
+              "block": "block_12"
+            },
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://partner.casatrade.com/contests/upcoming"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-casatradeaffiliate-2nd-newsletter-header-utili",
+      "label": "Спейсер 12px",
+      "placement": "inline",
+      "category": "utility",
+      "kind": "spacer",
+      "sourceFile": "X_CasaTradeAffiliate/mail-2nd-Newsletter/app/templates/blocks/header.jade",
+      "pug": ".h-12 &nbsp;",
+      "styl": ".h-12 { font-size: 8px;\n  line-height: 12px;\n  height: 12px; }\n.h-12,.h-8 { font-size:8px;line-height:8px;height:8px }\n.h-12 { line-height:12px;height:12px }",
+      "classes": [
+        "h-12"
+      ],
+      "designClasses": [
+        "h-12"
+      ],
+      "slots": [],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-casatradeaffiliate-2nd-newsletter-header-cta-8",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "kind": "section",
+      "sourceFile": "X_CasaTradeAffiliate/mail-2nd-Newsletter/app/templates/blocks/header.jade",
+      "pug": "table.row.brad-full.white-bg\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.middle-title.pb32 ${{ affCasa-2nd-Newsletter.block_13 }}$\n                        .purple-block\n                            p.left-text\n                                span.pt8 1.\n                                |${{ affCasa-2nd-Newsletter.block_14 }}$\n                            p.right-text ${{ affCasa-2nd-Newsletter.block_15 }}$\n                        .h-4 &nbsp;\n                        .purple-block-none\n                            p.left-text\n                                span.pt8 2.\n                                |${{ affCasa-2nd-Newsletter.block_16 }}$\n                            p.right-text ${{ affCasa-2nd-Newsletter.block_17 }}$\n                        .h-4 &nbsp;\n                        .purple-block\n                            p.left-text\n                                span.pt8 3.\n                                |${{ affCasa-2nd-Newsletter.block_18 }}$\n                            p.right-text ${{ affCasa-2nd-Newsletter.block_19 }}$\n                        p.text.pt32.pb32 ${{ affCasa-2nd-Newsletter.block_20 }}$\n                        .purple-block-colourful\n                            p.text.center.pb32 ${{ affCasa-2nd-Newsletter.block_20 }}$\n                            table.w280.center\n                                tr\n                                    td.butt.pb0(align=\"center\")\n                                        a.butt-link(href=\"https://partner.casatrade.com/contests/upcoming\" target=\"_blank\") ${{ affCasa-2nd-Newsletter.block_21 }}$",
+      "styl": ".brad-full { border-radius: 16px !important; }\n.butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f7f7fc;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.white-bg { background: #fff; }\n.middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #3e3752; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 24px !important;\n    line-height: 32px !important; }\n}\n.text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #3e3752;\n  letter-spacing: 0;\n  line-height: 27px; }\n.text.bold { font-weight: 700; }\n.pb32 { padding-bottom: 32px; }\n.pb44 { padding-bottom: 44px; }\n.pt32 { padding-top: 32px; }\n.pt44 { padding-top: 44px; }\n.h-4 { font-size: 4px;\n  line-height: 4px;\n  height: 4px; }\n.w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { min-width: 100% !important; }\n}\n.text.mob-text,\n.img-box { float: none !important;\n  max-width: 232px !important;\n  display: block !important; }\n.purple-block { padding: 24px;\n  background: #f7f7fc;\n  border-radius: 24px; }\n.purple-block-none { padding: 24px;\n  border-radius: 24px; }\n.purple-block-colourful { padding: 32px;\n  background: #e8e1ff;\n  border-radius: 16px; }\n.pt8 { padding-right: 8px; }\n.left-text { display: inline-block;\n  width: 38%;\n  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 18px;\n  line-height: 27px;\n  color: #393a44;\n  padding-right: 8px;\n  vertical-align: top; }\n@media screen and (max-width: 600px) {\n  .left-text { width: 100% !important;\n    padding-right: 0 !important;\n    padding-bottom: 12px !important; }\n}\n.right-text { display: inline-block;\n  width: 58%;\n  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #393a44;\n  vertical-align: top; }\n@media screen and (max-width: 600px) {\n  .right-text { width: 100% !important; }\n}\n.brad-full { border-radius:16px!important }\n.butt-link,.butt-link-2 { font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#2f3749;display:block;line-height:27px;padding:16px 0;text-align:center;letter-spacing:0 }\n.butt-link { color:#f7f7fc }\n.white-bg { background:#fff }\n.middle-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#3e3752 }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:24px!important;line-height:32px!important }\n}\n.small-dot,.text { font-family:Helvetica!important;font-size:18px;line-height:27px;color:#3e3752 }\n.text { letter-spacing:0 }\n.big,.text.bold { font-weight:700 }\n.pb32 { padding-bottom:32px }\n.pb44 { padding-bottom:44px }\n.pt32 { padding-top:32px }\n.pt44 { padding-top:44px }\n.h-4 { font-size:4px;line-height:4px;height:4px }\n.w100,.w280 { width:100% }\n.w280 { max-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { min-width:100%!important }\n}\n.img-box,.text.mob-text { float:none!important;max-width:232px!important;display:block!important }\n.purple-block { background:#f7f7fc }\n.purple-block,.purple-block-none { padding:24px;border-radius:24px }\n.purple-block-colourful { padding:32px;background:#e8e1ff;border-radius:16px }\n.left-text,.pt8 { padding-right:8px }\n.left-text { display:inline-block;width:38%;font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:18px;line-height:27px;color:#393a44;vertical-align:top }\n@media screen and (max-width:600px) {\n  .left-text { width:100%!important;padding-right:0!important;padding-bottom:12px!important }\n}\n.right-text { display:inline-block;width:58%;font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#393a44;vertical-align:top }\n@media screen and (max-width:600px) {\n  .right-text { width:100%!important }\n}",
+      "classes": [
+        "brad-full",
+        "butt",
+        "butt-link",
+        "center",
+        "columns",
+        "h-4",
+        "last",
+        "left-text",
+        "middle-title",
+        "offset-by-one",
+        "pb0",
+        "pb32",
+        "pb44",
+        "pt32",
+        "pt44",
+        "pt8",
+        "purple-block",
+        "purple-block-colourful",
+        "purple-block-none",
+        "right-text",
+        "row",
+        "ten",
+        "text",
+        "text-pad-small",
+        "w280",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "brad-full",
+        "butt-link",
+        "h-4",
+        "left-text",
+        "middle-title",
+        "pb32",
+        "pb44",
+        "pt32",
+        "pt44",
+        "pt8",
+        "purple-block",
+        "purple-block-colourful",
+        "purple-block-none",
+        "right-text",
+        "text",
+        "w280",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_13",
+          "kind": "richText",
+          "label": "Текст affCasa-2nd-Newsletter.block_13",
+          "token": "${{ affCasa-2nd-Newsletter.block_13 }}$",
+          "ns": "affCasa-2nd-Newsletter",
+          "block": "block_13"
+        },
+        {
+          "id": "text_block_14",
+          "kind": "richText",
+          "label": "Текст affCasa-2nd-Newsletter.block_14",
+          "token": "${{ affCasa-2nd-Newsletter.block_14 }}$",
+          "ns": "affCasa-2nd-Newsletter",
+          "block": "block_14"
+        },
+        {
+          "id": "text_block_15",
+          "kind": "richText",
+          "label": "Текст affCasa-2nd-Newsletter.block_15",
+          "token": "${{ affCasa-2nd-Newsletter.block_15 }}$",
+          "ns": "affCasa-2nd-Newsletter",
+          "block": "block_15"
+        },
+        {
+          "id": "text_block_16",
+          "kind": "richText",
+          "label": "Текст affCasa-2nd-Newsletter.block_16",
+          "token": "${{ affCasa-2nd-Newsletter.block_16 }}$",
+          "ns": "affCasa-2nd-Newsletter",
+          "block": "block_16"
+        },
+        {
+          "id": "text_block_17",
+          "kind": "richText",
+          "label": "Текст affCasa-2nd-Newsletter.block_17",
+          "token": "${{ affCasa-2nd-Newsletter.block_17 }}$",
+          "ns": "affCasa-2nd-Newsletter",
+          "block": "block_17"
+        },
+        {
+          "id": "text_block_18",
+          "kind": "richText",
+          "label": "Текст affCasa-2nd-Newsletter.block_18",
+          "token": "${{ affCasa-2nd-Newsletter.block_18 }}$",
+          "ns": "affCasa-2nd-Newsletter",
+          "block": "block_18"
+        },
+        {
+          "id": "text_block_19",
+          "kind": "richText",
+          "label": "Текст affCasa-2nd-Newsletter.block_19",
+          "token": "${{ affCasa-2nd-Newsletter.block_19 }}$",
+          "ns": "affCasa-2nd-Newsletter",
+          "block": "block_19"
+        },
+        {
+          "id": "text_block_20",
+          "kind": "richText",
+          "label": "Текст affCasa-2nd-Newsletter.block_20",
+          "token": "${{ affCasa-2nd-Newsletter.block_20 }}$",
+          "ns": "affCasa-2nd-Newsletter",
+          "block": "block_20"
+        },
+        {
+          "id": "text_block_21",
+          "kind": "richText",
+          "label": "Текст affCasa-2nd-Newsletter.block_21",
+          "token": "${{ affCasa-2nd-Newsletter.block_21 }}$",
+          "ns": "affCasa-2nd-Newsletter",
+          "block": "block_21"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://partner.casatrade.com/contests/upcoming"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-casatradeaffiliate-2nd-newsletter-header-cta-8",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.middle-title.pb32 ${{ affCasa-2nd-Newsletter.block_13 }}$",
+          "styl": ".middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #3e3752; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 24px !important;\n    line-height: 32px !important; }\n}\n.pb32 { padding-bottom: 32px; }\n.middle-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#3e3752 }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:24px!important;line-height:32px!important }\n}\n.pb32 { padding-bottom:32px }",
+          "classes": [
+            "middle-title",
+            "pb32"
+          ],
+          "designClasses": [
+            "middle-title",
+            "pb32"
+          ],
+          "slots": [
+            {
+              "id": "text_block_13",
+              "kind": "richText",
+              "label": "Текст affCasa-2nd-Newsletter.block_13",
+              "token": "${{ affCasa-2nd-Newsletter.block_13 }}$",
+              "ns": "affCasa-2nd-Newsletter",
+              "block": "block_13"
+            }
+          ]
+        },
+        {
+          "id": "x-casatradeaffiliate-2nd-newsletter-header-cta-8",
+          "label": "Спейсер 4px",
+          "placement": "inline",
+          "category": "utility",
+          "pug": ".h-4 &nbsp;",
+          "styl": ".h-4 { font-size: 4px;\n  line-height: 4px;\n  height: 4px; }\n.h-4 { font-size:4px;line-height:4px;height:4px }",
+          "classes": [
+            "h-4"
+          ],
+          "designClasses": [
+            "h-4"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-casatradeaffiliate-2nd-newsletter-header-cta-8",
+          "label": "Спейсер 4px",
+          "placement": "inline",
+          "category": "utility",
+          "pug": ".h-4 &nbsp;",
+          "styl": ".h-4 { font-size: 4px;\n  line-height: 4px;\n  height: 4px; }\n.h-4 { font-size:4px;line-height:4px;height:4px }",
+          "classes": [
+            "h-4"
+          ],
+          "designClasses": [
+            "h-4"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-casatradeaffiliate-2nd-newsletter-header-cta-8",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pt32.pb32 ${{ affCasa-2nd-Newsletter.block_20 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #3e3752;\n  letter-spacing: 0;\n  line-height: 27px; }\n.text.bold { font-weight: 700; }\n.pb32 { padding-bottom: 32px; }\n.pt32 { padding-top: 32px; }\n.text.mob-text,\n.img-box { float: none !important;\n  max-width: 232px !important;\n  display: block !important; }\n.small-dot,.text { font-family:Helvetica!important;font-size:18px;line-height:27px;color:#3e3752 }\n.text { letter-spacing:0 }\n.big,.text.bold { font-weight:700 }\n.pb32 { padding-bottom:32px }\n.pt32 { padding-top:32px }\n.img-box,.text.mob-text { float:none!important;max-width:232px!important;display:block!important }",
+          "classes": [
+            "pb32",
+            "pt32",
+            "text"
+          ],
+          "designClasses": [
+            "pb32",
+            "pt32",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_20",
+              "kind": "richText",
+              "label": "Текст affCasa-2nd-Newsletter.block_20",
+              "token": "${{ affCasa-2nd-Newsletter.block_20 }}$",
+              "ns": "affCasa-2nd-Newsletter",
+              "block": "block_20"
+            }
+          ]
+        },
+        {
+          "id": "x-casatradeaffiliate-2nd-newsletter-header-cta-8",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.center.pb32 ${{ affCasa-2nd-Newsletter.block_20 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #3e3752;\n  letter-spacing: 0;\n  line-height: 27px; }\n.text.bold { font-weight: 700; }\n.pb32 { padding-bottom: 32px; }\n.text.mob-text,\n.img-box { float: none !important;\n  max-width: 232px !important;\n  display: block !important; }\n.small-dot,.text { font-family:Helvetica!important;font-size:18px;line-height:27px;color:#3e3752 }\n.text { letter-spacing:0 }\n.big,.text.bold { font-weight:700 }\n.pb32 { padding-bottom:32px }\n.img-box,.text.mob-text { float:none!important;max-width:232px!important;display:block!important }",
+          "classes": [
+            "center",
+            "pb32",
+            "text"
+          ],
+          "designClasses": [
+            "pb32",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_20",
+              "kind": "richText",
+              "label": "Текст affCasa-2nd-Newsletter.block_20",
+              "token": "${{ affCasa-2nd-Newsletter.block_20 }}$",
+              "ns": "affCasa-2nd-Newsletter",
+              "block": "block_20"
+            }
+          ]
+        },
+        {
+          "id": "x-casatradeaffiliate-2nd-newsletter-header-cta-8",
+          "label": "CTA-кнопка (w280)",
+          "placement": "inline",
+          "category": "cta",
+          "pug": "table.w280.center\n    tr\n        td.butt.pb0(align=\"center\")\n            a.butt-link(href=\"https://partner.casatrade.com/contests/upcoming\" target=\"_blank\") ${{ affCasa-2nd-Newsletter.block_21 }}$",
+          "styl": ".butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f7f7fc;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { min-width: 100% !important; }\n}\n.butt-link,.butt-link-2 { font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#2f3749;display:block;line-height:27px;padding:16px 0;text-align:center;letter-spacing:0 }\n.butt-link { color:#f7f7fc }\n.w100,.w280 { width:100% }\n.w280 { max-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { min-width:100%!important }\n}",
+          "classes": [
+            "butt",
+            "butt-link",
+            "center",
+            "pb0",
+            "w280"
+          ],
+          "designClasses": [
+            "butt-link",
+            "w280"
+          ],
+          "slots": [
+            {
+              "id": "text_block_21",
+              "kind": "richText",
+              "label": "Текст affCasa-2nd-Newsletter.block_21",
+              "token": "${{ affCasa-2nd-Newsletter.block_21 }}$",
+              "ns": "affCasa-2nd-Newsletter",
+              "block": "block_21"
+            },
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://partner.casatrade.com/contests/upcoming"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

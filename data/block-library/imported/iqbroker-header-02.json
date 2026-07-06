@@ -1,0 +1,41 @@
+{
+  "id": "iqbroker-header-02",
+  "label": "Шапка с логотипом",
+  "description": "Импортирован из X_IQBroker (6 писем). Секция.",
+  "placement": "section",
+  "category": "header",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.b-iqbroker-header-02\n    tr\n        td.wrapper.last.offset-by-one.pt0\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb0\n                        a(href=\"{{ href_1 }}\" universal=\"true\" target=\"_blank\")\n                            img.logo.center(src=\"{{ image_1 }}\")",
+  "styl": "",
+  "slots": [
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://api.trade.iqbroker.com/v1/multi-links/open-asset?aff=7&afftrack=mail_faq&retrack=mail_faq&type=forex&asset=1"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/d5/ss/e6gggnfnh4cs771g/logo-broker.png"
+    }
+  ],
+  "tags": [
+    "header",
+    "section",
+    "X_IQBroker"
+  ],
+  "usageCount": 6,
+  "sourceMails": [
+    "X_IQBroker/mail-FAQ",
+    "X_IQBroker/mail-strategies",
+    "X_IQBroker/mail-success",
+    "X_IQBroker/mail-tools",
+    "X_IQBroker/mail-welcome",
+    "X_IQBroker/mail-welcome-test-clone"
+  ],
+  "createdAt": "2026-07-06T12:09:51.734Z",
+  "validated": true
+}

@@ -1,0 +1,23 @@
+{
+  "id": "system-text-52",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_System (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.b-system-text-52 Your new account manager will contact you to introduce themselves and to check if you have any concerns or issues you need resolved. Should you wish to discuss this further, please do not hesitate to contact us using the same method as before. You can request a callback or contact your account manager in chat.",
+  "styl": ".text.b-system-text-52 {  color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px  }\n@media screen and (max-width:600px) {\n  .text.b-system-text-52 {  padding-left:20px!important;padding-right:20px!important  }\n}\n.text.b-system-text-52 a {  color:#2473d7;text-decoration:underline  }\n.text.bold.b-system-text-52 {  font-weight:700  }",
+  "slots": [],
+  "tags": [
+    "text",
+    "inline",
+    "X_System"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_System/mail-es"
+  ],
+  "createdAt": "2026-07-06T12:09:59.369Z",
+  "validated": true
+}

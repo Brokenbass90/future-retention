@@ -1,0 +1,23 @@
+{
+  "id": "system-text-51",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_System (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.b-system-text-51 Your list of expectations will remain the same; questions and issues will be rectified by your account manager, personal coaching and development sessions and updates with regards to market updates and new platform features.",
+  "styl": ".text.b-system-text-51 {  color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px  }\n@media screen and (max-width:600px) {\n  .text.b-system-text-51 {  padding-left:20px!important;padding-right:20px!important  }\n}\n.text.b-system-text-51 a {  color:#2473d7;text-decoration:underline  }\n.text.bold.b-system-text-51 {  font-weight:700  }",
+  "slots": [],
+  "tags": [
+    "text",
+    "inline",
+    "X_System"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_System/mail-es"
+  ],
+  "createdAt": "2026-07-06T12:09:59.369Z",
+  "validated": true
+}

@@ -1,0 +1,72 @@
+{
+  "id": "system-text-59",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_System (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.b-system-text-59\n    tr\n        td.offset-by-one\n            table.ten.columns\n                tr\n                    td.no-padding-bottom\n                        p.title.center {{ text_1 }}\n                        p.text {{ text_2 }}&nbsp;\n                            a(href=\"{{ href_1 }}\", target=\"_blank\") {{ text_3 }}\n                            | &nbsp;{{ text_4 }}&nbsp;\n                            a(href=\"{{ href_2 }}\", target=\"_blank\") {{ text_5 }}\n                            | &nbsp;{{ text_6 }}",
+  "styl": ".white-bg.b-system-text-59 {  background:#fff  }\n.b-system-text-59 .title {  font-family:Arial!important;color:#f16722;font-size:24px;font-weight:500;line-height:32px;padding-top:30px;padding-bottom:25px  }\n@media screen and (max-width:600px) {\n  .b-system-text-59 .title {  padding-left:20px!important;padding-right:20px!important  }\n}\n.b-system-text-59 .text {  font-family:Arial!important;color:#5b6e88;font-size:16px;font-weight:400;line-height:26px;padding-bottom:20px  }\n@media screen and (max-width:600px) {\n  .b-system-text-59 .text {  padding-left:20px!important;padding-right:20px!important  }\n}\n.b-system-text-59 .grey-text a, .b-system-text-59 .text a {  color:#0b8bd8;text-decoration:underline  }\n.b-system-text-59 .text.bold {  font-weight:700  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://eu.iqoption.com/terms-and-conditions/terms-conditions"
+    },
+    {
+      "id": "href_2",
+      "kind": "url",
+      "label": "Ссылка 2",
+      "default": "https://eu.iqoption.com/terms-and-conditions/privacy-policy-new"
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_System"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_System/mail-gdrp"
+  ],
+  "createdAt": "2026-07-06T12:09:59.369Z",
+  "validated": true
+}

@@ -1,0 +1,179 @@
+{
+  "category": "X_System",
+  "mailId": "es",
+  "mailAbs": "email-base/X_System/mail-es",
+  "blockCount": 2,
+  "blocks": [
+    {
+      "id": "x-system-es-header-header-0",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "kind": "section",
+      "sourceFile": "X_System/mail-es/app/templates/blocks/header.jade",
+      "pug": "table.row.header\n    tr\n        td.wrapper\n            table.six.columns\n                tr\n                    td.left\n                        a(href=\"https://iqoption.com/traderoom/?aff=7&afftrack=mail&retrack=es\", target=\"_blank\")\n                            img.logo(src=\"https://images01.iqoption.com/89/0689/static-01503674720413810689.png\")\n        td.wrapper.last.hide-for-small\n            table.three.columns\n                tr\n                    td.apps\n                        a(href=\"https://app.appsflyer.com/id871125783?pid=7&c=mail\")\n                            img.app_btn(src=\"https://images01.iqoption.com/21/8721/static-00636246823765278721.png\")\n        td.wrapper.last.hide-for-small\n            table.three.columns\n                tr\n                    td.apps\n                        a(href=\"https://app.appsflyer.com/com.iqoption?pid=7&c=mail\")\n                            img.app_btn(src=\"https://images01.iqoption.com/17/9217/static-01920501695922569217.png\")",
+      "styl": "table.row.header { background:#f6f9fc url(https://images01.iqoption.com/01/5201/static-00115704862028595201.png) center top no-repeat;height:113px }\n.app_btn { width:116px;height:34px;padding-top:30px }",
+      "classes": [
+        "app_btn",
+        "apps",
+        "columns",
+        "header",
+        "hide-for-small",
+        "last",
+        "left",
+        "logo",
+        "row",
+        "six",
+        "three",
+        "wrapper"
+      ],
+      "designClasses": [
+        "app_btn",
+        "apps",
+        "header"
+      ],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://iqoption.com/traderoom/?aff=7&afftrack=mail&retrack=es"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://app.appsflyer.com/id871125783?pid=7&c=mail"
+        },
+        {
+          "id": "href_2",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://app.appsflyer.com/com.iqoption?pid=7&c=mail"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://images01.iqoption.com/89/0689/static-01503674720413810689.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://images01.iqoption.com/21/8721/static-00636246823765278721.png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://images01.iqoption.com/17/9217/static-01920501695922569217.png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-system-es-header-text-1",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_System/mail-es/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg\n    tr\n        td.offset-by-one\n            table.ten.columns\n                tr\n                    td.no-padding-bottom\n                        p.title Dear Trader,\n                        p.text I hope this email finds you well,\n                            br\n                            | An update regarding your current IQ Option personal account manager.\n                            br\n                            | We would like to inform you that you will be getting a new account manager during the day.\n                        p.text Your list of expectations will remain the same; questions and issues will be rectified by your account manager, personal coaching and development sessions and updates with regards to market updates and new platform features.\n                        p.text Your new account manager will contact you to introduce themselves and to check if you have any concerns or issues you need resolved. Should you wish to discuss this further, please do not hesitate to contact us using the same method as before. You can request a callback or contact your account manager in chat.\n                        p.text Best regards\n                            br\n                            | IQ Option",
+      "styl": ".white-bg { background:#fff }\n.title { color:#2473d7;font-size:24px;font-weight:500;line-height:32px;padding-top:30px;padding-bottom:25px }\n@media screen and (max-width:600px) {\n  .title { padding-left:20px!important;padding-right:20px!important }\n}\n.text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }",
+      "classes": [
+        "columns",
+        "no-padding-bottom",
+        "offset-by-one",
+        "row",
+        "ten",
+        "text",
+        "title",
+        "white-bg"
+      ],
+      "designClasses": [
+        "text",
+        "title",
+        "white-bg"
+      ],
+      "slots": [],
+      "inlineChildren": [
+        {
+          "id": "x-system-es-header-text-1-heading-0",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.title Dear Trader,",
+          "styl": ".title { color:#2473d7;font-size:24px;font-weight:500;line-height:32px;padding-top:30px;padding-bottom:25px }\n@media screen and (max-width:600px) {\n  .title { padding-left:20px!important;padding-right:20px!important }\n}",
+          "classes": [
+            "title"
+          ],
+          "designClasses": [
+            "title"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-system-es-header-text-1-paragraph-1",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text I hope this email finds you well,\n    br\n    | An update regarding your current IQ Option personal account manager.\n    br\n    | We would like to inform you that you will be getting a new account manager during the day.",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-system-es-header-text-1-paragraph-2",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text Your list of expectations will remain the same; questions and issues will be rectified by your account manager, personal coaching and development sessions and updates with regards to market updates and new platform features.",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-system-es-header-text-1-paragraph-3",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text Your new account manager will contact you to introduce themselves and to check if you have any concerns or issues you need resolved. Should you wish to discuss this further, please do not hesitate to contact us using the same method as before. You can request a callback or contact your account manager in chat.",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-system-es-header-text-1-paragraph-4",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text Best regards\n    br\n    | IQ Option",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": []
+        }
+      ]
+    }
+  ]
+}

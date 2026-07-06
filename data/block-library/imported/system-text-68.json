@@ -1,0 +1,54 @@
+{
+  "id": "system-text-68",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_System (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.b-system-text-68\n    tr\n        td.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small\n                        p.grey-text.center.pb20 {{ text_1 }}&nbsp;\n                            a(href=\"{{ href_1 }}\", target=\"_blank\") {{ text_2 }}\n                            | &nbsp;{{ text_3 }}\n                        p.blue-text.center {{ text_4 }}",
+  "styl": ".white-bg.b-system-text-68 {  background:#fff  }\n.b-system-text-68 .grey-text a, .b-system-text-68 .text a {  color:#0b8bd8;text-decoration:underline  }\n.b-system-text-68 .blue-text, .b-system-text-68 .grey-text, .b-system-text-68 .orange-text {  font-family:Arial!important;color:#f50;font-weight:500;font-size:20px;line-height:30px  }\n.b-system-text-68 .blue-text, .b-system-text-68 .grey-text {  color:#6e829a;font-size:16px;line-height:24px;font-weight:400  }\n.b-system-text-68 .blue-text {  color:#2c89df;font-size:24px;line-height:32px;font-weight:700  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://iqoption.com/tickets"
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_System"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_System/mail-gdrp"
+  ],
+  "createdAt": "2026-07-06T12:09:59.369Z",
+  "validated": true
+}

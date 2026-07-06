@@ -1,0 +1,877 @@
+{
+  "category": "X_new",
+  "mailId": "PWA-2",
+  "mailAbs": "email-base/X_new/mail-PWA-2",
+  "blockCount": 7,
+  "blocks": [
+    {
+      "id": "x-new-pwa-2-header-header-0",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "kind": "section",
+      "sourceFile": "X_new/mail-PWA-2/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.offset-by-one.last.pt0\n            table.ten.columns\n                tr\n                    td.six.sub-columns.pt0.pb0\n                        a(href=\"https://affstore.com\" target=\"_blank\")\n                            img.logo.center(src=\"https://fsms.quadcode.com/storage/public/cn/9i/i4285cee2vclvf1g/logo-affstore-shadow.png\")",
+      "styl": "",
+      "classes": [
+        "center",
+        "columns",
+        "last",
+        "logo",
+        "offset-by-one",
+        "pb0",
+        "pt0",
+        "row",
+        "six",
+        "sub-columns",
+        "ten",
+        "wrapper"
+      ],
+      "designClasses": [],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://affstore.com"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cn/9i/i4285cee2vclvf1g/logo-affstore-shadow.png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-new-pwa-2-header-section-1",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "kind": "section",
+      "sourceFile": "X_new/mail-PWA-2/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.offset-by-one.pt10\n            table.ten.columns\n                tr\n                    td.pb0\n                        p.title-top.center.pt24 ${{ aff-PWA-2.block_01 }}$\n                        p.title-top.center.pb24 ${{ aff-PWA-2.block_02 }}$\n    tr\n        td.wrapper.last.pt0\n            table.welve.columns\n                tr\n                    td.pb0.text-pad-small\n                        a(href=\"#\" target=\"_blank\")\n                            img.center(src=\"https://fsms.quadcode.com/storage/public/cs/gb/rm6di3umufauu7u0/container (8).png\")",
+      "styl": ".title-top { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 56px;\n  line-height: 67px;\n  color: #413e43; }\n@media screen and (max-width: 600px) {\n  .title-top { font-size: 28px !important;\n    line-height: 36px !important; }\n}\n.pt24 { padding-top: 24px; }\n.pb24 { padding-bottom: 24px; }\n.title-top { font-family:Helvetica!important;font-weight:700;font-size:56px;line-height:67px;color:#413e43 }\n@media screen and (max-width:600px) {\n  .title-top { font-size:28px!important;line-height:36px!important }\n}\n.pb24 { padding-bottom:24px }\n.pt24 { padding-top:24px }",
+      "classes": [
+        "center",
+        "columns",
+        "last",
+        "offset-by-one",
+        "pb0",
+        "pb24",
+        "pt0",
+        "pt10",
+        "pt24",
+        "row",
+        "ten",
+        "text-pad-small",
+        "title-top",
+        "welve",
+        "wrapper"
+      ],
+      "designClasses": [
+        "pb24",
+        "pt24",
+        "title-top",
+        "welve"
+      ],
+      "slots": [
+        {
+          "id": "text_block_01",
+          "kind": "richText",
+          "label": "Текст aff-PWA-2.block_01",
+          "token": "${{ aff-PWA-2.block_01 }}$",
+          "ns": "aff-PWA-2",
+          "block": "block_01"
+        },
+        {
+          "id": "text_block_02",
+          "kind": "richText",
+          "label": "Текст aff-PWA-2.block_02",
+          "token": "${{ aff-PWA-2.block_02 }}$",
+          "ns": "aff-PWA-2",
+          "block": "block_02"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cs/gb/rm6di3umufauu7u0/container (8).png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-new-pwa-2-header-section-2",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "kind": "section",
+      "sourceFile": "X_new/mail-PWA-2/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.offset-by-one.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44\n                        p.hello.wb-bw.pb12 ${{ aff-PWA-2.block_03 }}$\n                        p.text ${{ aff-PWA-2.block_04 }}$\n                            //- a(href=\"https://my.affstore.com/offers/advertisers?source=email&utm_source=email&utm_medium=email&utm_campaign=pwa\" target=\"_blank\") ${{ aff-PWA-2.block_05 }}$\n                            //- |${{ aff-PWA-2.block_06 }}$\n                            //- a(href=\"https://my.affstore.com/offers/advertisers?source=email&utm_source=email&utm_medium=email&utm_campaign=pwa\" target=\"_blank\") ${{ aff-PWA-2.block_07 }}$\n                            //- |&nbsp;${{ aff-PWA-2.block_08 }}$",
+      "styl": ".hello { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 22px;\n  color: #373437;\n  letter-spacing: 0;\n  line-height: 26px;\n  word-break: break-word; }\n.wb-bw { word-break: break-word; }\n.text { font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.pb12 { padding-bottom: 12px; }\n.pb44 { padding-bottom: 44px; }\n.pt44 { padding-top: 44px; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #6a8a00 !important; }\n.hello { font-family:Helvetica!important;font-weight:700;font-size:22px;color:#373437;letter-spacing:0;line-height:26px;word-break:break-word }\n.wb-bw { word-break:break-word }\n.small-text,.subtitle-min,.text,.text-fat,.text-strong { font-family:Helvetica!important;font-weight:400;color:#413e43 }\n.text { letter-spacing:0;font-size:18px;line-height:27px }\n.text.list { display:list-item }\n.pb12 { padding-bottom:12px }\n.pb44 { padding-bottom:44px }\n.pt44,.pt45 { padding-top:44px }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#6a8a00!important }",
+      "classes": [
+        "columns",
+        "hello",
+        "last",
+        "offset-by-one",
+        "pb12",
+        "pb44",
+        "pt44",
+        "row",
+        "ten",
+        "text",
+        "text-pad-small",
+        "wb-bw",
+        "wrapper"
+      ],
+      "designClasses": [
+        "hello",
+        "pb12",
+        "pb44",
+        "pt44",
+        "text",
+        "wb-bw"
+      ],
+      "slots": [
+        {
+          "id": "text_block_03",
+          "kind": "richText",
+          "label": "Текст aff-PWA-2.block_03",
+          "token": "${{ aff-PWA-2.block_03 }}$",
+          "ns": "aff-PWA-2",
+          "block": "block_03"
+        },
+        {
+          "id": "text_block_04",
+          "kind": "richText",
+          "label": "Текст aff-PWA-2.block_04",
+          "token": "${{ aff-PWA-2.block_04 }}$",
+          "ns": "aff-PWA-2",
+          "block": "block_04"
+        },
+        {
+          "id": "text_block_05",
+          "kind": "richText",
+          "label": "Текст aff-PWA-2.block_05",
+          "token": "${{ aff-PWA-2.block_05 }}$",
+          "ns": "aff-PWA-2",
+          "block": "block_05"
+        },
+        {
+          "id": "text_block_06",
+          "kind": "richText",
+          "label": "Текст aff-PWA-2.block_06",
+          "token": "${{ aff-PWA-2.block_06 }}$",
+          "ns": "aff-PWA-2",
+          "block": "block_06"
+        },
+        {
+          "id": "text_block_07",
+          "kind": "richText",
+          "label": "Текст aff-PWA-2.block_07",
+          "token": "${{ aff-PWA-2.block_07 }}$",
+          "ns": "aff-PWA-2",
+          "block": "block_07"
+        },
+        {
+          "id": "text_block_08",
+          "kind": "richText",
+          "label": "Текст aff-PWA-2.block_08",
+          "token": "${{ aff-PWA-2.block_08 }}$",
+          "ns": "aff-PWA-2",
+          "block": "block_08"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://my.affstore.com/offers/advertisers?source=email&utm_source=email&utm_medium=email&utm_campaign=pwa"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-pwa-2-header-section-2-heading-0",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.hello.wb-bw.pb12 ${{ aff-PWA-2.block_03 }}$",
+          "styl": ".hello { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 22px;\n  color: #373437;\n  letter-spacing: 0;\n  line-height: 26px;\n  word-break: break-word; }\n.wb-bw { word-break: break-word; }\n.pb12 { padding-bottom: 12px; }\n.hello { font-family:Helvetica!important;font-weight:700;font-size:22px;color:#373437;letter-spacing:0;line-height:26px;word-break:break-word }\n.wb-bw { word-break:break-word }\n.pb12 { padding-bottom:12px }",
+          "classes": [
+            "hello",
+            "pb12",
+            "wb-bw"
+          ],
+          "designClasses": [
+            "hello",
+            "pb12",
+            "wb-bw"
+          ],
+          "slots": [
+            {
+              "id": "text_block_03",
+              "kind": "richText",
+              "label": "Текст aff-PWA-2.block_03",
+              "token": "${{ aff-PWA-2.block_03 }}$",
+              "ns": "aff-PWA-2",
+              "block": "block_03"
+            }
+          ]
+        },
+        {
+          "id": "x-new-pwa-2-header-section-2-paragraph-1",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ aff-PWA-2.block_04 }}$\n    //- a(href=\"https://my.affstore.com/offers/advertisers?source=email&utm_source=email&utm_medium=email&utm_campaign=pwa\" target=\"_blank\") ${{ aff-PWA-2.block_05 }}$\n    //- |${{ aff-PWA-2.block_06 }}$\n    //- a(href=\"https://my.affstore.com/offers/advertisers?source=email&utm_source=email&utm_medium=email&utm_campaign=pwa\" target=\"_blank\") ${{ aff-PWA-2.block_07 }}$\n    //- |&nbsp;${{ aff-PWA-2.block_08 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #6a8a00 !important; }\n.small-text,.subtitle-min,.text,.text-fat,.text-strong { font-family:Helvetica!important;font-weight:400;color:#413e43 }\n.text { letter-spacing:0;font-size:18px;line-height:27px }\n.text.list { display:list-item }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#6a8a00!important }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_04",
+              "kind": "richText",
+              "label": "Текст aff-PWA-2.block_04",
+              "token": "${{ aff-PWA-2.block_04 }}$",
+              "ns": "aff-PWA-2",
+              "block": "block_04"
+            },
+            {
+              "id": "text_block_05",
+              "kind": "richText",
+              "label": "Текст aff-PWA-2.block_05",
+              "token": "${{ aff-PWA-2.block_05 }}$",
+              "ns": "aff-PWA-2",
+              "block": "block_05"
+            },
+            {
+              "id": "text_block_06",
+              "kind": "richText",
+              "label": "Текст aff-PWA-2.block_06",
+              "token": "${{ aff-PWA-2.block_06 }}$",
+              "ns": "aff-PWA-2",
+              "block": "block_06"
+            },
+            {
+              "id": "text_block_07",
+              "kind": "richText",
+              "label": "Текст aff-PWA-2.block_07",
+              "token": "${{ aff-PWA-2.block_07 }}$",
+              "ns": "aff-PWA-2",
+              "block": "block_07"
+            },
+            {
+              "id": "text_block_08",
+              "kind": "richText",
+              "label": "Текст aff-PWA-2.block_08",
+              "token": "${{ aff-PWA-2.block_08 }}$",
+              "ns": "aff-PWA-2",
+              "block": "block_08"
+            },
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://my.affstore.com/offers/advertisers?source=email&utm_source=email&utm_medium=email&utm_campaign=pwa"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-new-pwa-2-header-text-4",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_new/mail-PWA-2/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg.br-full-16.bg-bord-full\n    tr\n        td.wrapper.last.offset-by-one.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44\n                        p.big-text.pb32 ${{ aff-PWA-2.block_05 }}$\n                        .gray-blodck-big\n                            .top-block\n                                p.text.pb8 ${{ aff-PWA-2.block_06 }}$\n                                p.small-text ${{ aff-PWA-2.block_07 }}$\n                        .block-empty-16 &nbsp;\n                        .gray-left-block\n                            .pd32-a\n                                p.text.pb8 ${{ aff-PWA-2.block_08 }}$\n                                p.small-text ${{ aff-PWA-2.block_09 }}$\n                        .gray-right-block\n                            .pd32-a\n                                p.text.pb8 ${{ aff-PWA-2.block_10 }}$\n                                p.small-text ${{ aff-PWA-2.block_11 }}$",
+      "styl": ".block-empty-16 { height: 16px;\n  line-height: 16px;\n  font-size: 16px; }\n.white-bg { background: #fff; }\n.text { font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.small-text { font-family: Helvetica !important;\n  font-weight: 400;\n  font-size: 16px;\n  line-height: 24px;\n  color: #413e43; }\n.text.list { display: list-item; }\n.pb8 { padding-bottom: 8px; }\n.pb32 { padding-bottom: 32px; }\n.pb44 { padding-bottom: 44px; }\n.pt44 { padding-top: 44px; }\n.br-full-16 { border-radius: 16px;\n  -moz-border-radius: 16px;\n  -webkit-border-radius: 16px; }\n.bg-bord-full { border: 1px solid #eae9e9; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #6a8a00 !important; }\n.big-text { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 38px;\n  color: #413e43; }\n@media screen and (max-width: 600px) {\n  .big-text { font-size: 24px !important;\n    line-height: 32px !important; }\n}\n.gray-blodck-big { padding: 32px;\n  background: #f5f5f7;\n  border-radius: 20px;\n  background-image: url(\"https://fsms.quadcode.com/storage/public/cq/ae/146fu8jqbm9856f0/Frame 2.png\");\n  background-repeat: no-repeat;\n  background-position: center;\n  background-size: cover; }\n.top-block { max-width: 232px; }\n.gray-left-block { display: inline-block;\n  background: #f5f5f7;\n  border-radius: 20px;\n  width: 230px;\n  background-image: url(\"https://fsms.quadcode.com/storage/public/cq/ae/146di3umufautjhg/Frame 3.png\");\n  background-repeat: no-repeat;\n  background-position: center;\n  background-size: cover;\n  min-height: 290px; }\n@media screen and (max-width: 600px) {\n  .gray-left-block { width: 100% !important;\n    display: block !important;\n    margin-bottom: 16px !important;\n    height: auto !important;\n    min-height: auto !important; }\n}\n.pd32-a { padding: 32px; }\n@media screen and (max-width: 600px) {\n  .pd32-a { padding-bottom: 90px !important; }\n}\n.gray-right-block { display: inline-block;\n  background: #f5f5f7;\n  border-radius: 20px;\n  width: 230px;\n  float: right;\n  background-image: url(\"https://fsms.quadcode.com/storage/public/cq/ae/146di3umufautjh0/Frame 4.png\");\n  background-repeat: no-repeat;\n  background-position: center;\n  background-size: cover;\n  min-height: 290px; }\n@media screen and (max-width: 600px) {\n  .gray-right-block { width: 100% !important;\n    display: block !important;\n    float: none !important;\n    height: auto !important;\n    min-height: auto !important; }\n}\n.block-empty-16 { height:16px;line-height:16px;font-size:16px }\n.white-bg { background:#fff }\n.small-text,.subtitle-min,.text,.text-fat,.text-strong { font-family:Helvetica!important;font-weight:400;color:#413e43 }\n.text { letter-spacing:0;font-size:18px;line-height:27px }\n.small-text,.subtitle-min,.text-fat,.text-strong { font-size:16px;line-height:24px }\n.text.list { display:list-item }\n.pb8 { padding-bottom:8px }\n.pb32,.pb32-a { padding-bottom:32px }\n.pb44 { padding-bottom:44px }\n.pt44,.pt45 { padding-top:44px }\n.br-full-16 { border-radius:16px;-moz-border-radius:16px;-webkit-border-radius:16px }\n.bg-bord-full { border:1px solid #eae9e9 }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#6a8a00!important }\n.big-text { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:38px;color:#413e43 }\n@media screen and (max-width:600px) {\n  .big-text { font-size:24px!important;line-height:32px!important }\n}\n.gray-blodck-big { padding:32px;background:#f5f5f7;border-radius:20px;background-image:url(\"https://fsms.quadcode.com/storage/public/cq/ae/146fu8jqbm9856f0/Frame 2.png\");background-repeat:no-repeat;background-position:center;background-size:cover }\n.top-block { max-width:232px }\n.gray-left-block { display:inline-block;background:#f5f5f7;border-radius:20px;width:230px;background-image:url(\"https://fsms.quadcode.com/storage/public/cq/ae/146di3umufautjhg/Frame 3.png\");background-repeat:no-repeat;background-position:center;background-size:cover;min-height:290px }\n@media screen and (max-width:600px) {\n  .gray-left-block { width:100%!important;display:block!important;margin-bottom:16px!important;height:auto!important;min-height:auto!important }\n}\n.pd32-a { padding:32px }\n@media screen and (max-width:600px) {\n  .pd32-a { padding-bottom:90px!important }\n}\n.gray-right-block { display:inline-block;background:#f5f5f7;border-radius:20px;width:230px;float:right;background-image:url(\"https://fsms.quadcode.com/storage/public/cq/ae/146di3umufautjh0/Frame 4.png\");background-repeat:no-repeat;background-position:center;background-size:cover;min-height:290px }\n@media screen and (max-width:600px) {\n  .gray-right-block { width:100%!important;display:block!important;float:none!important;height:auto!important;min-height:auto!important }\n}",
+      "classes": [
+        "bg-bord-full",
+        "big-text",
+        "block-empty-16",
+        "br-full-16",
+        "columns",
+        "gray-blodck-big",
+        "gray-left-block",
+        "gray-right-block",
+        "last",
+        "offset-by-one",
+        "pb32",
+        "pb44",
+        "pb8",
+        "pd32-a",
+        "pt44",
+        "row",
+        "small-text",
+        "ten",
+        "text",
+        "text-pad-small",
+        "top-block",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "bg-bord-full",
+        "big-text",
+        "block-empty-16",
+        "br-full-16",
+        "gray-blodck-big",
+        "gray-left-block",
+        "gray-right-block",
+        "pb32",
+        "pb44",
+        "pb8",
+        "pd32-a",
+        "pt44",
+        "small-text",
+        "text",
+        "top-block",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_05",
+          "kind": "richText",
+          "label": "Текст aff-PWA-2.block_05",
+          "token": "${{ aff-PWA-2.block_05 }}$",
+          "ns": "aff-PWA-2",
+          "block": "block_05"
+        },
+        {
+          "id": "text_block_06",
+          "kind": "richText",
+          "label": "Текст aff-PWA-2.block_06",
+          "token": "${{ aff-PWA-2.block_06 }}$",
+          "ns": "aff-PWA-2",
+          "block": "block_06"
+        },
+        {
+          "id": "text_block_07",
+          "kind": "richText",
+          "label": "Текст aff-PWA-2.block_07",
+          "token": "${{ aff-PWA-2.block_07 }}$",
+          "ns": "aff-PWA-2",
+          "block": "block_07"
+        },
+        {
+          "id": "text_block_08",
+          "kind": "richText",
+          "label": "Текст aff-PWA-2.block_08",
+          "token": "${{ aff-PWA-2.block_08 }}$",
+          "ns": "aff-PWA-2",
+          "block": "block_08"
+        },
+        {
+          "id": "text_block_09",
+          "kind": "richText",
+          "label": "Текст aff-PWA-2.block_09",
+          "token": "${{ aff-PWA-2.block_09 }}$",
+          "ns": "aff-PWA-2",
+          "block": "block_09"
+        },
+        {
+          "id": "text_block_10",
+          "kind": "richText",
+          "label": "Текст aff-PWA-2.block_10",
+          "token": "${{ aff-PWA-2.block_10 }}$",
+          "ns": "aff-PWA-2",
+          "block": "block_10"
+        },
+        {
+          "id": "text_block_11",
+          "kind": "richText",
+          "label": "Текст aff-PWA-2.block_11",
+          "token": "${{ aff-PWA-2.block_11 }}$",
+          "ns": "aff-PWA-2",
+          "block": "block_11"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-pwa-2-header-text-4-paragraph-0",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb8 ${{ aff-PWA-2.block_06 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.pb8 { padding-bottom: 8px; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #6a8a00 !important; }\n.small-text,.subtitle-min,.text,.text-fat,.text-strong { font-family:Helvetica!important;font-weight:400;color:#413e43 }\n.text { letter-spacing:0;font-size:18px;line-height:27px }\n.text.list { display:list-item }\n.pb8 { padding-bottom:8px }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#6a8a00!important }",
+          "classes": [
+            "pb8",
+            "text"
+          ],
+          "designClasses": [
+            "pb8",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_06",
+              "kind": "richText",
+              "label": "Текст aff-PWA-2.block_06",
+              "token": "${{ aff-PWA-2.block_06 }}$",
+              "ns": "aff-PWA-2",
+              "block": "block_06"
+            }
+          ]
+        },
+        {
+          "id": "x-new-pwa-2-header-text-4-paragraph-1",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb8 ${{ aff-PWA-2.block_08 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.pb8 { padding-bottom: 8px; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #6a8a00 !important; }\n.small-text,.subtitle-min,.text,.text-fat,.text-strong { font-family:Helvetica!important;font-weight:400;color:#413e43 }\n.text { letter-spacing:0;font-size:18px;line-height:27px }\n.text.list { display:list-item }\n.pb8 { padding-bottom:8px }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#6a8a00!important }",
+          "classes": [
+            "pb8",
+            "text"
+          ],
+          "designClasses": [
+            "pb8",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_08",
+              "kind": "richText",
+              "label": "Текст aff-PWA-2.block_08",
+              "token": "${{ aff-PWA-2.block_08 }}$",
+              "ns": "aff-PWA-2",
+              "block": "block_08"
+            }
+          ]
+        },
+        {
+          "id": "x-new-pwa-2-header-text-4-paragraph-2",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb8 ${{ aff-PWA-2.block_10 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.pb8 { padding-bottom: 8px; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #6a8a00 !important; }\n.small-text,.subtitle-min,.text,.text-fat,.text-strong { font-family:Helvetica!important;font-weight:400;color:#413e43 }\n.text { letter-spacing:0;font-size:18px;line-height:27px }\n.text.list { display:list-item }\n.pb8 { padding-bottom:8px }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#6a8a00!important }",
+          "classes": [
+            "pb8",
+            "text"
+          ],
+          "designClasses": [
+            "pb8",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_10",
+              "kind": "richText",
+              "label": "Текст aff-PWA-2.block_10",
+              "token": "${{ aff-PWA-2.block_10 }}$",
+              "ns": "aff-PWA-2",
+              "block": "block_10"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-new-pwa-2-header-text-6",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_new/mail-PWA-2/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg.br-full-16.bg-bord-full\n    tr\n        td.wrapper.last.offset-by-one.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb30\n                        p.big-text.center.pb24 ${{ aff-PWA-2.block_12 }}$\n                        a(href=\"#\" target=\"_blank\")\n                            img.pb24.center(src=\"https://fsms.quadcode.com/storage/public/cs/gc/6a6di3umufauu82g/Screen.png\")\n                        p.text.center ${{ aff-PWA-2.block_13 }}$\n    tr\n        td.wrapper.last.offset-by-three.pt0\n            table.six.columns\n                tr\n                    td.text-pad-small.pb44\n                        .button-wrapper.button-wrapper_top.butt-border\n                            table.medium-button.radius\n                                tr\n                                    td.iq.bg-none\n                                        a.butt.butt-2(href=\"https://blog.affstore.com/pwa-guide\" target=\"_blank\") ${{ aff-PWA-2.block_14 }}$",
+      "styl": ".white-bg { background: #fff; }\n.butt-border { border: 2px solid #3f3f3f;\n  border-radius: 12px; }\n.butt-2 { color: #3f3f3f !important; }\n.bg-none { background: none !important; }\n.pb24 { padding-bottom: 24px; }\n.text { font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.pb44 { padding-bottom: 44px; }\n.pt44 { padding-top: 44px; }\n.br-full-16 { border-radius: 16px;\n  -moz-border-radius: 16px;\n  -webkit-border-radius: 16px; }\n.bg-bord-full { border: 1px solid #eae9e9; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #6a8a00 !important; }\n.big-text { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 38px;\n  color: #413e43; }\n@media screen and (max-width: 600px) {\n  .big-text { font-size: 24px !important;\n    line-height: 32px !important; }\n}\n.white-bg { background:#fff }\n.butt-border { border:2px solid #3f3f3f;border-radius:12px }\n.butt-2 { color:#3f3f3f!important }\n.bg-none { background:0 0!important }\n.small-text,.subtitle-min,.text,.text-fat,.text-strong { font-family:Helvetica!important;font-weight:400;color:#413e43 }\n.text { letter-spacing:0;font-size:18px;line-height:27px }\n.text.list { display:list-item }\n.pb24 { padding-bottom:24px }\n.pb44 { padding-bottom:44px }\n.pt44,.pt45 { padding-top:44px }\n.br-full-16 { border-radius:16px;-moz-border-radius:16px;-webkit-border-radius:16px }\n.bg-bord-full { border:1px solid #eae9e9 }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#6a8a00!important }\n.big-text { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:38px;color:#413e43 }\n@media screen and (max-width:600px) {\n  .big-text { font-size:24px!important;line-height:32px!important }\n}",
+      "classes": [
+        "bg-bord-full",
+        "bg-none",
+        "big-text",
+        "br-full-16",
+        "butt",
+        "butt-2",
+        "butt-border",
+        "button-wrapper",
+        "button-wrapper_top",
+        "center",
+        "columns",
+        "iq",
+        "last",
+        "medium-button",
+        "offset-by-one",
+        "offset-by-three",
+        "pb24",
+        "pb30",
+        "pb44",
+        "pt0",
+        "pt44",
+        "radius",
+        "row",
+        "six",
+        "ten",
+        "text",
+        "text-pad-small",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "bg-bord-full",
+        "bg-none",
+        "big-text",
+        "br-full-16",
+        "butt-2",
+        "butt-border",
+        "button-wrapper",
+        "button-wrapper_top",
+        "pb24",
+        "pb44",
+        "pt44",
+        "text",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_12",
+          "kind": "richText",
+          "label": "Текст aff-PWA-2.block_12",
+          "token": "${{ aff-PWA-2.block_12 }}$",
+          "ns": "aff-PWA-2",
+          "block": "block_12"
+        },
+        {
+          "id": "text_block_13",
+          "kind": "richText",
+          "label": "Текст aff-PWA-2.block_13",
+          "token": "${{ aff-PWA-2.block_13 }}$",
+          "ns": "aff-PWA-2",
+          "block": "block_13"
+        },
+        {
+          "id": "text_block_14",
+          "kind": "richText",
+          "label": "Текст aff-PWA-2.block_14",
+          "token": "${{ aff-PWA-2.block_14 }}$",
+          "ns": "aff-PWA-2",
+          "block": "block_14"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://blog.affstore.com/pwa-guide"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cs/gc/6a6di3umufauu82g/Screen.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-pwa-2-header-text-6-paragraph-0",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.center ${{ aff-PWA-2.block_13 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #6a8a00 !important; }\n.small-text,.subtitle-min,.text,.text-fat,.text-strong { font-family:Helvetica!important;font-weight:400;color:#413e43 }\n.text { letter-spacing:0;font-size:18px;line-height:27px }\n.text.list { display:list-item }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#6a8a00!important }",
+          "classes": [
+            "center",
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_13",
+              "kind": "richText",
+              "label": "Текст aff-PWA-2.block_13",
+              "token": "${{ aff-PWA-2.block_13 }}$",
+              "ns": "aff-PWA-2",
+              "block": "block_13"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-new-pwa-2-header-text-8",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_new/mail-PWA-2/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg.br-full-16.bg-bord-full\n    tr\n        td.wrapper.last.offset-by-one.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb30\n                        p.big-text.center.pb24 ${{ aff-PWA-2.block_15 }}$\n                        p.text.center ${{ aff-PWA-2.block_16 }}$\n    tr\n        td.wrapper.last.offset-by-three.pt0\n            table.six.columns\n                tr\n                    td.text-pad-small.pb44\n                        .button-wrapper.button-wrapper_top\n                            table.medium-button.radius\n                                tr\n                                    td.iq\n                                        a.butt(href=\"https://my.affstore.com/promo/landings?source=email&utm_source=email&utm_medium=email&utm_campaign=pwa\" target=\"_blank\") ${{ aff-PWA-2.block_17 }}$",
+      "styl": ".white-bg { background: #fff; }\n.pb24 { padding-bottom: 24px; }\n.text { font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.pb44 { padding-bottom: 44px; }\n.pt44 { padding-top: 44px; }\n.br-full-16 { border-radius: 16px;\n  -moz-border-radius: 16px;\n  -webkit-border-radius: 16px; }\n.bg-bord-full { border: 1px solid #eae9e9; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #6a8a00 !important; }\n.big-text { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 38px;\n  color: #413e43; }\n@media screen and (max-width: 600px) {\n  .big-text { font-size: 24px !important;\n    line-height: 32px !important; }\n}\n.white-bg { background:#fff }\n.small-text,.subtitle-min,.text,.text-fat,.text-strong { font-family:Helvetica!important;font-weight:400;color:#413e43 }\n.text { letter-spacing:0;font-size:18px;line-height:27px }\n.text.list { display:list-item }\n.pb24 { padding-bottom:24px }\n.pb44 { padding-bottom:44px }\n.pt44,.pt45 { padding-top:44px }\n.br-full-16 { border-radius:16px;-moz-border-radius:16px;-webkit-border-radius:16px }\n.bg-bord-full { border:1px solid #eae9e9 }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#6a8a00!important }\n.big-text { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:38px;color:#413e43 }\n@media screen and (max-width:600px) {\n  .big-text { font-size:24px!important;line-height:32px!important }\n}",
+      "classes": [
+        "bg-bord-full",
+        "big-text",
+        "br-full-16",
+        "butt",
+        "button-wrapper",
+        "button-wrapper_top",
+        "center",
+        "columns",
+        "iq",
+        "last",
+        "medium-button",
+        "offset-by-one",
+        "offset-by-three",
+        "pb24",
+        "pb30",
+        "pb44",
+        "pt0",
+        "pt44",
+        "radius",
+        "row",
+        "six",
+        "ten",
+        "text",
+        "text-pad-small",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "bg-bord-full",
+        "big-text",
+        "br-full-16",
+        "button-wrapper",
+        "button-wrapper_top",
+        "pb24",
+        "pb44",
+        "pt44",
+        "text",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_15",
+          "kind": "richText",
+          "label": "Текст aff-PWA-2.block_15",
+          "token": "${{ aff-PWA-2.block_15 }}$",
+          "ns": "aff-PWA-2",
+          "block": "block_15"
+        },
+        {
+          "id": "text_block_16",
+          "kind": "richText",
+          "label": "Текст aff-PWA-2.block_16",
+          "token": "${{ aff-PWA-2.block_16 }}$",
+          "ns": "aff-PWA-2",
+          "block": "block_16"
+        },
+        {
+          "id": "text_block_17",
+          "kind": "richText",
+          "label": "Текст aff-PWA-2.block_17",
+          "token": "${{ aff-PWA-2.block_17 }}$",
+          "ns": "aff-PWA-2",
+          "block": "block_17"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://my.affstore.com/promo/landings?source=email&utm_source=email&utm_medium=email&utm_campaign=pwa"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-pwa-2-header-text-8-paragraph-0",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.center ${{ aff-PWA-2.block_16 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #6a8a00 !important; }\n.small-text,.subtitle-min,.text,.text-fat,.text-strong { font-family:Helvetica!important;font-weight:400;color:#413e43 }\n.text { letter-spacing:0;font-size:18px;line-height:27px }\n.text.list { display:list-item }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#6a8a00!important }",
+          "classes": [
+            "center",
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_16",
+              "kind": "richText",
+              "label": "Текст aff-PWA-2.block_16",
+              "token": "${{ aff-PWA-2.block_16 }}$",
+              "ns": "aff-PWA-2",
+              "block": "block_16"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-new-pwa-2-header-section-9",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "kind": "section",
+      "sourceFile": "X_new/mail-PWA-2/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.pt50.offset-by-one\n            table.ten.columns\n                tr\n                    td.pb0.text-pad-small\n                        p.subtitle-min.center.pb8 ${{ aff-payment-activation-affstore.block_09 }}$\n                        p.text.center ${{ aff-payment-activation-affstore.block_10 }}$\n                        p.text.center.pb15 ${{ aff-payment-activation-affstore.block_11 }}$\n                        .social-links.pb20\n                            a(href=\"https://www.facebook.com/Affstore.affiliate\" target=\"_blank\")\n                                img.soc(src=\"https://fsms.quadcode.com/storage/public/cn/jj/e9i85cee2vclvhog/socfacebook.png\")\n                            a(href=\"https://www.instagram.com/affstore_affiliate/\" target=\"_blank\")\n                                img.soc.mar12(src=\"https://fsms.quadcode.com/storage/public/cn/jj/e9i85cee2vclvhng/socinstagram.png\")\n                            a(href=\"https://affstore.com/\" target=\"_blank\")\n                                img.soc(src=\"https://fsms.quadcode.com/storage/public/cn/jj/e9q03qqv4qln7tig/socaffstore.png\")\n                            a(href=\"https://www.linkedin.com/company/affstore/\" target=\"_blank\")\n                                img.mar12-left.soc(src=\"https://fsms.quadcode.com/storage/public/cn/jj/e9i85cee2vclvho0/link.png\")",
+      "styl": ".mar12-left { padding-left: 20px; }\n.text { font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.subtitle-min { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 26px;\n  line-height: 26px;\n  color: #373437; }\n.text.list { display: list-item; }\n.pb8 { padding-bottom: 8px; }\n.pb15 { padding-bottom: 15px !important; }\n.social-links { display: block;\n  text-align: center; }\n.mar12 { padding-left: 20px;\n  padding-right: 20px; }\n.soc { display: inline-block;\n  float: none;\n  max-width: 50px; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #6a8a00 !important; }\n.mar12-left { padding-left:20px }\n.small-text,.subtitle-min,.text,.text-fat,.text-strong { font-family:Helvetica!important;font-weight:400;color:#413e43 }\n.text { letter-spacing:0;font-size:18px;line-height:27px }\n.small-text,.subtitle-min,.text-fat,.text-strong { font-size:16px;line-height:24px }\n.subtitle-min,.text-fat,.text-strong { font-weight:700;font-size:20px;line-height:30px }\n.subtitle-min,.text-strong { font-size:24px;line-height:29px }\n.subtitle-min { font-size:26px;line-height:26px;color:#373437 }\n.text.list { display:list-item }\n.pb8 { padding-bottom:8px }\n.pb15 { padding-bottom:15px!important }\n.social-links { display:block;text-align:center }\n.mar12 { padding-left:20px;padding-right:20px }\n.soc { display:inline-block;float:none;max-width:50px }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#6a8a00!important }",
+      "classes": [
+        "center",
+        "columns",
+        "last",
+        "mar12",
+        "mar12-left",
+        "offset-by-one",
+        "pb0",
+        "pb15",
+        "pb20",
+        "pb8",
+        "pt50",
+        "row",
+        "soc",
+        "social-links",
+        "subtitle-min",
+        "ten",
+        "text",
+        "text-pad-small",
+        "wrapper"
+      ],
+      "designClasses": [
+        "mar12",
+        "mar12-left",
+        "pb15",
+        "pb8",
+        "soc",
+        "social-links",
+        "subtitle-min",
+        "text"
+      ],
+      "slots": [
+        {
+          "id": "text_block_09",
+          "kind": "richText",
+          "label": "Текст aff-payment-activation-affstore.block_09",
+          "token": "${{ aff-payment-activation-affstore.block_09 }}$",
+          "ns": "aff-payment-activation-affstore",
+          "block": "block_09"
+        },
+        {
+          "id": "text_block_10",
+          "kind": "richText",
+          "label": "Текст aff-payment-activation-affstore.block_10",
+          "token": "${{ aff-payment-activation-affstore.block_10 }}$",
+          "ns": "aff-payment-activation-affstore",
+          "block": "block_10"
+        },
+        {
+          "id": "text_block_11",
+          "kind": "richText",
+          "label": "Текст aff-payment-activation-affstore.block_11",
+          "token": "${{ aff-payment-activation-affstore.block_11 }}$",
+          "ns": "aff-payment-activation-affstore",
+          "block": "block_11"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://www.facebook.com/Affstore.affiliate"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://www.instagram.com/affstore_affiliate/"
+        },
+        {
+          "id": "href_2",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://affstore.com/"
+        },
+        {
+          "id": "href_3",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://www.linkedin.com/company/affstore/"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cn/jj/e9i85cee2vclvhog/socfacebook.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cn/jj/e9i85cee2vclvhng/socinstagram.png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cn/jj/e9q03qqv4qln7tig/socaffstore.png"
+        },
+        {
+          "id": "image_3",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cn/jj/e9i85cee2vclvho0/link.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-pwa-2-header-section-9-paragraph-0",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.center ${{ aff-payment-activation-affstore.block_10 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #6a8a00 !important; }\n.small-text,.subtitle-min,.text,.text-fat,.text-strong { font-family:Helvetica!important;font-weight:400;color:#413e43 }\n.text { letter-spacing:0;font-size:18px;line-height:27px }\n.text.list { display:list-item }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#6a8a00!important }",
+          "classes": [
+            "center",
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_10",
+              "kind": "richText",
+              "label": "Текст aff-payment-activation-affstore.block_10",
+              "token": "${{ aff-payment-activation-affstore.block_10 }}$",
+              "ns": "aff-payment-activation-affstore",
+              "block": "block_10"
+            }
+          ]
+        },
+        {
+          "id": "x-new-pwa-2-header-section-9-paragraph-1",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.center.pb15 ${{ aff-payment-activation-affstore.block_11 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0; }\n.text.list { display: list-item; }\n.pb15 { padding-bottom: 15px !important; }\n.text a { font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #6a8a00 !important; }\n.small-text,.subtitle-min,.text,.text-fat,.text-strong { font-family:Helvetica!important;font-weight:400;color:#413e43 }\n.text { letter-spacing:0;font-size:18px;line-height:27px }\n.text.list { display:list-item }\n.pb15 { padding-bottom:15px!important }\n.text a,b { font-family:Helvetica!important }\n.text a { text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#6a8a00!important }",
+          "classes": [
+            "center",
+            "pb15",
+            "text"
+          ],
+          "designClasses": [
+            "pb15",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_11",
+              "kind": "richText",
+              "label": "Текст aff-payment-activation-affstore.block_11",
+              "token": "${{ aff-payment-activation-affstore.block_11 }}$",
+              "ns": "aff-payment-activation-affstore",
+              "block": "block_11"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

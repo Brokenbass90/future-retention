@@ -1,0 +1,213 @@
+{
+  "category": "X_System",
+  "mailId": "payment",
+  "mailAbs": "email-base/X_System/mail-payment",
+  "blockCount": 2,
+  "blocks": [
+    {
+      "id": "x-system-payment-header-header-0",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "kind": "section",
+      "sourceFile": "X_System/mail-payment/app/templates/blocks/header.jade",
+      "pug": "table.row.header\n    tr\n        td.wrapper\n            table.six.columns\n                tr\n                    td.left\n                        a(href=\"https://iqoption.com/traderoom/?aff=7&afftrack=mail&retrack=payment\", target=\"_blank\")\n                            img.logo(src=\"https://images01.iqoption.com/89/0689/static-01503674720413810689.png\")\n        td.wrapper.last.hide-for-small\n            table.three.columns\n                tr\n                    td.apps\n                        a(href=\"https://app.appsflyer.com/id871125783?pid=7&c=mail\")\n                            img.app_btn(src=\"https://images01.iqoption.com/21/8721/static-00636246823765278721.png\")\n        td.wrapper.last.hide-for-small\n            table.three.columns\n                tr\n                    td.apps\n                        a(href=\"https://app.appsflyer.com/com.iqoption?pid=7&c=mail\")\n                            img.app_btn(src=\"https://images01.iqoption.com/17/9217/static-01920501695922569217.png\")",
+      "styl": "table.row.header { background:#f6f9fc url(https://images01.iqoption.com/01/5201/static-00115704862028595201.png) center top no-repeat;height:113px }\n.app_btn { width:116px;height:34px;padding-top:30px }",
+      "classes": [
+        "app_btn",
+        "apps",
+        "columns",
+        "header",
+        "hide-for-small",
+        "last",
+        "left",
+        "logo",
+        "row",
+        "six",
+        "three",
+        "wrapper"
+      ],
+      "designClasses": [
+        "app_btn",
+        "apps",
+        "header"
+      ],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://iqoption.com/traderoom/?aff=7&afftrack=mail&retrack=payment"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://app.appsflyer.com/id871125783?pid=7&c=mail"
+        },
+        {
+          "id": "href_2",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://app.appsflyer.com/com.iqoption?pid=7&c=mail"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://images01.iqoption.com/89/0689/static-01503674720413810689.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://images01.iqoption.com/21/8721/static-00636246823765278721.png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://images01.iqoption.com/17/9217/static-01920501695922569217.png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-system-payment-header-text-1",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_System/mail-payment/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg\n    tr\n        td.offset-by-one\n            table.ten.columns\n                tr\n                    td.no-padding-bottom\n                        p.title ${{ aff-pay.block_00 }}$\n                        p.text ${{ aff-pay.block_01 }}$&nbsp;\n                            a(href=\"https://affiliate.iqoption.com/payments/settings\" target=\"_blank\") ${{ aff-pay.block_02 }}$\n                            | &nbsp;${{ aff-pay.block_03 }}$",
+      "styl": ".white-bg { background:#fff }\n.title { color:#2473d7;font-size:24px;font-weight:500;line-height:32px;padding-top:30px;padding-bottom:25px }\n@media screen and (max-width:600px) {\n  .title { padding-left:20px!important;padding-right:20px!important }\n}\n.text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }",
+      "classes": [
+        "columns",
+        "no-padding-bottom",
+        "offset-by-one",
+        "row",
+        "ten",
+        "text",
+        "title",
+        "white-bg"
+      ],
+      "designClasses": [
+        "text",
+        "title",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_00",
+          "kind": "richText",
+          "label": "Текст aff-pay.block_00",
+          "token": "${{ aff-pay.block_00 }}$",
+          "ns": "aff-pay",
+          "block": "block_00"
+        },
+        {
+          "id": "text_block_01",
+          "kind": "richText",
+          "label": "Текст aff-pay.block_01",
+          "token": "${{ aff-pay.block_01 }}$",
+          "ns": "aff-pay",
+          "block": "block_01"
+        },
+        {
+          "id": "text_block_02",
+          "kind": "richText",
+          "label": "Текст aff-pay.block_02",
+          "token": "${{ aff-pay.block_02 }}$",
+          "ns": "aff-pay",
+          "block": "block_02"
+        },
+        {
+          "id": "text_block_03",
+          "kind": "richText",
+          "label": "Текст aff-pay.block_03",
+          "token": "${{ aff-pay.block_03 }}$",
+          "ns": "aff-pay",
+          "block": "block_03"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://affiliate.iqoption.com/payments/settings"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-system-payment-header-text-1-heading-0",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.title ${{ aff-pay.block_00 }}$",
+          "styl": ".title { color:#2473d7;font-size:24px;font-weight:500;line-height:32px;padding-top:30px;padding-bottom:25px }\n@media screen and (max-width:600px) {\n  .title { padding-left:20px!important;padding-right:20px!important }\n}",
+          "classes": [
+            "title"
+          ],
+          "designClasses": [
+            "title"
+          ],
+          "slots": [
+            {
+              "id": "text_block_00",
+              "kind": "richText",
+              "label": "Текст aff-pay.block_00",
+              "token": "${{ aff-pay.block_00 }}$",
+              "ns": "aff-pay",
+              "block": "block_00"
+            }
+          ]
+        },
+        {
+          "id": "x-system-payment-header-text-1-paragraph-1",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ aff-pay.block_01 }}$&nbsp;\n    a(href=\"https://affiliate.iqoption.com/payments/settings\" target=\"_blank\") ${{ aff-pay.block_02 }}$\n    | &nbsp;${{ aff-pay.block_03 }}$",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_01",
+              "kind": "richText",
+              "label": "Текст aff-pay.block_01",
+              "token": "${{ aff-pay.block_01 }}$",
+              "ns": "aff-pay",
+              "block": "block_01"
+            },
+            {
+              "id": "text_block_02",
+              "kind": "richText",
+              "label": "Текст aff-pay.block_02",
+              "token": "${{ aff-pay.block_02 }}$",
+              "ns": "aff-pay",
+              "block": "block_02"
+            },
+            {
+              "id": "text_block_03",
+              "kind": "richText",
+              "label": "Текст aff-pay.block_03",
+              "token": "${{ aff-pay.block_03 }}$",
+              "ns": "aff-pay",
+              "block": "block_03"
+            },
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://affiliate.iqoption.com/payments/settings"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

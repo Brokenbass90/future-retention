@@ -1,0 +1,36 @@
+{
+  "id": "new-text-30",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_new (3 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.pb10.b-new-text-30\n    img.dot(src=\"{{ image_1 }}\" width=\"10\" height=\"10\" alt=\"\")\n    |{{ text_1 }}",
+  "styl": ".b-new-text-30 .min-text, .text.b-new-text-30 {  font-family:Helvetica!important;letter-spacing:0  }\n.text.b-new-text-30 {  font-weight:400;color:#373437;font-size:16px;line-height:26px  }\n.text.italic.b-new-text-30 {  font-style:italic  }\n.text.list.b-new-text-30 {  display:list-item  }\n.text.b-new-text-30 a {  font-family:Helvetica!important;text-decoration:underline!important;color:#86ad00!important  }\n.b-new-text-30 .dot, .b-new-text-30 .left-block {  display:inline-block  }\n.b-new-text-30 .dot {  width:10px!important;padding-top:9px;padding-right:8px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.iqoption.com/storage/public/ch/s6/698d0gfsc472atmg/dot-affstore.png"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_new"
+  ],
+  "usageCount": 3,
+  "sourceMails": [
+    "X_new/mail-QCM-Offer"
+  ],
+  "createdAt": "2026-07-06T12:10:00.057Z",
+  "validated": true
+}

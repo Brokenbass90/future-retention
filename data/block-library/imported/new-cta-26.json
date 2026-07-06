@@ -1,0 +1,138 @@
+{
+  "id": "new-cta-26",
+  "label": "CTA-секция",
+  "description": "Импортирован из X_new (1 писем). Секция.",
+  "placement": "section",
+  "category": "cta",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.brad-full.white-bg.b-new-cta-26\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.middle-title.pb24 {{ text_1 }}\n                        .first-block\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                img.right-top(src=\"{{ image_1 }}\")\n                            .block-220\n                                p.text.ta-mob <b>{{ text_2 }}</b>\n                                p.text.pb16.ta-mob <b>{{ text_3 }}</b>\n                                p.text.pb24.ta-mob {{ text_4 }}\n                                table.w100\n                                    tr\n                                        td.butt.pb0\n                                            a.butt-link(href=\"{{ href_1 }}\" universal=\"true\" target=\"_blank\") {{ text_5 }}\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                img.right-img(src=\"{{ image_1 }}\")\n                        .h-12 &nbsp;\n                        .second-block\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                img.right-top(src=\"{{ image_2 }}\")\n                            .block-220\n                                p.text.ta-mob <b>{{ text_6 }}</b>\n                                p.text.pb16.ta-mob <b>{{ text_7 }}</b>\n                                p.text.pb24.ta-mob {{ text_8 }}\n                                table.w100\n                                    tr\n                                        td.butt.pb0\n                                            a.butt-link(href=\"{{ href_2 }}\" universal=\"true\" target=\"_blank\") {{ text_9 }}\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                img.right-img(src=\"{{ image_2 }}\")\n                        .h-12 &nbsp;\n                        .third-block\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                img.right-top(src=\"{{ image_3 }}\")\n                            .block-220\n                                p.text.ta-mob <b>{{ text_10 }}</b>\n                                p.text.pb16.ta-mob <b>{{ text_11 }}</b>\n                                p.text.pb24.ta-mob {{ text_12 }}\n                                table.w100\n                                    tr\n                                        td.butt.pb0\n                                            a.butt-link(href=\"{{ href_3 }}\" universal=\"true\" target=\"_blank\") {{ text_13 }}\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                img.right-img(src=\"{{ image_3 }}\")",
+  "styl": ".brad-full.b-new-cta-26 {  border-radius: 32px !important;  }\n.b-new-cta-26 .butt-link {  font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px;  }\n.white-bg.b-new-cta-26 {  background-color: #fff;  }\n.b-new-cta-26 .middle-title {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle;  }\n@media screen and (max-width: 600px) {\n  .b-new-cta-26 .middle-title {  font-size: 28px !important;\n    line-height: 34px !important;  }\n}\n.b-new-cta-26 .text {  font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400;  }\n.b-new-cta-26 .text.bold {  font-weight: 700;  }\n.b-new-cta-26 .pb16 {  padding-bottom: 16px;  }\n.b-new-cta-26 .pb24 {  padding-bottom: 24px;  }\n.b-new-cta-26 .pb44 {  padding-bottom: 44px;  }\n.b-new-cta-26 .pt44 {  padding-top: 44px;  }\n.b-new-cta-26 .h-12 {  font-size: 8px;\n  line-height: 12px;\n  height: 12px;  }\n@media screen and (max-width: 600px) {\n  .b-new-cta-26 .text.mob-text, .b-new-cta-26 .grey-text.mob-text {  font-size: 17px !important;  }\n}\n.b-new-cta-26 .w100 {  width: 100%;  }\n.b-new-cta-26 .block-220 {  max-width: 220px;\n  display: block;\n  display: inline-block;\n  padding: 24px 10px 24px 32px;\n  vertical-align: middle;  }\n@media screen and (max-width: 600px) {\n  .b-new-cta-26 .block-220 {  max-width: 100% !important;\n    display: block !important;\n    margin: 0 auto !important;\n    text-align: center !important;\n    padding: 0px 24px 0 24px !important;\n    width: auto !important;  }\n}\n@media screen and (max-width: 600px) {\n  .b-new-cta-26 .ta-mob {  text-align: center !important;  }\n}\n.b-new-cta-26 .right-img {  float: none;\n  display: inline-block;\n  width: 180px;\n  vertical-align: middle;\n  float: none;  }\n@media screen and (max-width: 600px) {\n  .b-new-cta-26 .right-img {  float: none !important;\n    display: block !important;\n    margin: 0 auto !important;\n    padding-right: 0 !important;\n    padding-bottom: 24px !important;\n    width: 1px !important;\n    max-width: 0.1px !important;  }\n}\n.b-new-cta-26 .right-top {  float: none;\n  display: inline-block;\n  width: 1px;\n  max-width: 0.1px;\n  vertical-align: middle;\n  float: none;  }\n@media screen and (max-width: 600px) {\n  .b-new-cta-26 .right-top {  float: none !important;\n    display: block !important;\n    margin: 0 auto !important;\n    padding-right: 0 !important;\n    padding-bottom: 24px !important;\n    padding-top: 20px !important;\n    width: 180px !important;\n    max-width: 180px !important;  }\n}\n.b-new-cta-26 .first-block {  background: url(\"https://fsms.quadcode.com/storage/public/d6/pa/f43ursrq72d918j0/bg-1.png\") center no-repeat;\n  background-color: #f5fdfb;\n  background-size: cover !important;\n  border-radius: 24px;  }\n.b-new-cta-26 .second-block {  background: url(\"https://fsms.quadcode.com/storage/public/d6/pa/f43s2mcraq8anaag/bg-2.png\") center no-repeat;\n  background-color: #fff8f0;\n  background-size: cover !important;\n  border-radius: 24px;  }\n.b-new-cta-26 .third-block {  background: url(\"https://fsms.quadcode.com/storage/public/d6/pa/f43s2mcraq8anab0/bg-3.png\") center no-repeat;\n  background-color: #fff5f8;\n  background-size: cover !important;\n  border-radius: 24px;  }\n.brad-full.b-new-cta-26, .b-new-cta-26 .brad-full-32 {  border-radius:32px!important  }\n.b-new-cta-26 .butt-link, .b-new-cta-26 .butt-link-2, .b-new-cta-26 .butt-link-small {  font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#2f3749;display:block;line-height:27px;padding:16px 0;text-align:center;letter-spacing:0  }\n.b-new-cta-26 .butt-link, .b-new-cta-26 .butt-link-small {  color:#f9f9f9  }\n.white-bg.b-new-cta-26 {  background-color:#fff  }\n.b-new-cta-26 .middle-title {  font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#393a44;vertical-align:middle  }\n@media screen and (max-width:600px) {\n  .b-new-cta-26 .middle-title {  font-size:28px!important;line-height:34px!important  }\n}\n.b-new-cta-26 .number-block, .b-new-cta-26 .text {  font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400  }\n.b-new-cta-26 .big, .b-new-cta-26 .text.bold {  font-weight:700  }\n.b-new-cta-26 .pb16 {  padding-bottom:16px  }\n.b-new-cta-26 .pb24 {  padding-bottom:24px  }\n.b-new-cta-26 .pb44 {  padding-bottom:44px  }\n.b-new-cta-26 .pt44 {  padding-top:44px  }\n.b-new-cta-26 .h-12, .b-new-cta-26 .h-16, .b-new-cta-26 .h-8 {  font-size:8px;line-height:8px;height:8px  }\n.b-new-cta-26 .h-12, .b-new-cta-26 .h-16 {  line-height:12px;height:12px  }\n@media screen and (max-width:600px) {\n  .b-new-cta-26 .grey-text.mob-text, .b-new-cta-26 .text.mob-text {  font-size:17px!important  }\n}\n.b-new-cta-26 .w100 {  width:100%  }\n.b-new-cta-26 .block-220 {  max-width:220px;display:inline-block;padding:24px 10px 24px 32px;vertical-align:middle  }\n@media screen and (max-width:600px) {\n  .b-new-cta-26 .block-220 {  max-width:100%!important;display:block!important;margin:0 auto!important;padding:0 24px!important;width:auto!important  }\n  .b-new-cta-26 .block-220, .b-new-cta-26 .ta-mob {  text-align:center!important  }\n}\n.b-new-cta-26 .right-img {  display:inline-block;width:180px;vertical-align:middle;float:none  }\n@media screen and (max-width:600px) {\n  .b-new-cta-26 .right-img {  float:none!important;display:block!important;margin:0 auto!important;padding-right:0!important;padding-bottom:24px!important;width:1px!important;max-width:.1px!important  }\n}\n.b-new-cta-26 .right-top {  display:inline-block;width:1px;max-width:.1px;vertical-align:middle;float:none  }\n@media screen and (max-width:600px) {\n  .b-new-cta-26 .right-top {  float:none!important;display:block!important;margin:0 auto!important;padding-right:0!important;padding-bottom:24px!important;padding-top:20px!important;width:180px!important;max-width:180px!important  }\n}\n.b-new-cta-26 .first-block {  background:url(https://fsms.quadcode.com/storage/public/d6/pa/f43ursrq72d918j0/bg-1.png) center no-repeat;background-color:#f5fdfb  }\n.b-new-cta-26 .first-block, .b-new-cta-26 .second-block, .b-new-cta-26 .third-block {  background-size:cover!important;border-radius:24px  }\n.b-new-cta-26 .second-block {  background:url(https://fsms.quadcode.com/storage/public/d6/pa/f43s2mcraq8anaag/bg-2.png) center no-repeat;background-color:#fff8f0  }\n.b-new-cta-26 .third-block {  background:url(https://fsms.quadcode.com/storage/public/d6/pa/f43s2mcraq8anab0/bg-3.png) center no-repeat;background-color:#fff5f8  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_7",
+      "kind": "richText",
+      "label": "Текст 7",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_8",
+      "kind": "richText",
+      "label": "Текст 8",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_9",
+      "kind": "richText",
+      "label": "Текст 9",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_10",
+      "kind": "richText",
+      "label": "Текст 10",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_11",
+      "kind": "richText",
+      "label": "Текст 11",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_12",
+      "kind": "richText",
+      "label": "Текст 12",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_13",
+      "kind": "richText",
+      "label": "Текст 13",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-2-2-1&retrack=mail_IQ-RFM-2-2-1"
+    },
+    {
+      "id": "href_2",
+      "kind": "url",
+      "label": "Ссылка 2",
+      "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-2-2-1&retrack=mail_IQ-RFM-2-2-1&type=forex&asset=1"
+    },
+    {
+      "id": "href_3",
+      "kind": "url",
+      "label": "Ссылка 3",
+      "default": "mailto:{{embedded.company_email}}"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/d6/pa/efbs2mcraq8anaa0/r-1.png"
+    },
+    {
+      "id": "image_2",
+      "kind": "image",
+      "label": "Картинка 2",
+      "default": "https://fsms.quadcode.com/storage/public/d6/pa/gtbs2mcraq8anabg/r-2-2.png"
+    },
+    {
+      "id": "image_3",
+      "kind": "image",
+      "label": "Картинка 3",
+      "default": "https://fsms.quadcode.com/storage/public/d6/pa/efbursrq72d918ig/r-3.png"
+    }
+  ],
+  "tags": [
+    "cta",
+    "section",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-rfm-segmentation-2-211"
+  ],
+  "createdAt": "2026-07-06T12:10:00.071Z",
+  "validated": true
+}

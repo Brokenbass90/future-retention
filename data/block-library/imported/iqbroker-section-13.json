@@ -1,0 +1,35 @@
+{
+  "id": "iqbroker-section-13",
+  "label": "Секция",
+  "description": "Импортирован из X_IQBroker (1 писем). Секция.",
+  "placement": "section",
+  "category": "section",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.border-bot.b-iqbroker-section-13\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb40\n                        p.small-text.bt.pt30.pb5 {{ text_1 }}&nbsp;\n                            a(href=\"{{ href_1 }}\" target=\"_blank\") {{embedded.company_email}}",
+  "styl": ".b-iqbroker-section-13 .bt {  border-top: 1px dashed #d9d9db;  }\n.border-bot.b-iqbroker-section-13 {  border-radius: 0 0 16px 16px;  }\n.b-iqbroker-section-13 .small-text {  color: #84868b;\n  font-size: 18px;\n  line-height: 27px;\n  font-weight: 400;\n  font-family: Helvetica !important;\n  text-align: center;  }\n.b-iqbroker-section-13 .small-text a {  color: #5165ff !important;\n  font-family: Helvetica !important;\n  text-decoration: none;  }\n.b-iqbroker-section-13 .pb5 {  padding-bottom: 5px;  }\n.b-iqbroker-section-13 .bt {  border-top:1px dashed #d9d9db  }\n.border-bot.b-iqbroker-section-13 {  border-radius:0 0 16px 16px  }\n.b-iqbroker-section-13 .small-text, .b-iqbroker-section-13 .small-text a, .b-iqbroker-section-13 .text, .b-iqbroker-section-13 .text a {  font-family:Helvetica!important  }\n.b-iqbroker-section-13 .small-text {  font-size:18px;line-height:27px;font-weight:400;text-align:center;color:#84868b  }\n.b-iqbroker-section-13 .small-text a {  color:#5165ff!important;text-decoration:none  }\n.b-iqbroker-section-13 .pb5 {  padding-bottom:5px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "mailto:{{embedded.company_email}}"
+    }
+  ],
+  "tags": [
+    "section",
+    "X_IQBroker"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_IQBroker/mail-s-confirm"
+  ],
+  "createdAt": "2026-07-06T12:09:51.737Z",
+  "validated": true
+}

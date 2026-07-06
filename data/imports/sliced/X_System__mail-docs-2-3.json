@@ -1,0 +1,247 @@
+{
+  "category": "X_System",
+  "mailId": "docs-2-3",
+  "mailAbs": "email-base/X_System/mail-docs-2-3",
+  "blockCount": 2,
+  "blocks": [
+    {
+      "id": "x-system-docs-2-3-header-header-0",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "kind": "section",
+      "sourceFile": "X_System/mail-docs-2-3/app/templates/blocks/header.jade",
+      "pug": "table.row.header\n    tr\n        td.wrapper\n            table.six.columns\n                tr\n                    td.left\n                        a(href=\"https://iqoption.com/traderoom/?aff=7&afftrack=mail&retrack=docs-1-2\", target=\"_blank\")\n                            img.logo(src=\"https://images01.iqoption.com/89/0689/static-01503674720413810689.png\")\n        td.wrapper.last.hide-for-small\n            table.three.columns\n                tr\n                    td.apps\n                        a(href=\"https://app.appsflyer.com/id871125783?pid=7&c=mail\")\n                            img.app_btn(src=\"https://images01.iqoption.com/21/8721/static-00636246823765278721.png\")\n        td.wrapper.last.hide-for-small\n            table.three.columns\n                tr\n                    td.apps\n                        a(href=\"https://app.appsflyer.com/com.iqoption?pid=7&c=mail\")\n                            img.app_btn(src=\"https://images01.iqoption.com/17/9217/static-01920501695922569217.png\")",
+      "styl": "table.row.header { background:#f6f9fc url(https://images01.iqoption.com/01/5201/static-00115704862028595201.png) center top no-repeat;height:113px }\n.app_btn { width:116px;height:34px;padding-top:30px }",
+      "classes": [
+        "app_btn",
+        "apps",
+        "columns",
+        "header",
+        "hide-for-small",
+        "last",
+        "left",
+        "logo",
+        "row",
+        "six",
+        "three",
+        "wrapper"
+      ],
+      "designClasses": [
+        "app_btn",
+        "apps",
+        "header"
+      ],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://iqoption.com/traderoom/?aff=7&afftrack=mail&retrack=docs-1-2"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://app.appsflyer.com/id871125783?pid=7&c=mail"
+        },
+        {
+          "id": "href_2",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://app.appsflyer.com/com.iqoption?pid=7&c=mail"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://images01.iqoption.com/89/0689/static-01503674720413810689.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://images01.iqoption.com/21/8721/static-00636246823765278721.png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://images01.iqoption.com/17/9217/static-01920501695922569217.png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-system-docs-2-3-header-text-1",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_System/mail-docs-2-3/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg\n    tr\n        td.offset-by-one\n            table.ten.columns\n                tr\n                    td.no-padding-bottom\n                        p.title Dear Client,\n                        p.text We are contacting you regarding your application to become an Elective Professional Client.\n                        p.text On further investigation we noticed that we need some additional documentation to ensure that you have the appropriate conditions to remain an Elective Professional Client:\n                        p.text.list Supporting evidence of your financial portfolio (incl. cash and financial instruments) showing an amount exceeding 500.000 EUR. This evidence can be a bank statement which is stamped by your bank and shows your balance or any other relevant evidence showing the amount (e.g real estate)\n                        p.text.list.pb20 Supporting evidence of your working experience for which we need a reference letter from your previous or current employer which states your position, name, period you work(ed) at the company and duties. Please note that it has to be stamped.\n                        p.text\n                            strong We can give you a timeframe until Tuesday evening to provide us with the documents. In case we do not receive them after this timeframe we will be forced to turn your status back to retail.\n                        p.text\n                            strong You can send the documents by attaching them to the answer to this email.\n                        p.text We appreciate your cooperation in this matter and remain at your disposal for any questions.\n                        p.text Kind regards,\n                            br\n                            | IQ Option Team",
+      "styl": ".white-bg { background:#fff }\n.title { color:#2473d7;font-size:24px;font-weight:500;line-height:32px;padding-top:30px;padding-bottom:25px }\n@media screen and (max-width:600px) {\n  .title { padding-left:20px!important;padding-right:20px!important }\n}\n.text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }\n.list { display:list-item;padding-left:20px;list-style:decimal;list-style-position:inside;padding-bottom:10px }",
+      "classes": [
+        "columns",
+        "list",
+        "no-padding-bottom",
+        "offset-by-one",
+        "pb20",
+        "row",
+        "ten",
+        "text",
+        "title",
+        "white-bg"
+      ],
+      "designClasses": [
+        "list",
+        "text",
+        "title",
+        "white-bg"
+      ],
+      "slots": [],
+      "inlineChildren": [
+        {
+          "id": "x-system-docs-2-3-header-text-1-heading-0",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.title Dear Client,",
+          "styl": ".title { color:#2473d7;font-size:24px;font-weight:500;line-height:32px;padding-top:30px;padding-bottom:25px }\n@media screen and (max-width:600px) {\n  .title { padding-left:20px!important;padding-right:20px!important }\n}",
+          "classes": [
+            "title"
+          ],
+          "designClasses": [
+            "title"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-system-docs-2-3-header-text-1-paragraph-1",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text We are contacting you regarding your application to become an Elective Professional Client.",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-system-docs-2-3-header-text-1-paragraph-2",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text On further investigation we noticed that we need some additional documentation to ensure that you have the appropriate conditions to remain an Elective Professional Client:",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-system-docs-2-3-header-text-1-paragraph-3",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.list Supporting evidence of your financial portfolio (incl. cash and financial instruments) showing an amount exceeding 500.000 EUR. This evidence can be a bank statement which is stamped by your bank and shows your balance or any other relevant evidence showing the amount (e.g real estate)",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }\n.list { display:list-item;padding-left:20px;list-style:decimal;list-style-position:inside;padding-bottom:10px }",
+          "classes": [
+            "list",
+            "text"
+          ],
+          "designClasses": [
+            "list",
+            "text"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-system-docs-2-3-header-text-1-paragraph-4",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.list.pb20 Supporting evidence of your working experience for which we need a reference letter from your previous or current employer which states your position, name, period you work(ed) at the company and duties. Please note that it has to be stamped.",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }\n.list { display:list-item;padding-left:20px;list-style:decimal;list-style-position:inside;padding-bottom:10px }",
+          "classes": [
+            "list",
+            "pb20",
+            "text"
+          ],
+          "designClasses": [
+            "list",
+            "text"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-system-docs-2-3-header-text-1-paragraph-5",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text\n    strong We can give you a timeframe until Tuesday evening to provide us with the documents. In case we do not receive them after this timeframe we will be forced to turn your status back to retail.",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-system-docs-2-3-header-text-1-paragraph-6",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text\n    strong You can send the documents by attaching them to the answer to this email.",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-system-docs-2-3-header-text-1-paragraph-7",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text We appreciate your cooperation in this matter and remain at your disposal for any questions.",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-system-docs-2-3-header-text-1-paragraph-8",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text Kind regards,\n    br\n    | IQ Option Team",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+{
+  "id": "new-cta-03",
+  "label": "CTA-секция",
+  "description": "Импортирован из X_new (1 писем). Секция.",
+  "placement": "section",
+  "category": "cta",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.br-full-16.b-new-cta-03\n    tr\n        td.wrapper.last.offset-by-one.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb32\n                        p.big-text.pb32 {{ text_1 }}\n                        .gray-block-3\n                            p.text-2 {{ text_2 }}\n                        p.text.pt32.pb32 {{ text_3 }}\n                        .green-line-block\n                            p.green-level {{ text_4 }}\n                            .block-empty-12 &nbsp;\n                            .block-empty-12 &nbsp;\n                            .left-side-bottom\n                                p.text-3.text-left {{ text_5 }}\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                img.arrow.center(src=\"{{ image_1 }}\")\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                img.arrow-bottom.center(src=\"{{ image_2 }}\")\n                            .right-side-bottom.text-right\n                                p.text-3.text-right <b>{{ text_6 }}</b>\n                        .block-empty-12 &nbsp;\n                        .green-line-block\n                            p.green-level {{ text_7 }}\n                            .block-empty-12 &nbsp;\n                                .block-empty-12 &nbsp;\n                            .left-side-bottom\n                                p.text-3.text-left {{ text_8 }}\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                img.arrow.center(src=\"{{ image_1 }}\")\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                img.arrow-bottom.center(src=\"{{ image_2 }}\")\n                            .right-side-bottom.text-right\n                                p.text-3.text-right <b> {{ text_9 }}</b>\n                        .block-empty-12 &nbsp;\n                        .green-line-block\n                            p.green-level {{ text_10 }}\n                            .block-empty-12 &nbsp;\n                            .block-empty-12 &nbsp;\n                            .left-side-bottom\n                                p.text-3.text-left {{ text_11 }}\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                img.arrow.center(src=\"{{ image_1 }}\")\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                img.arrow-bottom.center(src=\"{{ image_2 }}\")\n                            .right-side-bottom.text-right\n                                p.text-3.text-right <b> {{ text_12 }}</b>\n                        .block-empty-12 &nbsp;\n                        .green-line-block\n                            p.green-level {{ text_13 }}\n                            .block-empty-12 &nbsp;\n                            .block-empty-12 &nbsp;\n                            .left-side-bottom\n                                p.text-3.text-left {{ text_14 }}\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                img.arrow.center(src=\"{{ image_1 }}\")\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                img.arrow-bottom.center(src=\"{{ image_2 }}\")\n                            .right-side-bottom.text-right\n                                p.text-3.text-right <b> {{ text_15 }}</b>\n                tr\n                    td.text-pad-small.pb32.bb-dash\n                        .green-block\n                            p.small-title.center.pb16 {{ text_16 }}\n                            p.text.center.pb24 {{ text_17 }}\n                            table.w280(align=\"center\")\n                                tr\n                                    td.butt.pb0.pt0\n                                        a.butt(href=\"{{ href_1 }}\" target=\"_blank\") {{ text_18 }}\n                tr\n                    td.text-pad-small.pt24.pb44\n                        p.gray-text-bottom.center {{ text_19 }}",
+  "styl": ".b-new-cta-03 .block-empty-12 {  height: 12px;\n  line-height: 12px;\n  font-size: 12px;  }\n.white-bg.b-new-cta-03 {  background: #fff;  }\n.b-new-cta-03 .green-line-block {  background: url(\"https://fsms.quadcode.com/storage/public/cv/qi/979msj7rr6s5208g/arrow-top.png\") right 24px top 24px no-repeat;\n  background-size: 36px;\n  padding: 24px 24px 28px;\n  border: 1px solid #91b904;\n  border-radius: 24px;  }\n.b-new-cta-03 .green-level {  display: inline-block;\n  padding: 8px 16px;\n  background: #f6ffe8;\n  border-radius: 12px;\n  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 16px;\n  line-height: 24px;\n  color: #2b2d36;  }\n.b-new-cta-03 .w280 {  width: 100%;\n  max-width: 280px;\n  min-width: 280px;  }\n@media screen and (max-width: 600px) {\n  .b-new-cta-03 .w280 {  min-width: 100% !important;  }\n}\n.b-new-cta-03 .small-title {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 38px;\n  letter-spacing: -0.5px;\n  color: #413e43;  }\n.b-new-cta-03 .text {  font-family: Helvetica !important;\n  color: #413e43;\n  font-weight: 400;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0;  }\n.b-new-cta-03 .text-2 {  font-family: Helvetica !important;\n  color: #413e43;\n  font-weight: 700;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0;  }\n.b-new-cta-03 .text-3 {  display: inline-block;\n  font-family: Helvetica !important;\n  font-weight: 400;\n  font-size: 24px;\n  line-height: 31px;\n  color: #393a44;\n  vertical-align: middle;\n  text-align: center;  }\n@media screen and (max-width: 600px) {\n  .b-new-cta-03 .text-3 {  display: block !important;\n    font-size: 20px !important;\n    line-height: 31px !important;\n    text-align: center !important;  }\n}\n.b-new-cta-03 .left-side-bottom {  display: inline-block;\n  width: 177px;\n  vertical-align: middle;  }\n@media screen and (max-width: 600px) {\n  .b-new-cta-03 .left-side-bottom {  width: 100% !important;  }\n}\n.b-new-cta-03 .right-side-bottom {  display: inline-block;\n  width: 130px;\n  vertical-align: middle;  }\n@media screen and (max-width: 600px) {\n  .b-new-cta-03 .right-side-bottom {  width: 100% !important;  }\n}\n.b-new-cta-03 .arrow {  display: inline-block;\n  vertical-align: middle;\n  width: 76px;\n  padding: 0 12px;\n  vertical-align: middle;  }\n@media screen and (max-width: 600px) {\n  .b-new-cta-03 .arrow {  width: 1px !important;\n    max-width: 0.1px !important;  }\n}\n.b-new-cta-03 .arrow-bottom {  display: inline-block;\n  vertical-align: middle;\n  width: 1px;\n  max-width: 0.1px;  }\n@media screen and (max-width: 600px) {\n  .b-new-cta-03 .arrow-bottom {  display: block !important;\n    margin: 0 auto !important;\n    padding: 10px 0;\n    width: 10px !important;\n    max-width: 10px !important;  }\n}\n.b-new-cta-03 .text-left {  text-align: left;  }\n@media screen and (max-width: 600px) {\n  .b-new-cta-03 .text-left {  text-align: center !important;  }\n}\n.b-new-cta-03 .text-right {  text-align: right;  }\n@media screen and (max-width: 600px) {\n  .b-new-cta-03 .text-right {  text-align: center !important;  }\n}\n.b-new-cta-03 .text.list {  display: list-item;  }\n.b-new-cta-03 .pb16 {  padding-bottom: 16px;  }\n.b-new-cta-03 .pb24 {  padding-bottom: 24px;  }\n.b-new-cta-03 .pb32 {  padding-bottom: 32px;  }\n.b-new-cta-03 .pb44 {  padding-bottom: 44px;  }\n.b-new-cta-03 .pt24 {  padding-top: 24px;  }\n.b-new-cta-03 .pt32 {  padding-top: 32px;  }\n.b-new-cta-03 .pt44 {  padding-top: 44px;  }\n.br-full-16.b-new-cta-03 {  border-radius: 16px;\n  -moz-border-radius: 16px;\n  -webkit-border-radius: 16px;  }\n.b-new-cta-03 .bb-dash {  border-bottom: 1px dashed #dedede;  }\n.b-new-cta-03 .text a {  font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #1466fe !important;  }\n.b-new-cta-03 .big-text {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #413e43;  }\n@media screen and (max-width: 600px) {\n  .b-new-cta-03 .big-text {  font-size: 26px !important;\n    line-height: 37px !important;\n    text-align: center !important;  }\n}\n.b-new-cta-03 .green-block {  padding: 24px 32px;\n  background: #eeffd6;\n  border-radius: 16px;  }\n@media screen and (max-width: 600px) {\n  .b-new-cta-03 .text.mob-text, .b-new-cta-03 .grey-text.mob-text {  font-size: 17px !important;  }\n}\n.b-new-cta-03 .gray-text-bottom {  font-family: Helvetica !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 25px;\n  color: #71717d;  }\n.b-new-cta-03 .gray-block-3 {  background: #f8f9f7 url(\"https://fsms.quadcode.com/storage/public/cv/qj/883jqakhdj8lo7gg/Card-2.png\") right no-repeat;\n  background-size: cover;\n  padding: 74px 32px 52px;\n  border-radius: 16px;  }\n.b-new-cta-03 .small-title {  font-family: Helvetica !important;\n  font-weight: 400;\n  font-size: 24px;\n  line-height: 34px;\n  color: #404040;  }\n.b-new-cta-03 .block-empty-12 {  height:12px;line-height:12px;font-size:12px  }\n.white-bg.b-new-cta-03 {  background:#fff  }\n.b-new-cta-03 .green-line-block {  background:url(https://fsms.quadcode.com/storage/public/cv/qi/979msj7rr6s5208g/arrow-top.png) right 24px top 24px no-repeat;background-size:36px;padding:24px 24px 28px;border:1px solid #91b904;border-radius:24px  }\n.b-new-cta-03 .green-level {  display:inline-block;padding:8px 16px;background:#f6ffe8;border-radius:12px;font-weight:700;font-size:16px;line-height:24px;color:#2b2d36  }\n.b-new-cta-03 .butt-2, .b-new-cta-03 .green-level, .b-new-cta-03 .subtitle {  font-family:Helvetica!important  }\n.b-new-cta-03 .w280 {  width:100%;max-width:280px;min-width:280px  }\n@media screen and (max-width:600px) {\n  .b-new-cta-03 .w280 {  min-width:100%!important  }\n}\n.b-new-cta-03 .small-title {  letter-spacing:-.5px  }\n.b-new-cta-03 .text, .b-new-cta-03 .text-2, .b-new-cta-03 .text-3 {  font-family:Helvetica!important;font-weight:400  }\n.b-new-cta-03 .text, .b-new-cta-03 .text-2 {  letter-spacing:0;color:#413e43;font-size:18px;line-height:27px  }\n.b-new-cta-03 .text-3 {  display:inline-block;font-size:24px;line-height:31px;color:#393a44;vertical-align:middle;text-align:center  }\n@media screen and (max-width:600px) {\n  .b-new-cta-03 .text-3 {  display:block!important;font-size:20px!important;line-height:31px!important;text-align:center!important  }\n}\n.b-new-cta-03 .left-side-bottom {  display:inline-block;width:177px;vertical-align:middle  }\n@media screen and (max-width:600px) {\n  .b-new-cta-03 .left-side-bottom {  width:100%!important  }\n}\n.b-new-cta-03 .right-side-bottom {  display:inline-block;width:130px;vertical-align:middle  }\n@media screen and (max-width:600px) {\n  .b-new-cta-03 .right-side-bottom {  width:100%!important  }\n}\n.b-new-cta-03 .arrow {  display:inline-block;width:76px;padding:0 12px;vertical-align:middle  }\n@media screen and (max-width:600px) {\n  .b-new-cta-03 .arrow {  width:1px!important;max-width:.1px!important  }\n}\n.b-new-cta-03 .arrow-bottom {  display:inline-block;vertical-align:middle;width:1px;max-width:.1px  }\n@media screen and (max-width:600px) {\n  .b-new-cta-03 .arrow-bottom {  display:block!important;margin:0 auto!important;padding:10px 0;width:10px!important;max-width:10px!important  }\n}\n.b-new-cta-03 .text-left {  text-align:left  }\n@media screen and (max-width:600px) {\n  .b-new-cta-03 .text-left {  text-align:center!important  }\n}\n.b-new-cta-03 .text-right {  text-align:right  }\n@media screen and (max-width:600px) {\n  .b-new-cta-03 .text-right {  text-align:center!important  }\n}\n.b-new-cta-03 .text.list {  display:list-item  }\n.b-new-cta-03 .pb16 {  padding-bottom:16px  }\n.b-new-cta-03 .pb24 {  padding-bottom:24px  }\n.b-new-cta-03 .pb32, .b-new-cta-03 .pb32-a {  padding-bottom:32px  }\n.b-new-cta-03 .pb44 {  padding-bottom:44px  }\n.b-new-cta-03 .pt24 {  padding-top:24px  }\n.b-new-cta-03 .pt32 {  padding-top:32px  }\n.b-new-cta-03 .pt44, .b-new-cta-03 .pt45 {  padding-top:44px  }\n.br-full-16.b-new-cta-03 {  border-radius:16px;-moz-border-radius:16px;-webkit-border-radius:16px  }\n.b-new-cta-03 .text a, .b-new-cta-03 b {  font-family:Helvetica!important  }\n.b-new-cta-03 .bb-dash {  border-bottom:1px dashed #dedede  }\n.b-new-cta-03 .text a {  text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#1466fe!important  }\n.b-new-cta-03 .big-text {  font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#413e43  }\n@media screen and (max-width:600px) {\n  .b-new-cta-03 .big-text {  font-size:26px!important;line-height:37px!important;text-align:center!important  }\n}\n.b-new-cta-03 .green-block {  padding:24px 32px;background:#eeffd6;border-radius:16px  }\n@media screen and (max-width:600px) {\n  .b-new-cta-03 .grey-text.mob-text, .b-new-cta-03 .text.mob-text {  font-size:17px!important  }\n}\n.b-new-cta-03 .gray-text-bottom, .b-new-cta-03 .grey-text {  font-family:Helvetica!important;font-weight:400;font-size:18px;line-height:25px;color:#71717d  }\n.b-new-cta-03 .gray-block-2, .b-new-cta-03 .gray-block-3 {  background-size:cover;border-radius:16px  }\n.b-new-cta-03 .gray-block-3 {  background:#f8f9f7 url(https://fsms.quadcode.com/storage/public/cv/qj/883jqakhdj8lo7gg/Card-2.png) right no-repeat;padding:74px 32px 52px  }\n.b-new-cta-03 .small-title {  font-family:Helvetica!important;font-weight:400;font-size:24px;line-height:34px;color:#404040  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_7",
+      "kind": "richText",
+      "label": "Текст 7",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_8",
+      "kind": "richText",
+      "label": "Текст 8",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_9",
+      "kind": "richText",
+      "label": "Текст 9",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_10",
+      "kind": "richText",
+      "label": "Текст 10",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_11",
+      "kind": "richText",
+      "label": "Текст 11",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_12",
+      "kind": "richText",
+      "label": "Текст 12",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_13",
+      "kind": "richText",
+      "label": "Текст 13",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_14",
+      "kind": "richText",
+      "label": "Текст 14",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_15",
+      "kind": "richText",
+      "label": "Текст 15",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_16",
+      "kind": "richText",
+      "label": "Текст 16",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_17",
+      "kind": "richText",
+      "label": "Текст 17",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_18",
+      "kind": "richText",
+      "label": "Текст 18",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_19",
+      "kind": "richText",
+      "label": "Текст 19",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://my.affstore.com/profile/settings/personal"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/cv/qi/97bjqakhdj8lo7eg/arrow-right.png"
+    },
+    {
+      "id": "image_2",
+      "kind": "image",
+      "label": "Картинка 2",
+      "default": "https://fsms.quadcode.com/storage/public/cv/qj/m9rjqakhdj8lo7h0/arrow-bottom-2.png"
+    }
+  ],
+  "tags": [
+    "cta",
+    "section",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-Raffle-Exnova"
+  ],
+  "createdAt": "2026-07-06T12:10:00.060Z",
+  "validated": true
+}

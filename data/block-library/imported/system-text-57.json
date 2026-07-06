@@ -1,0 +1,42 @@
+{
+  "id": "system-text-57",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_System (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.b-system-text-57\n    tr\n        td.offset-by-one\n            table.ten.columns\n                tr\n                    td.no-padding-bottom\n                        p.text {{ text_1 }}&nbsp;\n                            a(href=\"{{ href_1 }}\" target=\"_blank\") {{ text_2 }}\n                            | .",
+  "styl": ".white-bg.b-system-text-57 {  background:#fff  }\n.b-system-text-57 .text {  color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px  }\n@media screen and (max-width:600px) {\n  .b-system-text-57 .text {  padding-left:20px!important;padding-right:20px!important  }\n}\n.b-system-text-57 .text a {  color:#2473d7;text-decoration:underline  }\n.b-system-text-57 .text.bold {  font-weight:700  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://eu.iqoption.com/pro"
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_System"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_System/mail-esma-restrict"
+  ],
+  "createdAt": "2026-07-06T12:09:59.369Z",
+  "validated": true
+}

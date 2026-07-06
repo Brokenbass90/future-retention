@@ -1,0 +1,38 @@
+{
+  "id": "new-text-28",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_new (11 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.pb15.b-new-text-28 {{ text_1 }}",
+  "styl": ".b-new-text-28 .min-text, .text.b-new-text-28 {  font-family:Helvetica!important;letter-spacing:0  }\n.text.b-new-text-28 {  font-weight:400;color:#373437;font-size:16px;line-height:26px  }\n.text.italic.b-new-text-28 {  font-style:italic  }\n.text.list.b-new-text-28 {  display:list-item  }\n.pb15.b-new-text-28 {  padding-bottom:16px!important  }\n.text.b-new-text-28 a {  font-family:Helvetica!important;text-decoration:underline!important;color:#86ad00!important  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_new"
+  ],
+  "usageCount": 11,
+  "sourceMails": [
+    "X_new/mail-QCM-Offer",
+    "X_new/mail-Rate-change",
+    "X_new/mail-Risk-warning-061025",
+    "X_new/mail-Risk-warning-061223",
+    "X_new/mail-Risk-warning-070923",
+    "X_new/mail-Risk-warning-compliance-020724",
+    "X_new/mail-Risk-warning-compliance-061025",
+    "X_new/mail-Risk-warning-compliance-071024",
+    "X_new/mail-registration-affstore"
+  ],
+  "createdAt": "2026-07-06T12:10:00.057Z",
+  "validated": true
+}

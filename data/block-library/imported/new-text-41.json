@@ -1,0 +1,60 @@
+{
+  "id": "new-text-41",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_new (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.br-full-16.b-new-text-41\n    tr\n        td.wrapper.last.offset-by-one.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44\n                        p.big-text.pb32 {{ text_1 }}\n                        .gray-block-2\n                            p.text-2 {{ text_2 }}\n                        p.text.pt32.pb32 {{ text_3 }}\n                        table\n                            tr\n                                td.w-a.m-w\n                                    .block-0 1\n                                    .block-small\n                                    .block-line &nbsp;\n                                td.w-a\n                                    p.text.pt10 {{ text_4 }}\n                            tr\n                                td.w-a.m-w\n                                    .block-small\n                                    .block-0 2\n                                    .block-small\n                                    .block-line &nbsp;\n                                td.w-a\n                                    p.text.pt15 {{ text_5 }}\n                            tr\n                                td.w-a.m-w\n                                    .block-small\n                                    .block-0 3\n                                td.w-a\n                                    p.text.pt5 {{ text_6 }}",
+  "styl": ".white-bg.b-new-text-41 {  background: #fff;  }\n.b-new-text-41 .text {  font-family: Helvetica !important;\n  color: #413e43;\n  font-weight: 400;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0;  }\n.b-new-text-41 .text-2 {  font-family: Helvetica !important;\n  color: #413e43;\n  font-weight: 700;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0;  }\n.b-new-text-41 .text.list {  display: list-item;  }\n.b-new-text-41 .pb32 {  padding-bottom: 32px;  }\n.b-new-text-41 .pb44 {  padding-bottom: 44px;  }\n.b-new-text-41 .pt5 {  padding-top: 5px;  }\n.b-new-text-41 .pt15 {  padding-top: 15px;  }\n.b-new-text-41 .pt32 {  padding-top: 32px;  }\n.b-new-text-41 .pt44 {  padding-top: 44px;  }\n.br-full-16.b-new-text-41 {  border-radius: 16px;\n  -moz-border-radius: 16px;\n  -webkit-border-radius: 16px;  }\n.b-new-text-41 .text a {  font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #1466fe !important;  }\n.b-new-text-41 .big-text {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #413e43;  }\n@media screen and (max-width: 600px) {\n  .b-new-text-41 .big-text {  font-size: 26px !important;\n    line-height: 37px !important;\n    text-align: center !important;  }\n}\n@media screen and (max-width: 600px) {\n  .b-new-text-41 .text.mob-text, .b-new-text-41 .grey-text.mob-text {  font-size: 17px !important;  }\n}\n.b-new-text-41 .block-0 {  box-sizing: border-box;\n  width: 56px;\n  height: 56px;\n  border: 3px solid #86ad00;\n  border-radius: 82.0513px;\n  padding: 12px 15px 12px 16px;\n  display: block;\n  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 28px;\n  text-align: center;\n  color: #413e43;\n  vertical-align: middle;  }\n.b-new-text-41 .block-small {  height: 6px;\n  font-size: 6px;\n  line-height: 6px;  }\n.b-new-text-41 .block-line {  display: block;\n  width: 20px;\n  height: 25px;\n  border-right: 3px solid #86ad00;\n  padding-left: 7px;  }\n.b-new-text-41 .w-a {  width: auto !important;\n  vertical-align: top;\n  padding-bottom: 0 !important;  }\n.b-new-text-41 .m-w {  min-width: 76px;  }\n.b-new-text-41 .gray-block-2 {  background: #f8f9f7 url(\"https://fsms.quadcode.com/storage/public/cv/qi/979msj7rr6s52080/Card.png\") right no-repeat;\n  background-size: cover;\n  padding: 64px 32px 52px;\n  border-radius: 16px;  }\n.white-bg.b-new-text-41 {  background:#fff  }\n.b-new-text-41 .text, .b-new-text-41 .text-2, .b-new-text-41 .text-3 {  font-family:Helvetica!important;font-weight:400  }\n.b-new-text-41 .text, .b-new-text-41 .text-2 {  letter-spacing:0;color:#413e43;font-size:18px;line-height:27px  }\n.b-new-text-41 .text.list {  display:list-item  }\n.b-new-text-41 .pb32, .b-new-text-41 .pb32-a {  padding-bottom:32px  }\n.b-new-text-41 .pb44 {  padding-bottom:44px  }\n.b-new-text-41 .pt5 {  padding-top:5px  }\n.b-new-text-41 .pt15 {  padding-top:15px  }\n.b-new-text-41 .pt32 {  padding-top:32px  }\n.b-new-text-41 .pt44, .b-new-text-41 .pt45 {  padding-top:44px  }\n.br-full-16.b-new-text-41 {  border-radius:16px;-moz-border-radius:16px;-webkit-border-radius:16px  }\n.b-new-text-41 .text a, .b-new-text-41 b {  font-family:Helvetica!important  }\n.b-new-text-41 .text a {  text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#1466fe!important  }\n.b-new-text-41 .big-text {  font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#413e43  }\n@media screen and (max-width:600px) {\n  .b-new-text-41 .big-text {  font-size:26px!important;line-height:37px!important;text-align:center!important  }\n}\n@media screen and (max-width:600px) {\n  .b-new-text-41 .grey-text.mob-text, .b-new-text-41 .text.mob-text {  font-size:17px!important  }\n}\n.b-new-text-41 .block-0 {  box-sizing:border-box;width:56px;height:56px;border:3px solid #86ad00;border-radius:82.0513px;padding:12px 15px 12px 16px;display:block;font-family:Helvetica!important;font-weight:700;font-size:24px;line-height:28px;text-align:center;color:#413e43;vertical-align:middle  }\n.b-new-text-41 .block-small {  height:6px;font-size:6px;line-height:6px  }\n.b-new-text-41 .block-line {  display:block;width:20px;height:25px;border-right:3px solid #86ad00;padding-left:7px  }\n.b-new-text-41 .w-a {  width:auto!important;vertical-align:top;padding-bottom:0!important  }\n.b-new-text-41 .m-w {  min-width:76px  }\n.b-new-text-41 .gray-block-2, .b-new-text-41 .gray-block-3 {  background-size:cover;border-radius:16px  }\n.b-new-text-41 .gray-block-2 {  background:#f8f9f7 url(https://fsms.quadcode.com/storage/public/cv/qi/979msj7rr6s52080/Card.png) right no-repeat;padding:64px 32px 52px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-Raffle-Exnova"
+  ],
+  "createdAt": "2026-07-06T12:10:00.058Z",
+  "validated": true
+}

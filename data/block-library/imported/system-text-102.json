@@ -1,0 +1,30 @@
+{
+  "id": "system-text-102",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_System (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.b-system-text-102\n    tr\n        td.offset-by-three\n            table.six.columns\n                tr\n                    td\n                        .button-wrapper\n                            table.medium-button.radius\n                                tr\n                                    td.iq\n                                        a.butt(href=\"{{ href_1 }}\" target=\"_blank\") Proceed to IQ Option",
+  "styl": ".b-system-text-102 .button-wrapper {  padding-top:25px;padding-bottom:0  }\n@media screen and (max-width:600px) {\n  .b-system-text-102 .button-wrapper {  padding-left:30px!important;padding-right:30px!important  }\n}\n.white-bg.b-system-text-102 {  background:#fff  }",
+  "slots": [
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://iqoption.com/traderoom/?aff=7&afftrack=mail&retrack=call-from-iq"
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_System"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_System/mail-x1000"
+  ],
+  "createdAt": "2026-07-06T12:09:59.371Z",
+  "validated": true
+}

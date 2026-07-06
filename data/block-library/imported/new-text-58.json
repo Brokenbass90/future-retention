@@ -1,0 +1,30 @@
+{
+  "id": "new-text-58",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_new (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.list-item.b-new-text-58 {{ text_1 }}",
+  "styl": ".text.b-new-text-58 {  font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0;  }\n.text.list.b-new-text-58 {  display: list-item;  }\n.list-item.b-new-text-58 {  background: url(\"https://fsms.quadcode.com/storage/public/cq/f1/ogmdi3umufautkkg/Ellipse1.png\") left 4px top 10px no-repeat;\n  background-size: 6px;\n  padding-left: 20px;  }\n.text.b-new-text-58 a {  font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #6a8a00 !important;  }\n.b-new-text-58 .small-text, .b-new-text-58 .subtitle-min, .text.b-new-text-58, .b-new-text-58 .text-fat, .b-new-text-58 .text-strong {  font-family:Helvetica!important;font-weight:400;color:#413e43  }\n.text.b-new-text-58 {  letter-spacing:0;font-size:18px;line-height:27px  }\n.text.list.b-new-text-58 {  display:list-item  }\n.text.b-new-text-58 a, .b-new-text-58 b {  font-family:Helvetica!important  }\n.list-item.b-new-text-58 {  background:url(https://fsms.quadcode.com/storage/public/cq/f1/ogmdi3umufautkkg/Ellipse1.png) left 4px top 10px no-repeat;background-size:6px;padding-left:20px  }\n.text.b-new-text-58 a {  text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#6a8a00!important  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-postback-101"
+  ],
+  "createdAt": "2026-07-06T12:10:00.060Z",
+  "validated": true
+}

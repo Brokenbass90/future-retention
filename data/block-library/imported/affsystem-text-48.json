@@ -1,0 +1,108 @@
+{
+  "id": "affsystem-text-48",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_AffSystem (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.bg-bord-lr.br-top.bg-bord-top.b-affsystem-text-48\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pt25.pb20\n                        p.text.pb15.big-text.center {{ text_1 }}\n                        p.text.pb15 {{ text_2 }}\n                        p.text.pb20\n                            span.green-number 1\n                            |{{ text_3 }}\n                        p.text.pb10\n                            span.green-number 2\n                            |{{ text_4 }}\n                        p.text.border-green {{ text_5 }}\n                        p.text.pb15.pt15 {{ text_6 }}\n                        p.min-text.pb20 *{{ text_7 }}\n                        p.text.pb10\n                            span.green-number 3\n                            | {{ text_8 }}\n                        p.text.pb15 {{ text_9 }}\n                        p.text.list-item.pb5 {{ text_10 }}.\n                        p.text.list-item.pb5 {{ text_11 }}.\n                        p.text.list-item.pb5 {{ text_12 }}\n                        p.text.list-item.pb5 {{ text_13 }}.\n                        p.text.list-item {{ text_14 }}.",
+  "styl": ".white-bg.b-affsystem-text-48 {  background:#fff  }\n.b-affsystem-text-48 .min-text, .b-affsystem-text-48 .text {  font-family:Helvetica!important;color:#2e3851;letter-spacing:0  }\n.b-affsystem-text-48 .text {  font-weight:400;font-size:16px;line-height:26px  }\n.b-affsystem-text-48 .min-text {  font-size:14px;line-height:22px  }\n.b-affsystem-text-48 .big-text, .b-affsystem-text-48 .subtitle, .b-affsystem-text-48 b, .b-affsystem-text-48 p.warning, .b-affsystem-text-48 p.warning .upper {  font-family:Helvetica!important  }\n.b-affsystem-text-48 .big-text {  font-weight:700!important;font-size:16px!important  }\n.b-affsystem-text-48 .text.italic {  font-style:italic  }\n.b-affsystem-text-48 .text.list {  display:list-item  }\n.b-affsystem-text-48 .pb5 {  padding-bottom:5px  }\n.b-affsystem-text-48 .pb15 {  padding-bottom:15px!important  }\n.b-affsystem-text-48 .pt15 {  padding-top:15px  }\n.b-affsystem-text-48 .pt25 {  padding-top:25px  }\n.bg-bord-lr.b-affsystem-text-48 {  border-left:1px solid #e9ebea;border-right:1px solid #e9ebea  }\n.bg-bord-top.b-affsystem-text-48 {  border-top:1px solid #e9ebea  }\n.br-top.b-affsystem-text-48 {  border-radius:5px 5px 0 0  }\n.b-affsystem-text-48 .text a {  font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important  }\n.b-affsystem-text-48 .border-green {  border:solid 1px #01c689;border-radius:5px;background:#f4faf8;padding:12px 15px  }\n.b-affsystem-text-48 .green-number, .b-affsystem-text-48 .list-item {  font-family:Helvetica!important  }\n.b-affsystem-text-48 .green-number {  font-weight:700;font-size:14px;letter-spacing:1px;text-align:center;background:#01c689;border-radius:3px;padding:3px 12px;vertical-align:top;margin-right:10px;color:#fff  }\n.b-affsystem-text-48 .list-item {  background:url(\"https://static.cdnpub.info/files/storage/public/5e/8d/aa6a28c720a9i1g3f9/Oval Copy 3.png\") left top 8px no-repeat;background-size:10px;padding-left:20px;color:#2e3851  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_7",
+      "kind": "richText",
+      "label": "Текст 7",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_8",
+      "kind": "richText",
+      "label": "Текст 8",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_9",
+      "kind": "richText",
+      "label": "Текст 9",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_10",
+      "kind": "richText",
+      "label": "Текст 10",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_11",
+      "kind": "richText",
+      "label": "Текст 11",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_12",
+      "kind": "richText",
+      "label": "Текст 12",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_13",
+      "kind": "richText",
+      "label": "Текст 13",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_14",
+      "kind": "richText",
+      "label": "Текст 14",
+      "default": "Текст блока — отредактируйте под кампанию."
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_AffSystem"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_AffSystem/mail-verification-reminder-affiliate"
+  ],
+  "createdAt": "2026-07-06T12:09:51.511Z",
+  "validated": true
+}

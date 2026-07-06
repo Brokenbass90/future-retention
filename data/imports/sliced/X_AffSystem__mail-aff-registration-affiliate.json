@@ -1,0 +1,567 @@
+{
+  "category": "X_AffSystem",
+  "mailId": "aff-registration-affiliate",
+  "mailAbs": "email-base/X_AffSystem/mail-aff-registration-affiliate",
+  "blockCount": 5,
+  "blocks": [
+    {
+      "id": "x-affsystem-aff-registration-affiliate-header-he",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "kind": "section",
+      "sourceFile": "X_AffSystem/mail-aff-registration-affiliate/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg.brad-top.bg-col\n    tr\n        td.wrapper.offset-by-one.last\n            table.ten.columns\n                tr\n                    td.six.sub-columns.pt0\n                        a(href=\"https://affiliate.iqoption.com\" target=\"_blank\")\n                            img.logo.center.pb5(src=\"https://static.cdnpub.info/files/storage/public/5f/c8/d0517a03c1c8h5j9j4/logoaff_white_shadow__1_.png\")",
+      "styl": ".bg-col { background-color:#fbfbfd }\n.brad-top { border-top-left-radius:6px!important;border-top-right-radius:6px!important;overflow:hidden }\n.white-bg { background:#fff }\n.pb5 { padding-bottom:5px }",
+      "classes": [
+        "bg-col",
+        "brad-top",
+        "center",
+        "columns",
+        "last",
+        "logo",
+        "offset-by-one",
+        "pb5",
+        "pt0",
+        "row",
+        "six",
+        "sub-columns",
+        "ten",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "bg-col",
+        "brad-top",
+        "pb5",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://affiliate.iqoption.com"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnpub.info/files/storage/public/5f/c8/d0517a03c1c8h5j9j4/logoaff_white_shadow__1_.png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-affsystem-aff-registration-affiliate-header-te",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_AffSystem/mail-aff-registration-affiliate/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg.bg-bord-r.br-top.bg-bord-top\n    tr.bg-bord-l\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pt17.pb20\n                        p.subtitle.center.pb10 ${{ aff-registration-affiliate.block_00 }}$\n                        p.text.pb15  ${{ aff-registration-affiliate.block_01 }}$ IQ Option ${{ aff-registration-affiliate.block_02 }}$\n                        p.text ${{ aff-registration-affiliate.block_03 }}$",
+      "styl": ".white-bg { background:#fff }\n.min-text,.text { font-family:Helvetica!important;color:#2e3851;letter-spacing:0 }\n.text { font-weight:400;font-size:16px;line-height:26px }\n.big-text,.subtitle,b,p.warning,p.warning .upper { font-family:Helvetica!important }\n.subtitle { font-weight:700;letter-spacing:0;font-size:30px;color:#20242f;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.pb15 { padding-bottom:15px!important }\n.pt17 { padding-top:17px }\n.bg-bord-top { border-top:1px solid #e9ebea }\n.br-top { border-radius:5px 5px 0 0 }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }\n.bg-bord-l { border-left:1px solid #e9ebea }\n.bg-bord-r { border-right:1px solid #e9ebea }",
+      "classes": [
+        "bg-bord-l",
+        "bg-bord-r",
+        "bg-bord-top",
+        "br-top",
+        "center",
+        "columns",
+        "last",
+        "offset-by-one",
+        "pb10",
+        "pb15",
+        "pb20",
+        "pt17",
+        "row",
+        "subtitle",
+        "ten",
+        "text",
+        "text-pad-small",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "bg-bord-l",
+        "bg-bord-r",
+        "bg-bord-top",
+        "br-top",
+        "pb15",
+        "pt17",
+        "subtitle",
+        "text",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_00",
+          "kind": "richText",
+          "label": "Текст aff-registration-affiliate.block_00",
+          "token": "${{ aff-registration-affiliate.block_00 }}$",
+          "ns": "aff-registration-affiliate",
+          "block": "block_00"
+        },
+        {
+          "id": "text_block_01",
+          "kind": "richText",
+          "label": "Текст aff-registration-affiliate.block_01",
+          "token": "${{ aff-registration-affiliate.block_01 }}$",
+          "ns": "aff-registration-affiliate",
+          "block": "block_01"
+        },
+        {
+          "id": "text_block_02",
+          "kind": "richText",
+          "label": "Текст aff-registration-affiliate.block_02",
+          "token": "${{ aff-registration-affiliate.block_02 }}$",
+          "ns": "aff-registration-affiliate",
+          "block": "block_02"
+        },
+        {
+          "id": "text_block_03",
+          "kind": "richText",
+          "label": "Текст aff-registration-affiliate.block_03",
+          "token": "${{ aff-registration-affiliate.block_03 }}$",
+          "ns": "aff-registration-affiliate",
+          "block": "block_03"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-affsystem-aff-registration-affiliate-header-te",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb15  ${{ aff-registration-affiliate.block_01 }}$ IQ Option ${{ aff-registration-affiliate.block_02 }}$",
+          "styl": ".min-text,.text { font-family:Helvetica!important;color:#2e3851;letter-spacing:0 }\n.text { font-weight:400;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.pb15 { padding-bottom:15px!important }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }",
+          "classes": [
+            "pb15",
+            "text"
+          ],
+          "designClasses": [
+            "pb15",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_01",
+              "kind": "richText",
+              "label": "Текст aff-registration-affiliate.block_01",
+              "token": "${{ aff-registration-affiliate.block_01 }}$",
+              "ns": "aff-registration-affiliate",
+              "block": "block_01"
+            },
+            {
+              "id": "text_block_02",
+              "kind": "richText",
+              "label": "Текст aff-registration-affiliate.block_02",
+              "token": "${{ aff-registration-affiliate.block_02 }}$",
+              "ns": "aff-registration-affiliate",
+              "block": "block_02"
+            }
+          ]
+        },
+        {
+          "id": "x-affsystem-aff-registration-affiliate-header-te",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ aff-registration-affiliate.block_03 }}$",
+          "styl": ".min-text,.text { font-family:Helvetica!important;color:#2e3851;letter-spacing:0 }\n.text { font-weight:400;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_03",
+              "kind": "richText",
+              "label": "Текст aff-registration-affiliate.block_03",
+              "token": "${{ aff-registration-affiliate.block_03 }}$",
+              "ns": "aff-registration-affiliate",
+              "block": "block_03"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-affsystem-aff-registration-affiliate-header-te",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_AffSystem/mail-aff-registration-affiliate/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg.bg-bord-r\n    tr.bg-bord-l\n        td.wrapper.last.offset-by-three.pt0\n            table.six.columns\n                tr\n                    td.pb0.plr20-a\n                        .button-wrapper\n                            table.medium-button.radius\n                                tr\n                                    td.iq\n                                        a.butt(href=\"{{activation_link}}\" target=\"_blank\") ${{ aff-registration-affiliate.block_04 }}$",
+      "styl": ".white-bg { background:#fff }\n@media screen and (max-width:600px) {\n  .plr20-a,.plr30 { padding-left:20px!important;padding-right:20px!important }\n}\n.bg-bord-l { border-left:1px solid #e9ebea }\n.bg-bord-r { border-right:1px solid #e9ebea }",
+      "classes": [
+        "bg-bord-l",
+        "bg-bord-r",
+        "butt",
+        "button-wrapper",
+        "columns",
+        "iq",
+        "last",
+        "medium-button",
+        "offset-by-three",
+        "pb0",
+        "plr20-a",
+        "pt0",
+        "radius",
+        "row",
+        "six",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "bg-bord-l",
+        "bg-bord-r",
+        "button-wrapper",
+        "plr20-a",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_04",
+          "kind": "richText",
+          "label": "Текст aff-registration-affiliate.block_04",
+          "token": "${{ aff-registration-affiliate.block_04 }}$",
+          "ns": "aff-registration-affiliate",
+          "block": "block_04"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "{{activation_link}}"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-affsystem-aff-registration-affiliate-header-te",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_AffSystem/mail-aff-registration-affiliate/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg.bg-bord-r.br-bot.bg-bord-bot\n    tr.bg-bord-l\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pt17.pb20\n                        p.text.pb15 ${{ aff-registration-affiliate.block_05 }}$ <b>{{user_email}}</b> ${{ aff-registration-affiliate.block_07 }}$\n                        p.text.pb15 ${{ aff-registration-affiliate.block_08 }}$&nbsp;\n                            a(href=\"mailto:affiliate@iqoption.com\" target=\"_blank\") ${{ aff-registration-affiliate.block_09 }}$\n                            |${{ aff-registration-affiliate.block_10 }}$",
+      "styl": ".white-bg { background:#fff }\n.min-text,.text { font-family:Helvetica!important;color:#2e3851;letter-spacing:0 }\n.text { font-weight:400;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.pb15 { padding-bottom:15px!important }\n.pt17 { padding-top:17px }\n.bg-bord-bot { border-bottom:1px solid #e9ebea }\n.br-bot { border-radius:0 0 5px 5px }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }\n.bg-bord-l { border-left:1px solid #e9ebea }\n.bg-bord-r { border-right:1px solid #e9ebea }",
+      "classes": [
+        "bg-bord-bot",
+        "bg-bord-l",
+        "bg-bord-r",
+        "br-bot",
+        "columns",
+        "last",
+        "offset-by-one",
+        "pb15",
+        "pb20",
+        "pt17",
+        "row",
+        "ten",
+        "text",
+        "text-pad-small",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "bg-bord-bot",
+        "bg-bord-l",
+        "bg-bord-r",
+        "br-bot",
+        "pb15",
+        "pt17",
+        "text",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_05",
+          "kind": "richText",
+          "label": "Текст aff-registration-affiliate.block_05",
+          "token": "${{ aff-registration-affiliate.block_05 }}$",
+          "ns": "aff-registration-affiliate",
+          "block": "block_05"
+        },
+        {
+          "id": "text_block_07",
+          "kind": "richText",
+          "label": "Текст aff-registration-affiliate.block_07",
+          "token": "${{ aff-registration-affiliate.block_07 }}$",
+          "ns": "aff-registration-affiliate",
+          "block": "block_07"
+        },
+        {
+          "id": "text_block_08",
+          "kind": "richText",
+          "label": "Текст aff-registration-affiliate.block_08",
+          "token": "${{ aff-registration-affiliate.block_08 }}$",
+          "ns": "aff-registration-affiliate",
+          "block": "block_08"
+        },
+        {
+          "id": "text_block_09",
+          "kind": "richText",
+          "label": "Текст aff-registration-affiliate.block_09",
+          "token": "${{ aff-registration-affiliate.block_09 }}$",
+          "ns": "aff-registration-affiliate",
+          "block": "block_09"
+        },
+        {
+          "id": "text_block_10",
+          "kind": "richText",
+          "label": "Текст aff-registration-affiliate.block_10",
+          "token": "${{ aff-registration-affiliate.block_10 }}$",
+          "ns": "aff-registration-affiliate",
+          "block": "block_10"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "mailto:affiliate@iqoption.com"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-affsystem-aff-registration-affiliate-header-te",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb15 ${{ aff-registration-affiliate.block_05 }}$ <b>{{user_email}}</b> ${{ aff-registration-affiliate.block_07 }}$",
+          "styl": ".min-text,.text { font-family:Helvetica!important;color:#2e3851;letter-spacing:0 }\n.text { font-weight:400;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.pb15 { padding-bottom:15px!important }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }",
+          "classes": [
+            "pb15",
+            "text"
+          ],
+          "designClasses": [
+            "pb15",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_05",
+              "kind": "richText",
+              "label": "Текст aff-registration-affiliate.block_05",
+              "token": "${{ aff-registration-affiliate.block_05 }}$",
+              "ns": "aff-registration-affiliate",
+              "block": "block_05"
+            },
+            {
+              "id": "text_block_07",
+              "kind": "richText",
+              "label": "Текст aff-registration-affiliate.block_07",
+              "token": "${{ aff-registration-affiliate.block_07 }}$",
+              "ns": "aff-registration-affiliate",
+              "block": "block_07"
+            }
+          ]
+        },
+        {
+          "id": "x-affsystem-aff-registration-affiliate-header-te",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb15 ${{ aff-registration-affiliate.block_08 }}$&nbsp;\n    a(href=\"mailto:affiliate@iqoption.com\" target=\"_blank\") ${{ aff-registration-affiliate.block_09 }}$\n    |${{ aff-registration-affiliate.block_10 }}$",
+          "styl": ".min-text,.text { font-family:Helvetica!important;color:#2e3851;letter-spacing:0 }\n.text { font-weight:400;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.pb15 { padding-bottom:15px!important }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }",
+          "classes": [
+            "pb15",
+            "text"
+          ],
+          "designClasses": [
+            "pb15",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_08",
+              "kind": "richText",
+              "label": "Текст aff-registration-affiliate.block_08",
+              "token": "${{ aff-registration-affiliate.block_08 }}$",
+              "ns": "aff-registration-affiliate",
+              "block": "block_08"
+            },
+            {
+              "id": "text_block_09",
+              "kind": "richText",
+              "label": "Текст aff-registration-affiliate.block_09",
+              "token": "${{ aff-registration-affiliate.block_09 }}$",
+              "ns": "aff-registration-affiliate",
+              "block": "block_09"
+            },
+            {
+              "id": "text_block_10",
+              "kind": "richText",
+              "label": "Текст aff-registration-affiliate.block_10",
+              "token": "${{ aff-registration-affiliate.block_10 }}$",
+              "ns": "aff-registration-affiliate",
+              "block": "block_10"
+            },
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "mailto:affiliate@iqoption.com"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-affsystem-aff-registration-affiliate-header-se",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "kind": "section",
+      "sourceFile": "X_AffSystem/mail-aff-registration-affiliate/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.pt30.offset-by-one\n            table.ten.columns\n                tr\n                    td.pb0.text-pad-small\n                        p.subtitle.center.pb15 ${{ affbot.block_04 }}$\n                        p.text.center ${{ affbot.block_05 }}$\n                        p.text.center.pb15 ${{ affbot.block_06 }}$\n                        .social-links\n                            a.soc-link(href=\"https://www.facebook.com/iqaffiliate\" target=\"_blank\")\n                                img.soc(src=\"https://static.cdnpub.info/files/storage/public/60/fe/cb030b8cf6e1c9e7f2/fb_shadow.png\")\n                            a.soc-link(href=\"https://www.instagram.com/iqoptionaffiliate\" target=\"_blank\")\n                                img.soc(src=\"https://static.cdnpub.info/files/storage/public/60/fe/cb030c2442e2j4d2i1/insta_shadow.png\")\n                            a.soc-link(href=\"https://affiliate.iqoption.com/dashboard\" target=\"_blank\")\n                                img.soc(src=\"https://static.cdnpub.info/files/storage/public/60/fe/cb0306c808f0h5h2d8/iq_shadow.png\")",
+      "styl": ".min-text,.text { font-family:Helvetica!important;color:#2e3851;letter-spacing:0 }\n.text { font-weight:400;font-size:16px;line-height:26px }\n.big-text,.subtitle,b,p.warning,p.warning .upper { font-family:Helvetica!important }\n.subtitle { font-weight:700;letter-spacing:0;font-size:30px;color:#20242f;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.pb15 { padding-bottom:15px!important }\n.soc-link { display:inline-block;float:none;margin:0 10px }\n.soc { float:none;display:block;max-width:38px }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }\n.social-links { display:block;text-align:center }",
+      "classes": [
+        "center",
+        "columns",
+        "last",
+        "offset-by-one",
+        "pb0",
+        "pb15",
+        "pt30",
+        "row",
+        "soc",
+        "soc-link",
+        "social-links",
+        "subtitle",
+        "ten",
+        "text",
+        "text-pad-small",
+        "wrapper"
+      ],
+      "designClasses": [
+        "pb15",
+        "soc",
+        "soc-link",
+        "social-links",
+        "subtitle",
+        "text"
+      ],
+      "slots": [
+        {
+          "id": "text_block_04",
+          "kind": "richText",
+          "label": "Текст affbot.block_04",
+          "token": "${{ affbot.block_04 }}$",
+          "ns": "affbot",
+          "block": "block_04"
+        },
+        {
+          "id": "text_block_05",
+          "kind": "richText",
+          "label": "Текст affbot.block_05",
+          "token": "${{ affbot.block_05 }}$",
+          "ns": "affbot",
+          "block": "block_05"
+        },
+        {
+          "id": "text_block_06",
+          "kind": "richText",
+          "label": "Текст affbot.block_06",
+          "token": "${{ affbot.block_06 }}$",
+          "ns": "affbot",
+          "block": "block_06"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://www.facebook.com/iqaffiliate"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://www.instagram.com/iqoptionaffiliate"
+        },
+        {
+          "id": "href_2",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://affiliate.iqoption.com/dashboard"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnpub.info/files/storage/public/60/fe/cb030b8cf6e1c9e7f2/fb_shadow.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnpub.info/files/storage/public/60/fe/cb030c2442e2j4d2i1/insta_shadow.png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnpub.info/files/storage/public/60/fe/cb0306c808f0h5h2d8/iq_shadow.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-affsystem-aff-registration-affiliate-header-se",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.center ${{ affbot.block_05 }}$",
+          "styl": ".min-text,.text { font-family:Helvetica!important;color:#2e3851;letter-spacing:0 }\n.text { font-weight:400;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }",
+          "classes": [
+            "center",
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_05",
+              "kind": "richText",
+              "label": "Текст affbot.block_05",
+              "token": "${{ affbot.block_05 }}$",
+              "ns": "affbot",
+              "block": "block_05"
+            }
+          ]
+        },
+        {
+          "id": "x-affsystem-aff-registration-affiliate-header-se",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.center.pb15 ${{ affbot.block_06 }}$",
+          "styl": ".min-text,.text { font-family:Helvetica!important;color:#2e3851;letter-spacing:0 }\n.text { font-weight:400;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.pb15 { padding-bottom:15px!important }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }",
+          "classes": [
+            "center",
+            "pb15",
+            "text"
+          ],
+          "designClasses": [
+            "pb15",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_06",
+              "kind": "richText",
+              "label": "Текст affbot.block_06",
+              "token": "${{ affbot.block_06 }}$",
+              "ns": "affbot",
+              "block": "block_06"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

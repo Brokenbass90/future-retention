@@ -1,0 +1,1501 @@
+{
+  "category": "X_Exnova",
+  "mailId": "Teaser-email-1",
+  "mailAbs": "email-base/X_Exnova/mail-Teaser-email-1",
+  "blockCount": 10,
+  "blocks": [
+    {
+      "id": "x-exnova-teaser-email-1-header-header-0",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "kind": "section",
+      "sourceFile": "X_Exnova/mail-Teaser-email-1/app/templates/blocks/header.jade",
+      "pug": "table.row.brad-top\n    tr\n        td.wrapper.last.pt30.pb30\n            table.row\n                tr\n                    td.wrapper.offset-by-one.last.pt0\n                        table.ten.columns\n                            tr\n                                td.pb0.text-pad-small\n                                    a(href=\"https://trade.exnova.com/traderoom/asset?aff=7&afftrack=mail_car-tournament-email-2&retrack=car-tournament-email-2\" target=\"_blank\")\n                                        img.logo(src=\"https://fsms.quadcode.com/storage/public/cp/av/8ncds9kt1nhaukfg/logo-exnova.png\")\n                                    a.go-invest(href=\"https://trade.exnova.com/traderoom/asset?aff=7&afftrack=mail_car-tournament-email-2&retrack=car-tournament-email-2\" target=\"_blank\") ${{ Invest-now.block_00 }}$\n                                        img.arr(src=\"https://static.cdnroute.io/files/storage/public/62/a2/fef50cbea6d4j8b4d4/icon_arrow.png\")",
+      "styl": ".brad-top { border-top-left-radius: 3px !important;\n  border-top-right-radius: 3px !important; }\n.arr { float: none;\n  display: inline-block;\n  max-width: 18px;\n  padding-left: 5px;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .arr { margin: o auto !important; }\n}\n.go-invest { display: inline-block;\n  font-family: Helvetica !important;\n  font-weight: 600;\n  font-size: 16px;\n  line-height: 22px;\n  letter-spacing: -0.25px;\n  color: #00589e;\n  text-align: right;\n  float: right;\n  padding-top: 5px; }\n.brad-top { border-top-left-radius:3px!important;border-top-right-radius:3px!important }\n.arr { float:none;display:inline-block;max-width:18px;padding-left:5px;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .arr { margin:o auto!important }\n}\n.go-invest { display:inline-block;font-family:Helvetica!important;font-weight:600;font-size:16px;line-height:22px;letter-spacing:-.25px;color:#00589e;text-align:right;float:right;padding-top:5px }",
+      "classes": [
+        "arr",
+        "brad-top",
+        "columns",
+        "go-invest",
+        "last",
+        "logo",
+        "offset-by-one",
+        "pb0",
+        "pb30",
+        "pt0",
+        "pt30",
+        "row",
+        "ten",
+        "text-pad-small",
+        "wrapper"
+      ],
+      "designClasses": [
+        "arr",
+        "brad-top",
+        "go-invest"
+      ],
+      "slots": [
+        {
+          "id": "text_block_00",
+          "kind": "richText",
+          "label": "Текст Invest-now.block_00",
+          "token": "${{ Invest-now.block_00 }}$",
+          "ns": "Invest-now",
+          "block": "block_00"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://trade.exnova.com/traderoom/asset?aff=7&afftrack=mail_car-tournament-email-2&retrack=car-tournament-email-2"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cp/av/8ncds9kt1nhaukfg/logo-exnova.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnroute.io/files/storage/public/62/a2/fef50cbea6d4j8b4d4/icon_arrow.png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-exnova-teaser-email-1-header-text-1",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_Exnova/mail-Teaser-email-1/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg\n    tr\n        td.wrapper.offset-by-one.last.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb40\n                        p.text.data-blue(style=\"font-weight: 700;\") ${{ Teaser-email-1.block_02 }}$\n                        p.title.pb32.pt15 ${{ Teaser-email-1.block_01 }}$\n                        a(href=\"#\" target=\"_blank\")\n                            img.banner(src=\"https://fsms.quadcode.com/storage/public/cr/8r/ehudi3umufautsf0/email-2-top.png\")\n                        p.text.pt32 ${{ Teaser-email-1.block_13 }}$&nbsp;\n                            a(href=\"https://exnovatorneios.com/?aff=7afftrack=mail_car-tournament-email-2&retrack=car-tournament-email-2\" target=\"_blank\") ${{ Teaser-email-1.block_14 }}$\n                            |${{ Teaser-email-1.block_15 }}$\n                        table.w245(align=\"center\")\n                            tr\n                                td.pt40.pb0\n                                    .button-wrapper_bot.pt0\n                                        table.medium-button.radius.blue-button\n                                            tr\n                                                td.iq.blue-button\n                                                    a.butt(href=\"https://exnovatorneios.com/?aff=7afftrack=mail_car-tournament-email-2&retrack=car-tournament-email-2\" target=\"_blank\") ${{ Teaser-email-1.block_16 }}$",
+      "styl": ".w245 { width: 100%;\n  max-width: 245px; }\n@media screen and (max-width: 600px) {\n  .w245 { min-width: 100% !important; }\n}\n.blue-button { background: #0173ca !important;\n  border-radius: 8px !important; }\n.white-bg { background: #fff;\n  border-radius: 16px; }\n.title { font-family: Helvetica !important;\n  color: #373437;\n  font-size: 48px;\n  line-height: 58px;\n  font-weight: 700; }\n@media screen and (max-width: 600px) {\n  .title { font-size: 40px !important;\n    line-height: 50px !important; }\n}\n@media screen and (max-width: 420px) {\n  .title { font-size: 32px !important;\n    line-height: 45px !important; }\n}\n.text { font-family: Helvetica !important;\n  color: #262832;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 25px; }\n.text a { color: #0173ca !important; }\n.data-blue { border: 2px solid #0081e3;\n  border-radius: 10px;\n  padding: 4px 16px;\n  max-width: 265px; }\n.text.bold { font-weight: 700; }\n.pb32 { padding-bottom: 32px; }\n.pt15 { padding-top: 15px; }\n.pt32 { padding-top: 32px; }\n.pt44 { padding-top: 44px; }\n.banner { width: 100% !important;\n  max-width: 480px !important;\n  margin: 0 auto !important;\n  float: none !important;\n  display: block !important;\n  background: #f5f9ff;\n  border-radius: 16px; }\n.w245 { width:100%;max-width:245px }\n@media screen and (max-width:600px) {\n  .w245 { min-width:100%!important }\n}\n.blue-button { background:#0173ca!important;border-radius:8px!important }\n.white-bg { background:#fff;border-radius:16px }\n.hello,.subtitle-2,.title { font-family:Helvetica!important;font-weight:700 }\n.title { color:#373437;font-size:48px;line-height:58px }\n@media screen and (max-width:600px) {\n  .title { font-size:40px!important;line-height:50px!important }\n}\n@media screen and (max-width:420px) {\n  .title { font-size:32px!important;line-height:45px!important }\n}\n.grey-text,.text { font-family:Helvetica!important;color:#262832;font-size:18px;font-weight:400;line-height:25px }\n.text a { color:#0173ca!important }\n.data-blue { border:2px solid #0081e3;border-radius:10px;padding:4px 16px;max-width:265px }\n.text.bold { font-weight:700 }\n.pb32 { padding-bottom:32px }\n.pt15 { padding-top:15px }\n.pt32 { padding-top:32px }\n.pt44 { padding-top:44px }\n.banner { width:100%!important;max-width:480px!important;margin:0 auto!important;float:none!important;display:block!important;background:#f5f9ff;border-radius:16px }",
+      "classes": [
+        "banner",
+        "blue-button",
+        "butt",
+        "button-wrapper_bot",
+        "columns",
+        "data-blue",
+        "iq",
+        "last",
+        "medium-button",
+        "offset-by-one",
+        "pb0",
+        "pb32",
+        "pb40",
+        "pt0",
+        "pt15",
+        "pt32",
+        "pt40",
+        "pt44",
+        "radius",
+        "row",
+        "ten",
+        "text",
+        "text-pad-small",
+        "title",
+        "w245",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "banner",
+        "blue-button",
+        "button-wrapper_bot",
+        "data-blue",
+        "pb32",
+        "pt15",
+        "pt32",
+        "pt44",
+        "text",
+        "title",
+        "w245",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_02",
+          "kind": "richText",
+          "label": "Текст Teaser-email-1.block_02",
+          "token": "${{ Teaser-email-1.block_02 }}$",
+          "ns": "Teaser-email-1",
+          "block": "block_02"
+        },
+        {
+          "id": "text_block_01",
+          "kind": "richText",
+          "label": "Текст Teaser-email-1.block_01",
+          "token": "${{ Teaser-email-1.block_01 }}$",
+          "ns": "Teaser-email-1",
+          "block": "block_01"
+        },
+        {
+          "id": "text_block_13",
+          "kind": "richText",
+          "label": "Текст Teaser-email-1.block_13",
+          "token": "${{ Teaser-email-1.block_13 }}$",
+          "ns": "Teaser-email-1",
+          "block": "block_13"
+        },
+        {
+          "id": "text_block_14",
+          "kind": "richText",
+          "label": "Текст Teaser-email-1.block_14",
+          "token": "${{ Teaser-email-1.block_14 }}$",
+          "ns": "Teaser-email-1",
+          "block": "block_14"
+        },
+        {
+          "id": "text_block_15",
+          "kind": "richText",
+          "label": "Текст Teaser-email-1.block_15",
+          "token": "${{ Teaser-email-1.block_15 }}$",
+          "ns": "Teaser-email-1",
+          "block": "block_15"
+        },
+        {
+          "id": "text_block_16",
+          "kind": "richText",
+          "label": "Текст Teaser-email-1.block_16",
+          "token": "${{ Teaser-email-1.block_16 }}$",
+          "ns": "Teaser-email-1",
+          "block": "block_16"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://exnovatorneios.com/?aff=7afftrack=mail_car-tournament-email-2&retrack=car-tournament-email-2"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cr/8r/ehudi3umufautsf0/email-2-top.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-exnova-teaser-email-1-header-text-1-paragraph-",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.data-blue(style=\"font-weight: 700;\") ${{ Teaser-email-1.block_02 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #262832;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 25px; }\n.text a { color: #0173ca !important; }\n.data-blue { border: 2px solid #0081e3;\n  border-radius: 10px;\n  padding: 4px 16px;\n  max-width: 265px; }\n.text.bold { font-weight: 700; }\n.grey-text,.text { font-family:Helvetica!important;color:#262832;font-size:18px;font-weight:400;line-height:25px }\n.text a { color:#0173ca!important }\n.data-blue { border:2px solid #0081e3;border-radius:10px;padding:4px 16px;max-width:265px }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "data-blue",
+            "text"
+          ],
+          "designClasses": [
+            "data-blue",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_02",
+              "kind": "richText",
+              "label": "Текст Teaser-email-1.block_02",
+              "token": "${{ Teaser-email-1.block_02 }}$",
+              "ns": "Teaser-email-1",
+              "block": "block_02"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-teaser-email-1-header-text-1-heading-1",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.title.pb32.pt15 ${{ Teaser-email-1.block_01 }}$",
+          "styl": ".title { font-family: Helvetica !important;\n  color: #373437;\n  font-size: 48px;\n  line-height: 58px;\n  font-weight: 700; }\n@media screen and (max-width: 600px) {\n  .title { font-size: 40px !important;\n    line-height: 50px !important; }\n}\n@media screen and (max-width: 420px) {\n  .title { font-size: 32px !important;\n    line-height: 45px !important; }\n}\n.pb32 { padding-bottom: 32px; }\n.pt15 { padding-top: 15px; }\n.hello,.subtitle-2,.title { font-family:Helvetica!important;font-weight:700 }\n.title { color:#373437;font-size:48px;line-height:58px }\n@media screen and (max-width:600px) {\n  .title { font-size:40px!important;line-height:50px!important }\n}\n@media screen and (max-width:420px) {\n  .title { font-size:32px!important;line-height:45px!important }\n}\n.pb32 { padding-bottom:32px }\n.pt15 { padding-top:15px }",
+          "classes": [
+            "pb32",
+            "pt15",
+            "title"
+          ],
+          "designClasses": [
+            "pb32",
+            "pt15",
+            "title"
+          ],
+          "slots": [
+            {
+              "id": "text_block_01",
+              "kind": "richText",
+              "label": "Текст Teaser-email-1.block_01",
+              "token": "${{ Teaser-email-1.block_01 }}$",
+              "ns": "Teaser-email-1",
+              "block": "block_01"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-teaser-email-1-header-text-1-paragraph-",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pt32 ${{ Teaser-email-1.block_13 }}$&nbsp;\n    a(href=\"https://exnovatorneios.com/?aff=7afftrack=mail_car-tournament-email-2&retrack=car-tournament-email-2\" target=\"_blank\") ${{ Teaser-email-1.block_14 }}$\n    |${{ Teaser-email-1.block_15 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #262832;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 25px; }\n.text a { color: #0173ca !important; }\n.text.bold { font-weight: 700; }\n.pt32 { padding-top: 32px; }\n.grey-text,.text { font-family:Helvetica!important;color:#262832;font-size:18px;font-weight:400;line-height:25px }\n.text a { color:#0173ca!important }\n.text.bold { font-weight:700 }\n.pt32 { padding-top:32px }",
+          "classes": [
+            "pt32",
+            "text"
+          ],
+          "designClasses": [
+            "pt32",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_13",
+              "kind": "richText",
+              "label": "Текст Teaser-email-1.block_13",
+              "token": "${{ Teaser-email-1.block_13 }}$",
+              "ns": "Teaser-email-1",
+              "block": "block_13"
+            },
+            {
+              "id": "text_block_14",
+              "kind": "richText",
+              "label": "Текст Teaser-email-1.block_14",
+              "token": "${{ Teaser-email-1.block_14 }}$",
+              "ns": "Teaser-email-1",
+              "block": "block_14"
+            },
+            {
+              "id": "text_block_15",
+              "kind": "richText",
+              "label": "Текст Teaser-email-1.block_15",
+              "token": "${{ Teaser-email-1.block_15 }}$",
+              "ns": "Teaser-email-1",
+              "block": "block_15"
+            },
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://exnovatorneios.com/?aff=7afftrack=mail_car-tournament-email-2&retrack=car-tournament-email-2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-exnova-teaser-email-1-header-utility-2",
+      "label": "Спейсер 12px",
+      "placement": "inline",
+      "category": "utility",
+      "kind": "spacer",
+      "sourceFile": "X_Exnova/mail-Teaser-email-1/app/templates/blocks/header.jade",
+      "pug": ".h-12 &nbsp;",
+      "styl": "",
+      "classes": [
+        "h-12"
+      ],
+      "designClasses": [
+        "h-12"
+      ],
+      "slots": [],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-exnova-teaser-email-1-header-text-3",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_Exnova/mail-Teaser-email-1/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg\n    tr\n        td.wrapper.offset-by-one.last.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb16\n                        p.small-title.pb32 ${{ Teaser-email-1.block_17 }}$\n                        .grey-box\n                            p.text.pb16 ${{ Teaser-email-1.block_18 }}$\n                            p.big-date.pb8 ${{ Teaser-email-1.block_19 }}$\n                            p.text  ${{ Teaser-email-1.block_20 }}$\n                tr\n                    td.text-pad-small.pb40.pt0\n                        .left-block\n                            .padding-blocks\n                                p.text.pb16 ${{ Teaser-email-1.block_21 }}$\n                                p.big-date.pb8 ${{ Teaser-email-1.block_22 }}$\n                        .right-block\n                            .padding-blocks\n                                p.text.pb16 ${{ Teaser-email-1.block_23 }}$\n                                p.big-date.pb8 ${{ Teaser-email-1.block_24 }}$\n                tr\n                    td.text-pad-small.pb44.pt0\n                        table.w245(align=\"center\")\n                            tr\n                                td.pt0.pb0\n                                    .button-wrapper_bot.pt0\n                                        table.medium-button.radius.blue-button\n                                            tr\n                                                td.iq.blue-button\n                                                    a.butt(href=\"https://exnovatorneios.com/?aff=7afftrack=mail_car-tournament-email-2&retrack=car-tournament-email-2\" target=\"_blank\") ${{ Teaser-email-1.block_25 }}$",
+      "styl": ".w245 { width: 100%;\n  max-width: 245px; }\n@media screen and (max-width: 600px) {\n  .w245 { min-width: 100% !important; }\n}\n.blue-button { background: #0173ca !important;\n  border-radius: 8px !important; }\n.white-bg { background: #fff;\n  border-radius: 16px; }\n.small-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #413e43; }\n@media screen and (max-width: 420px) {\n  .small-title { font-size: 22px !important;\n    line-height: 32px !important; }\n}\n.text { font-family: Helvetica !important;\n  color: #262832;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 25px; }\n.text a { color: #0173ca !important; }\n.text.bold { font-weight: 700; }\n.pb16 { padding-bottom: 16px; }\n.pb32 { padding-bottom: 32px; }\n.pb44 { padding-bottom: 44px; }\n.pb8 { padding-bottom: 8px; }\n.pt44 { padding-top: 44px; }\n.grey-box { padding: 24px 32px;\n  background: #f5f9ff;\n  border-radius: 16px;\n  background-image: url(\"https://fsms.quadcode.com/storage/public/cr/8r/ehudi3umufautsdg/calendar-filled.png\");\n  background-position: top 24px right 32px;\n  background-repeat: no-repeat;\n  background-size: 24px; }\n.big-date { font-family: Helvetica !important;\n  font-weight: 400;\n  font-size: 36px;\n  line-height: 47px;\n  color: #413e43; }\n@media screen and (max-width: 600px) {\n  .big-date { font-size: 26px !important;\n    line-height: 37px !important; }\n}\n.padding-blocks { padding: 24px 32px; }\n.left-block { background: #f5f9ff;\n  display: inline-block;\n  border-radius: 16px;\n  width: 230px;\n  vertical-align: middle;\n  float: left;\n  background-image: url(\"https://fsms.quadcode.com/storage/public/cr/8r/ehufu8jqbm985f2g/card.png\");\n  background-position: top 24px right 32px;\n  background-repeat: no-repeat;\n  background-size: 24px;\n  min-height: 240px; }\n@media screen and (max-width: 600px) {\n  .left-block { float: none !important;\n    display: block !important;\n    width: 100% !important;\n    margin: 0 auto 15px !important;\n    min-height: auto !important; }\n}\n.right-block { background: #f5f9ff;\n  vertical-align: middle;\n  display: inline-block;\n  border-radius: 16px;\n  float: right;\n  width: 230px;\n  background-image: url(\"https://fsms.quadcode.com/storage/public/cr/8r/ehudi3umufautseg/undo-circle.png\");\n  background-position: top 24px right 32px;\n  background-repeat: no-repeat;\n  background-size: 24px;\n  min-height: 240px; }\n@media screen and (max-width: 600px) {\n  .right-block { float: none !important;\n    display: block !important;\n    margin: 0 auto !important;\n    width: 100% !important;\n    min-height: auto !important; }\n}\n.w245 { width:100%;max-width:245px }\n@media screen and (max-width:600px) {\n  .w245 { min-width:100%!important }\n}\n.blue-button { background:#0173ca!important;border-radius:8px!important }\n.white-bg { background:#fff;border-radius:16px }\n.small-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#413e43 }\n@media screen and (max-width:420px) {\n  .small-title { font-size:22px!important;line-height:32px!important }\n}\n.grey-text,.text { font-family:Helvetica!important;color:#262832;font-size:18px;font-weight:400;line-height:25px }\n.text a { color:#0173ca!important }\n.text.bold { font-weight:700 }\n.pb16 { padding-bottom:16px }\n.pb32 { padding-bottom:32px }\n.pb44 { padding-bottom:44px }\n.pb8 { padding-bottom:8px }\n.pt44 { padding-top:44px }\n.grey-box { padding:24px 32px;background:#f5f9ff;border-radius:16px;background-image:url(https://fsms.quadcode.com/storage/public/cr/8r/ehudi3umufautsdg/calendar-filled.png);background-position:top 24px right 32px;background-repeat:no-repeat;background-size:24px }\n.big-date { font-family:Helvetica!important;font-weight:400;font-size:36px;line-height:47px;color:#413e43 }\n@media screen and (max-width:600px) {\n  .big-date { font-size:26px!important;line-height:37px!important }\n}\n.padding-blocks { padding:24px 32px }\n.left-block { background:#f5f9ff;display:inline-block;border-radius:16px;width:230px;vertical-align:middle;float:left;background-image:url(https://fsms.quadcode.com/storage/public/cr/8r/ehufu8jqbm985f2g/card.png);background-position:top 24px right 32px;background-repeat:no-repeat;background-size:24px;min-height:240px }\n@media screen and (max-width:600px) {\n  .left-block { float:none!important;display:block!important;width:100%!important;margin:0 auto 15px!important;min-height:auto!important }\n}\n.right-block { background:#f5f9ff;vertical-align:middle;display:inline-block;border-radius:16px;float:right;width:230px;background-image:url(https://fsms.quadcode.com/storage/public/cr/8r/ehudi3umufautseg/undo-circle.png);background-position:top 24px right 32px;background-repeat:no-repeat;background-size:24px;min-height:240px }\n@media screen and (max-width:600px) {\n  .right-block { float:none!important;display:block!important;margin:0 auto!important;width:100%!important;min-height:auto!important }\n}",
+      "classes": [
+        "big-date",
+        "blue-button",
+        "butt",
+        "button-wrapper_bot",
+        "columns",
+        "grey-box",
+        "iq",
+        "last",
+        "left-block",
+        "medium-button",
+        "offset-by-one",
+        "padding-blocks",
+        "pb0",
+        "pb16",
+        "pb32",
+        "pb40",
+        "pb44",
+        "pb8",
+        "pt0",
+        "pt44",
+        "radius",
+        "right-block",
+        "row",
+        "small-title",
+        "ten",
+        "text",
+        "text-pad-small",
+        "w245",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "big-date",
+        "blue-button",
+        "button-wrapper_bot",
+        "grey-box",
+        "left-block",
+        "padding-blocks",
+        "pb16",
+        "pb32",
+        "pb44",
+        "pb8",
+        "pt44",
+        "right-block",
+        "small-title",
+        "text",
+        "w245",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_17",
+          "kind": "richText",
+          "label": "Текст Teaser-email-1.block_17",
+          "token": "${{ Teaser-email-1.block_17 }}$",
+          "ns": "Teaser-email-1",
+          "block": "block_17"
+        },
+        {
+          "id": "text_block_18",
+          "kind": "richText",
+          "label": "Текст Teaser-email-1.block_18",
+          "token": "${{ Teaser-email-1.block_18 }}$",
+          "ns": "Teaser-email-1",
+          "block": "block_18"
+        },
+        {
+          "id": "text_block_19",
+          "kind": "richText",
+          "label": "Текст Teaser-email-1.block_19",
+          "token": "${{ Teaser-email-1.block_19 }}$",
+          "ns": "Teaser-email-1",
+          "block": "block_19"
+        },
+        {
+          "id": "text_block_20",
+          "kind": "richText",
+          "label": "Текст Teaser-email-1.block_20",
+          "token": "${{ Teaser-email-1.block_20 }}$",
+          "ns": "Teaser-email-1",
+          "block": "block_20"
+        },
+        {
+          "id": "text_block_21",
+          "kind": "richText",
+          "label": "Текст Teaser-email-1.block_21",
+          "token": "${{ Teaser-email-1.block_21 }}$",
+          "ns": "Teaser-email-1",
+          "block": "block_21"
+        },
+        {
+          "id": "text_block_22",
+          "kind": "richText",
+          "label": "Текст Teaser-email-1.block_22",
+          "token": "${{ Teaser-email-1.block_22 }}$",
+          "ns": "Teaser-email-1",
+          "block": "block_22"
+        },
+        {
+          "id": "text_block_23",
+          "kind": "richText",
+          "label": "Текст Teaser-email-1.block_23",
+          "token": "${{ Teaser-email-1.block_23 }}$",
+          "ns": "Teaser-email-1",
+          "block": "block_23"
+        },
+        {
+          "id": "text_block_24",
+          "kind": "richText",
+          "label": "Текст Teaser-email-1.block_24",
+          "token": "${{ Teaser-email-1.block_24 }}$",
+          "ns": "Teaser-email-1",
+          "block": "block_24"
+        },
+        {
+          "id": "text_block_25",
+          "kind": "richText",
+          "label": "Текст Teaser-email-1.block_25",
+          "token": "${{ Teaser-email-1.block_25 }}$",
+          "ns": "Teaser-email-1",
+          "block": "block_25"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://exnovatorneios.com/?aff=7afftrack=mail_car-tournament-email-2&retrack=car-tournament-email-2"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-exnova-teaser-email-1-header-text-3-heading-0",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.small-title.pb32 ${{ Teaser-email-1.block_17 }}$",
+          "styl": ".small-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #413e43; }\n@media screen and (max-width: 420px) {\n  .small-title { font-size: 22px !important;\n    line-height: 32px !important; }\n}\n.pb32 { padding-bottom: 32px; }\n.small-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#413e43 }\n@media screen and (max-width:420px) {\n  .small-title { font-size:22px!important;line-height:32px!important }\n}\n.pb32 { padding-bottom:32px }",
+          "classes": [
+            "pb32",
+            "small-title"
+          ],
+          "designClasses": [
+            "pb32",
+            "small-title"
+          ],
+          "slots": [
+            {
+              "id": "text_block_17",
+              "kind": "richText",
+              "label": "Текст Teaser-email-1.block_17",
+              "token": "${{ Teaser-email-1.block_17 }}$",
+              "ns": "Teaser-email-1",
+              "block": "block_17"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-teaser-email-1-header-text-3-paragraph-",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb16 ${{ Teaser-email-1.block_18 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #262832;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 25px; }\n.text a { color: #0173ca !important; }\n.text.bold { font-weight: 700; }\n.pb16 { padding-bottom: 16px; }\n.grey-text,.text { font-family:Helvetica!important;color:#262832;font-size:18px;font-weight:400;line-height:25px }\n.text a { color:#0173ca!important }\n.text.bold { font-weight:700 }\n.pb16 { padding-bottom:16px }",
+          "classes": [
+            "pb16",
+            "text"
+          ],
+          "designClasses": [
+            "pb16",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_18",
+              "kind": "richText",
+              "label": "Текст Teaser-email-1.block_18",
+              "token": "${{ Teaser-email-1.block_18 }}$",
+              "ns": "Teaser-email-1",
+              "block": "block_18"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-teaser-email-1-header-text-3-paragraph-",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text  ${{ Teaser-email-1.block_20 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #262832;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 25px; }\n.text a { color: #0173ca !important; }\n.text.bold { font-weight: 700; }\n.grey-text,.text { font-family:Helvetica!important;color:#262832;font-size:18px;font-weight:400;line-height:25px }\n.text a { color:#0173ca!important }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_20",
+              "kind": "richText",
+              "label": "Текст Teaser-email-1.block_20",
+              "token": "${{ Teaser-email-1.block_20 }}$",
+              "ns": "Teaser-email-1",
+              "block": "block_20"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-teaser-email-1-header-text-3-paragraph-",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb16 ${{ Teaser-email-1.block_21 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #262832;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 25px; }\n.text a { color: #0173ca !important; }\n.text.bold { font-weight: 700; }\n.pb16 { padding-bottom: 16px; }\n.grey-text,.text { font-family:Helvetica!important;color:#262832;font-size:18px;font-weight:400;line-height:25px }\n.text a { color:#0173ca!important }\n.text.bold { font-weight:700 }\n.pb16 { padding-bottom:16px }",
+          "classes": [
+            "pb16",
+            "text"
+          ],
+          "designClasses": [
+            "pb16",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_21",
+              "kind": "richText",
+              "label": "Текст Teaser-email-1.block_21",
+              "token": "${{ Teaser-email-1.block_21 }}$",
+              "ns": "Teaser-email-1",
+              "block": "block_21"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-teaser-email-1-header-text-3-paragraph-",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb16 ${{ Teaser-email-1.block_23 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #262832;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 25px; }\n.text a { color: #0173ca !important; }\n.text.bold { font-weight: 700; }\n.pb16 { padding-bottom: 16px; }\n.grey-text,.text { font-family:Helvetica!important;color:#262832;font-size:18px;font-weight:400;line-height:25px }\n.text a { color:#0173ca!important }\n.text.bold { font-weight:700 }\n.pb16 { padding-bottom:16px }",
+          "classes": [
+            "pb16",
+            "text"
+          ],
+          "designClasses": [
+            "pb16",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_23",
+              "kind": "richText",
+              "label": "Текст Teaser-email-1.block_23",
+              "token": "${{ Teaser-email-1.block_23 }}$",
+              "ns": "Teaser-email-1",
+              "block": "block_23"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-exnova-teaser-email-1-header-utility-4",
+      "label": "Спейсер 12px",
+      "placement": "inline",
+      "category": "utility",
+      "kind": "spacer",
+      "sourceFile": "X_Exnova/mail-Teaser-email-1/app/templates/blocks/header.jade",
+      "pug": ".h-12 &nbsp;",
+      "styl": "",
+      "classes": [
+        "h-12"
+      ],
+      "designClasses": [
+        "h-12"
+      ],
+      "slots": [],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-exnova-teaser-email-1-header-text-5",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_Exnova/mail-Teaser-email-1/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg\n    tr\n        td.wrapper.offset-by-one.last.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44\n                        p.small-title.pb32 ${{ Teaser-email-1.block_26 }}$\n                        .blue-blocks\n                            table\n                                tr\n                                    td.pb0.w-a.m-w\n                                        a(href=\"#\" target=\"_blank\")\n                                            img.small-img(src=\"https://fsms.quadcode.com/storage/public/cr/8r/ehufu8jqbm985f20/Frame 69.png\")\n                                    td.pb0.w-a\n                                        p.text.pb4 <b>${{ Teaser-email-1.block_27 }}$</b>\n                                        p.text ${{ Teaser-email-1.block_28 }}$\n                        .h-12 &nbsp;\n                        .blue-blocks\n                            table\n                                tr\n                                    td.pb0.w-a.m-w\n                                        a(href=\"#\" target=\"_blank\")\n                                            img.small-img(src=\"https://fsms.quadcode.com/storage/public/cr/8r/ehufu8jqbm985f1g/Frame 69 (1).png\")\n                                    td.pb0.w-a\n                                        p.text.pb4 <b>${{ Teaser-email-1.block_29 }}$</b>\n                                        p.text ${{ Teaser-email-1.block_30 }}$\n                        .h-12 &nbsp;\n                        .blue-blocks\n                            table\n                                tr\n                                    td.pb0.w-a.m-w\n                                        a(href=\"#\" target=\"_blank\")\n                                            img.small-img(src=\"https://fsms.quadcode.com/storage/public/cr/8r/ehufu8jqbm985f1g/Frame 69 (1).png\")\n                                    td.pb0.w-a\n                                        p.text.pb4 <b>${{ Teaser-email-1.block_31 }}$</b>\n                                        p.text ${{ Teaser-email-1.block_32 }}$",
+      "styl": ".white-bg { background: #fff;\n  border-radius: 16px; }\n.small-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #413e43; }\n@media screen and (max-width: 420px) {\n  .small-title { font-size: 22px !important;\n    line-height: 32px !important; }\n}\n.text { font-family: Helvetica !important;\n  color: #262832;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 25px; }\n.text a { color: #0173ca !important; }\n.text.bold { font-weight: 700; }\n.pb32 { padding-bottom: 32px; }\n.pb44 { padding-bottom: 44px; }\n.pb4 { padding-bottom: 4px; }\n.pt44 { padding-top: 44px; }\n.w-a { width: auto !important; }\n.m-w { min-width: 80px; }\n.small-img { width: 56px !important; }\n.blue-blocks { background: #f5f9ff;\n  border-radius: 24px;\n  padding: 24px; }\n.white-bg { background:#fff;border-radius:16px }\n.small-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#413e43 }\n@media screen and (max-width:420px) {\n  .small-title { font-size:22px!important;line-height:32px!important }\n}\n.grey-text,.text { font-family:Helvetica!important;color:#262832;font-size:18px;font-weight:400;line-height:25px }\n.text a { color:#0173ca!important }\n.text.bold { font-weight:700 }\n.pb32 { padding-bottom:32px }\n.pb44 { padding-bottom:44px }\n.pb4 { padding-bottom:4px }\n.pt44 { padding-top:44px }\n.w-a { width:auto!important }\n.m-w { min-width:80px }\n.small-img { width:56px!important }\n.blue-blocks { background:#f5f9ff;border-radius:24px;padding:24px }",
+      "classes": [
+        "blue-blocks",
+        "columns",
+        "h-12",
+        "last",
+        "m-w",
+        "offset-by-one",
+        "pb0",
+        "pb32",
+        "pb4",
+        "pb44",
+        "pt44",
+        "row",
+        "small-img",
+        "small-title",
+        "ten",
+        "text",
+        "text-pad-small",
+        "w-a",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "blue-blocks",
+        "h-12",
+        "m-w",
+        "pb32",
+        "pb4",
+        "pb44",
+        "pt44",
+        "small-img",
+        "small-title",
+        "text",
+        "w-a",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_26",
+          "kind": "richText",
+          "label": "Текст Teaser-email-1.block_26",
+          "token": "${{ Teaser-email-1.block_26 }}$",
+          "ns": "Teaser-email-1",
+          "block": "block_26"
+        },
+        {
+          "id": "text_block_27",
+          "kind": "richText",
+          "label": "Текст Teaser-email-1.block_27",
+          "token": "${{ Teaser-email-1.block_27 }}$",
+          "ns": "Teaser-email-1",
+          "block": "block_27"
+        },
+        {
+          "id": "text_block_28",
+          "kind": "richText",
+          "label": "Текст Teaser-email-1.block_28",
+          "token": "${{ Teaser-email-1.block_28 }}$",
+          "ns": "Teaser-email-1",
+          "block": "block_28"
+        },
+        {
+          "id": "text_block_29",
+          "kind": "richText",
+          "label": "Текст Teaser-email-1.block_29",
+          "token": "${{ Teaser-email-1.block_29 }}$",
+          "ns": "Teaser-email-1",
+          "block": "block_29"
+        },
+        {
+          "id": "text_block_30",
+          "kind": "richText",
+          "label": "Текст Teaser-email-1.block_30",
+          "token": "${{ Teaser-email-1.block_30 }}$",
+          "ns": "Teaser-email-1",
+          "block": "block_30"
+        },
+        {
+          "id": "text_block_31",
+          "kind": "richText",
+          "label": "Текст Teaser-email-1.block_31",
+          "token": "${{ Teaser-email-1.block_31 }}$",
+          "ns": "Teaser-email-1",
+          "block": "block_31"
+        },
+        {
+          "id": "text_block_32",
+          "kind": "richText",
+          "label": "Текст Teaser-email-1.block_32",
+          "token": "${{ Teaser-email-1.block_32 }}$",
+          "ns": "Teaser-email-1",
+          "block": "block_32"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cr/8r/ehufu8jqbm985f20/Frame 69.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cr/8r/ehufu8jqbm985f1g/Frame 69 (1).png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-exnova-teaser-email-1-header-text-5-heading-0",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.small-title.pb32 ${{ Teaser-email-1.block_26 }}$",
+          "styl": ".small-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #413e43; }\n@media screen and (max-width: 420px) {\n  .small-title { font-size: 22px !important;\n    line-height: 32px !important; }\n}\n.pb32 { padding-bottom: 32px; }\n.small-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#413e43 }\n@media screen and (max-width:420px) {\n  .small-title { font-size:22px!important;line-height:32px!important }\n}\n.pb32 { padding-bottom:32px }",
+          "classes": [
+            "pb32",
+            "small-title"
+          ],
+          "designClasses": [
+            "pb32",
+            "small-title"
+          ],
+          "slots": [
+            {
+              "id": "text_block_26",
+              "kind": "richText",
+              "label": "Текст Teaser-email-1.block_26",
+              "token": "${{ Teaser-email-1.block_26 }}$",
+              "ns": "Teaser-email-1",
+              "block": "block_26"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-teaser-email-1-header-text-5-paragraph-",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb4 <b>${{ Teaser-email-1.block_27 }}$</b>",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #262832;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 25px; }\n.text a { color: #0173ca !important; }\n.text.bold { font-weight: 700; }\n.pb4 { padding-bottom: 4px; }\n.grey-text,.text { font-family:Helvetica!important;color:#262832;font-size:18px;font-weight:400;line-height:25px }\n.text a { color:#0173ca!important }\n.text.bold { font-weight:700 }\n.pb4 { padding-bottom:4px }",
+          "classes": [
+            "pb4",
+            "text"
+          ],
+          "designClasses": [
+            "pb4",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_27",
+              "kind": "richText",
+              "label": "Текст Teaser-email-1.block_27",
+              "token": "${{ Teaser-email-1.block_27 }}$",
+              "ns": "Teaser-email-1",
+              "block": "block_27"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-teaser-email-1-header-text-5-paragraph-",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ Teaser-email-1.block_28 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #262832;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 25px; }\n.text a { color: #0173ca !important; }\n.text.bold { font-weight: 700; }\n.grey-text,.text { font-family:Helvetica!important;color:#262832;font-size:18px;font-weight:400;line-height:25px }\n.text a { color:#0173ca!important }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_28",
+              "kind": "richText",
+              "label": "Текст Teaser-email-1.block_28",
+              "token": "${{ Teaser-email-1.block_28 }}$",
+              "ns": "Teaser-email-1",
+              "block": "block_28"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-teaser-email-1-header-text-5-spacer-3",
+          "label": "Спейсер 12px",
+          "placement": "inline",
+          "category": "utility",
+          "pug": ".h-12 &nbsp;",
+          "styl": "",
+          "classes": [
+            "h-12"
+          ],
+          "designClasses": [
+            "h-12"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-exnova-teaser-email-1-header-text-5-paragraph-",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb4 <b>${{ Teaser-email-1.block_29 }}$</b>",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #262832;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 25px; }\n.text a { color: #0173ca !important; }\n.text.bold { font-weight: 700; }\n.pb4 { padding-bottom: 4px; }\n.grey-text,.text { font-family:Helvetica!important;color:#262832;font-size:18px;font-weight:400;line-height:25px }\n.text a { color:#0173ca!important }\n.text.bold { font-weight:700 }\n.pb4 { padding-bottom:4px }",
+          "classes": [
+            "pb4",
+            "text"
+          ],
+          "designClasses": [
+            "pb4",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_29",
+              "kind": "richText",
+              "label": "Текст Teaser-email-1.block_29",
+              "token": "${{ Teaser-email-1.block_29 }}$",
+              "ns": "Teaser-email-1",
+              "block": "block_29"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-teaser-email-1-header-text-5-paragraph-",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ Teaser-email-1.block_30 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #262832;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 25px; }\n.text a { color: #0173ca !important; }\n.text.bold { font-weight: 700; }\n.grey-text,.text { font-family:Helvetica!important;color:#262832;font-size:18px;font-weight:400;line-height:25px }\n.text a { color:#0173ca!important }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_30",
+              "kind": "richText",
+              "label": "Текст Teaser-email-1.block_30",
+              "token": "${{ Teaser-email-1.block_30 }}$",
+              "ns": "Teaser-email-1",
+              "block": "block_30"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-teaser-email-1-header-text-5-spacer-6",
+          "label": "Спейсер 12px",
+          "placement": "inline",
+          "category": "utility",
+          "pug": ".h-12 &nbsp;",
+          "styl": "",
+          "classes": [
+            "h-12"
+          ],
+          "designClasses": [
+            "h-12"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-exnova-teaser-email-1-header-text-5-paragraph-",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb4 <b>${{ Teaser-email-1.block_31 }}$</b>",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #262832;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 25px; }\n.text a { color: #0173ca !important; }\n.text.bold { font-weight: 700; }\n.pb4 { padding-bottom: 4px; }\n.grey-text,.text { font-family:Helvetica!important;color:#262832;font-size:18px;font-weight:400;line-height:25px }\n.text a { color:#0173ca!important }\n.text.bold { font-weight:700 }\n.pb4 { padding-bottom:4px }",
+          "classes": [
+            "pb4",
+            "text"
+          ],
+          "designClasses": [
+            "pb4",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_31",
+              "kind": "richText",
+              "label": "Текст Teaser-email-1.block_31",
+              "token": "${{ Teaser-email-1.block_31 }}$",
+              "ns": "Teaser-email-1",
+              "block": "block_31"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-teaser-email-1-header-text-5-paragraph-",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ Teaser-email-1.block_32 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #262832;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 25px; }\n.text a { color: #0173ca !important; }\n.text.bold { font-weight: 700; }\n.grey-text,.text { font-family:Helvetica!important;color:#262832;font-size:18px;font-weight:400;line-height:25px }\n.text a { color:#0173ca!important }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_32",
+              "kind": "richText",
+              "label": "Текст Teaser-email-1.block_32",
+              "token": "${{ Teaser-email-1.block_32 }}$",
+              "ns": "Teaser-email-1",
+              "block": "block_32"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-exnova-teaser-email-1-header-utility-6",
+      "label": "Спейсер 12px",
+      "placement": "inline",
+      "category": "utility",
+      "kind": "spacer",
+      "sourceFile": "X_Exnova/mail-Teaser-email-1/app/templates/blocks/header.jade",
+      "pug": ".h-12 &nbsp;",
+      "styl": "",
+      "classes": [
+        "h-12"
+      ],
+      "designClasses": [
+        "h-12"
+      ],
+      "slots": [],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-exnova-teaser-email-1-header-text-7",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_Exnova/mail-Teaser-email-1/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg\n    tr\n        td.wrapper.offset-by-one.last.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb32\n                        p.small-title ${{ Teaser-email-1.block_33 }}$\n    tr\n        td.wrapper.last.pt0.pb40\n            table.twelve.columns\n                tr\n                    td.pb0.text-pad-small.plr50.background-arrow\n                        .social-links.pt0.pb0\n                            .countries-block-new.fisrt-block\n                                    img.block-img.center(src=\"https://fsms.quadcode.com/storage/public/cr/8r/ehufu8jqbm985f10/stepspics.png\")\n                                    p.text.pt12.center ${{ Teaser-email-1.block_34 }}$ ${{ Teaser-email-1.block_35 }}$ ${{ Teaser-email-1.block_36 }}$\n                            .countries-block-new.mar-mob\n                                    img.block-img.center(src=\"https://fsms.quadcode.com/storage/public/cr/8r/ehudi3umufautse0/stepspics (1).png\")\n                                    p.text.pt12.center ${{ Teaser-email-1.block_37 }}$\n                            .countries-block-new\n                                    img.block-img.center(src=\"https://fsms.quadcode.com/storage/public/cr/8r/ehufu8jqbm985f00/stepspics (2).png\")\n                                    p.text.pt12.center ${{ Teaser-email-1.block_38 }}$\n    tr\n        td.wrapper.offset-by-one.last.pt0\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44\n                        table.w245(align=\"center\")\n                            tr\n                                td.pt0.pb0\n                                    .button-wrapper_bot.pt0\n                                        table.medium-button.radius.blue-button\n                                            tr\n                                                td.iq.blue-button\n                                                    a.butt(href=\"https://exnovatorneios.com/?aff=7afftrack=mail_car-tournament-email-2&retrack=car-tournament-email-2\" target=\"_blank\") ${{ Teaser-email-1.block_39 }}$",
+      "styl": ".w245 { width: 100%;\n  max-width: 245px; }\n@media screen and (max-width: 600px) {\n  .w245 { min-width: 100% !important; }\n}\n.blue-button { background: #0173ca !important;\n  border-radius: 8px !important; }\n.white-bg { background: #fff;\n  border-radius: 16px; }\n.small-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #413e43; }\n@media screen and (max-width: 420px) {\n  .small-title { font-size: 22px !important;\n    line-height: 32px !important; }\n}\n.text { font-family: Helvetica !important;\n  color: #262832;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 25px; }\n.text a { color: #0173ca !important; }\n.text.bold { font-weight: 700; }\n.pb32 { padding-bottom: 32px; }\n.pb44 { padding-bottom: 44px; }\n.pt12 { padding-top: 12px; }\n.pt44 { padding-top: 44px; }\n.plr50 { padding-left: 40px;\n  padding-right: 40px; }\n@media screen and (max-width: 600px) {\n  .plr50 { padding-left: 20px !important;\n    padding-right: 20px !important; }\n}\n.social-links { display: block;\n  text-align: center;\n  margin: 0 auto; }\n.countries-block-new { width: 146px;\n  display: inline-block;\n  float: none;\n  vertical-align: top; }\n@media screen and (max-width: 600px) {\n  .countries-block-new { display: block !important;\n    margin: 10px auto 0 !important; }\n}\n@media screen and (max-width: 600px) {\n  .countries-block-new.fisrt-block { margin: 0px auto 0 !important; }\n}\n.block-img { float: none !important;\n  display: block !important;\n  max-width: 230px !important; }\n.mar-mob { margin: 0 16px; }\n.background-arrow { background: url(\"https://fsms.quadcode.com/storage/public/cn/1p/e9i85cee2vclvdkg/arrow-1.png\") top 50px center no-repeat;\n  background-size: 186px; }\n@media screen and (max-width: 600px) {\n  .background-arrow { background: none !important;\n    background-size: 0 !important; }\n}\n.background-arrow { background: url(\"https://fsms.quadcode.com/storage/public/cr/8s/6gefu8jqbm985f30/arrows.png\") top 20px center no-repeat;\n  background-size: 186px; }\n.block-img { float: none !important;\n  display: block !important;\n  max-width: 112px !important; }\n.plr50 { padding-left: 48px;\n  padding-right: 48px; }\n.mar-mob { margin: 0 10px; }\n.w245 { width:100%;max-width:245px }\n@media screen and (max-width:600px) {\n  .w245 { min-width:100%!important }\n}\n.blue-button { background:#0173ca!important;border-radius:8px!important }\n.white-bg { background:#fff;border-radius:16px }\n.small-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#413e43 }\n@media screen and (max-width:420px) {\n  .small-title { font-size:22px!important;line-height:32px!important }\n}\n.grey-text,.text { font-family:Helvetica!important;color:#262832;font-size:18px;font-weight:400;line-height:25px }\n.text a { color:#0173ca!important }\n.text.bold { font-weight:700 }\n.pb32 { padding-bottom:32px }\n.pb44 { padding-bottom:44px }\n.pt12 { padding-top:12px }\n.pt44 { padding-top:44px }\n@media screen and (max-width:600px) {\n  .plr50 { padding-left:20px!important;padding-right:20px!important }\n}\n.social-links { display:block;text-align:center;margin:0 auto }\n@media screen and (max-width:600px) {\n  .countries-block-new { display:block!important;margin:10px auto 0!important }\n  .countries-block-new.fisrt-block { margin:0 auto!important }\n}\n.background-arrow { background:url(https://fsms.quadcode.com/storage/public/cn/1p/e9i85cee2vclvdkg/arrow-1.png) top 50px center no-repeat }\n@media screen and (max-width:600px) {\n  .background-arrow { background:0 0!important;background-size:0!important }\n}\n.background-arrow { background:url(https://fsms.quadcode.com/storage/public/cr/8s/6gefu8jqbm985f30/arrows.png) top 20px center no-repeat;background-size:186px }\n.countries-block-new { width:146px;display:inline-block;float:none;vertical-align:top }\n.block-img { float:none!important;display:block!important;max-width:112px!important }\n.plr50 { padding-left:48px;padding-right:48px }\n.mar-mob { margin:0 10px }",
+      "classes": [
+        "background-arrow",
+        "block-img",
+        "blue-button",
+        "butt",
+        "button-wrapper_bot",
+        "center",
+        "columns",
+        "countries-block-new",
+        "fisrt-block",
+        "iq",
+        "last",
+        "mar-mob",
+        "medium-button",
+        "offset-by-one",
+        "pb0",
+        "pb32",
+        "pb40",
+        "pb44",
+        "plr50",
+        "pt0",
+        "pt12",
+        "pt44",
+        "radius",
+        "row",
+        "small-title",
+        "social-links",
+        "ten",
+        "text",
+        "text-pad-small",
+        "twelve",
+        "w245",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "background-arrow",
+        "block-img",
+        "blue-button",
+        "button-wrapper_bot",
+        "countries-block-new",
+        "fisrt-block",
+        "mar-mob",
+        "pb32",
+        "pb44",
+        "plr50",
+        "pt12",
+        "pt44",
+        "small-title",
+        "social-links",
+        "text",
+        "w245",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_33",
+          "kind": "richText",
+          "label": "Текст Teaser-email-1.block_33",
+          "token": "${{ Teaser-email-1.block_33 }}$",
+          "ns": "Teaser-email-1",
+          "block": "block_33"
+        },
+        {
+          "id": "text_block_34",
+          "kind": "richText",
+          "label": "Текст Teaser-email-1.block_34",
+          "token": "${{ Teaser-email-1.block_34 }}$",
+          "ns": "Teaser-email-1",
+          "block": "block_34"
+        },
+        {
+          "id": "text_block_35",
+          "kind": "richText",
+          "label": "Текст Teaser-email-1.block_35",
+          "token": "${{ Teaser-email-1.block_35 }}$",
+          "ns": "Teaser-email-1",
+          "block": "block_35"
+        },
+        {
+          "id": "text_block_36",
+          "kind": "richText",
+          "label": "Текст Teaser-email-1.block_36",
+          "token": "${{ Teaser-email-1.block_36 }}$",
+          "ns": "Teaser-email-1",
+          "block": "block_36"
+        },
+        {
+          "id": "text_block_37",
+          "kind": "richText",
+          "label": "Текст Teaser-email-1.block_37",
+          "token": "${{ Teaser-email-1.block_37 }}$",
+          "ns": "Teaser-email-1",
+          "block": "block_37"
+        },
+        {
+          "id": "text_block_38",
+          "kind": "richText",
+          "label": "Текст Teaser-email-1.block_38",
+          "token": "${{ Teaser-email-1.block_38 }}$",
+          "ns": "Teaser-email-1",
+          "block": "block_38"
+        },
+        {
+          "id": "text_block_39",
+          "kind": "richText",
+          "label": "Текст Teaser-email-1.block_39",
+          "token": "${{ Teaser-email-1.block_39 }}$",
+          "ns": "Teaser-email-1",
+          "block": "block_39"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://exnovatorneios.com/?aff=7afftrack=mail_car-tournament-email-2&retrack=car-tournament-email-2"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cr/8r/ehufu8jqbm985f10/stepspics.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cr/8r/ehudi3umufautse0/stepspics (1).png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cr/8r/ehufu8jqbm985f00/stepspics (2).png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-exnova-teaser-email-1-header-text-7-heading-0",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.small-title ${{ Teaser-email-1.block_33 }}$",
+          "styl": ".small-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #413e43; }\n@media screen and (max-width: 420px) {\n  .small-title { font-size: 22px !important;\n    line-height: 32px !important; }\n}\n.small-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#413e43 }\n@media screen and (max-width:420px) {\n  .small-title { font-size:22px!important;line-height:32px!important }\n}",
+          "classes": [
+            "small-title"
+          ],
+          "designClasses": [
+            "small-title"
+          ],
+          "slots": [
+            {
+              "id": "text_block_33",
+              "kind": "richText",
+              "label": "Текст Teaser-email-1.block_33",
+              "token": "${{ Teaser-email-1.block_33 }}$",
+              "ns": "Teaser-email-1",
+              "block": "block_33"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-teaser-email-1-header-text-7-paragraph-",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pt12.center ${{ Teaser-email-1.block_34 }}$ ${{ Teaser-email-1.block_35 }}$ ${{ Teaser-email-1.block_36 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #262832;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 25px; }\n.text a { color: #0173ca !important; }\n.text.bold { font-weight: 700; }\n.pt12 { padding-top: 12px; }\n.grey-text,.text { font-family:Helvetica!important;color:#262832;font-size:18px;font-weight:400;line-height:25px }\n.text a { color:#0173ca!important }\n.text.bold { font-weight:700 }\n.pt12 { padding-top:12px }",
+          "classes": [
+            "center",
+            "pt12",
+            "text"
+          ],
+          "designClasses": [
+            "pt12",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_34",
+              "kind": "richText",
+              "label": "Текст Teaser-email-1.block_34",
+              "token": "${{ Teaser-email-1.block_34 }}$",
+              "ns": "Teaser-email-1",
+              "block": "block_34"
+            },
+            {
+              "id": "text_block_35",
+              "kind": "richText",
+              "label": "Текст Teaser-email-1.block_35",
+              "token": "${{ Teaser-email-1.block_35 }}$",
+              "ns": "Teaser-email-1",
+              "block": "block_35"
+            },
+            {
+              "id": "text_block_36",
+              "kind": "richText",
+              "label": "Текст Teaser-email-1.block_36",
+              "token": "${{ Teaser-email-1.block_36 }}$",
+              "ns": "Teaser-email-1",
+              "block": "block_36"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-teaser-email-1-header-text-7-paragraph-",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pt12.center ${{ Teaser-email-1.block_37 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #262832;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 25px; }\n.text a { color: #0173ca !important; }\n.text.bold { font-weight: 700; }\n.pt12 { padding-top: 12px; }\n.grey-text,.text { font-family:Helvetica!important;color:#262832;font-size:18px;font-weight:400;line-height:25px }\n.text a { color:#0173ca!important }\n.text.bold { font-weight:700 }\n.pt12 { padding-top:12px }",
+          "classes": [
+            "center",
+            "pt12",
+            "text"
+          ],
+          "designClasses": [
+            "pt12",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_37",
+              "kind": "richText",
+              "label": "Текст Teaser-email-1.block_37",
+              "token": "${{ Teaser-email-1.block_37 }}$",
+              "ns": "Teaser-email-1",
+              "block": "block_37"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-teaser-email-1-header-text-7-paragraph-",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pt12.center ${{ Teaser-email-1.block_38 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #262832;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 25px; }\n.text a { color: #0173ca !important; }\n.text.bold { font-weight: 700; }\n.pt12 { padding-top: 12px; }\n.grey-text,.text { font-family:Helvetica!important;color:#262832;font-size:18px;font-weight:400;line-height:25px }\n.text a { color:#0173ca!important }\n.text.bold { font-weight:700 }\n.pt12 { padding-top:12px }",
+          "classes": [
+            "center",
+            "pt12",
+            "text"
+          ],
+          "designClasses": [
+            "pt12",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_38",
+              "kind": "richText",
+              "label": "Текст Teaser-email-1.block_38",
+              "token": "${{ Teaser-email-1.block_38 }}$",
+              "ns": "Teaser-email-1",
+              "block": "block_38"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-exnova-teaser-email-1-third-footer-0",
+      "label": "Соцсети",
+      "placement": "section",
+      "category": "footer",
+      "kind": "section",
+      "sourceFile": "X_Exnova/mail-Teaser-email-1/app/templates/blocks/third.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.pt32\n            table.twelve.columns\n                tr\n                    td.pb20\n                        //- p.footer-text.pb24.plr30.center ${{ Boom-2.block_16 }}$\n                        .socials.center\n                            a.first-link(href=\"${{ exnova-soc.block_00 }}$\" target=\"_blank\")\n                                img.soc-icon.fb(src=\"https://fsms.quadcode.com/storage/public/cq/u8/t7mdi3umufautofg/fb (2).png\")\n                            a(href=\"${{ exnova-soc.block_01 }}$\" target=\"_blank\")\n                                img.soc-icon.twitter(src=\"https://fsms.quadcode.com/storage/public/cq/u8/t7edi3umufautof0/ig (2).png\")\n                            a.last-link(href=\"${{ exnova-soc.block_02 }}$\" target=\"_blank\")\n                                img.soc-icon.ig(src=\"https://fsms.quadcode.com/storage/public/cq/u8/t7efu8jqbm985b50/tw (2).png\")",
+      "styl": ".pt32 { padding-top: 32px; }\n.socials { display: block;\n  font-size: 0;\n  margin: 0 auto;\n  text-align: center; }\n.socials a { display: inline-block;\n  vertical-align: middle;\n  margin: 0 10px; }\n@media screen and (max-width: 600px) {\n  .socials a { margin-bottom: 10px !important; }\n}\n.soc-icon { float: none;\n  max-width: 40px; }\n.ig { max-width: 26px;\n  margin-left: 6px; }\n@media screen and (max-width: 600px) {\n  .ig { width: 20px !important; }\n}\n.twitter { max-width: 26px;\n  margin: 0 6px; }\n@media screen and (max-width: 600px) {\n  .twitter { width: 24px !important; }\n}\n.fb { max-width: 26px;\n  margin-right: 6px; }\n@media screen and (max-width: 600px) {\n  .fb { width: 24px !important; }\n}\n.pt32 { padding-top:32px }\n.socials { display:block;font-size:0;margin:0 auto;text-align:center }\n.socials a { display:inline-block;vertical-align:middle;margin:0 10px }\n@media screen and (max-width:600px) {\n  .socials a { margin-bottom:10px!important }\n}\n.soc-icon { float:none;max-width:40px }\n.ig { max-width:26px;margin-left:6px }\n@media screen and (max-width:600px) {\n  .ig { width:20px!important }\n}\n.twitter { max-width:26px;margin:0 6px }\n@media screen and (max-width:600px) {\n  .twitter { width:24px!important }\n}\n.fb { max-width:26px;margin-right:6px }\n@media screen and (max-width:600px) {\n  .fb { width:24px!important }\n}",
+      "classes": [
+        "center",
+        "columns",
+        "fb",
+        "first-link",
+        "ig",
+        "last",
+        "last-link",
+        "pb20",
+        "pt32",
+        "row",
+        "soc-icon",
+        "socials",
+        "twelve",
+        "twitter",
+        "wrapper"
+      ],
+      "designClasses": [
+        "fb",
+        "first-link",
+        "ig",
+        "last-link",
+        "pt32",
+        "soc-icon",
+        "socials",
+        "twitter"
+      ],
+      "slots": [
+        {
+          "id": "text_block_16",
+          "kind": "richText",
+          "label": "Текст Boom-2.block_16",
+          "token": "${{ Boom-2.block_16 }}$",
+          "ns": "Boom-2",
+          "block": "block_16"
+        },
+        {
+          "id": "text_block_00",
+          "kind": "richText",
+          "label": "Текст exnova-soc.block_00",
+          "token": "${{ exnova-soc.block_00 }}$",
+          "ns": "exnova-soc",
+          "block": "block_00"
+        },
+        {
+          "id": "text_block_01",
+          "kind": "richText",
+          "label": "Текст exnova-soc.block_01",
+          "token": "${{ exnova-soc.block_01 }}$",
+          "ns": "exnova-soc",
+          "block": "block_01"
+        },
+        {
+          "id": "text_block_02",
+          "kind": "richText",
+          "label": "Текст exnova-soc.block_02",
+          "token": "${{ exnova-soc.block_02 }}$",
+          "ns": "exnova-soc",
+          "block": "block_02"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ exnova-soc.block_00 }}$"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ exnova-soc.block_01 }}$"
+        },
+        {
+          "id": "href_2",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ exnova-soc.block_02 }}$"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cq/u8/t7mdi3umufautofg/fb (2).png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cq/u8/t7edi3umufautof0/ig (2).png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cq/u8/t7efu8jqbm985b50/tw (2).png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-exnova-teaser-email-1-third-footer-0-socials-0",
+          "label": "Соцсети (иконки)",
+          "placement": "inline",
+          "category": "footer",
+          "pug": ".socials.center\n    a.first-link(href=\"${{ exnova-soc.block_00 }}$\" target=\"_blank\")\n        img.soc-icon.fb(src=\"https://fsms.quadcode.com/storage/public/cq/u8/t7mdi3umufautofg/fb (2).png\")\n    a(href=\"${{ exnova-soc.block_01 }}$\" target=\"_blank\")\n        img.soc-icon.twitter(src=\"https://fsms.quadcode.com/storage/public/cq/u8/t7edi3umufautof0/ig (2).png\")\n    a.last-link(href=\"${{ exnova-soc.block_02 }}$\" target=\"_blank\")\n        img.soc-icon.ig(src=\"https://fsms.quadcode.com/storage/public/cq/u8/t7efu8jqbm985b50/tw (2).png\")",
+          "styl": ".socials { display: block;\n  font-size: 0;\n  margin: 0 auto;\n  text-align: center; }\n.socials a { display: inline-block;\n  vertical-align: middle;\n  margin: 0 10px; }\n@media screen and (max-width: 600px) {\n  .socials a { margin-bottom: 10px !important; }\n}\n.soc-icon { float: none;\n  max-width: 40px; }\n.ig { max-width: 26px;\n  margin-left: 6px; }\n@media screen and (max-width: 600px) {\n  .ig { width: 20px !important; }\n}\n.twitter { max-width: 26px;\n  margin: 0 6px; }\n@media screen and (max-width: 600px) {\n  .twitter { width: 24px !important; }\n}\n.fb { max-width: 26px;\n  margin-right: 6px; }\n@media screen and (max-width: 600px) {\n  .fb { width: 24px !important; }\n}\n.socials { display:block;font-size:0;margin:0 auto;text-align:center }\n.socials a { display:inline-block;vertical-align:middle;margin:0 10px }\n@media screen and (max-width:600px) {\n  .socials a { margin-bottom:10px!important }\n}\n.soc-icon { float:none;max-width:40px }\n.ig { max-width:26px;margin-left:6px }\n@media screen and (max-width:600px) {\n  .ig { width:20px!important }\n}\n.twitter { max-width:26px;margin:0 6px }\n@media screen and (max-width:600px) {\n  .twitter { width:24px!important }\n}\n.fb { max-width:26px;margin-right:6px }\n@media screen and (max-width:600px) {\n  .fb { width:24px!important }\n}",
+          "classes": [
+            "center",
+            "fb",
+            "first-link",
+            "ig",
+            "last-link",
+            "soc-icon",
+            "socials",
+            "twitter"
+          ],
+          "designClasses": [
+            "fb",
+            "first-link",
+            "ig",
+            "last-link",
+            "soc-icon",
+            "socials",
+            "twitter"
+          ],
+          "slots": [
+            {
+              "id": "text_block_00",
+              "kind": "richText",
+              "label": "Текст exnova-soc.block_00",
+              "token": "${{ exnova-soc.block_00 }}$",
+              "ns": "exnova-soc",
+              "block": "block_00"
+            },
+            {
+              "id": "text_block_01",
+              "kind": "richText",
+              "label": "Текст exnova-soc.block_01",
+              "token": "${{ exnova-soc.block_01 }}$",
+              "ns": "exnova-soc",
+              "block": "block_01"
+            },
+            {
+              "id": "text_block_02",
+              "kind": "richText",
+              "label": "Текст exnova-soc.block_02",
+              "token": "${{ exnova-soc.block_02 }}$",
+              "ns": "exnova-soc",
+              "block": "block_02"
+            },
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ exnova-soc.block_00 }}$"
+            },
+            {
+              "id": "href_1",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ exnova-soc.block_01 }}$"
+            },
+            {
+              "id": "href_2",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ exnova-soc.block_02 }}$"
+            },
+            {
+              "id": "image_0",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/cq/u8/t7mdi3umufautofg/fb (2).png"
+            },
+            {
+              "id": "image_1",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/cq/u8/t7edi3umufautof0/ig (2).png"
+            },
+            {
+              "id": "image_2",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/cq/u8/t7efu8jqbm985b50/tw (2).png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-exnova-teaser-email-1-third-footer-1",
+      "label": "Store badges",
+      "placement": "section",
+      "category": "footer",
+      "kind": "section",
+      "sourceFile": "X_Exnova/mail-Teaser-email-1/app/templates/blocks/third.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.pt40.offset-by-one\n            table.ten.columns\n                tr\n                    td.pb0\n                        .stor.center\n                            //- a(href=\"https://testflight.apple.com/join/vwJsQ4m1?aff=7&afftrack=mail_exnova-boom-options&retrack=exnova-boom-options\" target=\"_blank\")\n                            //-     img.a-app(src=\"https://fsms.quadcode.com/storage/public/cq/u8/5b6di3umufautoc0/DownloadontheAppStoreBadgeUSUKRGBblk.png\")\n                            a(href=\"https://app.appsflyer.com/com.exnova?pid=7&c=mail_exnova-boom-options\" target=\"_blank\")\n                                img.a-google(src=\"https://fsms.quadcode.com/storage/public/cq/u8/5b6di3umufautocg/googleplaybadge.png\")",
+      "styl": ".stor { width: 380px;\n  margin: 0 auto; }\n@media screen and (max-width: 600px) {\n  .stor { width: 100% !important; }\n}\n.a-google { display: inline-block;\n  max-width: 175px;\n  height: 50px !important;\n  float: none; }\n@media screen and (max-width: 600px) {\n  .a-google { display: block !important;\n    float: none !important;\n    margin: 0 auto !important; }\n}\n.stor { width:380px;margin:0 auto }\n@media screen and (max-width:600px) {\n  .stor { width:100%!important }\n}\n.a-google { display:inline-block;max-width:175px;height:50px!important;float:none }\n@media screen and (max-width:600px) {\n  .a-google { display:block!important;float:none!important;margin:0 auto!important }\n}",
+      "classes": [
+        "a-google",
+        "center",
+        "columns",
+        "last",
+        "offset-by-one",
+        "pb0",
+        "pt40",
+        "row",
+        "stor",
+        "ten",
+        "wrapper"
+      ],
+      "designClasses": [
+        "a-google",
+        "stor"
+      ],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://testflight.apple.com/join/vwJsQ4m1?aff=7&afftrack=mail_exnova-boom-options&retrack=exnova-boom-options"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://app.appsflyer.com/com.exnova?pid=7&c=mail_exnova-boom-options"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cq/u8/5b6di3umufautoc0/DownloadontheAppStoreBadgeUSUKRGBblk.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cq/u8/5b6di3umufautocg/googleplaybadge.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-exnova-teaser-email-1-third-footer-1-store-bad",
+          "label": "Store badges (App Store / Google Play)",
+          "placement": "inline",
+          "category": "footer",
+          "pug": ".stor.center\n    //- a(href=\"https://testflight.apple.com/join/vwJsQ4m1?aff=7&afftrack=mail_exnova-boom-options&retrack=exnova-boom-options\" target=\"_blank\")\n    //-     img.a-app(src=\"https://fsms.quadcode.com/storage/public/cq/u8/5b6di3umufautoc0/DownloadontheAppStoreBadgeUSUKRGBblk.png\")\n    a(href=\"https://app.appsflyer.com/com.exnova?pid=7&c=mail_exnova-boom-options\" target=\"_blank\")\n        img.a-google(src=\"https://fsms.quadcode.com/storage/public/cq/u8/5b6di3umufautocg/googleplaybadge.png\")",
+          "styl": ".stor { width: 380px;\n  margin: 0 auto; }\n@media screen and (max-width: 600px) {\n  .stor { width: 100% !important; }\n}\n.a-google { display: inline-block;\n  max-width: 175px;\n  height: 50px !important;\n  float: none; }\n@media screen and (max-width: 600px) {\n  .a-google { display: block !important;\n    float: none !important;\n    margin: 0 auto !important; }\n}\n.stor { width:380px;margin:0 auto }\n@media screen and (max-width:600px) {\n  .stor { width:100%!important }\n}\n.a-google { display:inline-block;max-width:175px;height:50px!important;float:none }\n@media screen and (max-width:600px) {\n  .a-google { display:block!important;float:none!important;margin:0 auto!important }\n}",
+          "classes": [
+            "a-google",
+            "center",
+            "stor"
+          ],
+          "designClasses": [
+            "a-google",
+            "stor"
+          ],
+          "slots": [
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://testflight.apple.com/join/vwJsQ4m1?aff=7&afftrack=mail_exnova-boom-options&retrack=exnova-boom-options"
+            },
+            {
+              "id": "href_1",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://app.appsflyer.com/com.exnova?pid=7&c=mail_exnova-boom-options"
+            },
+            {
+              "id": "image_0",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/cq/u8/5b6di3umufautoc0/DownloadontheAppStoreBadgeUSUKRGBblk.png"
+            },
+            {
+              "id": "image_1",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/cq/u8/5b6di3umufautocg/googleplaybadge.png"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

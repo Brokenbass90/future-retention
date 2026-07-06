@@ -1,0 +1,84 @@
+{
+  "id": "casatradeaffiliate-cta-03",
+  "label": "CTA-секция",
+  "description": "Импортирован из X_CasaTradeAffiliate (1 писем). Секция.",
+  "placement": "section",
+  "category": "cta",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.brad-full.white-bg.b-casatradeaffiliate-cta-03\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.middle-title.pb32 {{ text_1 }}\n                        .purple-block\n                            p.left-text\n                                span.pt8 1.\n                                |{{ text_2 }}\n                            p.right-text {{ text_3 }}\n                        .h-4 &nbsp;\n                        .purple-block-none\n                            p.left-text\n                                span.pt8 2.\n                                |{{ text_4 }}\n                            p.right-text {{ text_5 }}\n                        .h-4 &nbsp;\n                        .purple-block\n                            p.left-text\n                                span.pt8 3.\n                                |{{ text_6 }}\n                            p.right-text {{ text_7 }}\n                        p.text.pt32.pb32 {{ text_8 }}\n                        .purple-block-colourful\n                            p.text.center.pb32 {{ text_8 }}\n                            table.w280.center\n                                tr\n                                    td.butt.pb0(align=\"center\")\n                                        a.butt-link(href=\"{{ href_1 }}\" target=\"_blank\") {{ text_9 }}",
+  "styl": ".brad-full.b-casatradeaffiliate-cta-03 {  border-radius: 16px !important;  }\n.b-casatradeaffiliate-cta-03 .butt-link {  font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f7f7fc;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px;  }\n.white-bg.b-casatradeaffiliate-cta-03 {  background: #fff;  }\n.b-casatradeaffiliate-cta-03 .middle-title {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #3e3752;  }\n@media screen and (max-width: 600px) {\n  .b-casatradeaffiliate-cta-03 .middle-title {  font-size: 24px !important;\n    line-height: 32px !important;  }\n}\n.b-casatradeaffiliate-cta-03 .text {  font-family: Helvetica !important;\n  font-size: 18px;\n  color: #3e3752;\n  letter-spacing: 0;\n  line-height: 27px;  }\n.b-casatradeaffiliate-cta-03 .text.bold {  font-weight: 700;  }\n.b-casatradeaffiliate-cta-03 .pb32 {  padding-bottom: 32px;  }\n.b-casatradeaffiliate-cta-03 .pb44 {  padding-bottom: 44px;  }\n.b-casatradeaffiliate-cta-03 .pt32 {  padding-top: 32px;  }\n.b-casatradeaffiliate-cta-03 .pt44 {  padding-top: 44px;  }\n.b-casatradeaffiliate-cta-03 .h-4 {  font-size: 4px;\n  line-height: 4px;\n  height: 4px;  }\n.b-casatradeaffiliate-cta-03 .w280 {  width: 100%;\n  max-width: 280px;  }\n@media screen and (max-width: 600px) {\n  .b-casatradeaffiliate-cta-03 .w280 {  min-width: 100% !important;  }\n}\n.b-casatradeaffiliate-cta-03 .text.mob-text, .b-casatradeaffiliate-cta-03 .img-box {  float: none !important;\n  max-width: 232px !important;\n  display: block !important;  }\n.b-casatradeaffiliate-cta-03 .purple-block {  padding: 24px;\n  background: #f7f7fc;\n  border-radius: 24px;  }\n.b-casatradeaffiliate-cta-03 .purple-block-none {  padding: 24px;\n  border-radius: 24px;  }\n.b-casatradeaffiliate-cta-03 .purple-block-colourful {  padding: 32px;\n  background: #e8e1ff;\n  border-radius: 16px;  }\n.b-casatradeaffiliate-cta-03 .pt8 {  padding-right: 8px;  }\n.b-casatradeaffiliate-cta-03 .left-text {  display: inline-block;\n  width: 38%;\n  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 18px;\n  line-height: 27px;\n  color: #393a44;\n  padding-right: 8px;\n  vertical-align: top;  }\n@media screen and (max-width: 600px) {\n  .b-casatradeaffiliate-cta-03 .left-text {  width: 100% !important;\n    padding-right: 0 !important;\n    padding-bottom: 12px !important;  }\n}\n.b-casatradeaffiliate-cta-03 .right-text {  display: inline-block;\n  width: 58%;\n  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #393a44;\n  vertical-align: top;  }\n@media screen and (max-width: 600px) {\n  .b-casatradeaffiliate-cta-03 .right-text {  width: 100% !important;  }\n}\n.brad-full.b-casatradeaffiliate-cta-03 {  border-radius:16px!important  }\n.b-casatradeaffiliate-cta-03 .butt-link, .b-casatradeaffiliate-cta-03 .butt-link-2 {  font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#2f3749;display:block;line-height:27px;padding:16px 0;text-align:center;letter-spacing:0  }\n.b-casatradeaffiliate-cta-03 .butt-link {  color:#f7f7fc  }\n.white-bg.b-casatradeaffiliate-cta-03 {  background:#fff  }\n.b-casatradeaffiliate-cta-03 .middle-title {  font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#3e3752  }\n@media screen and (max-width:600px) {\n  .b-casatradeaffiliate-cta-03 .middle-title {  font-size:24px!important;line-height:32px!important  }\n}\n.b-casatradeaffiliate-cta-03 .small-dot, .b-casatradeaffiliate-cta-03 .text {  font-family:Helvetica!important;font-size:18px;line-height:27px;color:#3e3752  }\n.b-casatradeaffiliate-cta-03 .text {  letter-spacing:0  }\n.b-casatradeaffiliate-cta-03 .big, .b-casatradeaffiliate-cta-03 .text.bold {  font-weight:700  }\n.b-casatradeaffiliate-cta-03 .pb32 {  padding-bottom:32px  }\n.b-casatradeaffiliate-cta-03 .pb44 {  padding-bottom:44px  }\n.b-casatradeaffiliate-cta-03 .pt32 {  padding-top:32px  }\n.b-casatradeaffiliate-cta-03 .pt44 {  padding-top:44px  }\n.b-casatradeaffiliate-cta-03 .h-4 {  font-size:4px;line-height:4px;height:4px  }\n.b-casatradeaffiliate-cta-03 .w100, .b-casatradeaffiliate-cta-03 .w280 {  width:100%  }\n.b-casatradeaffiliate-cta-03 .w280 {  max-width:280px  }\n@media screen and (max-width:600px) {\n  .b-casatradeaffiliate-cta-03 .w280 {  min-width:100%!important  }\n}\n.b-casatradeaffiliate-cta-03 .img-box, .b-casatradeaffiliate-cta-03 .text.mob-text {  float:none!important;max-width:232px!important;display:block!important  }\n.b-casatradeaffiliate-cta-03 .purple-block {  background:#f7f7fc  }\n.b-casatradeaffiliate-cta-03 .purple-block, .b-casatradeaffiliate-cta-03 .purple-block-none {  padding:24px;border-radius:24px  }\n.b-casatradeaffiliate-cta-03 .purple-block-colourful {  padding:32px;background:#e8e1ff;border-radius:16px  }\n.b-casatradeaffiliate-cta-03 .left-text, .b-casatradeaffiliate-cta-03 .pt8 {  padding-right:8px  }\n.b-casatradeaffiliate-cta-03 .left-text {  display:inline-block;width:38%;font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:18px;line-height:27px;color:#393a44;vertical-align:top  }\n@media screen and (max-width:600px) {\n  .b-casatradeaffiliate-cta-03 .left-text {  width:100%!important;padding-right:0!important;padding-bottom:12px!important  }\n}\n.b-casatradeaffiliate-cta-03 .right-text {  display:inline-block;width:58%;font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#393a44;vertical-align:top  }\n@media screen and (max-width:600px) {\n  .b-casatradeaffiliate-cta-03 .right-text {  width:100%!important  }\n}",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_7",
+      "kind": "richText",
+      "label": "Текст 7",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_8",
+      "kind": "richText",
+      "label": "Текст 8",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_9",
+      "kind": "richText",
+      "label": "Текст 9",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://partner.casatrade.com/contests/upcoming"
+    }
+  ],
+  "tags": [
+    "cta",
+    "section",
+    "X_CasaTradeAffiliate"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_CasaTradeAffiliate/mail-2nd-Newsletter"
+  ],
+  "createdAt": "2026-07-06T12:09:59.793Z",
+  "validated": true
+}

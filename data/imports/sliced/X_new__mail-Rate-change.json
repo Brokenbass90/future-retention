@@ -1,0 +1,407 @@
+{
+  "category": "X_new",
+  "mailId": "Rate-change",
+  "mailAbs": "email-base/X_new/mail-Rate-change",
+  "blockCount": 3,
+  "blocks": [
+    {
+      "id": "x-new-rate-change-header-header-0",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "kind": "section",
+      "sourceFile": "X_new/mail-Rate-change/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg.brad-top.bg-col\n    tr\n        td.wrapper.offset-by-one.last.pt30\n            table.ten.columns\n                tr\n                    td.six.sub-columns.pb30\n                        a(href=\"https://affstore.com\" target=\"_blank\")\n                            img.logo.center(src=\"https://fsms.iqoption.com/storage/public/cb/db/mkjld2762c0fsgk0/Affstore-Logo.png\")",
+      "styl": ".bg-col { background-color:#f9f9f9 }\n.brad-top { border-top-left-radius:6px!important;border-top-right-radius:6px!important;overflow:hidden }\n.white-bg { background:#fff }",
+      "classes": [
+        "bg-col",
+        "brad-top",
+        "center",
+        "columns",
+        "last",
+        "logo",
+        "offset-by-one",
+        "pb30",
+        "pt30",
+        "row",
+        "six",
+        "sub-columns",
+        "ten",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "bg-col",
+        "brad-top",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://affstore.com"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.iqoption.com/storage/public/cb/db/mkjld2762c0fsgk0/Affstore-Logo.png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-new-rate-change-header-text-1",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_new/mail-Rate-change/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg.br-ful\n    tr\n        td.wrapper.last.offset-by-one.pt40\n            table.row.ten.columns\n                tr\n                    td.text-pad-small.pb30\n                        p.hello.pb20 ${{ aff-affstore-EU-Rate-change.block_01 }}$\n                        p.text.pb15 ${{ aff-affstore-EU-Rate-change.block_02 }}$\n                        p.text.pb15 ${{ aff-affstore-EU-Rate-change.block_03 }}$\n                        p.text ${{ aff-affstore-EU-Rate-change.block_04 }}$\n    tr\n        td.wrapper.last.offset-by-three.pt0\n            table.six.columns\n                tr\n                    td.pb40.text-pad-small.pt0\n                        .button-wrapper.button-wrapper_top\n                            table.medium-button.radius\n                                tr\n                                    td.iq\n                                        a.butt(href=\"https://my.affstore.com/offers\" target=\"_blank\") ${{ aff-affstore-EU-Rate-change.block_05 }}$",
+      "styl": ".white-bg { background:#fff }\n.min-text,.text { font-family:Helvetica!important;letter-spacing:0 }\n.text { font-weight:400;color:#373437;font-size:16px;line-height:26px }\n.big-text,.hello,b,p.warning,p.warning .upper { font-family:Helvetica!important }\n.hello { line-height:26px;color:#373437;font-weight:700;font-size:22px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.pb15 { padding-bottom:16px!important }\n.text a { font-family:Helvetica!important;text-decoration:underline!important;color:#86ad00!important }",
+      "classes": [
+        "br-ful",
+        "butt",
+        "button-wrapper",
+        "button-wrapper_top",
+        "columns",
+        "hello",
+        "iq",
+        "last",
+        "medium-button",
+        "offset-by-one",
+        "offset-by-three",
+        "pb15",
+        "pb20",
+        "pb30",
+        "pb40",
+        "pt0",
+        "pt40",
+        "radius",
+        "row",
+        "six",
+        "ten",
+        "text",
+        "text-pad-small",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "br-ful",
+        "button-wrapper",
+        "button-wrapper_top",
+        "hello",
+        "pb15",
+        "text",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_01",
+          "kind": "richText",
+          "label": "Текст aff-affstore-EU-Rate-change.block_01",
+          "token": "${{ aff-affstore-EU-Rate-change.block_01 }}$",
+          "ns": "aff-affstore-EU-Rate-change",
+          "block": "block_01"
+        },
+        {
+          "id": "text_block_02",
+          "kind": "richText",
+          "label": "Текст aff-affstore-EU-Rate-change.block_02",
+          "token": "${{ aff-affstore-EU-Rate-change.block_02 }}$",
+          "ns": "aff-affstore-EU-Rate-change",
+          "block": "block_02"
+        },
+        {
+          "id": "text_block_03",
+          "kind": "richText",
+          "label": "Текст aff-affstore-EU-Rate-change.block_03",
+          "token": "${{ aff-affstore-EU-Rate-change.block_03 }}$",
+          "ns": "aff-affstore-EU-Rate-change",
+          "block": "block_03"
+        },
+        {
+          "id": "text_block_04",
+          "kind": "richText",
+          "label": "Текст aff-affstore-EU-Rate-change.block_04",
+          "token": "${{ aff-affstore-EU-Rate-change.block_04 }}$",
+          "ns": "aff-affstore-EU-Rate-change",
+          "block": "block_04"
+        },
+        {
+          "id": "text_block_05",
+          "kind": "richText",
+          "label": "Текст aff-affstore-EU-Rate-change.block_05",
+          "token": "${{ aff-affstore-EU-Rate-change.block_05 }}$",
+          "ns": "aff-affstore-EU-Rate-change",
+          "block": "block_05"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://my.affstore.com/offers"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-rate-change-header-text-1-heading-0",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.hello.pb20 ${{ aff-affstore-EU-Rate-change.block_01 }}$",
+          "styl": ".big-text,.hello,b,p.warning,p.warning .upper { font-family:Helvetica!important }\n.hello { line-height:26px;color:#373437;font-weight:700;font-size:22px }",
+          "classes": [
+            "hello",
+            "pb20"
+          ],
+          "designClasses": [
+            "hello"
+          ],
+          "slots": [
+            {
+              "id": "text_block_01",
+              "kind": "richText",
+              "label": "Текст aff-affstore-EU-Rate-change.block_01",
+              "token": "${{ aff-affstore-EU-Rate-change.block_01 }}$",
+              "ns": "aff-affstore-EU-Rate-change",
+              "block": "block_01"
+            }
+          ]
+        },
+        {
+          "id": "x-new-rate-change-header-text-1-paragraph-1",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb15 ${{ aff-affstore-EU-Rate-change.block_02 }}$",
+          "styl": ".min-text,.text { font-family:Helvetica!important;letter-spacing:0 }\n.text { font-weight:400;color:#373437;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.pb15 { padding-bottom:16px!important }\n.text a { font-family:Helvetica!important;text-decoration:underline!important;color:#86ad00!important }",
+          "classes": [
+            "pb15",
+            "text"
+          ],
+          "designClasses": [
+            "pb15",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_02",
+              "kind": "richText",
+              "label": "Текст aff-affstore-EU-Rate-change.block_02",
+              "token": "${{ aff-affstore-EU-Rate-change.block_02 }}$",
+              "ns": "aff-affstore-EU-Rate-change",
+              "block": "block_02"
+            }
+          ]
+        },
+        {
+          "id": "x-new-rate-change-header-text-1-paragraph-2",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb15 ${{ aff-affstore-EU-Rate-change.block_03 }}$",
+          "styl": ".min-text,.text { font-family:Helvetica!important;letter-spacing:0 }\n.text { font-weight:400;color:#373437;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.pb15 { padding-bottom:16px!important }\n.text a { font-family:Helvetica!important;text-decoration:underline!important;color:#86ad00!important }",
+          "classes": [
+            "pb15",
+            "text"
+          ],
+          "designClasses": [
+            "pb15",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_03",
+              "kind": "richText",
+              "label": "Текст aff-affstore-EU-Rate-change.block_03",
+              "token": "${{ aff-affstore-EU-Rate-change.block_03 }}$",
+              "ns": "aff-affstore-EU-Rate-change",
+              "block": "block_03"
+            }
+          ]
+        },
+        {
+          "id": "x-new-rate-change-header-text-1-paragraph-3",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ aff-affstore-EU-Rate-change.block_04 }}$",
+          "styl": ".min-text,.text { font-family:Helvetica!important;letter-spacing:0 }\n.text { font-weight:400;color:#373437;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.text a { font-family:Helvetica!important;text-decoration:underline!important;color:#86ad00!important }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_04",
+              "kind": "richText",
+              "label": "Текст aff-affstore-EU-Rate-change.block_04",
+              "token": "${{ aff-affstore-EU-Rate-change.block_04 }}$",
+              "ns": "aff-affstore-EU-Rate-change",
+              "block": "block_04"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-new-rate-change-header-section-2",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "kind": "section",
+      "sourceFile": "X_new/mail-Rate-change/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.pt32.offset-by-one\n            table.ten.columns\n                tr\n                    td.pb0.text-pad-small\n                        p.subtitle-min.center.pb8 ${{ aff-payment-activation-affstore.block_09 }}$\n                        p.text.center ${{ aff-payment-activation-affstore.block_10 }}$\n                        p.text.center.pb15 ${{ aff-payment-activation-affstore.block_11 }}$\n                        .social-links\n                            a(href=\"https://www.facebook.com/Affstore.affiliate\" target=\"_blank\")\n                                img.soc(src=\"https://fsms.iqoption.com/storage/public/cb/dc/240d7occfe099u7g/soc_facebook.png\")\n                            a(href=\"https://www.instagram.com/affstore_affiliate/\" target=\"_blank\")\n                                img.soc.mar12(src=\"https://fsms.iqoption.com/storage/public/cb/dc/24112m92v5giobag/soc_instagram.png\")\n                            a(href=\"https://affstore.com/\" target=\"_blank\")\n                                img.soc(src=\"https://fsms.iqoption.com/storage/public/cb/dc/24112m92v5gioba0/soc_affstore.png\")",
+      "styl": ".min-text,.text { font-family:Helvetica!important;letter-spacing:0 }\n.text { font-weight:400;color:#373437;font-size:16px;line-height:26px }\n.subtitle,.subtitle-min { font-family:Helvetica!important;font-weight:700;line-height:26px;color:#373437 }\n.subtitle-min { font-size:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.pb8 { padding-bottom:8px }\n.pb15 { padding-bottom:16px!important }\n.pt32 { padding-top:32px }\n.soc,.soc-link { display:inline-block;float:none }\n.soc { max-width:45px }\n.mar12 { margin:0 12px }\n.text a { font-family:Helvetica!important;text-decoration:underline!important;color:#86ad00!important }\n.social-links { display:block;text-align:center }",
+      "classes": [
+        "center",
+        "columns",
+        "last",
+        "mar12",
+        "offset-by-one",
+        "pb0",
+        "pb15",
+        "pb8",
+        "pt32",
+        "row",
+        "soc",
+        "social-links",
+        "subtitle-min",
+        "ten",
+        "text",
+        "text-pad-small",
+        "wrapper"
+      ],
+      "designClasses": [
+        "mar12",
+        "pb15",
+        "pb8",
+        "pt32",
+        "soc",
+        "social-links",
+        "subtitle-min",
+        "text"
+      ],
+      "slots": [
+        {
+          "id": "text_block_09",
+          "kind": "richText",
+          "label": "Текст aff-payment-activation-affstore.block_09",
+          "token": "${{ aff-payment-activation-affstore.block_09 }}$",
+          "ns": "aff-payment-activation-affstore",
+          "block": "block_09"
+        },
+        {
+          "id": "text_block_10",
+          "kind": "richText",
+          "label": "Текст aff-payment-activation-affstore.block_10",
+          "token": "${{ aff-payment-activation-affstore.block_10 }}$",
+          "ns": "aff-payment-activation-affstore",
+          "block": "block_10"
+        },
+        {
+          "id": "text_block_11",
+          "kind": "richText",
+          "label": "Текст aff-payment-activation-affstore.block_11",
+          "token": "${{ aff-payment-activation-affstore.block_11 }}$",
+          "ns": "aff-payment-activation-affstore",
+          "block": "block_11"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://www.facebook.com/Affstore.affiliate"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://www.instagram.com/affstore_affiliate/"
+        },
+        {
+          "id": "href_2",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://affstore.com/"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.iqoption.com/storage/public/cb/dc/240d7occfe099u7g/soc_facebook.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.iqoption.com/storage/public/cb/dc/24112m92v5giobag/soc_instagram.png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.iqoption.com/storage/public/cb/dc/24112m92v5gioba0/soc_affstore.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-rate-change-header-section-2-paragraph-0",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.center ${{ aff-payment-activation-affstore.block_10 }}$",
+          "styl": ".min-text,.text { font-family:Helvetica!important;letter-spacing:0 }\n.text { font-weight:400;color:#373437;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.text a { font-family:Helvetica!important;text-decoration:underline!important;color:#86ad00!important }",
+          "classes": [
+            "center",
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_10",
+              "kind": "richText",
+              "label": "Текст aff-payment-activation-affstore.block_10",
+              "token": "${{ aff-payment-activation-affstore.block_10 }}$",
+              "ns": "aff-payment-activation-affstore",
+              "block": "block_10"
+            }
+          ]
+        },
+        {
+          "id": "x-new-rate-change-header-section-2-paragraph-1",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.center.pb15 ${{ aff-payment-activation-affstore.block_11 }}$",
+          "styl": ".min-text,.text { font-family:Helvetica!important;letter-spacing:0 }\n.text { font-weight:400;color:#373437;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.pb15 { padding-bottom:16px!important }\n.text a { font-family:Helvetica!important;text-decoration:underline!important;color:#86ad00!important }",
+          "classes": [
+            "center",
+            "pb15",
+            "text"
+          ],
+          "designClasses": [
+            "pb15",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_11",
+              "kind": "richText",
+              "label": "Текст aff-payment-activation-affstore.block_11",
+              "token": "${{ aff-payment-activation-affstore.block_11 }}$",
+              "ns": "aff-payment-activation-affstore",
+              "block": "block_11"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

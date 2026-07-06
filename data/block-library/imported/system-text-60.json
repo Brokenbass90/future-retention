@@ -1,0 +1,30 @@
+{
+  "id": "system-text-60",
+  "label": "Заголовок",
+  "description": "Импортирован из X_System (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.title.center.b-system-text-60 {{ text_1 }}",
+  "styl": ".title.b-system-text-60 {  font-family:Arial!important;color:#f16722;font-size:24px;font-weight:500;line-height:32px;padding-top:30px;padding-bottom:25px  }\n@media screen and (max-width:600px) {\n  .title.b-system-text-60 {  padding-left:20px!important;padding-right:20px!important  }\n}",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_System"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_System/mail-gdrp"
+  ],
+  "createdAt": "2026-07-06T12:09:59.369Z",
+  "validated": true
+}

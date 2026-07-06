@@ -1,0 +1,39 @@
+{
+  "id": "exnova-cta-02",
+  "label": "CTA-кнопка (w280)",
+  "description": "Импортирован из X_Exnova (9 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "cta",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.w280.b-exnova-cta-02(align=\"center\")\n    tr\n        td.butt.pb0\n            a.butt-link(href=\"{{ href_1 }}\" universal=\"true\" target=\"_blank\") {{ text_1 }}",
+  "styl": ".b-exnova-cta-02 .butt-link {  font-size: 18px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #fff;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px;  }\n.w280.b-exnova-cta-02 {  width: 100%;\n  max-width: 280px;  }\n@media screen and (max-width: 600px) {\n  .w280.b-exnova-cta-02 {  min-width: 100% !important;  }\n}\n.b-exnova-cta-02 .butt-link {  font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#fff;display:block;padding:16px 0;text-align:center;letter-spacing:0  }\n.w280.b-exnova-cta-02 {  width:100%;max-width:280px  }\n@media screen and (max-width:600px) {\n  .w280.b-exnova-cta-02 {  min-width:100%!important  }\n}",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://api.trade.exnova.com/v1/multi-links/promo-centre?aff=7&afftrack=mail_rewarded_reviews_2nd&retrack=rewarded_reviews_2nd"
+    }
+  ],
+  "tags": [
+    "cta",
+    "inline",
+    "X_Exnova"
+  ],
+  "usageCount": 9,
+  "sourceMails": [
+    "X_Exnova/mail-Strategy-bonus_Exnova",
+    "X_Exnova/mail-Strategy-bonus_Exnova-250825",
+    "X_Exnova/mail-Strategy-bonus_Exnova-3",
+    "X_Exnova/mail-Trade-on-weekend-B"
+  ],
+  "createdAt": "2026-07-06T12:09:50.960Z",
+  "validated": true
+}

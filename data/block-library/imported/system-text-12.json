@@ -1,0 +1,23 @@
+{
+  "id": "system-text-12",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_System (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.b-system-text-12\n    tr\n        td.offset-by-one\n            table.ten.columns\n                tr\n                    td.no-padding-bottom\n                        p.title Pedagang yang terhormat,\n                        p.text Kami ingin membertahu Anda bahwa kami ada cara penyetoran uang yang baru!\n                        p.text Cara tersebut benar-benar cepat, dapat dipercaya dan sangat gampang digunakan. Keuntungan utamanya adalah bahwa sekarang Anda dapat menyetor dan menarik uang dalam mata uang yang lokal (IDR). Apakah berita ini berbunyi bagus?\n                        p.text Anda dapat menemukan daftar bank lokal yang dapat Anda gunakan di bawah ini:\n                        p.text.list Central Asia\n                        p.text.list Mandiri\n                        p.text.list Rakyat Indonesia\n                        p.text.list Negara Indonesia\n                        p.text.list CIMB Niaga\n                        p.text.list.pb20 Permata Bank\n                        p.text Silakan tekan tombol ini untuk mengecek cara penyetoran terbaru",
+  "styl": ".white-bg.b-system-text-12 {  background:#fff  }\n.b-system-text-12 .title {  color:#2473d7;font-size:24px;font-weight:500;line-height:32px;padding-top:30px;padding-bottom:25px  }\n@media screen and (max-width:600px) {\n  .b-system-text-12 .title {  padding-left:20px!important;padding-right:20px!important  }\n}\n.b-system-text-12 .text {  color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px  }\n@media screen and (max-width:600px) {\n  .b-system-text-12 .text {  padding-left:20px!important;padding-right:20px!important  }\n}\n.b-system-text-12 .text a {  color:#2473d7;text-decoration:underline  }\n.b-system-text-12 .text.bold {  font-weight:700  }\n.b-system-text-12 .list {  display:list-item;padding-left:20px;list-style:dot;list-style-position:inside;padding-bottom:10px  }",
+  "slots": [],
+  "tags": [
+    "text",
+    "section",
+    "X_System"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_System/mail-asap"
+  ],
+  "createdAt": "2026-07-06T12:09:59.367Z",
+  "validated": true
+}

@@ -1,0 +1,43 @@
+{
+  "id": "affsystem-header-02",
+  "label": "Шапка с логотипом",
+  "description": "Импортирован из X_AffSystem (8 писем). Секция.",
+  "placement": "section",
+  "category": "header",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.brad-top.bg-col.b-affsystem-header-02\n    tr\n        td.wrapper.offset-by-one.last\n            table.ten.columns\n                tr\n                    td.six.sub-columns.pt0\n                        a(href=\"{{ href_1 }}\" target=\"_blank\")\n                            img.logo.center.pb5(src=\"{{ image_1 }}\")",
+  "styl": ".bg-col.b-affsystem-header-02 {  background-color:#fbfbfd  }\n.brad-top.b-affsystem-header-02 {  border-top-left-radius:6px!important;border-top-right-radius:6px!important;overflow:hidden  }\n.white-bg.b-affsystem-header-02 {  background:#fff  }\n.b-affsystem-header-02 .pb5 {  padding-bottom:5px  }",
+  "slots": [
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://affiliate.iqoption.com"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://static.cdnpub.info/files/storage/public/5f/c8/d0517a03c1c8h5j9j4/logoaff_white_shadow__1_.png"
+    }
+  ],
+  "tags": [
+    "header",
+    "section",
+    "X_AffSystem"
+  ],
+  "usageCount": 8,
+  "sourceMails": [
+    "X_AffSystem/mail-aff-registration-affiliate",
+    "X_AffSystem/mail-affiliate-kyc-doc-status-changed",
+    "X_AffSystem/mail-email-activation-affiliate",
+    "X_AffSystem/mail-new-ticket-reply-affiliate",
+    "X_AffSystem/mail-onboarding-survey-affiliate",
+    "X_AffSystem/mail-password-retrieving-affiliate",
+    "X_AffSystem/mail-payment-activation-affiliate",
+    "X_AffSystem/mail-verification-reminder-affiliate"
+  ],
+  "createdAt": "2026-07-06T12:09:51.509Z",
+  "validated": true
+}

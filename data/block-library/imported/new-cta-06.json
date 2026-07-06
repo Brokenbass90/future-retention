@@ -1,0 +1,51 @@
+{
+  "id": "new-cta-06",
+  "label": "CTA-кнопка (w280)",
+  "description": "Импортирован из X_new (16 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "cta",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.w280.b-new-cta-06(align=\"left\")\n    tr\n        td.butt.pb0\n            a.butt-link(href=\"{{ href_1 }}\" universal=\"true\" target=\"_blank\") {{ text_1 }}",
+  "styl": ".w280.b-new-cta-06 {  width: 100%;\n  max-width: 280px;  }\n@media screen and (max-width: 600px) {\n  .w280.b-new-cta-06 {  max-width: 100% !important;  }\n}\n.b-new-cta-06 .butt-link {  font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px;  }\n.w280.b-new-cta-06 {  width:100%;max-width:280px  }\n@media screen and (max-width:600px) {\n  .w280.b-new-cta-06 {  max-width:100%!important  }\n}\n.b-new-cta-06 .butt-link, .b-new-cta-06 .butt-link-2, .b-new-cta-06 .butt-link-small {  font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#2f3749;display:block;line-height:27px;padding:16px 0;text-align:center;letter-spacing:0  }\n.b-new-cta-06 .butt-link, .b-new-cta-06 .butt-link-small {  color:#f9f9f9  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-3-1-1&retrack=mail_IQ-RFM-3-1-1"
+    }
+  ],
+  "tags": [
+    "cta",
+    "inline",
+    "X_new"
+  ],
+  "usageCount": 16,
+  "sourceMails": [
+    "X_new/mail-rfm-311",
+    "X_new/mail-rfm-312",
+    "X_new/mail-rfm-313",
+    "X_new/mail-rfm-321",
+    "X_new/mail-rfm-322",
+    "X_new/mail-rfm-323",
+    "X_new/mail-rfm-324",
+    "X_new/mail-rfm-331",
+    "X_new/mail-rfm-332",
+    "X_new/mail-rfm-334",
+    "X_new/mail-rfm-segmentation-2-125",
+    "X_new/mail-rfm-segmentation-2-133",
+    "X_new/mail-rfm-segmentation-2-134",
+    "X_new/mail-rfm-segmentation-2-135",
+    "X_new/mail-rfm-segmentation-2-211",
+    "X_new/mail-rfm-segmentation-2-214"
+  ],
+  "createdAt": "2026-07-06T12:10:00.061Z",
+  "validated": true
+}

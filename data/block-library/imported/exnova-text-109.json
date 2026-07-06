@@ -1,0 +1,30 @@
+{
+  "id": "exnova-text-109",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_Exnova (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.b-exnova-text-109\n    tr\n        td.wrapper.last.offset-by-one.pt15\n            table.six.columns\n                tr\n                    td.text-pad-small.vam.pb40\n                        .button-wrapper.button-wrapper_left\n                            table.medium-button.radius\n                                tr\n                                    td.butt-td\n                                        a.butt(href=\"{{ href_1 }}\" target=\"_blank\") Join a tournament",
+  "styl": ".b-exnova-text-109 .vam {  vertical-align:middle!important  }\n.b-exnova-text-109 .butt-td {  padding:0!important  }\n.white-bg.b-exnova-text-109 {  background:#fff  }\n.b-exnova-text-109 .button-wrapper {  padding-top:0;padding-bottom:0  }\n@media screen and (max-width:600px) {\n  .b-exnova-text-109 .button-wrapper {  padding-left:20px!important;padding-right:20px!important  }\n}\n.b-exnova-text-109 .pt15 {  padding-top:15px  }",
+  "slots": [
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://8xtrade.com/traderoom/asset/1?type=binary&aff=7&afftrack=mail_system&retrack=8x-lose"
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_Exnova"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_Exnova/mail-tournament"
+  ],
+  "createdAt": "2026-07-06T12:09:50.974Z",
+  "validated": true
+}

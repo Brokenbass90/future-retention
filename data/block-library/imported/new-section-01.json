@@ -1,0 +1,42 @@
+{
+  "id": "new-section-01",
+  "label": "Секция",
+  "description": "Импортирован из X_new (2 писем). Секция.",
+  "placement": "section",
+  "category": "section",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.b-new-section-01\n    tr\n        td.wrapper.last.offset-by-one.pt10\n            table.ten.columns\n                tr\n                    td.pb0\n                        p.title-top.center.pt24 {{ text_1 }}\n                        p.title-top.center.pb24 {{ text_2 }}\n    tr\n        td.wrapper.last.pt0\n            table.welve.columns\n                tr\n                    td.pb0.text-pad-small\n                        a(href=\"#\" target=\"_blank\")\n                            img.center(src=\"{{ image_1 }}\")",
+  "styl": ".b-new-section-01 .title-top {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 56px;\n  line-height: 67px;\n  color: #413e43;  }\n@media screen and (max-width: 600px) {\n  .b-new-section-01 .title-top {  font-size: 28px !important;\n    line-height: 36px !important;  }\n}\n.b-new-section-01 .pt24 {  padding-top: 24px;  }\n.b-new-section-01 .pb24 {  padding-bottom: 24px;  }\n.b-new-section-01 .title-top {  font-family:Helvetica!important;font-weight:700;font-size:56px;line-height:67px;color:#413e43  }\n@media screen and (max-width:600px) {\n  .b-new-section-01 .title-top {  font-size:28px!important;line-height:36px!important  }\n}\n.b-new-section-01 .pb24 {  padding-bottom:24px  }\n.b-new-section-01 .pt24 {  padding-top:24px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/cs/gb/rm6di3umufauu7u0/container (8).png"
+    }
+  ],
+  "tags": [
+    "section",
+    "X_new"
+  ],
+  "usageCount": 2,
+  "sourceMails": [
+    "X_new/mail-PWA",
+    "X_new/mail-PWA-2"
+  ],
+  "createdAt": "2026-07-06T12:10:00.054Z",
+  "validated": true
+}

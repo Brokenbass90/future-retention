@@ -1,0 +1,30 @@
+{
+  "id": "new-text-39",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_new (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.pb10.b-new-text-39 {{ text_1 }}",
+  "styl": ".text.b-new-text-39 {  font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 27px;  }\n@media screen and (max-width: 600px) {\n  .text.b-new-text-39 {  font-size: 16px !important;\n    line-height: 22px !important;  }\n}\n.text.bold.b-new-text-39 {  font-weight: 700;  }\n.text.b-new-text-39 {  font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:27px  }\n@media screen and (max-width:600px) {\n  .text.b-new-text-39 {  font-size:16px!important;line-height:22px!important  }\n}\n.b-new-text-39 .big, .text.bold.b-new-text-39 {  font-weight:700  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-RFM-dep"
+  ],
+  "createdAt": "2026-07-06T12:10:00.057Z",
+  "validated": true
+}

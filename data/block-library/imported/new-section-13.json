@@ -1,0 +1,35 @@
+{
+  "id": "new-section-13",
+  "label": "Секция",
+  "description": "Импортирован из X_new (1 писем). Секция.",
+  "placement": "section",
+  "category": "section",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.b-new-section-13\n    tr\n        td.wrapper.last.offset-by-one.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44\n                        p.hello.wb-bw.pb12 {{ text_1 }}\n                        p.text {{ text_2 }}",
+  "styl": ".b-new-section-13 .hello {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 22px;\n  color: #373437;\n  letter-spacing: 0;\n  line-height: 26px;\n  word-break: break-word;  }\n.b-new-section-13 .wb-bw {  word-break: break-word;  }\n.b-new-section-13 .text {  font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0;  }\n.b-new-section-13 .text.list {  display: list-item;  }\n.b-new-section-13 .pb12 {  padding-bottom: 12px;  }\n.b-new-section-13 .pb44 {  padding-bottom: 44px;  }\n.b-new-section-13 .pt44 {  padding-top: 44px;  }\n.b-new-section-13 .text a {  font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #6a8a00 !important;  }\n.b-new-section-13 .hello {  font-family:Helvetica!important;font-weight:700;font-size:22px;color:#373437;letter-spacing:0;line-height:26px;word-break:break-word  }\n.b-new-section-13 .wb-bw {  word-break:break-word  }\n.b-new-section-13 .small-text, .b-new-section-13 .subtitle-min, .b-new-section-13 .text, .b-new-section-13 .text-fat, .b-new-section-13 .text-strong {  font-family:Helvetica!important;font-weight:400;color:#413e43  }\n.b-new-section-13 .text {  letter-spacing:0;font-size:18px;line-height:27px  }\n.b-new-section-13 .text.list {  display:list-item  }\n.b-new-section-13 .pb12 {  padding-bottom:12px  }\n.b-new-section-13 .pb44 {  padding-bottom:44px  }\n.b-new-section-13 .pt44, .b-new-section-13 .pt45 {  padding-top:44px  }\n.b-new-section-13 .text a, .b-new-section-13 b {  font-family:Helvetica!important  }\n.b-new-section-13 .text a {  text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#6a8a00!important  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    }
+  ],
+  "tags": [
+    "section",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-postback-101"
+  ],
+  "createdAt": "2026-07-06T12:10:00.060Z",
+  "validated": true
+}

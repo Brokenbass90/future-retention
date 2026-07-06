@@ -1,0 +1,487 @@
+{
+  "category": "X_Exnova",
+  "mailId": "tournament",
+  "mailAbs": "email-base/X_Exnova/mail-tournament",
+  "blockCount": 4,
+  "blocks": [
+    {
+      "id": "x-exnova-tournament-header-hero-0",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "kind": "section",
+      "sourceFile": "X_Exnova/mail-tournament/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.bgr\n            table.row.header\n                tr\n                    td.wrapper.offset-by-one.last.pt30\n                        table.ten.columns\n                            tr\n                                td.six.sub-columns.pb0\n                                    a(href=\"https://8xtrade.com/traderoom/?aff=7&afftrack=mail_system&retrack=8x-lose\" target=\"_blank\")\n                                        img.logo(src=\"https://static.cdnpub.info/files/storage/public/5f/51/18dae78c93d4c4g1d5/logo.png\")\n                                td.six.sub-columns.last.pb0\n                                    .header-soc\n                                        a(href=\"\" target=\"_blank\")\n                                            img.ig(src=\"https://static.cdnpub.info/files/storage/public/5f/51/18dadc8ed0a9c1b2b3/ig.png\")\n                                        a(href=\"\" target=\"_blank\")\n                                            img.tw(src=\"https://static.cdnpub.info/files/storage/public/5f/51/18db28f4f5a1b6i3e8/twitter.png\")\n                                        a(href=\"\" target=\"_blank\")\n                                            img.yt(src=\"https://static.cdnpub.info/files/storage/public/5f/51/18db48a987a3i5a3j0/yt.png\")\n                                        a(href=\"\" target=\"_blank\")\n                                            img.fb(src=\"https://static.cdnpub.info/files/storage/public/5f/51/18dadd0ea9j2e9g2g8/fb.png\")\n            table.row\n                tr\n                    td.wrapper.last.offset-by-one.pt0\n                        table.ten.columns\n                            tr\n                                td.text-pad-small.pb0\n                                    p.title Tournaments\n                                    p.white-text What do 8x-traders do when they don’t trade? They compete in trading tournaments for whopping money prizes. You are welcome to join!\n            table.row\n                tr\n                    td.wrapper.last.offset-by-one.pt15\n                        table.six.columns\n                            tr\n                                td.text-pad-small.vam.pb0\n                                    .button-wrapper.button-wrapper_left\n                                        table.medium-button.radius\n                                            tr\n                                                td.butt-td\n                                                    a.butt(href=\"https://8xtrade.com/traderoom/asset/1?type=binary&aff=7&afftrack=mail_system&retrack=8x-lose\" target=\"_blank\") i am ready\n            table.row\n                tr\n                    td.wrapper.last.pt0\n                        table.twelve.columns\n                            tr\n                                td.pb35",
+      "styl": ".vam { vertical-align:middle!important }\n.butt-td { padding:0!important }\n.bgr { background:#05081a url(https://static.cdnpub.info/files/storage/public/5f/5a/04ff46ded8g4b5c0f1/bg.png) center top no-repeat;background-size:cover;height:586px;min-height:586px;padding-top:0 }\n@media screen and (max-width:600px) {\n  .bgr { height:auto!important }\n}\n.header-soc { float:right }\n@media screen and (max-width:600px) {\n  .header-soc { padding-right:20px!important }\n}\n.header-soc a { display:inline-block;margin-left:20px }\n@media screen and (max-width:600px) {\n  .header-soc a { margin-left:15px!important }\n}\n.ig { max-width:15px;float:none }\n.fb,.tw,.yt { max-width:19px;float:none }\n.fb,.yt { max-width:22px }\n.fb { max-width:15px }\n.title { color:#fff;font-size:40px;line-height:48px;font-weight:700;font-family:Helvetica!important;padding-top:292px;padding-bottom:8px }\n@media screen and (max-width:600px) {\n  .title { font-size:30px!important;line-height:38px!important }\n}\n.black-title,.title .red { font-family:Helvetica!important }\n.title .red { color:#ff4447!important }\n.list-text,.white-text { color:#293455;font-weight:400;font-family:Helvetica!important }\n.white-text { color:#fff;font-size:16px;line-height:24px }\n.white-text a { color:#fff!important;text-decoration:underline }\n.button-wrapper { padding-top:0;padding-bottom:0 }\n@media screen and (max-width:600px) {\n  .button-wrapper { padding-left:20px!important;padding-right:20px!important }\n}\n.pb35 { padding-bottom:35px }\n.pt15 { padding-top:15px }",
+      "classes": [
+        "bgr",
+        "butt",
+        "butt-td",
+        "button-wrapper",
+        "button-wrapper_left",
+        "columns",
+        "fb",
+        "header",
+        "header-soc",
+        "ig",
+        "last",
+        "logo",
+        "medium-button",
+        "offset-by-one",
+        "pb0",
+        "pb35",
+        "pt0",
+        "pt15",
+        "pt30",
+        "radius",
+        "row",
+        "six",
+        "sub-columns",
+        "ten",
+        "text-pad-small",
+        "title",
+        "tw",
+        "twelve",
+        "vam",
+        "white-text",
+        "wrapper",
+        "yt"
+      ],
+      "designClasses": [
+        "bgr",
+        "butt-td",
+        "button-wrapper",
+        "button-wrapper_left",
+        "fb",
+        "header",
+        "header-soc",
+        "ig",
+        "pb35",
+        "pt15",
+        "title",
+        "tw",
+        "vam",
+        "white-text",
+        "yt"
+      ],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://8xtrade.com/traderoom/?aff=7&afftrack=mail_system&retrack=8x-lose"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://8xtrade.com/traderoom/asset/1?type=binary&aff=7&afftrack=mail_system&retrack=8x-lose"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnpub.info/files/storage/public/5f/51/18dae78c93d4c4g1d5/logo.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnpub.info/files/storage/public/5f/51/18dadc8ed0a9c1b2b3/ig.png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnpub.info/files/storage/public/5f/51/18db28f4f5a1b6i3e8/twitter.png"
+        },
+        {
+          "id": "image_3",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnpub.info/files/storage/public/5f/51/18db48a987a3i5a3j0/yt.png"
+        },
+        {
+          "id": "image_4",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnpub.info/files/storage/public/5f/51/18dadd0ea9j2e9g2g8/fb.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-exnova-tournament-header-hero-0-heading-0",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.title Tournaments",
+          "styl": ".title { color:#fff;font-size:40px;line-height:48px;font-weight:700;font-family:Helvetica!important;padding-top:292px;padding-bottom:8px }\n@media screen and (max-width:600px) {\n  .title { font-size:30px!important;line-height:38px!important }\n}\n.black-title,.title .red { font-family:Helvetica!important }\n.title .red { color:#ff4447!important }",
+          "classes": [
+            "title"
+          ],
+          "designClasses": [
+            "title"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-exnova-tournament-header-hero-0-paragraph-1",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.white-text What do 8x-traders do when they don’t trade? They compete in trading tournaments for whopping money prizes. You are welcome to join!",
+          "styl": ".list-text,.white-text { color:#293455;font-weight:400;font-family:Helvetica!important }\n.white-text { color:#fff;font-size:16px;line-height:24px }\n.white-text a { color:#fff!important;text-decoration:underline }",
+          "classes": [
+            "white-text"
+          ],
+          "designClasses": [
+            "white-text"
+          ],
+          "slots": []
+        }
+      ]
+    },
+    {
+      "id": "x-exnova-tournament-header-text-1",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_Exnova/mail-tournament/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg\n    tr\n        td.wrapper.last.offset-by-one.pt40\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb20\n                        p.black-title.pb15 What’s a tournament?\n                        p.text.pb30 A tournament is a competition between traders. The goal is to trade your best and finish up as close to the top of the Leaderboard as possible. The top-performers share the money prize of several thousand dollars!\n                        .block-head\n                            p.block-name\n                                img.icon.icon_1(src=\"https://static.cdnpub.info/files/storage/public/5f/5a/04ff4bada1f0f1h5e6/ticket.png\")\n                                | Participation\n                        p.text.pt15.pb15 The participants trade with play money and win real money prizes. The tournament account comes with the same amount of virtual coins, so the odds are equal for everyone.\n                        a.red-link(href=\"\" target=\"_blank\")\n                            img.arr(src=\"https://static.cdnpub.info/files/storage/public/5f/58/e3216b1521i6d4g8e0/arr.png\")\n                            | JOIN A TOURNAMENT\n                        .block-head\n                            p.block-name\n                                img.icon.icon_2(src=\"https://static.cdnpub.info/files/storage/public/5f/5a/04feeb8646d7f5d0f5/board.png\")\n                                | Leaderboard\n                        a.nopoint.mtb20(href=\"#\" target=\"_blank\")\n                            img.img100(src=\"https://static.cdnpub.info/files/storage/public/5f/5a/04ff515e68f0e9f5a9/scr1.png\")\n                        p.text.pb30 The goal is simple: those with the highest returns by the end of the tournament top the Leaderboard and share the prize.\n                        .block-head\n                            p.block-name\n                                img.icon.icon_3(src=\"https://static.cdnpub.info/files/storage/public/5f/5a/04ff1986a8g3c2c9h8/fee.png\")\n                                | Entry fee\n                        p.text.pt15.pb15 Tournaments with higher prize funds come at a small entry fee of $2-20. Don't want to pay? Join free tournaments with zero commitment.\n                        a.red-link(href=\"\" target=\"_blank\")\n                            img.arr(src=\"https://static.cdnpub.info/files/storage/public/5f/58/e3216b1521i6d4g8e0/arr.png\")\n                            | JOIN A TOURNAMENT\n                        .block-head\n                            p.block-name\n                                img.icon.icon_4(src=\"https://static.cdnpub.info/files/storage/public/5f/5a/04ff27a027j0g4d5d7/rebuy.png\")\n                                | Rebuy\n                        a.nopoint.mtb20(href=\"#\" target=\"_blank\")\n                            img.img100(src=\"https://static.cdnpub.info/files/storage/public/5f/5a/04ff6d8869c7c7f7g5/scr2.png\")\n                        p.text.pb30 Noticed that your tournament balance is getting lower than the starting balance? Top it up with real money and stay in the rally.\n                        .block-head\n                            p.block-name\n                                img.icon.icon_5(src=\"https://static.cdnpub.info/files/storage/public/5f/5a/04ff198174a1e9g4b3/prize.png\")\n                                | Prize fund distribution\n                        p.text.pt15.pb15 The prize fund is distributed between the leaders. If you couldn’t hit the 1st place, you can still get money prize even being #30.\n                        a.red-link(href=\"\" target=\"_blank\")\n                            img.arr(src=\"https://static.cdnpub.info/files/storage/public/5f/58/e3216b1521i6d4g8e0/arr.png\")\n                            | JOIN A TOURNAMENT",
+      "styl": ".white-bg { background:#fff }\n.nopoint { cursor:default!important;display:block }\n.black-title,.title .red { font-family:Helvetica!important }\n.black-title { color:#2a3554;font-size:36px;line-height:48px;font-weight:700 }\n@media screen and (max-width:600px) {\n  .black-title { font-size:30px!important;line-height:40px!important }\n}\n.black-sub,.redish b,.text,.text a { font-family:Helvetica!important }\n.text { font-size:16px;line-height:24px;color:#293455;font-weight:400 }\n.redish b,.text a { color:#213e8f;font-weight:700 }\n.block-head { background:url(https://static.cdnpub.info/files/storage/public/5f/5a/1c0a7ff4f0j2e1f7e7/liner.png) right center no-repeat;background-size:100% }\n.block-name,.icon { display:inline-block }\n.block-name { background:#fff;font-size:24px;line-height:29px;font-weight:700;color:#2a3554;font-family:Helvetica!important;vertical-align:middle;padding-right:15px }\n.icon { vertical-align:text-bottom;float:none;padding-right:11px }\n.icon_1 { max-width:27px }\n.icon_2 { max-width:24px;vertical-align:baseline }\n.icon_3 { max-width:17px;vertical-align:bottom }\n.icon_4,.icon_5 { max-width:27px;vertical-align:baseline }\n.icon_5 { max-width:24px }\n.item-text,.red-link { color:#697189;font-size:14px;line-height:21px;font-weight:400;font-family:Helvetica!important }\n.red-link { color:#ff2c2f;line-height:17px;font-weight:700;letter-spacing:1px;margin-bottom:30px;float:none;display:block }\n.arr { display:inline-block;float:none;vertical-align:middle;max-width:6px;padding-right:6px;padding-bottom:2px }\n.pb15 { padding-bottom:15px }\n.pt15 { padding-top:15px }\n.mtb20 { margin-top:20px;margin-bottom:20px }",
+      "classes": [
+        "arr",
+        "black-title",
+        "block-head",
+        "block-name",
+        "columns",
+        "icon",
+        "icon_1",
+        "icon_2",
+        "icon_3",
+        "icon_4",
+        "icon_5",
+        "img100",
+        "last",
+        "mtb20",
+        "nopoint",
+        "offset-by-one",
+        "pb15",
+        "pb20",
+        "pb30",
+        "pt15",
+        "pt40",
+        "red-link",
+        "row",
+        "ten",
+        "text",
+        "text-pad-small",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "arr",
+        "black-title",
+        "block-head",
+        "block-name",
+        "icon",
+        "icon_1",
+        "icon_2",
+        "icon_3",
+        "icon_4",
+        "icon_5",
+        "mtb20",
+        "nopoint",
+        "pb15",
+        "pt15",
+        "red-link",
+        "text",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnpub.info/files/storage/public/5f/5a/04ff4bada1f0f1h5e6/ticket.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnpub.info/files/storage/public/5f/58/e3216b1521i6d4g8e0/arr.png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnpub.info/files/storage/public/5f/5a/04feeb8646d7f5d0f5/board.png"
+        },
+        {
+          "id": "image_3",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnpub.info/files/storage/public/5f/5a/04ff515e68f0e9f5a9/scr1.png"
+        },
+        {
+          "id": "image_4",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnpub.info/files/storage/public/5f/5a/04ff1986a8g3c2c9h8/fee.png"
+        },
+        {
+          "id": "image_5",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnpub.info/files/storage/public/5f/5a/04ff27a027j0g4d5d7/rebuy.png"
+        },
+        {
+          "id": "image_6",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnpub.info/files/storage/public/5f/5a/04ff6d8869c7c7f7g5/scr2.png"
+        },
+        {
+          "id": "image_7",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnpub.info/files/storage/public/5f/5a/04ff198174a1e9g4b3/prize.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-exnova-tournament-header-text-1-paragraph-0",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb30 A tournament is a competition between traders. The goal is to trade your best and finish up as close to the top of the Leaderboard as possible. The top-performers share the money prize of several thousand dollars!",
+          "styl": ".black-sub,.redish b,.text,.text a { font-family:Helvetica!important }\n.text { font-size:16px;line-height:24px;color:#293455;font-weight:400 }\n.redish b,.text a { color:#213e8f;font-weight:700 }",
+          "classes": [
+            "pb30",
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-exnova-tournament-header-text-1-paragraph-1",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pt15.pb15 The participants trade with play money and win real money prizes. The tournament account comes with the same amount of virtual coins, so the odds are equal for everyone.",
+          "styl": ".black-sub,.redish b,.text,.text a { font-family:Helvetica!important }\n.text { font-size:16px;line-height:24px;color:#293455;font-weight:400 }\n.redish b,.text a { color:#213e8f;font-weight:700 }\n.pb15 { padding-bottom:15px }\n.pt15 { padding-top:15px }",
+          "classes": [
+            "pb15",
+            "pt15",
+            "text"
+          ],
+          "designClasses": [
+            "pb15",
+            "pt15",
+            "text"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-exnova-tournament-header-text-1-paragraph-2",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb30 The goal is simple: those with the highest returns by the end of the tournament top the Leaderboard and share the prize.",
+          "styl": ".black-sub,.redish b,.text,.text a { font-family:Helvetica!important }\n.text { font-size:16px;line-height:24px;color:#293455;font-weight:400 }\n.redish b,.text a { color:#213e8f;font-weight:700 }",
+          "classes": [
+            "pb30",
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-exnova-tournament-header-text-1-paragraph-3",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pt15.pb15 Tournaments with higher prize funds come at a small entry fee of $2-20. Don't want to pay? Join free tournaments with zero commitment.",
+          "styl": ".black-sub,.redish b,.text,.text a { font-family:Helvetica!important }\n.text { font-size:16px;line-height:24px;color:#293455;font-weight:400 }\n.redish b,.text a { color:#213e8f;font-weight:700 }\n.pb15 { padding-bottom:15px }\n.pt15 { padding-top:15px }",
+          "classes": [
+            "pb15",
+            "pt15",
+            "text"
+          ],
+          "designClasses": [
+            "pb15",
+            "pt15",
+            "text"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-exnova-tournament-header-text-1-paragraph-4",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb30 Noticed that your tournament balance is getting lower than the starting balance? Top it up with real money and stay in the rally.",
+          "styl": ".black-sub,.redish b,.text,.text a { font-family:Helvetica!important }\n.text { font-size:16px;line-height:24px;color:#293455;font-weight:400 }\n.redish b,.text a { color:#213e8f;font-weight:700 }",
+          "classes": [
+            "pb30",
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-exnova-tournament-header-text-1-paragraph-5",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pt15.pb15 The prize fund is distributed between the leaders. If you couldn’t hit the 1st place, you can still get money prize even being #30.",
+          "styl": ".black-sub,.redish b,.text,.text a { font-family:Helvetica!important }\n.text { font-size:16px;line-height:24px;color:#293455;font-weight:400 }\n.redish b,.text a { color:#213e8f;font-weight:700 }\n.pb15 { padding-bottom:15px }\n.pt15 { padding-top:15px }",
+          "classes": [
+            "pb15",
+            "pt15",
+            "text"
+          ],
+          "designClasses": [
+            "pb15",
+            "pt15",
+            "text"
+          ],
+          "slots": []
+        }
+      ]
+    },
+    {
+      "id": "x-exnova-tournament-header-text-2",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_Exnova/mail-tournament/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg\n    tr\n        td.wrapper.last.offset-by-one.pt40\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb0\n                        p.text.pb10.redish The winning will be credited to your trading account. Withdraw the money or use it for further trading!\n                        p.text We hold several tournaments every month — proceed to the Tournament section to check what’s on now.\n                        a.nopoint.mtb30(href=\"#\" target=\"_blank\")\n                            img.img100(src=\"https://static.cdnpub.info/files/storage/public/5f/51/18db23b387c4d3d6d3/lines.png\")\n                        p.black-title Ready. Set. Trade!",
+      "styl": ".white-bg { background:#fff }\n.nopoint { cursor:default!important;display:block }\n.black-title,.title .red { font-family:Helvetica!important }\n.black-title { color:#2a3554;font-size:36px;line-height:48px;font-weight:700 }\n@media screen and (max-width:600px) {\n  .black-title { font-size:30px!important;line-height:40px!important }\n}\n.black-sub,.redish b,.text,.text a { font-family:Helvetica!important }\n.text { font-size:16px;line-height:24px;color:#293455;font-weight:400 }\n.redish b,.text a { color:#213e8f;font-weight:700 }\n.redish b { color:#ff4341 }\n.mtb30 { margin-top:30px;margin-bottom:30px }",
+      "classes": [
+        "black-title",
+        "columns",
+        "img100",
+        "last",
+        "mtb30",
+        "nopoint",
+        "offset-by-one",
+        "pb0",
+        "pb10",
+        "pt40",
+        "redish",
+        "row",
+        "ten",
+        "text",
+        "text-pad-small",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "black-title",
+        "mtb30",
+        "nopoint",
+        "redish",
+        "text",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnpub.info/files/storage/public/5f/51/18db23b387c4d3d6d3/lines.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-exnova-tournament-header-text-2-paragraph-0",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb10.redish The winning will be credited to your trading account. Withdraw the money or use it for further trading!",
+          "styl": ".black-sub,.redish b,.text,.text a { font-family:Helvetica!important }\n.text { font-size:16px;line-height:24px;color:#293455;font-weight:400 }\n.redish b,.text a { color:#213e8f;font-weight:700 }\n.redish b { color:#ff4341 }",
+          "classes": [
+            "pb10",
+            "redish",
+            "text"
+          ],
+          "designClasses": [
+            "redish",
+            "text"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-exnova-tournament-header-text-2-paragraph-1",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text We hold several tournaments every month — proceed to the Tournament section to check what’s on now.",
+          "styl": ".black-sub,.redish b,.text,.text a { font-family:Helvetica!important }\n.text { font-size:16px;line-height:24px;color:#293455;font-weight:400 }\n.redish b,.text a { color:#213e8f;font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": []
+        }
+      ]
+    },
+    {
+      "id": "x-exnova-tournament-header-text-3",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_Exnova/mail-tournament/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg\n    tr\n        td.wrapper.last.offset-by-one.pt15\n            table.six.columns\n                tr\n                    td.text-pad-small.vam.pb40\n                        .button-wrapper.button-wrapper_left\n                            table.medium-button.radius\n                                tr\n                                    td.butt-td\n                                        a.butt(href=\"https://8xtrade.com/traderoom/asset/1?type=binary&aff=7&afftrack=mail_system&retrack=8x-lose\" target=\"_blank\") Join a tournament",
+      "styl": ".vam { vertical-align:middle!important }\n.butt-td { padding:0!important }\n.white-bg { background:#fff }\n.button-wrapper { padding-top:0;padding-bottom:0 }\n@media screen and (max-width:600px) {\n  .button-wrapper { padding-left:20px!important;padding-right:20px!important }\n}\n.pt15 { padding-top:15px }",
+      "classes": [
+        "butt",
+        "butt-td",
+        "button-wrapper",
+        "button-wrapper_left",
+        "columns",
+        "last",
+        "medium-button",
+        "offset-by-one",
+        "pb40",
+        "pt15",
+        "radius",
+        "row",
+        "six",
+        "text-pad-small",
+        "vam",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "butt-td",
+        "button-wrapper",
+        "button-wrapper_left",
+        "pt15",
+        "vam",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://8xtrade.com/traderoom/asset/1?type=binary&aff=7&afftrack=mail_system&retrack=8x-lose"
+        }
+      ],
+      "inlineChildren": []
+    }
+  ]
+}

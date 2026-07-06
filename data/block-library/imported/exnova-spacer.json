@@ -1,0 +1,43 @@
+{
+  "id": "exnova-spacer",
+  "label": "Спейсер (настраиваемая высота)",
+  "description": "Импортирован из X_Exnova (42 писем). Секция.",
+  "placement": "inline",
+  "category": "utility",
+  "version": 1,
+  "source": "imported",
+  "pug": ".h-sp-{{ height }} &nbsp;",
+  "styl": ".h-sp-{{ height }} { font-size: 0; line-height: {{ height }}px; height: {{ height }}px; }",
+  "slots": [
+    {
+      "id": "height",
+      "kind": "number",
+      "label": "Высота, px",
+      "default": 12,
+      "min": 4,
+      "max": 120
+    }
+  ],
+  "tags": [
+    "utility",
+    "section",
+    "X_Exnova"
+  ],
+  "usageCount": 42,
+  "sourceMails": [
+    "X_Exnova/mail-Strategy-bonus_Exnova",
+    "X_Exnova/mail-Strategy-bonus_Exnova-250825",
+    "X_Exnova/mail-Strategy-bonus_Exnova-3",
+    "X_Exnova/mail-Teaser-1",
+    "X_Exnova/mail-Teaser-email-1",
+    "X_Exnova/mail-Teaser-email-2",
+    "X_Exnova/mail-Teaser-email-4",
+    "X_Exnova/mail-Teaser-email-5",
+    "X_Exnova/mail-Trade-on-weekend-B",
+    "X_Exnova/mail-Trading-Challenge",
+    "X_Exnova/mail-trade-rush",
+    "X_Exnova/mail-trade-rush-2"
+  ],
+  "createdAt": "2026-07-06T12:09:50.960Z",
+  "validated": true
+}

@@ -1,0 +1,48 @@
+{
+  "id": "exnova-text-53",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_Exnova (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.b-exnova-text-53\n    tr\n        td.wrapper.offset-by-one.last.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44\n                        p.title.pb24.pt15 {{ text_1 }} {{embedded.user_first_name}} {{ text_2 }}\n                        p.text.pb32 {{ text_3 }}\n                        a(href=\"#\" target=\"_blank\")\n                            img.banner(src=\"{{ image_1 }}\")",
+  "styl": ".white-bg.b-exnova-text-53 {  background: #fff;\n  border-radius: 16px;  }\n.b-exnova-text-53 .title {  font-family: Helvetica !important;\n  color: #373437;\n  font-size: 48px;\n  line-height: 58px;\n  font-weight: 700;\n  word-break: break-word;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-text-53 .title {  font-size: 40px !important;\n    line-height: 50px !important;  }\n}\n@media screen and (max-width: 420px) {\n  .b-exnova-text-53 .title {  font-size: 32px !important;\n    line-height: 45px !important;  }\n}\n.b-exnova-text-53 .text {  font-family: Helvetica !important;\n  color: #262832;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 25px;  }\n.b-exnova-text-53 .text a {  color: #0173ca !important;  }\n.b-exnova-text-53 .text.bold {  font-weight: 700;  }\n.b-exnova-text-53 .pb24 {  padding-bottom: 24px;  }\n.b-exnova-text-53 .pb32 {  padding-bottom: 32px;  }\n.b-exnova-text-53 .pb44 {  padding-bottom: 44px;  }\n.b-exnova-text-53 .pt15 {  padding-top: 15px;  }\n.b-exnova-text-53 .pt44 {  padding-top: 44px;  }\n.b-exnova-text-53 .banner {  width: 100% !important;\n  max-width: 480px !important;\n  margin: 0 auto !important;\n  float: none !important;\n  display: block !important;\n  background: #f5f9ff;\n  border-radius: 16px;  }\n.white-bg.b-exnova-text-53 {  background:#fff;border-radius:16px  }\n.b-exnova-text-53 .hello, .b-exnova-text-53 .subtitle-2, .b-exnova-text-53 .title {  font-family:Helvetica!important;font-weight:700;font-size:24px;line-height:34px;color:#413e43  }\n.b-exnova-text-53 .hello, .b-exnova-text-53 .title {  line-height:36px;word-break:break-word  }\n.b-exnova-text-53 .title {  color:#373437;font-size:48px;line-height:58px  }\n@media screen and (max-width:600px) {\n  .b-exnova-text-53 .title {  font-size:40px!important;line-height:50px!important  }\n}\n@media screen and (max-width:420px) {\n  .b-exnova-text-53 .title {  font-size:32px!important;line-height:45px!important  }\n}\n.b-exnova-text-53 .grey-text, .b-exnova-text-53 .text {  font-family:Helvetica!important;color:#262832;font-size:18px;font-weight:400;line-height:25px  }\n.b-exnova-text-53 .text a {  color:#0173ca!important  }\n.b-exnova-text-53 .text.bold {  font-weight:700  }\n.b-exnova-text-53 .pb24 {  padding-bottom:24px  }\n.b-exnova-text-53 .pb32 {  padding-bottom:32px  }\n.b-exnova-text-53 .pb44 {  padding-bottom:44px  }\n.b-exnova-text-53 .pt15 {  padding-top:15px  }\n.b-exnova-text-53 .pt44 {  padding-top:44px  }\n.b-exnova-text-53 .banner {  width:100%!important;max-width:480px!important;margin:0 auto!important;float:none!important;display:block!important;background:#f5f9ff;border-radius:16px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/cr/am/od9l82562t0ambv0/en-car.png"
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_Exnova"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_Exnova/mail-Teaser-email-5"
+  ],
+  "createdAt": "2026-07-06T12:09:50.967Z",
+  "validated": true
+}

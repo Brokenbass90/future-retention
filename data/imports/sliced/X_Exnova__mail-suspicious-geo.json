@@ -1,0 +1,344 @@
+{
+  "category": "X_Exnova",
+  "mailId": "suspicious-geo",
+  "mailAbs": "email-base/X_Exnova/mail-suspicious-geo",
+  "blockCount": 3,
+  "blocks": [
+    {
+      "id": "x-exnova-suspicious-geo-header-header-0",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "kind": "section",
+      "sourceFile": "X_Exnova/mail-suspicious-geo/app/templates/blocks/header.jade",
+      "pug": "table.row.header\n    tr\n        td.wrapper.offset-by-four.last.pt0\n            table.four.columns\n                tr\n                    td.pb25\n                        a(href=\"{{embedded.domain}}/traderoom/?aff=7&afftrack=mail_system&retrack=system\" target=\"_blank\")\n                            img.logo(src=\"https://static.cdnroute.io/files/storage/public/62/0f/89f0e2a488e7j9c7b9/logo.png\")",
+      "styl": "table.body,table.row.footer,table.row.grey-bg,table.row.header { background:#f8fafb }\n.pb25 { padding-bottom:25px }",
+      "classes": [
+        "columns",
+        "four",
+        "header",
+        "last",
+        "logo",
+        "offset-by-four",
+        "pb25",
+        "pt0",
+        "row",
+        "wrapper"
+      ],
+      "designClasses": [
+        "header",
+        "pb25"
+      ],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "{{embedded.domain}}/traderoom/?aff=7&afftrack=mail_system&retrack=system"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnroute.io/files/storage/public/62/0f/89f0e2a488e7j9c7b9/logo.png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-exnova-suspicious-geo-header-section-1",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "kind": "section",
+      "sourceFile": "X_Exnova/mail-suspicious-geo/app/templates/blocks/header.jade",
+      "pug": "table.row.brad-top\n    tr\n        td.wrapper.last.offset-by-one.pt40\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb30\n                        p.title.pb20 ${{ suspicious-geo.block_00 }}$\n                        p.text.pb20 <b>${{ suspicious-geo.block_01 }}$</b>\n                        p.text.pb20 ${{ suspicious-geo.block_02 }}$ {{datetime}} ${{ suspicious-geo.block_04 }}$\n                        a(href=\"{{embedded.domain}}/profile/security\" target=\"_blank\")\n                            p.text.list.pb10.color-a ${{ suspicious-geo.block_05 }}$\n                        a(href=\"{{embedded.domain}}/profile/security\" target=\"_blank\")\n                            p.text.list.color-a ${{ suspicious-geo.block_06 }}$",
+      "styl": ".color-a { color:#0074cc!important }\n.brad-top { border-top-left-radius:0;border-top-right-radius:0 }\n.title { color:#27282d;font-size:38px;line-height:49px;font-weight:700;font-family:Helvetica!important }\n@media screen and (max-width:600px) {\n  .title { font-size:24px!important;line-height:31px!important }\n}\n.small-text a,.text,.text a { font-family:Helvetica!important }\n.text { font-size:16px;font-weight:400;line-height:24px;color:#3e414b }\n.small-text a,.text a { color:#0074cc }\n.list { padding-left:16px;background:url(https://static.cdnroute.io/files/storage/public/62/0f/89f0a36fc4a1a8j5h6/dot.png) top 9px left no-repeat;background-size:7px;padding-bottom:5px }",
+      "classes": [
+        "brad-top",
+        "color-a",
+        "columns",
+        "last",
+        "list",
+        "offset-by-one",
+        "pb10",
+        "pb20",
+        "pb30",
+        "pt40",
+        "row",
+        "ten",
+        "text",
+        "text-pad-small",
+        "title",
+        "wrapper"
+      ],
+      "designClasses": [
+        "brad-top",
+        "color-a",
+        "list",
+        "text",
+        "title"
+      ],
+      "slots": [
+        {
+          "id": "text_block_00",
+          "kind": "richText",
+          "label": "Текст suspicious-geo.block_00",
+          "token": "${{ suspicious-geo.block_00 }}$",
+          "ns": "suspicious-geo",
+          "block": "block_00"
+        },
+        {
+          "id": "text_block_01",
+          "kind": "richText",
+          "label": "Текст suspicious-geo.block_01",
+          "token": "${{ suspicious-geo.block_01 }}$",
+          "ns": "suspicious-geo",
+          "block": "block_01"
+        },
+        {
+          "id": "text_block_02",
+          "kind": "richText",
+          "label": "Текст suspicious-geo.block_02",
+          "token": "${{ suspicious-geo.block_02 }}$",
+          "ns": "suspicious-geo",
+          "block": "block_02"
+        },
+        {
+          "id": "text_block_04",
+          "kind": "richText",
+          "label": "Текст suspicious-geo.block_04",
+          "token": "${{ suspicious-geo.block_04 }}$",
+          "ns": "suspicious-geo",
+          "block": "block_04"
+        },
+        {
+          "id": "text_block_05",
+          "kind": "richText",
+          "label": "Текст suspicious-geo.block_05",
+          "token": "${{ suspicious-geo.block_05 }}$",
+          "ns": "suspicious-geo",
+          "block": "block_05"
+        },
+        {
+          "id": "text_block_06",
+          "kind": "richText",
+          "label": "Текст suspicious-geo.block_06",
+          "token": "${{ suspicious-geo.block_06 }}$",
+          "ns": "suspicious-geo",
+          "block": "block_06"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "{{embedded.domain}}/profile/security"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-exnova-suspicious-geo-header-section-1-heading",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.title.pb20 ${{ suspicious-geo.block_00 }}$",
+          "styl": ".title { color:#27282d;font-size:38px;line-height:49px;font-weight:700;font-family:Helvetica!important }\n@media screen and (max-width:600px) {\n  .title { font-size:24px!important;line-height:31px!important }\n}",
+          "classes": [
+            "pb20",
+            "title"
+          ],
+          "designClasses": [
+            "title"
+          ],
+          "slots": [
+            {
+              "id": "text_block_00",
+              "kind": "richText",
+              "label": "Текст suspicious-geo.block_00",
+              "token": "${{ suspicious-geo.block_00 }}$",
+              "ns": "suspicious-geo",
+              "block": "block_00"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-suspicious-geo-header-section-1-paragra",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb20 <b>${{ suspicious-geo.block_01 }}$</b>",
+          "styl": ".small-text a,.text,.text a { font-family:Helvetica!important }\n.text { font-size:16px;font-weight:400;line-height:24px;color:#3e414b }\n.small-text a,.text a { color:#0074cc }",
+          "classes": [
+            "pb20",
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_01",
+              "kind": "richText",
+              "label": "Текст suspicious-geo.block_01",
+              "token": "${{ suspicious-geo.block_01 }}$",
+              "ns": "suspicious-geo",
+              "block": "block_01"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-suspicious-geo-header-section-1-paragra",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb20 ${{ suspicious-geo.block_02 }}$ {{datetime}} ${{ suspicious-geo.block_04 }}$",
+          "styl": ".small-text a,.text,.text a { font-family:Helvetica!important }\n.text { font-size:16px;font-weight:400;line-height:24px;color:#3e414b }\n.small-text a,.text a { color:#0074cc }",
+          "classes": [
+            "pb20",
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_02",
+              "kind": "richText",
+              "label": "Текст suspicious-geo.block_02",
+              "token": "${{ suspicious-geo.block_02 }}$",
+              "ns": "suspicious-geo",
+              "block": "block_02"
+            },
+            {
+              "id": "text_block_04",
+              "kind": "richText",
+              "label": "Текст suspicious-geo.block_04",
+              "token": "${{ suspicious-geo.block_04 }}$",
+              "ns": "suspicious-geo",
+              "block": "block_04"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-suspicious-geo-header-section-1-paragra",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.list.pb10.color-a ${{ suspicious-geo.block_05 }}$",
+          "styl": ".color-a { color:#0074cc!important }\n.small-text a,.text,.text a { font-family:Helvetica!important }\n.text { font-size:16px;font-weight:400;line-height:24px;color:#3e414b }\n.small-text a,.text a { color:#0074cc }\n.list { padding-left:16px;background:url(https://static.cdnroute.io/files/storage/public/62/0f/89f0a36fc4a1a8j5h6/dot.png) top 9px left no-repeat;background-size:7px;padding-bottom:5px }",
+          "classes": [
+            "color-a",
+            "list",
+            "pb10",
+            "text"
+          ],
+          "designClasses": [
+            "color-a",
+            "list",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_05",
+              "kind": "richText",
+              "label": "Текст suspicious-geo.block_05",
+              "token": "${{ suspicious-geo.block_05 }}$",
+              "ns": "suspicious-geo",
+              "block": "block_05"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-suspicious-geo-header-section-1-paragra",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.list.color-a ${{ suspicious-geo.block_06 }}$",
+          "styl": ".color-a { color:#0074cc!important }\n.small-text a,.text,.text a { font-family:Helvetica!important }\n.text { font-size:16px;font-weight:400;line-height:24px;color:#3e414b }\n.small-text a,.text a { color:#0074cc }\n.list { padding-left:16px;background:url(https://static.cdnroute.io/files/storage/public/62/0f/89f0a36fc4a1a8j5h6/dot.png) top 9px left no-repeat;background-size:7px;padding-bottom:5px }",
+          "classes": [
+            "color-a",
+            "list",
+            "text"
+          ],
+          "designClasses": [
+            "color-a",
+            "list",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_06",
+              "kind": "richText",
+              "label": "Текст suspicious-geo.block_06",
+              "token": "${{ suspicious-geo.block_06 }}$",
+              "ns": "suspicious-geo",
+              "block": "block_06"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-exnova-suspicious-geo-header-section-3",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "kind": "section",
+      "sourceFile": "X_Exnova/mail-suspicious-geo/app/templates/blocks/header.jade",
+      "pug": "table.row.brad-top.brad-bot\n    tr\n        td.wrapper.last.offset-by-one.pt30\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb30\n                        p.small-text ${{ exnova-card-bw.block_04 }}$&ensp;\n                            a(href=\"mailto:{{embedded.company_email}}\" target=\"_blank\") ${{ exnova-card-bw.block_05 }}$\n                            | &ensp;${{ exnova-card-bw.block_06 }}$",
+      "styl": ".brad-top { border-top-left-radius:0;border-top-right-radius:0 }\n.brad-bot { border-bottom-left-radius:0;border-bottom-right-radius:0 }\n.small-text a,.text,.text a { font-family:Helvetica!important }\n.small-text a,.text a { color:#0074cc }\n.small-text { color:#3e414b;font-size:14px;line-height:22px;font-weight:400 }\n.bold-text,.small-text,span.red { font-family:Helvetica!important }",
+      "classes": [
+        "brad-bot",
+        "brad-top",
+        "columns",
+        "last",
+        "offset-by-one",
+        "pb30",
+        "pt30",
+        "row",
+        "small-text",
+        "ten",
+        "text-pad-small",
+        "wrapper"
+      ],
+      "designClasses": [
+        "brad-bot",
+        "brad-top",
+        "small-text"
+      ],
+      "slots": [
+        {
+          "id": "text_block_04",
+          "kind": "richText",
+          "label": "Текст exnova-card-bw.block_04",
+          "token": "${{ exnova-card-bw.block_04 }}$",
+          "ns": "exnova-card-bw",
+          "block": "block_04"
+        },
+        {
+          "id": "text_block_05",
+          "kind": "richText",
+          "label": "Текст exnova-card-bw.block_05",
+          "token": "${{ exnova-card-bw.block_05 }}$",
+          "ns": "exnova-card-bw",
+          "block": "block_05"
+        },
+        {
+          "id": "text_block_06",
+          "kind": "richText",
+          "label": "Текст exnova-card-bw.block_06",
+          "token": "${{ exnova-card-bw.block_06 }}$",
+          "ns": "exnova-card-bw",
+          "block": "block_06"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "mailto:{{embedded.company_email}}"
+        }
+      ],
+      "inlineChildren": []
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "id": "system-text-24",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_System (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.b-system-text-24\n    tr\n        td.offset-by-three\n            table.six.columns\n                tr\n                    td\n                        .button-wrapper\n                            table.medium-button.radius\n                                tr\n                                    td.iq\n                                        a.butt(href=\"{{ href_1 }}\") Setoranlah sekarang",
+  "styl": ".b-system-text-24 .button-wrapper {  padding-top:25px;padding-bottom:0  }\n@media screen and (max-width:600px) {\n  .b-system-text-24 .button-wrapper {  padding-left:30px!important;padding-right:30px!important  }\n}\n.white-bg.b-system-text-24 {  background:#fff  }",
+  "slots": [
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://iqoption.com/counting"
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_System"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_System/mail-asap"
+  ],
+  "createdAt": "2026-07-06T12:09:59.368Z",
+  "validated": true
+}

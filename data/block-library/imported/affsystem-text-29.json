@@ -1,0 +1,51 @@
+{
+  "id": "affsystem-text-29",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_AffSystem (4 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.pb5.list-item.b-affsystem-text-29 {{ text_1 }}&nbsp;\n    a(href=\"{{ href_1 }}\" target=\"_blank\") {{ text_2 }}\n    |&nbsp;{{ text_3 }}",
+  "styl": ".text.b-affsystem-text-29, .b-affsystem-text-29 .text-table, .b-affsystem-text-29 .text-title {  font-family:Helvetica!important;color:#20242f  }\n.text.b-affsystem-text-29, .b-affsystem-text-29 .text-table {  font-weight:400;font-size:16px;line-height:24px;letter-spacing:0  }\n.text.b-affsystem-text-29 {  color:#2e3851;line-height:26px  }\n.text.list.b-affsystem-text-29 {  display:list-item  }\n.pb5.b-affsystem-text-29 {  padding-bottom:5px  }\n.text.b-affsystem-text-29 a {  font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important  }\n.list-item.b-affsystem-text-29 {  background:url(\"https://static.cdnpub.info/files/storage/public/5e/8d/aa6a28c720a9i1g3f9/Oval Copy 3.png\") left 8px no-repeat;background-size:10px;padding-left:20px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://affstore.com/"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_AffSystem"
+  ],
+  "usageCount": 4,
+  "sourceMails": [
+    "X_AffSystem/mail-ib-affiliate-termination",
+    "X_AffSystem/mail-iq-affiliate-termination",
+    "X_AffSystem/mail-iq-affiliate-termination24",
+    "X_AffSystem/mail-iq-affiliate-termination24-IB"
+  ],
+  "createdAt": "2026-07-06T12:09:51.510Z",
+  "validated": true
+}

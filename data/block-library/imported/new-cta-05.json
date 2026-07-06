@@ -1,0 +1,48 @@
+{
+  "id": "new-cta-05",
+  "label": "CTA-секция",
+  "description": "Импортирован из X_new (1 писем). Секция.",
+  "placement": "section",
+  "category": "cta",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.br-full-16.b-new-cta-05(style=\"border: 2px solid #A8D900\")\n    tr\n        td.wrapper.last.offset-by-one.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44\n                        p.middle-title.pb16.center {{ text_1 }}\n                        p.text.center.pb40 {{ text_2 }}\n                        table.w280(align=\"center\")\n                            tr\n                                td.butt.pb0.pt0\n                                    a.butt(href=\"{{ href_1 }}\" target=\"_blank\") {{ text_3 }}",
+  "styl": ".b-new-cta-05 .text {  font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  line-height: 27px;\n  font-weight: 400;\n  letter-spacing: 0;  }\n.white-bg.b-new-cta-05 {  background: #fff;  }\n.b-new-cta-05 .w280 {  width: 100%;\n  max-width: 280px;\n  min-width: 280px;  }\n@media screen and (max-width: 600px) {\n  .b-new-cta-05 .w280 {  min-width: 100% !important;  }\n}\n.b-new-cta-05 .text.list {  display: list-item;  }\n.b-new-cta-05 .pb16 {  padding-bottom: 16px;  }\n.b-new-cta-05 .pb44 {  padding-bottom: 44px;  }\n.b-new-cta-05 .pt44 {  padding-top: 44px;  }\n.br-full-16.b-new-cta-05 {  border-radius: 16px;\n  -moz-border-radius: 16px;\n  -webkit-border-radius: 16px;  }\n.b-new-cta-05 .text a {  font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #86ad00 !important;  }\n.b-new-cta-05 .text {  font-family:Helvetica!important;color:#413e43;font-size:18px;line-height:27px;font-weight:400;letter-spacing:0  }\n.white-bg.b-new-cta-05 {  background:#fff  }\n.b-new-cta-05 .w280 {  width:100%;max-width:280px;min-width:280px  }\n@media screen and (max-width:600px) {\n  .b-new-cta-05 .w280 {  min-width:100%!important  }\n}\n.b-new-cta-05 .text.list {  display:list-item  }\n.b-new-cta-05 .pb16 {  padding-bottom:16px  }\n.b-new-cta-05 .pb44 {  padding-bottom:44px  }\n.b-new-cta-05 .pt44, .b-new-cta-05 .pt45 {  padding-top:44px  }\n.br-full-16.b-new-cta-05 {  border-radius:16px;-moz-border-radius:16px;-webkit-border-radius:16px  }\n.b-new-cta-05 .text a, .b-new-cta-05 b {  font-family:Helvetica!important  }\n.b-new-cta-05 .text a {  text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#86ad00!important  }\n.b-new-cta-05 .middle-title {  font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:32px;line-height:42px;color:#413e43  }\n@media screen and (max-width:600px) {\n  .b-new-cta-05 .middle-title {  font-size:22px!important;line-height:32px!important  }\n}",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://my.affstore.com/offers?source=email&utm_source=email&utm_medium=emails"
+    }
+  ],
+  "tags": [
+    "cta",
+    "section",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-recap-2025"
+  ],
+  "createdAt": "2026-07-06T12:10:00.061Z",
+  "validated": true
+}

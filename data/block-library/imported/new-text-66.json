@@ -1,0 +1,36 @@
+{
+  "id": "new-text-66",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_new (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.pb25.bb.b-new-text-66 {{ text_1 }} <b>{{user_email}}</b> {{ text_2 }}",
+  "styl": ".b-new-text-66 .min-text, .text.b-new-text-66 {  font-family:Helvetica!important;letter-spacing:0  }\n.text.b-new-text-66 {  font-weight:400;color:#373437;font-size:16px;line-height:26px  }\n.text.italic.b-new-text-66 {  font-style:italic  }\n.text.list.b-new-text-66 {  display:list-item  }\n.pb25.b-new-text-66 {  padding-bottom:24px  }\n.text.b-new-text-66 a {  font-family:Helvetica!important;text-decoration:underline!important;color:#86ad00!important  }\n.bb.b-new-text-66 {  border-bottom:1px solid #dbe0d5  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-registration-affstore"
+  ],
+  "createdAt": "2026-07-06T12:10:00.061Z",
+  "validated": true
+}

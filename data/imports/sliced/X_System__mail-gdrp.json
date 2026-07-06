@@ -1,0 +1,582 @@
+{
+  "category": "X_System",
+  "mailId": "gdrp",
+  "mailAbs": "email-base/X_System/mail-gdrp",
+  "blockCount": 6,
+  "blocks": [
+    {
+      "id": "x-system-gdrp-header-header-0",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "kind": "section",
+      "sourceFile": "X_System/mail-gdrp/app/templates/blocks/header.jade",
+      "pug": "table.row.header\n    tr\n        td.wrapper\n            table.six.columns\n                tr\n                    td.left\n                        a(href=\"https://iqoption.com/traderoom/?aff=7&afftrack=mail&retrack=demo-positions\", target=\"_blank\")\n                            img.logo(src=\"https://images01.iqoption.com/89/0689/static-01503674720413810689.png\")\n        td.wrapper.last.hide-for-small\n            table.three.columns\n                tr\n                    td.apps\n                        a(href=\"https://app.appsflyer.com/id871125783?pid=7&c=mail\")\n                            img.app_btn(src=\"https://images01.iqoption.com/21/8721/static-00636246823765278721.png\")\n        td.wrapper.last.hide-for-small\n            table.three.columns\n                tr\n                    td.apps\n                        a(href=\"https://app.appsflyer.com/com.iqoption?pid=7&c=mail\")\n                            img.app_btn(src=\"https://images01.iqoption.com/17/9217/static-01920501695922569217.png\")",
+      "styl": "table.row.header { background:#f6f9fc url(https://images01.iqoption.com/01/5201/static-00115704862028595201.png) center top no-repeat;height:113px }\n.app_btn { width:116px;height:34px;padding-top:30px }",
+      "classes": [
+        "app_btn",
+        "apps",
+        "columns",
+        "header",
+        "hide-for-small",
+        "last",
+        "left",
+        "logo",
+        "row",
+        "six",
+        "three",
+        "wrapper"
+      ],
+      "designClasses": [
+        "app_btn",
+        "apps",
+        "header"
+      ],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://iqoption.com/traderoom/?aff=7&afftrack=mail&retrack=demo-positions"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://app.appsflyer.com/id871125783?pid=7&c=mail"
+        },
+        {
+          "id": "href_2",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://app.appsflyer.com/com.iqoption?pid=7&c=mail"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://images01.iqoption.com/89/0689/static-01503674720413810689.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://images01.iqoption.com/21/8721/static-00636246823765278721.png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://images01.iqoption.com/17/9217/static-01920501695922569217.png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-system-gdrp-header-text-1",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_System/mail-gdrp/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg\n    tr\n        td.offset-by-one\n            table.ten.columns\n                tr\n                    td.no-padding-bottom\n                        p.title.center ${{ gdpr.block_00 }}$\n                        p.text ${{ gdpr.block_01 }}$&nbsp;\n                            a(href=\"https://eu.iqoption.com/terms-and-conditions/terms-conditions\", target=\"_blank\") ${{ gdpr.block_02 }}$\n                            | &nbsp;${{ gdpr.block_03 }}$&nbsp;\n                            a(href=\"https://eu.iqoption.com/terms-and-conditions/privacy-policy-new\", target=\"_blank\") ${{ gdpr.block_04 }}$\n                            | &nbsp;${{ gdpr.block_05 }}$",
+      "styl": ".white-bg { background:#fff }\n.title { font-family:Arial!important;color:#f16722;font-size:24px;font-weight:500;line-height:32px;padding-top:30px;padding-bottom:25px }\n@media screen and (max-width:600px) {\n  .title { padding-left:20px!important;padding-right:20px!important }\n}\n.text { font-family:Arial!important;color:#5b6e88;font-size:16px;font-weight:400;line-height:26px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.grey-text a,.text a { color:#0b8bd8;text-decoration:underline }\n.text.bold { font-weight:700 }",
+      "classes": [
+        "center",
+        "columns",
+        "no-padding-bottom",
+        "offset-by-one",
+        "row",
+        "ten",
+        "text",
+        "title",
+        "white-bg"
+      ],
+      "designClasses": [
+        "text",
+        "title",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_00",
+          "kind": "richText",
+          "label": "Текст gdpr.block_00",
+          "token": "${{ gdpr.block_00 }}$",
+          "ns": "gdpr",
+          "block": "block_00"
+        },
+        {
+          "id": "text_block_01",
+          "kind": "richText",
+          "label": "Текст gdpr.block_01",
+          "token": "${{ gdpr.block_01 }}$",
+          "ns": "gdpr",
+          "block": "block_01"
+        },
+        {
+          "id": "text_block_02",
+          "kind": "richText",
+          "label": "Текст gdpr.block_02",
+          "token": "${{ gdpr.block_02 }}$",
+          "ns": "gdpr",
+          "block": "block_02"
+        },
+        {
+          "id": "text_block_03",
+          "kind": "richText",
+          "label": "Текст gdpr.block_03",
+          "token": "${{ gdpr.block_03 }}$",
+          "ns": "gdpr",
+          "block": "block_03"
+        },
+        {
+          "id": "text_block_04",
+          "kind": "richText",
+          "label": "Текст gdpr.block_04",
+          "token": "${{ gdpr.block_04 }}$",
+          "ns": "gdpr",
+          "block": "block_04"
+        },
+        {
+          "id": "text_block_05",
+          "kind": "richText",
+          "label": "Текст gdpr.block_05",
+          "token": "${{ gdpr.block_05 }}$",
+          "ns": "gdpr",
+          "block": "block_05"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://eu.iqoption.com/terms-and-conditions/terms-conditions"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://eu.iqoption.com/terms-and-conditions/privacy-policy-new"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-system-gdrp-header-text-1-heading-0",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.title.center ${{ gdpr.block_00 }}$",
+          "styl": ".title { font-family:Arial!important;color:#f16722;font-size:24px;font-weight:500;line-height:32px;padding-top:30px;padding-bottom:25px }\n@media screen and (max-width:600px) {\n  .title { padding-left:20px!important;padding-right:20px!important }\n}",
+          "classes": [
+            "center",
+            "title"
+          ],
+          "designClasses": [
+            "title"
+          ],
+          "slots": [
+            {
+              "id": "text_block_00",
+              "kind": "richText",
+              "label": "Текст gdpr.block_00",
+              "token": "${{ gdpr.block_00 }}$",
+              "ns": "gdpr",
+              "block": "block_00"
+            }
+          ]
+        },
+        {
+          "id": "x-system-gdrp-header-text-1-paragraph-1",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ gdpr.block_01 }}$&nbsp;\n    a(href=\"https://eu.iqoption.com/terms-and-conditions/terms-conditions\", target=\"_blank\") ${{ gdpr.block_02 }}$\n    | &nbsp;${{ gdpr.block_03 }}$&nbsp;\n    a(href=\"https://eu.iqoption.com/terms-and-conditions/privacy-policy-new\", target=\"_blank\") ${{ gdpr.block_04 }}$\n    | &nbsp;${{ gdpr.block_05 }}$",
+          "styl": ".text { font-family:Arial!important;color:#5b6e88;font-size:16px;font-weight:400;line-height:26px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.grey-text a,.text a { color:#0b8bd8;text-decoration:underline }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_01",
+              "kind": "richText",
+              "label": "Текст gdpr.block_01",
+              "token": "${{ gdpr.block_01 }}$",
+              "ns": "gdpr",
+              "block": "block_01"
+            },
+            {
+              "id": "text_block_02",
+              "kind": "richText",
+              "label": "Текст gdpr.block_02",
+              "token": "${{ gdpr.block_02 }}$",
+              "ns": "gdpr",
+              "block": "block_02"
+            },
+            {
+              "id": "text_block_03",
+              "kind": "richText",
+              "label": "Текст gdpr.block_03",
+              "token": "${{ gdpr.block_03 }}$",
+              "ns": "gdpr",
+              "block": "block_03"
+            },
+            {
+              "id": "text_block_04",
+              "kind": "richText",
+              "label": "Текст gdpr.block_04",
+              "token": "${{ gdpr.block_04 }}$",
+              "ns": "gdpr",
+              "block": "block_04"
+            },
+            {
+              "id": "text_block_05",
+              "kind": "richText",
+              "label": "Текст gdpr.block_05",
+              "token": "${{ gdpr.block_05 }}$",
+              "ns": "gdpr",
+              "block": "block_05"
+            },
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://eu.iqoption.com/terms-and-conditions/terms-conditions"
+            },
+            {
+              "id": "href_1",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://eu.iqoption.com/terms-and-conditions/privacy-policy-new"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-system-gdrp-header-text-2",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_System/mail-gdrp/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg\n    tr\n        td.wrapper.last\n            table.twelve.columns\n                tr\n                    td.plr30.pb30\n                        .blue-block\n                            p.text.center ${{ gdpr.block_06 }}$\n                            p.text.icon-text.icon-text_1 ${{ gdpr.block_07 }}$\n                            p.text.icon-text.icon-text_2 ${{ gdpr.block_08 }}$\n                            p.text.center ${{ gdpr.block_09 }}$",
+      "styl": ".white-bg { background:#fff }\n.text { font-family:Arial!important;color:#5b6e88;font-size:16px;font-weight:400;line-height:26px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.grey-text a,.text a { color:#0b8bd8;text-decoration:underline }\n.icon-text { padding-left:80px }\n@media screen and (max-width:600px) {\n  .icon-text { padding-left:50px!important }\n}\n.icon-text_1 { background:url(https://images01.iqoption.com/57/5857/static-02566133645999865857.png) left top 10px no-repeat;background-size:53px auto }\n@media screen and (max-width:600px) {\n  .icon-text_1 { background-size:40px auto!important }\n}\n.icon-text_2 { background:url(https://images01.iqoption.com/89/3089/static-03344689742204633089.png) left top 10px no-repeat;background-size:42px auto }\n@media screen and (max-width:600px) {\n  .icon-text_2 { background-size:35px auto!important }\n}\n.text.bold { font-weight:700 }\n.plr30 { padding-left:30px;padding-right:30px }\n@media screen and (max-width:600px) {\n  .plr30 { padding-left:20px!important;padding-right:20px!important }\n}\n.blue-block { background:#f7fbff;border-radius:7px;padding:20px }\n@media screen and (max-width:600px) {\n  .blue-block { padding-left:15px!important;padding-right:15px!important }\n}",
+      "classes": [
+        "blue-block",
+        "center",
+        "columns",
+        "icon-text",
+        "icon-text_1",
+        "icon-text_2",
+        "last",
+        "pb30",
+        "plr30",
+        "row",
+        "text",
+        "twelve",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "blue-block",
+        "icon-text",
+        "icon-text_1",
+        "icon-text_2",
+        "plr30",
+        "text",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_06",
+          "kind": "richText",
+          "label": "Текст gdpr.block_06",
+          "token": "${{ gdpr.block_06 }}$",
+          "ns": "gdpr",
+          "block": "block_06"
+        },
+        {
+          "id": "text_block_07",
+          "kind": "richText",
+          "label": "Текст gdpr.block_07",
+          "token": "${{ gdpr.block_07 }}$",
+          "ns": "gdpr",
+          "block": "block_07"
+        },
+        {
+          "id": "text_block_08",
+          "kind": "richText",
+          "label": "Текст gdpr.block_08",
+          "token": "${{ gdpr.block_08 }}$",
+          "ns": "gdpr",
+          "block": "block_08"
+        },
+        {
+          "id": "text_block_09",
+          "kind": "richText",
+          "label": "Текст gdpr.block_09",
+          "token": "${{ gdpr.block_09 }}$",
+          "ns": "gdpr",
+          "block": "block_09"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-system-gdrp-header-text-2-paragraph-0",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.center ${{ gdpr.block_06 }}$",
+          "styl": ".text { font-family:Arial!important;color:#5b6e88;font-size:16px;font-weight:400;line-height:26px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.grey-text a,.text a { color:#0b8bd8;text-decoration:underline }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "center",
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_06",
+              "kind": "richText",
+              "label": "Текст gdpr.block_06",
+              "token": "${{ gdpr.block_06 }}$",
+              "ns": "gdpr",
+              "block": "block_06"
+            }
+          ]
+        },
+        {
+          "id": "x-system-gdrp-header-text-2-paragraph-1",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.icon-text.icon-text_1 ${{ gdpr.block_07 }}$",
+          "styl": ".text { font-family:Arial!important;color:#5b6e88;font-size:16px;font-weight:400;line-height:26px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.grey-text a,.text a { color:#0b8bd8;text-decoration:underline }\n.icon-text { padding-left:80px }\n@media screen and (max-width:600px) {\n  .icon-text { padding-left:50px!important }\n}\n.icon-text_1 { background:url(https://images01.iqoption.com/57/5857/static-02566133645999865857.png) left top 10px no-repeat;background-size:53px auto }\n@media screen and (max-width:600px) {\n  .icon-text_1 { background-size:40px auto!important }\n}\n.text.bold { font-weight:700 }",
+          "classes": [
+            "icon-text",
+            "icon-text_1",
+            "text"
+          ],
+          "designClasses": [
+            "icon-text",
+            "icon-text_1",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_07",
+              "kind": "richText",
+              "label": "Текст gdpr.block_07",
+              "token": "${{ gdpr.block_07 }}$",
+              "ns": "gdpr",
+              "block": "block_07"
+            }
+          ]
+        },
+        {
+          "id": "x-system-gdrp-header-text-2-paragraph-2",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.icon-text.icon-text_2 ${{ gdpr.block_08 }}$",
+          "styl": ".text { font-family:Arial!important;color:#5b6e88;font-size:16px;font-weight:400;line-height:26px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.grey-text a,.text a { color:#0b8bd8;text-decoration:underline }\n.icon-text { padding-left:80px }\n@media screen and (max-width:600px) {\n  .icon-text { padding-left:50px!important }\n}\n.icon-text_2 { background:url(https://images01.iqoption.com/89/3089/static-03344689742204633089.png) left top 10px no-repeat;background-size:42px auto }\n@media screen and (max-width:600px) {\n  .icon-text_2 { background-size:35px auto!important }\n}\n.text.bold { font-weight:700 }",
+          "classes": [
+            "icon-text",
+            "icon-text_2",
+            "text"
+          ],
+          "designClasses": [
+            "icon-text",
+            "icon-text_2",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_08",
+              "kind": "richText",
+              "label": "Текст gdpr.block_08",
+              "token": "${{ gdpr.block_08 }}$",
+              "ns": "gdpr",
+              "block": "block_08"
+            }
+          ]
+        },
+        {
+          "id": "x-system-gdrp-header-text-2-paragraph-3",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.center ${{ gdpr.block_09 }}$",
+          "styl": ".text { font-family:Arial!important;color:#5b6e88;font-size:16px;font-weight:400;line-height:26px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.grey-text a,.text a { color:#0b8bd8;text-decoration:underline }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "center",
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_09",
+              "kind": "richText",
+              "label": "Текст gdpr.block_09",
+              "token": "${{ gdpr.block_09 }}$",
+              "ns": "gdpr",
+              "block": "block_09"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-system-gdrp-header-text-3",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_System/mail-gdrp/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg\n    tr\n        td.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small\n                        p.orange-text.center ${{ gdpr.block_10 }}$",
+      "styl": ".white-bg { background:#fff }\n.blue-text,.grey-text,.orange-text { font-family:Arial!important;color:#f50;font-weight:500;font-size:20px;line-height:30px }",
+      "classes": [
+        "center",
+        "columns",
+        "offset-by-one",
+        "orange-text",
+        "row",
+        "ten",
+        "text-pad-small",
+        "white-bg"
+      ],
+      "designClasses": [
+        "orange-text",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_10",
+          "kind": "richText",
+          "label": "Текст gdpr.block_10",
+          "token": "${{ gdpr.block_10 }}$",
+          "ns": "gdpr",
+          "block": "block_10"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-system-gdrp-header-text-4",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_System/mail-gdrp/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg\n    tr\n        td.offset-by-three\n            table.six.columns\n                tr\n                    td\n                        .button-wrapper\n                            table.medium-button.radius\n                                tr\n                                    td.iq\n                                        a.butt(href=\"https://eu.iqoption.com/profile/subscribes\") ${{ gdpr.block_11 }}$",
+      "styl": ".button-wrapper { padding-top:15px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .button-wrapper { padding-left:30px!important;padding-right:30px!important }\n}\n.white-bg { background:#fff }",
+      "classes": [
+        "butt",
+        "button-wrapper",
+        "columns",
+        "iq",
+        "medium-button",
+        "offset-by-three",
+        "radius",
+        "row",
+        "six",
+        "white-bg"
+      ],
+      "designClasses": [
+        "button-wrapper",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_11",
+          "kind": "richText",
+          "label": "Текст gdpr.block_11",
+          "token": "${{ gdpr.block_11 }}$",
+          "ns": "gdpr",
+          "block": "block_11"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://eu.iqoption.com/profile/subscribes"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-system-gdrp-header-text-5",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_System/mail-gdrp/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg\n    tr\n        td.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small\n                        p.grey-text.center.pb20 ${{ gdpr.block_12 }}$&nbsp;\n                            a(href=\"https://iqoption.com/tickets\", target=\"_blank\") ${{ gdpr.block_13 }}$\n                            | &nbsp;${{ gdpr.block_14 }}$\n                        p.blue-text.center ${{ gdpr.block_15 }}$",
+      "styl": ".white-bg { background:#fff }\n.grey-text a,.text a { color:#0b8bd8;text-decoration:underline }\n.blue-text,.grey-text,.orange-text { font-family:Arial!important;color:#f50;font-weight:500;font-size:20px;line-height:30px }\n.blue-text,.grey-text { color:#6e829a;font-size:16px;line-height:24px;font-weight:400 }\n.blue-text { color:#2c89df;font-size:24px;line-height:32px;font-weight:700 }",
+      "classes": [
+        "blue-text",
+        "center",
+        "columns",
+        "grey-text",
+        "offset-by-one",
+        "pb20",
+        "row",
+        "ten",
+        "text-pad-small",
+        "white-bg"
+      ],
+      "designClasses": [
+        "blue-text",
+        "grey-text",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_12",
+          "kind": "richText",
+          "label": "Текст gdpr.block_12",
+          "token": "${{ gdpr.block_12 }}$",
+          "ns": "gdpr",
+          "block": "block_12"
+        },
+        {
+          "id": "text_block_13",
+          "kind": "richText",
+          "label": "Текст gdpr.block_13",
+          "token": "${{ gdpr.block_13 }}$",
+          "ns": "gdpr",
+          "block": "block_13"
+        },
+        {
+          "id": "text_block_14",
+          "kind": "richText",
+          "label": "Текст gdpr.block_14",
+          "token": "${{ gdpr.block_14 }}$",
+          "ns": "gdpr",
+          "block": "block_14"
+        },
+        {
+          "id": "text_block_15",
+          "kind": "richText",
+          "label": "Текст gdpr.block_15",
+          "token": "${{ gdpr.block_15 }}$",
+          "ns": "gdpr",
+          "block": "block_15"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://iqoption.com/tickets"
+        }
+      ],
+      "inlineChildren": []
+    }
+  ]
+}

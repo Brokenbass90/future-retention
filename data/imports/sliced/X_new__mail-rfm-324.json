@@ -1,0 +1,1393 @@
+{
+  "category": "X_new",
+  "mailId": "rfm-324",
+  "mailAbs": "email-base/X_new/mail-rfm-324",
+  "blockCount": 8,
+  "blocks": [
+    {
+      "id": "x-new-rfm-324-header-header-0",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "kind": "section",
+      "sourceFile": "X_new/mail-rfm-324/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.offset-by-one.pt0\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb0\n                        a(href=\"https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-3-2-4&retrack=mail_IQ-RFM-3-2-4&type=forex&asset=1\" universal=\"true\" target=\"_blank\")\n                            img.logo.center(src=\"https://static.cdnroute.io/files/storage/public/60/b6/1b5cef3f19b7c9i0b2/logo_shadow_top_2.png\")",
+      "styl": "",
+      "classes": [
+        "center",
+        "columns",
+        "last",
+        "logo",
+        "offset-by-one",
+        "pb0",
+        "pt0",
+        "row",
+        "ten",
+        "text-pad-small",
+        "wrapper"
+      ],
+      "designClasses": [],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-3-2-4&retrack=mail_IQ-RFM-3-2-4&type=forex&asset=1"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnroute.io/files/storage/public/60/b6/1b5cef3f19b7c9i0b2/logo_shadow_top_2.png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-new-rfm-324-header-hero-1",
+      "label": "Hero с фоновой картинкой",
+      "placement": "section",
+      "category": "hero",
+      "kind": "section",
+      "sourceFile": "X_new/mail-rfm-324/app/templates/blocks/header.jade",
+      "pug": "table.row.brad-full.bgr-image\n    tr\n        td.wrapper.last.pt0\n            table.twelve.columns\n                tr\n                    td.pb0\n                        .h-406 &nbsp;\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb50.pt0\n                        div.gmail-blend-screen\n                            div.gmail-blend-diff\n                                p.white-title.pb16  ${{ rfm-iq-324.block_01 }}$\n                                p.white-text.pb16  ${{ rfm-iq-324.block_02 }}$\n                                .opacity-block\n                                    p.small-white-title.pb16 ${{ rfm-iq-324.block_03 }}$\n                                    table.w100\n                                        tr\n                                            td.pb0.m-w\n                                                a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                                    img.ava(src=\"https://fsms.quadcode.com/storage/public/d6/1e/vbvvhhgea139ul80/rfm-324-ava.png\")\n                                            td.pb0.w-a\n                                                p.white-text.pb10 <b>${{ rfm-iq-324.block_04 }}$</b>\n                                                p.white-text ${{ rfm-iq-324.block_05 }}$\n                        .h-24 &nbsp;\n                        table.w280(align=\"left\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-3-2-4&retrack=IQ-RFM-3-2-4\" universal=\"true\" target=\"_blank\") ${{ rfm-iq-324.block_06 }}$",
+      "styl": "u + .body .gmail-blend-screen { background: #000;\n  mix-blend-mode: screen; }\nu + .body .gmail-blend-diff { background: #000;\n  mix-blend-mode: difference; }\n.bgr-image { background: url(\"https://fsms.quadcode.com/storage/public/d6/1e/vbvvhhgea139ula0/rfm-324-head.png\") center top no-repeat;\n  background-size: cover;\n  background-color: #000; }\n.opacity-block { background: url(\"https://fsms.quadcode.com/storage/public/d6/1e/vbvvhhgea139ul90/rfm-324-backgroung.png\") center top no-repeat;\n  background-size: cover;\n  padding: 24px;\n  border-radius: 24px; }\n.w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { max-width: 100% !important; }\n}\n.brad-full { border-radius: 32px !important; }\n.butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.white-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 40px;\n  line-height: 50px;\n  color: #fff;\n  word-break: break-word; }\n@media screen and (max-width: 600px) {\n  .white-title { font-size: 26px !important;\n    line-height: 32px !important; }\n}\n.small-white-title { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  color: #fff; }\n.white-text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #fff;\n  padding-right: 20px; }\n@media screen and (max-width: 600px) {\n  .white-text { padding-right: 0 !important; }\n}\n.ava { width: 50px !important;\n  float: none; }\n.pb16 { padding-bottom: 16px; }\n.h-24 { font-size: 8px;\n  line-height: 24px;\n  height: 24px; }\n.h-406 { font-size: 0;\n  line-height: 336px;\n  height: 336px; }\n@media screen and (max-width: 500px) {\n  .h-406 { font-size: 160px !important;\n    line-height: 300px !important;\n    height: 300px !important; }\n}\n.w100 { width: 100%; }\n.w-a { width: auto !important;\n  vertical-align: middle; }\ntable[class=body] table.column td,\ntable[class=body] table.columns td.m-w { min-width: 74px !important;\n  width: 74px !important; }\nu+.body .gmail-blend-screen { background:#000;mix-blend-mode:screen }\nu+.body .gmail-blend-diff { background:#000;mix-blend-mode:difference }\n.bgr,.bgr-image { background-size:cover }\n.bgr-image { background:url(https://fsms.quadcode.com/storage/public/d6/1e/vbvvhhgea139ula0/rfm-324-head.png) center top no-repeat;background-color:#000 }\n.opacity-block { background:url(https://fsms.quadcode.com/storage/public/d6/1e/vbvvhhgea139ul90/rfm-324-backgroung.png) center top no-repeat;background-size:cover;padding:24px;border-radius:24px }\n.w280 { width:100%;max-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { max-width:100%!important }\n}\n.brad-full,.brad-full-32 { border-radius:32px!important }\n.butt-link,.butt-link-2,.butt-link-small { font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#2f3749;display:block;line-height:27px;padding:16px 0;text-align:center;letter-spacing:0 }\n.butt-link,.butt-link-small { color:#f9f9f9 }\n.white-title { font-family:Helvetica!important;font-weight:700;font-size:40px;line-height:50px;color:#fff;word-break:break-word }\n@media screen and (max-width:600px) {\n  .white-title { font-size:26px!important;line-height:32px!important }\n}\n.small-white-title,.white-text { font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:24px;line-height:31px;color:#fff }\n.white-text { font-weight:400;font-size:18px;line-height:27px;padding-right:20px }\n@media screen and (max-width:600px) {\n  .white-text { padding-right:0!important }\n}\n.ava,.stars { width:50px!important;float:none }\n.pb16 { padding-bottom:16px }\n.h-16,.h-20,.h-24 { font-size:8px;line-height:16px;height:16px }\n.h-20,.h-24 { line-height:20px;height:20px }\n.h-24 { line-height:24px;height:24px }\n.h-406 { font-size:0;line-height:336px;height:336px }\n@media screen and (max-width:500px) {\n  .h-406 { font-size:160px!important;line-height:300px!important;height:300px!important }\n}\n.w100,.w167 { width:100% }\n.w-a { width:auto!important;vertical-align:middle }\ntable[class=body] table.column td,table[class=body] table.columns td.m-w { min-width:74px!important;width:74px!important }",
+      "classes": [
+        "ava",
+        "bgr-image",
+        "brad-full",
+        "butt",
+        "butt-link",
+        "columns",
+        "gmail-blend-diff",
+        "gmail-blend-screen",
+        "h-24",
+        "h-406",
+        "last",
+        "m-w",
+        "offset-by-one",
+        "opacity-block",
+        "pb0",
+        "pb10",
+        "pb16",
+        "pb50",
+        "pt0",
+        "row",
+        "small-white-title",
+        "ten",
+        "text-pad-small",
+        "twelve",
+        "w-a",
+        "w100",
+        "w280",
+        "white-text",
+        "white-title",
+        "wrapper"
+      ],
+      "designClasses": [
+        "ava",
+        "bgr-image",
+        "brad-full",
+        "butt-link",
+        "gmail-blend-diff",
+        "gmail-blend-screen",
+        "h-24",
+        "h-406",
+        "m-w",
+        "opacity-block",
+        "pb16",
+        "small-white-title",
+        "w-a",
+        "w100",
+        "w280",
+        "white-text",
+        "white-title"
+      ],
+      "slots": [
+        {
+          "id": "text_block_01",
+          "kind": "richText",
+          "label": "Текст rfm-iq-324.block_01",
+          "token": "${{ rfm-iq-324.block_01 }}$",
+          "ns": "rfm-iq-324",
+          "block": "block_01"
+        },
+        {
+          "id": "text_block_02",
+          "kind": "richText",
+          "label": "Текст rfm-iq-324.block_02",
+          "token": "${{ rfm-iq-324.block_02 }}$",
+          "ns": "rfm-iq-324",
+          "block": "block_02"
+        },
+        {
+          "id": "text_block_03",
+          "kind": "richText",
+          "label": "Текст rfm-iq-324.block_03",
+          "token": "${{ rfm-iq-324.block_03 }}$",
+          "ns": "rfm-iq-324",
+          "block": "block_03"
+        },
+        {
+          "id": "text_block_04",
+          "kind": "richText",
+          "label": "Текст rfm-iq-324.block_04",
+          "token": "${{ rfm-iq-324.block_04 }}$",
+          "ns": "rfm-iq-324",
+          "block": "block_04"
+        },
+        {
+          "id": "text_block_05",
+          "kind": "richText",
+          "label": "Текст rfm-iq-324.block_05",
+          "token": "${{ rfm-iq-324.block_05 }}$",
+          "ns": "rfm-iq-324",
+          "block": "block_05"
+        },
+        {
+          "id": "text_block_06",
+          "kind": "richText",
+          "label": "Текст rfm-iq-324.block_06",
+          "token": "${{ rfm-iq-324.block_06 }}$",
+          "ns": "rfm-iq-324",
+          "block": "block_06"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-3-2-4&retrack=IQ-RFM-3-2-4"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d6/1e/vbvvhhgea139ul80/rfm-324-ava.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-rfm-324-header-hero-1-spacer-0",
+          "label": "Спейсер 406px",
+          "placement": "inline",
+          "category": "utility",
+          "pug": ".h-406 &nbsp;",
+          "styl": ".h-406 { font-size: 0;\n  line-height: 336px;\n  height: 336px; }\n@media screen and (max-width: 500px) {\n  .h-406 { font-size: 160px !important;\n    line-height: 300px !important;\n    height: 300px !important; }\n}\n.h-406 { font-size:0;line-height:336px;height:336px }\n@media screen and (max-width:500px) {\n  .h-406 { font-size:160px!important;line-height:300px!important;height:300px!important }\n}",
+          "classes": [
+            "h-406"
+          ],
+          "designClasses": [
+            "h-406"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-new-rfm-324-header-hero-1-gmail-blend-1",
+          "label": "Gmail blend wrapper",
+          "placement": "inline",
+          "category": "utility",
+          "pug": "div.gmail-blend-screen\n    div.gmail-blend-diff\n        p.white-title.pb16  ${{ rfm-iq-324.block_01 }}$\n        p.white-text.pb16  ${{ rfm-iq-324.block_02 }}$\n        .opacity-block\n            p.small-white-title.pb16 ${{ rfm-iq-324.block_03 }}$\n            table.w100\n                tr\n                    td.pb0.m-w\n                        a(href=\"#\" universal=\"true\" target=\"_blank\")\n                            img.ava(src=\"https://fsms.quadcode.com/storage/public/d6/1e/vbvvhhgea139ul80/rfm-324-ava.png\")\n                    td.pb0.w-a\n                        p.white-text.pb10 <b>${{ rfm-iq-324.block_04 }}$</b>\n                        p.white-text ${{ rfm-iq-324.block_05 }}$",
+          "styl": "u + .body .gmail-blend-screen { background: #000;\n  mix-blend-mode: screen; }\nu + .body .gmail-blend-diff { background: #000;\n  mix-blend-mode: difference; }\n.opacity-block { background: url(\"https://fsms.quadcode.com/storage/public/d6/1e/vbvvhhgea139ul90/rfm-324-backgroung.png\") center top no-repeat;\n  background-size: cover;\n  padding: 24px;\n  border-radius: 24px; }\n.white-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 40px;\n  line-height: 50px;\n  color: #fff;\n  word-break: break-word; }\n@media screen and (max-width: 600px) {\n  .white-title { font-size: 26px !important;\n    line-height: 32px !important; }\n}\n.small-white-title { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  color: #fff; }\n.white-text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #fff;\n  padding-right: 20px; }\n@media screen and (max-width: 600px) {\n  .white-text { padding-right: 0 !important; }\n}\n.ava { width: 50px !important;\n  float: none; }\n.pb16 { padding-bottom: 16px; }\n.w100 { width: 100%; }\n.w-a { width: auto !important;\n  vertical-align: middle; }\ntable[class=body] table.column td,\ntable[class=body] table.columns td.m-w { min-width: 74px !important;\n  width: 74px !important; }\nu+.body .gmail-blend-screen { background:#000;mix-blend-mode:screen }\nu+.body .gmail-blend-diff { background:#000;mix-blend-mode:difference }\n.opacity-block { background:url(https://fsms.quadcode.com/storage/public/d6/1e/vbvvhhgea139ul90/rfm-324-backgroung.png) center top no-repeat;background-size:cover;padding:24px;border-radius:24px }\n.white-title { font-family:Helvetica!important;font-weight:700;font-size:40px;line-height:50px;color:#fff;word-break:break-word }\n@media screen and (max-width:600px) {\n  .white-title { font-size:26px!important;line-height:32px!important }\n}\n.small-white-title,.white-text { font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:24px;line-height:31px;color:#fff }\n.white-text { font-weight:400;font-size:18px;line-height:27px;padding-right:20px }\n@media screen and (max-width:600px) {\n  .white-text { padding-right:0!important }\n}\n.ava,.stars { width:50px!important;float:none }\n.pb16 { padding-bottom:16px }\n.w100,.w167 { width:100% }\n.w-a { width:auto!important;vertical-align:middle }\ntable[class=body] table.column td,table[class=body] table.columns td.m-w { min-width:74px!important;width:74px!important }",
+          "classes": [
+            "ava",
+            "gmail-blend-diff",
+            "gmail-blend-screen",
+            "m-w",
+            "opacity-block",
+            "pb0",
+            "pb10",
+            "pb16",
+            "small-white-title",
+            "w-a",
+            "w100",
+            "white-text",
+            "white-title"
+          ],
+          "designClasses": [
+            "ava",
+            "gmail-blend-diff",
+            "gmail-blend-screen",
+            "m-w",
+            "opacity-block",
+            "pb16",
+            "small-white-title",
+            "w-a",
+            "w100",
+            "white-text",
+            "white-title"
+          ],
+          "slots": [
+            {
+              "id": "text_block_01",
+              "kind": "richText",
+              "label": "Текст rfm-iq-324.block_01",
+              "token": "${{ rfm-iq-324.block_01 }}$",
+              "ns": "rfm-iq-324",
+              "block": "block_01"
+            },
+            {
+              "id": "text_block_02",
+              "kind": "richText",
+              "label": "Текст rfm-iq-324.block_02",
+              "token": "${{ rfm-iq-324.block_02 }}$",
+              "ns": "rfm-iq-324",
+              "block": "block_02"
+            },
+            {
+              "id": "text_block_03",
+              "kind": "richText",
+              "label": "Текст rfm-iq-324.block_03",
+              "token": "${{ rfm-iq-324.block_03 }}$",
+              "ns": "rfm-iq-324",
+              "block": "block_03"
+            },
+            {
+              "id": "text_block_04",
+              "kind": "richText",
+              "label": "Текст rfm-iq-324.block_04",
+              "token": "${{ rfm-iq-324.block_04 }}$",
+              "ns": "rfm-iq-324",
+              "block": "block_04"
+            },
+            {
+              "id": "text_block_05",
+              "kind": "richText",
+              "label": "Текст rfm-iq-324.block_05",
+              "token": "${{ rfm-iq-324.block_05 }}$",
+              "ns": "rfm-iq-324",
+              "block": "block_05"
+            },
+            {
+              "id": "image_0",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d6/1e/vbvvhhgea139ul80/rfm-324-ava.png"
+            }
+          ]
+        },
+        {
+          "id": "x-new-rfm-324-header-hero-1-spacer-2",
+          "label": "Спейсер 24px",
+          "placement": "inline",
+          "category": "utility",
+          "pug": ".h-24 &nbsp;",
+          "styl": ".h-24 { font-size: 8px;\n  line-height: 24px;\n  height: 24px; }\n.h-16,.h-20,.h-24 { font-size:8px;line-height:16px;height:16px }\n.h-20,.h-24 { line-height:20px;height:20px }\n.h-24 { line-height:24px;height:24px }",
+          "classes": [
+            "h-24"
+          ],
+          "designClasses": [
+            "h-24"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-new-rfm-324-header-hero-1-cta-button-3",
+          "label": "CTA-кнопка (w280)",
+          "placement": "inline",
+          "category": "cta",
+          "pug": "table.w280(align=\"left\")\n    tr\n        td.butt.pb0\n            a.butt-link(href=\"https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-3-2-4&retrack=IQ-RFM-3-2-4\" universal=\"true\" target=\"_blank\") ${{ rfm-iq-324.block_06 }}$",
+          "styl": ".w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { max-width: 100% !important; }\n}\n.butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.w280 { width:100%;max-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { max-width:100%!important }\n}\n.butt-link,.butt-link-2,.butt-link-small { font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#2f3749;display:block;line-height:27px;padding:16px 0;text-align:center;letter-spacing:0 }\n.butt-link,.butt-link-small { color:#f9f9f9 }",
+          "classes": [
+            "butt",
+            "butt-link",
+            "pb0",
+            "w280"
+          ],
+          "designClasses": [
+            "butt-link",
+            "w280"
+          ],
+          "slots": [
+            {
+              "id": "text_block_06",
+              "kind": "richText",
+              "label": "Текст rfm-iq-324.block_06",
+              "token": "${{ rfm-iq-324.block_06 }}$",
+              "ns": "rfm-iq-324",
+              "block": "block_06"
+            },
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-3-2-4&retrack=IQ-RFM-3-2-4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-new-rfm-324-header-utility-2",
+      "label": "Спейсер 12px",
+      "placement": "inline",
+      "category": "utility",
+      "kind": "spacer",
+      "sourceFile": "X_new/mail-rfm-324/app/templates/blocks/header.jade",
+      "pug": ".h-12 &nbsp;",
+      "styl": ".h-12 { font-size: 8px;\n  line-height: 12px;\n  height: 12px; }\n.h-12,.h-8 { font-size:8px;line-height:8px;height:8px }\n.h-12 { line-height:12px;height:12px }",
+      "classes": [
+        "h-12"
+      ],
+      "designClasses": [
+        "h-12"
+      ],
+      "slots": [],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-new-rfm-324-header-feature-list-3",
+      "label": "Asset-секция",
+      "placement": "section",
+      "category": "feature-list",
+      "kind": "section",
+      "sourceFile": "X_new/mail-rfm-324/app/templates/blocks/header.jade",
+      "pug": "table.row.brad-full.white-bg\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.middle-title.pb16 ${{ rfm-iq-324.block_07 }}$\n                        p.text.pb32 ${{ rfm-iq-324.block_08 }}$\n                        .asset-block.mr16\n                            p.asset.pd20\n                                img.asset-logo(src=\"https://fsms.quadcode.com/storage/public/d6/0u/6tvvhhgea139ul20/US500.png\")\n                                |${{ rfm-iq-324.block_09 }}$\n                        .asset-block\n                            p.asset.pd20\n                                img.asset-logo(src=\"https://fsms.quadcode.com/storage/public/d6/1e/vbvvhhgea139ul8g/btc.png\")\n                                |${{ rfm-iq-324.block_10 }}$\n                        .asset-block.mr16\n                            p.asset.pd20\n                                img.asset-logo(src=\"https://fsms.quadcode.com/storage/public/d6/1e/vboggnfnh4cs78gg/nvidia.png\")\n                                |${{ rfm-iq-324.block_11 }}$\n                        .asset-block\n                            p.asset.pd20\n                                img.asset-logo(src=\"https://fsms.quadcode.com/storage/public/d6/0u/6toggnfnh4cs788g/gad.png\")\n                                |${{ rfm-iq-324.block_12 }}$\n                        .h-40 &nbsp;\n                        table.w280(align=\"center\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"https://api.iqoption.com/v1/multi-links/asset-selector?aff=7&afftrack=mail_IQ-RFM-3-2-4&retrack=mail_IQ-RFM-3-2-4\" universal=\"true\" target=\"_blank\") ${{ rfm-iq-324.block_13 }}$",
+      "styl": ".w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { max-width: 100% !important; }\n}\n.brad-full { border-radius: 32px !important; }\n.butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.white-bg { background-color: #fff; }\n.middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 24px !important;\n    line-height: 32px !important; }\n}\n.text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n.pb16 { padding-bottom: 16px; }\n.pb32 { padding-bottom: 32px; }\n.pb44 { padding-bottom: 44px; }\n.pt44 { padding-top: 44px; }\n.h-40 { font-size: 8px;\n  line-height: 40px;\n  height: 40px; }\n.asset { font-family: Helvetica !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #393a44; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.asset-logo { display: inline-block;\n  width: 40px !important;\n  float: none;\n  padding-right: 8px;\n  vertical-align: middle; }\n.asset-block { display: inline-block;\n  border: 1px solid #ececed;\n  border-radius: 24px;\n  width: 222px;\n  margin-bottom: 16px; }\n@media screen and (max-width: 600px) {\n  .asset-block { display: block !important;\n    margin: 0 auto 16px !important; }\n}\n.asset { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 18px;\n  line-height: 27px;\n  color: #393a44; }\n.pd20 { padding: 20px; }\n.mr16 { margin-right: 16px; }\n.asset-logo { display: inline-block;\n  width: 48px !important;\n  float: none;\n  vertical-align: middle;\n  padding-right: 10px; }\n.w280 { width:100%;max-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { max-width:100%!important }\n}\n.brad-full,.brad-full-32 { border-radius:32px!important }\n.butt-link,.butt-link-2,.butt-link-small { font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#2f3749;display:block;line-height:27px;padding:16px 0;text-align:center;letter-spacing:0 }\n.butt-link,.butt-link-small { color:#f9f9f9 }\n.white-bg { background-color:#fff }\n.middle-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#393a44;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:24px!important;line-height:32px!important }\n}\n.number-block,.text { font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400 }\n.big,.text.bold { font-weight:700 }\n.pb16 { padding-bottom:16px }\n.pb32 { padding-bottom:32px }\n.pb44 { padding-bottom:44px }\n.pt44 { padding-top:44px }\n.h-28,.h-30,.h-40 { font-size:8px;line-height:28px;height:28px }\n.h-30,.h-40 { line-height:30px;height:30px }\n.h-40 { line-height:40px;height:40px }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}\n.asset-block { display:inline-block;border:1px solid #ececed;border-radius:24px;width:222px;margin-bottom:16px }\n@media screen and (max-width:600px) {\n  .asset-block { display:block!important;margin:0 auto 16px!important }\n}\n.asset { font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:18px;line-height:27px;color:#393a44 }\n.pd20 { padding:20px }\n.mr16 { margin-right:16px }\n.asset-logo { display:inline-block;width:48px!important;float:none;vertical-align:middle;padding-right:10px }",
+      "classes": [
+        "asset",
+        "asset-block",
+        "asset-logo",
+        "brad-full",
+        "butt",
+        "butt-link",
+        "columns",
+        "h-40",
+        "last",
+        "middle-title",
+        "mr16",
+        "offset-by-one",
+        "pb0",
+        "pb16",
+        "pb32",
+        "pb44",
+        "pd20",
+        "pt44",
+        "row",
+        "ten",
+        "text",
+        "text-pad-small",
+        "w280",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "asset",
+        "asset-block",
+        "asset-logo",
+        "brad-full",
+        "butt-link",
+        "h-40",
+        "middle-title",
+        "mr16",
+        "pb16",
+        "pb32",
+        "pb44",
+        "pd20",
+        "pt44",
+        "text",
+        "w280",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_07",
+          "kind": "richText",
+          "label": "Текст rfm-iq-324.block_07",
+          "token": "${{ rfm-iq-324.block_07 }}$",
+          "ns": "rfm-iq-324",
+          "block": "block_07"
+        },
+        {
+          "id": "text_block_08",
+          "kind": "richText",
+          "label": "Текст rfm-iq-324.block_08",
+          "token": "${{ rfm-iq-324.block_08 }}$",
+          "ns": "rfm-iq-324",
+          "block": "block_08"
+        },
+        {
+          "id": "text_block_09",
+          "kind": "richText",
+          "label": "Текст rfm-iq-324.block_09",
+          "token": "${{ rfm-iq-324.block_09 }}$",
+          "ns": "rfm-iq-324",
+          "block": "block_09"
+        },
+        {
+          "id": "text_block_10",
+          "kind": "richText",
+          "label": "Текст rfm-iq-324.block_10",
+          "token": "${{ rfm-iq-324.block_10 }}$",
+          "ns": "rfm-iq-324",
+          "block": "block_10"
+        },
+        {
+          "id": "text_block_11",
+          "kind": "richText",
+          "label": "Текст rfm-iq-324.block_11",
+          "token": "${{ rfm-iq-324.block_11 }}$",
+          "ns": "rfm-iq-324",
+          "block": "block_11"
+        },
+        {
+          "id": "text_block_12",
+          "kind": "richText",
+          "label": "Текст rfm-iq-324.block_12",
+          "token": "${{ rfm-iq-324.block_12 }}$",
+          "ns": "rfm-iq-324",
+          "block": "block_12"
+        },
+        {
+          "id": "text_block_13",
+          "kind": "richText",
+          "label": "Текст rfm-iq-324.block_13",
+          "token": "${{ rfm-iq-324.block_13 }}$",
+          "ns": "rfm-iq-324",
+          "block": "block_13"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://api.iqoption.com/v1/multi-links/asset-selector?aff=7&afftrack=mail_IQ-RFM-3-2-4&retrack=mail_IQ-RFM-3-2-4"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d6/0u/6tvvhhgea139ul20/US500.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d6/1e/vbvvhhgea139ul8g/btc.png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d6/1e/vboggnfnh4cs78gg/nvidia.png"
+        },
+        {
+          "id": "image_3",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d6/0u/6toggnfnh4cs788g/gad.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-rfm-324-header-feature-list-3-heading-0",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.middle-title.pb16 ${{ rfm-iq-324.block_07 }}$",
+          "styl": ".middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 24px !important;\n    line-height: 32px !important; }\n}\n.pb16 { padding-bottom: 16px; }\n.middle-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#393a44;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:24px!important;line-height:32px!important }\n}\n.pb16 { padding-bottom:16px }",
+          "classes": [
+            "middle-title",
+            "pb16"
+          ],
+          "designClasses": [
+            "middle-title",
+            "pb16"
+          ],
+          "slots": [
+            {
+              "id": "text_block_07",
+              "kind": "richText",
+              "label": "Текст rfm-iq-324.block_07",
+              "token": "${{ rfm-iq-324.block_07 }}$",
+              "ns": "rfm-iq-324",
+              "block": "block_07"
+            }
+          ]
+        },
+        {
+          "id": "x-new-rfm-324-header-feature-list-3-paragraph-1",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb32 ${{ rfm-iq-324.block_08 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n.pb32 { padding-bottom: 32px; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.number-block,.text { font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400 }\n.big,.text.bold { font-weight:700 }\n.pb32 { padding-bottom:32px }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}",
+          "classes": [
+            "pb32",
+            "text"
+          ],
+          "designClasses": [
+            "pb32",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_08",
+              "kind": "richText",
+              "label": "Текст rfm-iq-324.block_08",
+              "token": "${{ rfm-iq-324.block_08 }}$",
+              "ns": "rfm-iq-324",
+              "block": "block_08"
+            }
+          ]
+        },
+        {
+          "id": "x-new-rfm-324-header-feature-list-3-asset-card-2",
+          "label": "Asset-карточка (лого + название)",
+          "placement": "inline",
+          "category": "feature-list",
+          "pug": ".asset-block.mr16\n    p.asset.pd20\n        img.asset-logo(src=\"https://fsms.quadcode.com/storage/public/d6/0u/6tvvhhgea139ul20/US500.png\")\n        |${{ rfm-iq-324.block_09 }}$",
+          "styl": ".asset { font-family: Helvetica !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #393a44; }\n.asset-logo { display: inline-block;\n  width: 40px !important;\n  float: none;\n  padding-right: 8px;\n  vertical-align: middle; }\n.asset-block { display: inline-block;\n  border: 1px solid #ececed;\n  border-radius: 24px;\n  width: 222px;\n  margin-bottom: 16px; }\n@media screen and (max-width: 600px) {\n  .asset-block { display: block !important;\n    margin: 0 auto 16px !important; }\n}\n.asset { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 18px;\n  line-height: 27px;\n  color: #393a44; }\n.pd20 { padding: 20px; }\n.mr16 { margin-right: 16px; }\n.asset-logo { display: inline-block;\n  width: 48px !important;\n  float: none;\n  vertical-align: middle;\n  padding-right: 10px; }\n.asset-block { display:inline-block;border:1px solid #ececed;border-radius:24px;width:222px;margin-bottom:16px }\n@media screen and (max-width:600px) {\n  .asset-block { display:block!important;margin:0 auto 16px!important }\n}\n.asset { font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:18px;line-height:27px;color:#393a44 }\n.pd20 { padding:20px }\n.mr16 { margin-right:16px }\n.asset-logo { display:inline-block;width:48px!important;float:none;vertical-align:middle;padding-right:10px }",
+          "classes": [
+            "asset",
+            "asset-block",
+            "asset-logo",
+            "mr16",
+            "pd20"
+          ],
+          "designClasses": [
+            "asset",
+            "asset-block",
+            "asset-logo",
+            "mr16",
+            "pd20"
+          ],
+          "slots": [
+            {
+              "id": "text_block_09",
+              "kind": "richText",
+              "label": "Текст rfm-iq-324.block_09",
+              "token": "${{ rfm-iq-324.block_09 }}$",
+              "ns": "rfm-iq-324",
+              "block": "block_09"
+            },
+            {
+              "id": "image_0",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d6/0u/6tvvhhgea139ul20/US500.png"
+            }
+          ]
+        },
+        {
+          "id": "x-new-rfm-324-header-feature-list-3-asset-card-3",
+          "label": "Asset-карточка (лого + название)",
+          "placement": "inline",
+          "category": "feature-list",
+          "pug": ".asset-block\n    p.asset.pd20\n        img.asset-logo(src=\"https://fsms.quadcode.com/storage/public/d6/1e/vbvvhhgea139ul8g/btc.png\")\n        |${{ rfm-iq-324.block_10 }}$",
+          "styl": ".asset { font-family: Helvetica !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #393a44; }\n.asset-logo { display: inline-block;\n  width: 40px !important;\n  float: none;\n  padding-right: 8px;\n  vertical-align: middle; }\n.asset-block { display: inline-block;\n  border: 1px solid #ececed;\n  border-radius: 24px;\n  width: 222px;\n  margin-bottom: 16px; }\n@media screen and (max-width: 600px) {\n  .asset-block { display: block !important;\n    margin: 0 auto 16px !important; }\n}\n.asset { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 18px;\n  line-height: 27px;\n  color: #393a44; }\n.pd20 { padding: 20px; }\n.asset-logo { display: inline-block;\n  width: 48px !important;\n  float: none;\n  vertical-align: middle;\n  padding-right: 10px; }\n.asset-block { display:inline-block;border:1px solid #ececed;border-radius:24px;width:222px;margin-bottom:16px }\n@media screen and (max-width:600px) {\n  .asset-block { display:block!important;margin:0 auto 16px!important }\n}\n.asset { font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:18px;line-height:27px;color:#393a44 }\n.pd20 { padding:20px }\n.asset-logo { display:inline-block;width:48px!important;float:none;vertical-align:middle;padding-right:10px }",
+          "classes": [
+            "asset",
+            "asset-block",
+            "asset-logo",
+            "pd20"
+          ],
+          "designClasses": [
+            "asset",
+            "asset-block",
+            "asset-logo",
+            "pd20"
+          ],
+          "slots": [
+            {
+              "id": "text_block_10",
+              "kind": "richText",
+              "label": "Текст rfm-iq-324.block_10",
+              "token": "${{ rfm-iq-324.block_10 }}$",
+              "ns": "rfm-iq-324",
+              "block": "block_10"
+            },
+            {
+              "id": "image_0",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d6/1e/vbvvhhgea139ul8g/btc.png"
+            }
+          ]
+        },
+        {
+          "id": "x-new-rfm-324-header-feature-list-3-asset-card-4",
+          "label": "Asset-карточка (лого + название)",
+          "placement": "inline",
+          "category": "feature-list",
+          "pug": ".asset-block.mr16\n    p.asset.pd20\n        img.asset-logo(src=\"https://fsms.quadcode.com/storage/public/d6/1e/vboggnfnh4cs78gg/nvidia.png\")\n        |${{ rfm-iq-324.block_11 }}$",
+          "styl": ".asset { font-family: Helvetica !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #393a44; }\n.asset-logo { display: inline-block;\n  width: 40px !important;\n  float: none;\n  padding-right: 8px;\n  vertical-align: middle; }\n.asset-block { display: inline-block;\n  border: 1px solid #ececed;\n  border-radius: 24px;\n  width: 222px;\n  margin-bottom: 16px; }\n@media screen and (max-width: 600px) {\n  .asset-block { display: block !important;\n    margin: 0 auto 16px !important; }\n}\n.asset { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 18px;\n  line-height: 27px;\n  color: #393a44; }\n.pd20 { padding: 20px; }\n.mr16 { margin-right: 16px; }\n.asset-logo { display: inline-block;\n  width: 48px !important;\n  float: none;\n  vertical-align: middle;\n  padding-right: 10px; }\n.asset-block { display:inline-block;border:1px solid #ececed;border-radius:24px;width:222px;margin-bottom:16px }\n@media screen and (max-width:600px) {\n  .asset-block { display:block!important;margin:0 auto 16px!important }\n}\n.asset { font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:18px;line-height:27px;color:#393a44 }\n.pd20 { padding:20px }\n.mr16 { margin-right:16px }\n.asset-logo { display:inline-block;width:48px!important;float:none;vertical-align:middle;padding-right:10px }",
+          "classes": [
+            "asset",
+            "asset-block",
+            "asset-logo",
+            "mr16",
+            "pd20"
+          ],
+          "designClasses": [
+            "asset",
+            "asset-block",
+            "asset-logo",
+            "mr16",
+            "pd20"
+          ],
+          "slots": [
+            {
+              "id": "text_block_11",
+              "kind": "richText",
+              "label": "Текст rfm-iq-324.block_11",
+              "token": "${{ rfm-iq-324.block_11 }}$",
+              "ns": "rfm-iq-324",
+              "block": "block_11"
+            },
+            {
+              "id": "image_0",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d6/1e/vboggnfnh4cs78gg/nvidia.png"
+            }
+          ]
+        },
+        {
+          "id": "x-new-rfm-324-header-feature-list-3-asset-card-5",
+          "label": "Asset-карточка (лого + название)",
+          "placement": "inline",
+          "category": "feature-list",
+          "pug": ".asset-block\n    p.asset.pd20\n        img.asset-logo(src=\"https://fsms.quadcode.com/storage/public/d6/0u/6toggnfnh4cs788g/gad.png\")\n        |${{ rfm-iq-324.block_12 }}$",
+          "styl": ".asset { font-family: Helvetica !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #393a44; }\n.asset-logo { display: inline-block;\n  width: 40px !important;\n  float: none;\n  padding-right: 8px;\n  vertical-align: middle; }\n.asset-block { display: inline-block;\n  border: 1px solid #ececed;\n  border-radius: 24px;\n  width: 222px;\n  margin-bottom: 16px; }\n@media screen and (max-width: 600px) {\n  .asset-block { display: block !important;\n    margin: 0 auto 16px !important; }\n}\n.asset { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 18px;\n  line-height: 27px;\n  color: #393a44; }\n.pd20 { padding: 20px; }\n.asset-logo { display: inline-block;\n  width: 48px !important;\n  float: none;\n  vertical-align: middle;\n  padding-right: 10px; }\n.asset-block { display:inline-block;border:1px solid #ececed;border-radius:24px;width:222px;margin-bottom:16px }\n@media screen and (max-width:600px) {\n  .asset-block { display:block!important;margin:0 auto 16px!important }\n}\n.asset { font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:18px;line-height:27px;color:#393a44 }\n.pd20 { padding:20px }\n.asset-logo { display:inline-block;width:48px!important;float:none;vertical-align:middle;padding-right:10px }",
+          "classes": [
+            "asset",
+            "asset-block",
+            "asset-logo",
+            "pd20"
+          ],
+          "designClasses": [
+            "asset",
+            "asset-block",
+            "asset-logo",
+            "pd20"
+          ],
+          "slots": [
+            {
+              "id": "text_block_12",
+              "kind": "richText",
+              "label": "Текст rfm-iq-324.block_12",
+              "token": "${{ rfm-iq-324.block_12 }}$",
+              "ns": "rfm-iq-324",
+              "block": "block_12"
+            },
+            {
+              "id": "image_0",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d6/0u/6toggnfnh4cs788g/gad.png"
+            }
+          ]
+        },
+        {
+          "id": "x-new-rfm-324-header-feature-list-3-spacer-6",
+          "label": "Спейсер 40px",
+          "placement": "inline",
+          "category": "utility",
+          "pug": ".h-40 &nbsp;",
+          "styl": ".h-40 { font-size: 8px;\n  line-height: 40px;\n  height: 40px; }\n.h-28,.h-30,.h-40 { font-size:8px;line-height:28px;height:28px }\n.h-30,.h-40 { line-height:30px;height:30px }\n.h-40 { line-height:40px;height:40px }",
+          "classes": [
+            "h-40"
+          ],
+          "designClasses": [
+            "h-40"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-new-rfm-324-header-feature-list-3-cta-button-7",
+          "label": "CTA-кнопка (w280)",
+          "placement": "inline",
+          "category": "cta",
+          "pug": "table.w280(align=\"center\")\n    tr\n        td.butt.pb0\n            a.butt-link(href=\"https://api.iqoption.com/v1/multi-links/asset-selector?aff=7&afftrack=mail_IQ-RFM-3-2-4&retrack=mail_IQ-RFM-3-2-4\" universal=\"true\" target=\"_blank\") ${{ rfm-iq-324.block_13 }}$",
+          "styl": ".w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { max-width: 100% !important; }\n}\n.butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.w280 { width:100%;max-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { max-width:100%!important }\n}\n.butt-link,.butt-link-2,.butt-link-small { font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#2f3749;display:block;line-height:27px;padding:16px 0;text-align:center;letter-spacing:0 }\n.butt-link,.butt-link-small { color:#f9f9f9 }",
+          "classes": [
+            "butt",
+            "butt-link",
+            "pb0",
+            "w280"
+          ],
+          "designClasses": [
+            "butt-link",
+            "w280"
+          ],
+          "slots": [
+            {
+              "id": "text_block_13",
+              "kind": "richText",
+              "label": "Текст rfm-iq-324.block_13",
+              "token": "${{ rfm-iq-324.block_13 }}$",
+              "ns": "rfm-iq-324",
+              "block": "block_13"
+            },
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://api.iqoption.com/v1/multi-links/asset-selector?aff=7&afftrack=mail_IQ-RFM-3-2-4&retrack=mail_IQ-RFM-3-2-4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-new-rfm-324-header-utility-4",
+      "label": "Спейсер 12px",
+      "placement": "inline",
+      "category": "utility",
+      "kind": "spacer",
+      "sourceFile": "X_new/mail-rfm-324/app/templates/blocks/header.jade",
+      "pug": ".h-12 &nbsp;",
+      "styl": ".h-12 { font-size: 8px;\n  line-height: 12px;\n  height: 12px; }\n.h-12,.h-8 { font-size:8px;line-height:8px;height:8px }\n.h-12 { line-height:12px;height:12px }",
+      "classes": [
+        "h-12"
+      ],
+      "designClasses": [
+        "h-12"
+      ],
+      "slots": [],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-new-rfm-324-header-cta-5",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "kind": "section",
+      "sourceFile": "X_new/mail-rfm-324/app/templates/blocks/header.jade",
+      "pug": "table.row.brad-full.white-bg\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.middle-title.pb16 ${{ rfm-iq-324.block_14 }}$\n                        p.text.pb32 ${{ rfm-iq-324.block_15 }}$\n                        a(href=\"#\" universal=\"true\" target=\"_blank\")\n                            img.center(src=\"https://fsms.quadcode.com/storage/public/d6/1e/vbvvhhgea139ul9g/rfm-324-bottom-img.png\")\n                        .h-40 &nbsp;\n                        table.w280(align=\"center\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"https://api.iqoption.com/v1/multi-links/asset-selector?aff=7&afftrack=mail_IQ-RFM-3-2-4&retrack=mail_IQ-RFM-3-2-4\" universal=\"true\" target=\"_blank\") ${{ rfm-iq-324.block_21 }}$",
+      "styl": ".w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { max-width: 100% !important; }\n}\n.brad-full { border-radius: 32px !important; }\n.butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.white-bg { background-color: #fff; }\n.middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 24px !important;\n    line-height: 32px !important; }\n}\n.text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n.pb16 { padding-bottom: 16px; }\n.pb32 { padding-bottom: 32px; }\n.pb44 { padding-bottom: 44px; }\n.pt44 { padding-top: 44px; }\n.h-40 { font-size: 8px;\n  line-height: 40px;\n  height: 40px; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.w280 { width:100%;max-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { max-width:100%!important }\n}\n.brad-full,.brad-full-32 { border-radius:32px!important }\n.butt-link,.butt-link-2,.butt-link-small { font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#2f3749;display:block;line-height:27px;padding:16px 0;text-align:center;letter-spacing:0 }\n.butt-link,.butt-link-small { color:#f9f9f9 }\n.white-bg { background-color:#fff }\n.middle-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#393a44;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:24px!important;line-height:32px!important }\n}\n.number-block,.text { font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400 }\n.big,.text.bold { font-weight:700 }\n.pb16 { padding-bottom:16px }\n.pb32 { padding-bottom:32px }\n.pb44 { padding-bottom:44px }\n.pt44 { padding-top:44px }\n.h-28,.h-30,.h-40 { font-size:8px;line-height:28px;height:28px }\n.h-30,.h-40 { line-height:30px;height:30px }\n.h-40 { line-height:40px;height:40px }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}",
+      "classes": [
+        "brad-full",
+        "butt",
+        "butt-link",
+        "center",
+        "columns",
+        "h-40",
+        "last",
+        "middle-title",
+        "offset-by-one",
+        "pb0",
+        "pb16",
+        "pb32",
+        "pb44",
+        "pt44",
+        "row",
+        "ten",
+        "text",
+        "text-pad-small",
+        "w280",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "brad-full",
+        "butt-link",
+        "h-40",
+        "middle-title",
+        "pb16",
+        "pb32",
+        "pb44",
+        "pt44",
+        "text",
+        "w280",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_14",
+          "kind": "richText",
+          "label": "Текст rfm-iq-324.block_14",
+          "token": "${{ rfm-iq-324.block_14 }}$",
+          "ns": "rfm-iq-324",
+          "block": "block_14"
+        },
+        {
+          "id": "text_block_15",
+          "kind": "richText",
+          "label": "Текст rfm-iq-324.block_15",
+          "token": "${{ rfm-iq-324.block_15 }}$",
+          "ns": "rfm-iq-324",
+          "block": "block_15"
+        },
+        {
+          "id": "text_block_21",
+          "kind": "richText",
+          "label": "Текст rfm-iq-324.block_21",
+          "token": "${{ rfm-iq-324.block_21 }}$",
+          "ns": "rfm-iq-324",
+          "block": "block_21"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://api.iqoption.com/v1/multi-links/asset-selector?aff=7&afftrack=mail_IQ-RFM-3-2-4&retrack=mail_IQ-RFM-3-2-4"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d6/1e/vbvvhhgea139ul9g/rfm-324-bottom-img.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-rfm-324-header-cta-5-heading-0",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.middle-title.pb16 ${{ rfm-iq-324.block_14 }}$",
+          "styl": ".middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 24px !important;\n    line-height: 32px !important; }\n}\n.pb16 { padding-bottom: 16px; }\n.middle-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#393a44;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:24px!important;line-height:32px!important }\n}\n.pb16 { padding-bottom:16px }",
+          "classes": [
+            "middle-title",
+            "pb16"
+          ],
+          "designClasses": [
+            "middle-title",
+            "pb16"
+          ],
+          "slots": [
+            {
+              "id": "text_block_14",
+              "kind": "richText",
+              "label": "Текст rfm-iq-324.block_14",
+              "token": "${{ rfm-iq-324.block_14 }}$",
+              "ns": "rfm-iq-324",
+              "block": "block_14"
+            }
+          ]
+        },
+        {
+          "id": "x-new-rfm-324-header-cta-5-paragraph-1",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb32 ${{ rfm-iq-324.block_15 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400; }\n.text.bold { font-weight: 700; }\n.pb32 { padding-bottom: 32px; }\n@media screen and (max-width: 600px) {\n  .text.mob-text,\n  .grey-text.mob-text { font-size: 17px !important; }\n}\n.number-block,.text { font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400 }\n.big,.text.bold { font-weight:700 }\n.pb32 { padding-bottom:32px }\n@media screen and (max-width:600px) {\n  .grey-text.mob-text,.text.mob-text { font-size:17px!important }\n}",
+          "classes": [
+            "pb32",
+            "text"
+          ],
+          "designClasses": [
+            "pb32",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_15",
+              "kind": "richText",
+              "label": "Текст rfm-iq-324.block_15",
+              "token": "${{ rfm-iq-324.block_15 }}$",
+              "ns": "rfm-iq-324",
+              "block": "block_15"
+            }
+          ]
+        },
+        {
+          "id": "x-new-rfm-324-header-cta-5-spacer-2",
+          "label": "Спейсер 40px",
+          "placement": "inline",
+          "category": "utility",
+          "pug": ".h-40 &nbsp;",
+          "styl": ".h-40 { font-size: 8px;\n  line-height: 40px;\n  height: 40px; }\n.h-28,.h-30,.h-40 { font-size:8px;line-height:28px;height:28px }\n.h-30,.h-40 { line-height:30px;height:30px }\n.h-40 { line-height:40px;height:40px }",
+          "classes": [
+            "h-40"
+          ],
+          "designClasses": [
+            "h-40"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-new-rfm-324-header-cta-5-cta-button-3",
+          "label": "CTA-кнопка (w280)",
+          "placement": "inline",
+          "category": "cta",
+          "pug": "table.w280(align=\"center\")\n    tr\n        td.butt.pb0\n            a.butt-link(href=\"https://api.iqoption.com/v1/multi-links/asset-selector?aff=7&afftrack=mail_IQ-RFM-3-2-4&retrack=mail_IQ-RFM-3-2-4\" universal=\"true\" target=\"_blank\") ${{ rfm-iq-324.block_21 }}$",
+          "styl": ".w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { max-width: 100% !important; }\n}\n.butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.w280 { width:100%;max-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { max-width:100%!important }\n}\n.butt-link,.butt-link-2,.butt-link-small { font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#2f3749;display:block;line-height:27px;padding:16px 0;text-align:center;letter-spacing:0 }\n.butt-link,.butt-link-small { color:#f9f9f9 }",
+          "classes": [
+            "butt",
+            "butt-link",
+            "pb0",
+            "w280"
+          ],
+          "designClasses": [
+            "butt-link",
+            "w280"
+          ],
+          "slots": [
+            {
+              "id": "text_block_21",
+              "kind": "richText",
+              "label": "Текст rfm-iq-324.block_21",
+              "token": "${{ rfm-iq-324.block_21 }}$",
+              "ns": "rfm-iq-324",
+              "block": "block_21"
+            },
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://api.iqoption.com/v1/multi-links/asset-selector?aff=7&afftrack=mail_IQ-RFM-3-2-4&retrack=mail_IQ-RFM-3-2-4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-new-rfm-324-header-footer-6",
+      "label": "Store badges",
+      "placement": "section",
+      "category": "footer",
+      "kind": "section",
+      "sourceFile": "X_new/mail-rfm-324/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.pt68.offset-by-one\n            table.ten.columns\n                tr\n                    td.pb0.text-pad-small\n                        .stor.center\n                            a(href=\"https://app.appsflyer.com/id871125783?pid=7&c=mail_IQ-RFM-3-2-4\" target=\"_blank\")\n                                img.a-app(src=\"https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjqg/app.png\")\n                            a(href=\"https://app.appsflyer.com/com.iqoption?pid=7&c=mail_IQ-RFM-3-2-4\" target=\"_blank\")\n                                img.a-google(src=\"https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjr0/play.png\")",
+      "styl": ".pt68 { padding-top: 68px; }\n.stor { width: 100% !important;\n  max-width: 450px;\n  margin: 0 auto; }\n@media screen and (max-width: 600px) {\n  .stor { width: 100% !important; }\n}\n.a-app { display: inline-block;\n  padding-right: 30px;\n  max-width: 120px;\n  height: 40px !important;\n  float: none; }\n@media screen and (max-width: 600px) {\n  .a-app { display: block !important;\n    padding-right: 0 !important;\n    float: none !important;\n    margin-bottom: 15px;\n    margin: 0 auto !important;\n    padding-bottom: 15px !important; }\n}\n.a-google { display: inline-block;\n  max-width: 135px;\n  height: 40px !important;\n  float: none; }\n@media screen and (max-width: 600px) {\n  .a-google { display: block !important;\n    float: none !important;\n    margin: 0 auto !important; }\n}\n.pt68 { padding-top:68px }\n.stor { width:100%!important;max-width:450px;margin:0 auto }\n@media screen and (max-width:600px) {\n  .stor { width:100%!important }\n}\n.a-app { display:inline-block;padding-right:30px;max-width:120px;height:40px!important;float:none }\n@media screen and (max-width:600px) {\n  .a-app { display:block!important;padding-right:0!important;float:none!important;margin:0 auto!important;padding-bottom:15px!important }\n}\n.a-google { display:inline-block;max-width:135px;height:40px!important;float:none }\n@media screen and (max-width:600px) {\n  .a-google { display:block!important;float:none!important;margin:0 auto!important }\n}",
+      "classes": [
+        "a-app",
+        "a-google",
+        "center",
+        "columns",
+        "last",
+        "offset-by-one",
+        "pb0",
+        "pt68",
+        "row",
+        "stor",
+        "ten",
+        "text-pad-small",
+        "wrapper"
+      ],
+      "designClasses": [
+        "a-app",
+        "a-google",
+        "pt68",
+        "stor"
+      ],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://app.appsflyer.com/id871125783?pid=7&c=mail_IQ-RFM-3-2-4"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://app.appsflyer.com/com.iqoption?pid=7&c=mail_IQ-RFM-3-2-4"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjqg/app.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjr0/play.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-rfm-324-header-footer-6-store-badges-0",
+          "label": "Store badges (App Store / Google Play)",
+          "placement": "inline",
+          "category": "footer",
+          "pug": ".stor.center\n    a(href=\"https://app.appsflyer.com/id871125783?pid=7&c=mail_IQ-RFM-3-2-4\" target=\"_blank\")\n        img.a-app(src=\"https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjqg/app.png\")\n    a(href=\"https://app.appsflyer.com/com.iqoption?pid=7&c=mail_IQ-RFM-3-2-4\" target=\"_blank\")\n        img.a-google(src=\"https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjr0/play.png\")",
+          "styl": ".stor { width: 100% !important;\n  max-width: 450px;\n  margin: 0 auto; }\n@media screen and (max-width: 600px) {\n  .stor { width: 100% !important; }\n}\n.a-app { display: inline-block;\n  padding-right: 30px;\n  max-width: 120px;\n  height: 40px !important;\n  float: none; }\n@media screen and (max-width: 600px) {\n  .a-app { display: block !important;\n    padding-right: 0 !important;\n    float: none !important;\n    margin-bottom: 15px;\n    margin: 0 auto !important;\n    padding-bottom: 15px !important; }\n}\n.a-google { display: inline-block;\n  max-width: 135px;\n  height: 40px !important;\n  float: none; }\n@media screen and (max-width: 600px) {\n  .a-google { display: block !important;\n    float: none !important;\n    margin: 0 auto !important; }\n}\n.stor { width:100%!important;max-width:450px;margin:0 auto }\n@media screen and (max-width:600px) {\n  .stor { width:100%!important }\n}\n.a-app { display:inline-block;padding-right:30px;max-width:120px;height:40px!important;float:none }\n@media screen and (max-width:600px) {\n  .a-app { display:block!important;padding-right:0!important;float:none!important;margin:0 auto!important;padding-bottom:15px!important }\n}\n.a-google { display:inline-block;max-width:135px;height:40px!important;float:none }\n@media screen and (max-width:600px) {\n  .a-google { display:block!important;float:none!important;margin:0 auto!important }\n}",
+          "classes": [
+            "a-app",
+            "a-google",
+            "center",
+            "stor"
+          ],
+          "designClasses": [
+            "a-app",
+            "a-google",
+            "stor"
+          ],
+          "slots": [
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://app.appsflyer.com/id871125783?pid=7&c=mail_IQ-RFM-3-2-4"
+            },
+            {
+              "id": "href_1",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://app.appsflyer.com/com.iqoption?pid=7&c=mail_IQ-RFM-3-2-4"
+            },
+            {
+              "id": "image_0",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjqg/app.png"
+            },
+            {
+              "id": "image_1",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjr0/play.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-new-rfm-324-header-footer-7",
+      "label": "Соцсети",
+      "placement": "section",
+      "category": "footer",
+      "kind": "section",
+      "sourceFile": "X_new/mail-rfm-324/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.pt30\n            table.twelve.columns\n                tr\n                    td(align=\"center\").pb0.center\n                        .socials.center\n                            a.first-link(href=\"${{ iq-soc.block_00 }}$\" target=\"_blank\")\n                                img.soc-icon.fb(src=\"https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7vdg/fb.png\")\n                            a(href=\"${{ iq-soc.block_01 }}$\" target=\"_blank\")\n                                img.soc-icon.twitter(src=\"https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7ve0/ig.png\")\n                            a(href=\"${{ iq-soc.block_02 }}$\" target=\"_blank\")\n                                img.soc-icon.you(src=\"https://fsms.iqoption.com/storage/public/cn/td/gb285cee2vclvjq0/yt.png\")\n                            a(href=\"${{ iq-soc.block_03 }}$\" target=\"_blank\")\n                                img.soc-icon.you(src=\"https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7vf0/tw.png\")\n                            a(href=\"${{ iq-soc.block_04 }}$\" target=\"_blank\")\n                                img.soc-icon.you(src=\"https://fsms.quadcode.com/storage/public/d5/ka/q8fvhhge5gv5vatg/tiktok-logo.png\")\n                            a(href=\"${{ iq-soc.block_05 }}$\" target=\"_blank\")\n                                img.soc-icon.you(src=\"https://fsms.quadcode.com/storage/public/d5/ka/dr7vhhge5gv5vat0/discord-logo.png\")\n                            a.last-link(href=\"${{ iq-soc.block_06 }}$\" target=\"_blank\")\n                                img.soc-icon.ig(src=\"https://fsms.quadcode.com/storage/public/d5/ka/rf7vhhge5gv5vau0/tg.png\")",
+      "styl": ".ig { max-width: 20px;\n  margin-left: 6px; }\n@media screen and (max-width: 600px) {\n  .ig { width: 20px !important; }\n}\n.you { max-width: 24px;\n  margin: 0 6px; }\n@media screen and (max-width: 600px) {\n  .you { width: 24px !important; }\n}\n.twitter { max-width: 24px;\n  margin: 0 6px; }\n@media screen and (max-width: 600px) {\n  .twitter { width: 24px !important; }\n}\n.fb { max-width: 24px;\n  margin-right: 6px; }\n@media screen and (max-width: 600px) {\n  .fb { width: 24px !important; }\n}\n.socials { display: inline-block;\n  font-size: 0;\n  margin: 0 auto; }\n@media screen and (max-width: 600px) {\n  .socials { width: 100% !important; }\n}\n.socials a { display: inline-block;\n  vertical-align: middle;\n  margin: 0 10px; }\n@media screen and (max-width: 600px) {\n  .socials a { margin-bottom: 10px !important; }\n}\n.soc-icon { float: none !important;\n  max-width: 24px; }\n.ig { max-width:20px;margin-left:6px }\n@media screen and (max-width:600px) {\n  .ig { width:20px!important }\n}\n.you { max-width:24px;margin:0 6px }\n@media screen and (max-width:600px) {\n  .you { width:24px!important }\n}\n.twitter { max-width:24px;margin:0 6px }\n@media screen and (max-width:600px) {\n  .twitter { width:24px!important }\n}\n.fb { max-width:24px;margin-right:6px }\n@media screen and (max-width:600px) {\n  .fb { width:24px!important }\n}\n.socials { display:inline-block;font-size:0;margin:0 auto }\n@media screen and (max-width:600px) {\n  .socials { width:100%!important }\n}\n.arrow-icon,.socials a { display:inline-block;vertical-align:middle }\n.socials a { margin:0 10px }\n@media screen and (max-width:600px) {\n  .socials a { margin-bottom:10px!important }\n}\n.arrow-icon,.soc-icon { float:none!important;max-width:24px }",
+      "classes": [
+        "center",
+        "columns",
+        "fb",
+        "first-link",
+        "ig",
+        "last",
+        "last-link",
+        "pt30",
+        "row",
+        "soc-icon",
+        "socials",
+        "twelve",
+        "twitter",
+        "wrapper",
+        "you"
+      ],
+      "designClasses": [
+        "fb",
+        "first-link",
+        "ig",
+        "last-link",
+        "soc-icon",
+        "socials",
+        "twitter",
+        "you"
+      ],
+      "slots": [
+        {
+          "id": "text_block_00",
+          "kind": "richText",
+          "label": "Текст iq-soc.block_00",
+          "token": "${{ iq-soc.block_00 }}$",
+          "ns": "iq-soc",
+          "block": "block_00"
+        },
+        {
+          "id": "text_block_01",
+          "kind": "richText",
+          "label": "Текст iq-soc.block_01",
+          "token": "${{ iq-soc.block_01 }}$",
+          "ns": "iq-soc",
+          "block": "block_01"
+        },
+        {
+          "id": "text_block_02",
+          "kind": "richText",
+          "label": "Текст iq-soc.block_02",
+          "token": "${{ iq-soc.block_02 }}$",
+          "ns": "iq-soc",
+          "block": "block_02"
+        },
+        {
+          "id": "text_block_03",
+          "kind": "richText",
+          "label": "Текст iq-soc.block_03",
+          "token": "${{ iq-soc.block_03 }}$",
+          "ns": "iq-soc",
+          "block": "block_03"
+        },
+        {
+          "id": "text_block_04",
+          "kind": "richText",
+          "label": "Текст iq-soc.block_04",
+          "token": "${{ iq-soc.block_04 }}$",
+          "ns": "iq-soc",
+          "block": "block_04"
+        },
+        {
+          "id": "text_block_05",
+          "kind": "richText",
+          "label": "Текст iq-soc.block_05",
+          "token": "${{ iq-soc.block_05 }}$",
+          "ns": "iq-soc",
+          "block": "block_05"
+        },
+        {
+          "id": "text_block_06",
+          "kind": "richText",
+          "label": "Текст iq-soc.block_06",
+          "token": "${{ iq-soc.block_06 }}$",
+          "ns": "iq-soc",
+          "block": "block_06"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ iq-soc.block_00 }}$"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ iq-soc.block_01 }}$"
+        },
+        {
+          "id": "href_2",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ iq-soc.block_02 }}$"
+        },
+        {
+          "id": "href_3",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ iq-soc.block_03 }}$"
+        },
+        {
+          "id": "href_4",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ iq-soc.block_04 }}$"
+        },
+        {
+          "id": "href_5",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ iq-soc.block_05 }}$"
+        },
+        {
+          "id": "href_6",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ iq-soc.block_06 }}$"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7vdg/fb.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7ve0/ig.png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.iqoption.com/storage/public/cn/td/gb285cee2vclvjq0/yt.png"
+        },
+        {
+          "id": "image_3",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7vf0/tw.png"
+        },
+        {
+          "id": "image_4",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d5/ka/q8fvhhge5gv5vatg/tiktok-logo.png"
+        },
+        {
+          "id": "image_5",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d5/ka/dr7vhhge5gv5vat0/discord-logo.png"
+        },
+        {
+          "id": "image_6",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d5/ka/rf7vhhge5gv5vau0/tg.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-rfm-324-header-footer-7-socials-0",
+          "label": "Соцсети (иконки)",
+          "placement": "inline",
+          "category": "footer",
+          "pug": ".socials.center\n    a.first-link(href=\"${{ iq-soc.block_00 }}$\" target=\"_blank\")\n        img.soc-icon.fb(src=\"https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7vdg/fb.png\")\n    a(href=\"${{ iq-soc.block_01 }}$\" target=\"_blank\")\n        img.soc-icon.twitter(src=\"https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7ve0/ig.png\")\n    a(href=\"${{ iq-soc.block_02 }}$\" target=\"_blank\")\n        img.soc-icon.you(src=\"https://fsms.iqoption.com/storage/public/cn/td/gb285cee2vclvjq0/yt.png\")\n    a(href=\"${{ iq-soc.block_03 }}$\" target=\"_blank\")\n        img.soc-icon.you(src=\"https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7vf0/tw.png\")\n    a(href=\"${{ iq-soc.block_04 }}$\" target=\"_blank\")\n        img.soc-icon.you(src=\"https://fsms.quadcode.com/storage/public/d5/ka/q8fvhhge5gv5vatg/tiktok-logo.png\")\n    a(href=\"${{ iq-soc.block_05 }}$\" target=\"_blank\")\n        img.soc-icon.you(src=\"https://fsms.quadcode.com/storage/public/d5/ka/dr7vhhge5gv5vat0/discord-logo.png\")\n    a.last-link(href=\"${{ iq-soc.block_06 }}$\" target=\"_blank\")\n        img.soc-icon.ig(src=\"https://fsms.quadcode.com/storage/public/d5/ka/rf7vhhge5gv5vau0/tg.png\")",
+          "styl": ".ig { max-width: 20px;\n  margin-left: 6px; }\n@media screen and (max-width: 600px) {\n  .ig { width: 20px !important; }\n}\n.you { max-width: 24px;\n  margin: 0 6px; }\n@media screen and (max-width: 600px) {\n  .you { width: 24px !important; }\n}\n.twitter { max-width: 24px;\n  margin: 0 6px; }\n@media screen and (max-width: 600px) {\n  .twitter { width: 24px !important; }\n}\n.fb { max-width: 24px;\n  margin-right: 6px; }\n@media screen and (max-width: 600px) {\n  .fb { width: 24px !important; }\n}\n.socials { display: inline-block;\n  font-size: 0;\n  margin: 0 auto; }\n@media screen and (max-width: 600px) {\n  .socials { width: 100% !important; }\n}\n.socials a { display: inline-block;\n  vertical-align: middle;\n  margin: 0 10px; }\n@media screen and (max-width: 600px) {\n  .socials a { margin-bottom: 10px !important; }\n}\n.soc-icon { float: none !important;\n  max-width: 24px; }\n.ig { max-width:20px;margin-left:6px }\n@media screen and (max-width:600px) {\n  .ig { width:20px!important }\n}\n.you { max-width:24px;margin:0 6px }\n@media screen and (max-width:600px) {\n  .you { width:24px!important }\n}\n.twitter { max-width:24px;margin:0 6px }\n@media screen and (max-width:600px) {\n  .twitter { width:24px!important }\n}\n.fb { max-width:24px;margin-right:6px }\n@media screen and (max-width:600px) {\n  .fb { width:24px!important }\n}\n.socials { display:inline-block;font-size:0;margin:0 auto }\n@media screen and (max-width:600px) {\n  .socials { width:100%!important }\n}\n.arrow-icon,.socials a { display:inline-block;vertical-align:middle }\n.socials a { margin:0 10px }\n@media screen and (max-width:600px) {\n  .socials a { margin-bottom:10px!important }\n}\n.arrow-icon,.soc-icon { float:none!important;max-width:24px }",
+          "classes": [
+            "center",
+            "fb",
+            "first-link",
+            "ig",
+            "last-link",
+            "soc-icon",
+            "socials",
+            "twitter",
+            "you"
+          ],
+          "designClasses": [
+            "fb",
+            "first-link",
+            "ig",
+            "last-link",
+            "soc-icon",
+            "socials",
+            "twitter",
+            "you"
+          ],
+          "slots": [
+            {
+              "id": "text_block_00",
+              "kind": "richText",
+              "label": "Текст iq-soc.block_00",
+              "token": "${{ iq-soc.block_00 }}$",
+              "ns": "iq-soc",
+              "block": "block_00"
+            },
+            {
+              "id": "text_block_01",
+              "kind": "richText",
+              "label": "Текст iq-soc.block_01",
+              "token": "${{ iq-soc.block_01 }}$",
+              "ns": "iq-soc",
+              "block": "block_01"
+            },
+            {
+              "id": "text_block_02",
+              "kind": "richText",
+              "label": "Текст iq-soc.block_02",
+              "token": "${{ iq-soc.block_02 }}$",
+              "ns": "iq-soc",
+              "block": "block_02"
+            },
+            {
+              "id": "text_block_03",
+              "kind": "richText",
+              "label": "Текст iq-soc.block_03",
+              "token": "${{ iq-soc.block_03 }}$",
+              "ns": "iq-soc",
+              "block": "block_03"
+            },
+            {
+              "id": "text_block_04",
+              "kind": "richText",
+              "label": "Текст iq-soc.block_04",
+              "token": "${{ iq-soc.block_04 }}$",
+              "ns": "iq-soc",
+              "block": "block_04"
+            },
+            {
+              "id": "text_block_05",
+              "kind": "richText",
+              "label": "Текст iq-soc.block_05",
+              "token": "${{ iq-soc.block_05 }}$",
+              "ns": "iq-soc",
+              "block": "block_05"
+            },
+            {
+              "id": "text_block_06",
+              "kind": "richText",
+              "label": "Текст iq-soc.block_06",
+              "token": "${{ iq-soc.block_06 }}$",
+              "ns": "iq-soc",
+              "block": "block_06"
+            },
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ iq-soc.block_00 }}$"
+            },
+            {
+              "id": "href_1",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ iq-soc.block_01 }}$"
+            },
+            {
+              "id": "href_2",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ iq-soc.block_02 }}$"
+            },
+            {
+              "id": "href_3",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ iq-soc.block_03 }}$"
+            },
+            {
+              "id": "href_4",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ iq-soc.block_04 }}$"
+            },
+            {
+              "id": "href_5",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ iq-soc.block_05 }}$"
+            },
+            {
+              "id": "href_6",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ iq-soc.block_06 }}$"
+            },
+            {
+              "id": "image_0",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7vdg/fb.png"
+            },
+            {
+              "id": "image_1",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7ve0/ig.png"
+            },
+            {
+              "id": "image_2",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.iqoption.com/storage/public/cn/td/gb285cee2vclvjq0/yt.png"
+            },
+            {
+              "id": "image_3",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7vf0/tw.png"
+            },
+            {
+              "id": "image_4",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d5/ka/q8fvhhge5gv5vatg/tiktok-logo.png"
+            },
+            {
+              "id": "image_5",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d5/ka/dr7vhhge5gv5vat0/discord-logo.png"
+            },
+            {
+              "id": "image_6",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d5/ka/rf7vhhge5gv5vau0/tg.png"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

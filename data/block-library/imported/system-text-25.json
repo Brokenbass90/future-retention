@@ -1,0 +1,23 @@
+{
+  "id": "system-text-25",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_System (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.b-system-text-25\n    tr\n        td.offset-by-one\n            table.ten.columns\n                tr\n                    td.no-padding-bottom\n                        p.title Account Manager for Chinese speaking clients\n                        p.text Hello!\n                        p.text Unfortunately, we can not currently provide a Chinese speaking Account Manager for you. However, if you speak English we would be happy to assign you to an English Account Manager. If you only speak Chinese, our wonderful support specialists will be happy to assist you if you happen to have any questions.\n                        p.text Best regards\n                            br\n                            | IQ Option Team",
+  "styl": ".white-bg.b-system-text-25 {  background:#fff  }\n.b-system-text-25 .title {  color:#2473d7;font-size:24px;font-weight:500;line-height:32px;padding-top:30px;padding-bottom:25px  }\n@media screen and (max-width:600px) {\n  .b-system-text-25 .title {  padding-left:20px!important;padding-right:20px!important  }\n}\n.b-system-text-25 .text {  color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px  }\n@media screen and (max-width:600px) {\n  .b-system-text-25 .text {  padding-left:20px!important;padding-right:20px!important  }\n}\n.b-system-text-25 .text a {  color:#2473d7;text-decoration:underline  }\n.b-system-text-25 .text.bold {  font-weight:700  }",
+  "slots": [],
+  "tags": [
+    "text",
+    "section",
+    "X_System"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_System/mail-chinese-manager"
+  ],
+  "createdAt": "2026-07-06T12:09:59.368Z",
+  "validated": true
+}

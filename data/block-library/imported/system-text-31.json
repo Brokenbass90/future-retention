@@ -1,0 +1,33 @@
+{
+  "id": "system-text-31",
+  "label": "Заголовок",
+  "description": "Импортирован из X_System (4 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.title.b-system-text-31 {{ text_1 }}",
+  "styl": ".title.b-system-text-31 {  color:#2473d7;font-size:24px;font-weight:500;line-height:32px;padding-top:30px;padding-bottom:25px  }\n@media screen and (max-width:600px) {\n  .title.b-system-text-31 {  padding-left:20px!important;padding-right:20px!important  }\n}",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_System"
+  ],
+  "usageCount": 4,
+  "sourceMails": [
+    "X_System/mail-crypto",
+    "X_System/mail-demo-positions",
+    "X_System/mail-esma-restrict",
+    "X_System/mail-payment"
+  ],
+  "createdAt": "2026-07-06T12:09:59.368Z",
+  "validated": true
+}

@@ -1,0 +1,167 @@
+{
+  "id": "exnova-section-11",
+  "label": "Секция",
+  "description": "Импортирован из X_Exnova (1 писем). Секция.",
+  "placement": "section",
+  "category": "section",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.b-exnova-section-11\n    tr\n        td.wrapper.last.pt10\n            table.twelve.columns\n                tr\n                    td.pb12.pt5.plr4\n                        .first-block\n                            p.block-title.pb32 {{ text_1 }}\n                            p.text.pb15 {{ text_2 }}\n                            p.text.pb32 {{ text_3 }}\n                            p.small-title.pb32 {{ text_4 }}\n                            .blue-block\n                                p.name.pb24\n                                    img.ava(src=\"{{ image_1 }}\")\n                                    |Rahul\n                                p.white-text.pb10 {{ text_5 }}\n                                p.white-text {{ text_6 }}\n                        .h-12 &nbsp;\n                        .first-block\n                            p.block-title.pb32 {{ text_7 }}\n                            p.text.pb32 {{ text_8 }}\n                            //- p.text.pb32 {{ text_3 }}\n                            p.small-title.pb32 {{ text_9 }}\n                            .blue-block\n                                p.name.pb24\n                                    img.ava(src=\"{{ image_2 }}\")\n                                    |Camila\n                                p.white-text {{ text_10 }}\n                            //p.gray-text.pt32 {{ text_5 }}\n                        .h-32 &nbsp;\n                        .second-block\n                            p.block-title.pb32.center {{ text_11 }}\n                            .left-block-top\n                                .padd\n                                    p.strong-text {{ text_12 }}\n                            .right-block-top\n                                .padd\n                                    p.strong-text {{ text_13 }}\n                        .h-32 &nbsp;\n                        .left-block\n                            .padd\n                                .w70\n                                    p.small-title.pb20 {{ text_14 }}\n                                    p.text {{ text_15 }}\n                        .right-block\n                            .padd\n                                p.white-text.center <b>{{ text_16 }}</b>\n                        .h-12 &nbsp;\n                        .center\n                            .small-box.middle-block-back\n                                .center-block\n                                    a(href=\"#\" target=\"_blank\" universal=\"true\")\n                                        img.w100px.center.pb32(src=\"{{ image_3 }}\")\n                                    p.block-text.center {{ text_17 }}\n                            .small-box.plr10\n                                .center-block\n                                    a(href=\"#\" target=\"_blank\" universal=\"true\")\n                                        img.w100px.center.pb32(src=\"{{ image_4 }}\")\n                                    p.block-text.center {{ text_18 }}\n                            .small-box\n                                .center-block\n                                    a(href=\"#\" target=\"_blank\" universal=\"true\")\n                                        img.w100px.center.pb32(src=\"{{ image_5 }}\")\n                                    p.block-text.center {{ text_19 }}",
+  "styl": ".b-exnova-section-11 .first-block {  background-color: #171717;\n  padding: 44px 50px;\n  border-radius: 32px;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-section-11 .first-block {  padding: 40px 20px !important;  }\n}\n.b-exnova-section-11 .second-block {  background-color: #171717;\n  padding: 32px;\n  border-radius: 32px;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-section-11 .second-block {  padding: 20px !important;  }\n}\n.b-exnova-section-11 .padd {  padding: 32px;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-section-11 .padd {  padding: 20px !important;  }\n}\n.b-exnova-section-11 .left-block-top {  display: inline-block;\n  background-color: #201e1f;\n  background-size: cover;\n  width: 245px;\n  border-radius: 32px;\n  min-height: 150px;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-section-11 .left-block-top {  display: block !important;\n    margin: 0 auto !important;\n    margin-bottom: 18px !important;\n    min-height: auto !important;  }\n}\n.b-exnova-section-11 .right-block-top {  display: inline-block;\n  background-color: #201e1f;\n  background-size: cover;\n  width: 245px;\n  border-radius: 32px;\n  min-height: 150px;\n  float: right;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-section-11 .right-block-top {  display: block !important;\n    margin: 0 auto !important;\n    min-height: auto !important;\n    float: none !important;  }\n}\n.b-exnova-section-11 .left-block {  display: inline-block;\n  background: url(\"https://fsms.quadcode.com/storage/public/d0/et/6thmsj7vkgc00qa0/left-side.png\") center top no-repeat;\n  background-size: cover;\n  background-color: #171717;\n  background-size: cover;\n  width: 277px;\n  border-radius: 32px;\n  min-height: 231px;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-section-11 .left-block {  display: block !important;\n    margin: 0 auto !important;\n    margin-bottom: 18px !important;\n    min-height: auto !important;\n    float: none !important;  }\n}\n.b-exnova-section-11 .w70 {  max-width: 160px;  }\n.b-exnova-section-11 .right-block {  background: url(\"https://fsms.quadcode.com/storage/public/d0/et/6thmsj7vkgc00q9g/right.png\") center top no-repeat;\n  background-color: #2e33d1;\n  background-size: cover;\n  display: inline-block;\n  width: 277px;\n  float: right;\n  border-radius: 32px;\n  min-height: 231px;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-section-11 .right-block {  display: block !important;\n    margin: 0 auto !important;\n    float: none !important;\n    min-height: auto !important;  }\n}\n.b-exnova-section-11 .small-title {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  color: #fff;  }\n.b-exnova-section-11 .strong-text {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 18px;\n  line-height: 27px;\n  color: #fff;  }\n.b-exnova-section-11 .block-title {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 32px;\n  color: #fff;  }\n.b-exnova-section-11 .white-text {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #fff;  }\n.b-exnova-section-11 .text {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 16px;\n  line-height: 22px;\n  color: #e8e8e8;  }\n.b-exnova-section-11 .block-text {  font-family: Helvetica !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #fff;\n  word-break: break-word;  }\n.b-exnova-section-11 .text.bold {  font-weight: 700;  }\n.b-exnova-section-11 .pb12 {  padding-bottom: 12px;  }\n.b-exnova-section-11 .pb15 {  padding-bottom: 15px;  }\n.b-exnova-section-11 .pb24 {  padding-bottom: 24px;  }\n.b-exnova-section-11 .plr10 {  margin-left: 10px;\n  margin-right: 10px;  }\n.b-exnova-section-11 .plr4 {  padding-left: 4px;\n  padding-right: 4px;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-section-11 .plr4 {  padding-left: 0px !important;\n    padding-right: 0px !important;  }\n}\n.b-exnova-section-11 .h-12 {  font-size: 12px;\n  line-height: 12px;\n  height: 12px;  }\n.b-exnova-section-11 .h-32 {  font-size: 32px;\n  line-height: 32px;\n  height: 32px;  }\n.b-exnova-section-11 .pb32 {  padding-bottom: 32px;  }\n.b-exnova-section-11 .small-box {  display: inline-block;\n  width: 180px !important;\n  min-height: 229px;\n  background-color: #171717;\n  border-radius: 32px;\n  margin-bottom: 10px;\n  vertical-align: middle;  }\n.b-exnova-section-11 .center-block {  padding: 32px 20px;\n  vertical-align: middle;  }\n.b-exnova-section-11 .middle-block-back {  background-color: #2e33d1 !important;  }\n.b-exnova-section-11 .w100px {  width: 52px !important;\n  margin: 0 auto;\n  float: none;  }\n.b-exnova-section-11 .blue-block {  background: url(\"https://fsms.quadcode.com/storage/public/d0/et/6thmsj7vkgc00q80/right-backk.png\") no-repeat right center;\n  background-size: cover;\n  background-color: #2e33d1;\n  padding: 32px;\n  border-radius: 32px;  }\n.b-exnova-section-11 .name {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 32px;\n  line-height: 38px;\n  color: #fafbff;\n  vertical-align: middle;  }\n.b-exnova-section-11 .ava {  width: 50px !important;\n  float: none;\n  padding-right: 24px;\n  display: inline-block;\n  vertical-align: middle;  }\n.b-exnova-section-11 .first-block {  background-color:#171717;padding:44px 50px;border-radius:32px  }\n@media screen and (max-width:600px) {\n  .b-exnova-section-11 .first-block {  padding:40px 20px!important  }\n}\n.b-exnova-section-11 .second-block {  background-color:#171717;padding:32px;border-radius:32px  }\n@media screen and (max-width:600px) {\n  .b-exnova-section-11 .second-block {  padding:20px!important  }\n}\n.b-exnova-section-11 .padd {  padding:32px  }\n@media screen and (max-width:600px) {\n  .b-exnova-section-11 .padd {  padding:20px!important  }\n}\n.b-exnova-section-11 .left-block-top {  display:inline-block;background-color:#201e1f;background-size:cover;width:245px;border-radius:32px;min-height:150px  }\n@media screen and (max-width:600px) {\n  .b-exnova-section-11 .left-block-top {  display:block!important;margin:0 auto 18px!important;min-height:auto!important  }\n}\n.b-exnova-section-11 .right-block-top {  display:inline-block;background-color:#201e1f;background-size:cover;width:245px;border-radius:32px;min-height:150px;float:right  }\n@media screen and (max-width:600px) {\n  .b-exnova-section-11 .right-block-top {  display:block!important;margin:0 auto!important;min-height:auto!important;float:none!important  }\n}\n.b-exnova-section-11 .left-block {  display:inline-block;background:url(https://fsms.quadcode.com/storage/public/d0/et/6thmsj7vkgc00qa0/left-side.png) center top no-repeat;background-color:#171717;background-size:cover;width:277px;border-radius:32px;min-height:231px  }\n@media screen and (max-width:600px) {\n  .b-exnova-section-11 .left-block {  display:block!important;margin:0 auto 18px!important;min-height:auto!important;float:none!important  }\n}\n.b-exnova-section-11 .w70 {  max-width:160px  }\n.b-exnova-section-11 .right-block {  background:url(https://fsms.quadcode.com/storage/public/d0/et/6thmsj7vkgc00q9g/right.png) center top no-repeat;background-color:#2e33d1;background-size:cover;display:inline-block;width:277px;float:right;border-radius:32px;min-height:231px  }\n@media screen and (max-width:600px) {\n  .b-exnova-section-11 .right-block {  display:block!important;margin:0 auto!important;float:none!important;min-height:auto!important  }\n}\n.b-exnova-section-11 .middle-title, .b-exnova-section-11 .small-title, .b-exnova-section-11 .strong-text {  font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#fff  }\n.b-exnova-section-11 .small-title, .b-exnova-section-11 .strong-text {  font-size:24px;line-height:31px  }\n.b-exnova-section-11 .strong-text {  font-style:normal;font-size:18px;line-height:27px  }\n.b-exnova-section-11 .block-title, .b-exnova-section-11 .white-text {  font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:32px;line-height:32px;color:#fff  }\n.b-exnova-section-11 .white-text {  font-weight:400;font-size:18px;line-height:27px  }\n.b-exnova-section-11 .text, .b-exnova-section-11 .text-2 {  font-style:normal;color:#e8e8e8  }\n.b-exnova-section-11 .text {  font-family:Helvetica!important;font-weight:400;font-size:16px;line-height:22px  }\n.b-exnova-section-11 .block-text, .b-exnova-section-11 .grey-text, .b-exnova-section-11 .text-2, .b-exnova-section-11 .text-under-title {  font-family:Helvetica!important;font-weight:400;font-size:18px  }\n.b-exnova-section-11 .block-text, .b-exnova-section-11 .grey-text {  line-height:27px  }\n.b-exnova-section-11 .block-text {  word-break:break-word;color:#fff  }\n.b-exnova-section-11 .text.bold {  font-weight:700  }\n.b-exnova-section-11 .pb12 {  padding-bottom:12px  }\n.b-exnova-section-11 .pb15 {  padding-bottom:15px  }\n.b-exnova-section-11 .pb24 {  padding-bottom:24px  }\n.b-exnova-section-11 .plr10 {  margin-left:10px;margin-right:10px  }\n.b-exnova-section-11 .plr4 {  padding-left:4px;padding-right:4px  }\n@media screen and (max-width:600px) {\n  .b-exnova-section-11 .plr4 {  padding-left:0!important;padding-right:0!important  }\n}\n.b-exnova-section-11 .h-12 {  font-size:12px;line-height:12px;height:12px  }\n.b-exnova-section-11 .h-32 {  font-size:32px;line-height:32px;height:32px  }\n.b-exnova-section-11 .pb32 {  padding-bottom:32px  }\n.b-exnova-section-11 .small-box {  display:inline-block;width:180px!important;min-height:229px;background-color:#171717;border-radius:32px;margin-bottom:10px;vertical-align:middle  }\n.b-exnova-section-11 .center-block {  padding:32px 20px;vertical-align:middle  }\n.b-exnova-section-11 .middle-block-back {  background-color:#2e33d1!important  }\n.b-exnova-section-11 .w100px {  width:52px!important;margin:0 auto;float:none  }\n.b-exnova-section-11 .blue-block {  background:url(https://fsms.quadcode.com/storage/public/d0/et/6thmsj7vkgc00q80/right-backk.png) no-repeat right center;background-size:cover;background-color:#2e33d1;padding:32px;border-radius:32px  }\n.b-exnova-section-11 .ava, .b-exnova-section-11 .name {  vertical-align:middle  }\n.b-exnova-section-11 .name {  font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:32px;line-height:38px;color:#fafbff  }\n.b-exnova-section-11 .ava {  width:50px!important;float:none;padding-right:24px;display:inline-block  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_7",
+      "kind": "richText",
+      "label": "Текст 7",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_8",
+      "kind": "richText",
+      "label": "Текст 8",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_9",
+      "kind": "richText",
+      "label": "Текст 9",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_10",
+      "kind": "richText",
+      "label": "Текст 10",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_11",
+      "kind": "richText",
+      "label": "Текст 11",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_12",
+      "kind": "richText",
+      "label": "Текст 12",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_13",
+      "kind": "richText",
+      "label": "Текст 13",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_14",
+      "kind": "richText",
+      "label": "Текст 14",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_15",
+      "kind": "richText",
+      "label": "Текст 15",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_16",
+      "kind": "richText",
+      "label": "Текст 16",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_17",
+      "kind": "richText",
+      "label": "Текст 17",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_18",
+      "kind": "richText",
+      "label": "Текст 18",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_19",
+      "kind": "richText",
+      "label": "Текст 19",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/d0/et/6tjjqakt70bn9j50/ava.png"
+    },
+    {
+      "id": "image_2",
+      "kind": "image",
+      "label": "Картинка 2",
+      "default": "https://fsms.quadcode.com/storage/public/d0/et/6t9msj7vkgc00q7g/ava-2.png"
+    },
+    {
+      "id": "image_3",
+      "kind": "image",
+      "label": "Картинка 3",
+      "default": "https://fsms.quadcode.com/storage/public/d0/et/6tjjqakt70bn9j5g/middle-one.png"
+    },
+    {
+      "id": "image_4",
+      "kind": "image",
+      "label": "Картинка 4",
+      "default": "https://fsms.quadcode.com/storage/public/d0/et/6thmsj7vkgc00q8g/middle-two.png"
+    },
+    {
+      "id": "image_5",
+      "kind": "image",
+      "label": "Картинка 5",
+      "default": "https://fsms.quadcode.com/storage/public/d0/et/6thmsj7vkgc00q90/middle-three.png"
+    }
+  ],
+  "tags": [
+    "section",
+    "X_Exnova"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_Exnova/mail-trade-rush-2"
+  ],
+  "createdAt": "2026-07-06T12:09:50.974Z",
+  "validated": true
+}

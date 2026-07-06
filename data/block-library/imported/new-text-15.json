@@ -1,0 +1,36 @@
+{
+  "id": "new-text-15",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_new (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.br-full-16.bg-bord-full.b-new-text-15\n    tr\n        td.wrapper.last.offset-by-one.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb32\n                        .image-block\n                            .plys-logo.disp-ib\n                                p.little-big-text {{ text_1 }}\n                        p.big-blue-text.small-blue.pt32 {{ text_2 }}",
+  "styl": ".white-bg.b-new-text-15 {  background:#fff  }\n.b-new-text-15 .label, .b-new-text-15 .plys-logo {  display:inline-block  }\n.b-new-text-15 .plys-logo {  padding:5px 12px;border:.8px solid #d2d2d2;border-radius:9.6px;vertical-align:middle  }\n@media screen and (max-width:600px) {\n  .b-new-text-15 .plys-logo {  margin-bottom:10px!important  }\n}\n.b-new-text-15 .little-big-text {  font-family:Helvetica!important;font-weight:700;font-size:18px;line-height:25px;color:#413e43  }\n.b-new-text-15 .image-block {  display:inline-block;width:100%  }\n@media screen and (max-width:600px) {\n  .b-new-text-15 .image-block {  text-align:center!important  }\n}\n.b-new-text-15 .disp-ib {  display:inline-block;vertical-align:middle  }\n.b-new-text-15 .pt32 {  padding-top:32px  }\n.b-new-text-15 .pt44, .b-new-text-15 .pt45 {  padding-top:44px  }\n.br-full-16.b-new-text-15 {  border-radius:16px;-moz-border-radius:16px;-webkit-border-radius:16px  }\n.bg-bord-full.b-new-text-15 {  border:1px solid #eae9e9  }\n.b-new-text-15 .pb32 {  padding-bottom:32px  }\n.b-new-text-15 .big-blue-text {  font-family:Helvetica!important;font-weight:700;font-size:56px;line-height:67px;color:#4575fe  }\n@media screen and (max-width:600px) {\n  .b-new-text-15 .big-blue-text {  font-size:36px!important;line-height:47px!important;text-align:center!important  }\n}\n.b-new-text-15 .small-blue {  font-size:36px!important;line-height:47px!important  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-QCM-Offer-2"
+  ],
+  "createdAt": "2026-07-06T12:10:00.056Z",
+  "validated": true
+}

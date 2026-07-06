@@ -1,0 +1,77 @@
+{
+  "id": "affsystem-section-02",
+  "label": "Секция",
+  "description": "Импортирован из X_AffSystem (1 писем). Секция.",
+  "placement": "section",
+  "category": "section",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.b-affsystem-section-02\n    tr\n        td.wrapper.last.pt30.offset-by-one\n            table.ten.columns\n                tr\n                    td.pb0.text-pad-small\n                        p.subtitle.center.pb15 {{ text_1 }}\n                        p.text.center {{ text_2 }}\n                        p.text.center.pb15 {{ text_3 }}\n                        .social-links\n                            a.soc-link(href=\"{{ href_1 }}\" target=\"_blank\")\n                                img.soc(src=\"{{ image_1 }}\")\n                            a.soc-link(href=\"{{ href_2 }}\" target=\"_blank\")\n                                img.soc(src=\"{{ image_2 }}\")\n                            a.soc-link(href=\"{{ href_3 }}\" target=\"_blank\")\n                                img.soc(src=\"{{ image_3 }}\")",
+  "styl": ".b-affsystem-section-02 .min-text, .b-affsystem-section-02 .text {  font-family:Helvetica!important;color:#2e3851;letter-spacing:0  }\n.b-affsystem-section-02 .text {  font-weight:400;font-size:16px;line-height:26px  }\n.b-affsystem-section-02 .big-text, .b-affsystem-section-02 .subtitle, .b-affsystem-section-02 b, .b-affsystem-section-02 p.warning, .b-affsystem-section-02 p.warning .upper {  font-family:Helvetica!important  }\n.b-affsystem-section-02 .subtitle {  font-weight:700;letter-spacing:0;font-size:30px;color:#20242f;line-height:26px  }\n.b-affsystem-section-02 .text.italic {  font-style:italic  }\n.b-affsystem-section-02 .text.list {  display:list-item  }\n.b-affsystem-section-02 .pb15 {  padding-bottom:15px!important  }\n.b-affsystem-section-02 .soc-link {  display:inline-block;float:none;margin:0 10px  }\n.b-affsystem-section-02 .soc {  float:none;display:block;max-width:38px  }\n.b-affsystem-section-02 .text a {  font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important  }\n.b-affsystem-section-02 .social-links {  display:block;text-align:center  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://www.facebook.com/iqaffiliate"
+    },
+    {
+      "id": "href_2",
+      "kind": "url",
+      "label": "Ссылка 2",
+      "default": "https://www.instagram.com/iqoptionaffiliate"
+    },
+    {
+      "id": "href_3",
+      "kind": "url",
+      "label": "Ссылка 3",
+      "default": "https://affiliate.iqoption.com/dashboard"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://static.cdnpub.info/files/storage/public/60/fe/cb030b8cf6e1c9e7f2/fb_shadow.png"
+    },
+    {
+      "id": "image_2",
+      "kind": "image",
+      "label": "Картинка 2",
+      "default": "https://static.cdnpub.info/files/storage/public/60/fe/cb030c2442e2j4d2i1/insta_shadow.png"
+    },
+    {
+      "id": "image_3",
+      "kind": "image",
+      "label": "Картинка 3",
+      "default": "https://static.cdnpub.info/files/storage/public/60/fe/cb0306c808f0h5h2d8/iq_shadow.png"
+    }
+  ],
+  "tags": [
+    "section",
+    "X_AffSystem"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_AffSystem/mail-aff-registration-affiliate"
+  ],
+  "createdAt": "2026-07-06T12:09:51.510Z",
+  "validated": true
+}

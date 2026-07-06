@@ -1,0 +1,30 @@
+{
+  "id": "system-text-101",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_System (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.b-system-text-101 Kindly advise when is a convenient time for us to call you, alternatively, I invite you to direct your queries here to our 24-hour customer support at&nbsp;\n    a(href=\"{{ href_1 }}\" target=\"_blank\") support@iqoption.com",
+  "styl": ".text.b-system-text-101 {  color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px  }\n@media screen and (max-width:600px) {\n  .text.b-system-text-101 {  padding-left:20px!important;padding-right:20px!important  }\n}\n.text.b-system-text-101 a {  color:#2473d7;text-decoration:underline  }\n.text.bold.b-system-text-101 {  font-weight:700  }",
+  "slots": [
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "mailto:support@iqoption.com"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_System"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_System/mail-x1000"
+  ],
+  "createdAt": "2026-07-06T12:09:59.370Z",
+  "validated": true
+}

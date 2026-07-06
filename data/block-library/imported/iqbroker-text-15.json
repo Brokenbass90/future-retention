@@ -1,0 +1,42 @@
+{
+  "id": "iqbroker-text-15",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_IQBroker (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.b-iqbroker-text-15 {{ text_1 }}&nbsp;\n    a.link.bw(href=\"{{ href_1 }}\" target=\"_blank\") https://www.gov.br/pt-br/servicos/emitar-relatorio-de-chaves-pix\n    |{{ text_2 }}",
+  "styl": ".b-iqbroker-text-15 .bw {  word-break:break-word  }\n.text.b-iqbroker-text-15 {  color:#3c3939;font-size:18px;font-weight:400;line-height:28px  }\n.text.b-iqbroker-text-15 a {  font-weight:700  }\n.b-iqbroker-text-15 .small-text, .b-iqbroker-text-15 .small-text a, .text.b-iqbroker-text-15, .text.b-iqbroker-text-15 a {  font-family:Helvetica!important  }\n.text.b-iqbroker-text-15 a {  color:#5165ff!important  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://www.gov.br/pt-br/servicos/emitar-relatorio-de-chaves-pix"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_IQBroker"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_IQBroker/mail-payment-verification-request-pix"
+  ],
+  "createdAt": "2026-07-06T12:09:51.736Z",
+  "validated": true
+}

@@ -1,0 +1,48 @@
+{
+  "id": "casatradeaffiliate-text-14",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_CasaTradeAffiliate (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.brad-full.white-bg.b-casatradeaffiliate-text-14\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.hello.pb12 {{ text_1 }}\n                        p.text.pb32  {{ text_2 }}\n                        .top-block\n                            table.w100\n                                tr\n                                    td.pb0.m-w\n                                        a(href=\"#\" target=\"_blank\")\n                                            img.point(src=\"{{ image_1 }}\")\n                                    td.pb0.w-a\n                                        p.text {{ text_3 }}",
+  "styl": ".brad-full.b-casatradeaffiliate-text-14 {  border-radius: 16px !important;  }\n.white-bg.b-casatradeaffiliate-text-14 {  background: #fff;  }\n.b-casatradeaffiliate-text-14 .text {  font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 24px;  }\n.b-casatradeaffiliate-text-14 .text.bold {  font-weight: 700;  }\n.b-casatradeaffiliate-text-14 .pb12 {  padding-bottom: 12px !important;  }\n.b-casatradeaffiliate-text-14 .pb32 {  padding-bottom: 32px;  }\n.b-casatradeaffiliate-text-14 .pb44 {  padding-bottom: 44px;  }\n.b-casatradeaffiliate-text-14 .pt44 {  padding-top: 44px;  }\n.b-casatradeaffiliate-text-14 .w100 {  width: 100%;  }\n.b-casatradeaffiliate-text-14 .text.mob-text, .b-casatradeaffiliate-text-14 .img-box {  float: none !important;\n  max-width: 232px !important;\n  display: block !important;  }\n.b-casatradeaffiliate-text-14 .w-a {  width: auto !important;\n  vertical-align: middle;  }\n.b-casatradeaffiliate-text-14 .m-w {  min-width: 78px !important;\n  width: 78px !important;  }\n.brad-full.b-casatradeaffiliate-text-14 {  border-radius:16px!important  }\n.white-bg.b-casatradeaffiliate-text-14 {  background:#fff  }\n.b-casatradeaffiliate-text-14 .hello {  font-family:Helvetica!important;font-weight:700;font-size:24px;line-height:31px;color:#3e3752;word-break:break-word  }\n.b-casatradeaffiliate-text-14 .small-dot, .b-casatradeaffiliate-text-14 .text {  font-family:Helvetica!important;font-size:18px;line-height:27px;color:#3e3752  }\n.b-casatradeaffiliate-text-14 .text {  letter-spacing:0  }\n.b-casatradeaffiliate-text-14 .big, .b-casatradeaffiliate-text-14 .text.bold {  font-weight:700  }\n.b-casatradeaffiliate-text-14 .pb12 {  padding-bottom:12px!important  }\n.b-casatradeaffiliate-text-14 .pb32 {  padding-bottom:32px  }\n.b-casatradeaffiliate-text-14 .pb44 {  padding-bottom:44px  }\n.b-casatradeaffiliate-text-14 .pt44 {  padding-top:44px  }\n.b-casatradeaffiliate-text-14 .w100, .b-casatradeaffiliate-text-14 .w280 {  width:100%  }\n.b-casatradeaffiliate-text-14 .img-box, .b-casatradeaffiliate-text-14 .text.mob-text {  float:none!important;max-width:232px!important;display:block!important  }\n.b-casatradeaffiliate-text-14 .m-w {  min-width:56px!important;width:56px!important  }\n.b-casatradeaffiliate-text-14 .w-a {  width:auto!important  }\n.b-casatradeaffiliate-text-14 .top-block {  padding:24px;background:#f7f7fc;border-radius:24px  }\n.b-casatradeaffiliate-text-14 .point {  width:32px!important;float:none;padding-top:8px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/d2/op/omjjqakt7v2kuqag/casa-point.png"
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_CasaTradeAffiliate"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_CasaTradeAffiliate/mail-Contest"
+  ],
+  "createdAt": "2026-07-06T12:09:59.794Z",
+  "validated": true
+}

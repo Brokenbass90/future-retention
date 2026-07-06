@@ -1,0 +1,42 @@
+{
+  "id": "new-text-35",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_new (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.pb10.b-new-text-35 {{ text_1 }} <b>{{promocode_name}}</b> {{ text_2 }} <b>+{{bonus_percent}}</b> {{ text_3 }}",
+  "styl": ".text.b-new-text-35 {  font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 27px;  }\n@media screen and (max-width: 600px) {\n  .text.b-new-text-35 {  font-size: 16px !important;\n    line-height: 22px !important;  }\n}\n.text.bold.b-new-text-35 {  font-weight: 700;  }\n.text.b-new-text-35 {  font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:27px  }\n@media screen and (max-width:600px) {\n  .text.b-new-text-35 {  font-size:16px!important;line-height:22px!important  }\n}\n.b-new-text-35 .big, .text.bold.b-new-text-35 {  font-weight:700  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-RFM-dep"
+  ],
+  "createdAt": "2026-07-06T12:10:00.057Z",
+  "validated": true
+}

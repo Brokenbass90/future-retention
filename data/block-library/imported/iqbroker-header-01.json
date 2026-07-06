@@ -1,0 +1,51 @@
+{
+  "id": "iqbroker-header-01",
+  "label": "Шапка с логотипом",
+  "description": "Импортирован из X_IQBroker (16 писем). Секция.",
+  "placement": "section",
+  "category": "header",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.center.b-iqbroker-header-01\n    tr\n        td\n            table.ten.columns\n                tr\n                    td.pb0\n                        a(href=\"{{ href_1 }}\" target=\"_blank\")\n                            img.logo(src=\"{{ image_1 }}\")",
+  "styl": "",
+  "slots": [
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "{{embedded.domain}}"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/d3/hq/9eiqubga63ldcae0/Logo.png"
+    }
+  ],
+  "tags": [
+    "header",
+    "section",
+    "X_IQBroker"
+  ],
+  "usageCount": 16,
+  "sourceMails": [
+    "X_IQBroker/mail-15-days-general-termination",
+    "X_IQBroker/mail-blacklisted-chargeback-termination",
+    "X_IQBroker/mail-blacklisted-general-termination",
+    "X_IQBroker/mail-epq_update",
+    "X_IQBroker/mail-fraud-front-running-termination",
+    "X_IQBroker/mail-fraud-high-frequency-trading-termination",
+    "X_IQBroker/mail-fraud-scheme-termination",
+    "X_IQBroker/mail-fraud-termination",
+    "X_IQBroker/mail-multiple-account-termination",
+    "X_IQBroker/mail-payment-verification-request-ewallet",
+    "X_IQBroker/mail-payment-verification-request-nequi",
+    "X_IQBroker/mail-payment-verification-request-pix",
+    "X_IQBroker/mail-payment-verification-request-pop",
+    "X_IQBroker/mail-payment-verification-request-selfie",
+    "X_IQBroker/mail-restricted-country-termination",
+    "X_IQBroker/mail-s-confirm"
+  ],
+  "createdAt": "2026-07-06T12:09:51.733Z",
+  "validated": true
+}

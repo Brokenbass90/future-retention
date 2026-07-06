@@ -1,0 +1,1091 @@
+{
+  "category": "X_Exnova",
+  "mailId": "Telegram-signals",
+  "mailAbs": "email-base/X_Exnova/mail-Telegram-signals",
+  "blockCount": 9,
+  "blocks": [
+    {
+      "id": "x-exnova-telegram-signals-header-header-0",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "kind": "section",
+      "sourceFile": "X_Exnova/mail-Telegram-signals/app/templates/blocks/header.jade",
+      "pug": "table.row.brad-top\n    tr\n        td.wrapper.last.pt30\n            table.row\n                tr\n                    td.wrapper.offset-by-one.last.pt0\n                        table.ten.columns\n                            tr\n                                td.pb20.text-pad-small\n                                    a(href=\"{{embedded.domain}}/traderoom/asset?aff=7&afftrack=mail_system&retrack=system\" target=\"_blank\")\n                                        img.logo(src=\"https://static.cdnroute.io/files/storage/public/62/b1/eb98e3afd4a7c8f1e8/m_logoCombination__1_.png\")\n                                    a.go-invest(href=\"{{embedded.domain}}/traderoom/asset?aff=7&afftrack=mail_system&retrack=system\" target=\"_blank\") Invest now\n                                        img.arr(src=\"https://static.cdnroute.io/files/storage/public/62/a2/fef50cbea6d4j8b4d4/icon_arrow.png\")\n                    //- td.wrapper.last.pt0\n                    //-     table.three.columns\n                    //-         tr\n                    //-             td.pb0.vam\n                                    a.go-invest(href=\"https://iqbroker.co/lp/multilink/asset?aff=7&afftrack=mail_margin_28-02&retrack=margin&instrument_type=binary&asset=1\" target=\"_blank\") Invest now\n                                        img.arr(src=\"https://static.cdnroute.io/files/storage/public/62/a2/fef50cbea6d4j8b4d4/icon_arrow.png\")",
+      "styl": ".brad-top { border-top-left-radius:3px!important;border-top-right-radius:3px!important }\n.arr { float:none;display:inline-block;max-width:18px;padding-left:5px;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .arr { margin:o auto!important }\n}\n.go-invest { display:inline-block;font-family:Helvetica!important;font-weight:600;font-size:16px;line-height:22px;letter-spacing:-.25px;color:#00589e;text-align:right;float:right;padding-top:5px }",
+      "classes": [
+        "arr",
+        "brad-top",
+        "columns",
+        "go-invest",
+        "last",
+        "logo",
+        "offset-by-one",
+        "pb20",
+        "pt0",
+        "pt30",
+        "row",
+        "ten",
+        "text-pad-small",
+        "wrapper"
+      ],
+      "designClasses": [
+        "arr",
+        "brad-top",
+        "go-invest"
+      ],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "{{embedded.domain}}/traderoom/asset?aff=7&afftrack=mail_system&retrack=system"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://iqbroker.co/lp/multilink/asset?aff=7&afftrack=mail_margin_28-02&retrack=margin&instrument_type=binary&asset=1"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnroute.io/files/storage/public/62/b1/eb98e3afd4a7c8f1e8/m_logoCombination__1_.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnroute.io/files/storage/public/62/a2/fef50cbea6d4j8b4d4/icon_arrow.png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-exnova-telegram-signals-header-section-1",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "kind": "section",
+      "sourceFile": "X_Exnova/mail-Telegram-signals/app/templates/blocks/header.jade",
+      "pug": "table.row.trans\n    tr\n        td.wrapper.last.pt0\n            table.twelve.columns\n                tr\n                    td.text-pad-small.pb20\n                        a(href=\"#\" target=\"_blank\")\n                            img.center(src=\"https://fsms.quadcode.com/storage/public/cj/1m/40piuavv9levmbd0/pic (1).png\")",
+      "styl": ".trans { background:0 0 }",
+      "classes": [
+        "center",
+        "columns",
+        "last",
+        "pb20",
+        "pt0",
+        "row",
+        "text-pad-small",
+        "trans",
+        "twelve",
+        "wrapper"
+      ],
+      "designClasses": [
+        "trans"
+      ],
+      "slots": [
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cj/1m/40piuavv9levmbd0/pic (1).png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-exnova-telegram-signals-header-section-2",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "kind": "section",
+      "sourceFile": "X_Exnova/mail-Telegram-signals/app/templates/blocks/header.jade",
+      "pug": "table.row.trans\n    tr\n        td.wrapper.offset-by-one.last.pt0\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb25\n                        p.title.pb15 ${{ Telegram-signals.block_01 }}$\n                            span.blue\n                        p.text.pb10 <b>${{ Telegram-signals.block_02 }}$ {{embedded.user_first_name}}</b> 👋\n                        p.text ${{ Telegram-signals.block_04 }}$",
+      "styl": ".trans { background:0 0 }\n.subtitle,.title { font-family:Helvetica!important }\n.title { color:#293753;font-size:38px;line-height:46px;font-weight:700 }\n@media screen and (max-width:600px) {\n  .title { font-size:26px!important;line-height:38px!important }\n}\n.blue { background:#0081e3 }\n.text { font-family:Helvetica!important;color:#262832;font-size:16px;font-weight:400;line-height:24px }\n.text.bold { font-weight:700 }\n.pb15 { padding-bottom:15px }\n.pb25 { padding-bottom:25px }",
+      "classes": [
+        "blue",
+        "columns",
+        "last",
+        "offset-by-one",
+        "pb10",
+        "pb15",
+        "pb25",
+        "pt0",
+        "row",
+        "ten",
+        "text",
+        "text-pad-small",
+        "title",
+        "trans",
+        "wrapper"
+      ],
+      "designClasses": [
+        "blue",
+        "pb15",
+        "pb25",
+        "text",
+        "title",
+        "trans"
+      ],
+      "slots": [
+        {
+          "id": "text_block_01",
+          "kind": "richText",
+          "label": "Текст Telegram-signals.block_01",
+          "token": "${{ Telegram-signals.block_01 }}$",
+          "ns": "Telegram-signals",
+          "block": "block_01"
+        },
+        {
+          "id": "text_block_02",
+          "kind": "richText",
+          "label": "Текст Telegram-signals.block_02",
+          "token": "${{ Telegram-signals.block_02 }}$",
+          "ns": "Telegram-signals",
+          "block": "block_02"
+        },
+        {
+          "id": "text_block_04",
+          "kind": "richText",
+          "label": "Текст Telegram-signals.block_04",
+          "token": "${{ Telegram-signals.block_04 }}$",
+          "ns": "Telegram-signals",
+          "block": "block_04"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-exnova-telegram-signals-header-section-2-headi",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.title.pb15 ${{ Telegram-signals.block_01 }}$\n    span.blue",
+          "styl": ".subtitle,.title { font-family:Helvetica!important }\n.title { color:#293753;font-size:38px;line-height:46px;font-weight:700 }\n@media screen and (max-width:600px) {\n  .title { font-size:26px!important;line-height:38px!important }\n}\n.blue { background:#0081e3 }\n.pb15 { padding-bottom:15px }",
+          "classes": [
+            "blue",
+            "pb15",
+            "title"
+          ],
+          "designClasses": [
+            "blue",
+            "pb15",
+            "title"
+          ],
+          "slots": [
+            {
+              "id": "text_block_01",
+              "kind": "richText",
+              "label": "Текст Telegram-signals.block_01",
+              "token": "${{ Telegram-signals.block_01 }}$",
+              "ns": "Telegram-signals",
+              "block": "block_01"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-telegram-signals-header-section-2-parag",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb10 <b>${{ Telegram-signals.block_02 }}$ {{embedded.user_first_name}}</b> 👋",
+          "styl": ".text { font-family:Helvetica!important;color:#262832;font-size:16px;font-weight:400;line-height:24px }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "pb10",
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_02",
+              "kind": "richText",
+              "label": "Текст Telegram-signals.block_02",
+              "token": "${{ Telegram-signals.block_02 }}$",
+              "ns": "Telegram-signals",
+              "block": "block_02"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-telegram-signals-header-section-2-parag",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ Telegram-signals.block_04 }}$",
+          "styl": ".text { font-family:Helvetica!important;color:#262832;font-size:16px;font-weight:400;line-height:24px }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_04",
+              "kind": "richText",
+              "label": "Текст Telegram-signals.block_04",
+              "token": "${{ Telegram-signals.block_04 }}$",
+              "ns": "Telegram-signals",
+              "block": "block_04"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-exnova-telegram-signals-header-text-3",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_Exnova/mail-Telegram-signals/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg\n    tr\n        td.wrapper.last.pt0.offset-by-one\n            table.ten.columns\n                tr\n                    td.pb28.text-pad-small.pt25\n                        p.black-title.pb20 ${{ Telegram-signals.block_05 }}$\n                            span.blue\n                        p.text ${{ Telegram-signals.block_06 }}$\n    tr\n        td.wrapper.last.offset-by-three.pt0\n            table.six.columns\n                tr\n                    td.pb25\n                        .button-wrapper.button-wrapper_bot.pt0\n                            table.medium-button.radius.blue-button\n                                tr\n                                    td.iq.blue-button\n                                        a.butt(href=\"${{ Telegram-signals.block_25 }}$\" target=\"_blank\")\n                                            |${{ Telegram-signals.block_07 }}$\n                                            img.arrow-icon(src=\"https://static.cdnroute.io/files/storage/public/62/a8/50b90d0d72f8b6c6g8/icon_arrow__1___1_.png\")",
+      "styl": ".blue-button { background:#0081e3!important }\n.button-wrapper { padding-top:0;padding-bottom:0 }\n@media screen and (max-width:600px) {\n  .button-wrapper { padding-left:30px!important;padding-right:30px!important }\n}\n.arrow-icon { float:none;display:inline-block;vertical-align:middle;max-width:18px;padding-left:15px }\n.white-bg { background:#fff }\n.black-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:37px;color:#27282d }\n@media screen and (max-width:600px) {\n  .black-title { font-size:26px!important;line-height:38px!important }\n}\n.blue { background:#0081e3 }\n.text { font-family:Helvetica!important;color:#262832;font-size:16px;font-weight:400;line-height:24px }\n.text.bold { font-weight:700 }\n.pb25 { padding-bottom:25px }\n.pb28 { padding-bottom:28px }\n.pt25 { padding-top:25px }",
+      "classes": [
+        "arrow-icon",
+        "black-title",
+        "blue",
+        "blue-button",
+        "butt",
+        "button-wrapper",
+        "button-wrapper_bot",
+        "columns",
+        "iq",
+        "last",
+        "medium-button",
+        "offset-by-one",
+        "offset-by-three",
+        "pb20",
+        "pb25",
+        "pb28",
+        "pt0",
+        "pt25",
+        "radius",
+        "row",
+        "six",
+        "ten",
+        "text",
+        "text-pad-small",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "arrow-icon",
+        "black-title",
+        "blue",
+        "blue-button",
+        "button-wrapper",
+        "button-wrapper_bot",
+        "pb25",
+        "pb28",
+        "pt25",
+        "text",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_05",
+          "kind": "richText",
+          "label": "Текст Telegram-signals.block_05",
+          "token": "${{ Telegram-signals.block_05 }}$",
+          "ns": "Telegram-signals",
+          "block": "block_05"
+        },
+        {
+          "id": "text_block_06",
+          "kind": "richText",
+          "label": "Текст Telegram-signals.block_06",
+          "token": "${{ Telegram-signals.block_06 }}$",
+          "ns": "Telegram-signals",
+          "block": "block_06"
+        },
+        {
+          "id": "text_block_25",
+          "kind": "richText",
+          "label": "Текст Telegram-signals.block_25",
+          "token": "${{ Telegram-signals.block_25 }}$",
+          "ns": "Telegram-signals",
+          "block": "block_25"
+        },
+        {
+          "id": "text_block_07",
+          "kind": "richText",
+          "label": "Текст Telegram-signals.block_07",
+          "token": "${{ Telegram-signals.block_07 }}$",
+          "ns": "Telegram-signals",
+          "block": "block_07"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ Telegram-signals.block_25 }}$"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnroute.io/files/storage/public/62/a8/50b90d0d72f8b6c6g8/icon_arrow__1___1_.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-exnova-telegram-signals-header-text-3-paragrap",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ Telegram-signals.block_06 }}$",
+          "styl": ".text { font-family:Helvetica!important;color:#262832;font-size:16px;font-weight:400;line-height:24px }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_06",
+              "kind": "richText",
+              "label": "Текст Telegram-signals.block_06",
+              "token": "${{ Telegram-signals.block_06 }}$",
+              "ns": "Telegram-signals",
+              "block": "block_06"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-exnova-telegram-signals-header-text-5",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_Exnova/mail-Telegram-signals/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg\n    tr\n        td.wrapper.last.pt0.offset-by-one\n            table.ten.columns\n                tr\n                    td.pb28.text-pad-small.pt25\n                        p.small-title.pb20 ${{ Telegram-signals.block_08 }}$\n                            span.blue\n                        //p.text.pb20 ${{ Telegram-signals.block_09 }}$\n                        .blue-box\n                            p.white-box ${{ Telegram-signals.block_09 }}$\n                            p.text.pt12.pb24 ${{ Telegram-signals.block_10 }}$\n                            p.white-box ${{ Telegram-signals.block_11 }}$\n                            p.text.pt12.pb24 ${{ Telegram-signals.block_12 }}$\n                            p.white-box ${{ Telegram-signals.block_13 }}$\n                            p.text.pt12 ${{ Telegram-signals.block_14 }}$",
+      "styl": ".white-bg { background:#fff }\n.small-title { font-family:Helvetica!important;font-weight:700;font-size:24px;line-height:28px;color:#262832 }\n.blue-box { background:#f3f8ff;padding:24px }\n.title-white,.white-box { font-family:Helvetica!important;font-weight:700 }\n.white-box { display:inline-block;box-sizing:border-box;padding:6px 12px;gap:10px;background:#fcfdff;border:1px solid #33a6fe;border-radius:7px;font-style:normal;text-align:center;font-size:16px;line-height:24px;color:#262832 }\n.blue { background:#0081e3 }\n.text { font-family:Helvetica!important;color:#262832;font-size:16px;font-weight:400;line-height:24px }\n.text.bold { font-weight:700 }\n.pb28 { padding-bottom:28px }\n.pt12 { padding-top:12px }\n.pb24 { padding-bottom:24px }\n.pt25 { padding-top:25px }",
+      "classes": [
+        "blue",
+        "blue-box",
+        "columns",
+        "last",
+        "offset-by-one",
+        "pb20",
+        "pb24",
+        "pb28",
+        "pt0",
+        "pt12",
+        "pt25",
+        "row",
+        "small-title",
+        "ten",
+        "text",
+        "text-pad-small",
+        "white-bg",
+        "white-box",
+        "wrapper"
+      ],
+      "designClasses": [
+        "blue",
+        "blue-box",
+        "pb24",
+        "pb28",
+        "pt12",
+        "pt25",
+        "small-title",
+        "text",
+        "white-bg",
+        "white-box"
+      ],
+      "slots": [
+        {
+          "id": "text_block_08",
+          "kind": "richText",
+          "label": "Текст Telegram-signals.block_08",
+          "token": "${{ Telegram-signals.block_08 }}$",
+          "ns": "Telegram-signals",
+          "block": "block_08"
+        },
+        {
+          "id": "text_block_09",
+          "kind": "richText",
+          "label": "Текст Telegram-signals.block_09",
+          "token": "${{ Telegram-signals.block_09 }}$",
+          "ns": "Telegram-signals",
+          "block": "block_09"
+        },
+        {
+          "id": "text_block_10",
+          "kind": "richText",
+          "label": "Текст Telegram-signals.block_10",
+          "token": "${{ Telegram-signals.block_10 }}$",
+          "ns": "Telegram-signals",
+          "block": "block_10"
+        },
+        {
+          "id": "text_block_11",
+          "kind": "richText",
+          "label": "Текст Telegram-signals.block_11",
+          "token": "${{ Telegram-signals.block_11 }}$",
+          "ns": "Telegram-signals",
+          "block": "block_11"
+        },
+        {
+          "id": "text_block_12",
+          "kind": "richText",
+          "label": "Текст Telegram-signals.block_12",
+          "token": "${{ Telegram-signals.block_12 }}$",
+          "ns": "Telegram-signals",
+          "block": "block_12"
+        },
+        {
+          "id": "text_block_13",
+          "kind": "richText",
+          "label": "Текст Telegram-signals.block_13",
+          "token": "${{ Telegram-signals.block_13 }}$",
+          "ns": "Telegram-signals",
+          "block": "block_13"
+        },
+        {
+          "id": "text_block_14",
+          "kind": "richText",
+          "label": "Текст Telegram-signals.block_14",
+          "token": "${{ Telegram-signals.block_14 }}$",
+          "ns": "Telegram-signals",
+          "block": "block_14"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-exnova-telegram-signals-header-text-5-heading-",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.small-title.pb20 ${{ Telegram-signals.block_08 }}$\n    span.blue",
+          "styl": ".small-title { font-family:Helvetica!important;font-weight:700;font-size:24px;line-height:28px;color:#262832 }\n.blue { background:#0081e3 }",
+          "classes": [
+            "blue",
+            "pb20",
+            "small-title"
+          ],
+          "designClasses": [
+            "blue",
+            "small-title"
+          ],
+          "slots": [
+            {
+              "id": "text_block_08",
+              "kind": "richText",
+              "label": "Текст Telegram-signals.block_08",
+              "token": "${{ Telegram-signals.block_08 }}$",
+              "ns": "Telegram-signals",
+              "block": "block_08"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-telegram-signals-header-text-5-paragrap",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pt12.pb24 ${{ Telegram-signals.block_10 }}$",
+          "styl": ".text { font-family:Helvetica!important;color:#262832;font-size:16px;font-weight:400;line-height:24px }\n.text.bold { font-weight:700 }\n.pt12 { padding-top:12px }\n.pb24 { padding-bottom:24px }",
+          "classes": [
+            "pb24",
+            "pt12",
+            "text"
+          ],
+          "designClasses": [
+            "pb24",
+            "pt12",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_10",
+              "kind": "richText",
+              "label": "Текст Telegram-signals.block_10",
+              "token": "${{ Telegram-signals.block_10 }}$",
+              "ns": "Telegram-signals",
+              "block": "block_10"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-telegram-signals-header-text-5-paragrap",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pt12.pb24 ${{ Telegram-signals.block_12 }}$",
+          "styl": ".text { font-family:Helvetica!important;color:#262832;font-size:16px;font-weight:400;line-height:24px }\n.text.bold { font-weight:700 }\n.pt12 { padding-top:12px }\n.pb24 { padding-bottom:24px }",
+          "classes": [
+            "pb24",
+            "pt12",
+            "text"
+          ],
+          "designClasses": [
+            "pb24",
+            "pt12",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_12",
+              "kind": "richText",
+              "label": "Текст Telegram-signals.block_12",
+              "token": "${{ Telegram-signals.block_12 }}$",
+              "ns": "Telegram-signals",
+              "block": "block_12"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-telegram-signals-header-text-5-paragrap",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pt12 ${{ Telegram-signals.block_14 }}$",
+          "styl": ".text { font-family:Helvetica!important;color:#262832;font-size:16px;font-weight:400;line-height:24px }\n.text.bold { font-weight:700 }\n.pt12 { padding-top:12px }",
+          "classes": [
+            "pt12",
+            "text"
+          ],
+          "designClasses": [
+            "pt12",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_14",
+              "kind": "richText",
+              "label": "Текст Telegram-signals.block_14",
+              "token": "${{ Telegram-signals.block_14 }}$",
+              "ns": "Telegram-signals",
+              "block": "block_14"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-exnova-telegram-signals-header-text-7",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_Exnova/mail-Telegram-signals/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg\n    tr\n        td.wrapper.last.pt0.offset-by-one\n            table.ten.columns\n                tr\n                    td.pb28.text-pad-small.pt25\n                        p.black-title.pb20 ${{ Telegram-signals.block_15 }}$\n                            span.blue\n                        p.text.pb20 ${{ Telegram-signals.block_16 }}$\n                        p.text ${{ Telegram-signals.block_17 }}$\n    tr\n        td.wrapper.last.offset-by-three.pt0\n            table.six.columns\n                tr\n                    td.pb25\n                        .button-wrapper.button-wrapper_bot.pt0\n                            table.medium-button.radius.blue-button\n                                tr\n                                    td.iq.blue-button\n                                        a.butt(href=\"${{ Telegram-signals.block_25 }}$\" target=\"_blank\")\n                                            |${{ Telegram-signals.block_18 }}$\n                                            img.arrow-icon(src=\"https://static.cdnroute.io/files/storage/public/62/a8/50b90d0d72f8b6c6g8/icon_arrow__1___1_.png\")",
+      "styl": ".blue-button { background:#0081e3!important }\n.button-wrapper { padding-top:0;padding-bottom:0 }\n@media screen and (max-width:600px) {\n  .button-wrapper { padding-left:30px!important;padding-right:30px!important }\n}\n.arrow-icon { float:none;display:inline-block;vertical-align:middle;max-width:18px;padding-left:15px }\n.white-bg { background:#fff }\n.black-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:37px;color:#27282d }\n@media screen and (max-width:600px) {\n  .black-title { font-size:26px!important;line-height:38px!important }\n}\n.blue { background:#0081e3 }\n.text { font-family:Helvetica!important;color:#262832;font-size:16px;font-weight:400;line-height:24px }\n.text.bold { font-weight:700 }\n.pb25 { padding-bottom:25px }\n.pb28 { padding-bottom:28px }\n.pt25 { padding-top:25px }",
+      "classes": [
+        "arrow-icon",
+        "black-title",
+        "blue",
+        "blue-button",
+        "butt",
+        "button-wrapper",
+        "button-wrapper_bot",
+        "columns",
+        "iq",
+        "last",
+        "medium-button",
+        "offset-by-one",
+        "offset-by-three",
+        "pb20",
+        "pb25",
+        "pb28",
+        "pt0",
+        "pt25",
+        "radius",
+        "row",
+        "six",
+        "ten",
+        "text",
+        "text-pad-small",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "arrow-icon",
+        "black-title",
+        "blue",
+        "blue-button",
+        "button-wrapper",
+        "button-wrapper_bot",
+        "pb25",
+        "pb28",
+        "pt25",
+        "text",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_15",
+          "kind": "richText",
+          "label": "Текст Telegram-signals.block_15",
+          "token": "${{ Telegram-signals.block_15 }}$",
+          "ns": "Telegram-signals",
+          "block": "block_15"
+        },
+        {
+          "id": "text_block_16",
+          "kind": "richText",
+          "label": "Текст Telegram-signals.block_16",
+          "token": "${{ Telegram-signals.block_16 }}$",
+          "ns": "Telegram-signals",
+          "block": "block_16"
+        },
+        {
+          "id": "text_block_17",
+          "kind": "richText",
+          "label": "Текст Telegram-signals.block_17",
+          "token": "${{ Telegram-signals.block_17 }}$",
+          "ns": "Telegram-signals",
+          "block": "block_17"
+        },
+        {
+          "id": "text_block_25",
+          "kind": "richText",
+          "label": "Текст Telegram-signals.block_25",
+          "token": "${{ Telegram-signals.block_25 }}$",
+          "ns": "Telegram-signals",
+          "block": "block_25"
+        },
+        {
+          "id": "text_block_18",
+          "kind": "richText",
+          "label": "Текст Telegram-signals.block_18",
+          "token": "${{ Telegram-signals.block_18 }}$",
+          "ns": "Telegram-signals",
+          "block": "block_18"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ Telegram-signals.block_25 }}$"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnroute.io/files/storage/public/62/a8/50b90d0d72f8b6c6g8/icon_arrow__1___1_.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-exnova-telegram-signals-header-text-7-paragrap",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb20 ${{ Telegram-signals.block_16 }}$",
+          "styl": ".text { font-family:Helvetica!important;color:#262832;font-size:16px;font-weight:400;line-height:24px }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "pb20",
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_16",
+              "kind": "richText",
+              "label": "Текст Telegram-signals.block_16",
+              "token": "${{ Telegram-signals.block_16 }}$",
+              "ns": "Telegram-signals",
+              "block": "block_16"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-telegram-signals-header-text-7-paragrap",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ Telegram-signals.block_17 }}$",
+          "styl": ".text { font-family:Helvetica!important;color:#262832;font-size:16px;font-weight:400;line-height:24px }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_17",
+              "kind": "richText",
+              "label": "Текст Telegram-signals.block_17",
+              "token": "${{ Telegram-signals.block_17 }}$",
+              "ns": "Telegram-signals",
+              "block": "block_17"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-exnova-telegram-signals-header-section-8",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "kind": "section",
+      "sourceFile": "X_Exnova/mail-Telegram-signals/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.offset-by-one.last.pt35\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb0\n                        p.small-title.pb20.center <i>${{ Telegram-signals.block_19 }}$</i>\n                        p.text.center <i>${{ Telegram-signals.block_20 }}$</i>",
+      "styl": ".small-title { font-family:Helvetica!important;font-weight:700;font-size:24px;line-height:28px;color:#262832 }\n.text { font-family:Helvetica!important;color:#262832;font-size:16px;font-weight:400;line-height:24px }\n.text.bold { font-weight:700 }\n.pt35 { padding-top:35px }",
+      "classes": [
+        "center",
+        "columns",
+        "last",
+        "offset-by-one",
+        "pb0",
+        "pb20",
+        "pt35",
+        "row",
+        "small-title",
+        "ten",
+        "text",
+        "text-pad-small",
+        "wrapper"
+      ],
+      "designClasses": [
+        "pt35",
+        "small-title",
+        "text"
+      ],
+      "slots": [
+        {
+          "id": "text_block_19",
+          "kind": "richText",
+          "label": "Текст Telegram-signals.block_19",
+          "token": "${{ Telegram-signals.block_19 }}$",
+          "ns": "Telegram-signals",
+          "block": "block_19"
+        },
+        {
+          "id": "text_block_20",
+          "kind": "richText",
+          "label": "Текст Telegram-signals.block_20",
+          "token": "${{ Telegram-signals.block_20 }}$",
+          "ns": "Telegram-signals",
+          "block": "block_20"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-exnova-telegram-signals-header-section-8-headi",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.small-title.pb20.center <i>${{ Telegram-signals.block_19 }}$</i>",
+          "styl": ".small-title { font-family:Helvetica!important;font-weight:700;font-size:24px;line-height:28px;color:#262832 }",
+          "classes": [
+            "center",
+            "pb20",
+            "small-title"
+          ],
+          "designClasses": [
+            "small-title"
+          ],
+          "slots": [
+            {
+              "id": "text_block_19",
+              "kind": "richText",
+              "label": "Текст Telegram-signals.block_19",
+              "token": "${{ Telegram-signals.block_19 }}$",
+              "ns": "Telegram-signals",
+              "block": "block_19"
+            }
+          ]
+        },
+        {
+          "id": "x-exnova-telegram-signals-header-section-8-parag",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.center <i>${{ Telegram-signals.block_20 }}$</i>",
+          "styl": ".text { font-family:Helvetica!important;color:#262832;font-size:16px;font-weight:400;line-height:24px }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "center",
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_20",
+              "kind": "richText",
+              "label": "Текст Telegram-signals.block_20",
+              "token": "${{ Telegram-signals.block_20 }}$",
+              "ns": "Telegram-signals",
+              "block": "block_20"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-exnova-telegram-signals-header-footer-38",
+      "label": "Соцсети",
+      "placement": "section",
+      "category": "footer",
+      "kind": "section",
+      "sourceFile": "X_Exnova/mail-Telegram-signals/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.offset-by-one.last.pt35\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb0\n                        //- a.app-store(href=\"#\" target=\"_blank\")\n                        //-     img.app-store(src=\"https://fsms.quadcode.com/storage/public/cg/er/jnfm73k4mm2dgmt0/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917 (1).png\")\n                        .socials.center\n                            a.google-store(href=\"#\" target=\"_blank\")\n                                img.google-store(src=\"https://fsms.quadcode.com/storage/public/cg/er/jnfm73k4mm2dgmsg/google-play-badge (9).png\")",
+      "styl": ".pt35 { padding-top:35px }\n.mar-mob,.socials a { margin:0 10px }\n.app-store,.google-store { display:inline-block;padding-bottom:10px }\n.google-store { width:175px!important }\n.socials { display:block;font-size:0;margin:0 auto;text-align:center }\n.socials a { display:inline-block;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .socials a { margin-bottom:10px!important }\n}",
+      "classes": [
+        "center",
+        "columns",
+        "google-store",
+        "last",
+        "offset-by-one",
+        "pb0",
+        "pt35",
+        "row",
+        "socials",
+        "ten",
+        "text-pad-small",
+        "wrapper"
+      ],
+      "designClasses": [
+        "google-store",
+        "pt35",
+        "socials"
+      ],
+      "slots": [
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cg/er/jnfm73k4mm2dgmt0/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917 (1).png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cg/er/jnfm73k4mm2dgmsg/google-play-badge (9).png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-exnova-telegram-signals-header-footer-38-socia",
+          "label": "Соцсети (иконки)",
+          "placement": "inline",
+          "category": "footer",
+          "pug": ".socials.center\n    a.google-store(href=\"#\" target=\"_blank\")\n        img.google-store(src=\"https://fsms.quadcode.com/storage/public/cg/er/jnfm73k4mm2dgmsg/google-play-badge (9).png\")",
+          "styl": ".mar-mob,.socials a { margin:0 10px }\n.app-store,.google-store { display:inline-block;padding-bottom:10px }\n.google-store { width:175px!important }\n.socials { display:block;font-size:0;margin:0 auto;text-align:center }\n.socials a { display:inline-block;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .socials a { margin-bottom:10px!important }\n}",
+          "classes": [
+            "center",
+            "google-store",
+            "socials"
+          ],
+          "designClasses": [
+            "google-store",
+            "socials"
+          ],
+          "slots": [
+            {
+              "id": "image_0",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/cg/er/jnfm73k4mm2dgmsg/google-play-badge (9).png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-exnova-telegram-signals-header-footer-39",
+      "label": "Соцсети",
+      "placement": "section",
+      "category": "footer",
+      "kind": "section",
+      "sourceFile": "X_Exnova/mail-Telegram-signals/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.pt20\n            table.twelve.columns\n                tr\n                    td.pb0\n                        .socials.center\n                            a.first-link(href=\"${{ Telegram-signals.block_22 }}$\" target=\"_blank\")\n                                img.soc-icon.fb(src=\"https://fsms.quadcode.com/storage/public/ci/2g/06mgbu954ogkdu7g/fb-icon.png\")\n                            a(href=\"${{ Telegram-signals.block_23 }}$\" target=\"_blank\")\n                                img.soc-icon.twitter(src=\"https://fsms.quadcode.com/storage/public/ci/2g/06gd0gfsc472auj0/inst-icon.png\")\n                            a.last-link(href=\"${{ Telegram-signals.block_24 }}$\" target=\"_blank\")\n                                img.soc-icon.ig(src=\"https://fsms.quadcode.com/storage/public/ci/2g/06mgbu954ogkdu80/tw-icon.png\")",
+      "styl": ".mar-mob,.socials a { margin:0 10px }\n.socials { display:block;font-size:0;margin:0 auto;text-align:center }\n.socials a { display:inline-block;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .socials a { margin-bottom:10px!important }\n}\n.soc-icon { float:none;max-width:40px }\n.ig { max-width:24px;margin-left:6px }\n@media screen and (max-width:600px) {\n  .ig { width:24px!important }\n}\n.twitter { max-width:24px;margin:0 6px }\n@media screen and (max-width:600px) {\n  .twitter { width:24px!important }\n}\n.fb { max-width:24px;margin-right:6px }\n@media screen and (max-width:600px) {\n  .fb { width:24px!important }\n}",
+      "classes": [
+        "center",
+        "columns",
+        "fb",
+        "first-link",
+        "ig",
+        "last",
+        "last-link",
+        "pb0",
+        "pt20",
+        "row",
+        "soc-icon",
+        "socials",
+        "twelve",
+        "twitter",
+        "wrapper"
+      ],
+      "designClasses": [
+        "fb",
+        "first-link",
+        "ig",
+        "last-link",
+        "soc-icon",
+        "socials",
+        "twitter"
+      ],
+      "slots": [
+        {
+          "id": "text_block_22",
+          "kind": "richText",
+          "label": "Текст Telegram-signals.block_22",
+          "token": "${{ Telegram-signals.block_22 }}$",
+          "ns": "Telegram-signals",
+          "block": "block_22"
+        },
+        {
+          "id": "text_block_23",
+          "kind": "richText",
+          "label": "Текст Telegram-signals.block_23",
+          "token": "${{ Telegram-signals.block_23 }}$",
+          "ns": "Telegram-signals",
+          "block": "block_23"
+        },
+        {
+          "id": "text_block_24",
+          "kind": "richText",
+          "label": "Текст Telegram-signals.block_24",
+          "token": "${{ Telegram-signals.block_24 }}$",
+          "ns": "Telegram-signals",
+          "block": "block_24"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ Telegram-signals.block_22 }}$"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ Telegram-signals.block_23 }}$"
+        },
+        {
+          "id": "href_2",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "${{ Telegram-signals.block_24 }}$"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/ci/2g/06mgbu954ogkdu7g/fb-icon.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/ci/2g/06gd0gfsc472auj0/inst-icon.png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/ci/2g/06mgbu954ogkdu80/tw-icon.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-exnova-telegram-signals-header-footer-39-socia",
+          "label": "Соцсети (иконки)",
+          "placement": "inline",
+          "category": "footer",
+          "pug": ".socials.center\n    a.first-link(href=\"${{ Telegram-signals.block_22 }}$\" target=\"_blank\")\n        img.soc-icon.fb(src=\"https://fsms.quadcode.com/storage/public/ci/2g/06mgbu954ogkdu7g/fb-icon.png\")\n    a(href=\"${{ Telegram-signals.block_23 }}$\" target=\"_blank\")\n        img.soc-icon.twitter(src=\"https://fsms.quadcode.com/storage/public/ci/2g/06gd0gfsc472auj0/inst-icon.png\")\n    a.last-link(href=\"${{ Telegram-signals.block_24 }}$\" target=\"_blank\")\n        img.soc-icon.ig(src=\"https://fsms.quadcode.com/storage/public/ci/2g/06mgbu954ogkdu80/tw-icon.png\")",
+          "styl": ".mar-mob,.socials a { margin:0 10px }\n.socials { display:block;font-size:0;margin:0 auto;text-align:center }\n.socials a { display:inline-block;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .socials a { margin-bottom:10px!important }\n}\n.soc-icon { float:none;max-width:40px }\n.ig { max-width:24px;margin-left:6px }\n@media screen and (max-width:600px) {\n  .ig { width:24px!important }\n}\n.twitter { max-width:24px;margin:0 6px }\n@media screen and (max-width:600px) {\n  .twitter { width:24px!important }\n}\n.fb { max-width:24px;margin-right:6px }\n@media screen and (max-width:600px) {\n  .fb { width:24px!important }\n}",
+          "classes": [
+            "center",
+            "fb",
+            "first-link",
+            "ig",
+            "last-link",
+            "soc-icon",
+            "socials",
+            "twitter"
+          ],
+          "designClasses": [
+            "fb",
+            "first-link",
+            "ig",
+            "last-link",
+            "soc-icon",
+            "socials",
+            "twitter"
+          ],
+          "slots": [
+            {
+              "id": "text_block_22",
+              "kind": "richText",
+              "label": "Текст Telegram-signals.block_22",
+              "token": "${{ Telegram-signals.block_22 }}$",
+              "ns": "Telegram-signals",
+              "block": "block_22"
+            },
+            {
+              "id": "text_block_23",
+              "kind": "richText",
+              "label": "Текст Telegram-signals.block_23",
+              "token": "${{ Telegram-signals.block_23 }}$",
+              "ns": "Telegram-signals",
+              "block": "block_23"
+            },
+            {
+              "id": "text_block_24",
+              "kind": "richText",
+              "label": "Текст Telegram-signals.block_24",
+              "token": "${{ Telegram-signals.block_24 }}$",
+              "ns": "Telegram-signals",
+              "block": "block_24"
+            },
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ Telegram-signals.block_22 }}$"
+            },
+            {
+              "id": "href_1",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ Telegram-signals.block_23 }}$"
+            },
+            {
+              "id": "href_2",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "${{ Telegram-signals.block_24 }}$"
+            },
+            {
+              "id": "image_0",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/ci/2g/06mgbu954ogkdu7g/fb-icon.png"
+            },
+            {
+              "id": "image_1",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/ci/2g/06gd0gfsc472auj0/inst-icon.png"
+            },
+            {
+              "id": "image_2",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/ci/2g/06mgbu954ogkdu80/tw-icon.png"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "id": "exnova-text-81",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_Exnova (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.brad-full.b-exnova-text-81\n    tr\n        td.wrapper.last.offset-by-one.pt0\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb32.pt44\n                        p.title.pb32 {{ text_1 }}\n                        a(href=\"#\" target=\"_blank\")\n                            img.under-logo.center(src=\"{{ image_1 }}\")\n                        p.text.pt32 {{ text_2 }}",
+  "styl": ".b-exnova-text-81 .under-logo {  display: block;\n  float: none;\n  width: 480px;\n  background-color: #f9f9f9;\n  border-radius: 16px;  }\n.brad-full.b-exnova-text-81 {  border-radius: 16px !important;  }\n.white-bg.b-exnova-text-81 {  background: #fff;  }\n.b-exnova-text-81 .title {  font-family: Helvetica !important;\n  color: #393a44;\n  font-size: 48px;\n  line-height: 58px;\n  font-weight: 700;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-text-81 .title {  font-size: 40px !important;\n    line-height: 54px !important;  }\n}\n@media screen and (max-width: 420px) {\n  .b-exnova-text-81 .title {  font-size: 36px !important;\n    line-height: 50px !important;  }\n}\n.b-exnova-text-81 .text {  font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 26px;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-text-81 .text {  font-size: 16px !important;\n    line-height: 24px !important;  }\n}\n.b-exnova-text-81 .text.bold {  font-weight: 700;  }\n.b-exnova-text-81 .pt32 {  padding-top: 32px;  }\n.b-exnova-text-81 .pt44 {  padding-top: 44px;  }\n.b-exnova-text-81 .pb32 {  padding-bottom: 32px;  }\n.b-exnova-text-81 .under-logo {  display:block;float:none;width:480px;background-color:#f9f9f9  }\n.b-exnova-text-81 .border-full, .b-exnova-text-81 .under-logo {  border-radius:16px  }\n.brad-full.b-exnova-text-81 {  border-radius:16px!important  }\n.white-bg.b-exnova-text-81 {  background:#fff  }\n.b-exnova-text-81 .title {  font-family:Helvetica!important;color:#393a44;font-size:48px;line-height:58px;font-weight:700  }\n@media screen and (max-width:600px) {\n  .b-exnova-text-81 .title {  font-size:40px!important;line-height:54px!important  }\n}\n@media screen and (max-width:420px) {\n  .b-exnova-text-81 .title {  font-size:36px!important;line-height:50px!important  }\n}\n.b-exnova-text-81 .text {  font-family:Helvetica!important;color:#413e43;font-size:18px;font-weight:400;line-height:26px  }\n@media screen and (max-width:600px) {\n  .b-exnova-text-81 .text {  font-size:16px!important;line-height:24px!important  }\n}\n.b-exnova-text-81 .text.bold {  font-weight:700  }\n.b-exnova-text-81 .pt32 {  padding-top:32px  }\n.b-exnova-text-81 .pt44 {  padding-top:44px  }\n.b-exnova-text-81 .pb32 {  padding-bottom:32px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/cv/j6/snbjqakhdj8lo6d0/container-exnova.png"
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_Exnova"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_Exnova/mail-Trading-Challenge"
+  ],
+  "createdAt": "2026-07-06T12:09:50.973Z",
+  "validated": true
+}

@@ -1,0 +1,37 @@
+{
+  "id": "new-header-03",
+  "label": "Шапка с логотипом",
+  "description": "Импортирован из X_new (2 писем). Секция.",
+  "placement": "section",
+  "category": "header",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.brad-top.bg-col.b-new-header-03\n    tr\n        td.wrapper.offset-by-one.last.pt30\n            table.ten.columns\n                tr\n                    td.six.sub-columns.pb30\n                        a(href=\"{{ href_1 }}\" target=\"_blank\")\n                            img.logo.center(src=\"{{ image_1 }}\")",
+  "styl": ".bg-col.b-new-header-03 {  background-color:#f9f9f9  }\n.brad-top.b-new-header-03 {  border-top-left-radius:6px!important;border-top-right-radius:6px!important;overflow:hidden  }\n.white-bg.b-new-header-03 {  background:#fff  }",
+  "slots": [
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://affstore.com"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.iqoption.com/storage/public/cb/db/mkjld2762c0fsgk0/Affstore-Logo.png"
+    }
+  ],
+  "tags": [
+    "header",
+    "section",
+    "X_new"
+  ],
+  "usageCount": 2,
+  "sourceMails": [
+    "X_new/mail-QCM-Offer",
+    "X_new/mail-Rate-change"
+  ],
+  "createdAt": "2026-07-06T12:10:00.057Z",
+  "validated": true
+}

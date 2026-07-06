@@ -1,0 +1,53 @@
+{
+  "id": "new-section-06",
+  "label": "Секция",
+  "description": "Импортирован из X_new (1 писем). Секция.",
+  "placement": "section",
+  "category": "section",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.green-bg.bg-green-full.br-full.b-new-section-06\n    tr\n        td.wrapper.last.offset-by-one.pt40\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb20\n                        p.big-text.center {{ text_1 }}&nbsp;\n                            span.green-text {{ text_2 }}\n                            img.img-hurt(src=\"{{ image_1 }}\")\n    tr\n        td.wrapper.last.offset-by-three.pt0\n            table.six.columns\n                tr\n                    td.pb40.text-pad-small.pt0\n                        .button-wrapper.button-wrapper_top\n                            table.medium-button.radius\n                                tr\n                                    td.iq\n                                        a.butt(href=\"{{ href_1 }}\" target=\"_blank\") {{ text_3 }}",
+  "styl": ".b-new-section-06 .big-text {  font-family:Helvetica!important;font-weight:700!important;font-size:21px;line-height:28px;color:#f6f6f6  }\n.b-new-section-06 .green-text {  color:#c4fd00!important  }\n.b-new-section-06 .img-hurt {  float:none;display:inline-block;width:21px!important;padding-left:2px;vertical-align:middle  }\n.br-full.b-new-section-06 {  border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px  }\n.bg-green-full.b-new-section-06 {  border:1px solid #c4fd00  }\n.green-bg.b-new-section-06 {  background:#2b3a00  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://affstore.com/en/?source=event"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/cj/0g/ep83jov9srte6rh0/We recommend you use (1).png"
+    }
+  ],
+  "tags": [
+    "section",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-Post-IGB-party-email"
+  ],
+  "createdAt": "2026-07-06T12:10:00.056Z",
+  "validated": true
+}

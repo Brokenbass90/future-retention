@@ -1,0 +1,30 @@
+{
+  "id": "exnova-text-106",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_Exnova (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.b-exnova-text-106\n    tr\n        td.wrapper.last.offset-by-one.pt40\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb0\n                        p.text.pb10.redish The winning will be credited to your trading account. Withdraw the money or use it for further trading!\n                        p.text We hold several tournaments every month — proceed to the Tournament section to check what’s on now.\n                        a.nopoint.mtb30(href=\"#\" target=\"_blank\")\n                            img.img100(src=\"{{ image_1 }}\")\n                        p.black-title Ready. Set. Trade!",
+  "styl": ".white-bg.b-exnova-text-106 {  background:#fff  }\n.b-exnova-text-106 .nopoint {  cursor:default!important;display:block  }\n.b-exnova-text-106 .black-title, .b-exnova-text-106 .title .red {  font-family:Helvetica!important  }\n.b-exnova-text-106 .black-title {  color:#2a3554;font-size:36px;line-height:48px;font-weight:700  }\n@media screen and (max-width:600px) {\n  .b-exnova-text-106 .black-title {  font-size:30px!important;line-height:40px!important  }\n}\n.b-exnova-text-106 .black-sub, .b-exnova-text-106 .redish b, .b-exnova-text-106 .text, .b-exnova-text-106 .text a {  font-family:Helvetica!important  }\n.b-exnova-text-106 .text {  font-size:16px;line-height:24px;color:#293455;font-weight:400  }\n.b-exnova-text-106 .redish b, .b-exnova-text-106 .text a {  color:#213e8f;font-weight:700  }\n.b-exnova-text-106 .redish b {  color:#ff4341  }\n.b-exnova-text-106 .mtb30 {  margin-top:30px;margin-bottom:30px  }",
+  "slots": [
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://static.cdnpub.info/files/storage/public/5f/51/18db23b387c4d3d6d3/lines.png"
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_Exnova"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_Exnova/mail-tournament"
+  ],
+  "createdAt": "2026-07-06T12:09:50.974Z",
+  "validated": true
+}

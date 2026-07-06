@@ -1,0 +1,37 @@
+{
+  "id": "exnova-text-26",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_Exnova (2 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.pt12.center.brake-word.b-exnova-text-26 {{ text_1 }} {{embedded.brand_name}} {{ text_2 }}",
+  "styl": ".text.b-exnova-text-26 {  font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 27px;  }\n@media screen and (max-width: 600px) {\n  .text.b-exnova-text-26 {  font-size: 16px !important;\n    line-height: 22px !important;  }\n}\n.text.bold.b-exnova-text-26 {  font-weight: 700;  }\n.pt12.b-exnova-text-26 {  padding-top: 12px;  }\n@media screen and (max-width: 600px) {\n  .text.mob-text.b-exnova-text-26, .b-exnova-text-26 .grey-text.mob-text {  font-size: 17px !important;  }\n}\n.brake-word.b-exnova-text-26 {  word-break: break-word;  }\n.text.b-exnova-text-26 {  font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:27px  }\n@media screen and (max-width:600px) {\n  .text.b-exnova-text-26 {  font-size:16px!important;line-height:22px!important  }\n}\n.b-exnova-text-26 .big, .text.bold.b-exnova-text-26 {  font-weight:700  }\n.pt12.b-exnova-text-26 {  padding-top:12px  }\n@media screen and (max-width:600px) {\n  .b-exnova-text-26 .grey-text.mob-text, .text.mob-text.b-exnova-text-26 {  font-size:17px!important  }\n}\n.brake-word.b-exnova-text-26 {  word-break:break-word  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_Exnova"
+  ],
+  "usageCount": 2,
+  "sourceMails": [
+    "X_Exnova/mail-Strategy-bonus_Exnova",
+    "X_Exnova/mail-Strategy-bonus_Exnova-3"
+  ],
+  "createdAt": "2026-07-06T12:09:50.964Z",
+  "validated": true
+}

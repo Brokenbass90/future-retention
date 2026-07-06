@@ -1,0 +1,48 @@
+{
+  "id": "exnova-text-80",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_Exnova (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.pb32.center.plr32.b-exnova-text-80 {{ text_1 }}&nbsp;\n    a.link(href=\"{{ href_1 }}\" target=\"_blank\") {{ text_2 }}\n    |{{ text_3 }}",
+  "styl": ".text.b-exnova-text-80 {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 28px;\n  color: #fff;  }\n.text.bold.b-exnova-text-80 {  font-weight: 700;  }\n.plr32.b-exnova-text-80 {  padding-left: 32px;\n  padding-right: 32px;  }\n@media screen and (max-width: 600px) {\n  .plr32.b-exnova-text-80 {  padding-left: 20px !important;\n    padding-right: 20px !important;  }\n}\n.b-exnova-text-80 .link {  text-decoration: underline !important;\n  color: #fff !important;  }\n.pb32.b-exnova-text-80 {  padding-bottom: 32px;  }\n.text.b-exnova-text-80, .b-exnova-text-80 .text-2 {  font-style:normal;font-weight:400  }\n.text.b-exnova-text-80 {  font-family:Helvetica!important;font-size:18px;line-height:28px;color:#fff  }\n.text.bold.b-exnova-text-80 {  font-weight:700  }\n.plr32.b-exnova-text-80 {  padding-left:32px;padding-right:32px  }\n@media screen and (max-width:600px) {\n  .plr32.b-exnova-text-80 {  padding-left:20px!important;padding-right:20px!important  }\n}\n.b-exnova-text-80 .link {  text-decoration:underline!important;color:#fff!important  }\n.pb32.b-exnova-text-80 {  padding-bottom:32px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://exnova.com/en/terms/promocodes-policy/?aff=7&afftrack=mail_exnova-Trade-on-weekend&retrack=mail_exnova-Trade-on-weekend"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_Exnova"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_Exnova/mail-Trade-on-weekend"
+  ],
+  "createdAt": "2026-07-06T12:09:50.971Z",
+  "validated": true
+}

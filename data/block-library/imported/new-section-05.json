@@ -1,0 +1,29 @@
+{
+  "id": "new-section-05",
+  "label": "Секция",
+  "description": "Импортирован из X_new (1 писем). Секция.",
+  "placement": "section",
+  "category": "section",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.br-full.light-black-col.b-new-section-05\n    tr\n        td.wrapper.last.pt0.bg-head\n            table.twelve.columns\n                tr\n                    td.pb0\n                        a(href=\"#\" target=\"_blank\")\n                            img.center(src=\"{{ image_1 }}\")\n                        p.title-top.center.plr50 Affstore after-party flashback!",
+  "styl": ".light-black-col.b-new-section-05 {  background:#000001!important  }\n.b-new-section-05 .bg-head {  background:url(\"https://fsms.quadcode.com/storage/public/cj/0f/jcg3jov9srte6rg0/Rectangle 164.png\") center bottom no-repeat;background-size:100%;height:auto  }\n.b-new-section-05 .title-top {  font-family:Helvetica!important;font-weight:700;font-size:42px;line-height:50px;color:#fefaf4;padding-bottom:36px;padding-top:4px  }\n@media screen and (max-width:600px) {\n  .b-new-section-05 .title-top {  font-size:28px!important;line-height:34px!important  }\n}\n.b-new-section-05 .plr50 {  padding-left:50px;padding-right:50px  }\n@media screen and (max-width:600px) {\n  .b-new-section-05 .plr50 {  padding-left:20px!important;padding-right:20px!important  }\n}\n.br-full.b-new-section-05 {  border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px  }",
+  "slots": [
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/cj/0f/jco3jov9srte6rgg/Rectangle.png"
+    }
+  ],
+  "tags": [
+    "section",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-Post-IGB-party-email"
+  ],
+  "createdAt": "2026-07-06T12:10:00.056Z",
+  "validated": true
+}

@@ -32,6 +32,8 @@ const OUTPUT_CATEGORY = "_promote";
 // ─── args ────────────────────────────────────────────────────────────────
 const argv = process.argv.slice(2);
 const category = (() => { const i = argv.indexOf("--category"); return i >= 0 ? argv[i + 1] : "X_IQ"; })();
+// id prefix per source category: X_IQ → iq, X_Exnova → exnova, X_AffSystem → affsystem…
+const PREFIX = category.replace(/^X_/i, "").toLowerCase().replace(/[^a-z0-9]+/g, "") || "x";
 const validate = !argv.includes("--no-validate");
 
 // ─── content tokenization → slots ─────────────────────────────────────────
@@ -295,7 +297,7 @@ async function main() {
     catCounters[cat] = (catCounters[cat] || 0) + 1;
     let pug, slots, styl;
     const h = hash(key);
-    const id = isSpacer ? "iq-spacer" : `iq-${slug(cat)}-${String(catCounters[cat]).padStart(2, "0")}`;
+    const id = isSpacer ? `${PREFIX}-spacer` : `${PREFIX}-${slug(cat)}-${String(catCounters[cat]).padStart(2, "0")}`;
     if (isSpacer) {
       const def = spacerHeights.length
         ? spacerHeights.sort((a, b) => a - b)[Math.floor(spacerHeights.length / 2)]
@@ -316,7 +318,7 @@ async function main() {
       id,
       hash: h,
       label: isSpacer ? "Спейсер (настраиваемая высота)" : (rep.label || cat),
-      description: `Импортирован из X_IQ (${e.count} писем). ${rep.scope === "inline" ? "Inline-элемент." : "Секция."}`,
+      description: `Импортирован из ${category} (${e.count} писем). ${rep.scope === "inline" ? "Inline-элемент." : "Секция."}`,
       placement: rep.placement || (rep.scope === "inline" ? "inline" : "section"),
       category: cat,
       version: 1,
@@ -324,7 +326,7 @@ async function main() {
       pug,
       styl,
       slots,
-      tags: Array.from(new Set([cat, rep.scope, "X_IQ"])),
+      tags: Array.from(new Set([cat, rep.scope, category])),
       usageCount: e.count,
       sourceMails: Array.from(e.mails).sort().slice(0, 20),
       createdAt: new Date().toISOString(),
@@ -346,17 +348,29 @@ async function main() {
     }
   }
 
-  // write library
+  // write library — clear ONLY this category's previous blocks
   mkdirSync(importedDir, { recursive: true });
-  // clear previous imported (best-effort)
-  for (const f of readdirSync(importedDir)) { if (f.endsWith(".json") && f !== "index.json") { try { rmSync(path.join(importedDir, f)); } catch {} } }
-  const index = [];
+  for (const f of readdirSync(importedDir)) {
+    if (f.endsWith(".json") && f !== "index.json" && f.startsWith(`${PREFIX}-`)) {
+      try { rmSync(path.join(importedDir, f)); } catch {}
+    }
+  }
   for (const b of passed) {
     const { hash: _h, failReason, ...clean } = b;
     writeFileSync(path.join(importedDir, `${b.id}.json`), JSON.stringify(clean, null, 2) + "\n", "utf8");
-    index.push({ id: b.id, label: b.label, placement: b.placement, category: b.category, usageCount: b.usageCount, slots: b.slots.length, hasMedia: /@media/.test(b.styl) });
   }
-  writeFileSync(path.join(importedDir, "index.json"), JSON.stringify({ generatedAt: new Date().toISOString(), category, count: index.length, blocks: index }, null, 2) + "\n", "utf8");
+  // index.json = union of ALL categories currently on disk
+  const index = [];
+  for (const f of readdirSync(importedDir).sort()) {
+    if (!f.endsWith(".json") || f === "index.json" || f.startsWith("_")) continue;
+    try {
+      const b = JSON.parse(readFileSync(path.join(importedDir, f), "utf8"));
+      if (b.validated === false) continue;
+      index.push({ id: b.id, label: b.label, placement: b.placement, category: b.category, usageCount: b.usageCount || 0, slots: (b.slots || []).length, hasMedia: /@media/.test(b.styl || ""), validated: b.validated ?? null });
+    } catch {}
+  }
+  index.sort((a, b2) => (a.placement !== b2.placement ? (a.placement === "section" ? -1 : 1) : b2.usageCount - a.usageCount));
+  writeFileSync(path.join(importedDir, "index.json"), JSON.stringify({ generatedAt: new Date().toISOString(), count: index.length, blocks: index }, null, 2) + "\n", "utf8");
 
   // report
   console.log(`\ncandidates: ${candidates.length}  →  unique skeletons: ${byKey.size}  →  promoted: ${passed.length}${validate ? `  (failed validation: ${failed.length})` : " (not validated)"}`);

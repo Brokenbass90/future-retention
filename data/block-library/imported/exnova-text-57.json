@@ -1,0 +1,48 @@
+{
+  "id": "exnova-text-57",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_Exnova (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.pb16.b-exnova-text-57 {{ text_1 }}&nbsp;\n    a(href=\"{{ href_1 }}\" target=\"_blank\") {{ text_2 }}\n    |&nbsp;{{ text_3 }}",
+  "styl": ".text.b-exnova-text-57 {  font-family: Helvetica !important;\n  color: #262832;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 25px;  }\n.text.b-exnova-text-57 a {  color: #0173ca !important;  }\n.text.bold.b-exnova-text-57 {  font-weight: 700;  }\n.pb16.b-exnova-text-57 {  padding-bottom: 16px;  }\n.b-exnova-text-57 .grey-text, .text.b-exnova-text-57 {  font-family:Helvetica!important;color:#262832;font-size:18px;font-weight:400;line-height:25px  }\n.text.b-exnova-text-57 a {  color:#0173ca!important  }\n.text.bold.b-exnova-text-57 {  font-weight:700  }\n.pb16.b-exnova-text-57 {  padding-bottom:16px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "mailto:{{embedded.company_email}}"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_Exnova"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_Exnova/mail-Teaser-email-5"
+  ],
+  "createdAt": "2026-07-06T12:09:50.967Z",
+  "validated": true
+}

@@ -1,0 +1,47 @@
+{
+  "id": "exnova-section-10",
+  "label": "Секция",
+  "description": "Импортирован из X_Exnova (1 писем). Секция.",
+  "placement": "section",
+  "category": "section",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.brad-top.brad-bot.b-exnova-section-10\n    tr\n        td.wrapper.last.offset-by-one.pt30\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb30\n                        p.small-text {{ text_1 }}&ensp;\n                            a(href=\"{{ href_1 }}\" target=\"_blank\") {{ text_2 }}\n                            | &ensp;{{ text_3 }}",
+  "styl": ".brad-top.b-exnova-section-10 {  border-top-left-radius:0;border-top-right-radius:0  }\n.brad-bot.b-exnova-section-10 {  border-bottom-left-radius:0;border-bottom-right-radius:0  }\n.b-exnova-section-10 .small-text a, .b-exnova-section-10 .text, .b-exnova-section-10 .text a {  font-family:Helvetica!important  }\n.b-exnova-section-10 .small-text a, .b-exnova-section-10 .text a {  color:#0074cc  }\n.b-exnova-section-10 .small-text {  color:#3e414b;font-size:14px;line-height:22px;font-weight:400  }\n.b-exnova-section-10 .bold-text, .b-exnova-section-10 .small-text, .b-exnova-section-10 span.red {  font-family:Helvetica!important  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "mailto:{{embedded.company_email}}"
+    }
+  ],
+  "tags": [
+    "section",
+    "X_Exnova"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_Exnova/mail-suspicious-geo"
+  ],
+  "createdAt": "2026-07-06T12:09:50.973Z",
+  "validated": true
+}

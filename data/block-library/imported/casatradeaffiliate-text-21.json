@@ -1,0 +1,66 @@
+{
+  "id": "casatradeaffiliate-text-21",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_CasaTradeAffiliate (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.brad-full.white-bg.b-casatradeaffiliate-text-21\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.middle-title.pb32 {{ text_1 }}\n                        .purple-block.purple-block-1\n                            p.place {{ text_2 }}\n                            .min-width\n                                p.subtitle.pt60.pb8 {{ text_3 }}\n                                p.text {{ text_4 }}\n                                //- table.w100\n                                //-     tr\n                                //-         td.pb5.m-w\n                                //-             p.small-dot.center &bull;\n                                //-         td.pb5.w-a\n                                //-             p.text {{ text_3 }}\n                                //-     tr\n                                //-         td.pb0.m-w\n                                //-             p.small-dot.center &bull;\n                                //-         td.pb0.w-a\n                                //-             p.text {{ text_4 }}\n                        .h-8 &nbsp;\n                        .purple-block.purple-block-2\n                            p.place {{ text_5 }}\n                            .min-width\n                                p.subtitle.pt60.pb8 {{ text_6 }}\n                                p.text {{ text_7 }}",
+  "styl": ".brad-full.b-casatradeaffiliate-text-21 {  border-radius: 16px !important;  }\n.white-bg.b-casatradeaffiliate-text-21 {  background: #fff;  }\n.b-casatradeaffiliate-text-21 .middle-title {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle;  }\n@media screen and (max-width: 600px) {\n  .b-casatradeaffiliate-text-21 .middle-title {  font-size: 24px !important;\n    line-height: 32px !important;  }\n}\n.b-casatradeaffiliate-text-21 .text {  font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 24px;  }\n.b-casatradeaffiliate-text-21 .text.bold {  font-weight: 700;  }\n.b-casatradeaffiliate-text-21 .pb32 {  padding-bottom: 32px;  }\n.b-casatradeaffiliate-text-21 .pb44 {  padding-bottom: 44px;  }\n.b-casatradeaffiliate-text-21 .pt44 {  padding-top: 44px;  }\n.b-casatradeaffiliate-text-21 .text.mob-text, .b-casatradeaffiliate-text-21 .img-box {  float: none !important;\n  max-width: 232px !important;\n  display: block !important;  }\n.brad-full.b-casatradeaffiliate-text-21 {  border-radius:16px!important  }\n.white-bg.b-casatradeaffiliate-text-21 {  background:#fff  }\n.b-casatradeaffiliate-text-21 .subtitle {  font-family:Helvetica!important;font-weight:700;font-size:24px;line-height:31px;color:#3e3752  }\n@media screen and (max-width:600px) {\n  .b-casatradeaffiliate-text-21 .subtitle {  font-size:20px!important;line-height:28px!important  }\n}\n.b-casatradeaffiliate-text-21 .middle-title {  font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#3e3752  }\n@media screen and (max-width:600px) {\n  .b-casatradeaffiliate-text-21 .middle-title {  font-size:24px!important;line-height:32px!important  }\n}\n.b-casatradeaffiliate-text-21 .small-dot, .b-casatradeaffiliate-text-21 .text {  font-family:Helvetica!important;font-size:18px;line-height:27px;color:#3e3752  }\n.b-casatradeaffiliate-text-21 .text {  letter-spacing:0  }\n.b-casatradeaffiliate-text-21 .big, .b-casatradeaffiliate-text-21 .text.bold {  font-weight:700  }\n.b-casatradeaffiliate-text-21 .pb8 {  padding-bottom:10px  }\n.b-casatradeaffiliate-text-21 .pb32 {  padding-bottom:32px  }\n.b-casatradeaffiliate-text-21 .pb44 {  padding-bottom:44px  }\n.b-casatradeaffiliate-text-21 .pt44 {  padding-top:44px  }\n.b-casatradeaffiliate-text-21 .pt60 {  padding-top:60px  }\n.b-casatradeaffiliate-text-21 .h-12, .b-casatradeaffiliate-text-21 .h-16, .b-casatradeaffiliate-text-21 .h-8 {  font-size:8px;line-height:8px;height:8px  }\n.b-casatradeaffiliate-text-21 .img-box, .b-casatradeaffiliate-text-21 .text.mob-text {  float:none!important;max-width:232px!important;display:block!important  }\n.b-casatradeaffiliate-text-21 .purple-block {  padding:24px;background:#f7f7fc url(\"https://fsms.quadcode.com/storage/public/cv/dv/k33jqakhdj8lo51g/container (1).png\") center no-repeat;background-size:cover;border-radius:16px  }\n.b-casatradeaffiliate-text-21 .min-width {  max-width:262px  }\n.b-casatradeaffiliate-text-21 .purple-block-2 {  padding:24px;background:#f7f7fc url(\"https://fsms.quadcode.com/storage/public/cv/dv/k33jqakhdj8lo520/container (2).png\") center no-repeat;background-size:cover;border-radius:16px  }\n.b-casatradeaffiliate-text-21 .place {  display:inline-block;padding:6px 16px;background:#e8e1ff;border-radius:12px;font-family:Helvetica!important;font-weight:700;font-size:18px;line-height:27px;color:#3e3752  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_7",
+      "kind": "richText",
+      "label": "Текст 7",
+      "default": "Текст блока — отредактируйте под кампанию."
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_CasaTradeAffiliate"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_CasaTradeAffiliate/mail-First-Contest"
+  ],
+  "createdAt": "2026-07-06T12:09:59.794Z",
+  "validated": true
+}

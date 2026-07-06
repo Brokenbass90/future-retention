@@ -1,0 +1,956 @@
+{
+  "category": "X_IQBroker",
+  "mailId": "success",
+  "mailAbs": "email-base/X_IQBroker/mail-success",
+  "blockCount": 8,
+  "blocks": [
+    {
+      "id": "x-iqbroker-success-header-header-0",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "kind": "section",
+      "sourceFile": "X_IQBroker/mail-success/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.offset-by-one.pt0\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb0\n                        a(href=\"https://api.trade.iqbroker.com/v1/multi-links/open-asset?aff=7&afftrack=mail_success&retrack=mail_success&type=forex&asset=1\" universal=\"true\" target=\"_blank\")\n                            img.logo.center(src=\"https://fsms.quadcode.com/storage/public/d5/ss/e6gggnfnh4cs771g/logo-broker.png\")",
+      "styl": "",
+      "classes": [
+        "center",
+        "columns",
+        "last",
+        "logo",
+        "offset-by-one",
+        "pb0",
+        "pt0",
+        "row",
+        "ten",
+        "text-pad-small",
+        "wrapper"
+      ],
+      "designClasses": [],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://api.trade.iqbroker.com/v1/multi-links/open-asset?aff=7&afftrack=mail_success&retrack=mail_success&type=forex&asset=1"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d5/ss/e6gggnfnh4cs771g/logo-broker.png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-iqbroker-success-header-cta-1",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "kind": "section",
+      "sourceFile": "X_IQBroker/mail-success/app/templates/blocks/header.jade",
+      "pug": "table.row.brad-full.color-bg\n    tr\n        td.wrapper.last.pt0\n            table.twelve.columns\n                tr\n                    td.pb10\n                        a(href=\"#\" universal=\"true\" target=\"_blank\")\n                            img.center(src=\"https://fsms.quadcode.com/storage/public/d5/tm/amnvhhgea139uka0/success-head.png\")\n    tr\n        td.wrapper.last.offset-by-one.pt0\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb50.pt10\n                        p.white-title.pb16 ${{ success-iqbroker.block_01 }}$\n                        p.white-text  ${{ success-iqbroker.block_02 }}$\n                        .h-24 &nbsp;\n                        table.w280(align=\"left\" style=\"width: 100%;\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"https://api.trade.iqbroker.com/v1/multi-links/deposit?aff=7&afftrack=mail_success&retrack=mail_success\" universal=\"true\" target=\"_blank\") ${{ success-iqbroker.block_03 }}$",
+      "styl": ".w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { max-width: 100% !important; }\n}\n.brad-full { border-radius: 32px !important; }\n.butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.color-bg { background-color: #101314; }\n.white-title { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 48px;\n  line-height: 58px;\n  color: #f9f9f9;\n  word-break: break-word; }\n@media screen and (max-width: 600px) {\n  .white-title { font-size: 26px !important;\n    line-height: 32px !important; }\n}\n.white-text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #fff; }\n.pb16 { padding-bottom: 16px; }\n.h-24 { font-size: 8px;\n  line-height: 24px;\n  height: 24px; }\n.w280 { width:100%;max-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { max-width:100%!important }\n}\n.brad-full,.brad-full-32 { border-radius:32px!important }\n.butt-link,.butt-link-2 { font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#f9f9f9;display:block;line-height:27px;padding:14px 0;text-align:center;letter-spacing:0 }\n.butt-link { padding:16px 0 }\n.color-bg { background-color:#101314 }\n.white-title { font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:48px;line-height:58px;color:#f9f9f9;word-break:break-word }\n@media screen and (max-width:600px) {\n  .white-title { font-size:26px!important;line-height:32px!important }\n}\n.white-text { font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#fff }\n.pb16 { padding-bottom:16px }\n.h-20,.h-24,.h-28 { font-size:8px;line-height:20px;height:20px }\n.h-24,.h-28 { line-height:24px;height:24px }",
+      "classes": [
+        "brad-full",
+        "butt",
+        "butt-link",
+        "center",
+        "color-bg",
+        "columns",
+        "h-24",
+        "last",
+        "offset-by-one",
+        "pb0",
+        "pb10",
+        "pb16",
+        "pb50",
+        "pt0",
+        "pt10",
+        "row",
+        "ten",
+        "text-pad-small",
+        "twelve",
+        "w280",
+        "white-text",
+        "white-title",
+        "wrapper"
+      ],
+      "designClasses": [
+        "brad-full",
+        "butt-link",
+        "color-bg",
+        "h-24",
+        "pb16",
+        "w280",
+        "white-text",
+        "white-title"
+      ],
+      "slots": [
+        {
+          "id": "text_block_01",
+          "kind": "richText",
+          "label": "Текст success-iqbroker.block_01",
+          "token": "${{ success-iqbroker.block_01 }}$",
+          "ns": "success-iqbroker",
+          "block": "block_01"
+        },
+        {
+          "id": "text_block_02",
+          "kind": "richText",
+          "label": "Текст success-iqbroker.block_02",
+          "token": "${{ success-iqbroker.block_02 }}$",
+          "ns": "success-iqbroker",
+          "block": "block_02"
+        },
+        {
+          "id": "text_block_03",
+          "kind": "richText",
+          "label": "Текст success-iqbroker.block_03",
+          "token": "${{ success-iqbroker.block_03 }}$",
+          "ns": "success-iqbroker",
+          "block": "block_03"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://api.trade.iqbroker.com/v1/multi-links/deposit?aff=7&afftrack=mail_success&retrack=mail_success"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d5/tm/amnvhhgea139uka0/success-head.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-iqbroker-success-header-cta-1-heading-0",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.white-title.pb16 ${{ success-iqbroker.block_01 }}$",
+          "styl": ".white-title { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 48px;\n  line-height: 58px;\n  color: #f9f9f9;\n  word-break: break-word; }\n@media screen and (max-width: 600px) {\n  .white-title { font-size: 26px !important;\n    line-height: 32px !important; }\n}\n.pb16 { padding-bottom: 16px; }\n.white-title { font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:48px;line-height:58px;color:#f9f9f9;word-break:break-word }\n@media screen and (max-width:600px) {\n  .white-title { font-size:26px!important;line-height:32px!important }\n}\n.pb16 { padding-bottom:16px }",
+          "classes": [
+            "pb16",
+            "white-title"
+          ],
+          "designClasses": [
+            "pb16",
+            "white-title"
+          ],
+          "slots": [
+            {
+              "id": "text_block_01",
+              "kind": "richText",
+              "label": "Текст success-iqbroker.block_01",
+              "token": "${{ success-iqbroker.block_01 }}$",
+              "ns": "success-iqbroker",
+              "block": "block_01"
+            }
+          ]
+        },
+        {
+          "id": "x-iqbroker-success-header-cta-1-paragraph-1",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.white-text  ${{ success-iqbroker.block_02 }}$",
+          "styl": ".white-text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #fff; }\n.white-text { font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#fff }",
+          "classes": [
+            "white-text"
+          ],
+          "designClasses": [
+            "white-text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_02",
+              "kind": "richText",
+              "label": "Текст success-iqbroker.block_02",
+              "token": "${{ success-iqbroker.block_02 }}$",
+              "ns": "success-iqbroker",
+              "block": "block_02"
+            }
+          ]
+        },
+        {
+          "id": "x-iqbroker-success-header-cta-1-spacer-2",
+          "label": "Спейсер 24px",
+          "placement": "inline",
+          "category": "utility",
+          "pug": ".h-24 &nbsp;",
+          "styl": ".h-24 { font-size: 8px;\n  line-height: 24px;\n  height: 24px; }\n.h-20,.h-24,.h-28 { font-size:8px;line-height:20px;height:20px }\n.h-24,.h-28 { line-height:24px;height:24px }",
+          "classes": [
+            "h-24"
+          ],
+          "designClasses": [
+            "h-24"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-iqbroker-success-header-cta-1-cta-button-3",
+          "label": "CTA-кнопка (w280)",
+          "placement": "inline",
+          "category": "cta",
+          "pug": "table.w280(align=\"left\" style=\"width: 100%;\")\n    tr\n        td.butt.pb0\n            a.butt-link(href=\"https://api.trade.iqbroker.com/v1/multi-links/deposit?aff=7&afftrack=mail_success&retrack=mail_success\" universal=\"true\" target=\"_blank\") ${{ success-iqbroker.block_03 }}$",
+          "styl": ".w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { max-width: 100% !important; }\n}\n.butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.w280 { width:100%;max-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { max-width:100%!important }\n}\n.butt-link,.butt-link-2 { font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#f9f9f9;display:block;line-height:27px;padding:14px 0;text-align:center;letter-spacing:0 }\n.butt-link { padding:16px 0 }",
+          "classes": [
+            "butt",
+            "butt-link",
+            "pb0",
+            "w280"
+          ],
+          "designClasses": [
+            "butt-link",
+            "w280"
+          ],
+          "slots": [
+            {
+              "id": "text_block_03",
+              "kind": "richText",
+              "label": "Текст success-iqbroker.block_03",
+              "token": "${{ success-iqbroker.block_03 }}$",
+              "ns": "success-iqbroker",
+              "block": "block_03"
+            },
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://api.trade.iqbroker.com/v1/multi-links/deposit?aff=7&afftrack=mail_success&retrack=mail_success"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-iqbroker-success-header-utility-2",
+      "label": "Спейсер 12px",
+      "placement": "inline",
+      "category": "utility",
+      "kind": "spacer",
+      "sourceFile": "X_IQBroker/mail-success/app/templates/blocks/header.jade",
+      "pug": ".h-12 &nbsp;",
+      "styl": ".h-12 { font-size: 8px;\n  line-height: 12px;\n  height: 12px; }\n.h-12,.h-16,.h-8 { font-size:8px;line-height:8px;height:8px }\n.h-12,.h-16 { line-height:12px;height:12px }",
+      "classes": [
+        "h-12"
+      ],
+      "designClasses": [
+        "h-12"
+      ],
+      "slots": [],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-iqbroker-success-header-section-3",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "kind": "section",
+      "sourceFile": "X_IQBroker/mail-success/app/templates/blocks/header.jade",
+      "pug": "table.row.brad-full(style=\"border: 4px solid #1A1D1E;\")\n    tr\n        td.wrapper.last.offset-by-one.pt0\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb16.pt44\n                        p.middle-title.pb12 ${{ success-iqbroker.block_04 }}$\n                        p.white-text.pb32  ${{ success-iqbroker.block_05 }}$\n                        .left-block\n                            .padding-block\n                                p.block-text.pb8 ${{ success-iqbroker.block_06 }}$\n                                p.block-subtitle ${{ success-iqbroker.block_07 }}$\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                   img.center(src=\"https://fsms.quadcode.com/storage/public/d5/u9/bvnvhhgea139ukd0/2-2.png\")\n                        .right-block\n                            .top-block.mb16\n                                p.block-text.pb8 ${{ success-iqbroker.block_08 }}$\n                                p.block-subtitle ${{ success-iqbroker.block_09 }}$\n                            .top-block\n                                p.block-text(style=\"padding-right: 12px;\").pb8 ${{ success-iqbroker.block_10 }}$\n                                p.block-subtitle ${{ success-iqbroker.block_11 }}$\n                tr\n                    td.text-pad-small.pb16.pt0\n                        .middle-block\n                            .w70\n                                p.block-text.pb32 ${{ success-iqbroker.block_12 }}$\n                                p.block-subtitle ${{ success-iqbroker.block_13 }}$\n                tr\n                    td.text-pad-small.pb16.pt0\n                        .left-block\n                            .padding-block\n                                p.block-text.pb8 ${{ success-iqbroker.block_14 }}$\n                                p.block-subtitle ${{ success-iqbroker.block_15 }}$\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                   img.center(src=\"https://fsms.quadcode.com/storage/public/d5/u9/bvgggnfnh4cs77l0/4-4.png\")\n                        .right-block\n                            .top-block.mb16\n                                p.block-text.pb8 ${{ success-iqbroker.block_16 }}$\n                                p.block-subtitle ${{ success-iqbroker.block_17 }}$\n                            .top-block(style=\"padding: 32px 14px 32px 32px;\")\n                                p.block-text.pb8 ${{ success-iqbroker.block_18 }}$\n                                p.block-subtitle ${{ success-iqbroker.block_19 }}$\n                tr\n                    td.text-pad-small.pb44.pt0\n                        .middle-block-bot\n                            .w70\n                                p.block-text.pb32 ${{ success-iqbroker.block_20 }}$\n                                p.block-subtitle ${{ success-iqbroker.block_21 }}$",
+      "styl": ".brad-full { border-radius: 32px !important; }\n.middle-title { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #ececed; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 26px !important;\n    line-height: 32px !important; }\n}\n.white-text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #fff; }\n.pb8 { padding-bottom: 8px; }\n.pb12 { padding-bottom: 12px !important; }\n.pb16 { padding-bottom: 16px; }\n.pb32 { padding-bottom: 32px; }\n.pb44 { padding-bottom: 44px; }\n.pt44 { padding-top: 44px; }\n.left-block { display: inline-block;\n  vertical-align: top;\n  width: 232px;\n  background: #101314;\n  border-radius: 16px; }\n@media screen and (max-width: 600px) {\n  .left-block { float: none !important;\n    display: block !important;\n    margin: 0 auto 16px !important; }\n}\n.padding-block { padding: 32px 32px 0 32px; }\n.right-block { display: inline-block;\n  vertical-align: top;\n  width: 232px;\n  float: right; }\n@media screen and (max-width: 600px) {\n  .right-block { float: none !important;\n    display: block !important;\n    margin: 0 auto; }\n}\n.top-block { padding: 32px 32px 32px 32px;\n  background: #101314;\n  border-radius: 16px; }\n.mb16 { margin-bottom: 16px; }\n.middle-block { background: #101314 url(\"https://fsms.quadcode.com/storage/public/d5/tm/amnvhhgea139uk8g/success-2.png\") center no-repeat;\n  background-size: cover;\n  padding: 32px;\n  border-radius: 16px; }\n@media screen and (max-width: 600px) {\n  .middle-block { background: #101314 !important;\n    width: 168px !important;\n    margin: 0 auto !important; }\n}\n.middle-block-bot { background: #101314 url(\"https://fsms.quadcode.com/storage/public/d5/tm/amnvhhgea139uk9g/success-4.png\") center no-repeat;\n  background-size: cover;\n  padding: 32px;\n  border-radius: 16px; }\n@media screen and (max-width: 600px) {\n  .middle-block-bot { background: #101314 !important;\n    width: 168px !important;\n    margin: 0 auto !important; }\n}\n.block-text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #ececed; }\n.w70 { width: 60%; }\n@media screen and (max-width: 600px) {\n  .w70 { width: auto !important; }\n}\n.block-subtitle { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  color: #ececed; }\n.brad-full,.brad-full-32 { border-radius:32px!important }\n.middle-title { font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:32px;line-height:42px;color:#ececed }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:26px!important;line-height:32px!important }\n}\n.white-text { font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#fff }\n.pb8 { padding-bottom:8px }\n.pb12 { padding-bottom:12px!important }\n.pb16 { padding-bottom:16px }\n.pb32 { padding-bottom:32px }\n.pb44 { padding-bottom:44px }\n.pt44 { padding-top:44px }\n.left-block { display:inline-block;vertical-align:top;width:232px;background:#101314;border-radius:16px }\n@media screen and (max-width:600px) {\n  .left-block { float:none!important;display:block!important;margin:0 auto 16px!important }\n}\n.padding-block { padding:32px 32px 0 }\n.right-block { display:inline-block;vertical-align:top;width:232px;float:right }\n@media screen and (max-width:600px) {\n  .right-block { float:none!important;display:block!important;margin:0 auto }\n}\n.top-block { padding:32px;background:#101314;border-radius:16px }\n.mb16 { margin-bottom:16px }\n.middle-block { background:#101314 url(https://fsms.quadcode.com/storage/public/d5/tm/amnvhhgea139uk8g/success-2.png) center no-repeat;background-size:cover;padding:32px;border-radius:16px }\n@media screen and (max-width:600px) {\n  .middle-block { background:#101314!important;width:168px!important;margin:0 auto!important }\n}\n.middle-block-bot { background:#101314 url(https://fsms.quadcode.com/storage/public/d5/tm/amnvhhgea139uk9g/success-4.png) center no-repeat;background-size:cover;padding:32px;border-radius:16px }\n@media screen and (max-width:600px) {\n  .middle-block-bot { background:#101314!important;width:168px!important;margin:0 auto!important }\n}\n.block-text { font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#ececed }\n.w70 { width:60% }\n@media screen and (max-width:600px) {\n  .w70 { width:auto!important }\n}\n.block-gray,.block-subtitle { font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:24px;line-height:31px;color:#ececed }",
+      "classes": [
+        "block-subtitle",
+        "block-text",
+        "brad-full",
+        "center",
+        "columns",
+        "last",
+        "left-block",
+        "mb16",
+        "middle-block",
+        "middle-block-bot",
+        "middle-title",
+        "offset-by-one",
+        "padding-block",
+        "pb12",
+        "pb16",
+        "pb32",
+        "pb44",
+        "pb8",
+        "pt0",
+        "pt44",
+        "right-block",
+        "row",
+        "ten",
+        "text-pad-small",
+        "top-block",
+        "w70",
+        "white-text",
+        "wrapper"
+      ],
+      "designClasses": [
+        "block-subtitle",
+        "block-text",
+        "brad-full",
+        "left-block",
+        "mb16",
+        "middle-block",
+        "middle-block-bot",
+        "middle-title",
+        "padding-block",
+        "pb12",
+        "pb16",
+        "pb32",
+        "pb44",
+        "pb8",
+        "pt44",
+        "right-block",
+        "top-block",
+        "w70",
+        "white-text"
+      ],
+      "slots": [
+        {
+          "id": "text_block_04",
+          "kind": "richText",
+          "label": "Текст success-iqbroker.block_04",
+          "token": "${{ success-iqbroker.block_04 }}$",
+          "ns": "success-iqbroker",
+          "block": "block_04"
+        },
+        {
+          "id": "text_block_05",
+          "kind": "richText",
+          "label": "Текст success-iqbroker.block_05",
+          "token": "${{ success-iqbroker.block_05 }}$",
+          "ns": "success-iqbroker",
+          "block": "block_05"
+        },
+        {
+          "id": "text_block_06",
+          "kind": "richText",
+          "label": "Текст success-iqbroker.block_06",
+          "token": "${{ success-iqbroker.block_06 }}$",
+          "ns": "success-iqbroker",
+          "block": "block_06"
+        },
+        {
+          "id": "text_block_07",
+          "kind": "richText",
+          "label": "Текст success-iqbroker.block_07",
+          "token": "${{ success-iqbroker.block_07 }}$",
+          "ns": "success-iqbroker",
+          "block": "block_07"
+        },
+        {
+          "id": "text_block_08",
+          "kind": "richText",
+          "label": "Текст success-iqbroker.block_08",
+          "token": "${{ success-iqbroker.block_08 }}$",
+          "ns": "success-iqbroker",
+          "block": "block_08"
+        },
+        {
+          "id": "text_block_09",
+          "kind": "richText",
+          "label": "Текст success-iqbroker.block_09",
+          "token": "${{ success-iqbroker.block_09 }}$",
+          "ns": "success-iqbroker",
+          "block": "block_09"
+        },
+        {
+          "id": "text_block_10",
+          "kind": "richText",
+          "label": "Текст success-iqbroker.block_10",
+          "token": "${{ success-iqbroker.block_10 }}$",
+          "ns": "success-iqbroker",
+          "block": "block_10"
+        },
+        {
+          "id": "text_block_11",
+          "kind": "richText",
+          "label": "Текст success-iqbroker.block_11",
+          "token": "${{ success-iqbroker.block_11 }}$",
+          "ns": "success-iqbroker",
+          "block": "block_11"
+        },
+        {
+          "id": "text_block_12",
+          "kind": "richText",
+          "label": "Текст success-iqbroker.block_12",
+          "token": "${{ success-iqbroker.block_12 }}$",
+          "ns": "success-iqbroker",
+          "block": "block_12"
+        },
+        {
+          "id": "text_block_13",
+          "kind": "richText",
+          "label": "Текст success-iqbroker.block_13",
+          "token": "${{ success-iqbroker.block_13 }}$",
+          "ns": "success-iqbroker",
+          "block": "block_13"
+        },
+        {
+          "id": "text_block_14",
+          "kind": "richText",
+          "label": "Текст success-iqbroker.block_14",
+          "token": "${{ success-iqbroker.block_14 }}$",
+          "ns": "success-iqbroker",
+          "block": "block_14"
+        },
+        {
+          "id": "text_block_15",
+          "kind": "richText",
+          "label": "Текст success-iqbroker.block_15",
+          "token": "${{ success-iqbroker.block_15 }}$",
+          "ns": "success-iqbroker",
+          "block": "block_15"
+        },
+        {
+          "id": "text_block_16",
+          "kind": "richText",
+          "label": "Текст success-iqbroker.block_16",
+          "token": "${{ success-iqbroker.block_16 }}$",
+          "ns": "success-iqbroker",
+          "block": "block_16"
+        },
+        {
+          "id": "text_block_17",
+          "kind": "richText",
+          "label": "Текст success-iqbroker.block_17",
+          "token": "${{ success-iqbroker.block_17 }}$",
+          "ns": "success-iqbroker",
+          "block": "block_17"
+        },
+        {
+          "id": "text_block_18",
+          "kind": "richText",
+          "label": "Текст success-iqbroker.block_18",
+          "token": "${{ success-iqbroker.block_18 }}$",
+          "ns": "success-iqbroker",
+          "block": "block_18"
+        },
+        {
+          "id": "text_block_19",
+          "kind": "richText",
+          "label": "Текст success-iqbroker.block_19",
+          "token": "${{ success-iqbroker.block_19 }}$",
+          "ns": "success-iqbroker",
+          "block": "block_19"
+        },
+        {
+          "id": "text_block_20",
+          "kind": "richText",
+          "label": "Текст success-iqbroker.block_20",
+          "token": "${{ success-iqbroker.block_20 }}$",
+          "ns": "success-iqbroker",
+          "block": "block_20"
+        },
+        {
+          "id": "text_block_21",
+          "kind": "richText",
+          "label": "Текст success-iqbroker.block_21",
+          "token": "${{ success-iqbroker.block_21 }}$",
+          "ns": "success-iqbroker",
+          "block": "block_21"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d5/u9/bvnvhhgea139ukd0/2-2.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d5/u9/bvgggnfnh4cs77l0/4-4.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-iqbroker-success-header-section-3-heading-0",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.middle-title.pb12 ${{ success-iqbroker.block_04 }}$",
+          "styl": ".middle-title { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #ececed; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 26px !important;\n    line-height: 32px !important; }\n}\n.pb12 { padding-bottom: 12px !important; }\n.middle-title { font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:32px;line-height:42px;color:#ececed }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:26px!important;line-height:32px!important }\n}\n.pb12 { padding-bottom:12px!important }",
+          "classes": [
+            "middle-title",
+            "pb12"
+          ],
+          "designClasses": [
+            "middle-title",
+            "pb12"
+          ],
+          "slots": [
+            {
+              "id": "text_block_04",
+              "kind": "richText",
+              "label": "Текст success-iqbroker.block_04",
+              "token": "${{ success-iqbroker.block_04 }}$",
+              "ns": "success-iqbroker",
+              "block": "block_04"
+            }
+          ]
+        },
+        {
+          "id": "x-iqbroker-success-header-section-3-paragraph-1",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.white-text.pb32  ${{ success-iqbroker.block_05 }}$",
+          "styl": ".white-text { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #fff; }\n.pb32 { padding-bottom: 32px; }\n.white-text { font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#fff }\n.pb32 { padding-bottom:32px }",
+          "classes": [
+            "pb32",
+            "white-text"
+          ],
+          "designClasses": [
+            "pb32",
+            "white-text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_05",
+              "kind": "richText",
+              "label": "Текст success-iqbroker.block_05",
+              "token": "${{ success-iqbroker.block_05 }}$",
+              "ns": "success-iqbroker",
+              "block": "block_05"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-iqbroker-success-header-utility-4",
+      "label": "Спейсер 12px",
+      "placement": "inline",
+      "category": "utility",
+      "kind": "spacer",
+      "sourceFile": "X_IQBroker/mail-success/app/templates/blocks/header.jade",
+      "pug": ".h-12 &nbsp;",
+      "styl": ".h-12 { font-size: 8px;\n  line-height: 12px;\n  height: 12px; }\n.h-12,.h-16,.h-8 { font-size:8px;line-height:8px;height:8px }\n.h-12,.h-16 { line-height:12px;height:12px }",
+      "classes": [
+        "h-12"
+      ],
+      "designClasses": [
+        "h-12"
+      ],
+      "slots": [],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-iqbroker-success-header-cta-5",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "kind": "section",
+      "sourceFile": "X_IQBroker/mail-success/app/templates/blocks/header.jade",
+      "pug": "table.row.brad-full.bg-img-bottom(style=\"border: 4px solid #FF5500;\")\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        .w290\n                            p.middle-title.pb12 ${{ success-iqbroker.block_22 }}$\n                            p.text-2.pb28 ${{ success-iqbroker.block_23 }}$\n                            table.w280.centet(style=\"border-collapse: initial;\" align=\"center\")\n                                tr\n                                    td.butt.pb0\n                                        a.butt-link(href=\"https://api.trade.iqbroker.com/v1/multi-links/open-asset?aff=7&afftrack=mail_success&retrack=mail_success\" universal=\"true\" target=\"_blank\") ${{ success-iqbroker.block_24 }}$",
+      "styl": ".w290 { max-width: 290px;\n  width: 70%; }\n@media screen and (max-width: 600px) {\n  .w290 { max-width: 270px !important;\n    width: 60% !important; }\n}\n.bg-img-bottom { background: url(\"https://fsms.quadcode.com/storage/public/d5/u9/davvhhgea139ukdg/Banner-1.png\") center no-repeat;\n  background-size: cover; }\n@media screen and (max-width: 600px) {\n  .bg-img-bottom { background: url(\"https://fsms.quadcode.com/storage/public/d5/u9/davvhhgea139ukdg/Banner-1.png\") center right -60px no-repeat !important;\n    background-size: cover !important; }\n}\n.w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { max-width: 100% !important; }\n}\n.brad-full { border-radius: 32px !important; }\n.butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.middle-title { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #ececed; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 26px !important;\n    line-height: 32px !important; }\n}\n.text-2 { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #ececed; }\n.pb12 { padding-bottom: 12px !important; }\n.pb28 { padding-bottom: 28px; }\n.pb44 { padding-bottom: 44px; }\n.pt44 { padding-top: 44px; }\n.w290 { max-width:290px;width:70% }\n@media screen and (max-width:600px) {\n  .w290 { max-width:270px!important;width:60%!important }\n}\n.bg-img-bottom,.bgr { background-size:cover }\n.bg-img-bottom { background:url(https://fsms.quadcode.com/storage/public/d5/u9/davvhhgea139ukdg/Banner-1.png) center no-repeat }\n@media screen and (max-width:600px) {\n  .bg-img-bottom { background:url(https://fsms.quadcode.com/storage/public/d5/u9/davvhhgea139ukdg/Banner-1.png) center right -60px no-repeat!important;background-size:cover!important }\n}\n.w280 { width:100%;max-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { max-width:100%!important }\n}\n.brad-full,.brad-full-32 { border-radius:32px!important }\n.butt-link,.butt-link-2 { font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#f9f9f9;display:block;line-height:27px;padding:14px 0;text-align:center;letter-spacing:0 }\n.butt-link { padding:16px 0 }\n.middle-title { font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:32px;line-height:42px;color:#ececed }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:26px!important;line-height:32px!important }\n}\n.note-text,.text,.text-2 { font-family:Helvetica!important;font-weight:400 }\n.note-text,.text-2 { font-style:normal;font-size:14px;line-height:21px;color:#474a51 }\n.text-2 { font-size:18px;line-height:27px;color:#ececed }\n.pb12 { padding-bottom:12px!important }\n.pb28 { padding-bottom:28px }\n.pb44 { padding-bottom:44px }\n.pt44 { padding-top:44px }",
+      "classes": [
+        "bg-img-bottom",
+        "brad-full",
+        "butt",
+        "butt-link",
+        "centet",
+        "columns",
+        "last",
+        "middle-title",
+        "offset-by-one",
+        "pb0",
+        "pb12",
+        "pb28",
+        "pb44",
+        "pt44",
+        "row",
+        "ten",
+        "text-2",
+        "text-pad-small",
+        "w280",
+        "w290",
+        "wrapper"
+      ],
+      "designClasses": [
+        "bg-img-bottom",
+        "brad-full",
+        "butt-link",
+        "centet",
+        "middle-title",
+        "pb12",
+        "pb28",
+        "pb44",
+        "pt44",
+        "text-2",
+        "w280",
+        "w290"
+      ],
+      "slots": [
+        {
+          "id": "text_block_22",
+          "kind": "richText",
+          "label": "Текст success-iqbroker.block_22",
+          "token": "${{ success-iqbroker.block_22 }}$",
+          "ns": "success-iqbroker",
+          "block": "block_22"
+        },
+        {
+          "id": "text_block_23",
+          "kind": "richText",
+          "label": "Текст success-iqbroker.block_23",
+          "token": "${{ success-iqbroker.block_23 }}$",
+          "ns": "success-iqbroker",
+          "block": "block_23"
+        },
+        {
+          "id": "text_block_24",
+          "kind": "richText",
+          "label": "Текст success-iqbroker.block_24",
+          "token": "${{ success-iqbroker.block_24 }}$",
+          "ns": "success-iqbroker",
+          "block": "block_24"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://api.trade.iqbroker.com/v1/multi-links/open-asset?aff=7&afftrack=mail_success&retrack=mail_success"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-iqbroker-success-header-cta-5-heading-0",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.middle-title.pb12 ${{ success-iqbroker.block_22 }}$",
+          "styl": ".middle-title { font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #ececed; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 26px !important;\n    line-height: 32px !important; }\n}\n.pb12 { padding-bottom: 12px !important; }\n.middle-title { font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:32px;line-height:42px;color:#ececed }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:26px!important;line-height:32px!important }\n}\n.pb12 { padding-bottom:12px!important }",
+          "classes": [
+            "middle-title",
+            "pb12"
+          ],
+          "designClasses": [
+            "middle-title",
+            "pb12"
+          ],
+          "slots": [
+            {
+              "id": "text_block_22",
+              "kind": "richText",
+              "label": "Текст success-iqbroker.block_22",
+              "token": "${{ success-iqbroker.block_22 }}$",
+              "ns": "success-iqbroker",
+              "block": "block_22"
+            }
+          ]
+        },
+        {
+          "id": "x-iqbroker-success-header-cta-5-cta-button-1",
+          "label": "CTA-кнопка (w280)",
+          "placement": "inline",
+          "category": "cta",
+          "pug": "table.w280.centet(style=\"border-collapse: initial;\" align=\"center\")\n    tr\n        td.butt.pb0\n            a.butt-link(href=\"https://api.trade.iqbroker.com/v1/multi-links/open-asset?aff=7&afftrack=mail_success&retrack=mail_success\" universal=\"true\" target=\"_blank\") ${{ success-iqbroker.block_24 }}$",
+          "styl": ".w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { max-width: 100% !important; }\n}\n.butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.w280 { width:100%;max-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { max-width:100%!important }\n}\n.butt-link,.butt-link-2 { font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#f9f9f9;display:block;line-height:27px;padding:14px 0;text-align:center;letter-spacing:0 }\n.butt-link { padding:16px 0 }",
+          "classes": [
+            "butt",
+            "butt-link",
+            "centet",
+            "pb0",
+            "w280"
+          ],
+          "designClasses": [
+            "butt-link",
+            "centet",
+            "w280"
+          ],
+          "slots": [
+            {
+              "id": "text_block_24",
+              "kind": "richText",
+              "label": "Текст success-iqbroker.block_24",
+              "token": "${{ success-iqbroker.block_24 }}$",
+              "ns": "success-iqbroker",
+              "block": "block_24"
+            },
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://api.trade.iqbroker.com/v1/multi-links/open-asset?aff=7&afftrack=mail_success&retrack=mail_success"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-iqbroker-success-header-footer-6",
+      "label": "Store badges",
+      "placement": "section",
+      "category": "footer",
+      "kind": "section",
+      "sourceFile": "X_IQBroker/mail-success/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.pt68.offset-by-one\n            table.ten.columns\n                tr\n                    td.pb32.text-pad-small\n                        .stor.center\n                            a(href=\"https://apps.apple.com/tn/app/iqbroker-trade-with-focus/id6752568298\" target=\"_blank\")\n                                img.a-app(src=\"https://fsms.quadcode.com/storage/public/d5/tk/bqfvhhgea139uk40/app-iqbr-1.png\")\n                            a(href=\"https://play.google.com/store/apps/details?id=iq.broker\" target=\"_blank\")\n                                img.a-google(src=\"https://fsms.quadcode.com/storage/public/d5/tj/q6nvhhgea139uk30/glg-str-1.png\")",
+      "styl": ".pb32 { padding-bottom: 32px; }\n.pt68 { padding-top: 68px; }\n.stor { width: 100% !important;\n  max-width: 450px;\n  margin: 0 auto; }\n@media screen and (max-width: 600px) {\n  .stor { width: 100% !important; }\n}\n.a-app { display: inline-block;\n  padding: 0 15px;\n  max-width: 140px;\n  float: none; }\n@media screen and (max-width: 600px) {\n  .a-app { display: block !important;\n    float: none !important;\n    margin: 0 auto !important;\n    padding-bottom: 15px !important; }\n}\n.a-google { display: inline-block;\n  max-width: 168px;\n  padding: 0 15px;\n  float: none; }\n@media screen and (max-width: 600px) {\n  .a-google { display: block !important;\n    float: none !important;\n    margin: 0 auto !important; }\n}\n.pb32 { padding-bottom:32px }\n.pt68 { padding-top:68px }\n.stor { width:100%!important;max-width:450px;margin:0 auto }\n@media screen and (max-width:600px) {\n  .stor { width:100%!important }\n}\n.a-app { display:inline-block;padding:0 15px;max-width:140px;float:none }\n@media screen and (max-width:600px) {\n  .a-app { display:block!important;float:none!important;margin:0 auto!important;padding-bottom:15px!important }\n}\n.a-google { display:inline-block;max-width:168px;padding:0 15px;float:none }\n@media screen and (max-width:600px) {\n  .a-google { display:block!important;float:none!important;margin:0 auto!important }\n}",
+      "classes": [
+        "a-app",
+        "a-google",
+        "center",
+        "columns",
+        "last",
+        "offset-by-one",
+        "pb32",
+        "pt68",
+        "row",
+        "stor",
+        "ten",
+        "text-pad-small",
+        "wrapper"
+      ],
+      "designClasses": [
+        "a-app",
+        "a-google",
+        "pb32",
+        "pt68",
+        "stor"
+      ],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://apps.apple.com/tn/app/iqbroker-trade-with-focus/id6752568298"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://play.google.com/store/apps/details?id=iq.broker"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d5/tk/bqfvhhgea139uk40/app-iqbr-1.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d5/tj/q6nvhhgea139uk30/glg-str-1.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-iqbroker-success-header-footer-6-store-badges-",
+          "label": "Store badges (App Store / Google Play)",
+          "placement": "inline",
+          "category": "footer",
+          "pug": ".stor.center\n    a(href=\"https://apps.apple.com/tn/app/iqbroker-trade-with-focus/id6752568298\" target=\"_blank\")\n        img.a-app(src=\"https://fsms.quadcode.com/storage/public/d5/tk/bqfvhhgea139uk40/app-iqbr-1.png\")\n    a(href=\"https://play.google.com/store/apps/details?id=iq.broker\" target=\"_blank\")\n        img.a-google(src=\"https://fsms.quadcode.com/storage/public/d5/tj/q6nvhhgea139uk30/glg-str-1.png\")",
+          "styl": ".stor { width: 100% !important;\n  max-width: 450px;\n  margin: 0 auto; }\n@media screen and (max-width: 600px) {\n  .stor { width: 100% !important; }\n}\n.a-app { display: inline-block;\n  padding: 0 15px;\n  max-width: 140px;\n  float: none; }\n@media screen and (max-width: 600px) {\n  .a-app { display: block !important;\n    float: none !important;\n    margin: 0 auto !important;\n    padding-bottom: 15px !important; }\n}\n.a-google { display: inline-block;\n  max-width: 168px;\n  padding: 0 15px;\n  float: none; }\n@media screen and (max-width: 600px) {\n  .a-google { display: block !important;\n    float: none !important;\n    margin: 0 auto !important; }\n}\n.stor { width:100%!important;max-width:450px;margin:0 auto }\n@media screen and (max-width:600px) {\n  .stor { width:100%!important }\n}\n.a-app { display:inline-block;padding:0 15px;max-width:140px;float:none }\n@media screen and (max-width:600px) {\n  .a-app { display:block!important;float:none!important;margin:0 auto!important;padding-bottom:15px!important }\n}\n.a-google { display:inline-block;max-width:168px;padding:0 15px;float:none }\n@media screen and (max-width:600px) {\n  .a-google { display:block!important;float:none!important;margin:0 auto!important }\n}",
+          "classes": [
+            "a-app",
+            "a-google",
+            "center",
+            "stor"
+          ],
+          "designClasses": [
+            "a-app",
+            "a-google",
+            "stor"
+          ],
+          "slots": [
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://apps.apple.com/tn/app/iqbroker-trade-with-focus/id6752568298"
+            },
+            {
+              "id": "href_1",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://play.google.com/store/apps/details?id=iq.broker"
+            },
+            {
+              "id": "image_0",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d5/tk/bqfvhhgea139uk40/app-iqbr-1.png"
+            },
+            {
+              "id": "image_1",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d5/tj/q6nvhhgea139uk30/glg-str-1.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-iqbroker-success-header-footer-7",
+      "label": "Соцсети",
+      "placement": "section",
+      "category": "footer",
+      "kind": "section",
+      "sourceFile": "X_IQBroker/mail-success/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.pt0\n            table.twelve.columns\n                tr\n                    td(align=\"center\").pb0.center\n                        .socials.center\n                            a.first-link(href=\"https://www.facebook.com/iqbroker.global/\" target=\"_blank\")\n                                img.soc-icon.fb(src=\"https://fsms.quadcode.com/storage/public/d5/su/7b8ggnfnh4cs7730/fb.png\")\n                            a(href=\"https://www.instagram.com/iq_broker_official/\" target=\"_blank\")\n                                img.soc-icon.twitter(src=\"https://fsms.quadcode.com/storage/public/d5/su/7b8ggnfnh4cs772g/ig.png\")\n                            a(href=\"https://www.youtube.com/@iqbroker\" target=\"_blank\")\n                                img.soc-icon.you(src=\"https://fsms.quadcode.com/storage/public/d5/su/7bfvhhgea139ujqg/yt.png\")\n                            a.last-link(href=\"https://x.com/iqbroker_off\" target=\"_blank\")\n                                img.soc-icon.ig(src=\"https://fsms.quadcode.com/storage/public/d5/su/7bfvhhgea139ujr0/tw.png\")",
+      "styl": ".ig { max-width: 20px;\n  margin-left: 6px; }\n@media screen and (max-width: 600px) {\n  .ig { width: 20px !important; }\n}\n.you { max-width: 24px;\n  margin: 0 6px; }\n@media screen and (max-width: 600px) {\n  .you { width: 24px !important; }\n}\n.twitter { max-width: 24px;\n  margin: 0 6px; }\n@media screen and (max-width: 600px) {\n  .twitter { width: 24px !important; }\n}\n.fb { max-width: 24px;\n  margin-right: 6px; }\n@media screen and (max-width: 600px) {\n  .fb { width: 24px !important; }\n}\n.socials { display: inline-block;\n  font-size: 0;\n  margin: 0 auto; }\n@media screen and (max-width: 600px) {\n  .socials { width: 100% !important; }\n}\n.socials a { display: inline-block;\n  vertical-align: middle;\n  margin: 0 10px; }\n@media screen and (max-width: 600px) {\n  .socials a { margin-bottom: 10px !important; }\n}\n.soc-icon { float: none !important;\n  max-width: 24px; }\n.ig { max-width:20px;margin-left:6px }\n@media screen and (max-width:600px) {\n  .ig { width:20px!important }\n}\n.you { max-width:24px;margin:0 6px }\n@media screen and (max-width:600px) {\n  .you { width:24px!important }\n}\n.twitter { max-width:24px;margin:0 6px }\n@media screen and (max-width:600px) {\n  .twitter { width:24px!important }\n}\n.fb { max-width:24px;margin-right:6px }\n@media screen and (max-width:600px) {\n  .fb { width:24px!important }\n}\n.mar-mob,.socials a { margin:0 10px }\n.socials { display:inline-block;font-size:0;margin:0 auto }\n@media screen and (max-width:600px) {\n  .socials { width:100%!important }\n}\n.socials a { display:inline-block;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .socials a { margin-bottom:10px!important }\n}\n.soc-icon { float:none!important;max-width:24px }",
+      "classes": [
+        "center",
+        "columns",
+        "fb",
+        "first-link",
+        "ig",
+        "last",
+        "last-link",
+        "pt0",
+        "row",
+        "soc-icon",
+        "socials",
+        "twelve",
+        "twitter",
+        "wrapper",
+        "you"
+      ],
+      "designClasses": [
+        "fb",
+        "first-link",
+        "ig",
+        "last-link",
+        "soc-icon",
+        "socials",
+        "twitter",
+        "you"
+      ],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://www.facebook.com/iqbroker.global/"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://www.instagram.com/iq_broker_official/"
+        },
+        {
+          "id": "href_2",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://www.youtube.com/@iqbroker"
+        },
+        {
+          "id": "href_3",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://x.com/iqbroker_off"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d5/su/7b8ggnfnh4cs7730/fb.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d5/su/7b8ggnfnh4cs772g/ig.png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d5/su/7bfvhhgea139ujqg/yt.png"
+        },
+        {
+          "id": "image_3",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d5/su/7bfvhhgea139ujr0/tw.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-iqbroker-success-header-footer-7-socials-0",
+          "label": "Соцсети (иконки)",
+          "placement": "inline",
+          "category": "footer",
+          "pug": ".socials.center\n    a.first-link(href=\"https://www.facebook.com/iqbroker.global/\" target=\"_blank\")\n        img.soc-icon.fb(src=\"https://fsms.quadcode.com/storage/public/d5/su/7b8ggnfnh4cs7730/fb.png\")\n    a(href=\"https://www.instagram.com/iq_broker_official/\" target=\"_blank\")\n        img.soc-icon.twitter(src=\"https://fsms.quadcode.com/storage/public/d5/su/7b8ggnfnh4cs772g/ig.png\")\n    a(href=\"https://www.youtube.com/@iqbroker\" target=\"_blank\")\n        img.soc-icon.you(src=\"https://fsms.quadcode.com/storage/public/d5/su/7bfvhhgea139ujqg/yt.png\")\n    a.last-link(href=\"https://x.com/iqbroker_off\" target=\"_blank\")\n        img.soc-icon.ig(src=\"https://fsms.quadcode.com/storage/public/d5/su/7bfvhhgea139ujr0/tw.png\")",
+          "styl": ".ig { max-width: 20px;\n  margin-left: 6px; }\n@media screen and (max-width: 600px) {\n  .ig { width: 20px !important; }\n}\n.you { max-width: 24px;\n  margin: 0 6px; }\n@media screen and (max-width: 600px) {\n  .you { width: 24px !important; }\n}\n.twitter { max-width: 24px;\n  margin: 0 6px; }\n@media screen and (max-width: 600px) {\n  .twitter { width: 24px !important; }\n}\n.fb { max-width: 24px;\n  margin-right: 6px; }\n@media screen and (max-width: 600px) {\n  .fb { width: 24px !important; }\n}\n.socials { display: inline-block;\n  font-size: 0;\n  margin: 0 auto; }\n@media screen and (max-width: 600px) {\n  .socials { width: 100% !important; }\n}\n.socials a { display: inline-block;\n  vertical-align: middle;\n  margin: 0 10px; }\n@media screen and (max-width: 600px) {\n  .socials a { margin-bottom: 10px !important; }\n}\n.soc-icon { float: none !important;\n  max-width: 24px; }\n.ig { max-width:20px;margin-left:6px }\n@media screen and (max-width:600px) {\n  .ig { width:20px!important }\n}\n.you { max-width:24px;margin:0 6px }\n@media screen and (max-width:600px) {\n  .you { width:24px!important }\n}\n.twitter { max-width:24px;margin:0 6px }\n@media screen and (max-width:600px) {\n  .twitter { width:24px!important }\n}\n.fb { max-width:24px;margin-right:6px }\n@media screen and (max-width:600px) {\n  .fb { width:24px!important }\n}\n.mar-mob,.socials a { margin:0 10px }\n.socials { display:inline-block;font-size:0;margin:0 auto }\n@media screen and (max-width:600px) {\n  .socials { width:100%!important }\n}\n.socials a { display:inline-block;vertical-align:middle }\n@media screen and (max-width:600px) {\n  .socials a { margin-bottom:10px!important }\n}\n.soc-icon { float:none!important;max-width:24px }",
+          "classes": [
+            "center",
+            "fb",
+            "first-link",
+            "ig",
+            "last-link",
+            "soc-icon",
+            "socials",
+            "twitter",
+            "you"
+          ],
+          "designClasses": [
+            "fb",
+            "first-link",
+            "ig",
+            "last-link",
+            "soc-icon",
+            "socials",
+            "twitter",
+            "you"
+          ],
+          "slots": [
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://www.facebook.com/iqbroker.global/"
+            },
+            {
+              "id": "href_1",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://www.instagram.com/iq_broker_official/"
+            },
+            {
+              "id": "href_2",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://www.youtube.com/@iqbroker"
+            },
+            {
+              "id": "href_3",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://x.com/iqbroker_off"
+            },
+            {
+              "id": "image_0",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d5/su/7b8ggnfnh4cs7730/fb.png"
+            },
+            {
+              "id": "image_1",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d5/su/7b8ggnfnh4cs772g/ig.png"
+            },
+            {
+              "id": "image_2",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d5/su/7bfvhhgea139ujqg/yt.png"
+            },
+            {
+              "id": "image_3",
+              "kind": "image",
+              "label": "Картинка",
+              "default": "https://fsms.quadcode.com/storage/public/d5/su/7bfvhhgea139ujr0/tw.png"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

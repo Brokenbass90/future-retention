@@ -1,0 +1,48 @@
+{
+  "id": "exnova-text-21",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_Exnova (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.pt12.center.brake-word.b-exnova-text-21 {{ text_1 }}&nbsp;\n    a.link(href=\"{{ href_1 }}\" universal=\"true\" target=\"_blank\") {{ text_2 }}\n    |{{ text_3 }}",
+  "styl": ".text.b-exnova-text-21 {  font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 27px;\n  font-weight: 400;  }\n@media screen and (max-width: 600px) {\n  .text.b-exnova-text-21 {  font-size: 16px !important;\n    line-height: 22px !important;  }\n}\n.text.bold.b-exnova-text-21 {  font-weight: 700;  }\n.pt12.b-exnova-text-21 {  padding-top: 12px;  }\n.b-exnova-text-21 .link {  color: #4882ff;  }\n@media screen and (max-width: 600px) {\n  .text.mob-text.b-exnova-text-21, .b-exnova-text-21 .grey-text.mob-text {  font-size: 17px !important;  }\n}\n.brake-word.b-exnova-text-21 {  word-break: break-word;  }\n.text.b-exnova-text-21 {  font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:27px;font-weight:400  }\n@media screen and (max-width:600px) {\n  .text.b-exnova-text-21 {  font-size:16px!important;line-height:22px!important  }\n}\n.b-exnova-text-21 .big, .text.bold.b-exnova-text-21 {  font-weight:700  }\n.pt12.b-exnova-text-21 {  padding-top:12px  }\n.b-exnova-text-21 .link {  color:#4882ff  }\n@media screen and (max-width:600px) {\n  .b-exnova-text-21 .grey-text.mob-text, .text.mob-text.b-exnova-text-21 {  font-size:17px!important  }\n}\n.brake-word.b-exnova-text-21 {  word-break:break-word  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://api.trade.exnova.com/v1/multi-links/promo-centre?aff=7&afftrackmail_rewarded_reviews_2nd&retrack=rewarded_reviews_2nd"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_Exnova"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_Exnova/mail-Strategy-bonus_Exnova-250825"
+  ],
+  "createdAt": "2026-07-06T12:09:50.960Z",
+  "validated": true
+}

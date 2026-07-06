@@ -1,0 +1,23 @@
+{
+  "id": "system-text-40",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_System (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.list.pb20.b-system-text-40 Supporting evidence of your financial portfolio (incl. cash and financial instruments) showing an amount exceeding 500.000 EUR. This evidence can be a bank statement which is stamped by your bank and shows your balance or any other relevant evidence showing the amount (e.g. real estate)",
+  "styl": ".text.b-system-text-40 {  color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px  }\n@media screen and (max-width:600px) {\n  .text.b-system-text-40 {  padding-left:20px!important;padding-right:20px!important  }\n}\n.text.b-system-text-40 a {  color:#2473d7;text-decoration:underline  }\n.text.bold.b-system-text-40 {  font-weight:700  }\n.list.b-system-text-40 {  display:list-item;padding-left:20px;list-style:decimal;list-style-position:inside;padding-bottom:10px  }",
+  "slots": [],
+  "tags": [
+    "text",
+    "inline",
+    "X_System"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_System/mail-docs-1-2"
+  ],
+  "createdAt": "2026-07-06T12:09:59.368Z",
+  "validated": true
+}

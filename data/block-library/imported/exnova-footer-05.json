@@ -1,0 +1,48 @@
+{
+  "id": "exnova-footer-05",
+  "label": "Store badges",
+  "description": "Импортирован из X_Exnova (1 писем). Секция.",
+  "placement": "section",
+  "category": "footer",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.b-exnova-footer-05\n    tr\n        td.wrapper.last.pt50.offset-by-one\n            table.ten.columns\n                tr\n                    td.pb0.text-pad-small\n                        .stor.center\n                            a(href=\"{{ href_1 }}\" target=\"_blank\")\n                                img.a-google(src=\"{{ image_1 }}\")\n                            a(href=\"{{ href_2 }}\" target=\"_blank\")\n                                img.a-google(src=\"{{ image_2 }}\")",
+  "styl": ".b-exnova-footer-05 .stor {  width: 100% !important;\n  max-width: 450px;\n  margin: 0 auto;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-footer-05 .stor {  width: 100% !important;  }\n}\n.b-exnova-footer-05 .a-google {  display: inline-block;\n  padding: 10px 12px !important;\n  max-width: 215px !important;\n  height: 52px !important;\n  float: none !important;  }\n.b-exnova-footer-05 .stor {  width:100%!important;max-width:450px;margin:0 auto  }\n@media screen and (max-width:600px) {\n  .b-exnova-footer-05 .stor {  width:100%!important  }\n}\n.b-exnova-footer-05 .a-app, .b-exnova-footer-05 .a-google {  display:inline-block;padding:10px 12px;max-width:155px;height:50px!important;float:none!important  }\n.b-exnova-footer-05 .a-google {  padding:10px 12px!important;max-width:215px!important;height:52px!important  }",
+  "slots": [
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://app.appsflyer.com/com.exnova?pid=7&c=mail_mail_rewarded_reviews_2nd"
+    },
+    {
+      "id": "href_2",
+      "kind": "url",
+      "label": "Ссылка 2",
+      "default": "https://trade.exnova.com/pwa?aff=7&afftrack=mail_mail_rewarded_reviews_2nd&retrack=rewarded_reviews_2nd"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/ct/c5/00euko6hcq7nd5lg/gp-new-exnova.png"
+    },
+    {
+      "id": "image_2",
+      "kind": "image",
+      "label": "Картинка 2",
+      "default": "https://fsms.quadcode.com/storage/public/ct/c4/tp6uko6hcq7nd5kg/pwa-en.png"
+    }
+  ],
+  "tags": [
+    "footer",
+    "section",
+    "X_Exnova"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_Exnova/mail-Strategy-bonus_Exnova-250825"
+  ],
+  "createdAt": "2026-07-06T12:09:50.960Z",
+  "validated": true
+}

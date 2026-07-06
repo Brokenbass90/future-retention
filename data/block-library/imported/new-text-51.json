@@ -1,0 +1,35 @@
+{
+  "id": "new-text-51",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_new (18 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.b-new-text-51 <b>{{ text_1 }}</b>",
+  "styl": ".b-new-text-51 .min-text, .text.b-new-text-51 {  font-family:Helvetica!important;letter-spacing:0  }\n.text.b-new-text-51 {  font-weight:400;color:#373437;font-size:16px;line-height:26px  }\n.text.italic.b-new-text-51 {  font-style:italic  }\n.text.list.b-new-text-51 {  display:list-item  }\n.text.b-new-text-51 a {  font-family:Helvetica!important;text-decoration:underline!important;color:#86ad00!important  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_new"
+  ],
+  "usageCount": 18,
+  "sourceMails": [
+    "X_new/mail-Risk-warning-061025",
+    "X_new/mail-Risk-warning-061223",
+    "X_new/mail-Risk-warning-070923",
+    "X_new/mail-Risk-warning-compliance-020724",
+    "X_new/mail-Risk-warning-compliance-061025",
+    "X_new/mail-Risk-warning-compliance-071024"
+  ],
+  "createdAt": "2026-07-06T12:10:00.060Z",
+  "validated": true
+}

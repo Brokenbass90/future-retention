@@ -1,0 +1,45 @@
+{
+  "id": "iqbroker-text-11",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_IQBroker (4 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.pb20.b-iqbroker-text-11 {{ text_1 }} {{datetime}} {{ text_2 }} {{embedded.user_id}}{{ text_3 }}",
+  "styl": ".text.b-iqbroker-text-11 {  color:#3c3939;font-size:18px;font-weight:400;line-height:28px  }\n.text.b-iqbroker-text-11 a {  font-weight:700  }\n.b-iqbroker-text-11 .small-text, .b-iqbroker-text-11 .small-text a, .text.b-iqbroker-text-11, .text.b-iqbroker-text-11 a {  font-family:Helvetica!important  }\n.text.b-iqbroker-text-11 a {  color:#5165ff!important  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_IQBroker"
+  ],
+  "usageCount": 4,
+  "sourceMails": [
+    "X_IQBroker/mail-payment-verification-request-ewallet",
+    "X_IQBroker/mail-payment-verification-request-pix",
+    "X_IQBroker/mail-payment-verification-request-pop",
+    "X_IQBroker/mail-payment-verification-request-selfie"
+  ],
+  "createdAt": "2026-07-06T12:09:51.736Z",
+  "validated": true
+}

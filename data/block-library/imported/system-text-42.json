@@ -1,0 +1,25 @@
+{
+  "id": "system-text-42",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_System (3 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.b-system-text-42\n    strong You can send the documents by attaching them to the answer to this email.",
+  "styl": ".text.b-system-text-42 {  color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px  }\n@media screen and (max-width:600px) {\n  .text.b-system-text-42 {  padding-left:20px!important;padding-right:20px!important  }\n}\n.text.b-system-text-42 a {  color:#2473d7;text-decoration:underline  }\n.text.bold.b-system-text-42 {  font-weight:700  }",
+  "slots": [],
+  "tags": [
+    "text",
+    "inline",
+    "X_System"
+  ],
+  "usageCount": 3,
+  "sourceMails": [
+    "X_System/mail-docs-1-2",
+    "X_System/mail-docs-1-3",
+    "X_System/mail-docs-2-3"
+  ],
+  "createdAt": "2026-07-06T12:09:59.368Z",
+  "validated": true
+}

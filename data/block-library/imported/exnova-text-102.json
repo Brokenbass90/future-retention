@@ -1,0 +1,23 @@
+{
+  "id": "exnova-text-102",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_Exnova (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.pb30.b-exnova-text-102 The goal is simple: those with the highest returns by the end of the tournament top the Leaderboard and share the prize.",
+  "styl": ".b-exnova-text-102 .black-sub, .b-exnova-text-102 .redish b, .text.b-exnova-text-102, .text.b-exnova-text-102 a {  font-family:Helvetica!important  }\n.text.b-exnova-text-102 {  font-size:16px;line-height:24px;color:#293455;font-weight:400  }\n.b-exnova-text-102 .redish b, .text.b-exnova-text-102 a {  color:#213e8f;font-weight:700  }",
+  "slots": [],
+  "tags": [
+    "text",
+    "inline",
+    "X_Exnova"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_Exnova/mail-tournament"
+  ],
+  "createdAt": "2026-07-06T12:09:50.974Z",
+  "validated": true
+}

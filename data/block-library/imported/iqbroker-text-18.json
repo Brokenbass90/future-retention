@@ -1,0 +1,30 @@
+{
+  "id": "iqbroker-text-18",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_IQBroker (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.white-text.pb32.b-iqbroker-text-18  {{ text_1 }}",
+  "styl": ".white-text.b-iqbroker-text-18 {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #fff;  }\n.pb32.b-iqbroker-text-18 {  padding-bottom: 32px;  }\n.white-text.b-iqbroker-text-18 {  font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#fff  }\n.pb32.b-iqbroker-text-18 {  padding-bottom:32px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_IQBroker"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_IQBroker/mail-success"
+  ],
+  "createdAt": "2026-07-06T12:09:51.738Z",
+  "validated": true
+}

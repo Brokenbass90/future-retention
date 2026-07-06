@@ -1,0 +1,66 @@
+{
+  "id": "exnova-hero-01",
+  "label": "Hero с фоновой картинкой",
+  "description": "Импортирован из X_Exnova (1 писем). Секция.",
+  "placement": "section",
+  "category": "hero",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.b-exnova-hero-01\n    tr\n        td.wrapper.last.bgr\n            table.row.header\n                tr\n                    td.wrapper.offset-by-one.last.pt30\n                        table.ten.columns\n                            tr\n                                td.six.sub-columns.pb0\n                                    a(href=\"{{ href_1 }}\" target=\"_blank\")\n                                        img.logo(src=\"{{ image_1 }}\")\n                                td.six.sub-columns.last.pb0\n                                    .header-soc\n                                        a(href=\"\" target=\"_blank\")\n                                            img.ig(src=\"{{ image_2 }}\")\n                                        a(href=\"\" target=\"_blank\")\n                                            img.tw(src=\"{{ image_3 }}\")\n                                        a(href=\"\" target=\"_blank\")\n                                            img.yt(src=\"{{ image_4 }}\")\n                                        a(href=\"\" target=\"_blank\")\n                                            img.fb(src=\"{{ image_5 }}\")\n            table.row\n                tr\n                    td.wrapper.last.offset-by-one.pt0\n                        table.ten.columns\n                            tr\n                                td.text-pad-small.pb0\n                                    p.title Tournaments\n                                    p.white-text What do 8x-traders do when they don’t trade? They compete in trading tournaments for whopping money prizes. You are welcome to join!\n            table.row\n                tr\n                    td.wrapper.last.offset-by-one.pt15\n                        table.six.columns\n                            tr\n                                td.text-pad-small.vam.pb0\n                                    .button-wrapper.button-wrapper_left\n                                        table.medium-button.radius\n                                            tr\n                                                td.butt-td\n                                                    a.butt(href=\"{{ href_2 }}\" target=\"_blank\") i am ready\n            table.row\n                tr\n                    td.wrapper.last.pt0\n                        table.twelve.columns\n                            tr\n                                td.pb35",
+  "styl": ".b-exnova-hero-01 .vam {  vertical-align:middle!important  }\n.b-exnova-hero-01 .butt-td {  padding:0!important  }\n.b-exnova-hero-01 .bgr {  background:#05081a url(https://static.cdnpub.info/files/storage/public/5f/5a/04ff46ded8g4b5c0f1/bg.png) center top no-repeat;background-size:cover;height:586px;min-height:586px;padding-top:0  }\n@media screen and (max-width:600px) {\n  .b-exnova-hero-01 .bgr {  height:auto!important  }\n}\n.b-exnova-hero-01 .header-soc {  float:right  }\n@media screen and (max-width:600px) {\n  .b-exnova-hero-01 .header-soc {  padding-right:20px!important  }\n}\n.b-exnova-hero-01 .header-soc a {  display:inline-block;margin-left:20px  }\n@media screen and (max-width:600px) {\n  .b-exnova-hero-01 .header-soc a {  margin-left:15px!important  }\n}\n.b-exnova-hero-01 .ig {  max-width:15px;float:none  }\n.b-exnova-hero-01 .fb, .b-exnova-hero-01 .tw, .b-exnova-hero-01 .yt {  max-width:19px;float:none  }\n.b-exnova-hero-01 .fb, .b-exnova-hero-01 .yt {  max-width:22px  }\n.b-exnova-hero-01 .fb {  max-width:15px  }\n.b-exnova-hero-01 .title {  color:#fff;font-size:40px;line-height:48px;font-weight:700;font-family:Helvetica!important;padding-top:292px;padding-bottom:8px  }\n@media screen and (max-width:600px) {\n  .b-exnova-hero-01 .title {  font-size:30px!important;line-height:38px!important  }\n}\n.b-exnova-hero-01 .black-title, .b-exnova-hero-01 .title .red {  font-family:Helvetica!important  }\n.b-exnova-hero-01 .title .red {  color:#ff4447!important  }\n.b-exnova-hero-01 .list-text, .b-exnova-hero-01 .white-text {  color:#293455;font-weight:400;font-family:Helvetica!important  }\n.b-exnova-hero-01 .white-text {  color:#fff;font-size:16px;line-height:24px  }\n.b-exnova-hero-01 .white-text a {  color:#fff!important;text-decoration:underline  }\n.b-exnova-hero-01 .button-wrapper {  padding-top:0;padding-bottom:0  }\n@media screen and (max-width:600px) {\n  .b-exnova-hero-01 .button-wrapper {  padding-left:20px!important;padding-right:20px!important  }\n}\n.b-exnova-hero-01 .pb35 {  padding-bottom:35px  }\n.b-exnova-hero-01 .pt15 {  padding-top:15px  }",
+  "slots": [
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://8xtrade.com/traderoom/?aff=7&afftrack=mail_system&retrack=8x-lose"
+    },
+    {
+      "id": "href_2",
+      "kind": "url",
+      "label": "Ссылка 2",
+      "default": "https://8xtrade.com/traderoom/asset/1?type=binary&aff=7&afftrack=mail_system&retrack=8x-lose"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://static.cdnpub.info/files/storage/public/5f/51/18dae78c93d4c4g1d5/logo.png"
+    },
+    {
+      "id": "image_2",
+      "kind": "image",
+      "label": "Картинка 2",
+      "default": "https://static.cdnpub.info/files/storage/public/5f/51/18dadc8ed0a9c1b2b3/ig.png"
+    },
+    {
+      "id": "image_3",
+      "kind": "image",
+      "label": "Картинка 3",
+      "default": "https://static.cdnpub.info/files/storage/public/5f/51/18db28f4f5a1b6i3e8/twitter.png"
+    },
+    {
+      "id": "image_4",
+      "kind": "image",
+      "label": "Картинка 4",
+      "default": "https://static.cdnpub.info/files/storage/public/5f/51/18db48a987a3i5a3j0/yt.png"
+    },
+    {
+      "id": "image_5",
+      "kind": "image",
+      "label": "Картинка 5",
+      "default": "https://static.cdnpub.info/files/storage/public/5f/51/18dadd0ea9j2e9g2g8/fb.png"
+    }
+  ],
+  "tags": [
+    "hero",
+    "section",
+    "X_Exnova"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_Exnova/mail-tournament"
+  ],
+  "createdAt": "2026-07-06T12:09:50.973Z",
+  "validated": true
+}

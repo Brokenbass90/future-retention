@@ -1,0 +1,132 @@
+{
+  "id": "new-feature-list-05",
+  "label": "Список преимуществ (нумерованный)",
+  "description": "Импортирован из X_new (1 писем). Секция.",
+  "placement": "section",
+  "category": "feature-list",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.brad-full.white-bg.b-new-feature-list-05\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.middle-title.pb32 {{ text_1 }}\n                        .gray-block\n                            .left-block\n                                p.small-title.text-center-mob {{ text_2 }}\n                            .right-block\n                                p.big-green-number +236%\n                            .h-24.bb &nbsp;\n                            .h-24 &nbsp;\n                            .left-block\n                                p.small-title.text-center-mob\n                                    img.asset-logo(src=\"{{ image_1 }}\")\n                                    |{{ text_3 }}\n                            .right-block.text-center-mob\n                                .left-number\n                                    p.small-gray-text.text-center-mob {{ text_4 }}\n                                    p.small-number.text-center-mob $3,000\n                                a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                    img.small-arrow(src=\"{{ image_2 }}\")\n                                .right-number\n                                    p.small-gray-text.text-center-mob  {{ text_5 }}\n                                    p.small-green-number.text-center-mob $10,080\n                        .h-32 &nbsp;\n                        .gray-block\n                            .left-block\n                                p.small-title.text-center-mob {{ text_6 }}\n                            .right-block\n                                p.big-green-number +88%\n                            .h-24.bb &nbsp;\n                            .h-24 &nbsp;\n                            .left-block\n                                p.small-title.text-center-mob\n                                    img.asset-logo(src=\"{{ image_3 }}\")\n                                    |{{ text_7 }}\n                            .right-block.text-center-mob\n                                .left-number\n                                    p.small-gray-text.text-center-mob {{ text_4 }}\n                                    p.small-number.text-center-mob $3,500\n                                a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                    img.small-arrow(src=\"{{ image_2 }}\")\n                                .right-number\n                                    p.small-gray-text.text-center-mob  {{ text_5 }}\n                                    p.small-green-number.text-center-mob $6,580\n                        .h-32 &nbsp;\n                        .gray-block\n                            .left-block\n                                p.small-title.text-center-mob {{ text_8 }}\n                            .right-block\n                                p.big-green-number +67%\n                            .h-24.bb &nbsp;\n                            .h-24 &nbsp;\n                            .left-block\n                                p.small-title.text-center-mob\n                                    img.asset-logo(src=\"{{ image_4 }}\")\n                                    |{{ text_9 }}\n                            .right-block.text-center-mob\n                                .left-number\n                                    p.small-gray-text.text-center-mob {{ text_4 }}\n                                    p.small-number.text-center-mob $2,000\n                                a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                    img.small-arrow(src=\"{{ image_2 }}\")\n                                .right-number\n                                    p.small-gray-text.text-center-mob  {{ text_5 }}\n                                    p.small-green-number.text-center-mob $3,340\n                        .h-32 &nbsp;\n                        .gray-block\n                            .left-block\n                                p.small-title.text-center-mob {{ text_10 }}\n                            .right-block\n                                p.big-green-number +92%\n                            .h-24.bb &nbsp;\n                            .h-24 &nbsp;\n                            .left-block\n                                p.small-title.text-center-mob\n                                    img.asset-logo(src=\"{{ image_5 }}\")\n                                    |{{ text_11 }}\n                            .right-block.text-center-mob\n                                .left-number\n                                    p.small-gray-text.text-center-mob {{ text_4 }}\n                                    p.small-number.text-center-mob $2,200\n                                a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                    img.small-arrow(src=\"{{ image_2 }}\")\n                                .right-number\n                                    p.small-gray-text.text-center-mob  {{ text_5 }}\n                                    p.small-green-number.text-center-mob $4,224\n                        .h-40 &nbsp;\n                        table.w280.centet(style=\"border-collapse: initial;\" align=\"center\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"{{ href_1 }}\" universal=\"true\" target=\"_blank\") {{ text_12 }}",
+  "styl": ".b-new-feature-list-05 .w280 {  width: 100%;\n  max-width: 280px;  }\n@media screen and (max-width: 600px) {\n  .b-new-feature-list-05 .w280 {  max-width: 100% !important;  }\n}\n.brad-full.b-new-feature-list-05 {  border-radius: 32px !important;  }\n.b-new-feature-list-05 .bb {  border-bottom: 1px solid #d9d9db;  }\n.b-new-feature-list-05 .butt-link {  font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px;  }\n.white-bg.b-new-feature-list-05 {  background-color: #fff;  }\n.b-new-feature-list-05 .middle-title {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle;  }\n@media screen and (max-width: 600px) {\n  .b-new-feature-list-05 .middle-title {  font-size: 24px !important;\n    line-height: 32px !important;  }\n}\n.b-new-feature-list-05 .pb32 {  padding-bottom: 32px;  }\n.b-new-feature-list-05 .pb44 {  padding-bottom: 44px;  }\n.b-new-feature-list-05 .pt44 {  padding-top: 44px;  }\n.b-new-feature-list-05 .h-24 {  font-size: 8px;\n  line-height: 24px;\n  height: 24px;  }\n.b-new-feature-list-05 .h-32 {  font-size: 8px;\n  line-height: 32px;\n  height: 32px;  }\n.b-new-feature-list-05 .h-40 {  font-size: 8px;\n  line-height: 40px;\n  height: 40px;  }\n.b-new-feature-list-05 .left-block {  display: inline-block;\n  width: 49%;\n  vertical-align: top;  }\n@media screen and (max-width: 600px) {\n  .b-new-feature-list-05 .left-block {  float: none !important;\n    display: block !important;\n    width: 100% !important;  }\n}\n.b-new-feature-list-05 .right-block {  display: inline-block;\n  width: 49%;\n  vertical-align: top;\n  text-align: right;  }\n@media screen and (max-width: 600px) {\n  .b-new-feature-list-05 .right-block {  float: none !important;\n    display: block !important;\n    width: 100% !important;\n    padding-top: 12px !important;  }\n}\n.b-new-feature-list-05 .small-title {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  color: #393a44;  }\n@media screen and (max-width: 600px) {\n  .b-new-feature-list-05 .small-title {  font-size: 21px !important;\n    line-height: 29px !important;  }\n}\n.b-new-feature-list-05 .asset-logo {  display: inline-block;\n  width: 56px !important;\n  float: none;\n  vertical-align: middle;\n  padding-right: 16px;  }\n.b-new-feature-list-05 .small-number {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 18px;\n  line-height: 27px;\n  color: #393a44;  }\n.b-new-feature-list-05 .small-green-number {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 18px;\n  line-height: 27px;\n  color: #12a557;  }\n.b-new-feature-list-05 .left-number {  display: inline-block;\n  width: 60px;\n  vertical-align: middle;  }\n@media screen and (max-width: 600px) {\n  .b-new-feature-list-05 .left-number {  width: 100px !important;\n    text-align: center !important;  }\n}\n.b-new-feature-list-05 .small-arrow {  display: inline-block;\n  width: 27px !important;\n  vertical-align: middle;\n  float: none;\n  padding: 0 15px;  }\n.b-new-feature-list-05 .right-number {  display: inline-block;\n  width: 60px;\n  vertical-align: middle;  }\n@media screen and (max-width: 600px) {\n  .b-new-feature-list-05 .right-number {  width: 100px !important;\n    text-align: center !important;  }\n}\n@media screen and (max-width: 600px) {\n  .b-new-feature-list-05 .text-center-mob {  text-align: center !important;\n    margin: 0 auto !important;  }\n}\n.b-new-feature-list-05 .big-green-number {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  text-align: right;\n  color: #12a557;  }\n@media screen and (max-width: 600px) {\n  .b-new-feature-list-05 .big-green-number {  text-align: center !important;  }\n}\n.b-new-feature-list-05 .asset-logo {  display: inline-block;\n  width: 40px !important;\n  float: none;\n  padding-right: 8px;\n  vertical-align: middle;  }\n.b-new-feature-list-05 .small-gray-text {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 16px;\n  line-height: 24px;\n  color: #84868b;  }\n.b-new-feature-list-05 .gray-block {  padding: 24px;\n  background: #f9f9f9;\n  border-radius: 12px;  }\n.b-new-feature-list-05 .w280 {  width:100%;max-width:280px  }\n@media screen and (max-width:600px) {\n  .b-new-feature-list-05 .w280 {  max-width:100%!important  }\n}\n.brad-full.b-new-feature-list-05, .b-new-feature-list-05 .brad-full-32 {  border-radius:32px!important  }\n.b-new-feature-list-05 .bb {  border-bottom:1px solid #d9d9db  }\n.b-new-feature-list-05 .butt-link, .b-new-feature-list-05 .butt-link-2, .b-new-feature-list-05 .butt-link-small {  font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#2f3749;display:block;line-height:27px;padding:16px 0;text-align:center;letter-spacing:0  }\n.b-new-feature-list-05 .butt-link, .b-new-feature-list-05 .butt-link-small {  color:#f9f9f9  }\n.white-bg.b-new-feature-list-05 {  background-color:#fff  }\n.b-new-feature-list-05 .middle-title {  font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#393a44;vertical-align:middle  }\n@media screen and (max-width:600px) {\n  .b-new-feature-list-05 .middle-title {  font-size:24px!important;line-height:32px!important  }\n}\n.b-new-feature-list-05 .pb32 {  padding-bottom:32px  }\n.b-new-feature-list-05 .pb44 {  padding-bottom:44px  }\n.b-new-feature-list-05 .pt44 {  padding-top:44px  }\n.b-new-feature-list-05 .h-20, .b-new-feature-list-05 .h-24, .b-new-feature-list-05 .h-28 {  font-size:8px;line-height:20px;height:20px  }\n.b-new-feature-list-05 .h-24, .b-new-feature-list-05 .h-28 {  line-height:24px;height:24px  }\n.b-new-feature-list-05 .h-30, .b-new-feature-list-05 .h-32, .b-new-feature-list-05 .h-40 {  font-size:8px;line-height:30px;height:30px  }\n.b-new-feature-list-05 .h-32, .b-new-feature-list-05 .h-40 {  line-height:32px;height:32px  }\n.b-new-feature-list-05 .h-40 {  line-height:40px;height:40px  }\n.b-new-feature-list-05 .left-block {  display:inline-block;width:49%;vertical-align:top  }\n@media screen and (max-width:600px) {\n  .b-new-feature-list-05 .left-block {  float:none!important;display:block!important;width:100%!important  }\n}\n.b-new-feature-list-05 .right-block {  display:inline-block;width:49%;vertical-align:top;text-align:right  }\n@media screen and (max-width:600px) {\n  .b-new-feature-list-05 .right-block {  float:none!important;display:block!important;width:100%!important;padding-top:12px!important  }\n}\n.b-new-feature-list-05 .small-title {  font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:24px;line-height:31px;color:#393a44  }\n@media screen and (max-width:600px) {\n  .b-new-feature-list-05 .small-title {  font-size:21px!important;line-height:29px!important  }\n}\n.b-new-feature-list-05 .small-green-number, .b-new-feature-list-05 .small-number {  font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:18px;line-height:27px;color:#393a44  }\n.b-new-feature-list-05 .small-green-number {  color:#12a557  }\n.b-new-feature-list-05 .left-number {  display:inline-block;width:60px;vertical-align:middle  }\n@media screen and (max-width:600px) {\n  .b-new-feature-list-05 .left-number {  width:100px!important;text-align:center!important  }\n}\n.b-new-feature-list-05 .right-number, .b-new-feature-list-05 .small-arrow {  display:inline-block;vertical-align:middle  }\n.b-new-feature-list-05 .small-arrow {  width:27px!important;float:none;padding:0 15px  }\n.b-new-feature-list-05 .right-number {  width:60px  }\n@media screen and (max-width:600px) {\n  .b-new-feature-list-05 .right-number {  width:100px!important;text-align:center!important  }\n  .b-new-feature-list-05 .text-center-mob {  text-align:center!important;margin:0 auto!important  }\n}\n.b-new-feature-list-05 .big-green-number {  font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:24px;line-height:31px;text-align:right;color:#12a557  }\n@media screen and (max-width:600px) {\n  .b-new-feature-list-05 .big-green-number {  text-align:center!important  }\n}\n.b-new-feature-list-05 .asset-logo {  display:inline-block;width:40px!important;float:none;padding-right:8px;vertical-align:middle  }\n.b-new-feature-list-05 .small-gray-text {  font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:16px;line-height:24px;color:#84868b  }\n.b-new-feature-list-05 .gray-block {  padding:24px;background:#f9f9f9;border-radius:12px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_7",
+      "kind": "richText",
+      "label": "Текст 7",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_8",
+      "kind": "richText",
+      "label": "Текст 8",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_9",
+      "kind": "richText",
+      "label": "Текст 9",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_10",
+      "kind": "richText",
+      "label": "Текст 10",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_11",
+      "kind": "richText",
+      "label": "Текст 11",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_12",
+      "kind": "richText",
+      "label": "Текст 12",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-3-1-2&retrack=mail_IQ-RFM-3-1-2"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/d5/s7/refvhhgea139ujj0/rfmbtc.png"
+    },
+    {
+      "id": "image_2",
+      "kind": "image",
+      "label": "Картинка 2",
+      "default": "https://fsms.quadcode.com/storage/public/d5/s7/re8ggnfnh4cs76u0/small-arrow.png"
+    },
+    {
+      "id": "image_3",
+      "kind": "image",
+      "label": "Картинка 3",
+      "default": "https://fsms.quadcode.com/storage/public/d5/s7/re8ggnfnh4cs76tg/rfm-intel.png"
+    },
+    {
+      "id": "image_4",
+      "kind": "image",
+      "label": "Картинка 4",
+      "default": "https://fsms.quadcode.com/storage/public/d5/s7/refvhhgea139ujig/rfmsep.png"
+    },
+    {
+      "id": "image_5",
+      "kind": "image",
+      "label": "Картинка 5",
+      "default": "https://fsms.quadcode.com/storage/public/d5/s7/refvhhgea139uji0/rfmlmt.png"
+    }
+  ],
+  "tags": [
+    "feature-list",
+    "section",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-rfm-312"
+  ],
+  "createdAt": "2026-07-06T12:10:00.062Z",
+  "validated": true
+}

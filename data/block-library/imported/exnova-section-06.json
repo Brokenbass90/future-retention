@@ -1,0 +1,35 @@
+{
+  "id": "exnova-section-06",
+  "label": "Секция",
+  "description": "Импортирован из X_Exnova (1 писем). Секция.",
+  "placement": "section",
+  "category": "section",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.b-exnova-section-06\n    tr\n        td.wrapper.offset-by-one.last.pt35\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb0\n                        p.small-title.pb20.center <i>{{ text_1 }}</i>\n                        p.text.center <i>{{ text_2 }}</i>",
+  "styl": ".b-exnova-section-06 .small-title {  font-family:Helvetica!important;font-weight:700;font-size:24px;line-height:28px;color:#262832  }\n.b-exnova-section-06 .text {  font-family:Helvetica!important;color:#262832;font-size:16px;font-weight:400;line-height:24px  }\n.b-exnova-section-06 .text.bold {  font-weight:700  }\n.b-exnova-section-06 .pt35 {  padding-top:35px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    }
+  ],
+  "tags": [
+    "section",
+    "X_Exnova"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_Exnova/mail-Telegram-signals"
+  ],
+  "createdAt": "2026-07-06T12:09:50.968Z",
+  "validated": true
+}

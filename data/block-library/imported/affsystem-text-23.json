@@ -1,0 +1,60 @@
+{
+  "id": "affsystem-text-23",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_AffSystem (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.bg-bord-lr.br-bot.bg-bord-bot.b-affsystem-text-23\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pt15.pb20\n                        p.text.pb15.bb.center {{ text_1 }} <b>{{user_email}}</b> {{ text_2 }}\n                        p.text.pb20.pt15.center {{ text_3 }}&nbsp;\n                            a(href=\"{{ href_1 }}\" target=\"_blank\") {{ text_4 }}\n                            |{{ text_5 }}",
+  "styl": ".white-bg.b-affsystem-text-23 {  background:#fff  }\n.b-affsystem-text-23 .min-text, .b-affsystem-text-23 .text {  font-family:Helvetica!important;color:#2e3851;letter-spacing:0  }\n.b-affsystem-text-23 .text {  font-weight:400;font-size:16px;line-height:26px  }\n.b-affsystem-text-23 .text.italic {  font-style:italic  }\n.b-affsystem-text-23 .text.list {  display:list-item  }\n.b-affsystem-text-23 .pb15 {  padding-bottom:15px!important  }\n.b-affsystem-text-23 .pt15 {  padding-top:15px  }\n.bg-bord-lr.b-affsystem-text-23 {  border-left:1px solid #e9ebea;border-right:1px solid #e9ebea  }\n.bg-bord-bot.b-affsystem-text-23 {  border-bottom:1px solid #e9ebea  }\n.br-bot.b-affsystem-text-23 {  border-radius:0 0 5px 5px  }\n.b-affsystem-text-23 .text a {  font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important  }\n.b-affsystem-text-23 .bb {  border-bottom:1px solid #e9ebea  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "mailto:affiliate@iqoption.com"
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_AffSystem"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_AffSystem/mail-email-activation-affiliate"
+  ],
+  "createdAt": "2026-07-06T12:09:51.510Z",
+  "validated": true
+}

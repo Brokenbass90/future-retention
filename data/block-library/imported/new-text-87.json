@@ -1,0 +1,60 @@
+{
+  "id": "new-text-87",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_new (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.brad-full.white-bg.b-new-text-87\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.middle-title.pb24.pr30-a {{ text_1 }}\n                        p.text.pb16\n                            b {{ text_2 }}\n                        .left-block\n                            p.text.center.padd-text\n                                b {{ text_3 }}\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                img.center(src=\"{{ image_1 }}\")\n                        .right-block\n                            p.text.center.padd-text\n                                b {{ text_4 }}\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                img.center(src=\"{{ image_2 }}\")",
+  "styl": ".brad-full.b-new-text-87 {  border-radius: 32px !important;  }\n.white-bg.b-new-text-87 {  background-color: #fff;  }\n.b-new-text-87 .middle-title {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle;  }\n@media screen and (max-width: 600px) {\n  .b-new-text-87 .middle-title {  font-size: 28px !important;\n    line-height: 34px !important;  }\n}\n.b-new-text-87 .text {  font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400;  }\n.b-new-text-87 .text.bold {  font-weight: 700;  }\n.b-new-text-87 .pb16 {  padding-bottom: 16px;  }\n.b-new-text-87 .pb24 {  padding-bottom: 24px;  }\n.b-new-text-87 .pb44 {  padding-bottom: 44px;  }\n.b-new-text-87 .pt44 {  padding-top: 44px;  }\n.b-new-text-87 .left-block {  display: inline-block;\n  width: 220px !important;\n  vertical-align: top;\n  background: #f9f9f9;\n  border-radius: 24px;\n  margin: 0 10px 0 0;  }\n@media screen and (max-width: 600px) {\n  .b-new-text-87 .left-block {  float: none !important;\n    display: block !important;\n    margin: 0 auto 12px !important;  }\n}\n.b-new-text-87 .pr30-a {  padding-right: 30px;  }\n@media screen and (max-width: 600px) {\n  .b-new-text-87 .pr30-a {  padding-right: 0 !important;  }\n}\n.b-new-text-87 .right-block {  display: inline-block;\n  width: 220px !important;\n  vertical-align: top;\n  text-align: right;\n  background: #f9f9f9;\n  border-radius: 24px;  }\n@media screen and (max-width: 600px) {\n  .b-new-text-87 .right-block {  float: none !important;\n    display: block !important;\n    width: 100% !important;\n    margin: 0 auto !important;  }\n}\n@media screen and (max-width: 600px) {\n  .b-new-text-87 .text.mob-text, .b-new-text-87 .grey-text.mob-text {  font-size: 17px !important;  }\n}\n.b-new-text-87 .padd-text {  padding: 24px 10px 16px 10px;  }\n.brad-full.b-new-text-87, .b-new-text-87 .brad-full-32 {  border-radius:32px!important  }\n.white-bg.b-new-text-87 {  background-color:#fff  }\n.b-new-text-87 .middle-title {  font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#393a44;vertical-align:middle  }\n@media screen and (max-width:600px) {\n  .b-new-text-87 .middle-title {  font-size:28px!important;line-height:34px!important  }\n}\n.b-new-text-87 .number-block, .b-new-text-87 .text {  font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400  }\n.b-new-text-87 .big, .b-new-text-87 .text.bold {  font-weight:700  }\n.b-new-text-87 .pb16 {  padding-bottom:16px  }\n.b-new-text-87 .pb24 {  padding-bottom:24px  }\n.b-new-text-87 .pb44 {  padding-bottom:44px  }\n.b-new-text-87 .pt44 {  padding-top:44px  }\n.b-new-text-87 .left-block {  display:inline-block;width:220px!important;vertical-align:top;background:#f9f9f9;border-radius:24px;margin:0 10px 0 0  }\n@media screen and (max-width:600px) {\n  .b-new-text-87 .left-block {  float:none!important;display:block!important;margin:0 auto 12px!important  }\n}\n.b-new-text-87 .pr30-a {  padding-right:30px  }\n@media screen and (max-width:600px) {\n  .b-new-text-87 .pr30-a {  padding-right:0!important  }\n}\n.b-new-text-87 .right-block {  display:inline-block;width:220px!important;vertical-align:top;text-align:right;background:#f9f9f9;border-radius:24px  }\n@media screen and (max-width:600px) {\n  .b-new-text-87 .right-block {  float:none!important;display:block!important;width:100%!important;margin:0 auto!important  }\n}\n@media screen and (max-width:600px) {\n  .b-new-text-87 .grey-text.mob-text, .b-new-text-87 .text.mob-text {  font-size:17px!important  }\n}\n.b-new-text-87 .padd-text {  padding:24px 10px 16px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/d6/o2/ua3s2mcraq8an9c0/left.png"
+    },
+    {
+      "id": "image_2",
+      "kind": "image",
+      "label": "Картинка 2",
+      "default": "https://fsms.quadcode.com/storage/public/d6/o2/uabs2mcraq8an9d0/rigt.png"
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-rfm-segmentation-2-125"
+  ],
+  "createdAt": "2026-07-06T12:10:00.068Z",
+  "validated": true
+}

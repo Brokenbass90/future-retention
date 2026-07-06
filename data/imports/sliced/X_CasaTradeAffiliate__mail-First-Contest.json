@@ -1,0 +1,715 @@
+{
+  "category": "X_CasaTradeAffiliate",
+  "mailId": "First-Contest",
+  "mailAbs": "email-base/X_CasaTradeAffiliate/mail-First-Contest",
+  "blockCount": 7,
+  "blocks": [
+    {
+      "id": "x-casatradeaffiliate-first-contest-header-header",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "kind": "section",
+      "sourceFile": "X_CasaTradeAffiliate/mail-First-Contest/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.pb0\n            table.row.twelve.columns\n                tr\n                    td.offset-by-one.wrapper.last.pb0\n                        table.ten.columns\n                            tr\n                                td.wrapper.last.pb0\n                                    a(href=\"https://partner.casatrade.com/offers\" target=\"_blank\")\n                                        img.logo.center(src=\"https://fsms.quadcode.com/storage/public/cu/4h/ftt4nhqjshkklfbg/logo-casa.png\")",
+      "styl": "",
+      "classes": [
+        "center",
+        "columns",
+        "last",
+        "logo",
+        "offset-by-one",
+        "pb0",
+        "row",
+        "ten",
+        "twelve",
+        "wrapper"
+      ],
+      "designClasses": [],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://partner.casatrade.com/offers"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cu/4h/ftt4nhqjshkklfbg/logo-casa.png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-casatradeaffiliate-first-contest-header-text-1",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_CasaTradeAffiliate/mail-First-Contest/app/templates/blocks/header.jade",
+      "pug": "table.row.brad-full.white-bg\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb32.pt44\n                        p.title.pb8 ${{ affCasa-First-Contest.block_01 }}$\n                        p.subtitle.pb32  ${{ affCasa-First-Contest.block_02 }}$\n                        a(href=\"#\" target=\"_blank\")\n                            img.under-img.center(src=\"https://fsms.quadcode.com/storage/public/cv/dv/k31msj7rr6s51t60/container.png\")\n                tr\n                    td.text-pad-small.pb44\n                        p.subtitle.pb12 ${{ affCasa-First-Contest.block_03 }}$\n                        p.text.pb15 ${{ affCasa-First-Contest.block_04 }}$\n                        p.text ${{ affCasa-First-Contest.block_05 }}$",
+      "styl": ".brad-full { border-radius: 16px !important; }\n.white-bg { background: #fff; }\n.title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 48px;\n  color: #2f3749;\n  line-height: 58px;\n  padding-bottom: 60px; }\n@media screen and (max-width: 600px) {\n  .title { font-size: 26px !important;\n    line-height: 32px !important;\n    padding-bottom: 30px !important; }\n}\n.text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 24px; }\n.text.bold { font-weight: 700; }\n.pb12 { padding-bottom: 12px !important; }\n.pb15 { padding-bottom: 15px; }\n.pb32 { padding-bottom: 32px; }\n.pb44 { padding-bottom: 44px; }\n.pt44 { padding-top: 44px; }\n.text.mob-text,\n.img-box { float: none !important;\n  max-width: 232px !important;\n  display: block !important; }\n.brad-full { border-radius:16px!important }\n.white-bg { background:#fff }\n.title { font-family:Helvetica!important;font-weight:700;font-size:48px;color:#3e3752;line-height:58px }\n@media screen and (max-width:600px) {\n  .title { font-size:26px!important;line-height:32px!important }\n}\n.subtitle { font-family:Helvetica!important;font-weight:700;font-size:24px;line-height:31px;color:#3e3752 }\n@media screen and (max-width:600px) {\n  .subtitle { font-size:20px!important;line-height:28px!important }\n}\n.under-img { float:none;width:480px;background:#f7f7fc;border-radius:16px }\n.small-dot,.text { font-family:Helvetica!important;font-size:18px;line-height:27px;color:#3e3752 }\n.text { letter-spacing:0 }\n.big,.text.bold { font-weight:700 }\n.pb8 { padding-bottom:10px }\n.pb12 { padding-bottom:12px!important }\n.pb15 { padding-bottom:15px }\n.pb32 { padding-bottom:32px }\n.pb44 { padding-bottom:44px }\n.pt44 { padding-top:44px }\n.img-box,.text.mob-text { float:none!important;max-width:232px!important;display:block!important }",
+      "classes": [
+        "brad-full",
+        "center",
+        "columns",
+        "last",
+        "offset-by-one",
+        "pb12",
+        "pb15",
+        "pb32",
+        "pb44",
+        "pb8",
+        "pt44",
+        "row",
+        "subtitle",
+        "ten",
+        "text",
+        "text-pad-small",
+        "title",
+        "under-img",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "brad-full",
+        "pb12",
+        "pb15",
+        "pb32",
+        "pb44",
+        "pb8",
+        "pt44",
+        "subtitle",
+        "text",
+        "title",
+        "under-img",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_01",
+          "kind": "richText",
+          "label": "Текст affCasa-First-Contest.block_01",
+          "token": "${{ affCasa-First-Contest.block_01 }}$",
+          "ns": "affCasa-First-Contest",
+          "block": "block_01"
+        },
+        {
+          "id": "text_block_02",
+          "kind": "richText",
+          "label": "Текст affCasa-First-Contest.block_02",
+          "token": "${{ affCasa-First-Contest.block_02 }}$",
+          "ns": "affCasa-First-Contest",
+          "block": "block_02"
+        },
+        {
+          "id": "text_block_03",
+          "kind": "richText",
+          "label": "Текст affCasa-First-Contest.block_03",
+          "token": "${{ affCasa-First-Contest.block_03 }}$",
+          "ns": "affCasa-First-Contest",
+          "block": "block_03"
+        },
+        {
+          "id": "text_block_04",
+          "kind": "richText",
+          "label": "Текст affCasa-First-Contest.block_04",
+          "token": "${{ affCasa-First-Contest.block_04 }}$",
+          "ns": "affCasa-First-Contest",
+          "block": "block_04"
+        },
+        {
+          "id": "text_block_05",
+          "kind": "richText",
+          "label": "Текст affCasa-First-Contest.block_05",
+          "token": "${{ affCasa-First-Contest.block_05 }}$",
+          "ns": "affCasa-First-Contest",
+          "block": "block_05"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cv/dv/k31msj7rr6s51t60/container.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-casatradeaffiliate-first-contest-header-text-1",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.title.pb8 ${{ affCasa-First-Contest.block_01 }}$",
+          "styl": ".title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 48px;\n  color: #2f3749;\n  line-height: 58px;\n  padding-bottom: 60px; }\n@media screen and (max-width: 600px) {\n  .title { font-size: 26px !important;\n    line-height: 32px !important;\n    padding-bottom: 30px !important; }\n}\n.title { font-family:Helvetica!important;font-weight:700;font-size:48px;color:#3e3752;line-height:58px }\n@media screen and (max-width:600px) {\n  .title { font-size:26px!important;line-height:32px!important }\n}\n.pb8 { padding-bottom:10px }",
+          "classes": [
+            "pb8",
+            "title"
+          ],
+          "designClasses": [
+            "pb8",
+            "title"
+          ],
+          "slots": [
+            {
+              "id": "text_block_01",
+              "kind": "richText",
+              "label": "Текст affCasa-First-Contest.block_01",
+              "token": "${{ affCasa-First-Contest.block_01 }}$",
+              "ns": "affCasa-First-Contest",
+              "block": "block_01"
+            }
+          ]
+        },
+        {
+          "id": "x-casatradeaffiliate-first-contest-header-text-1",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb15 ${{ affCasa-First-Contest.block_04 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 24px; }\n.text.bold { font-weight: 700; }\n.pb15 { padding-bottom: 15px; }\n.text.mob-text,\n.img-box { float: none !important;\n  max-width: 232px !important;\n  display: block !important; }\n.small-dot,.text { font-family:Helvetica!important;font-size:18px;line-height:27px;color:#3e3752 }\n.text { letter-spacing:0 }\n.big,.text.bold { font-weight:700 }\n.pb15 { padding-bottom:15px }\n.img-box,.text.mob-text { float:none!important;max-width:232px!important;display:block!important }",
+          "classes": [
+            "pb15",
+            "text"
+          ],
+          "designClasses": [
+            "pb15",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_04",
+              "kind": "richText",
+              "label": "Текст affCasa-First-Contest.block_04",
+              "token": "${{ affCasa-First-Contest.block_04 }}$",
+              "ns": "affCasa-First-Contest",
+              "block": "block_04"
+            }
+          ]
+        },
+        {
+          "id": "x-casatradeaffiliate-first-contest-header-text-1",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ affCasa-First-Contest.block_05 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 24px; }\n.text.bold { font-weight: 700; }\n.text.mob-text,\n.img-box { float: none !important;\n  max-width: 232px !important;\n  display: block !important; }\n.small-dot,.text { font-family:Helvetica!important;font-size:18px;line-height:27px;color:#3e3752 }\n.text { letter-spacing:0 }\n.big,.text.bold { font-weight:700 }\n.img-box,.text.mob-text { float:none!important;max-width:232px!important;display:block!important }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_05",
+              "kind": "richText",
+              "label": "Текст affCasa-First-Contest.block_05",
+              "token": "${{ affCasa-First-Contest.block_05 }}$",
+              "ns": "affCasa-First-Contest",
+              "block": "block_05"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-casatradeaffiliate-first-contest-header-utilit",
+      "label": "Спейсер 12px",
+      "placement": "inline",
+      "category": "utility",
+      "kind": "spacer",
+      "sourceFile": "X_CasaTradeAffiliate/mail-First-Contest/app/templates/blocks/header.jade",
+      "pug": ".h-12 &nbsp;",
+      "styl": ".h-12 { font-size: 8px;\n  line-height: 12px;\n  height: 12px; }\n.h-12,.h-16,.h-8 { font-size:8px;line-height:8px;height:8px }\n.h-12,.h-16 { line-height:12px;height:12px }",
+      "classes": [
+        "h-12"
+      ],
+      "designClasses": [
+        "h-12"
+      ],
+      "slots": [],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-casatradeaffiliate-first-contest-header-text-3",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_CasaTradeAffiliate/mail-First-Contest/app/templates/blocks/header.jade",
+      "pug": "table.row.brad-full.white-bg\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.middle-title.pb32 ${{ affCasa-First-Contest.block_06 }}$\n                        .purple-block.purple-block-1\n                            p.place ${{ affCasa-First-Contest.block_07 }}$\n                            .min-width\n                                p.subtitle.pt60.pb8 ${{ affCasa-First-Contest.block_08 }}$\n                                p.text ${{ affCasa-First-Contest.block_09 }}$\n                                //- table.w100\n                                //-     tr\n                                //-         td.pb5.m-w\n                                //-             p.small-dot.center &bull;\n                                //-         td.pb5.w-a\n                                //-             p.text ${{ affCasa-First-Contest.block_08 }}$\n                                //-     tr\n                                //-         td.pb0.m-w\n                                //-             p.small-dot.center &bull;\n                                //-         td.pb0.w-a\n                                //-             p.text ${{ affCasa-First-Contest.block_09 }}$\n                        .h-8 &nbsp;\n                        .purple-block.purple-block-2\n                            p.place ${{ affCasa-First-Contest.block_10 }}$\n                            .min-width\n                                p.subtitle.pt60.pb8 ${{ affCasa-First-Contest.block_11 }}$\n                                p.text ${{ affCasa-First-Contest.block_12 }}$",
+      "styl": ".brad-full { border-radius: 16px !important; }\n.white-bg { background: #fff; }\n.middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 24px !important;\n    line-height: 32px !important; }\n}\n.text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 24px; }\n.text.bold { font-weight: 700; }\n.pb32 { padding-bottom: 32px; }\n.pb44 { padding-bottom: 44px; }\n.pt44 { padding-top: 44px; }\n.text.mob-text,\n.img-box { float: none !important;\n  max-width: 232px !important;\n  display: block !important; }\n.brad-full { border-radius:16px!important }\n.white-bg { background:#fff }\n.subtitle { font-family:Helvetica!important;font-weight:700;font-size:24px;line-height:31px;color:#3e3752 }\n@media screen and (max-width:600px) {\n  .subtitle { font-size:20px!important;line-height:28px!important }\n}\n.middle-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#3e3752 }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:24px!important;line-height:32px!important }\n}\n.small-dot,.text { font-family:Helvetica!important;font-size:18px;line-height:27px;color:#3e3752 }\n.text { letter-spacing:0 }\n.big,.text.bold { font-weight:700 }\n.pb8 { padding-bottom:10px }\n.pb32 { padding-bottom:32px }\n.pb44 { padding-bottom:44px }\n.pt44 { padding-top:44px }\n.pt60 { padding-top:60px }\n.h-12,.h-16,.h-8 { font-size:8px;line-height:8px;height:8px }\n.img-box,.text.mob-text { float:none!important;max-width:232px!important;display:block!important }\n.purple-block { padding:24px;background:#f7f7fc url(\"https://fsms.quadcode.com/storage/public/cv/dv/k33jqakhdj8lo51g/container (1).png\") center no-repeat;background-size:cover;border-radius:16px }\n.min-width { max-width:262px }\n.purple-block-2 { padding:24px;background:#f7f7fc url(\"https://fsms.quadcode.com/storage/public/cv/dv/k33jqakhdj8lo520/container (2).png\") center no-repeat;background-size:cover;border-radius:16px }\n.place { display:inline-block;padding:6px 16px;background:#e8e1ff;border-radius:12px;font-family:Helvetica!important;font-weight:700;font-size:18px;line-height:27px;color:#3e3752 }",
+      "classes": [
+        "brad-full",
+        "columns",
+        "h-8",
+        "last",
+        "middle-title",
+        "min-width",
+        "offset-by-one",
+        "pb32",
+        "pb44",
+        "pb8",
+        "place",
+        "pt44",
+        "pt60",
+        "purple-block",
+        "purple-block-1",
+        "purple-block-2",
+        "row",
+        "subtitle",
+        "ten",
+        "text",
+        "text-pad-small",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "brad-full",
+        "h-8",
+        "middle-title",
+        "min-width",
+        "pb32",
+        "pb44",
+        "pb8",
+        "place",
+        "pt44",
+        "pt60",
+        "purple-block",
+        "purple-block-1",
+        "purple-block-2",
+        "subtitle",
+        "text",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_06",
+          "kind": "richText",
+          "label": "Текст affCasa-First-Contest.block_06",
+          "token": "${{ affCasa-First-Contest.block_06 }}$",
+          "ns": "affCasa-First-Contest",
+          "block": "block_06"
+        },
+        {
+          "id": "text_block_07",
+          "kind": "richText",
+          "label": "Текст affCasa-First-Contest.block_07",
+          "token": "${{ affCasa-First-Contest.block_07 }}$",
+          "ns": "affCasa-First-Contest",
+          "block": "block_07"
+        },
+        {
+          "id": "text_block_08",
+          "kind": "richText",
+          "label": "Текст affCasa-First-Contest.block_08",
+          "token": "${{ affCasa-First-Contest.block_08 }}$",
+          "ns": "affCasa-First-Contest",
+          "block": "block_08"
+        },
+        {
+          "id": "text_block_09",
+          "kind": "richText",
+          "label": "Текст affCasa-First-Contest.block_09",
+          "token": "${{ affCasa-First-Contest.block_09 }}$",
+          "ns": "affCasa-First-Contest",
+          "block": "block_09"
+        },
+        {
+          "id": "text_block_10",
+          "kind": "richText",
+          "label": "Текст affCasa-First-Contest.block_10",
+          "token": "${{ affCasa-First-Contest.block_10 }}$",
+          "ns": "affCasa-First-Contest",
+          "block": "block_10"
+        },
+        {
+          "id": "text_block_11",
+          "kind": "richText",
+          "label": "Текст affCasa-First-Contest.block_11",
+          "token": "${{ affCasa-First-Contest.block_11 }}$",
+          "ns": "affCasa-First-Contest",
+          "block": "block_11"
+        },
+        {
+          "id": "text_block_12",
+          "kind": "richText",
+          "label": "Текст affCasa-First-Contest.block_12",
+          "token": "${{ affCasa-First-Contest.block_12 }}$",
+          "ns": "affCasa-First-Contest",
+          "block": "block_12"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-casatradeaffiliate-first-contest-header-text-3",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.middle-title.pb32 ${{ affCasa-First-Contest.block_06 }}$",
+          "styl": ".middle-title { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle; }\n@media screen and (max-width: 600px) {\n  .middle-title { font-size: 24px !important;\n    line-height: 32px !important; }\n}\n.pb32 { padding-bottom: 32px; }\n.middle-title { font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#3e3752 }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:24px!important;line-height:32px!important }\n}\n.pb32 { padding-bottom:32px }",
+          "classes": [
+            "middle-title",
+            "pb32"
+          ],
+          "designClasses": [
+            "middle-title",
+            "pb32"
+          ],
+          "slots": [
+            {
+              "id": "text_block_06",
+              "kind": "richText",
+              "label": "Текст affCasa-First-Contest.block_06",
+              "token": "${{ affCasa-First-Contest.block_06 }}$",
+              "ns": "affCasa-First-Contest",
+              "block": "block_06"
+            }
+          ]
+        },
+        {
+          "id": "x-casatradeaffiliate-first-contest-header-text-3",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ affCasa-First-Contest.block_09 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 24px; }\n.text.bold { font-weight: 700; }\n.text.mob-text,\n.img-box { float: none !important;\n  max-width: 232px !important;\n  display: block !important; }\n.small-dot,.text { font-family:Helvetica!important;font-size:18px;line-height:27px;color:#3e3752 }\n.text { letter-spacing:0 }\n.big,.text.bold { font-weight:700 }\n.img-box,.text.mob-text { float:none!important;max-width:232px!important;display:block!important }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_09",
+              "kind": "richText",
+              "label": "Текст affCasa-First-Contest.block_09",
+              "token": "${{ affCasa-First-Contest.block_09 }}$",
+              "ns": "affCasa-First-Contest",
+              "block": "block_09"
+            }
+          ]
+        },
+        {
+          "id": "x-casatradeaffiliate-first-contest-header-text-3",
+          "label": "Спейсер 8px",
+          "placement": "inline",
+          "category": "utility",
+          "pug": ".h-8 &nbsp;",
+          "styl": ".h-12,.h-16,.h-8 { font-size:8px;line-height:8px;height:8px }",
+          "classes": [
+            "h-8"
+          ],
+          "designClasses": [
+            "h-8"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-casatradeaffiliate-first-contest-header-text-3",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ affCasa-First-Contest.block_12 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 24px; }\n.text.bold { font-weight: 700; }\n.text.mob-text,\n.img-box { float: none !important;\n  max-width: 232px !important;\n  display: block !important; }\n.small-dot,.text { font-family:Helvetica!important;font-size:18px;line-height:27px;color:#3e3752 }\n.text { letter-spacing:0 }\n.big,.text.bold { font-weight:700 }\n.img-box,.text.mob-text { float:none!important;max-width:232px!important;display:block!important }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_12",
+              "kind": "richText",
+              "label": "Текст affCasa-First-Contest.block_12",
+              "token": "${{ affCasa-First-Contest.block_12 }}$",
+              "ns": "affCasa-First-Contest",
+              "block": "block_12"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-casatradeaffiliate-first-contest-header-utilit",
+      "label": "Спейсер 12px",
+      "placement": "inline",
+      "category": "utility",
+      "kind": "spacer",
+      "sourceFile": "X_CasaTradeAffiliate/mail-First-Contest/app/templates/blocks/header.jade",
+      "pug": ".h-12 &nbsp;",
+      "styl": ".h-12 { font-size: 8px;\n  line-height: 12px;\n  height: 12px; }\n.h-12,.h-16,.h-8 { font-size:8px;line-height:8px;height:8px }\n.h-12,.h-16 { line-height:12px;height:12px }",
+      "classes": [
+        "h-12"
+      ],
+      "designClasses": [
+        "h-12"
+      ],
+      "slots": [],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-casatradeaffiliate-first-contest-header-cta-5",
+      "label": "CTA-секция",
+      "placement": "section",
+      "category": "cta",
+      "kind": "section",
+      "sourceFile": "X_CasaTradeAffiliate/mail-First-Contest/app/templates/blocks/header.jade",
+      "pug": "table.row.brad-full.white-bg(style=\"border: 4px solid #8245EB;\")\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.date.pb28\n                            img.date-img(src=\"https://fsms.quadcode.com/storage/public/cv/dv/k31msj7rr6s51t5g/shape.png\")\n                            |${{ affCasa-First-Contest.block_17 }}$\n                        p.subtitle.pb32 ${{ affCasa-First-Contest.block_13 }}$\n                        .three-colums\n                            table.w100\n                                tr\n                                    td.pb0.w-33\n                                        p.date.pb16.pr10 ${{ affCasa-First-Contest.block_14 }}$\n                                        p.names.pr10 ${{ affCasa-First-Contest.block_15 }}$\n                                    td.pb0.w-33\n                                        p.date.pb16.pr10 ${{ affCasa-First-Contest.block_18 }}$\n                                        p.names.pr10 ${{ affCasa-First-Contest.block_19 }}$\n                                    td.pb0.w-33\n                                        p.date.pb16 ${{ affCasa-First-Contest.block_20 }}$\n                                        p.names.pr10 ${{ affCasa-First-Contest.block_21 }}$\n                                        p.green-under-text.pr10 ${{ affCasa-First-Contest.block_22 }}$\n                        p.text.pt32 ${{ affCasa-First-Contest.block_23 }}$\n                tr\n                    td(align=\"center\").text-pad-small.pb32.pt0.bb\n                        table.w280.center\n                            tr\n                                td.butt.pb0(align=\"center\")\n                                    a.butt-link(href=\"https://partner.casatrade.com/contests/upcoming\" target=\"_blank\") ${{ affCasa-First-Contest.block_24 }}$\n                tr\n                    td.text-pad-small.pb44.pt24\n                        p.bottom-text.center ${{ affCasa-First-Contest.block_25 }}$",
+      "styl": ".brad-full { border-radius: 16px !important; }\n.butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f7f7fc;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.white-bg { background: #fff; }\n.text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 24px; }\n.pr10 { padding-right: 10px; }\n.text.bold { font-weight: 700; }\n.pb16 { padding-bottom: 16px; }\n.pb28 { padding-bottom: 28px; }\n.pb32 { padding-bottom: 32px; }\n.pb44 { padding-bottom: 44px; }\n.pt24 { padding-top: 24px; }\n.pt32 { padding-top: 32px; }\n.pt44 { padding-top: 44px; }\n.w100 { width: 100%; }\n.w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { min-width: 100% !important; }\n}\n.text.mob-text,\n.img-box { float: none !important;\n  max-width: 232px !important;\n  display: block !important; }\n.brad-full { border-radius:16px!important }\n.butt-link,.butt-link-2 { font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#2f3749;display:block;line-height:27px;padding:16px 0;text-align:center;letter-spacing:0 }\n.butt-link { color:#f7f7fc }\n.white-bg { background:#fff }\n.subtitle { font-family:Helvetica!important;font-weight:700;font-size:24px;line-height:31px;color:#3e3752 }\n@media screen and (max-width:600px) {\n  .subtitle { font-size:20px!important;line-height:28px!important }\n}\n.small-dot,.text { font-family:Helvetica!important;font-size:18px;line-height:27px;color:#3e3752 }\n.text { letter-spacing:0 }\n.big,.text.bold { font-weight:700 }\n.pb16 { padding-bottom:16px }\n.pb28 { padding-bottom:28px }\n.pb32 { padding-bottom:32px }\n.pb44 { padding-bottom:44px }\n.pt24 { padding-top:24px }\n.pt32 { padding-top:32px }\n.pt44 { padding-top:44px }\n.pr10 { padding-right:10px }\n.date { font-family:Helvetica!important;font-weight:400;color:#8981a5;font-size:16px;line-height:24px }\n.date-img { float:none;display:inline-block;width:16px!important;padding-right:4px;vertical-align:top;padding-top:3px }\n.w100,.w280 { width:100% }\n.w280 { max-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { min-width:100%!important }\n}\n.img-box,.text.mob-text { float:none!important;max-width:232px!important;display:block!important }\n.three-colums { padding:32px 0;border-top:1px solid #d9d9db;border-bottom:1px solid #d9d9db }\n.w-33 { width:33%!important }\n.names { font-family:Helvetica!important;font-weight:700;font-size:24px;line-height:31px;color:#3e3752 }\n@media screen and (max-width:600px) {\n  .names { font-size:18px!important;line-height:27px!important }\n}\n.bottom-text,.footer-text,.green-under-text { font-family:Helvetica!important;font-weight:700;font-size:16px;line-height:24px;color:#12a557 }\n.bottom-text,.footer-text { font-weight:400;font-size:18px;line-height:27px;color:#3e3752 }",
+      "classes": [
+        "bottom-text",
+        "brad-full",
+        "butt",
+        "butt-link",
+        "center",
+        "columns",
+        "date",
+        "date-img",
+        "green-under-text",
+        "last",
+        "names",
+        "offset-by-one",
+        "pb0",
+        "pb16",
+        "pb28",
+        "pb32",
+        "pb44",
+        "pr10",
+        "pt24",
+        "pt32",
+        "pt44",
+        "row",
+        "subtitle",
+        "ten",
+        "text",
+        "text-pad-small",
+        "three-colums",
+        "w-33",
+        "w100",
+        "w280",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "bottom-text",
+        "brad-full",
+        "butt-link",
+        "date",
+        "date-img",
+        "green-under-text",
+        "names",
+        "pb16",
+        "pb28",
+        "pb32",
+        "pb44",
+        "pr10",
+        "pt24",
+        "pt32",
+        "pt44",
+        "subtitle",
+        "text",
+        "three-colums",
+        "w-33",
+        "w100",
+        "w280",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_17",
+          "kind": "richText",
+          "label": "Текст affCasa-First-Contest.block_17",
+          "token": "${{ affCasa-First-Contest.block_17 }}$",
+          "ns": "affCasa-First-Contest",
+          "block": "block_17"
+        },
+        {
+          "id": "text_block_13",
+          "kind": "richText",
+          "label": "Текст affCasa-First-Contest.block_13",
+          "token": "${{ affCasa-First-Contest.block_13 }}$",
+          "ns": "affCasa-First-Contest",
+          "block": "block_13"
+        },
+        {
+          "id": "text_block_14",
+          "kind": "richText",
+          "label": "Текст affCasa-First-Contest.block_14",
+          "token": "${{ affCasa-First-Contest.block_14 }}$",
+          "ns": "affCasa-First-Contest",
+          "block": "block_14"
+        },
+        {
+          "id": "text_block_15",
+          "kind": "richText",
+          "label": "Текст affCasa-First-Contest.block_15",
+          "token": "${{ affCasa-First-Contest.block_15 }}$",
+          "ns": "affCasa-First-Contest",
+          "block": "block_15"
+        },
+        {
+          "id": "text_block_18",
+          "kind": "richText",
+          "label": "Текст affCasa-First-Contest.block_18",
+          "token": "${{ affCasa-First-Contest.block_18 }}$",
+          "ns": "affCasa-First-Contest",
+          "block": "block_18"
+        },
+        {
+          "id": "text_block_19",
+          "kind": "richText",
+          "label": "Текст affCasa-First-Contest.block_19",
+          "token": "${{ affCasa-First-Contest.block_19 }}$",
+          "ns": "affCasa-First-Contest",
+          "block": "block_19"
+        },
+        {
+          "id": "text_block_20",
+          "kind": "richText",
+          "label": "Текст affCasa-First-Contest.block_20",
+          "token": "${{ affCasa-First-Contest.block_20 }}$",
+          "ns": "affCasa-First-Contest",
+          "block": "block_20"
+        },
+        {
+          "id": "text_block_21",
+          "kind": "richText",
+          "label": "Текст affCasa-First-Contest.block_21",
+          "token": "${{ affCasa-First-Contest.block_21 }}$",
+          "ns": "affCasa-First-Contest",
+          "block": "block_21"
+        },
+        {
+          "id": "text_block_22",
+          "kind": "richText",
+          "label": "Текст affCasa-First-Contest.block_22",
+          "token": "${{ affCasa-First-Contest.block_22 }}$",
+          "ns": "affCasa-First-Contest",
+          "block": "block_22"
+        },
+        {
+          "id": "text_block_23",
+          "kind": "richText",
+          "label": "Текст affCasa-First-Contest.block_23",
+          "token": "${{ affCasa-First-Contest.block_23 }}$",
+          "ns": "affCasa-First-Contest",
+          "block": "block_23"
+        },
+        {
+          "id": "text_block_24",
+          "kind": "richText",
+          "label": "Текст affCasa-First-Contest.block_24",
+          "token": "${{ affCasa-First-Contest.block_24 }}$",
+          "ns": "affCasa-First-Contest",
+          "block": "block_24"
+        },
+        {
+          "id": "text_block_25",
+          "kind": "richText",
+          "label": "Текст affCasa-First-Contest.block_25",
+          "token": "${{ affCasa-First-Contest.block_25 }}$",
+          "ns": "affCasa-First-Contest",
+          "block": "block_25"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://partner.casatrade.com/contests/upcoming"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cv/dv/k31msj7rr6s51t5g/shape.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-casatradeaffiliate-first-contest-header-cta-5-",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pt32 ${{ affCasa-First-Contest.block_23 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 24px; }\n.text.bold { font-weight: 700; }\n.pt32 { padding-top: 32px; }\n.text.mob-text,\n.img-box { float: none !important;\n  max-width: 232px !important;\n  display: block !important; }\n.small-dot,.text { font-family:Helvetica!important;font-size:18px;line-height:27px;color:#3e3752 }\n.text { letter-spacing:0 }\n.big,.text.bold { font-weight:700 }\n.pt32 { padding-top:32px }\n.img-box,.text.mob-text { float:none!important;max-width:232px!important;display:block!important }",
+          "classes": [
+            "pt32",
+            "text"
+          ],
+          "designClasses": [
+            "pt32",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_23",
+              "kind": "richText",
+              "label": "Текст affCasa-First-Contest.block_23",
+              "token": "${{ affCasa-First-Contest.block_23 }}$",
+              "ns": "affCasa-First-Contest",
+              "block": "block_23"
+            }
+          ]
+        },
+        {
+          "id": "x-casatradeaffiliate-first-contest-header-cta-5-",
+          "label": "CTA-кнопка (w280)",
+          "placement": "inline",
+          "category": "cta",
+          "pug": "table.w280.center\n    tr\n        td.butt.pb0(align=\"center\")\n            a.butt-link(href=\"https://partner.casatrade.com/contests/upcoming\" target=\"_blank\") ${{ affCasa-First-Contest.block_24 }}$",
+          "styl": ".butt-link { font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f7f7fc;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px; }\n.w280 { width: 100%;\n  max-width: 280px; }\n@media screen and (max-width: 600px) {\n  .w280 { min-width: 100% !important; }\n}\n.butt-link,.butt-link-2 { font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#2f3749;display:block;line-height:27px;padding:16px 0;text-align:center;letter-spacing:0 }\n.butt-link { color:#f7f7fc }\n.w100,.w280 { width:100% }\n.w280 { max-width:280px }\n@media screen and (max-width:600px) {\n  .w280 { min-width:100%!important }\n}",
+          "classes": [
+            "butt",
+            "butt-link",
+            "center",
+            "pb0",
+            "w280"
+          ],
+          "designClasses": [
+            "butt-link",
+            "w280"
+          ],
+          "slots": [
+            {
+              "id": "text_block_24",
+              "kind": "richText",
+              "label": "Текст affCasa-First-Contest.block_24",
+              "token": "${{ affCasa-First-Contest.block_24 }}$",
+              "ns": "affCasa-First-Contest",
+              "block": "block_24"
+            },
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://partner.casatrade.com/contests/upcoming"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-casatradeaffiliate-first-contest-header-utilit",
+      "label": "Спейсер 12px",
+      "placement": "inline",
+      "category": "utility",
+      "kind": "spacer",
+      "sourceFile": "X_CasaTradeAffiliate/mail-First-Contest/app/templates/blocks/header.jade",
+      "pug": ".h-12 &nbsp;",
+      "styl": ".h-12 { font-size: 8px;\n  line-height: 12px;\n  height: 12px; }\n.h-12,.h-16,.h-8 { font-size:8px;line-height:8px;height:8px }\n.h-12,.h-16 { line-height:12px;height:12px }",
+      "classes": [
+        "h-12"
+      ],
+      "designClasses": [
+        "h-12"
+      ],
+      "slots": [],
+      "inlineChildren": []
+    }
+  ]
+}

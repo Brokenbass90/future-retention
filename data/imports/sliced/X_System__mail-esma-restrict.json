@@ -1,0 +1,429 @@
+{
+  "category": "X_System",
+  "mailId": "esma-restrict",
+  "mailAbs": "email-base/X_System/mail-esma-restrict",
+  "blockCount": 4,
+  "blocks": [
+    {
+      "id": "x-system-esma-restrict-header-header-0",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "kind": "section",
+      "sourceFile": "X_System/mail-esma-restrict/app/templates/blocks/header.jade",
+      "pug": "table.row.header\n    tr\n        td.wrapper\n            table.six.columns\n                tr\n                    td.left\n                        a(href=\"https://iqoption.com/traderoom/?aff=7&afftrack=mail&retrack=esma-restrict\", target=\"_blank\")\n                            img.logo(src=\"https://images01.iqoption.com/89/0689/static-01503674720413810689.png\")\n        td.wrapper.last.hide-for-small\n            table.three.columns\n                tr\n                    td.apps\n                        a(href=\"https://app.appsflyer.com/id871125783?pid=7&c=mail\")\n                            img.app_btn(src=\"https://images01.iqoption.com/21/8721/static-00636246823765278721.png\")\n        td.wrapper.last.hide-for-small\n            table.three.columns\n                tr\n                    td.apps\n                        a(href=\"https://app.appsflyer.com/com.iqoption?pid=7&c=mail\")\n                            img.app_btn(src=\"https://images01.iqoption.com/17/9217/static-01920501695922569217.png\")",
+      "styl": "table.row.header { background:#f6f9fc url(https://images01.iqoption.com/01/5201/static-00115704862028595201.png) center top no-repeat;height:113px }\n.app_btn { width:116px;height:34px;padding-top:30px }",
+      "classes": [
+        "app_btn",
+        "apps",
+        "columns",
+        "header",
+        "hide-for-small",
+        "last",
+        "left",
+        "logo",
+        "row",
+        "six",
+        "three",
+        "wrapper"
+      ],
+      "designClasses": [
+        "app_btn",
+        "apps",
+        "header"
+      ],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://iqoption.com/traderoom/?aff=7&afftrack=mail&retrack=esma-restrict"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://app.appsflyer.com/id871125783?pid=7&c=mail"
+        },
+        {
+          "id": "href_2",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://app.appsflyer.com/com.iqoption?pid=7&c=mail"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://images01.iqoption.com/89/0689/static-01503674720413810689.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://images01.iqoption.com/21/8721/static-00636246823765278721.png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://images01.iqoption.com/17/9217/static-01920501695922569217.png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-system-esma-restrict-header-text-1",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_System/mail-esma-restrict/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg\n    tr\n        td.offset-by-one\n            table.ten.columns\n                tr\n                    td.no-padding-bottom\n                        p.title ${{ esma-res.block_00 }}$\n                        p.text ${{ esma-res.block_01 }}$\n                        p.text ${{ esma-res.block_02 }}$\n                        p.text.pb30 ${{ esma-res.block_03 }}$",
+      "styl": ".white-bg { background:#fff }\n.title { color:#2473d7;font-size:24px;font-weight:500;line-height:32px;padding-top:30px;padding-bottom:25px }\n@media screen and (max-width:600px) {\n  .title { padding-left:20px!important;padding-right:20px!important }\n}\n.text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }",
+      "classes": [
+        "columns",
+        "no-padding-bottom",
+        "offset-by-one",
+        "pb30",
+        "row",
+        "ten",
+        "text",
+        "title",
+        "white-bg"
+      ],
+      "designClasses": [
+        "text",
+        "title",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_00",
+          "kind": "richText",
+          "label": "Текст esma-res.block_00",
+          "token": "${{ esma-res.block_00 }}$",
+          "ns": "esma-res",
+          "block": "block_00"
+        },
+        {
+          "id": "text_block_01",
+          "kind": "richText",
+          "label": "Текст esma-res.block_01",
+          "token": "${{ esma-res.block_01 }}$",
+          "ns": "esma-res",
+          "block": "block_01"
+        },
+        {
+          "id": "text_block_02",
+          "kind": "richText",
+          "label": "Текст esma-res.block_02",
+          "token": "${{ esma-res.block_02 }}$",
+          "ns": "esma-res",
+          "block": "block_02"
+        },
+        {
+          "id": "text_block_03",
+          "kind": "richText",
+          "label": "Текст esma-res.block_03",
+          "token": "${{ esma-res.block_03 }}$",
+          "ns": "esma-res",
+          "block": "block_03"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-system-esma-restrict-header-text-1-heading-0",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.title ${{ esma-res.block_00 }}$",
+          "styl": ".title { color:#2473d7;font-size:24px;font-weight:500;line-height:32px;padding-top:30px;padding-bottom:25px }\n@media screen and (max-width:600px) {\n  .title { padding-left:20px!important;padding-right:20px!important }\n}",
+          "classes": [
+            "title"
+          ],
+          "designClasses": [
+            "title"
+          ],
+          "slots": [
+            {
+              "id": "text_block_00",
+              "kind": "richText",
+              "label": "Текст esma-res.block_00",
+              "token": "${{ esma-res.block_00 }}$",
+              "ns": "esma-res",
+              "block": "block_00"
+            }
+          ]
+        },
+        {
+          "id": "x-system-esma-restrict-header-text-1-paragraph-1",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ esma-res.block_01 }}$",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_01",
+              "kind": "richText",
+              "label": "Текст esma-res.block_01",
+              "token": "${{ esma-res.block_01 }}$",
+              "ns": "esma-res",
+              "block": "block_01"
+            }
+          ]
+        },
+        {
+          "id": "x-system-esma-restrict-header-text-1-paragraph-2",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ esma-res.block_02 }}$",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_02",
+              "kind": "richText",
+              "label": "Текст esma-res.block_02",
+              "token": "${{ esma-res.block_02 }}$",
+              "ns": "esma-res",
+              "block": "block_02"
+            }
+          ]
+        },
+        {
+          "id": "x-system-esma-restrict-header-text-1-paragraph-3",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb30 ${{ esma-res.block_03 }}$",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "pb30",
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_03",
+              "kind": "richText",
+              "label": "Текст esma-res.block_03",
+              "token": "${{ esma-res.block_03 }}$",
+              "ns": "esma-res",
+              "block": "block_03"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-system-esma-restrict-header-text-2",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_System/mail-esma-restrict/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg\n    tr\n        td.offset-by-one\n            table.ten.columns\n                tr\n                    td.pb30.text-pad-small\n                        table.table-margin\n                            tr\n                                td.first-td\n                                    p.table-title ${{ esma-res.block_04 }}$\n                                td.last-td\n                                    p.table-title ${{ esma-res.block_05 }}$\n                            tr\n                                td.first-td\n                                    p.table-text ${{ esma-res.block_06 }}$\n                                td.last-td\n                                    p.table-text 1:20\n                            tr\n                                td.first-td\n                                    p.table-text ${{ esma-res.block_07 }}$\n                                td.last-td\n                                    p.table-text 1:30\n                            tr\n                                td.first-td\n                                    p.table-text ${{ esma-res.block_08 }}$\n                                td.last-td\n                                    p.table-text 1:10\n                            tr\n                                td.first-td\n                                    p.table-text ${{ esma-res.block_09 }}$\n                                td.last-td\n                                    p.table-text 1:5\n                            tr\n                                td.first-td\n                                    p.table-text ${{ esma-res.block_10 }}$\n                                td.last-td\n                                    p.table-text 1:5\n                            tr\n                                td.first-td\n                                    p.table-text ${{ esma-res.block_11 }}$\n                                td.last-td\n                                    p.table-text 1:5\n                            tr\n                                td.first-td\n                                    p.table-text ${{ esma-res.block_12 }}$\n                                td.last-td\n                                    p.table-text 1:2",
+      "styl": ".white-bg { background:#fff }\ntable[class=body] table.columns td.first-td { max-width:100%;height:40px;vertical-align:middle;padding-left:20px;padding-right:20px;border:1px solid #5b6e88;padding-bottom:0!important;border-collapse:collapse }\n@media screen and (max-width:600px) {\n  table[class=body] table.columns td.first-td { padding-left:10px!important;padding-right:10px!important;width:150px!important }\n}\ntable[class=body] table.columns td.last-td { max-width:100%;height:40px;line-height:40px;vertical-align:middle;padding-left:20px;padding-right:20px;border:1px solid #5b6e88;padding-bottom:0!important;border-collapse:collapse }\n@media screen and (max-width:600px) {\n  table[class=body] table.columns td.last-td { padding-left:10px!important;padding-right:10px!important;width:150px!important }\n}\n.table-title { color:#5b6e88;font-size:16px;font-weight:700;padding:10px 0 }\n.asterisk,.table-text { color:#5b6e88;font-size:16px;font-weight:400 }",
+      "classes": [
+        "columns",
+        "first-td",
+        "last-td",
+        "offset-by-one",
+        "pb30",
+        "row",
+        "table-margin",
+        "table-text",
+        "table-title",
+        "ten",
+        "text-pad-small",
+        "white-bg"
+      ],
+      "designClasses": [
+        "first-td",
+        "last-td",
+        "table-margin",
+        "table-text",
+        "table-title",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_04",
+          "kind": "richText",
+          "label": "Текст esma-res.block_04",
+          "token": "${{ esma-res.block_04 }}$",
+          "ns": "esma-res",
+          "block": "block_04"
+        },
+        {
+          "id": "text_block_05",
+          "kind": "richText",
+          "label": "Текст esma-res.block_05",
+          "token": "${{ esma-res.block_05 }}$",
+          "ns": "esma-res",
+          "block": "block_05"
+        },
+        {
+          "id": "text_block_06",
+          "kind": "richText",
+          "label": "Текст esma-res.block_06",
+          "token": "${{ esma-res.block_06 }}$",
+          "ns": "esma-res",
+          "block": "block_06"
+        },
+        {
+          "id": "text_block_07",
+          "kind": "richText",
+          "label": "Текст esma-res.block_07",
+          "token": "${{ esma-res.block_07 }}$",
+          "ns": "esma-res",
+          "block": "block_07"
+        },
+        {
+          "id": "text_block_08",
+          "kind": "richText",
+          "label": "Текст esma-res.block_08",
+          "token": "${{ esma-res.block_08 }}$",
+          "ns": "esma-res",
+          "block": "block_08"
+        },
+        {
+          "id": "text_block_09",
+          "kind": "richText",
+          "label": "Текст esma-res.block_09",
+          "token": "${{ esma-res.block_09 }}$",
+          "ns": "esma-res",
+          "block": "block_09"
+        },
+        {
+          "id": "text_block_10",
+          "kind": "richText",
+          "label": "Текст esma-res.block_10",
+          "token": "${{ esma-res.block_10 }}$",
+          "ns": "esma-res",
+          "block": "block_10"
+        },
+        {
+          "id": "text_block_11",
+          "kind": "richText",
+          "label": "Текст esma-res.block_11",
+          "token": "${{ esma-res.block_11 }}$",
+          "ns": "esma-res",
+          "block": "block_11"
+        },
+        {
+          "id": "text_block_12",
+          "kind": "richText",
+          "label": "Текст esma-res.block_12",
+          "token": "${{ esma-res.block_12 }}$",
+          "ns": "esma-res",
+          "block": "block_12"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-system-esma-restrict-header-text-3",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_System/mail-esma-restrict/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg\n    tr\n        td.offset-by-one\n            table.ten.columns\n                tr\n                    td.no-padding-bottom\n                        p.text ${{ esma-res.block_13 }}$&nbsp;\n                            a(href=\"https://eu.iqoption.com/pro\" target=\"_blank\") ${{ esma-res.block_14 }}$\n                            | .",
+      "styl": ".white-bg { background:#fff }\n.text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }",
+      "classes": [
+        "columns",
+        "no-padding-bottom",
+        "offset-by-one",
+        "row",
+        "ten",
+        "text",
+        "white-bg"
+      ],
+      "designClasses": [
+        "text",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_13",
+          "kind": "richText",
+          "label": "Текст esma-res.block_13",
+          "token": "${{ esma-res.block_13 }}$",
+          "ns": "esma-res",
+          "block": "block_13"
+        },
+        {
+          "id": "text_block_14",
+          "kind": "richText",
+          "label": "Текст esma-res.block_14",
+          "token": "${{ esma-res.block_14 }}$",
+          "ns": "esma-res",
+          "block": "block_14"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://eu.iqoption.com/pro"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-system-esma-restrict-header-text-3-paragraph-0",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ esma-res.block_13 }}$&nbsp;\n    a(href=\"https://eu.iqoption.com/pro\" target=\"_blank\") ${{ esma-res.block_14 }}$\n    | .",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_13",
+              "kind": "richText",
+              "label": "Текст esma-res.block_13",
+              "token": "${{ esma-res.block_13 }}$",
+              "ns": "esma-res",
+              "block": "block_13"
+            },
+            {
+              "id": "text_block_14",
+              "kind": "richText",
+              "label": "Текст esma-res.block_14",
+              "token": "${{ esma-res.block_14 }}$",
+              "ns": "esma-res",
+              "block": "block_14"
+            },
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://eu.iqoption.com/pro"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

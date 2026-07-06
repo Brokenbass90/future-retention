@@ -1,0 +1,55 @@
+{
+  "id": "new-text-05",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_new (2 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.br-full-16.bg-bord-full.b-new-text-05\n    tr\n        td.wrapper.last.offset-by-one.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb30\n                        p.big-text.center.pb24 {{ text_1 }}\n                        a(href=\"#\" target=\"_blank\")\n                            img.pb24.center(src=\"{{ image_1 }}\")\n                        p.text.center {{ text_2 }}\n    tr\n        td.wrapper.last.offset-by-three.pt0\n            table.six.columns\n                tr\n                    td.text-pad-small.pb44\n                        .button-wrapper.button-wrapper_top.butt-border\n                            table.medium-button.radius\n                                tr\n                                    td.iq.bg-none\n                                        a.butt.butt-2(href=\"{{ href_1 }}\" target=\"_blank\") {{ text_3 }}",
+  "styl": ".white-bg.b-new-text-05 {  background: #fff;  }\n.b-new-text-05 .butt-border {  border: 2px solid #3f3f3f;\n  border-radius: 12px;  }\n.b-new-text-05 .butt-2 {  color: #3f3f3f !important;  }\n.b-new-text-05 .bg-none {  background: none !important;  }\n.b-new-text-05 .pb24 {  padding-bottom: 24px;  }\n.b-new-text-05 .text {  font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0;  }\n.b-new-text-05 .text.list {  display: list-item;  }\n.b-new-text-05 .pb44 {  padding-bottom: 44px;  }\n.b-new-text-05 .pt44 {  padding-top: 44px;  }\n.br-full-16.b-new-text-05 {  border-radius: 16px;\n  -moz-border-radius: 16px;\n  -webkit-border-radius: 16px;  }\n.bg-bord-full.b-new-text-05 {  border: 1px solid #eae9e9;  }\n.b-new-text-05 .text a {  font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #6a8a00 !important;  }\n.b-new-text-05 .big-text {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 38px;\n  color: #413e43;  }\n@media screen and (max-width: 600px) {\n  .b-new-text-05 .big-text {  font-size: 24px !important;\n    line-height: 32px !important;  }\n}\n.white-bg.b-new-text-05 {  background:#fff  }\n.b-new-text-05 .butt-border {  border:2px solid #3f3f3f;border-radius:12px  }\n.b-new-text-05 .butt-2 {  color:#3f3f3f!important  }\n.b-new-text-05 .bg-none {  background:0 0!important  }\n.b-new-text-05 .small-text, .b-new-text-05 .subtitle-min, .b-new-text-05 .text, .b-new-text-05 .text-fat, .b-new-text-05 .text-strong {  font-family:Helvetica!important;font-weight:400;color:#413e43  }\n.b-new-text-05 .text {  letter-spacing:0;font-size:18px;line-height:27px  }\n.b-new-text-05 .text.list {  display:list-item  }\n.b-new-text-05 .pb24 {  padding-bottom:24px  }\n.b-new-text-05 .pb44 {  padding-bottom:44px  }\n.b-new-text-05 .pt44, .b-new-text-05 .pt45 {  padding-top:44px  }\n.br-full-16.b-new-text-05 {  border-radius:16px;-moz-border-radius:16px;-webkit-border-radius:16px  }\n.bg-bord-full.b-new-text-05 {  border:1px solid #eae9e9  }\n.b-new-text-05 .text a, .b-new-text-05 b {  font-family:Helvetica!important  }\n.b-new-text-05 .text a {  text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#6a8a00!important  }\n.b-new-text-05 .big-text {  font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:38px;color:#413e43  }\n@media screen and (max-width:600px) {\n  .b-new-text-05 .big-text {  font-size:24px!important;line-height:32px!important  }\n}",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://blog.affstore.com/pwa-guide"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/cs/gc/6a6di3umufauu82g/Screen.png"
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_new"
+  ],
+  "usageCount": 2,
+  "sourceMails": [
+    "X_new/mail-PWA",
+    "X_new/mail-PWA-2"
+  ],
+  "createdAt": "2026-07-06T12:10:00.055Z",
+  "validated": true
+}

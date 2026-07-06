@@ -1,0 +1,37 @@
+{
+  "id": "iqbroker-spacer",
+  "label": "Спейсер (настраиваемая высота)",
+  "description": "Импортирован из X_IQBroker (43 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "utility",
+  "version": 1,
+  "source": "imported",
+  "pug": ".h-sp-{{ height }} &nbsp;",
+  "styl": ".h-sp-{{ height }} { font-size: 0; line-height: {{ height }}px; height: {{ height }}px; }",
+  "slots": [
+    {
+      "id": "height",
+      "kind": "number",
+      "label": "Высота, px",
+      "default": 24,
+      "min": 4,
+      "max": 120
+    }
+  ],
+  "tags": [
+    "utility",
+    "inline",
+    "X_IQBroker"
+  ],
+  "usageCount": 43,
+  "sourceMails": [
+    "X_IQBroker/mail-FAQ",
+    "X_IQBroker/mail-strategies",
+    "X_IQBroker/mail-success",
+    "X_IQBroker/mail-tools",
+    "X_IQBroker/mail-welcome",
+    "X_IQBroker/mail-welcome-test-clone"
+  ],
+  "createdAt": "2026-07-06T12:09:51.735Z",
+  "validated": true
+}

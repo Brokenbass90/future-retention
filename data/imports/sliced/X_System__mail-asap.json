@@ -1,0 +1,320 @@
+{
+  "category": "X_System",
+  "mailId": "asap",
+  "mailAbs": "email-base/X_System/mail-asap",
+  "blockCount": 3,
+  "blocks": [
+    {
+      "id": "x-system-asap-header-header-0",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "kind": "section",
+      "sourceFile": "X_System/mail-asap/app/templates/blocks/header.jade",
+      "pug": "table.row.header\n    tr\n        td.wrapper\n            table.six.columns\n                tr\n                    td.left\n                        a(href=\"https://iqoption.com/traderoom/?aff=7&afftrack=mail&retrack=asap\", target=\"_blank\")\n                            img.logo(src=\"https://images01.iqoption.com/89/0689/static-01503674720413810689.png\")\n        td.wrapper.last.hide-for-small\n            table.three.columns\n                tr\n                    td.apps\n                        a(href=\"https://app.appsflyer.com/id871125783?pid=7&c=mail\")\n                            img.app_btn(src=\"https://images01.iqoption.com/21/8721/static-00636246823765278721.png\")\n        td.wrapper.last.hide-for-small\n            table.three.columns\n                tr\n                    td.apps\n                        a(href=\"https://app.appsflyer.com/com.iqoption?pid=7&c=mail\")\n                            img.app_btn(src=\"https://images01.iqoption.com/17/9217/static-01920501695922569217.png\")",
+      "styl": "table.row.header { background:#f6f9fc url(https://images01.iqoption.com/01/5201/static-00115704862028595201.png) center top no-repeat;height:113px }\n.app_btn { width:116px;height:34px;padding-top:30px }",
+      "classes": [
+        "app_btn",
+        "apps",
+        "columns",
+        "header",
+        "hide-for-small",
+        "last",
+        "left",
+        "logo",
+        "row",
+        "six",
+        "three",
+        "wrapper"
+      ],
+      "designClasses": [
+        "app_btn",
+        "apps",
+        "header"
+      ],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://iqoption.com/traderoom/?aff=7&afftrack=mail&retrack=asap"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://app.appsflyer.com/id871125783?pid=7&c=mail"
+        },
+        {
+          "id": "href_2",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://app.appsflyer.com/com.iqoption?pid=7&c=mail"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://images01.iqoption.com/89/0689/static-01503674720413810689.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://images01.iqoption.com/21/8721/static-00636246823765278721.png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://images01.iqoption.com/17/9217/static-01920501695922569217.png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-system-asap-header-text-1",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_System/mail-asap/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg\n    tr\n        td.offset-by-one\n            table.ten.columns\n                tr\n                    td.no-padding-bottom\n                        p.title Pedagang yang terhormat,\n                        p.text Kami ingin membertahu Anda bahwa kami ada cara penyetoran uang yang baru!\n                        p.text Cara tersebut benar-benar cepat, dapat dipercaya dan sangat gampang digunakan. Keuntungan utamanya adalah bahwa sekarang Anda dapat menyetor dan menarik uang dalam mata uang yang lokal (IDR). Apakah berita ini berbunyi bagus?\n                        p.text Anda dapat menemukan daftar bank lokal yang dapat Anda gunakan di bawah ini:\n                        p.text.list Central Asia\n                        p.text.list Mandiri\n                        p.text.list Rakyat Indonesia\n                        p.text.list Negara Indonesia\n                        p.text.list CIMB Niaga\n                        p.text.list.pb20 Permata Bank\n                        p.text Silakan tekan tombol ini untuk mengecek cara penyetoran terbaru",
+      "styl": ".white-bg { background:#fff }\n.title { color:#2473d7;font-size:24px;font-weight:500;line-height:32px;padding-top:30px;padding-bottom:25px }\n@media screen and (max-width:600px) {\n  .title { padding-left:20px!important;padding-right:20px!important }\n}\n.text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }\n.list { display:list-item;padding-left:20px;list-style:dot;list-style-position:inside;padding-bottom:10px }",
+      "classes": [
+        "columns",
+        "list",
+        "no-padding-bottom",
+        "offset-by-one",
+        "pb20",
+        "row",
+        "ten",
+        "text",
+        "title",
+        "white-bg"
+      ],
+      "designClasses": [
+        "list",
+        "text",
+        "title",
+        "white-bg"
+      ],
+      "slots": [],
+      "inlineChildren": [
+        {
+          "id": "x-system-asap-header-text-1-heading-0",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.title Pedagang yang terhormat,",
+          "styl": ".title { color:#2473d7;font-size:24px;font-weight:500;line-height:32px;padding-top:30px;padding-bottom:25px }\n@media screen and (max-width:600px) {\n  .title { padding-left:20px!important;padding-right:20px!important }\n}",
+          "classes": [
+            "title"
+          ],
+          "designClasses": [
+            "title"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-system-asap-header-text-1-paragraph-1",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text Kami ingin membertahu Anda bahwa kami ada cara penyetoran uang yang baru!",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-system-asap-header-text-1-paragraph-2",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text Cara tersebut benar-benar cepat, dapat dipercaya dan sangat gampang digunakan. Keuntungan utamanya adalah bahwa sekarang Anda dapat menyetor dan menarik uang dalam mata uang yang lokal (IDR). Apakah berita ini berbunyi bagus?",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-system-asap-header-text-1-paragraph-3",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text Anda dapat menemukan daftar bank lokal yang dapat Anda gunakan di bawah ini:",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-system-asap-header-text-1-paragraph-4",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.list Central Asia",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }\n.list { display:list-item;padding-left:20px;list-style:dot;list-style-position:inside;padding-bottom:10px }",
+          "classes": [
+            "list",
+            "text"
+          ],
+          "designClasses": [
+            "list",
+            "text"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-system-asap-header-text-1-paragraph-5",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.list Mandiri",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }\n.list { display:list-item;padding-left:20px;list-style:dot;list-style-position:inside;padding-bottom:10px }",
+          "classes": [
+            "list",
+            "text"
+          ],
+          "designClasses": [
+            "list",
+            "text"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-system-asap-header-text-1-paragraph-6",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.list Rakyat Indonesia",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }\n.list { display:list-item;padding-left:20px;list-style:dot;list-style-position:inside;padding-bottom:10px }",
+          "classes": [
+            "list",
+            "text"
+          ],
+          "designClasses": [
+            "list",
+            "text"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-system-asap-header-text-1-paragraph-7",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.list Negara Indonesia",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }\n.list { display:list-item;padding-left:20px;list-style:dot;list-style-position:inside;padding-bottom:10px }",
+          "classes": [
+            "list",
+            "text"
+          ],
+          "designClasses": [
+            "list",
+            "text"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-system-asap-header-text-1-paragraph-8",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.list CIMB Niaga",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }\n.list { display:list-item;padding-left:20px;list-style:dot;list-style-position:inside;padding-bottom:10px }",
+          "classes": [
+            "list",
+            "text"
+          ],
+          "designClasses": [
+            "list",
+            "text"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-system-asap-header-text-1-paragraph-9",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.list.pb20 Permata Bank",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }\n.list { display:list-item;padding-left:20px;list-style:dot;list-style-position:inside;padding-bottom:10px }",
+          "classes": [
+            "list",
+            "pb20",
+            "text"
+          ],
+          "designClasses": [
+            "list",
+            "text"
+          ],
+          "slots": []
+        },
+        {
+          "id": "x-system-asap-header-text-1-paragraph-10",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text Silakan tekan tombol ini untuk mengecek cara penyetoran terbaru",
+          "styl": ".text { color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px }\n@media screen and (max-width:600px) {\n  .text { padding-left:20px!important;padding-right:20px!important }\n}\n.text a { color:#2473d7;text-decoration:underline }\n.text.bold { font-weight:700 }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": []
+        }
+      ]
+    },
+    {
+      "id": "x-system-asap-header-text-2",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_System/mail-asap/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg\n    tr\n        td.offset-by-three\n            table.six.columns\n                tr\n                    td\n                        .button-wrapper\n                            table.medium-button.radius\n                                tr\n                                    td.iq\n                                        a.butt(href=\"https://iqoption.com/counting\") Setoranlah sekarang",
+      "styl": ".button-wrapper { padding-top:25px;padding-bottom:0 }\n@media screen and (max-width:600px) {\n  .button-wrapper { padding-left:30px!important;padding-right:30px!important }\n}\n.white-bg { background:#fff }",
+      "classes": [
+        "butt",
+        "button-wrapper",
+        "columns",
+        "iq",
+        "medium-button",
+        "offset-by-three",
+        "radius",
+        "row",
+        "six",
+        "white-bg"
+      ],
+      "designClasses": [
+        "button-wrapper",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://iqoption.com/counting"
+        }
+      ],
+      "inlineChildren": []
+    }
+  ]
+}

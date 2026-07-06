@@ -1,0 +1,320 @@
+{
+  "category": "X_IQBroker",
+  "mailId": "fraud-front-running-termination",
+  "mailAbs": "email-base/X_IQBroker/mail-fraud-front-running-termination",
+  "blockCount": 2,
+  "blocks": [
+    {
+      "id": "x-iqbroker-fraud-front-running-termination-heade",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "kind": "section",
+      "sourceFile": "X_IQBroker/mail-fraud-front-running-termination/app/templates/blocks/header.jade",
+      "pug": "table.center\n    tr\n        td\n            table.ten.columns\n                tr\n                    td.pb0\n                        a(href=\"{{embedded.domain}}\" target=\"_blank\")\n                            img.logo(src=\"https://fsms.quadcode.com/storage/public/d3/hq/9eiqubga63ldcae0/Logo.png\")",
+      "styl": "",
+      "classes": [
+        "center",
+        "columns",
+        "logo",
+        "pb0",
+        "ten"
+      ],
+      "designClasses": [],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "{{embedded.domain}}"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d3/hq/9eiqubga63ldcae0/Logo.png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-iqbroker-fraud-front-running-termination-heade",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "kind": "section",
+      "sourceFile": "X_IQBroker/mail-fraud-front-running-termination/app/templates/blocks/header.jade",
+      "pug": "table.row.border-full\n    tr\n        td.wrapper.last.offset-by-one.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb32.bb\n                        p.title.pb30 ${{ fraud-front-running-termination.block_00 }}$\n                        p.text.pb16\n                            b ${{ fraud-front-running-termination.block_01 }}$\n                        p.text.pb12 ${{ fraud-front-running-termination.block_02 }}$\n                        p.text.pb12 ${{ fraud-front-running-termination.block_03 }}$\n                        p.text.pb12 ${{ fraud-front-running-termination.block_04 }}$\n                        p.text ${{ fraud-front-running-termination.block_05 }}$\n                tr\n                    td.text-pad-small.pb44.pt24\n                        p.small-text ${{ fraud-front-running-termination.block_06 }}$&nbsp;\n                            a(href=\"mailto:{{embedded.company_email}}\" target=\"_blank\") ${{ fraud-front-running-termination.block_07 }}$\n                            |&nbsp;${{ fraud-front-running-termination.block_08 }}$",
+      "styl": ".bb { border-bottom: 1px solid #f9f9f9; }\n.title { color: #2e292a;\n  font-size: 48px;\n  line-height: 57.6px;\n  font-weight: 700;\n  font-family: Helvetica !important; }\n.text { font-family: Helvetica !important;\n  color: #3c3939;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 28px; }\n.text a { color: #213e8f;\n  font-weight: 700;\n  font-family: Helvetica !important; }\n.small-text { color: #84868b;\n  font-size: 18px;\n  line-height: 27px;\n  font-weight: 400;\n  font-family: Helvetica !important;\n  text-align: center; }\n.small-text a { color: #5165ff !important;\n  font-family: Helvetica !important;\n  text-decoration: none; }\n.pt24 { padding-top: 24px; }\n.text a { color: #5165ff !important; }\n.bb { border-bottom:1px dashed #d9d9db }\n.border-full { border-radius:16px }\n.title { font-family:Helvetica!important;color:#2e292a;font-size:48px;line-height:57px;font-weight:700 }\n@media screen and (max-width:600px) {\n  .title { font-size:32px!important;line-height:42px!important }\n}\n.text { color:#3c3939;font-size:18px;font-weight:400;line-height:28px }\n.text a { font-weight:700 }\n.small-text,.small-text a,.text,.text a { font-family:Helvetica!important }\n.small-text { font-size:18px;line-height:27px;font-weight:400;text-align:center;color:#84868b }\n.small-text a { color:#5165ff!important;text-decoration:none }\n.pb12 { padding-bottom:12px }\n.pb16 { padding-bottom:16px }\n.pb32 { padding-bottom:32px }\n.pb44 { padding-bottom:44px }\n.pt24 { padding-top:24px }\n.pt44 { padding-top:44px }\n.text a { color:#5165ff!important }",
+      "classes": [
+        "bb",
+        "border-full",
+        "columns",
+        "last",
+        "offset-by-one",
+        "pb12",
+        "pb16",
+        "pb30",
+        "pb32",
+        "pb44",
+        "pt24",
+        "pt44",
+        "row",
+        "small-text",
+        "ten",
+        "text",
+        "text-pad-small",
+        "title",
+        "wrapper"
+      ],
+      "designClasses": [
+        "bb",
+        "border-full",
+        "pb12",
+        "pb16",
+        "pb32",
+        "pb44",
+        "pt24",
+        "pt44",
+        "small-text",
+        "text",
+        "title"
+      ],
+      "slots": [
+        {
+          "id": "text_block_00",
+          "kind": "richText",
+          "label": "Текст fraud-front-running-termination.block_00",
+          "token": "${{ fraud-front-running-termination.block_00 }}$",
+          "ns": "fraud-front-running-termination",
+          "block": "block_00"
+        },
+        {
+          "id": "text_block_01",
+          "kind": "richText",
+          "label": "Текст fraud-front-running-termination.block_01",
+          "token": "${{ fraud-front-running-termination.block_01 }}$",
+          "ns": "fraud-front-running-termination",
+          "block": "block_01"
+        },
+        {
+          "id": "text_block_02",
+          "kind": "richText",
+          "label": "Текст fraud-front-running-termination.block_02",
+          "token": "${{ fraud-front-running-termination.block_02 }}$",
+          "ns": "fraud-front-running-termination",
+          "block": "block_02"
+        },
+        {
+          "id": "text_block_03",
+          "kind": "richText",
+          "label": "Текст fraud-front-running-termination.block_03",
+          "token": "${{ fraud-front-running-termination.block_03 }}$",
+          "ns": "fraud-front-running-termination",
+          "block": "block_03"
+        },
+        {
+          "id": "text_block_04",
+          "kind": "richText",
+          "label": "Текст fraud-front-running-termination.block_04",
+          "token": "${{ fraud-front-running-termination.block_04 }}$",
+          "ns": "fraud-front-running-termination",
+          "block": "block_04"
+        },
+        {
+          "id": "text_block_05",
+          "kind": "richText",
+          "label": "Текст fraud-front-running-termination.block_05",
+          "token": "${{ fraud-front-running-termination.block_05 }}$",
+          "ns": "fraud-front-running-termination",
+          "block": "block_05"
+        },
+        {
+          "id": "text_block_06",
+          "kind": "richText",
+          "label": "Текст fraud-front-running-termination.block_06",
+          "token": "${{ fraud-front-running-termination.block_06 }}$",
+          "ns": "fraud-front-running-termination",
+          "block": "block_06"
+        },
+        {
+          "id": "text_block_07",
+          "kind": "richText",
+          "label": "Текст fraud-front-running-termination.block_07",
+          "token": "${{ fraud-front-running-termination.block_07 }}$",
+          "ns": "fraud-front-running-termination",
+          "block": "block_07"
+        },
+        {
+          "id": "text_block_08",
+          "kind": "richText",
+          "label": "Текст fraud-front-running-termination.block_08",
+          "token": "${{ fraud-front-running-termination.block_08 }}$",
+          "ns": "fraud-front-running-termination",
+          "block": "block_08"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "mailto:{{embedded.company_email}}"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-iqbroker-fraud-front-running-termination-heade",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.title.pb30 ${{ fraud-front-running-termination.block_00 }}$",
+          "styl": ".title { color: #2e292a;\n  font-size: 48px;\n  line-height: 57.6px;\n  font-weight: 700;\n  font-family: Helvetica !important; }\n.title { font-family:Helvetica!important;color:#2e292a;font-size:48px;line-height:57px;font-weight:700 }\n@media screen and (max-width:600px) {\n  .title { font-size:32px!important;line-height:42px!important }\n}",
+          "classes": [
+            "pb30",
+            "title"
+          ],
+          "designClasses": [
+            "title"
+          ],
+          "slots": [
+            {
+              "id": "text_block_00",
+              "kind": "richText",
+              "label": "Текст fraud-front-running-termination.block_00",
+              "token": "${{ fraud-front-running-termination.block_00 }}$",
+              "ns": "fraud-front-running-termination",
+              "block": "block_00"
+            }
+          ]
+        },
+        {
+          "id": "x-iqbroker-fraud-front-running-termination-heade",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb16\n    b ${{ fraud-front-running-termination.block_01 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #3c3939;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 28px; }\n.text a { color: #213e8f;\n  font-weight: 700;\n  font-family: Helvetica !important; }\n.text a { color: #5165ff !important; }\n.text { color:#3c3939;font-size:18px;font-weight:400;line-height:28px }\n.text a { font-weight:700 }\n.small-text,.small-text a,.text,.text a { font-family:Helvetica!important }\n.pb16 { padding-bottom:16px }\n.text a { color:#5165ff!important }",
+          "classes": [
+            "pb16",
+            "text"
+          ],
+          "designClasses": [
+            "pb16",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_01",
+              "kind": "richText",
+              "label": "Текст fraud-front-running-termination.block_01",
+              "token": "${{ fraud-front-running-termination.block_01 }}$",
+              "ns": "fraud-front-running-termination",
+              "block": "block_01"
+            }
+          ]
+        },
+        {
+          "id": "x-iqbroker-fraud-front-running-termination-heade",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb12 ${{ fraud-front-running-termination.block_02 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #3c3939;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 28px; }\n.text a { color: #213e8f;\n  font-weight: 700;\n  font-family: Helvetica !important; }\n.text a { color: #5165ff !important; }\n.text { color:#3c3939;font-size:18px;font-weight:400;line-height:28px }\n.text a { font-weight:700 }\n.small-text,.small-text a,.text,.text a { font-family:Helvetica!important }\n.pb12 { padding-bottom:12px }\n.text a { color:#5165ff!important }",
+          "classes": [
+            "pb12",
+            "text"
+          ],
+          "designClasses": [
+            "pb12",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_02",
+              "kind": "richText",
+              "label": "Текст fraud-front-running-termination.block_02",
+              "token": "${{ fraud-front-running-termination.block_02 }}$",
+              "ns": "fraud-front-running-termination",
+              "block": "block_02"
+            }
+          ]
+        },
+        {
+          "id": "x-iqbroker-fraud-front-running-termination-heade",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb12 ${{ fraud-front-running-termination.block_03 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #3c3939;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 28px; }\n.text a { color: #213e8f;\n  font-weight: 700;\n  font-family: Helvetica !important; }\n.text a { color: #5165ff !important; }\n.text { color:#3c3939;font-size:18px;font-weight:400;line-height:28px }\n.text a { font-weight:700 }\n.small-text,.small-text a,.text,.text a { font-family:Helvetica!important }\n.pb12 { padding-bottom:12px }\n.text a { color:#5165ff!important }",
+          "classes": [
+            "pb12",
+            "text"
+          ],
+          "designClasses": [
+            "pb12",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_03",
+              "kind": "richText",
+              "label": "Текст fraud-front-running-termination.block_03",
+              "token": "${{ fraud-front-running-termination.block_03 }}$",
+              "ns": "fraud-front-running-termination",
+              "block": "block_03"
+            }
+          ]
+        },
+        {
+          "id": "x-iqbroker-fraud-front-running-termination-heade",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb12 ${{ fraud-front-running-termination.block_04 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #3c3939;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 28px; }\n.text a { color: #213e8f;\n  font-weight: 700;\n  font-family: Helvetica !important; }\n.text a { color: #5165ff !important; }\n.text { color:#3c3939;font-size:18px;font-weight:400;line-height:28px }\n.text a { font-weight:700 }\n.small-text,.small-text a,.text,.text a { font-family:Helvetica!important }\n.pb12 { padding-bottom:12px }\n.text a { color:#5165ff!important }",
+          "classes": [
+            "pb12",
+            "text"
+          ],
+          "designClasses": [
+            "pb12",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_04",
+              "kind": "richText",
+              "label": "Текст fraud-front-running-termination.block_04",
+              "token": "${{ fraud-front-running-termination.block_04 }}$",
+              "ns": "fraud-front-running-termination",
+              "block": "block_04"
+            }
+          ]
+        },
+        {
+          "id": "x-iqbroker-fraud-front-running-termination-heade",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ fraud-front-running-termination.block_05 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #3c3939;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 28px; }\n.text a { color: #213e8f;\n  font-weight: 700;\n  font-family: Helvetica !important; }\n.text a { color: #5165ff !important; }\n.text { color:#3c3939;font-size:18px;font-weight:400;line-height:28px }\n.text a { font-weight:700 }\n.small-text,.small-text a,.text,.text a { font-family:Helvetica!important }\n.text a { color:#5165ff!important }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_05",
+              "kind": "richText",
+              "label": "Текст fraud-front-running-termination.block_05",
+              "token": "${{ fraud-front-running-termination.block_05 }}$",
+              "ns": "fraud-front-running-termination",
+              "block": "block_05"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

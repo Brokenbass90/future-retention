@@ -1,0 +1,72 @@
+{
+  "id": "exnova-cta-17",
+  "label": "CTA-секция",
+  "description": "Импортирован из X_Exnova (1 писем). Секция.",
+  "placement": "section",
+  "category": "cta",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.brad-full.b-exnova-cta-17(style=\"border: 4px solid #0B79CC;\")\n    tr\n        td.wrapper.last.offset-by-one.pt0\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb32.pt44.bb-dash\n                        p.subtitle.pb32.center {{ text_1 }}\n                        p.text.pb40.center {{ text_2 }}\n                        table.w280(align=\"center\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"{{ href_1 }}\" target=\"_blank\") {{ text_3 }}\n                tr\n                    td.text-pad-small.pb44.pt24\n                        p.gray-text.center.plr30 {{ text_4 }} &nbsp;\n                            a.link(href=\"{{ href_2 }}\" target=\"_blank\") {{ text_5 }}\n                            |{{ text_6 }}",
+  "styl": ".b-exnova-cta-17 .bb-dash {  border-bottom: 1px dashed #d9d9db;  }\n.b-exnova-cta-17 .gray-text {  font-family: Helvetica !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #84868b;  }\n.brad-full.b-exnova-cta-17 {  border-radius: 16px !important;  }\n.b-exnova-cta-17 .butt-link {  font-size: 18px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #fff;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;  }\n.white-bg.b-exnova-cta-17 {  background: #fff;  }\n.b-exnova-cta-17 .subtitle {  color: #393a44;\n  font-size: 32px;\n  line-height: 42px;\n  font-family: Helvetica !important;\n  font-weight: 700;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-cta-17 .subtitle {  font-size: 26px !important;\n    line-height: 38px !important;  }\n}\n.b-exnova-cta-17 .text {  font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 26px;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-cta-17 .text {  font-size: 16px !important;\n    line-height: 24px !important;  }\n}\n.b-exnova-cta-17 .text.bold {  font-weight: 700;  }\n.b-exnova-cta-17 .pb44 {  padding-bottom: 44px;  }\n.b-exnova-cta-17 .pt24 {  padding-top: 24px;  }\n.b-exnova-cta-17 .pt44 {  padding-top: 44px;  }\n.b-exnova-cta-17 .link {  text-decoration: underline !important;\n  color: #4575fe !important;  }\n.b-exnova-cta-17 .pb32 {  padding-bottom: 32px;  }\n.b-exnova-cta-17 .w280 {  width: 100%;\n  max-width: 280px;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-cta-17 .w280 {  min-width: 100% !important;  }\n}\n.b-exnova-cta-17 .bb-dash {  border-bottom:1px dashed #d9d9db  }\n.b-exnova-cta-17 .gray-text {  font-family:Helvetica!important;font-weight:400;font-size:18px;line-height:27px;color:#84868b  }\n.brad-full.b-exnova-cta-17 {  border-radius:16px!important  }\n.b-exnova-cta-17 .butt, .b-exnova-cta-17 .butt-link {  text-transform:none  }\n.b-exnova-cta-17 .butt-link {  font-size:18px;font-weight:700;text-decoration:none;color:#fff;display:block;padding:16px 0;text-align:center  }\n.white-bg.b-exnova-cta-17 {  background:#fff  }\n.b-exnova-cta-17 .subtitle {  color:#393a44;font-size:32px;line-height:42px;font-family:Helvetica!important;font-weight:700  }\n@media screen and (max-width:600px) {\n  .b-exnova-cta-17 .subtitle {  font-size:26px!important;line-height:38px!important  }\n}\n.b-exnova-cta-17 .text {  font-family:Helvetica!important;color:#413e43;font-size:18px;font-weight:400;line-height:26px  }\n@media screen and (max-width:600px) {\n  .b-exnova-cta-17 .text {  font-size:16px!important;line-height:24px!important  }\n}\n.b-exnova-cta-17 .text.bold {  font-weight:700  }\n.b-exnova-cta-17 .pb44 {  padding-bottom:44px  }\n.b-exnova-cta-17 .pt24 {  padding-top:24px  }\n.b-exnova-cta-17 .pt44 {  padding-top:44px  }\n.b-exnova-cta-17 .link {  text-decoration:underline!important;color:#4575fe!important  }\n.b-exnova-cta-17 .pb32 {  padding-bottom:32px  }\n.b-exnova-cta-17 .w280 {  width:100%;max-width:280px  }\n@media screen and (max-width:600px) {\n  .b-exnova-cta-17 .w280 {  min-width:100%!important  }\n}",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://api.trade.exnova.com/v1/multi-links/open-asset?aff=7&afftrack=mail_exnova-Trading-Challenge&retrack=exnova-Trading-Challenge&type=forex&asset=1"
+    },
+    {
+      "id": "href_2",
+      "kind": "url",
+      "label": "Ссылка 2",
+      "default": "https://exnova.com/terms/promocodes-policy/?aff=7&afftrack=mail_exnova-Trading-Challenge&retrack=exnova-Trading-Challenge&type=forex&asset=1"
+    }
+  ],
+  "tags": [
+    "cta",
+    "section",
+    "X_Exnova"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_Exnova/mail-Trading-Challenge"
+  ],
+  "createdAt": "2026-07-06T12:09:50.973Z",
+  "validated": true
+}

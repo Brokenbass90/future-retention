@@ -1,0 +1,102 @@
+{
+  "id": "new-text-56",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_new (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.br-full-16.bg-bord-full.b-new-text-56\n    tr\n        td.wrapper.last.offset-by-one.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44\n                        p.big-text.pb12 {{ text_1 }}\n                        p.text.pb32 {{ text_2 }}\n                        .social-links.pb12\n                            .grey-blocks\n                                a(href=\"#\" target=\"_blank\")\n                                    img.center.small-img(src=\"{{ image_1 }}\")\n                                p.text-in-block.center <b>{{ text_3 }}</b>\n                            .grey-blocks.center-margin\n                                a(href=\"#\" target=\"_blank\")\n                                    img.center.small-img(src=\"{{ image_2 }}\")\n                                p.text-in-block.center <b>{{ text_4 }}</b>\n                            .grey-blocks\n                                a(href=\"#\" target=\"_blank\")\n                                    img.center.small-img(src=\"{{ image_3 }}\")\n                                p.text-in-block.center <b>{{ text_5 }}</b>\n                        p.big-text.pb12 {{ text_6 }}\n                        p.text.pb12 {{ text_7 }}\n                        p.text.list-item.pb8 {{ text_8 }}\n                        p.text.list-item.pb8 {{ text_9 }}\n                        p.text.list-item {{ text_10 }}",
+  "styl": ".white-bg.b-new-text-56 {  background: #fff;  }\n.b-new-text-56 .text {  font-family: Helvetica !important;\n  color: #413e43;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 27px;\n  letter-spacing: 0;  }\n.b-new-text-56 .text.list {  display: list-item;  }\n.b-new-text-56 .pb8 {  padding-bottom: 8px;  }\n.b-new-text-56 .pb12 {  padding-bottom: 12px;  }\n.b-new-text-56 .pb32 {  padding-bottom: 32px;  }\n.b-new-text-56 .pb44 {  padding-bottom: 44px;  }\n.b-new-text-56 .pt44 {  padding-top: 44px;  }\n.b-new-text-56 .social-links {  display: block;\n  text-align: center;  }\n.br-full-16.b-new-text-56 {  border-radius: 16px;\n  -moz-border-radius: 16px;\n  -webkit-border-radius: 16px;  }\n.bg-bord-full.b-new-text-56 {  border: 1px solid #eae9e9;  }\n.b-new-text-56 .list-item {  background: url(\"https://fsms.quadcode.com/storage/public/cq/f1/ogmdi3umufautkkg/Ellipse1.png\") left 4px top 10px no-repeat;\n  background-size: 6px;\n  padding-left: 20px;  }\n.b-new-text-56 .text a {  font-family: Helvetica !important;\n  text-decoration: none !important;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #6a8a00 !important;  }\n.b-new-text-56 .big-text {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 38px;\n  color: #413e43;  }\n@media screen and (max-width: 600px) {\n  .b-new-text-56 .big-text {  font-size: 24px !important;\n    line-height: 32px !important;  }\n}\n.b-new-text-56 .grey-blocks {  display: inline-block;\n  width: 142px !important;\n  background: #f6f6f6;\n  border-radius: 24px;\n  padding: 24px 0;\n  margin-bottom: 12px;  }\n.b-new-text-56 .small-img {  float: none;\n  width: 56px !important;\n  padding-bottom: 24px;  }\n.b-new-text-56 .center-margin {  margin: 0 10px !important;  }\n.white-bg.b-new-text-56 {  background:#fff  }\n.b-new-text-56 .small-text, .b-new-text-56 .subtitle-min, .b-new-text-56 .text, .b-new-text-56 .text-fat, .b-new-text-56 .text-strong {  font-family:Helvetica!important;font-weight:400;color:#413e43  }\n.b-new-text-56 .text {  letter-spacing:0;font-size:18px;line-height:27px  }\n.b-new-text-56 .text.list {  display:list-item  }\n.b-new-text-56 .pb8 {  padding-bottom:8px  }\n.b-new-text-56 .pb12 {  padding-bottom:12px  }\n.b-new-text-56 .pb32, .b-new-text-56 .pb32-a {  padding-bottom:32px  }\n.b-new-text-56 .pb44 {  padding-bottom:44px  }\n.b-new-text-56 .pt44, .b-new-text-56 .pt45 {  padding-top:44px  }\n.b-new-text-56 .social-links {  display:block;text-align:center  }\n.br-full-16.b-new-text-56 {  border-radius:16px;-moz-border-radius:16px;-webkit-border-radius:16px  }\n.bg-bord-full.b-new-text-56 {  border:1px solid #eae9e9  }\n.b-new-text-56 .text a, .b-new-text-56 b {  font-family:Helvetica!important  }\n.b-new-text-56 .list-item {  background:url(https://fsms.quadcode.com/storage/public/cq/f1/ogmdi3umufautkkg/Ellipse1.png) left 4px top 10px no-repeat;background-size:6px;padding-left:20px  }\n.b-new-text-56 .text a {  text-decoration:none!important;font-weight:400;font-size:18px;line-height:27px;color:#6a8a00!important  }\n.b-new-text-56 .big-text {  font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:38px;color:#413e43  }\n@media screen and (max-width:600px) {\n  .b-new-text-56 .big-text {  font-size:24px!important;line-height:32px!important  }\n}\n.b-new-text-56 .grey-blocks {  display:inline-block;width:142px!important;background:#f6f6f6;border-radius:24px;padding:24px 0;margin-bottom:12px  }\n.b-new-text-56 .small-img {  float:none;width:56px!important;padding-bottom:24px  }\n.b-new-text-56 .center-margin {  margin:0 10px!important  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_7",
+      "kind": "richText",
+      "label": "Текст 7",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_8",
+      "kind": "richText",
+      "label": "Текст 8",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_9",
+      "kind": "richText",
+      "label": "Текст 9",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_10",
+      "kind": "richText",
+      "label": "Текст 10",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/cq/f1/gimdi3umufautkjg/container (7).png"
+    },
+    {
+      "id": "image_2",
+      "kind": "image",
+      "label": "Картинка 2",
+      "default": "https://fsms.quadcode.com/storage/public/cq/f1/gimfu8jqbm9857b0/container (8).png"
+    },
+    {
+      "id": "image_3",
+      "kind": "image",
+      "label": "Картинка 3",
+      "default": "https://fsms.quadcode.com/storage/public/cq/f1/gimfu8jqbm9857ag/container (9).png"
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-postback-101"
+  ],
+  "createdAt": "2026-07-06T12:10:00.060Z",
+  "validated": true
+}

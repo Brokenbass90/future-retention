@@ -1,0 +1,23 @@
+{
+  "id": "system-text-46",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_System (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.b-system-text-46\n    tr\n        td.offset-by-one\n            table.ten.columns\n                tr\n                    td.no-padding-bottom\n                        p.title Dear Client,\n                        p.text We are contacting you regarding your application to become an Elective Professional Client.\n                        p.text On further investigation we noticed that we need some additional documentation to ensure that you have the appropriate conditions to remain an Elective Professional Client:\n                        p.text.list Supporting evidence of your financial portfolio (incl. cash and financial instruments) showing an amount exceeding 500.000 EUR. This evidence can be a bank statement which is stamped by your bank and shows your balance or any other relevant evidence showing the amount (e.g real estate)\n                        p.text.list.pb20 Supporting evidence of your working experience for which we need a reference letter from your previous or current employer which states your position, name, period you work(ed) at the company and duties. Please note that it has to be stamped.\n                        p.text\n                            strong We can give you a timeframe until Tuesday evening to provide us with the documents. In case we do not receive them after this timeframe we will be forced to turn your status back to retail.\n                        p.text\n                            strong You can send the documents by attaching them to the answer to this email.\n                        p.text We appreciate your cooperation in this matter and remain at your disposal for any questions.\n                        p.text Kind regards,\n                            br\n                            | IQ Option Team",
+  "styl": ".white-bg.b-system-text-46 {  background:#fff  }\n.b-system-text-46 .title {  color:#2473d7;font-size:24px;font-weight:500;line-height:32px;padding-top:30px;padding-bottom:25px  }\n@media screen and (max-width:600px) {\n  .b-system-text-46 .title {  padding-left:20px!important;padding-right:20px!important  }\n}\n.b-system-text-46 .text {  color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px  }\n@media screen and (max-width:600px) {\n  .b-system-text-46 .text {  padding-left:20px!important;padding-right:20px!important  }\n}\n.b-system-text-46 .text a {  color:#2473d7;text-decoration:underline  }\n.b-system-text-46 .text.bold {  font-weight:700  }\n.b-system-text-46 .list {  display:list-item;padding-left:20px;list-style:decimal;list-style-position:inside;padding-bottom:10px  }",
+  "slots": [],
+  "tags": [
+    "text",
+    "section",
+    "X_System"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_System/mail-docs-2-3"
+  ],
+  "createdAt": "2026-07-06T12:09:59.369Z",
+  "validated": true
+}

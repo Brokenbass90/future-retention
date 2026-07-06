@@ -1,0 +1,55 @@
+{
+  "id": "iqbroker-cta-01",
+  "label": "CTA-секция",
+  "description": "Импортирован из X_IQBroker (2 писем). Секция.",
+  "placement": "section",
+  "category": "cta",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.brad-full.color-bg.b-iqbroker-cta-01\n    tr\n        td.wrapper.last.pt0\n            table.twelve.columns\n                tr\n                    td.pb10\n                        a(href=\"#\" universal=\"true\" target=\"_blank\")\n                            img.center(src=\"{{ image_1 }}\")\n    tr\n        td.wrapper.last.offset-by-one.pt0\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb50.pt10\n                        p.white-title.pb16 {{ text_1 }}\n                        p.white-text  {{ text_2 }}\n                        .h-24 &nbsp;\n                        table.w280(align=\"left\" style=\"width: 100%;\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"{{ href_1 }}\" universal=\"true\" target=\"_blank\") {{ text_3 }}",
+  "styl": ".b-iqbroker-cta-01 .w280 {  width: 100%;\n  max-width: 280px;  }\n@media screen and (max-width: 600px) {\n  .b-iqbroker-cta-01 .w280 {  max-width: 100% !important;  }\n}\n.brad-full.b-iqbroker-cta-01 {  border-radius: 32px !important;  }\n.b-iqbroker-cta-01 .butt-link {  font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px;  }\n.color-bg.b-iqbroker-cta-01 {  background-color: #101314;  }\n.b-iqbroker-cta-01 .white-title {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 48px;\n  line-height: 58px;\n  color: #f9f9f9;\n  word-break: break-word;  }\n@media screen and (max-width: 600px) {\n  .b-iqbroker-cta-01 .white-title {  font-size: 26px !important;\n    line-height: 32px !important;  }\n}\n.b-iqbroker-cta-01 .white-text {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #fff;  }\n.b-iqbroker-cta-01 .pb16 {  padding-bottom: 16px;  }\n.b-iqbroker-cta-01 .h-24 {  font-size: 8px;\n  line-height: 24px;\n  height: 24px;  }\n.b-iqbroker-cta-01 .w280 {  width:100%;max-width:280px  }\n@media screen and (max-width:600px) {\n  .b-iqbroker-cta-01 .w280 {  max-width:100%!important  }\n}\n.brad-full.b-iqbroker-cta-01, .b-iqbroker-cta-01 .brad-full-32 {  border-radius:32px!important  }\n.b-iqbroker-cta-01 .butt-link, .b-iqbroker-cta-01 .butt-link-2 {  font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#f9f9f9;display:block;line-height:27px;padding:14px 0;text-align:center;letter-spacing:0  }\n.b-iqbroker-cta-01 .butt-link {  padding:16px 0  }\n.color-bg.b-iqbroker-cta-01 {  background-color:#101314  }\n.b-iqbroker-cta-01 .white-title {  font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:48px;line-height:58px;color:#f9f9f9;word-break:break-word  }\n@media screen and (max-width:600px) {\n  .b-iqbroker-cta-01 .white-title {  font-size:26px!important;line-height:32px!important  }\n}\n.b-iqbroker-cta-01 .white-text {  font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#fff  }\n.b-iqbroker-cta-01 .pb16 {  padding-bottom:16px  }\n.b-iqbroker-cta-01 .h-20, .b-iqbroker-cta-01 .h-24, .b-iqbroker-cta-01 .h-28 {  font-size:8px;line-height:20px;height:20px  }\n.b-iqbroker-cta-01 .h-24, .b-iqbroker-cta-01 .h-28 {  line-height:24px;height:24px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://api.trade.iqbroker.com/v1/multi-links/open-asset?aff=7&afftrack=mail_faq&retrack=mail_faq"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/d5/tk/m3vvhhgea139uk70/faq-head.png"
+    }
+  ],
+  "tags": [
+    "cta",
+    "section",
+    "X_IQBroker"
+  ],
+  "usageCount": 2,
+  "sourceMails": [
+    "X_IQBroker/mail-FAQ",
+    "X_IQBroker/mail-success"
+  ],
+  "createdAt": "2026-07-06T12:09:51.734Z",
+  "validated": true
+}

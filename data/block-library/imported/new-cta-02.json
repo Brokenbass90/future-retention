@@ -1,0 +1,42 @@
+{
+  "id": "new-cta-02",
+  "label": "CTA-кнопка (w280)",
+  "description": "Импортирован из X_new (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "cta",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.w280.b-new-cta-02(align=\"center\")\n    tr\n        td.butt.pb0\n            a.butt-link(href=\"{{ href_1 }}\" target=\"_blank\") {{ text_1 }} {{bonus_percent}} {{ text_2 }}",
+  "styl": ".b-new-cta-02 .butt-link {  font-size: 18px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #fff;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;  }\n.w280.b-new-cta-02 {  width: 100%;\n  max-width: 280px;  }\n@media screen and (max-width: 600px) {\n  .w280.b-new-cta-02 {  min-width: 100% !important;  }\n}\n.b-new-cta-02 .butt-link {  font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#fff;display:block;padding:16px 0;text-align:center  }\n.b-new-cta-02 .w100, .w280.b-new-cta-02 {  width:100%  }\n.w280.b-new-cta-02 {  max-width:280px  }\n@media screen and (max-width:600px) {\n  .w280.b-new-cta-02 {  min-width:100%!important  }\n}",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://api.iqoption.com/v1/multi-links/deposit?promocode={{promocode_name}}&aff=7&afftrack=mail_depbonus_rfm&retrack=mail_depbonus_rfm&type=forex&asset=1"
+    }
+  ],
+  "tags": [
+    "cta",
+    "inline",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-RFM-dep"
+  ],
+  "createdAt": "2026-07-06T12:10:00.057Z",
+  "validated": true
+}

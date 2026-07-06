@@ -1,0 +1,788 @@
+{
+  "category": "X_AffSystem",
+  "mailId": "verification-reminder-affiliate",
+  "mailAbs": "email-base/X_AffSystem/mail-verification-reminder-affiliate",
+  "blockCount": 4,
+  "blocks": [
+    {
+      "id": "x-affsystem-verification-reminder-affiliate-head",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "kind": "section",
+      "sourceFile": "X_AffSystem/mail-verification-reminder-affiliate/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg.brad-top.bg-col\n    tr\n        td.wrapper.offset-by-one.last\n            table.ten.columns\n                tr\n                    td.six.sub-columns.pt0\n                        a(href=\"https://affiliate.iqoption.com\" target=\"_blank\")\n                            img.logo.center.pb5(src=\"https://static.cdnpub.info/files/storage/public/5f/c8/d0517a03c1c8h5j9j4/logoaff_white_shadow__1_.png\")",
+      "styl": ".bg-col { background-color:#fbfbfd }\n.brad-top { border-top-left-radius:6px!important;border-top-right-radius:6px!important;overflow:hidden }\n.white-bg { background:#fff }\n.pb5 { padding-bottom:5px }",
+      "classes": [
+        "bg-col",
+        "brad-top",
+        "center",
+        "columns",
+        "last",
+        "logo",
+        "offset-by-one",
+        "pb5",
+        "pt0",
+        "row",
+        "six",
+        "sub-columns",
+        "ten",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "bg-col",
+        "brad-top",
+        "pb5",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://affiliate.iqoption.com"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnpub.info/files/storage/public/5f/c8/d0517a03c1c8h5j9j4/logoaff_white_shadow__1_.png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-affsystem-verification-reminder-affiliate-head",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_AffSystem/mail-verification-reminder-affiliate/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg.bg-bord-lr.br-top.bg-bord-top\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pt25.pb20\n                        p.text.pb15.big-text.center ${{ verification-reminder-affiliate.block_00 }}$\n                        p.text.pb15 ${{ verification-reminder-affiliate.block_01 }}$\n                        p.text.pb20\n                            span.green-number 1\n                            |${{ verification-reminder-affiliate.block_02 }}$\n                        p.text.pb10\n                            span.green-number 2\n                            |${{ verification-reminder-affiliate.block_03 }}$\n                        p.text.border-green ${{ verification-reminder-affiliate.block_04 }}$\n                        p.text.pb15.pt15 ${{ verification-reminder-affiliate.block_05 }}$\n                        p.min-text.pb20 *${{ verification-reminder-affiliate.block_06 }}$\n                        p.text.pb10\n                            span.green-number 3\n                            | ${{ verification-reminder-affiliate.block_07 }}$\n                        p.text.pb15 ${{ verification-reminder-affiliate.block_08 }}$\n                        p.text.list-item.pb5 ${{ verification-reminder-affiliate.block_09 }}$.\n                        p.text.list-item.pb5 ${{ verification-reminder-affiliate.block_10 }}$.\n                        p.text.list-item.pb5 ${{ verification-reminder-affiliate.block_11 }}$\n                        p.text.list-item.pb5 ${{ verification-reminder-affiliate.block_12 }}$.\n                        p.text.list-item ${{ verification-reminder-affiliate.block_13 }}$.",
+      "styl": ".white-bg { background:#fff }\n.min-text,.text { font-family:Helvetica!important;color:#2e3851;letter-spacing:0 }\n.text { font-weight:400;font-size:16px;line-height:26px }\n.min-text { font-size:14px;line-height:22px }\n.big-text,.subtitle,b,p.warning,p.warning .upper { font-family:Helvetica!important }\n.big-text { font-weight:700!important;font-size:16px!important }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.pb5 { padding-bottom:5px }\n.pb15 { padding-bottom:15px!important }\n.pt15 { padding-top:15px }\n.pt25 { padding-top:25px }\n.bg-bord-lr { border-left:1px solid #e9ebea;border-right:1px solid #e9ebea }\n.bg-bord-top { border-top:1px solid #e9ebea }\n.br-top { border-radius:5px 5px 0 0 }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }\n.border-green { border:solid 1px #01c689;border-radius:5px;background:#f4faf8;padding:12px 15px }\n.green-number,.list-item { font-family:Helvetica!important }\n.green-number { font-weight:700;font-size:14px;letter-spacing:1px;text-align:center;background:#01c689;border-radius:3px;padding:3px 12px;vertical-align:top;margin-right:10px;color:#fff }\n.list-item { background:url(\"https://static.cdnpub.info/files/storage/public/5e/8d/aa6a28c720a9i1g3f9/Oval Copy 3.png\") left top 8px no-repeat;background-size:10px;padding-left:20px;color:#2e3851 }",
+      "classes": [
+        "bg-bord-lr",
+        "bg-bord-top",
+        "big-text",
+        "border-green",
+        "br-top",
+        "center",
+        "columns",
+        "green-number",
+        "last",
+        "list-item",
+        "min-text",
+        "offset-by-one",
+        "pb10",
+        "pb15",
+        "pb20",
+        "pb5",
+        "pt15",
+        "pt25",
+        "row",
+        "ten",
+        "text",
+        "text-pad-small",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "bg-bord-lr",
+        "bg-bord-top",
+        "big-text",
+        "border-green",
+        "br-top",
+        "green-number",
+        "list-item",
+        "min-text",
+        "pb15",
+        "pb5",
+        "pt15",
+        "pt25",
+        "text",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_00",
+          "kind": "richText",
+          "label": "Текст verification-reminder-affiliate.block_00",
+          "token": "${{ verification-reminder-affiliate.block_00 }}$",
+          "ns": "verification-reminder-affiliate",
+          "block": "block_00"
+        },
+        {
+          "id": "text_block_01",
+          "kind": "richText",
+          "label": "Текст verification-reminder-affiliate.block_01",
+          "token": "${{ verification-reminder-affiliate.block_01 }}$",
+          "ns": "verification-reminder-affiliate",
+          "block": "block_01"
+        },
+        {
+          "id": "text_block_02",
+          "kind": "richText",
+          "label": "Текст verification-reminder-affiliate.block_02",
+          "token": "${{ verification-reminder-affiliate.block_02 }}$",
+          "ns": "verification-reminder-affiliate",
+          "block": "block_02"
+        },
+        {
+          "id": "text_block_03",
+          "kind": "richText",
+          "label": "Текст verification-reminder-affiliate.block_03",
+          "token": "${{ verification-reminder-affiliate.block_03 }}$",
+          "ns": "verification-reminder-affiliate",
+          "block": "block_03"
+        },
+        {
+          "id": "text_block_04",
+          "kind": "richText",
+          "label": "Текст verification-reminder-affiliate.block_04",
+          "token": "${{ verification-reminder-affiliate.block_04 }}$",
+          "ns": "verification-reminder-affiliate",
+          "block": "block_04"
+        },
+        {
+          "id": "text_block_05",
+          "kind": "richText",
+          "label": "Текст verification-reminder-affiliate.block_05",
+          "token": "${{ verification-reminder-affiliate.block_05 }}$",
+          "ns": "verification-reminder-affiliate",
+          "block": "block_05"
+        },
+        {
+          "id": "text_block_06",
+          "kind": "richText",
+          "label": "Текст verification-reminder-affiliate.block_06",
+          "token": "${{ verification-reminder-affiliate.block_06 }}$",
+          "ns": "verification-reminder-affiliate",
+          "block": "block_06"
+        },
+        {
+          "id": "text_block_07",
+          "kind": "richText",
+          "label": "Текст verification-reminder-affiliate.block_07",
+          "token": "${{ verification-reminder-affiliate.block_07 }}$",
+          "ns": "verification-reminder-affiliate",
+          "block": "block_07"
+        },
+        {
+          "id": "text_block_08",
+          "kind": "richText",
+          "label": "Текст verification-reminder-affiliate.block_08",
+          "token": "${{ verification-reminder-affiliate.block_08 }}$",
+          "ns": "verification-reminder-affiliate",
+          "block": "block_08"
+        },
+        {
+          "id": "text_block_09",
+          "kind": "richText",
+          "label": "Текст verification-reminder-affiliate.block_09",
+          "token": "${{ verification-reminder-affiliate.block_09 }}$",
+          "ns": "verification-reminder-affiliate",
+          "block": "block_09"
+        },
+        {
+          "id": "text_block_10",
+          "kind": "richText",
+          "label": "Текст verification-reminder-affiliate.block_10",
+          "token": "${{ verification-reminder-affiliate.block_10 }}$",
+          "ns": "verification-reminder-affiliate",
+          "block": "block_10"
+        },
+        {
+          "id": "text_block_11",
+          "kind": "richText",
+          "label": "Текст verification-reminder-affiliate.block_11",
+          "token": "${{ verification-reminder-affiliate.block_11 }}$",
+          "ns": "verification-reminder-affiliate",
+          "block": "block_11"
+        },
+        {
+          "id": "text_block_12",
+          "kind": "richText",
+          "label": "Текст verification-reminder-affiliate.block_12",
+          "token": "${{ verification-reminder-affiliate.block_12 }}$",
+          "ns": "verification-reminder-affiliate",
+          "block": "block_12"
+        },
+        {
+          "id": "text_block_13",
+          "kind": "richText",
+          "label": "Текст verification-reminder-affiliate.block_13",
+          "token": "${{ verification-reminder-affiliate.block_13 }}$",
+          "ns": "verification-reminder-affiliate",
+          "block": "block_13"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-affsystem-verification-reminder-affiliate-head",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb15.big-text.center ${{ verification-reminder-affiliate.block_00 }}$",
+          "styl": ".min-text,.text { font-family:Helvetica!important;color:#2e3851;letter-spacing:0 }\n.text { font-weight:400;font-size:16px;line-height:26px }\n.big-text,.subtitle,b,p.warning,p.warning .upper { font-family:Helvetica!important }\n.big-text { font-weight:700!important;font-size:16px!important }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.pb15 { padding-bottom:15px!important }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }",
+          "classes": [
+            "big-text",
+            "center",
+            "pb15",
+            "text"
+          ],
+          "designClasses": [
+            "big-text",
+            "pb15",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_00",
+              "kind": "richText",
+              "label": "Текст verification-reminder-affiliate.block_00",
+              "token": "${{ verification-reminder-affiliate.block_00 }}$",
+              "ns": "verification-reminder-affiliate",
+              "block": "block_00"
+            }
+          ]
+        },
+        {
+          "id": "x-affsystem-verification-reminder-affiliate-head",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb15 ${{ verification-reminder-affiliate.block_01 }}$",
+          "styl": ".min-text,.text { font-family:Helvetica!important;color:#2e3851;letter-spacing:0 }\n.text { font-weight:400;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.pb15 { padding-bottom:15px!important }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }",
+          "classes": [
+            "pb15",
+            "text"
+          ],
+          "designClasses": [
+            "pb15",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_01",
+              "kind": "richText",
+              "label": "Текст verification-reminder-affiliate.block_01",
+              "token": "${{ verification-reminder-affiliate.block_01 }}$",
+              "ns": "verification-reminder-affiliate",
+              "block": "block_01"
+            }
+          ]
+        },
+        {
+          "id": "x-affsystem-verification-reminder-affiliate-head",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb20\n    span.green-number 1\n    |${{ verification-reminder-affiliate.block_02 }}$",
+          "styl": ".min-text,.text { font-family:Helvetica!important;color:#2e3851;letter-spacing:0 }\n.text { font-weight:400;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }\n.green-number,.list-item { font-family:Helvetica!important }\n.green-number { font-weight:700;font-size:14px;letter-spacing:1px;text-align:center;background:#01c689;border-radius:3px;padding:3px 12px;vertical-align:top;margin-right:10px;color:#fff }",
+          "classes": [
+            "green-number",
+            "pb20",
+            "text"
+          ],
+          "designClasses": [
+            "green-number",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_02",
+              "kind": "richText",
+              "label": "Текст verification-reminder-affiliate.block_02",
+              "token": "${{ verification-reminder-affiliate.block_02 }}$",
+              "ns": "verification-reminder-affiliate",
+              "block": "block_02"
+            }
+          ]
+        },
+        {
+          "id": "x-affsystem-verification-reminder-affiliate-head",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb10\n    span.green-number 2\n    |${{ verification-reminder-affiliate.block_03 }}$",
+          "styl": ".min-text,.text { font-family:Helvetica!important;color:#2e3851;letter-spacing:0 }\n.text { font-weight:400;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }\n.green-number,.list-item { font-family:Helvetica!important }\n.green-number { font-weight:700;font-size:14px;letter-spacing:1px;text-align:center;background:#01c689;border-radius:3px;padding:3px 12px;vertical-align:top;margin-right:10px;color:#fff }",
+          "classes": [
+            "green-number",
+            "pb10",
+            "text"
+          ],
+          "designClasses": [
+            "green-number",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_03",
+              "kind": "richText",
+              "label": "Текст verification-reminder-affiliate.block_03",
+              "token": "${{ verification-reminder-affiliate.block_03 }}$",
+              "ns": "verification-reminder-affiliate",
+              "block": "block_03"
+            }
+          ]
+        },
+        {
+          "id": "x-affsystem-verification-reminder-affiliate-head",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.border-green ${{ verification-reminder-affiliate.block_04 }}$",
+          "styl": ".min-text,.text { font-family:Helvetica!important;color:#2e3851;letter-spacing:0 }\n.text { font-weight:400;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }\n.border-green { border:solid 1px #01c689;border-radius:5px;background:#f4faf8;padding:12px 15px }",
+          "classes": [
+            "border-green",
+            "text"
+          ],
+          "designClasses": [
+            "border-green",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_04",
+              "kind": "richText",
+              "label": "Текст verification-reminder-affiliate.block_04",
+              "token": "${{ verification-reminder-affiliate.block_04 }}$",
+              "ns": "verification-reminder-affiliate",
+              "block": "block_04"
+            }
+          ]
+        },
+        {
+          "id": "x-affsystem-verification-reminder-affiliate-head",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb15.pt15 ${{ verification-reminder-affiliate.block_05 }}$",
+          "styl": ".min-text,.text { font-family:Helvetica!important;color:#2e3851;letter-spacing:0 }\n.text { font-weight:400;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.pb15 { padding-bottom:15px!important }\n.pt15 { padding-top:15px }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }",
+          "classes": [
+            "pb15",
+            "pt15",
+            "text"
+          ],
+          "designClasses": [
+            "pb15",
+            "pt15",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_05",
+              "kind": "richText",
+              "label": "Текст verification-reminder-affiliate.block_05",
+              "token": "${{ verification-reminder-affiliate.block_05 }}$",
+              "ns": "verification-reminder-affiliate",
+              "block": "block_05"
+            }
+          ]
+        },
+        {
+          "id": "x-affsystem-verification-reminder-affiliate-head",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb10\n    span.green-number 3\n    | ${{ verification-reminder-affiliate.block_07 }}$",
+          "styl": ".min-text,.text { font-family:Helvetica!important;color:#2e3851;letter-spacing:0 }\n.text { font-weight:400;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }\n.green-number,.list-item { font-family:Helvetica!important }\n.green-number { font-weight:700;font-size:14px;letter-spacing:1px;text-align:center;background:#01c689;border-radius:3px;padding:3px 12px;vertical-align:top;margin-right:10px;color:#fff }",
+          "classes": [
+            "green-number",
+            "pb10",
+            "text"
+          ],
+          "designClasses": [
+            "green-number",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_07",
+              "kind": "richText",
+              "label": "Текст verification-reminder-affiliate.block_07",
+              "token": "${{ verification-reminder-affiliate.block_07 }}$",
+              "ns": "verification-reminder-affiliate",
+              "block": "block_07"
+            }
+          ]
+        },
+        {
+          "id": "x-affsystem-verification-reminder-affiliate-head",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb15 ${{ verification-reminder-affiliate.block_08 }}$",
+          "styl": ".min-text,.text { font-family:Helvetica!important;color:#2e3851;letter-spacing:0 }\n.text { font-weight:400;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.pb15 { padding-bottom:15px!important }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }",
+          "classes": [
+            "pb15",
+            "text"
+          ],
+          "designClasses": [
+            "pb15",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_08",
+              "kind": "richText",
+              "label": "Текст verification-reminder-affiliate.block_08",
+              "token": "${{ verification-reminder-affiliate.block_08 }}$",
+              "ns": "verification-reminder-affiliate",
+              "block": "block_08"
+            }
+          ]
+        },
+        {
+          "id": "x-affsystem-verification-reminder-affiliate-head",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.list-item.pb5 ${{ verification-reminder-affiliate.block_09 }}$.",
+          "styl": ".min-text,.text { font-family:Helvetica!important;color:#2e3851;letter-spacing:0 }\n.text { font-weight:400;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.pb5 { padding-bottom:5px }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }\n.green-number,.list-item { font-family:Helvetica!important }\n.list-item { background:url(\"https://static.cdnpub.info/files/storage/public/5e/8d/aa6a28c720a9i1g3f9/Oval Copy 3.png\") left top 8px no-repeat;background-size:10px;padding-left:20px;color:#2e3851 }",
+          "classes": [
+            "list-item",
+            "pb5",
+            "text"
+          ],
+          "designClasses": [
+            "list-item",
+            "pb5",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_09",
+              "kind": "richText",
+              "label": "Текст verification-reminder-affiliate.block_09",
+              "token": "${{ verification-reminder-affiliate.block_09 }}$",
+              "ns": "verification-reminder-affiliate",
+              "block": "block_09"
+            }
+          ]
+        },
+        {
+          "id": "x-affsystem-verification-reminder-affiliate-head",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.list-item.pb5 ${{ verification-reminder-affiliate.block_10 }}$.",
+          "styl": ".min-text,.text { font-family:Helvetica!important;color:#2e3851;letter-spacing:0 }\n.text { font-weight:400;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.pb5 { padding-bottom:5px }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }\n.green-number,.list-item { font-family:Helvetica!important }\n.list-item { background:url(\"https://static.cdnpub.info/files/storage/public/5e/8d/aa6a28c720a9i1g3f9/Oval Copy 3.png\") left top 8px no-repeat;background-size:10px;padding-left:20px;color:#2e3851 }",
+          "classes": [
+            "list-item",
+            "pb5",
+            "text"
+          ],
+          "designClasses": [
+            "list-item",
+            "pb5",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_10",
+              "kind": "richText",
+              "label": "Текст verification-reminder-affiliate.block_10",
+              "token": "${{ verification-reminder-affiliate.block_10 }}$",
+              "ns": "verification-reminder-affiliate",
+              "block": "block_10"
+            }
+          ]
+        },
+        {
+          "id": "x-affsystem-verification-reminder-affiliate-head",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.list-item.pb5 ${{ verification-reminder-affiliate.block_11 }}$",
+          "styl": ".min-text,.text { font-family:Helvetica!important;color:#2e3851;letter-spacing:0 }\n.text { font-weight:400;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.pb5 { padding-bottom:5px }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }\n.green-number,.list-item { font-family:Helvetica!important }\n.list-item { background:url(\"https://static.cdnpub.info/files/storage/public/5e/8d/aa6a28c720a9i1g3f9/Oval Copy 3.png\") left top 8px no-repeat;background-size:10px;padding-left:20px;color:#2e3851 }",
+          "classes": [
+            "list-item",
+            "pb5",
+            "text"
+          ],
+          "designClasses": [
+            "list-item",
+            "pb5",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_11",
+              "kind": "richText",
+              "label": "Текст verification-reminder-affiliate.block_11",
+              "token": "${{ verification-reminder-affiliate.block_11 }}$",
+              "ns": "verification-reminder-affiliate",
+              "block": "block_11"
+            }
+          ]
+        },
+        {
+          "id": "x-affsystem-verification-reminder-affiliate-head",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.list-item.pb5 ${{ verification-reminder-affiliate.block_12 }}$.",
+          "styl": ".min-text,.text { font-family:Helvetica!important;color:#2e3851;letter-spacing:0 }\n.text { font-weight:400;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.pb5 { padding-bottom:5px }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }\n.green-number,.list-item { font-family:Helvetica!important }\n.list-item { background:url(\"https://static.cdnpub.info/files/storage/public/5e/8d/aa6a28c720a9i1g3f9/Oval Copy 3.png\") left top 8px no-repeat;background-size:10px;padding-left:20px;color:#2e3851 }",
+          "classes": [
+            "list-item",
+            "pb5",
+            "text"
+          ],
+          "designClasses": [
+            "list-item",
+            "pb5",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_12",
+              "kind": "richText",
+              "label": "Текст verification-reminder-affiliate.block_12",
+              "token": "${{ verification-reminder-affiliate.block_12 }}$",
+              "ns": "verification-reminder-affiliate",
+              "block": "block_12"
+            }
+          ]
+        },
+        {
+          "id": "x-affsystem-verification-reminder-affiliate-head",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.list-item ${{ verification-reminder-affiliate.block_13 }}$.",
+          "styl": ".min-text,.text { font-family:Helvetica!important;color:#2e3851;letter-spacing:0 }\n.text { font-weight:400;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }\n.green-number,.list-item { font-family:Helvetica!important }\n.list-item { background:url(\"https://static.cdnpub.info/files/storage/public/5e/8d/aa6a28c720a9i1g3f9/Oval Copy 3.png\") left top 8px no-repeat;background-size:10px;padding-left:20px;color:#2e3851 }",
+          "classes": [
+            "list-item",
+            "text"
+          ],
+          "designClasses": [
+            "list-item",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_13",
+              "kind": "richText",
+              "label": "Текст verification-reminder-affiliate.block_13",
+              "token": "${{ verification-reminder-affiliate.block_13 }}$",
+              "ns": "verification-reminder-affiliate",
+              "block": "block_13"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-affsystem-verification-reminder-affiliate-head",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_AffSystem/mail-verification-reminder-affiliate/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg.bg-bord-lr.br-bot.bg-bord-bot\n    tr\n        td.wrapper.last.offset-by-three.pt0\n            table.six.columns\n                tr\n                    td.pb35.plr20-a\n                        .button-wrapper\n                            table.medium-button.radius\n                                tr\n                                    td.iq\n                                        a.butt(href=\"https://affiliate.iqoption.com/\" target=\"_blank\") ${{ verification-reminder-affiliate.block_14 }}$",
+      "styl": ".white-bg { background:#fff }\n.pb35 { padding-bottom:35px }\n@media screen and (max-width:600px) {\n  .plr20-a,.plr30 { padding-left:20px!important;padding-right:20px!important }\n}\n.bg-bord-lr { border-left:1px solid #e9ebea;border-right:1px solid #e9ebea }\n.bg-bord-bot { border-bottom:1px solid #e9ebea }\n.br-bot { border-radius:0 0 5px 5px }",
+      "classes": [
+        "bg-bord-bot",
+        "bg-bord-lr",
+        "br-bot",
+        "butt",
+        "button-wrapper",
+        "columns",
+        "iq",
+        "last",
+        "medium-button",
+        "offset-by-three",
+        "pb35",
+        "plr20-a",
+        "pt0",
+        "radius",
+        "row",
+        "six",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "bg-bord-bot",
+        "bg-bord-lr",
+        "br-bot",
+        "button-wrapper",
+        "pb35",
+        "plr20-a",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_14",
+          "kind": "richText",
+          "label": "Текст verification-reminder-affiliate.block_14",
+          "token": "${{ verification-reminder-affiliate.block_14 }}$",
+          "ns": "verification-reminder-affiliate",
+          "block": "block_14"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://affiliate.iqoption.com/"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-affsystem-verification-reminder-affiliate-head",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "kind": "section",
+      "sourceFile": "X_AffSystem/mail-verification-reminder-affiliate/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.pt30.offset-by-one\n            table.ten.columns\n                tr\n                    td.pb0.text-pad-small\n                        p.subtitle.center.pb15.fs22 ${{ affbot.block_04 }}$\n                        p.text.center ${{ affbot.block_05 }}$\n                        p.text.center.pb15 ${{ affbot.block_06 }}$\n                        .social-links\n                            a.soc-link(href=\"https://www.facebook.com/iqaffiliate\" target=\"_blank\")\n                                img.soc(src=\"https://static.cdnpub.info/files/storage/public/60/fe/cb030b8cf6e1c9e7f2/fb_shadow.png\")\n                            a.soc-link(href=\"https://www.instagram.com/iqoptionaffiliate\" target=\"_blank\")\n                                img.soc(src=\"https://static.cdnpub.info/files/storage/public/60/fe/cb030c2442e2j4d2i1/insta_shadow.png\")\n                            a.soc-link(href=\"https://affiliate.iqoption.com/dashboard\" target=\"_blank\")\n                                img.soc(src=\"https://static.cdnpub.info/files/storage/public/60/fe/cb0306c808f0h5h2d8/iq_shadow.png\")",
+      "styl": ".fs22 { font-size:22px!important }\n.min-text,.text { font-family:Helvetica!important;color:#2e3851;letter-spacing:0 }\n.text { font-weight:400;font-size:16px;line-height:26px }\n.big-text,.subtitle,b,p.warning,p.warning .upper { font-family:Helvetica!important }\n.subtitle { font-weight:700;letter-spacing:0;font-size:30px;color:#20242f;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.pb15 { padding-bottom:15px!important }\n.soc-link { display:inline-block;float:none;margin:0 10px }\n.soc { float:none;display:block;max-width:38px }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }\n.social-links { display:block;text-align:center }",
+      "classes": [
+        "center",
+        "columns",
+        "fs22",
+        "last",
+        "offset-by-one",
+        "pb0",
+        "pb15",
+        "pt30",
+        "row",
+        "soc",
+        "soc-link",
+        "social-links",
+        "subtitle",
+        "ten",
+        "text",
+        "text-pad-small",
+        "wrapper"
+      ],
+      "designClasses": [
+        "fs22",
+        "pb15",
+        "soc",
+        "soc-link",
+        "social-links",
+        "subtitle",
+        "text"
+      ],
+      "slots": [
+        {
+          "id": "text_block_04",
+          "kind": "richText",
+          "label": "Текст affbot.block_04",
+          "token": "${{ affbot.block_04 }}$",
+          "ns": "affbot",
+          "block": "block_04"
+        },
+        {
+          "id": "text_block_05",
+          "kind": "richText",
+          "label": "Текст affbot.block_05",
+          "token": "${{ affbot.block_05 }}$",
+          "ns": "affbot",
+          "block": "block_05"
+        },
+        {
+          "id": "text_block_06",
+          "kind": "richText",
+          "label": "Текст affbot.block_06",
+          "token": "${{ affbot.block_06 }}$",
+          "ns": "affbot",
+          "block": "block_06"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://www.facebook.com/iqaffiliate"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://www.instagram.com/iqoptionaffiliate"
+        },
+        {
+          "id": "href_2",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://affiliate.iqoption.com/dashboard"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnpub.info/files/storage/public/60/fe/cb030b8cf6e1c9e7f2/fb_shadow.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnpub.info/files/storage/public/60/fe/cb030c2442e2j4d2i1/insta_shadow.png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://static.cdnpub.info/files/storage/public/60/fe/cb0306c808f0h5h2d8/iq_shadow.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-affsystem-verification-reminder-affiliate-head",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.center ${{ affbot.block_05 }}$",
+          "styl": ".min-text,.text { font-family:Helvetica!important;color:#2e3851;letter-spacing:0 }\n.text { font-weight:400;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }",
+          "classes": [
+            "center",
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_05",
+              "kind": "richText",
+              "label": "Текст affbot.block_05",
+              "token": "${{ affbot.block_05 }}$",
+              "ns": "affbot",
+              "block": "block_05"
+            }
+          ]
+        },
+        {
+          "id": "x-affsystem-verification-reminder-affiliate-head",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.center.pb15 ${{ affbot.block_06 }}$",
+          "styl": ".min-text,.text { font-family:Helvetica!important;color:#2e3851;letter-spacing:0 }\n.text { font-weight:400;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.pb15 { padding-bottom:15px!important }\n.text a { font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important }",
+          "classes": [
+            "center",
+            "pb15",
+            "text"
+          ],
+          "designClasses": [
+            "pb15",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_06",
+              "kind": "richText",
+              "label": "Текст affbot.block_06",
+              "token": "${{ affbot.block_06 }}$",
+              "ns": "affbot",
+              "block": "block_06"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -222,7 +222,9 @@ function cssForClasses(parsedRules, designSet) {
   if (!designSet || designSet.size === 0) return "";
   const parts = [];
   const seen = new Set(); // dedupe identical rules (blocks/main.css ∩ common.css)
-  const push = (s) => { const k = s.replace(/\s+/g, " "); if (!seen.has(k)) { seen.add(k); parts.push(s); } };
+  // stylus chokes on unquoted non-ascii url() — always quote
+  const quoteUrls = (css) => String(css || "").replace(/url\(\s*([^)"'][^)]*)\)/g, (_m, u) => `url("${u.trim()}")`);
+  const push = (s) => { const q = quoteUrls(s); const k = q.replace(/\s+/g, " "); if (!seen.has(k)) { seen.add(k); parts.push(q); } };
   for (const r of parsedRules) {
     if (r.type === "rule") {
       if (selectorReferencesClass(r.selector, designSet)) {
@@ -346,8 +348,14 @@ function findInlineBlocks(seg) {
 
 // Reconstruct pug from a set of lines, dedented so the shallowest line is at col 0.
 function reconstructPug(segLines) {
-  const minIndent = Math.min(...segLines.map((l) => l.indent));
-  return segLines.map((l) => " ".repeat(l.indent - minIndent) + l.trimmed).join("\n");
+  // Normalize indentation to strict 4-space levels (mixed 2/4/tab source
+  // breaks pug: "Inconsistent indentation") and pipe bare &nbsp;/text lines.
+  const widths = Array.from(new Set(segLines.map((l) => l.indent))).sort((a, b) => a - b);
+  const level = new Map(widths.map((w, i) => [w, i]));
+  return segLines.map((l) => {
+    const text = l.trimmed.startsWith("&") ? "| " + l.trimmed : l.trimmed;
+    return " ".repeat(level.get(l.indent) * 4) + text;
+  }).join("\n");
 }
 
 function slugify(s) {

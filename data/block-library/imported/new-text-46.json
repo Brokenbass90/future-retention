@@ -1,0 +1,30 @@
+{
+  "id": "new-text-46",
+  "label": "Заголовок",
+  "description": "Импортирован из X_new (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.small-title.center.pb16.b-new-text-46 {{ text_1 }}",
+  "styl": ".small-title.b-new-text-46 {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 38px;\n  letter-spacing: -0.5px;\n  color: #413e43;  }\n.pb16.b-new-text-46 {  padding-bottom: 16px;  }\n.small-title.b-new-text-46 {  font-family: Helvetica !important;\n  font-weight: 400;\n  font-size: 24px;\n  line-height: 34px;\n  color: #404040;  }\n.small-title.b-new-text-46 {  letter-spacing:-.5px  }\n.pb16.b-new-text-46 {  padding-bottom:16px  }\n.small-title.b-new-text-46 {  font-family:Helvetica!important;font-weight:400;font-size:24px;line-height:34px;color:#404040  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-Raffle-Exnova"
+  ],
+  "createdAt": "2026-07-06T12:10:00.060Z",
+  "validated": true
+}

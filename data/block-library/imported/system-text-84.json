@@ -1,0 +1,30 @@
+{
+  "id": "system-text-84",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_System (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.b-system-text-84\n    tr\n        td.offset-by-one\n            table.ten.columns\n                tr\n                    td.no-padding-bottom\n                        p.title Dear Client,\n                        p.text During the verification of your account it came to our attention that there is a mismatch in your Economic Profile.\n                        p.text Please confirm which of following applies as your source of funds:\n                        p.text.list Parent/Family\n                        p.text.list Financial Market Earnings\n                        p.text.list Savings\n                        p.text.list.pb20 Earned income\n                        p.text\n                            strong Please reply to&nbsp;\n                            a(href=\"{{ href_1 }}\", target=\"_blank\") compliance@iqoption.com\n                        p.text We appreciate your cooperation on this matter.\n                        p.text Kind regards,\n                            br\n                            | IQ Option Team",
+  "styl": ".white-bg.b-system-text-84 {  background:#fff  }\n.b-system-text-84 .title {  color:#2473d7;font-size:24px;font-weight:500;line-height:32px;padding-top:30px;padding-bottom:25px  }\n@media screen and (max-width:600px) {\n  .b-system-text-84 .title {  padding-left:20px!important;padding-right:20px!important  }\n}\n.b-system-text-84 .text {  color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px  }\n@media screen and (max-width:600px) {\n  .b-system-text-84 .text {  padding-left:20px!important;padding-right:20px!important  }\n}\n.b-system-text-84 .text a {  color:#2473d7;text-decoration:underline  }\n.b-system-text-84 .text.bold {  font-weight:700  }\n.b-system-text-84 .list {  display:list-item;padding-left:20px;list-style:decimal;list-style-position:inside;padding-bottom:10px  }",
+  "slots": [
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "mailto:compliance@iqoption.com"
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_System"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_System/mail-source-of-funds"
+  ],
+  "createdAt": "2026-07-06T12:09:59.370Z",
+  "validated": true
+}

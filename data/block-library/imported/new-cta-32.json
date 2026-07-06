@@ -1,0 +1,48 @@
+{
+  "id": "new-cta-32",
+  "label": "CTA-секция",
+  "description": "Импортирован из X_new (1 писем). Секция.",
+  "placement": "section",
+  "category": "cta",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.brad-full.white-bg.b-new-cta-32(style=\"border: 4px solid #FF7700;\")\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.middle-title.center.pb24 {{ text_1 }}\n                        p.text.center.pb40 {{ text_2 }}\n                        table.w280(align=\"center\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"{{ href_1 }}\" universal=\"true\" target=\"_blank\") {{ text_3 }}",
+  "styl": ".b-new-cta-32 .w280 {  width: 100%;\n  max-width: 280px;  }\n@media screen and (max-width: 600px) {\n  .b-new-cta-32 .w280 {  max-width: 100% !important;  }\n}\n.brad-full.b-new-cta-32 {  border-radius: 32px !important;  }\n.b-new-cta-32 .butt-link {  font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px;  }\n.white-bg.b-new-cta-32 {  background-color: #fff;  }\n.b-new-cta-32 .middle-title {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #393a44;\n  vertical-align: middle;  }\n@media screen and (max-width: 600px) {\n  .b-new-cta-32 .middle-title {  font-size: 28px !important;\n    line-height: 34px !important;  }\n}\n.b-new-cta-32 .text {  font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400;  }\n.b-new-cta-32 .text.bold {  font-weight: 700;  }\n.b-new-cta-32 .pb24 {  padding-bottom: 24px;  }\n.b-new-cta-32 .pb44 {  padding-bottom: 44px;  }\n.b-new-cta-32 .pt44 {  padding-top: 44px;  }\n@media screen and (max-width: 600px) {\n  .b-new-cta-32 .text.mob-text, .b-new-cta-32 .grey-text.mob-text {  font-size: 17px !important;  }\n}\n.b-new-cta-32 .w280 {  width:100%;max-width:280px  }\n@media screen and (max-width:600px) {\n  .b-new-cta-32 .w280 {  max-width:100%!important  }\n}\n.brad-full.b-new-cta-32, .b-new-cta-32 .brad-full-32 {  border-radius:32px!important  }\n.b-new-cta-32 .butt-link, .b-new-cta-32 .butt-link-2, .b-new-cta-32 .butt-link-small {  font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#2f3749;display:block;line-height:27px;padding:16px 0;text-align:center;letter-spacing:0  }\n.b-new-cta-32 .butt-link, .b-new-cta-32 .butt-link-small {  color:#f9f9f9  }\n.white-bg.b-new-cta-32 {  background-color:#fff  }\n.b-new-cta-32 .middle-title {  font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#393a44;vertical-align:middle  }\n@media screen and (max-width:600px) {\n  .b-new-cta-32 .middle-title {  font-size:28px!important;line-height:34px!important  }\n}\n.b-new-cta-32 .number-block, .b-new-cta-32 .text {  font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400  }\n.b-new-cta-32 .big, .b-new-cta-32 .text.bold {  font-weight:700  }\n.b-new-cta-32 .pb24 {  padding-bottom:24px  }\n.b-new-cta-32 .pb44 {  padding-bottom:44px  }\n.b-new-cta-32 .pt44 {  padding-top:44px  }\n@media screen and (max-width:600px) {\n  .b-new-cta-32 .grey-text.mob-text, .b-new-cta-32 .text.mob-text {  font-size:17px!important  }\n}",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-2-1-3&retrack=mail_IQ-RFM-2-1-3"
+    }
+  ],
+  "tags": [
+    "cta",
+    "section",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-rfm-segmentation-2-213"
+  ],
+  "createdAt": "2026-07-06T12:10:00.073Z",
+  "validated": true
+}

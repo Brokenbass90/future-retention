@@ -1,0 +1,31 @@
+{
+  "id": "exnova-text-83",
+  "label": "Заголовок",
+  "description": "Импортирован из X_Exnova (2 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.title.pb20.b-exnova-text-83 {{ text_1 }}",
+  "styl": ".title.b-exnova-text-83 {  color:#27282D;font-size:38px;line-height:49px;font-weight:700;font-family:Helvetica!important  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_Exnova"
+  ],
+  "usageCount": 2,
+  "sourceMails": [
+    "X_Exnova/mail-sus-geo",
+    "X_Exnova/mail-suspicious-geo"
+  ],
+  "createdAt": "2026-07-06T12:09:50.973Z",
+  "validated": true
+}

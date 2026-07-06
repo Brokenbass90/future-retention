@@ -1,0 +1,35 @@
+{
+  "id": "iqbroker-section-11",
+  "label": "Секция",
+  "description": "Импортирован из X_IQBroker (1 писем). Секция.",
+  "placement": "section",
+  "category": "section",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.b-iqbroker-section-11\n    tr\n        td.wrapper.last.offset-by-one.pt40\n            table.ten.columns\n                tr\n                    td.text-pad-small.vam.center.pb40\n                        .left-side\n                            .button-wrapper.button-wrapper_left\n                                table.medium-button.radius\n                                    tr\n                                        td.butt-td\n                                            a.butt(href=\"{{ href_1 }}\" target=\"_blank\") {{ text_1 }}",
+  "styl": ".b-iqbroker-section-11 .vam {  vertical-align: middle !important;  }\n.b-iqbroker-section-11 .butt-td {  padding: 0 !important;  }\n.b-iqbroker-section-11 .button-wrapper {  padding-top: 0;\n  padding-bottom: 0;  }\n@media screen and (max-width: 600px) {\n  .b-iqbroker-section-11 .button-wrapper {  padding-left: 30px !important;\n    padding-right: 30px !important;  }\n}\n.b-iqbroker-section-11 .left-side {  display: inline-block;\n  width: 60%;\n  max-width: 280px;\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n  vertical-align: middle;  }\n@media screen and (max-width: 600px) {\n  .b-iqbroker-section-11 .left-side {  width: 100% !important;\n    max-width: 100% !important;\n    display: block !important;  }\n}\n.b-iqbroker-section-11 .vam {  vertical-align:middle!important  }\n.b-iqbroker-section-11 .butt-td {  padding:0!important  }\n.b-iqbroker-section-11 .button-wrapper {  padding-top:0;padding-bottom:0  }\n@media screen and (max-width:600px) {\n  .b-iqbroker-section-11 .button-wrapper {  padding-left:30px!important;padding-right:30px!important  }\n}\n.b-iqbroker-section-11 .left-side {  display:inline-block;width:60%;max-width:280px;box-sizing:border-box;vertical-align:middle  }\n@media screen and (max-width:600px) {\n  .b-iqbroker-section-11 .left-side {  width:100%!important;max-width:100%!important;display:block!important  }\n}",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "{{embedded.domain}}{{activation_link}}"
+    }
+  ],
+  "tags": [
+    "section",
+    "X_IQBroker"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_IQBroker/mail-s-confirm"
+  ],
+  "createdAt": "2026-07-06T12:09:51.736Z",
+  "validated": true
+}

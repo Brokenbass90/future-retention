@@ -1,0 +1,126 @@
+{
+  "id": "new-text-27",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_new (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.br-full.bg-bord-full.b-new-text-27\n    tr\n        td.wrapper.last.offset-by-one.pt40\n            table.row.ten.columns\n                tr\n                    td.text-pad-small.pb20\n                        p.hello.pb20 {{ text_1 }}\n                        p.text.pb15 {{ text_2 }}\n                        p.text.pb20 {{ text_3 }}\n                        p.text.pb10\n                            img.dot(src=\"{{ image_1 }}\" width=\"10\" height=\"10\" alt=\"\")\n                            |{{ text_4 }}\n                        p.text.pb10\n                            img.dot(src=\"{{ image_1 }}\" width=\"10\" height=\"10\" alt=\"\")\n                            |{{ text_5 }}\n                        p.text.pb10\n                            img.dot(src=\"{{ image_1 }}\" width=\"10\" height=\"10\" alt=\"\")\n                            |{{ text_6 }}\n                        p.text.pb20\n                            img.dot(src=\"{{ image_1 }}\" width=\"10\" height=\"10\" alt=\"\")\n                            |{{ text_7 }}\n                        p.text.pb15 {{ text_8 }}\n                        p.hello.pb20 {{ text_9 }}\n                        p.text.pb15 {{ text_10 }}&nbsp;\n                            a(href=\"{{ href_1 }}\" target=\"_blank\") {{ text_11 }}\n                            |{{ text_12 }}\n                        p.text {{ text_13 }}\n    tr\n        td.wrapper.last.offset-by-three.pt0\n            table.six.columns\n                tr\n                    td.pb40.text-pad-small.pt0\n                        .button-wrapper.button-wrapper_top\n                            table.medium-button.radius\n                                tr\n                                    td.iq\n                                        a.butt(href=\"{{ href_2 }}\" target=\"_blank\") {{ text_14 }}",
+  "styl": ".white-bg.b-new-text-27 {  background:#fff  }\n.b-new-text-27 .min-text, .b-new-text-27 .text {  font-family:Helvetica!important;letter-spacing:0  }\n.b-new-text-27 .text {  font-weight:400;color:#373437;font-size:16px;line-height:26px  }\n.b-new-text-27 .big-text, .b-new-text-27 .hello, .b-new-text-27 b, .b-new-text-27 p.warning, .b-new-text-27 p.warning .upper {  font-family:Helvetica!important  }\n.b-new-text-27 .hello {  line-height:26px;color:#373437;font-weight:700;font-size:22px  }\n.b-new-text-27 .text.italic {  font-style:italic  }\n.b-new-text-27 .text.list {  display:list-item  }\n.b-new-text-27 .pb15 {  padding-bottom:16px!important  }\n.br-full.b-new-text-27 {  border-radius:8px  }\n.b-new-text-27 .text a {  font-family:Helvetica!important;text-decoration:underline!important;color:#86ad00!important  }\n.bg-bord-full.b-new-text-27 {  border:1px solid #e9ebea  }\n.b-new-text-27 .dot, .b-new-text-27 .left-block {  display:inline-block  }\n.b-new-text-27 .dot {  width:10px!important;padding-top:9px;padding-right:8px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_7",
+      "kind": "richText",
+      "label": "Текст 7",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_8",
+      "kind": "richText",
+      "label": "Текст 8",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_9",
+      "kind": "richText",
+      "label": "Текст 9",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_10",
+      "kind": "richText",
+      "label": "Текст 10",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_11",
+      "kind": "richText",
+      "label": "Текст 11",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_12",
+      "kind": "richText",
+      "label": "Текст 12",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_13",
+      "kind": "richText",
+      "label": "Текст 13",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_14",
+      "kind": "richText",
+      "label": "Текст 14",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://my.affstore.com/offers/qcm_eu/cpa/advertiser"
+    },
+    {
+      "id": "href_2",
+      "kind": "url",
+      "label": "Ссылка 2",
+      "default": "https://my.affstore.com/offers/qcm_eu/cpa/activation"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.iqoption.com/storage/public/ch/s6/698d0gfsc472atmg/dot-affstore.png"
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-QCM-Offer"
+  ],
+  "createdAt": "2026-07-06T12:10:00.057Z",
+  "validated": true
+}

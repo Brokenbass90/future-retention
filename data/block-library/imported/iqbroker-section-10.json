@@ -1,0 +1,35 @@
+{
+  "id": "iqbroker-section-10",
+  "label": "Секция",
+  "description": "Импортирован из X_IQBroker (1 писем). Секция.",
+  "placement": "section",
+  "category": "section",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.border-top.b-iqbroker-section-10\n    tr\n        td.wrapper.last.offset-by-one.pt43\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb0\n                        p.title.pb30 {{ text_1 }}\n                        p.text {{ text_2 }}",
+  "styl": ".border-top.b-iqbroker-section-10 {  border-radius: 16px 16px 0 0;  }\n.b-iqbroker-section-10 .title {  color: #2e292a;\n  font-size: 48px;\n  line-height: 57.6px;\n  font-weight: 700;\n  font-family: Helvetica !important;  }\n.b-iqbroker-section-10 .text {  font-family: Helvetica !important;\n  color: #3c3939;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 28px;  }\n.b-iqbroker-section-10 .text a {  color: #213e8f;\n  font-weight: 700;\n  font-family: Helvetica !important;  }\n.b-iqbroker-section-10 .pt43 {  padding-top: 43px;  }\n.b-iqbroker-section-10 .text a {  color: #5165ff !important;  }\n.border-top.b-iqbroker-section-10 {  border-radius:16px 16px 0 0  }\n.b-iqbroker-section-10 .title {  color:#2e292a;font-size:48px;line-height:57.6px;font-weight:700;font-family:Helvetica!important  }\n.b-iqbroker-section-10 .text {  color:#3c3939;font-size:18px;font-weight:400;line-height:28px  }\n.b-iqbroker-section-10 .text a {  font-weight:700  }\n.b-iqbroker-section-10 .small-text, .b-iqbroker-section-10 .small-text a, .b-iqbroker-section-10 .text, .b-iqbroker-section-10 .text a {  font-family:Helvetica!important  }\n.b-iqbroker-section-10 .pt43 {  padding-top:43px  }\n.b-iqbroker-section-10 .text a {  color:#5165ff!important  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    }
+  ],
+  "tags": [
+    "section",
+    "X_IQBroker"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_IQBroker/mail-s-confirm"
+  ],
+  "createdAt": "2026-07-06T12:09:51.736Z",
+  "validated": true
+}

@@ -1,0 +1,345 @@
+{
+  "category": "X_IQBroker",
+  "mailId": "payment-verification-request-pop",
+  "mailAbs": "email-base/X_IQBroker/mail-payment-verification-request-pop",
+  "blockCount": 2,
+  "blocks": [
+    {
+      "id": "x-iqbroker-payment-verification-request-pop-head",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "kind": "section",
+      "sourceFile": "X_IQBroker/mail-payment-verification-request-pop/app/templates/blocks/header.jade",
+      "pug": "table.center\n    tr\n        td\n            table.ten.columns\n                tr\n                    td.pb0\n                        a(href=\"{{embedded.domain}}\" target=\"_blank\")\n                            img.logo(src=\"https://fsms.quadcode.com/storage/public/d3/hq/9eiqubga63ldcae0/Logo.png\")",
+      "styl": "",
+      "classes": [
+        "center",
+        "columns",
+        "logo",
+        "pb0",
+        "ten"
+      ],
+      "designClasses": [],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "{{embedded.domain}}"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/d3/hq/9eiqubga63ldcae0/Logo.png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-iqbroker-payment-verification-request-pop-head",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "kind": "section",
+      "sourceFile": "X_IQBroker/mail-payment-verification-request-pop/app/templates/blocks/header.jade",
+      "pug": "table.row.border-full\n    tr\n        td.wrapper.last.offset-by-one.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb32.bb\n                        p.middle-title.pb20 ${{ payment-verification-request-pop.block_00 }}$\n                        p.text.pb10\n                            strong ${{ payment-verification-request-pop.block_01 }}$\n                        p.text.pb20 ${{ payment-verification-request-pop.block_02 }}$ {{datetime}} ${{ payment-verification-request-pop.block_04 }}$ {{embedded.user_id}}${{ payment-verification-request-pop.block_06 }}$\n                        ul(style=\"margin:0; padding:0 0 0 25px;\")\n                            li(style=\"color:#FF5500;\")\n                                p.text ${{ payment-verification-request-pop.block_07 }}$\n                        p.text.pt20.pb12 ${{ payment-verification-request-pop.block_08 }}$\n                        p.text ${{ payment-verification-request-pop.block_09 }}$\n                tr\n                    td.text-pad-small.pb44.pt24\n                        p.small-text.pt5.pb5 ${{ payment-verification-request-pop.block_10 }}$&nbsp;\n                            a(href=\"mailto:{{embedded.company_email}}\" target=\"_blank\") {{embedded.company_email}}\n                            |${{ payment-verification-request-pop.block_12 }}$",
+      "styl": ".bb { border-bottom:1px dashed #d9d9db }\n.border-full { border-radius:16px }\n.middle-title { font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:32px;line-height:42px;color:#393a44 }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:24px!important;line-height:32px!important }\n}\n.text { color:#3c3939;font-size:18px;font-weight:400;line-height:28px }\n.text a { font-weight:700 }\n.small-text,.small-text a,.text,.text a { font-family:Helvetica!important }\n.small-text { font-size:18px;line-height:27px;font-weight:400;text-align:center;color:#84868b }\n.small-text a { color:#5165ff!important;text-decoration:none }\n.pb5 { padding-bottom:5px }\n.pb12 { padding-bottom:12px }\n.pb32 { padding-bottom:32px }\n.pb44 { padding-bottom:44px }\n.pt5 { padding-top:5px }\n.pt24 { padding-top:24px }\n.pt44 { padding-top:44px }\n.text a { color:#5165ff!important }",
+      "classes": [
+        "bb",
+        "border-full",
+        "columns",
+        "last",
+        "middle-title",
+        "offset-by-one",
+        "pb10",
+        "pb12",
+        "pb20",
+        "pb32",
+        "pb44",
+        "pb5",
+        "pt20",
+        "pt24",
+        "pt44",
+        "pt5",
+        "row",
+        "small-text",
+        "ten",
+        "text",
+        "text-pad-small",
+        "wrapper"
+      ],
+      "designClasses": [
+        "bb",
+        "border-full",
+        "middle-title",
+        "pb12",
+        "pb32",
+        "pb44",
+        "pb5",
+        "pt24",
+        "pt44",
+        "pt5",
+        "small-text",
+        "text"
+      ],
+      "slots": [
+        {
+          "id": "text_block_00",
+          "kind": "richText",
+          "label": "Текст payment-verification-request-pop.block_00",
+          "token": "${{ payment-verification-request-pop.block_00 }}$",
+          "ns": "payment-verification-request-pop",
+          "block": "block_00"
+        },
+        {
+          "id": "text_block_01",
+          "kind": "richText",
+          "label": "Текст payment-verification-request-pop.block_01",
+          "token": "${{ payment-verification-request-pop.block_01 }}$",
+          "ns": "payment-verification-request-pop",
+          "block": "block_01"
+        },
+        {
+          "id": "text_block_02",
+          "kind": "richText",
+          "label": "Текст payment-verification-request-pop.block_02",
+          "token": "${{ payment-verification-request-pop.block_02 }}$",
+          "ns": "payment-verification-request-pop",
+          "block": "block_02"
+        },
+        {
+          "id": "text_block_04",
+          "kind": "richText",
+          "label": "Текст payment-verification-request-pop.block_04",
+          "token": "${{ payment-verification-request-pop.block_04 }}$",
+          "ns": "payment-verification-request-pop",
+          "block": "block_04"
+        },
+        {
+          "id": "text_block_06",
+          "kind": "richText",
+          "label": "Текст payment-verification-request-pop.block_06",
+          "token": "${{ payment-verification-request-pop.block_06 }}$",
+          "ns": "payment-verification-request-pop",
+          "block": "block_06"
+        },
+        {
+          "id": "text_block_07",
+          "kind": "richText",
+          "label": "Текст payment-verification-request-pop.block_07",
+          "token": "${{ payment-verification-request-pop.block_07 }}$",
+          "ns": "payment-verification-request-pop",
+          "block": "block_07"
+        },
+        {
+          "id": "text_block_08",
+          "kind": "richText",
+          "label": "Текст payment-verification-request-pop.block_08",
+          "token": "${{ payment-verification-request-pop.block_08 }}$",
+          "ns": "payment-verification-request-pop",
+          "block": "block_08"
+        },
+        {
+          "id": "text_block_09",
+          "kind": "richText",
+          "label": "Текст payment-verification-request-pop.block_09",
+          "token": "${{ payment-verification-request-pop.block_09 }}$",
+          "ns": "payment-verification-request-pop",
+          "block": "block_09"
+        },
+        {
+          "id": "text_block_10",
+          "kind": "richText",
+          "label": "Текст payment-verification-request-pop.block_10",
+          "token": "${{ payment-verification-request-pop.block_10 }}$",
+          "ns": "payment-verification-request-pop",
+          "block": "block_10"
+        },
+        {
+          "id": "text_block_12",
+          "kind": "richText",
+          "label": "Текст payment-verification-request-pop.block_12",
+          "token": "${{ payment-verification-request-pop.block_12 }}$",
+          "ns": "payment-verification-request-pop",
+          "block": "block_12"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "mailto:{{embedded.company_email}}"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-iqbroker-payment-verification-request-pop-head",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.middle-title.pb20 ${{ payment-verification-request-pop.block_00 }}$",
+          "styl": ".middle-title { font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:32px;line-height:42px;color:#393a44 }\n@media screen and (max-width:600px) {\n  .middle-title { font-size:24px!important;line-height:32px!important }\n}",
+          "classes": [
+            "middle-title",
+            "pb20"
+          ],
+          "designClasses": [
+            "middle-title"
+          ],
+          "slots": [
+            {
+              "id": "text_block_00",
+              "kind": "richText",
+              "label": "Текст payment-verification-request-pop.block_00",
+              "token": "${{ payment-verification-request-pop.block_00 }}$",
+              "ns": "payment-verification-request-pop",
+              "block": "block_00"
+            }
+          ]
+        },
+        {
+          "id": "x-iqbroker-payment-verification-request-pop-head",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb10\n    strong ${{ payment-verification-request-pop.block_01 }}$",
+          "styl": ".text { color:#3c3939;font-size:18px;font-weight:400;line-height:28px }\n.text a { font-weight:700 }\n.small-text,.small-text a,.text,.text a { font-family:Helvetica!important }\n.text a { color:#5165ff!important }",
+          "classes": [
+            "pb10",
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_01",
+              "kind": "richText",
+              "label": "Текст payment-verification-request-pop.block_01",
+              "token": "${{ payment-verification-request-pop.block_01 }}$",
+              "ns": "payment-verification-request-pop",
+              "block": "block_01"
+            }
+          ]
+        },
+        {
+          "id": "x-iqbroker-payment-verification-request-pop-head",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb20 ${{ payment-verification-request-pop.block_02 }}$ {{datetime}} ${{ payment-verification-request-pop.block_04 }}$ {{embedded.user_id}}${{ payment-verification-request-pop.block_06 }}$",
+          "styl": ".text { color:#3c3939;font-size:18px;font-weight:400;line-height:28px }\n.text a { font-weight:700 }\n.small-text,.small-text a,.text,.text a { font-family:Helvetica!important }\n.text a { color:#5165ff!important }",
+          "classes": [
+            "pb20",
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_02",
+              "kind": "richText",
+              "label": "Текст payment-verification-request-pop.block_02",
+              "token": "${{ payment-verification-request-pop.block_02 }}$",
+              "ns": "payment-verification-request-pop",
+              "block": "block_02"
+            },
+            {
+              "id": "text_block_04",
+              "kind": "richText",
+              "label": "Текст payment-verification-request-pop.block_04",
+              "token": "${{ payment-verification-request-pop.block_04 }}$",
+              "ns": "payment-verification-request-pop",
+              "block": "block_04"
+            },
+            {
+              "id": "text_block_06",
+              "kind": "richText",
+              "label": "Текст payment-verification-request-pop.block_06",
+              "token": "${{ payment-verification-request-pop.block_06 }}$",
+              "ns": "payment-verification-request-pop",
+              "block": "block_06"
+            }
+          ]
+        },
+        {
+          "id": "x-iqbroker-payment-verification-request-pop-head",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ payment-verification-request-pop.block_07 }}$",
+          "styl": ".text { color:#3c3939;font-size:18px;font-weight:400;line-height:28px }\n.text a { font-weight:700 }\n.small-text,.small-text a,.text,.text a { font-family:Helvetica!important }\n.text a { color:#5165ff!important }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_07",
+              "kind": "richText",
+              "label": "Текст payment-verification-request-pop.block_07",
+              "token": "${{ payment-verification-request-pop.block_07 }}$",
+              "ns": "payment-verification-request-pop",
+              "block": "block_07"
+            }
+          ]
+        },
+        {
+          "id": "x-iqbroker-payment-verification-request-pop-head",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pt20.pb12 ${{ payment-verification-request-pop.block_08 }}$",
+          "styl": ".text { color:#3c3939;font-size:18px;font-weight:400;line-height:28px }\n.text a { font-weight:700 }\n.small-text,.small-text a,.text,.text a { font-family:Helvetica!important }\n.pb12 { padding-bottom:12px }\n.text a { color:#5165ff!important }",
+          "classes": [
+            "pb12",
+            "pt20",
+            "text"
+          ],
+          "designClasses": [
+            "pb12",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_08",
+              "kind": "richText",
+              "label": "Текст payment-verification-request-pop.block_08",
+              "token": "${{ payment-verification-request-pop.block_08 }}$",
+              "ns": "payment-verification-request-pop",
+              "block": "block_08"
+            }
+          ]
+        },
+        {
+          "id": "x-iqbroker-payment-verification-request-pop-head",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ payment-verification-request-pop.block_09 }}$",
+          "styl": ".text { color:#3c3939;font-size:18px;font-weight:400;line-height:28px }\n.text a { font-weight:700 }\n.small-text,.small-text a,.text,.text a { font-family:Helvetica!important }\n.text a { color:#5165ff!important }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_09",
+              "kind": "richText",
+              "label": "Текст payment-verification-request-pop.block_09",
+              "token": "${{ payment-verification-request-pop.block_09 }}$",
+              "ns": "payment-verification-request-pop",
+              "block": "block_09"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

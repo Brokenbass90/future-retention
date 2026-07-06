@@ -1,0 +1,35 @@
+{
+  "id": "new-section-07",
+  "label": "Секция",
+  "description": "Импортирован из X_new (1 писем). Секция.",
+  "placement": "section",
+  "category": "section",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.light-black-col.br-top.b-new-section-07\n    tr\n        td.wrapper.last.pt32.offset-by-one\n            table.ten.columns\n                tr\n                    td.pb0.text-pad-small\n                        p.big-text.pb15.center {{ text_1 }}\n                        p.small-text.center {{ text_2 }}",
+  "styl": ".light-black-col.b-new-section-07 {  background:#000001!important  }\n.b-new-section-07 .big-text {  font-family:Helvetica!important;font-weight:700!important;font-size:21px;line-height:28px;color:#f6f6f6  }\n.b-new-section-07 .small-text {  font-family:Helvetica!important;font-weight:400;font-size:16px;line-height:26px;color:#b1afb4  }\n.b-new-section-07 .pb15 {  padding-bottom:15px!important  }\n.b-new-section-07 .pt32 {  padding-top:32px  }\n.br-top.b-new-section-07 {  border-radius:5px 5px 0 0  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    }
+  ],
+  "tags": [
+    "section",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-Post-IGB-party-email"
+  ],
+  "createdAt": "2026-07-06T12:10:00.056Z",
+  "validated": true
+}

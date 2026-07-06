@@ -1,0 +1,48 @@
+{
+  "id": "exnova-cta-15",
+  "label": "CTA-секция",
+  "description": "Импортирован из X_Exnova (1 писем). Секция.",
+  "placement": "section",
+  "category": "cta",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.brad-full.b-exnova-cta-15\n    tr\n        td.wrapper.last.offset-by-one.pt0\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb40.pt44\n                        p.subtitle.pb32 {{ text_1 }}\n                        .gray-box(style=\"border: 2px solid #0B79CC;\")\n                            table.w100\n                                tr\n                                    td.pb0.m-w(style=\"vertical-align: middle;\")\n                                        p.number #1\n                                    td.pb0.w-a(style=\"vertical-align: middle;\")\n                                        p.winner-text [Winner IDs]\n                        .h-12 &nbsp;\n                        a(href=\"#\" target=\"_blank\")\n                            img.center(src=\"{{ image_1 }}\")\n                        .h-12 &nbsp;\n                        .gray-box\n                            table.w100\n                                tr\n                                    td.pb0.m-w(style=\"vertical-align: middle;\")\n                                        p.number #2\n                                    td.pb0.w-a(style=\"vertical-align: middle;\")\n                                        p.winner-text [Winner IDs]\n                        .h-12 &nbsp;\n                        .gray-box\n                            table.w100\n                                tr\n                                    td.pb0.m-w(style=\"vertical-align: middle;\")\n                                        p.number #3\n                                    td.pb0.w-a(style=\"vertical-align: middle;\")\n                                        p.winner-text [Winner IDs]\n                        .h-12 &nbsp;\n                        .gray-box\n                            table.w100\n                                tr\n                                    td.pb0.m-w(style=\"vertical-align: middle;\")\n                                        p.number #4\n                                    td.pb0.w-a(style=\"vertical-align: middle;\")\n                                        p.winner-text [Winner IDs]\n                        .h-12 &nbsp;\n                        .gray-box\n                            table.w100\n                                tr\n                                    td.pb0.m-w(style=\"vertical-align: middle;\")\n                                        p.number #5\n                                    td.pb0.w-a(style=\"vertical-align: middle;\")\n                                        p.winner-text [Winner IDs]\n                tr\n                    td.text-pad-small.pb44\n                        table.w280(align=\"center\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"{{ href_1 }}\" target=\"_blank\") {{ text_2 }}",
+  "styl": ".b-exnova-cta-15 .w100 {  width: 100%;  }\n.brad-full.b-exnova-cta-15 {  border-radius: 16px !important;  }\n.b-exnova-cta-15 .butt-link {  font-size: 18px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #fff;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;  }\n.white-bg.b-exnova-cta-15 {  background: #fff;  }\n.b-exnova-cta-15 .subtitle {  color: #393a44;\n  font-size: 32px;\n  line-height: 42px;\n  font-family: Helvetica !important;\n  font-weight: 700;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-cta-15 .subtitle {  font-size: 26px !important;\n    line-height: 38px !important;  }\n}\n.b-exnova-cta-15 .pb44 {  padding-bottom: 44px;  }\n.b-exnova-cta-15 .pt44 {  padding-top: 44px;  }\n.b-exnova-cta-15 .w-a {  width: auto !important;\n  align-items: top !important;  }\n.b-exnova-cta-15 .m-w {  min-width: 78px !important;\n  width: 78px !important;\n  max-width: 78px !important;  }\n.b-exnova-cta-15 .pb32 {  padding-bottom: 32px;  }\n.b-exnova-cta-15 .number {  display: inline-block;\n  background-color: #e4ecf4;\n  border-radius: 16px;\n  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 54px;\n  color: #393a44;\n  padding: 0 13px;  }\n.b-exnova-cta-15 .winner-text {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  color: #393a44;\n  word-break: break-word;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-cta-15 .winner-text {  font-size: 20px !important;\n    line-height: 29px !important;  }\n}\n.b-exnova-cta-15 .gray-box {  padding: 24px;\n  background: #f7f7fc;\n  border-radius: 24px;  }\n.b-exnova-cta-15 .w280 {  width: 100%;\n  max-width: 280px;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-cta-15 .w280 {  min-width: 100% !important;  }\n}\n.b-exnova-cta-15 .w100 {  width:100%  }\n.brad-full.b-exnova-cta-15 {  border-radius:16px!important  }\n.b-exnova-cta-15 .butt, .b-exnova-cta-15 .butt-link {  text-transform:none  }\n.b-exnova-cta-15 .butt-link {  font-size:18px;font-weight:700;text-decoration:none;color:#fff;display:block;padding:16px 0;text-align:center  }\n.white-bg.b-exnova-cta-15 {  background:#fff  }\n.b-exnova-cta-15 .subtitle {  color:#393a44;font-size:32px;line-height:42px;font-family:Helvetica!important;font-weight:700  }\n@media screen and (max-width:600px) {\n  .b-exnova-cta-15 .subtitle {  font-size:26px!important;line-height:38px!important  }\n}\n.b-exnova-cta-15 .pb44 {  padding-bottom:44px  }\n.b-exnova-cta-15 .pt44 {  padding-top:44px  }\n.b-exnova-cta-15 .w-a {  width:auto!important;-webkit-align-items:top!important;-ms-flex-align:top!important;align-items:top!important  }\n.b-exnova-cta-15 .m-w {  min-width:78px!important;width:78px!important;max-width:78px!important  }\n.b-exnova-cta-15 .pb32 {  padding-bottom:32px  }\n.b-exnova-cta-15 .number, .b-exnova-cta-15 .winner-text {  font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:24px;color:#393a44  }\n.b-exnova-cta-15 .number {  display:inline-block;background-color:#e4ecf4;border-radius:16px;padding:0 13px;line-height:54px  }\n.b-exnova-cta-15 .winner-text {  line-height:31px;word-break:break-word  }\n@media screen and (max-width:600px) {\n  .b-exnova-cta-15 .winner-text {  font-size:20px!important;line-height:29px!important  }\n}\n.b-exnova-cta-15 .gray-box {  padding:24px;background:#f7f7fc;border-radius:24px  }\n.b-exnova-cta-15 .w280 {  width:100%;max-width:280px  }\n@media screen and (max-width:600px) {\n  .b-exnova-cta-15 .w280 {  min-width:100%!important  }\n}",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://api.trade.exnova.com/v1/multi-links/open-asset?aff=7&afftrack=mail_exnova-Trading-Challenge&retrack=exnova-Trading-Challenge&type=forex&asset=1"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/d0/92/uqhmsj7rr6s5240g/dot-exnova.png"
+    }
+  ],
+  "tags": [
+    "cta",
+    "section",
+    "X_Exnova"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_Exnova/mail-Trading-Challenge"
+  ],
+  "createdAt": "2026-07-06T12:09:50.973Z",
+  "validated": true
+}

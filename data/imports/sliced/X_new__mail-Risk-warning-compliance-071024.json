@@ -1,0 +1,766 @@
+{
+  "category": "X_new",
+  "mailId": "Risk-warning-compliance-071024",
+  "mailAbs": "email-base/X_new/mail-Risk-warning-compliance-071024",
+  "blockCount": 4,
+  "blocks": [
+    {
+      "id": "x-new-risk-warning-compliance-071024-header-head",
+      "label": "Шапка с логотипом",
+      "placement": "section",
+      "category": "header",
+      "kind": "section",
+      "sourceFile": "X_new/mail-Risk-warning-compliance-071024/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg.brad-top.bg-col\n    tr\n        td.wrapper.offset-by-one.last.pt0\n            table.ten.columns\n                tr\n                    td.six.sub-columns.pt0.pb0\n                        a(href=\"https://affstore.com\" target=\"_blank\")\n                            img.logo.center(src=\"https://fsms.iqoption.com/storage/public/cb/db/mkjld2762c0fsgk0/Affstore-Logo.png\")",
+      "styl": ".bg-col { background-color: #f9f9f9; }\n.brad-top { border-top-left-radius: 6px !important;\n  border-top-right-radius: 6px !important;\n  overflow: hidden; }\n.white-bg { background: #fff; }\n.bg-col { background-color:#f9f9f9 }\n.brad-top { border-top-left-radius:6px!important;border-top-right-radius:6px!important;overflow:hidden }\n.white-bg { background:#fff }",
+      "classes": [
+        "bg-col",
+        "brad-top",
+        "center",
+        "columns",
+        "last",
+        "logo",
+        "offset-by-one",
+        "pb0",
+        "pt0",
+        "row",
+        "six",
+        "sub-columns",
+        "ten",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "bg-col",
+        "brad-top",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://affstore.com"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.iqoption.com/storage/public/cb/db/mkjld2762c0fsgk0/Affstore-Logo.png"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-new-risk-warning-compliance-071024-header-text",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_new/mail-Risk-warning-compliance-071024/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg.br-top\n    tr\n        td.wrapper.last.offset-by-one.pt40\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb25\n                        p.hello.pb20.center ${{ aff-Risk-warning-compliance-071024.block_00 }}$\n                        //p.text.pb15 ${{ aff-eea.block_01 }}$\n                        p.text.pb15 ${{ aff-Risk-warning-compliance-071024.block_01 }}$\n                            a(href=\"https://my.affstore.com/offers/iq_option_europe/cpa/rules-marketing-guidelines\" target=\"_blank\") ${{ aff-Risk-warning-compliance-071024.block_02 }}$\n                            |${{ aff-Risk-warning-compliance-071024.block_03 }}$\n                        p.text.pb15 ${{ aff-Risk-warning-compliance-071024.block_04 }}$\n                        .purple-block\n                            p.text ${{ aff-Risk-warning-compliance-071024.block_05 }}$\n                            p.text <b>${{ aff-Risk-warning-compliance-071024.block_06 }}$</b>\n                            p.text ${{ aff-Risk-warning-compliance-071024.block_07 }}$\n                        p.text.pb10.pt20 ${{ aff-Risk-warning-compliance-071024.block_08 }}$\n                        .purple-block.purple-block\n                            p.text <b>${{ aff-Risk-warning-compliance-071024.block_09 }}$</b>\n                            p.text ${{ aff-Risk-warning-compliance-071024.block_10 }}$\n                        p.text.pb10.pt20 ${{ aff-Risk-warning-compliance-071024.block_11 }}$\n                        .purple-block\n                            p.text <b>${{ aff-Risk-warning-compliance-071024.block_12 }}$</b>\n                        p.text.pb0.pt20 ${{ aff-Risk-warning-compliance-071024.block_13 }}$",
+      "styl": ".hello { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 22px;\n  line-height: 26px;\n  color: #373437; }\n.purple-block { background: #fbfcfb;\n  border-left: 4px solid #a0cf00;\n  border-radius: 3px;\n  padding: 24px 30px; }\n.white-bg { background: #fff; }\n.text { font-family: Helvetica !important;\n  color: #373437;\n  font-size: 16px;\n  font-weight: 400;\n  line-height: 26px;\n  letter-spacing: 0; }\n.text.italic { font-style: italic; }\n.text.list { display: list-item; }\n.pb15 { padding-bottom: 16px !important; }\n.pb25 { padding-bottom: 24px; }\n.br-top { border-radius: 8px 8px 0 0; }\n.text a { font-family: Helvetica !important;\n  text-decoration: underline !important;\n  color: #86ad00 !important; }\n.hello { font-family:Helvetica!important;font-weight:700;font-size:22px;line-height:26px;color:#373437 }\n.purple-block { background:#fbfcfb;border-left:4px solid #a0cf00;border-radius:3px;padding:24px 30px }\n.white-bg { background:#fff }\n.min-text,.text { font-family:Helvetica!important;letter-spacing:0 }\n.text { font-weight:400;color:#373437;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.pb15 { padding-bottom:16px!important }\n.pb25 { padding-bottom:24px }\n.br-top { border-radius:8px 8px 0 0 }\n.text a { font-family:Helvetica!important;text-decoration:underline!important;color:#86ad00!important }",
+      "classes": [
+        "br-top",
+        "center",
+        "columns",
+        "hello",
+        "last",
+        "offset-by-one",
+        "pb0",
+        "pb10",
+        "pb15",
+        "pb20",
+        "pb25",
+        "pt20",
+        "pt40",
+        "purple-block",
+        "row",
+        "ten",
+        "text",
+        "text-pad-small",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "br-top",
+        "hello",
+        "pb15",
+        "pb25",
+        "purple-block",
+        "text",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_00",
+          "kind": "richText",
+          "label": "Текст aff-Risk-warning-compliance-071024.block_00",
+          "token": "${{ aff-Risk-warning-compliance-071024.block_00 }}$",
+          "ns": "aff-Risk-warning-compliance-071024",
+          "block": "block_00"
+        },
+        {
+          "id": "text_block_01",
+          "kind": "richText",
+          "label": "Текст aff-eea.block_01",
+          "token": "${{ aff-eea.block_01 }}$",
+          "ns": "aff-eea",
+          "block": "block_01"
+        },
+        {
+          "id": "text_block_01",
+          "kind": "richText",
+          "label": "Текст aff-Risk-warning-compliance-071024.block_01",
+          "token": "${{ aff-Risk-warning-compliance-071024.block_01 }}$",
+          "ns": "aff-Risk-warning-compliance-071024",
+          "block": "block_01"
+        },
+        {
+          "id": "text_block_02",
+          "kind": "richText",
+          "label": "Текст aff-Risk-warning-compliance-071024.block_02",
+          "token": "${{ aff-Risk-warning-compliance-071024.block_02 }}$",
+          "ns": "aff-Risk-warning-compliance-071024",
+          "block": "block_02"
+        },
+        {
+          "id": "text_block_03",
+          "kind": "richText",
+          "label": "Текст aff-Risk-warning-compliance-071024.block_03",
+          "token": "${{ aff-Risk-warning-compliance-071024.block_03 }}$",
+          "ns": "aff-Risk-warning-compliance-071024",
+          "block": "block_03"
+        },
+        {
+          "id": "text_block_04",
+          "kind": "richText",
+          "label": "Текст aff-Risk-warning-compliance-071024.block_04",
+          "token": "${{ aff-Risk-warning-compliance-071024.block_04 }}$",
+          "ns": "aff-Risk-warning-compliance-071024",
+          "block": "block_04"
+        },
+        {
+          "id": "text_block_05",
+          "kind": "richText",
+          "label": "Текст aff-Risk-warning-compliance-071024.block_05",
+          "token": "${{ aff-Risk-warning-compliance-071024.block_05 }}$",
+          "ns": "aff-Risk-warning-compliance-071024",
+          "block": "block_05"
+        },
+        {
+          "id": "text_block_06",
+          "kind": "richText",
+          "label": "Текст aff-Risk-warning-compliance-071024.block_06",
+          "token": "${{ aff-Risk-warning-compliance-071024.block_06 }}$",
+          "ns": "aff-Risk-warning-compliance-071024",
+          "block": "block_06"
+        },
+        {
+          "id": "text_block_07",
+          "kind": "richText",
+          "label": "Текст aff-Risk-warning-compliance-071024.block_07",
+          "token": "${{ aff-Risk-warning-compliance-071024.block_07 }}$",
+          "ns": "aff-Risk-warning-compliance-071024",
+          "block": "block_07"
+        },
+        {
+          "id": "text_block_08",
+          "kind": "richText",
+          "label": "Текст aff-Risk-warning-compliance-071024.block_08",
+          "token": "${{ aff-Risk-warning-compliance-071024.block_08 }}$",
+          "ns": "aff-Risk-warning-compliance-071024",
+          "block": "block_08"
+        },
+        {
+          "id": "text_block_09",
+          "kind": "richText",
+          "label": "Текст aff-Risk-warning-compliance-071024.block_09",
+          "token": "${{ aff-Risk-warning-compliance-071024.block_09 }}$",
+          "ns": "aff-Risk-warning-compliance-071024",
+          "block": "block_09"
+        },
+        {
+          "id": "text_block_10",
+          "kind": "richText",
+          "label": "Текст aff-Risk-warning-compliance-071024.block_10",
+          "token": "${{ aff-Risk-warning-compliance-071024.block_10 }}$",
+          "ns": "aff-Risk-warning-compliance-071024",
+          "block": "block_10"
+        },
+        {
+          "id": "text_block_11",
+          "kind": "richText",
+          "label": "Текст aff-Risk-warning-compliance-071024.block_11",
+          "token": "${{ aff-Risk-warning-compliance-071024.block_11 }}$",
+          "ns": "aff-Risk-warning-compliance-071024",
+          "block": "block_11"
+        },
+        {
+          "id": "text_block_12",
+          "kind": "richText",
+          "label": "Текст aff-Risk-warning-compliance-071024.block_12",
+          "token": "${{ aff-Risk-warning-compliance-071024.block_12 }}$",
+          "ns": "aff-Risk-warning-compliance-071024",
+          "block": "block_12"
+        },
+        {
+          "id": "text_block_13",
+          "kind": "richText",
+          "label": "Текст aff-Risk-warning-compliance-071024.block_13",
+          "token": "${{ aff-Risk-warning-compliance-071024.block_13 }}$",
+          "ns": "aff-Risk-warning-compliance-071024",
+          "block": "block_13"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://my.affstore.com/offers/iq_option_europe/cpa/rules-marketing-guidelines"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-risk-warning-compliance-071024-header-text",
+          "label": "Заголовок",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.hello.pb20.center ${{ aff-Risk-warning-compliance-071024.block_00 }}$",
+          "styl": ".hello { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 22px;\n  line-height: 26px;\n  color: #373437; }\n.hello { font-family:Helvetica!important;font-weight:700;font-size:22px;line-height:26px;color:#373437 }",
+          "classes": [
+            "center",
+            "hello",
+            "pb20"
+          ],
+          "designClasses": [
+            "hello"
+          ],
+          "slots": [
+            {
+              "id": "text_block_00",
+              "kind": "richText",
+              "label": "Текст aff-Risk-warning-compliance-071024.block_00",
+              "token": "${{ aff-Risk-warning-compliance-071024.block_00 }}$",
+              "ns": "aff-Risk-warning-compliance-071024",
+              "block": "block_00"
+            }
+          ]
+        },
+        {
+          "id": "x-new-risk-warning-compliance-071024-header-text",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb15 ${{ aff-Risk-warning-compliance-071024.block_01 }}$\n    a(href=\"https://my.affstore.com/offers/iq_option_europe/cpa/rules-marketing-guidelines\" target=\"_blank\") ${{ aff-Risk-warning-compliance-071024.block_02 }}$\n    |${{ aff-Risk-warning-compliance-071024.block_03 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #373437;\n  font-size: 16px;\n  font-weight: 400;\n  line-height: 26px;\n  letter-spacing: 0; }\n.text.italic { font-style: italic; }\n.text.list { display: list-item; }\n.pb15 { padding-bottom: 16px !important; }\n.text a { font-family: Helvetica !important;\n  text-decoration: underline !important;\n  color: #86ad00 !important; }\n.min-text,.text { font-family:Helvetica!important;letter-spacing:0 }\n.text { font-weight:400;color:#373437;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.pb15 { padding-bottom:16px!important }\n.text a { font-family:Helvetica!important;text-decoration:underline!important;color:#86ad00!important }",
+          "classes": [
+            "pb15",
+            "text"
+          ],
+          "designClasses": [
+            "pb15",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_01",
+              "kind": "richText",
+              "label": "Текст aff-Risk-warning-compliance-071024.block_01",
+              "token": "${{ aff-Risk-warning-compliance-071024.block_01 }}$",
+              "ns": "aff-Risk-warning-compliance-071024",
+              "block": "block_01"
+            },
+            {
+              "id": "text_block_02",
+              "kind": "richText",
+              "label": "Текст aff-Risk-warning-compliance-071024.block_02",
+              "token": "${{ aff-Risk-warning-compliance-071024.block_02 }}$",
+              "ns": "aff-Risk-warning-compliance-071024",
+              "block": "block_02"
+            },
+            {
+              "id": "text_block_03",
+              "kind": "richText",
+              "label": "Текст aff-Risk-warning-compliance-071024.block_03",
+              "token": "${{ aff-Risk-warning-compliance-071024.block_03 }}$",
+              "ns": "aff-Risk-warning-compliance-071024",
+              "block": "block_03"
+            },
+            {
+              "id": "href_0",
+              "kind": "url",
+              "label": "Ссылка",
+              "default": "https://my.affstore.com/offers/iq_option_europe/cpa/rules-marketing-guidelines"
+            }
+          ]
+        },
+        {
+          "id": "x-new-risk-warning-compliance-071024-header-text",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb15 ${{ aff-Risk-warning-compliance-071024.block_04 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #373437;\n  font-size: 16px;\n  font-weight: 400;\n  line-height: 26px;\n  letter-spacing: 0; }\n.text.italic { font-style: italic; }\n.text.list { display: list-item; }\n.pb15 { padding-bottom: 16px !important; }\n.text a { font-family: Helvetica !important;\n  text-decoration: underline !important;\n  color: #86ad00 !important; }\n.min-text,.text { font-family:Helvetica!important;letter-spacing:0 }\n.text { font-weight:400;color:#373437;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.pb15 { padding-bottom:16px!important }\n.text a { font-family:Helvetica!important;text-decoration:underline!important;color:#86ad00!important }",
+          "classes": [
+            "pb15",
+            "text"
+          ],
+          "designClasses": [
+            "pb15",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_04",
+              "kind": "richText",
+              "label": "Текст aff-Risk-warning-compliance-071024.block_04",
+              "token": "${{ aff-Risk-warning-compliance-071024.block_04 }}$",
+              "ns": "aff-Risk-warning-compliance-071024",
+              "block": "block_04"
+            }
+          ]
+        },
+        {
+          "id": "x-new-risk-warning-compliance-071024-header-text",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ aff-Risk-warning-compliance-071024.block_05 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #373437;\n  font-size: 16px;\n  font-weight: 400;\n  line-height: 26px;\n  letter-spacing: 0; }\n.text.italic { font-style: italic; }\n.text.list { display: list-item; }\n.text a { font-family: Helvetica !important;\n  text-decoration: underline !important;\n  color: #86ad00 !important; }\n.min-text,.text { font-family:Helvetica!important;letter-spacing:0 }\n.text { font-weight:400;color:#373437;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.text a { font-family:Helvetica!important;text-decoration:underline!important;color:#86ad00!important }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_05",
+              "kind": "richText",
+              "label": "Текст aff-Risk-warning-compliance-071024.block_05",
+              "token": "${{ aff-Risk-warning-compliance-071024.block_05 }}$",
+              "ns": "aff-Risk-warning-compliance-071024",
+              "block": "block_05"
+            }
+          ]
+        },
+        {
+          "id": "x-new-risk-warning-compliance-071024-header-text",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text <b>${{ aff-Risk-warning-compliance-071024.block_06 }}$</b>",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #373437;\n  font-size: 16px;\n  font-weight: 400;\n  line-height: 26px;\n  letter-spacing: 0; }\n.text.italic { font-style: italic; }\n.text.list { display: list-item; }\n.text a { font-family: Helvetica !important;\n  text-decoration: underline !important;\n  color: #86ad00 !important; }\n.min-text,.text { font-family:Helvetica!important;letter-spacing:0 }\n.text { font-weight:400;color:#373437;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.text a { font-family:Helvetica!important;text-decoration:underline!important;color:#86ad00!important }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_06",
+              "kind": "richText",
+              "label": "Текст aff-Risk-warning-compliance-071024.block_06",
+              "token": "${{ aff-Risk-warning-compliance-071024.block_06 }}$",
+              "ns": "aff-Risk-warning-compliance-071024",
+              "block": "block_06"
+            }
+          ]
+        },
+        {
+          "id": "x-new-risk-warning-compliance-071024-header-text",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ aff-Risk-warning-compliance-071024.block_07 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #373437;\n  font-size: 16px;\n  font-weight: 400;\n  line-height: 26px;\n  letter-spacing: 0; }\n.text.italic { font-style: italic; }\n.text.list { display: list-item; }\n.text a { font-family: Helvetica !important;\n  text-decoration: underline !important;\n  color: #86ad00 !important; }\n.min-text,.text { font-family:Helvetica!important;letter-spacing:0 }\n.text { font-weight:400;color:#373437;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.text a { font-family:Helvetica!important;text-decoration:underline!important;color:#86ad00!important }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_07",
+              "kind": "richText",
+              "label": "Текст aff-Risk-warning-compliance-071024.block_07",
+              "token": "${{ aff-Risk-warning-compliance-071024.block_07 }}$",
+              "ns": "aff-Risk-warning-compliance-071024",
+              "block": "block_07"
+            }
+          ]
+        },
+        {
+          "id": "x-new-risk-warning-compliance-071024-header-text",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb10.pt20 ${{ aff-Risk-warning-compliance-071024.block_08 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #373437;\n  font-size: 16px;\n  font-weight: 400;\n  line-height: 26px;\n  letter-spacing: 0; }\n.text.italic { font-style: italic; }\n.text.list { display: list-item; }\n.text a { font-family: Helvetica !important;\n  text-decoration: underline !important;\n  color: #86ad00 !important; }\n.min-text,.text { font-family:Helvetica!important;letter-spacing:0 }\n.text { font-weight:400;color:#373437;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.text a { font-family:Helvetica!important;text-decoration:underline!important;color:#86ad00!important }",
+          "classes": [
+            "pb10",
+            "pt20",
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_08",
+              "kind": "richText",
+              "label": "Текст aff-Risk-warning-compliance-071024.block_08",
+              "token": "${{ aff-Risk-warning-compliance-071024.block_08 }}$",
+              "ns": "aff-Risk-warning-compliance-071024",
+              "block": "block_08"
+            }
+          ]
+        },
+        {
+          "id": "x-new-risk-warning-compliance-071024-header-text",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text <b>${{ aff-Risk-warning-compliance-071024.block_09 }}$</b>",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #373437;\n  font-size: 16px;\n  font-weight: 400;\n  line-height: 26px;\n  letter-spacing: 0; }\n.text.italic { font-style: italic; }\n.text.list { display: list-item; }\n.text a { font-family: Helvetica !important;\n  text-decoration: underline !important;\n  color: #86ad00 !important; }\n.min-text,.text { font-family:Helvetica!important;letter-spacing:0 }\n.text { font-weight:400;color:#373437;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.text a { font-family:Helvetica!important;text-decoration:underline!important;color:#86ad00!important }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_09",
+              "kind": "richText",
+              "label": "Текст aff-Risk-warning-compliance-071024.block_09",
+              "token": "${{ aff-Risk-warning-compliance-071024.block_09 }}$",
+              "ns": "aff-Risk-warning-compliance-071024",
+              "block": "block_09"
+            }
+          ]
+        },
+        {
+          "id": "x-new-risk-warning-compliance-071024-header-text",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text ${{ aff-Risk-warning-compliance-071024.block_10 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #373437;\n  font-size: 16px;\n  font-weight: 400;\n  line-height: 26px;\n  letter-spacing: 0; }\n.text.italic { font-style: italic; }\n.text.list { display: list-item; }\n.text a { font-family: Helvetica !important;\n  text-decoration: underline !important;\n  color: #86ad00 !important; }\n.min-text,.text { font-family:Helvetica!important;letter-spacing:0 }\n.text { font-weight:400;color:#373437;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.text a { font-family:Helvetica!important;text-decoration:underline!important;color:#86ad00!important }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_10",
+              "kind": "richText",
+              "label": "Текст aff-Risk-warning-compliance-071024.block_10",
+              "token": "${{ aff-Risk-warning-compliance-071024.block_10 }}$",
+              "ns": "aff-Risk-warning-compliance-071024",
+              "block": "block_10"
+            }
+          ]
+        },
+        {
+          "id": "x-new-risk-warning-compliance-071024-header-text",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb10.pt20 ${{ aff-Risk-warning-compliance-071024.block_11 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #373437;\n  font-size: 16px;\n  font-weight: 400;\n  line-height: 26px;\n  letter-spacing: 0; }\n.text.italic { font-style: italic; }\n.text.list { display: list-item; }\n.text a { font-family: Helvetica !important;\n  text-decoration: underline !important;\n  color: #86ad00 !important; }\n.min-text,.text { font-family:Helvetica!important;letter-spacing:0 }\n.text { font-weight:400;color:#373437;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.text a { font-family:Helvetica!important;text-decoration:underline!important;color:#86ad00!important }",
+          "classes": [
+            "pb10",
+            "pt20",
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_11",
+              "kind": "richText",
+              "label": "Текст aff-Risk-warning-compliance-071024.block_11",
+              "token": "${{ aff-Risk-warning-compliance-071024.block_11 }}$",
+              "ns": "aff-Risk-warning-compliance-071024",
+              "block": "block_11"
+            }
+          ]
+        },
+        {
+          "id": "x-new-risk-warning-compliance-071024-header-text",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text <b>${{ aff-Risk-warning-compliance-071024.block_12 }}$</b>",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #373437;\n  font-size: 16px;\n  font-weight: 400;\n  line-height: 26px;\n  letter-spacing: 0; }\n.text.italic { font-style: italic; }\n.text.list { display: list-item; }\n.text a { font-family: Helvetica !important;\n  text-decoration: underline !important;\n  color: #86ad00 !important; }\n.min-text,.text { font-family:Helvetica!important;letter-spacing:0 }\n.text { font-weight:400;color:#373437;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.text a { font-family:Helvetica!important;text-decoration:underline!important;color:#86ad00!important }",
+          "classes": [
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_12",
+              "kind": "richText",
+              "label": "Текст aff-Risk-warning-compliance-071024.block_12",
+              "token": "${{ aff-Risk-warning-compliance-071024.block_12 }}$",
+              "ns": "aff-Risk-warning-compliance-071024",
+              "block": "block_12"
+            }
+          ]
+        },
+        {
+          "id": "x-new-risk-warning-compliance-071024-header-text",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.pb0.pt20 ${{ aff-Risk-warning-compliance-071024.block_13 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #373437;\n  font-size: 16px;\n  font-weight: 400;\n  line-height: 26px;\n  letter-spacing: 0; }\n.text.italic { font-style: italic; }\n.text.list { display: list-item; }\n.text a { font-family: Helvetica !important;\n  text-decoration: underline !important;\n  color: #86ad00 !important; }\n.min-text,.text { font-family:Helvetica!important;letter-spacing:0 }\n.text { font-weight:400;color:#373437;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.text a { font-family:Helvetica!important;text-decoration:underline!important;color:#86ad00!important }",
+          "classes": [
+            "pb0",
+            "pt20",
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_13",
+              "kind": "richText",
+              "label": "Текст aff-Risk-warning-compliance-071024.block_13",
+              "token": "${{ aff-Risk-warning-compliance-071024.block_13 }}$",
+              "ns": "aff-Risk-warning-compliance-071024",
+              "block": "block_13"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "x-new-risk-warning-compliance-071024-header-text",
+      "label": "Контентная карточка",
+      "placement": "section",
+      "category": "text",
+      "kind": "section",
+      "sourceFile": "X_new/mail-Risk-warning-compliance-071024/app/templates/blocks/header.jade",
+      "pug": "table.row.white-bg\n    tr\n        td.wrapper.last.offset-by-three.pt0\n            table.six.columns\n                tr\n                    td.pb40.plr20-a\n                        .button-wrapper\n                            table.medium-button.radius\n                                tr\n                                    td.iq\n                                        a.butt(href=\"https://support.affstore.com/requests/new\" target=\"_blank\") ${{ aff-Risk-warning-compliance-071024.block_14 }}$",
+      "styl": ".white-bg { background: #fff; }\n@media screen and (max-width: 600px) {\n  .plr20-a { padding-left: 20px !important;\n    padding-right: 20px !important; }\n}\n.white-bg { background:#fff }\n@media screen and (max-width:600px) {\n  .plr20-a,.plr30 { padding-left:20px!important;padding-right:20px!important }\n}",
+      "classes": [
+        "butt",
+        "button-wrapper",
+        "columns",
+        "iq",
+        "last",
+        "medium-button",
+        "offset-by-three",
+        "pb40",
+        "plr20-a",
+        "pt0",
+        "radius",
+        "row",
+        "six",
+        "white-bg",
+        "wrapper"
+      ],
+      "designClasses": [
+        "button-wrapper",
+        "plr20-a",
+        "white-bg"
+      ],
+      "slots": [
+        {
+          "id": "text_block_14",
+          "kind": "richText",
+          "label": "Текст aff-Risk-warning-compliance-071024.block_14",
+          "token": "${{ aff-Risk-warning-compliance-071024.block_14 }}$",
+          "ns": "aff-Risk-warning-compliance-071024",
+          "block": "block_14"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://support.affstore.com/requests/new"
+        }
+      ],
+      "inlineChildren": []
+    },
+    {
+      "id": "x-new-risk-warning-compliance-071024-header-sect",
+      "label": "Секция",
+      "placement": "section",
+      "category": "section",
+      "kind": "section",
+      "sourceFile": "X_new/mail-Risk-warning-compliance-071024/app/templates/blocks/header.jade",
+      "pug": "table.row\n    tr\n        td.wrapper.last.pt50.offset-by-one\n            table.ten.columns\n                tr\n                    td.pb0.text-pad-small\n                        p.subtitle-min.center.pb8 ${{ aff-payment-activation-affstore.block_09 }}$\n                        p.text.center ${{ aff-payment-activation-affstore.block_10 }}$\n                        p.text.center.pb15 ${{ aff-payment-activation-affstore.block_11 }}$\n                        .social-links.pb20\n                            a(href=\"https://www.facebook.com/Affstore.affiliate\" target=\"_blank\")\n                                img.soc(src=\"https://fsms.quadcode.com/storage/public/cn/jj/e9i85cee2vclvhog/socfacebook.png\")\n                            a(href=\"https://www.instagram.com/affstore_affiliate/\" target=\"_blank\")\n                                img.soc.mar12(src=\"https://fsms.quadcode.com/storage/public/cn/jj/e9i85cee2vclvhng/socinstagram.png\")\n                            a(href=\"https://affstore.com/\" target=\"_blank\")\n                                img.soc(src=\"https://fsms.quadcode.com/storage/public/cn/jj/e9q03qqv4qln7tig/socaffstore.png\")\n                            a(href=\"https://www.linkedin.com/company/affstore/\" target=\"_blank\")\n                                img.mar12-left.soc(src=\"https://fsms.quadcode.com/storage/public/cn/jj/e9i85cee2vclvho0/link.png\")",
+      "styl": ".mar12-left { margin-left: 12px; }\n.text { font-family: Helvetica !important;\n  color: #373437;\n  font-size: 16px;\n  font-weight: 400;\n  line-height: 26px;\n  letter-spacing: 0; }\n.subtitle-min { font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 26px;\n  line-height: 26px;\n  color: #373437; }\n.text.italic { font-style: italic; }\n.text.list { display: list-item; }\n.pb8 { padding-bottom: 8px; }\n.pb15 { padding-bottom: 16px !important; }\n.soc { display: inline-block;\n  float: none;\n  max-width: 45px; }\n.mar12 { margin: 0 12px; }\n.text a { font-family: Helvetica !important;\n  text-decoration: underline !important;\n  color: #86ad00 !important; }\n.social-links { display: block;\n  text-align: center; }\n.mar12-left { margin-left:12px }\n.min-text,.text { font-family:Helvetica!important;letter-spacing:0 }\n.text { font-weight:400;color:#373437;font-size:16px;line-height:26px }\n.subtitle-min { font-family:Helvetica!important;font-weight:700;font-size:26px;line-height:26px;color:#373437 }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.pb8 { padding-bottom:8px }\n.pb15 { padding-bottom:16px!important }\n.soc,.soc-link { display:inline-block;float:none }\n.soc { max-width:45px }\n.mar12 { margin:0 12px }\n.text a { font-family:Helvetica!important;text-decoration:underline!important;color:#86ad00!important }\n.social-links { display:block;text-align:center }",
+      "classes": [
+        "center",
+        "columns",
+        "last",
+        "mar12",
+        "mar12-left",
+        "offset-by-one",
+        "pb0",
+        "pb15",
+        "pb20",
+        "pb8",
+        "pt50",
+        "row",
+        "soc",
+        "social-links",
+        "subtitle-min",
+        "ten",
+        "text",
+        "text-pad-small",
+        "wrapper"
+      ],
+      "designClasses": [
+        "mar12",
+        "mar12-left",
+        "pb15",
+        "pb8",
+        "soc",
+        "social-links",
+        "subtitle-min",
+        "text"
+      ],
+      "slots": [
+        {
+          "id": "text_block_09",
+          "kind": "richText",
+          "label": "Текст aff-payment-activation-affstore.block_09",
+          "token": "${{ aff-payment-activation-affstore.block_09 }}$",
+          "ns": "aff-payment-activation-affstore",
+          "block": "block_09"
+        },
+        {
+          "id": "text_block_10",
+          "kind": "richText",
+          "label": "Текст aff-payment-activation-affstore.block_10",
+          "token": "${{ aff-payment-activation-affstore.block_10 }}$",
+          "ns": "aff-payment-activation-affstore",
+          "block": "block_10"
+        },
+        {
+          "id": "text_block_11",
+          "kind": "richText",
+          "label": "Текст aff-payment-activation-affstore.block_11",
+          "token": "${{ aff-payment-activation-affstore.block_11 }}$",
+          "ns": "aff-payment-activation-affstore",
+          "block": "block_11"
+        },
+        {
+          "id": "href_0",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://www.facebook.com/Affstore.affiliate"
+        },
+        {
+          "id": "href_1",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://www.instagram.com/affstore_affiliate/"
+        },
+        {
+          "id": "href_2",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://affstore.com/"
+        },
+        {
+          "id": "href_3",
+          "kind": "url",
+          "label": "Ссылка",
+          "default": "https://www.linkedin.com/company/affstore/"
+        },
+        {
+          "id": "image_0",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cn/jj/e9i85cee2vclvhog/socfacebook.png"
+        },
+        {
+          "id": "image_1",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cn/jj/e9i85cee2vclvhng/socinstagram.png"
+        },
+        {
+          "id": "image_2",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cn/jj/e9q03qqv4qln7tig/socaffstore.png"
+        },
+        {
+          "id": "image_3",
+          "kind": "image",
+          "label": "Картинка",
+          "default": "https://fsms.quadcode.com/storage/public/cn/jj/e9i85cee2vclvho0/link.png"
+        }
+      ],
+      "inlineChildren": [
+        {
+          "id": "x-new-risk-warning-compliance-071024-header-sect",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.center ${{ aff-payment-activation-affstore.block_10 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #373437;\n  font-size: 16px;\n  font-weight: 400;\n  line-height: 26px;\n  letter-spacing: 0; }\n.text.italic { font-style: italic; }\n.text.list { display: list-item; }\n.text a { font-family: Helvetica !important;\n  text-decoration: underline !important;\n  color: #86ad00 !important; }\n.min-text,.text { font-family:Helvetica!important;letter-spacing:0 }\n.text { font-weight:400;color:#373437;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.text a { font-family:Helvetica!important;text-decoration:underline!important;color:#86ad00!important }",
+          "classes": [
+            "center",
+            "text"
+          ],
+          "designClasses": [
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_10",
+              "kind": "richText",
+              "label": "Текст aff-payment-activation-affstore.block_10",
+              "token": "${{ aff-payment-activation-affstore.block_10 }}$",
+              "ns": "aff-payment-activation-affstore",
+              "block": "block_10"
+            }
+          ]
+        },
+        {
+          "id": "x-new-risk-warning-compliance-071024-header-sect",
+          "label": "Текстовый абзац",
+          "placement": "inline",
+          "category": "text",
+          "pug": "p.text.center.pb15 ${{ aff-payment-activation-affstore.block_11 }}$",
+          "styl": ".text { font-family: Helvetica !important;\n  color: #373437;\n  font-size: 16px;\n  font-weight: 400;\n  line-height: 26px;\n  letter-spacing: 0; }\n.text.italic { font-style: italic; }\n.text.list { display: list-item; }\n.pb15 { padding-bottom: 16px !important; }\n.text a { font-family: Helvetica !important;\n  text-decoration: underline !important;\n  color: #86ad00 !important; }\n.min-text,.text { font-family:Helvetica!important;letter-spacing:0 }\n.text { font-weight:400;color:#373437;font-size:16px;line-height:26px }\n.text.italic { font-style:italic }\n.text.list { display:list-item }\n.pb15 { padding-bottom:16px!important }\n.text a { font-family:Helvetica!important;text-decoration:underline!important;color:#86ad00!important }",
+          "classes": [
+            "center",
+            "pb15",
+            "text"
+          ],
+          "designClasses": [
+            "pb15",
+            "text"
+          ],
+          "slots": [
+            {
+              "id": "text_block_11",
+              "kind": "richText",
+              "label": "Текст aff-payment-activation-affstore.block_11",
+              "token": "${{ aff-payment-activation-affstore.block_11 }}$",
+              "ns": "aff-payment-activation-affstore",
+              "block": "block_11"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

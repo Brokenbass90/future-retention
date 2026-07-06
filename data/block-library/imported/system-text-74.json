@@ -1,0 +1,30 @@
+{
+  "id": "system-text-74",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_System (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.b-system-text-74\n    tr\n        td.offset-by-one\n            table.ten.columns\n                tr\n                    td.no-padding-bottom\n                        p.title Dear Client,\n                        p.text During the verification of your account it came to our attention that there is a mismatch in your Economic Profile between your net wealth and your deposits. Please note that by net wealth is meant cash, assets, real estate etc.\n                        p.text Kindly confirm which of following applies as your net wealth:\n                        p.text.list €300,000 +\n                        p.text.list €100,001 - €300,000\n                        p.text.list €30,001 - €100,000\n                        p.text.list.pb20 €0 - €30,000\n                        p.text\n                            strong Please reply to&nbsp;\n                            a(href=\"{{ href_1 }}\", target=\"_blank\") compliance@iqoption.com\n                        p.text We appreciate your cooperation on this matter.\n                        p.text Kind regards,\n                            br\n                            | The IQ Option Team",
+  "styl": ".white-bg.b-system-text-74 {  background:#fff  }\n.b-system-text-74 .title {  color:#2473d7;font-size:24px;font-weight:500;line-height:32px;padding-top:30px;padding-bottom:25px  }\n@media screen and (max-width:600px) {\n  .b-system-text-74 .title {  padding-left:20px!important;padding-right:20px!important  }\n}\n.b-system-text-74 .text {  color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px  }\n@media screen and (max-width:600px) {\n  .b-system-text-74 .text {  padding-left:20px!important;padding-right:20px!important  }\n}\n.b-system-text-74 .text a {  color:#2473d7;text-decoration:underline  }\n.b-system-text-74 .text.bold {  font-weight:700  }\n.b-system-text-74 .list {  display:list-item;padding-left:20px;list-style:decimal;list-style-position:inside;padding-bottom:10px  }",
+  "slots": [
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "mailto:compliance@iqoption.com"
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_System"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_System/mail-net-wealth"
+  ],
+  "createdAt": "2026-07-06T12:09:59.370Z",
+  "validated": true
+}

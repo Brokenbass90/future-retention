@@ -1,0 +1,54 @@
+{
+  "id": "new-hero-17",
+  "label": "Hero с фоновой картинкой",
+  "description": "Импортирован из X_new (1 писем). Секция.",
+  "placement": "section",
+  "category": "hero",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.brad-full.bgr-image.b-new-hero-17\n    tr\n        td.wrapper.last.pt0\n            table.twelve.columns\n                tr\n                    td.pb0\n                        a(href=\"{{ href_1 }}\" universal=\"true\" target=\"_blank\")\n                            img.logo.center(src=\"{{ image_1 }}\")\n                        a(href=\"#\" universal=\"true\" target=\"_blank\")\n                            img.center(src=\"{{ image_2 }}\")\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb50.pt10\n                        div.gmail-blend-screen\n                            div.gmail-blend-diff\n                                p.white-title.pb16 {{ text_1 }}\n                                p.white-text  {{ text_2 }}",
+  "styl": ".b-new-hero-17 u + .body .gmail-blend-screen {  background: #000;\n  mix-blend-mode: screen;  }\n.b-new-hero-17 u + .body .gmail-blend-diff {  background: #000;\n  mix-blend-mode: difference;  }\n.bgr-image.b-new-hero-17 {  background: url(\"https://fsms.quadcode.com/storage/public/d6/q2/65jursrq72d918ug/2-1-5-back.png\") center top no-repeat;\n  background-size: cover;\n  background-color: #000;  }\n.brad-full.b-new-hero-17 {  border-radius: 32px !important;  }\n.b-new-hero-17 .white-title {  font-family: Helvetica !important;\n  font-weight: 700;\n  font-size: 42px;\n  line-height: 52px;\n  color: #f9f9f9;\n  word-break: break-word;\n  padding-right: 30px;  }\n@media screen and (max-width: 600px) {\n  .b-new-hero-17 .white-title {  font-size: 26px !important;\n    line-height: 32px !important;  }\n}\n.b-new-hero-17 .white-text {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #fff;\n  padding-right: 20px;  }\n@media screen and (max-width: 600px) {\n  .b-new-hero-17 .white-text {  padding-right: 0 !important;  }\n}\n.b-new-hero-17 .pb16 {  padding-bottom: 16px;  }\n.b-new-hero-17 u+.body .gmail-blend-screen {  background:#000;mix-blend-mode:screen  }\n.b-new-hero-17 u+.body .gmail-blend-diff {  background:#000;mix-blend-mode:difference  }\n.b-new-hero-17 .bgr, .bgr-image.b-new-hero-17 {  background-size:cover  }\n.bgr-image.b-new-hero-17 {  background:url(https://fsms.quadcode.com/storage/public/d6/q2/65jursrq72d918ug/2-1-5-back.png) center top no-repeat;background-color:#000  }\n.brad-full.b-new-hero-17, .b-new-hero-17 .brad-full-32 {  border-radius:32px!important  }\n.b-new-hero-17 .white-title {  font-family:Helvetica!important;font-weight:700;font-size:42px;line-height:52px;color:#f9f9f9;word-break:break-word;padding-right:30px  }\n@media screen and (max-width:600px) {\n  .b-new-hero-17 .white-title {  font-size:26px!important;line-height:32px!important  }\n}\n.b-new-hero-17 .white-text {  font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#fff;padding-right:20px  }\n@media screen and (max-width:600px) {\n  .b-new-hero-17 .white-text {  padding-right:0!important  }\n}\n.b-new-hero-17 .pb16 {  padding-bottom:16px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-2-1-5&retrack=mail_IQ-RFM-2-1-5&type=forex&asset=1"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/d6/nu/493ursrq72d917kg/logo.png"
+    },
+    {
+      "id": "image_2",
+      "kind": "image",
+      "label": "Картинка 2",
+      "default": "https://fsms.quadcode.com/storage/public/d6/q2/65js2mcraq8anb1g/2-1-5-img.png"
+    }
+  ],
+  "tags": [
+    "hero",
+    "section",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-rfm-segmentation-2-215"
+  ],
+  "createdAt": "2026-07-06T12:10:00.074Z",
+  "validated": true
+}

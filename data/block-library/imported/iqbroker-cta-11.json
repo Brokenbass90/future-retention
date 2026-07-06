@@ -1,0 +1,174 @@
+{
+  "id": "iqbroker-cta-11",
+  "label": "CTA-секция",
+  "description": "Импортирован из X_IQBroker (1 писем). Секция.",
+  "placement": "section",
+  "category": "cta",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.brad-full.color-bg.b-iqbroker-cta-11(style=\"border: 4px solid #1A1D1E;\")\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44.bb\n                        p.middle-title.pb32 {{ text_1 }}\n                        table.w100\n                            tr\n                                td.m-w.pb0(style=\"vertical-align: top;\")\n                                    a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                        img.left-img(src=\"{{ image_1 }}\")\n                                td.w-a.pb0(style=\"vertical-align: middle;\")\n                                    p.fat-text {{ text_2 }}\n                        .h-24 &nbsp;\n                        p.gray-text.pb24 {{ text_3 }}\n                        a(href=\"#\" universal=\"true\" target=\"_blank\")\n                            img.center.pb32(src=\"{{ image_2 }}\")\n                        table.w280(align=\"center\" style=\"width: 100%;\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"{{ href_1 }}\" universal=\"true\" target=\"_blank\") {{ text_4 }}\n                tr\n                    td.text-pad-small.pb44.pt44.bb\n                        table.w100\n                            tr\n                                td.m-w.pb0(style=\"vertical-align: top;\")\n                                    a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                        img.left-img(src=\"{{ image_1 }}\")\n                                td.w-a.pb0(style=\"vertical-align: middle;\")\n                                    p.fat-text {{ text_5 }}\n                        .h-24 &nbsp;\n                        p.gray-text.pb24 {{ text_6 }}\n                        a(href=\"#\" universal=\"true\" target=\"_blank\")\n                            img.center.pb32(src=\"{{ image_3 }}\")\n                        table.w280(align=\"center\" style=\"width: 100%;\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"{{ href_2 }}\" universal=\"true\" target=\"_blank\") {{ text_7 }}\n                tr\n                    td.text-pad-small.pb44.pt44.bb\n                        table.w100\n                            tr\n                                td.m-w.pb0(style=\"vertical-align: top;\")\n                                    a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                        img.left-img(src=\"{{ image_1 }}\")\n                                td.w-a.pb0(style=\"vertical-align: middle;\")\n                                    p.fat-text {{ text_8 }}\n                        .h-24 &nbsp;\n                        p.gray-text.pb24 {{ text_9 }}\n                        a(href=\"#\" universal=\"true\" target=\"_blank\")\n                            img.center.pb32(src=\"{{ image_4 }}\")\n                        table.w280(align=\"center\" style=\"width: 100%;\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"{{ href_3 }}\" universal=\"true\" target=\"_blank\") {{ text_10 }}\n                tr\n                    td.text-pad-small.pb44.pt44.bb\n                        table.w100\n                            tr\n                                td.m-w.pb0(style=\"vertical-align: top;\")\n                                    a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                        img.left-img(src=\"{{ image_1 }}\")\n                                td.w-a.pb0(style=\"vertical-align: middle;\")\n                                    p.fat-text {{ text_11 }}\n                        .h-24 &nbsp;\n                        p.gray-text.pb24 {{ text_12 }}\n                        a(href=\"#\" universal=\"true\" target=\"_blank\")\n                            img.center.pb32(src=\"{{ image_5 }}\")\n                        table.w280(align=\"center\" style=\"width: 100%;\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"{{ href_3 }}\" universal=\"true\" target=\"_blank\") {{ text_13 }}\n                tr\n                    td.text-pad-small.pb68.pt44\n                        table.w100\n                            tr\n                                td.m-w.pb0(style=\"vertical-align: top;\")\n                                    a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                        img.left-img(src=\"{{ image_1 }}\")\n                                td.w-a.pb0(style=\"vertical-align: middle;\")\n                                    p.fat-text {{ text_14 }}\n                        .h-24 &nbsp;\n                        p.gray-text.pb24 {{ text_15 }}\n                        a(href=\"#\" universal=\"true\" target=\"_blank\")\n                            img.center.pb32(src=\"{{ image_6 }}\")\n                        table.w280(align=\"center\" style=\"width: 100%;\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"{{ href_2 }}\" universal=\"true\" target=\"_blank\") {{ text_16 }}",
+  "styl": ".b-iqbroker-cta-11 .w280 {  width: 100%;\n  max-width: 280px;  }\n@media screen and (max-width: 600px) {\n  .b-iqbroker-cta-11 .w280 {  max-width: 100% !important;  }\n}\n.brad-full.b-iqbroker-cta-11 {  border-radius: 32px !important;  }\n.b-iqbroker-cta-11 .bb {  border-bottom: 1px solid #3a3f40;  }\n.b-iqbroker-cta-11 .butt-link {  font-size: 18px;\n  line-height: 27px;\n  font-weight: 700;\n  text-transform: none;\n  text-decoration: none;\n  color: #f9f9f9;\n  display: block;\n  padding: 16px 0 16px;\n  text-align: center;\n  letter-spacing: 0px;  }\n.color-bg.b-iqbroker-cta-11 {  background-color: #101314;  }\n.b-iqbroker-cta-11 .middle-title {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 42px;\n  color: #ececed;  }\n@media screen and (max-width: 600px) {\n  .b-iqbroker-cta-11 .middle-title {  font-size: 26px !important;\n    line-height: 32px !important;  }\n}\n.b-iqbroker-cta-11 .pb24 {  padding-bottom: 24px;  }\n.b-iqbroker-cta-11 .pb32 {  padding-bottom: 32px;  }\n.b-iqbroker-cta-11 .pb44 {  padding-bottom: 44px;  }\n.b-iqbroker-cta-11 .pb68 {  padding-bottom: 68px;  }\n.b-iqbroker-cta-11 .pt44 {  padding-top: 44px;  }\n.b-iqbroker-cta-11 .h-24 {  font-size: 8px;\n  line-height: 24px;\n  height: 24px;  }\n.b-iqbroker-cta-11 .w-a {  width: auto !important;\n  vertical-align: middle;  }\n.b-iqbroker-cta-11 .w100 {  width: 100%;  }\n.b-iqbroker-cta-11 table[class=body] table.column td, .b-iqbroker-cta-11 table[class=body] table.columns td.m-w {  min-width: 78px !important;\n  width: 78px !important;  }\n.b-iqbroker-cta-11 .left-img {  float: none;\n  width: 54px !important;  }\n.b-iqbroker-cta-11 .fat-text {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 700;\n  font-size: 24px;\n  line-height: 31px;\n  color: #ececed;  }\n@media screen and (max-width: 600px) {\n  .b-iqbroker-cta-11 .fat-text {  font-size: 18px !important;\n    line-height: 26px !important;  }\n}\n.b-iqbroker-cta-11 .gray-text {  font-family: Helvetica !important;\n  font-style: normal;\n  font-weight: 400;\n  font-size: 18px;\n  line-height: 27px;\n  color: #a6a6ab;  }\n.b-iqbroker-cta-11 .w280 {  width:100%;max-width:280px  }\n@media screen and (max-width:600px) {\n  .b-iqbroker-cta-11 .w280 {  max-width:100%!important  }\n}\n.brad-full.b-iqbroker-cta-11, .b-iqbroker-cta-11 .brad-full-32 {  border-radius:32px!important  }\n.b-iqbroker-cta-11 .bb {  border-bottom:1px solid #3a3f40  }\n.b-iqbroker-cta-11 .butt-link, .b-iqbroker-cta-11 .butt-link-2 {  font-size:18px;font-weight:700;text-transform:none;text-decoration:none;color:#f9f9f9;display:block;line-height:27px;padding:14px 0;text-align:center;letter-spacing:0  }\n.b-iqbroker-cta-11 .butt-link {  padding:16px 0  }\n.color-bg.b-iqbroker-cta-11 {  background-color:#101314  }\n.b-iqbroker-cta-11 .middle-title {  font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:32px;line-height:42px;color:#ececed  }\n@media screen and (max-width:600px) {\n  .b-iqbroker-cta-11 .middle-title {  font-size:26px!important;line-height:32px!important  }\n}\n.b-iqbroker-cta-11 .pb24 {  padding-bottom:24px  }\n.b-iqbroker-cta-11 .pb32 {  padding-bottom:32px  }\n.b-iqbroker-cta-11 .pb44 {  padding-bottom:44px  }\n.b-iqbroker-cta-11 .pb68 {  padding-bottom:68px  }\n.b-iqbroker-cta-11 .pt44 {  padding-top:44px  }\n.b-iqbroker-cta-11 .h-20, .b-iqbroker-cta-11 .h-24, .b-iqbroker-cta-11 .h-28 {  font-size:8px;line-height:20px;height:20px  }\n.b-iqbroker-cta-11 .h-24, .b-iqbroker-cta-11 .h-28 {  line-height:24px;height:24px  }\n.b-iqbroker-cta-11 .w100 {  width:100%  }\n.b-iqbroker-cta-11 .w-a {  width:auto!important;vertical-align:middle  }\n.b-iqbroker-cta-11 table[class=body] table.column td, .b-iqbroker-cta-11 table[class=body] table.columns td.m-w {  min-width:78px!important;width:78px!important  }\n.b-iqbroker-cta-11 .left-img {  float:none;width:54px!important  }\n.b-iqbroker-cta-11 .fat-text {  font-family:Helvetica!important;font-style:normal;font-weight:700;font-size:24px;line-height:31px;color:#ececed  }\n@media screen and (max-width:600px) {\n  .b-iqbroker-cta-11 .fat-text {  font-size:18px!important;line-height:26px!important  }\n}\n.b-iqbroker-cta-11 .gray-text {  font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#a6a6ab  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_7",
+      "kind": "richText",
+      "label": "Текст 7",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_8",
+      "kind": "richText",
+      "label": "Текст 8",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_9",
+      "kind": "richText",
+      "label": "Текст 9",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_10",
+      "kind": "richText",
+      "label": "Текст 10",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_11",
+      "kind": "richText",
+      "label": "Текст 11",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_12",
+      "kind": "richText",
+      "label": "Текст 12",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_13",
+      "kind": "richText",
+      "label": "Текст 13",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_14",
+      "kind": "richText",
+      "label": "Текст 14",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_15",
+      "kind": "richText",
+      "label": "Текст 15",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_16",
+      "kind": "richText",
+      "label": "Текст 16",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "https://api.trade.iqbroker.com/v1/multi-links/apply-indicators?ids=112&aff=7&afftrack=mail_tools&retrack=mail_tools"
+    },
+    {
+      "id": "href_2",
+      "kind": "url",
+      "label": "Ссылка 2",
+      "default": "https://api.trade.iqbroker.com/v1/multi-links/open-asset?aff=7&afftrack=mail_tools&retrack=mail_tools&type=forex&asset=5"
+    },
+    {
+      "id": "href_3",
+      "kind": "url",
+      "label": "Ссылка 3",
+      "default": "https://api.trade.iqbroker.com/v1/multi-links/open-asset?aff=7&afftrack=mail_tools&retrack=mail_tools&type"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/d5/sv/c9vvhhgea139ujrg/email-2-list.png"
+    },
+    {
+      "id": "image_2",
+      "kind": "image",
+      "label": "Картинка 2",
+      "default": "https://fsms.quadcode.com/storage/public/d5/sv/ca0ggnfnh4cs773g/email-2-1.png"
+    },
+    {
+      "id": "image_3",
+      "kind": "image",
+      "label": "Картинка 3",
+      "default": "https://fsms.quadcode.com/storage/public/d5/sv/ca0ggnfnh4cs774g/email-2-2.png"
+    },
+    {
+      "id": "image_4",
+      "kind": "image",
+      "label": "Картинка 4",
+      "default": "https://fsms.quadcode.com/storage/public/d5/sv/ca7vhhgea139ujs0/email-2-3.png"
+    },
+    {
+      "id": "image_5",
+      "kind": "image",
+      "label": "Картинка 5",
+      "default": "https://fsms.quadcode.com/storage/public/d5/sv/ca0ggnfnh4cs7740/email-2-4.png"
+    },
+    {
+      "id": "image_6",
+      "kind": "image",
+      "label": "Картинка 6",
+      "default": "https://fsms.quadcode.com/storage/public/d5/sv/ca0ggnfnh4cs7750/email-2-5.png"
+    }
+  ],
+  "tags": [
+    "cta",
+    "section",
+    "X_IQBroker"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_IQBroker/mail-tools"
+  ],
+  "createdAt": "2026-07-06T12:09:51.738Z",
+  "validated": true
+}

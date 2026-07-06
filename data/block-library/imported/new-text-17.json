@@ -1,0 +1,102 @@
+{
+  "id": "new-text-17",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_new (1 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.br-full-16.bg-bord-full.b-new-text-17\n    tr\n        td.wrapper.last.offset-by-one.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb32\n                        .image-block\n                            .plys-logo.disp-ib\n                                p.little-big-text {{ text_1 }}\n                        .block-empty-12.pt20 &nbsp;\n                        table.bb-dash.w100\n                            tr\n                                td.w-hulf.pb30\n                                    table\n                                        tr\n                                            td.w-a.m-w\n                                                a(href=\"#\" target=\"_blank\")\n                                                    img.small-image(src=\"{{ image_1 }}\")\n                                            td.w-a\n                                                p.little-big-text.wb-bw.pr8 {{ text_2 }}\n                                td.w-hulf\n                                    table\n                                        tr\n                                            td.w-a.m-w\n                                                a(href=\"#\" target=\"_blank\")\n                                                    img.small-image(src=\"{{ image_2 }}\")\n                                            td.w-a\n                                                p.little-big-text.wb-bw.pr8 {{ text_3 }}\n                        .block-empty-12.pt20 &nbsp;\n                        table.bb-dash.w100\n                            tr\n                                td.w-hulf.pb30\n                                    table\n                                        tr\n                                            td.w-a.m-w\n                                                a(href=\"#\" target=\"_blank\")\n                                                    img.small-image(src=\"{{ image_3 }}\")\n                                            td.w-a\n                                                p.little-big-text.wb-bw.pr8 {{ text_4 }}\n                                td.w-hulf\n                                    table\n                                        tr\n                                            td.w-a.m-w\n                                                a(href=\"#\" target=\"_blank\")\n                                                    img.small-image(src=\"{{ image_4 }}\")\n                                            td.w-a\n                                                p.little-big-text.wb-bw.pr8 {{ text_5 }}\n                        .block-empty-12.pt20 &nbsp;\n                        table.w100\n                            tr\n                                td.w-hulf.pb30\n                                    table\n                                        tr\n                                            td.w-a.m-w\n                                                a(href=\"#\" target=\"_blank\")\n                                                    img.small-image(src=\"{{ image_5 }}\")\n                                            td.w-a\n                                                p.little-big-text.wb-bw.pr8 {{ text_6 }}\n                                td.w-hulf\n                                    table\n                                        tr\n                                            td.w-a.m-w\n                                                a(href=\"#\" target=\"_blank\")\n                                                    img.small-image(src=\"{{ image_6 }}\")\n                                            td.w-a\n                                                p.little-big-text.wb-bw.pr8 {{ text_7 }}",
+  "styl": ".b-new-text-17 .block-empty-12 {  height:12px;line-height:12px;font-size:12px  }\n.white-bg.b-new-text-17 {  background:#fff  }\n.b-new-text-17 .label, .b-new-text-17 .plys-logo {  display:inline-block  }\n.b-new-text-17 .plys-logo {  padding:5px 12px;border:.8px solid #d2d2d2;border-radius:9.6px;vertical-align:middle  }\n@media screen and (max-width:600px) {\n  .b-new-text-17 .plys-logo {  margin-bottom:10px!important  }\n}\n.b-new-text-17 .little-big-text {  font-family:Helvetica!important;font-weight:700;font-size:18px;line-height:25px;color:#413e43  }\n.b-new-text-17 .image-block {  display:inline-block;width:100%  }\n@media screen and (max-width:600px) {\n  .b-new-text-17 .image-block {  text-align:center!important  }\n}\n.b-new-text-17 .disp-ib {  display:inline-block;vertical-align:middle  }\n.b-new-text-17 .wb-bw {  word-break:break-word  }\n.b-new-text-17 .pr8 {  padding-right:8px  }\n@media screen and (max-width:600px) {\n  .b-new-text-17 .pr8 {  font-weight:16px!important;line-height:22px!important  }\n}\n.b-new-text-17 .pt44, .b-new-text-17 .pt45 {  padding-top:44px  }\n.br-full-16.b-new-text-17 {  border-radius:16px;-moz-border-radius:16px;-webkit-border-radius:16px  }\n.bg-bord-full.b-new-text-17 {  border:1px solid #eae9e9  }\n.b-new-text-17 .bb-dash {  border-bottom:1px dashed #c4cbba  }\n.b-new-text-17 .pb32 {  padding-bottom:32px  }\n.b-new-text-17 .w-hulf {  width:50%!important  }\n.b-new-text-17 .w100 {  width:100%!important  }\n.b-new-text-17 .w-a {  width:auto!important;vertical-align:middle;padding-bottom:0!important  }\n.b-new-text-17 .m-w {  min-width:60px  }\n@media screen and (max-width:600px) {\n  .b-new-text-17 .m-w {  min-width:40px!important  }\n}\n.b-new-text-17 .small-image {  width:40px  }\n@media screen and (max-width:600px) {\n  .b-new-text-17 .small-image {  width:30px!important;max-width:30px!important  }\n}",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_7",
+      "kind": "richText",
+      "label": "Текст 7",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/cn/jg/ng285cee2vclvhk0/Frame 7.png"
+    },
+    {
+      "id": "image_2",
+      "kind": "image",
+      "label": "Картинка 2",
+      "default": "https://fsms.quadcode.com/storage/public/cn/jg/ng285cee2vclvhjg/Frame 6.png"
+    },
+    {
+      "id": "image_3",
+      "kind": "image",
+      "label": "Картинка 3",
+      "default": "https://fsms.quadcode.com/storage/public/cn/jg/nfq03qqv4qln7tf0/Frame 6 (1).png"
+    },
+    {
+      "id": "image_4",
+      "kind": "image",
+      "label": "Картинка 4",
+      "default": "https://fsms.quadcode.com/storage/public/cn/jg/nfq85cee2vclvhi0/Frame 6 (2).png"
+    },
+    {
+      "id": "image_5",
+      "kind": "image",
+      "label": "Картинка 5",
+      "default": "https://fsms.quadcode.com/storage/public/cn/jg/ng203qqv4qln7tgg/Frame 6 (3).png"
+    },
+    {
+      "id": "image_6",
+      "kind": "image",
+      "label": "Картинка 6",
+      "default": "https://fsms.quadcode.com/storage/public/cn/jg/nfq03qqv4qln7tfg/Frame 6 (4).png"
+    }
+  ],
+  "tags": [
+    "text",
+    "section",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-QCM-Offer-2"
+  ],
+  "createdAt": "2026-07-06T12:10:00.056Z",
+  "validated": true
+}

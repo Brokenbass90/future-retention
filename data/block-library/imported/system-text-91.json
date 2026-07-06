@@ -1,0 +1,24 @@
+{
+  "id": "system-text-91",
+  "label": "Контентная карточка",
+  "description": "Импортирован из X_System (2 писем). Секция.",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.white-bg.b-system-text-91\n    tr\n        td.offset-by-one\n            table.ten.columns\n                tr\n                    td.no-padding-bottom\n                        p.title New Changes for Overnight Fees\n                        p.text Dear Trader,\n                        p.text We would like to inform you that beginning next week, overnight fees for Forex will be deducted from investments every weekday at 21:00 GMT.&nbsp;\n                            strong This change will come into effect as of Monday, September 3rd, 2018.\n                            | &nbsp;At the same time, triple swap will now be implemented from Friday to Saturday.\n                        p.text Please note&nbsp;\n                            strong these changes are only applicable to Forex.\n                            | &nbsp;They will affect both new positions and positions that are currently open. Commission fees will be deducted from the respective investment. The maximum possible swap is up to 0.6%.\n                        p.text Thank you for choosing IQ Option as your trusted broker!",
+  "styl": ".white-bg.b-system-text-91 {  background:#fff  }\n.b-system-text-91 .title {  color:#2473d7;font-size:24px;font-weight:500;line-height:32px;padding-top:30px;padding-bottom:25px  }\n@media screen and (max-width:600px) {\n  .b-system-text-91 .title {  padding-left:20px!important;padding-right:20px!important  }\n}\n.b-system-text-91 .text {  color:#5b6e88;font-size:16px;font-weight:400;line-height:24px;padding-bottom:20px  }\n@media screen and (max-width:600px) {\n  .b-system-text-91 .text {  padding-left:20px!important;padding-right:20px!important  }\n}\n.b-system-text-91 .text a {  color:#2473d7;text-decoration:underline  }\n.b-system-text-91 .text.bold {  font-weight:700  }",
+  "slots": [],
+  "tags": [
+    "text",
+    "section",
+    "X_System"
+  ],
+  "usageCount": 2,
+  "sourceMails": [
+    "X_System/mail-sowwy",
+    "X_System/mail-terms-change"
+  ],
+  "createdAt": "2026-07-06T12:09:59.370Z",
+  "validated": true
+}

@@ -1,0 +1,81 @@
+{
+  "id": "iqbroker-section-01",
+  "label": "Секция",
+  "description": "Импортирован из X_IQBroker (5 писем). Секция.",
+  "placement": "section",
+  "category": "section",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.border-full.b-iqbroker-section-01\n    tr\n        td.wrapper.last.offset-by-one.pt44\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb32.bb\n                        p.title.pb30 {{ text_1 }}\n                        p.text.pb16\n                            b {{ text_2 }}\n                        p.text.pb12 {{ text_3 }}\n                        p.text.pb12 {{ text_4 }}\n                        p.text {{ text_5 }}\n                tr\n                    td.text-pad-small.pb44.pt24\n                        p.small-text {{ text_6 }}&nbsp;\n                            a(href=\"{{ href_1 }}\" target=\"_blank\") {{ text_7 }}\n                            |&nbsp;{{ text_8 }}",
+  "styl": ".b-iqbroker-section-01 .bb {  border-bottom: 1px solid #f9f9f9;  }\n.b-iqbroker-section-01 .title {  color: #2e292a;\n  font-size: 48px;\n  line-height: 57.6px;\n  font-weight: 700;\n  font-family: Helvetica !important;  }\n.b-iqbroker-section-01 .text {  font-family: Helvetica !important;\n  color: #3c3939;\n  font-size: 18px;\n  font-weight: 400;\n  line-height: 28px;  }\n.b-iqbroker-section-01 .text a {  color: #213e8f;\n  font-weight: 700;\n  font-family: Helvetica !important;  }\n.b-iqbroker-section-01 .small-text {  color: #84868b;\n  font-size: 18px;\n  line-height: 27px;\n  font-weight: 400;\n  font-family: Helvetica !important;\n  text-align: center;  }\n.b-iqbroker-section-01 .small-text a {  color: #5165ff !important;\n  font-family: Helvetica !important;\n  text-decoration: none;  }\n.b-iqbroker-section-01 .pt24 {  padding-top: 24px;  }\n.b-iqbroker-section-01 .text a {  color: #5165ff !important;  }\n.b-iqbroker-section-01 .bb {  border-bottom:1px dashed #d9d9db  }\n.border-full.b-iqbroker-section-01 {  border-radius:16px  }\n.b-iqbroker-section-01 .title {  font-family:Helvetica!important;color:#2e292a;font-size:48px;line-height:57px;font-weight:700  }\n@media screen and (max-width:600px) {\n  .b-iqbroker-section-01 .title {  font-size:32px!important;line-height:42px!important  }\n}\n.b-iqbroker-section-01 .text {  color:#3c3939;font-size:18px;font-weight:400;line-height:28px  }\n.b-iqbroker-section-01 .text a {  font-weight:700  }\n.b-iqbroker-section-01 .small-text, .b-iqbroker-section-01 .small-text a, .b-iqbroker-section-01 .text, .b-iqbroker-section-01 .text a {  font-family:Helvetica!important  }\n.b-iqbroker-section-01 .small-text {  font-size:18px;line-height:27px;font-weight:400;text-align:center;color:#84868b  }\n.b-iqbroker-section-01 .small-text a {  color:#5165ff!important;text-decoration:none  }\n.b-iqbroker-section-01 .pb12 {  padding-bottom:12px  }\n.b-iqbroker-section-01 .pb16 {  padding-bottom:16px  }\n.b-iqbroker-section-01 .pb32 {  padding-bottom:32px  }\n.b-iqbroker-section-01 .pb44 {  padding-bottom:44px  }\n.b-iqbroker-section-01 .pt24 {  padding-top:24px  }\n.b-iqbroker-section-01 .pt44 {  padding-top:44px  }\n.b-iqbroker-section-01 .text a {  color:#5165ff!important  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_5",
+      "kind": "richText",
+      "label": "Текст 5",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_6",
+      "kind": "richText",
+      "label": "Текст 6",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_7",
+      "kind": "richText",
+      "label": "Текст 7",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_8",
+      "kind": "richText",
+      "label": "Текст 8",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "mailto:{{embedded.company_email}}"
+    }
+  ],
+  "tags": [
+    "section",
+    "X_IQBroker"
+  ],
+  "usageCount": 5,
+  "sourceMails": [
+    "X_IQBroker/mail-15-days-general-termination",
+    "X_IQBroker/mail-blacklisted-chargeback-termination",
+    "X_IQBroker/mail-blacklisted-general-termination",
+    "X_IQBroker/mail-multiple-account-termination",
+    "X_IQBroker/mail-restricted-country-termination"
+  ],
+  "createdAt": "2026-07-06T12:09:51.734Z",
+  "validated": true
+}

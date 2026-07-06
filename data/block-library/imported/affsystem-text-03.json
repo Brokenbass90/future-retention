@@ -1,0 +1,48 @@
+{
+  "id": "affsystem-text-03",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_AffSystem (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.pb15.b-affsystem-text-03 {{ text_1 }} {{ text_2 }} {{ text_3 }}{{ text_4 }}",
+  "styl": ".text.b-affsystem-text-03, .b-affsystem-text-03 .text-table, .b-affsystem-text-03 .text-title {  font-family:Helvetica!important;color:#20242f  }\n.text.b-affsystem-text-03, .b-affsystem-text-03 .text-table {  font-weight:400;font-size:16px;line-height:24px;letter-spacing:0  }\n.text.b-affsystem-text-03 {  color:#2e3851;line-height:26px  }\n.text.list.b-affsystem-text-03 {  display:list-item  }\n.pb15.b-affsystem-text-03 {  padding-bottom:15px!important  }\n.text.b-affsystem-text-03 a {  font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_AffSystem"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_AffSystem/mail-aff-non-movers"
+  ],
+  "createdAt": "2026-07-06T12:09:51.509Z",
+  "validated": true
+}

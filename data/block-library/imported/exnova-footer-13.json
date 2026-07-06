@@ -1,0 +1,90 @@
+{
+  "id": "exnova-footer-13",
+  "label": "Соцсети",
+  "description": "Импортирован из X_Exnova (7 писем). Секция.",
+  "placement": "section",
+  "category": "footer",
+  "version": 1,
+  "source": "imported",
+  "pug": "table.row.b-exnova-footer-13\n    tr\n        td.wrapper.last.pt32\n            table.twelve.columns\n                tr\n                    td.pb20\n                        //- p.footer-text.pb24.plr30.center {{ text_1 }}\n                        .socials.center\n                            a.first-link(href=\"{{ href_1 }}\" target=\"_blank\")\n                                img.soc-icon.fb(src=\"{{ image_1 }}\")\n                            a(href=\"{{ href_2 }}\" target=\"_blank\")\n                                img.soc-icon.twitter(src=\"{{ image_2 }}\")\n                            a.last-link(href=\"{{ href_3 }}\" target=\"_blank\")\n                                img.soc-icon.ig(src=\"{{ image_3 }}\")",
+  "styl": ".b-exnova-footer-13 .pt32 {  padding-top: 32px;  }\n.b-exnova-footer-13 .socials {  display: block;\n  font-size: 0;\n  margin: 0 auto;\n  text-align: center;  }\n.b-exnova-footer-13 .socials a {  display: inline-block;\n  vertical-align: middle;\n  margin: 0 10px;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-footer-13 .socials a {  margin-bottom: 10px !important;  }\n}\n.b-exnova-footer-13 .soc-icon {  float: none;\n  max-width: 40px;  }\n.b-exnova-footer-13 .ig {  max-width: 26px;\n  margin-left: 6px;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-footer-13 .ig {  width: 20px !important;  }\n}\n.b-exnova-footer-13 .twitter {  max-width: 26px;\n  margin: 0 6px;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-footer-13 .twitter {  width: 24px !important;  }\n}\n.b-exnova-footer-13 .fb {  max-width: 26px;\n  margin-right: 6px;  }\n@media screen and (max-width: 600px) {\n  .b-exnova-footer-13 .fb {  width: 24px !important;  }\n}\n.b-exnova-footer-13 .pt32 {  padding-top:32px  }\n.b-exnova-footer-13 .socials {  display:block;font-size:0;margin:0 auto;text-align:center  }\n.b-exnova-footer-13 .socials a {  display:inline-block;vertical-align:middle;margin:0 10px  }\n@media screen and (max-width:600px) {\n  .b-exnova-footer-13 .socials a {  margin-bottom:10px!important  }\n}\n.b-exnova-footer-13 .soc-icon {  float:none;max-width:40px  }\n.b-exnova-footer-13 .ig {  max-width:26px;margin-left:6px  }\n@media screen and (max-width:600px) {\n  .b-exnova-footer-13 .ig {  width:20px!important  }\n}\n.b-exnova-footer-13 .twitter {  max-width:26px;margin:0 6px  }\n@media screen and (max-width:600px) {\n  .b-exnova-footer-13 .twitter {  width:24px!important  }\n}\n.b-exnova-footer-13 .fb {  max-width:26px;margin-right:6px  }\n@media screen and (max-width:600px) {\n  .b-exnova-footer-13 .fb {  width:24px!important  }\n}",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    },
+    {
+      "id": "text_2",
+      "kind": "richText",
+      "label": "Текст 2",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_3",
+      "kind": "richText",
+      "label": "Текст 3",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "text_4",
+      "kind": "richText",
+      "label": "Текст 4",
+      "default": "Текст блока — отредактируйте под кампанию."
+    },
+    {
+      "id": "href_1",
+      "kind": "url",
+      "label": "Ссылка 1",
+      "default": "{{ text_2 }}"
+    },
+    {
+      "id": "href_2",
+      "kind": "url",
+      "label": "Ссылка 2",
+      "default": "{{ text_3 }}"
+    },
+    {
+      "id": "href_3",
+      "kind": "url",
+      "label": "Ссылка 3",
+      "default": "{{ text_4 }}"
+    },
+    {
+      "id": "image_1",
+      "kind": "image",
+      "label": "Картинка 1",
+      "default": "https://fsms.quadcode.com/storage/public/cq/u8/t7mdi3umufautofg/fb (2).png"
+    },
+    {
+      "id": "image_2",
+      "kind": "image",
+      "label": "Картинка 2",
+      "default": "https://fsms.quadcode.com/storage/public/cq/u8/t7edi3umufautof0/ig (2).png"
+    },
+    {
+      "id": "image_3",
+      "kind": "image",
+      "label": "Картинка 3",
+      "default": "https://fsms.quadcode.com/storage/public/cq/u8/t7efu8jqbm985b50/tw (2).png"
+    }
+  ],
+  "tags": [
+    "footer",
+    "section",
+    "X_Exnova"
+  ],
+  "usageCount": 7,
+  "sourceMails": [
+    "X_Exnova/mail-Teaser-1",
+    "X_Exnova/mail-Teaser-2",
+    "X_Exnova/mail-Teaser-3",
+    "X_Exnova/mail-Teaser-email-1",
+    "X_Exnova/mail-Teaser-email-2",
+    "X_Exnova/mail-Teaser-email-4",
+    "X_Exnova/mail-Teaser-email-5"
+  ],
+  "createdAt": "2026-07-06T12:09:50.965Z",
+  "validated": true
+}

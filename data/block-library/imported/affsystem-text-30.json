@@ -1,0 +1,33 @@
+{
+  "id": "affsystem-text-30",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_AffSystem (4 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.list-item.b-affsystem-text-30 {{ text_1 }}",
+  "styl": ".text.b-affsystem-text-30, .b-affsystem-text-30 .text-table, .b-affsystem-text-30 .text-title {  font-family:Helvetica!important;color:#20242f  }\n.text.b-affsystem-text-30, .b-affsystem-text-30 .text-table {  font-weight:400;font-size:16px;line-height:24px;letter-spacing:0  }\n.text.b-affsystem-text-30 {  color:#2e3851;line-height:26px  }\n.text.list.b-affsystem-text-30 {  display:list-item  }\n.text.b-affsystem-text-30 a {  font-family:Helvetica!important;text-decoration:none!important;color:#01c689!important  }\n.list-item.b-affsystem-text-30 {  background:url(\"https://static.cdnpub.info/files/storage/public/5e/8d/aa6a28c720a9i1g3f9/Oval Copy 3.png\") left 8px no-repeat;background-size:10px;padding-left:20px  }",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_AffSystem"
+  ],
+  "usageCount": 4,
+  "sourceMails": [
+    "X_AffSystem/mail-ib-affiliate-termination",
+    "X_AffSystem/mail-iq-affiliate-termination",
+    "X_AffSystem/mail-iq-affiliate-termination24",
+    "X_AffSystem/mail-iq-affiliate-termination24-IB"
+  ],
+  "createdAt": "2026-07-06T12:09:51.510Z",
+  "validated": true
+}

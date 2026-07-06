@@ -1,0 +1,30 @@
+{
+  "id": "new-text-98",
+  "label": "Текстовый абзац",
+  "description": "Импортирован из X_new (1 писем). Inline-элемент.",
+  "placement": "inline",
+  "category": "text",
+  "version": 1,
+  "source": "imported",
+  "pug": "p.text.center.pb32.plr10.b-new-text-98  {{ text_1 }}",
+  "styl": ".text.b-new-text-98 {  font-family: Helvetica !important;\n  font-size: 18px;\n  color: #393a44;\n  letter-spacing: 0;\n  line-height: 26px;\n  font-weight: 400;  }\n.text.bold.b-new-text-98 {  font-weight: 700;  }\n.pb32.b-new-text-98 {  padding-bottom: 32px;  }\n.plr10.b-new-text-98 {  padding-right: 10px;\n  padding-left: 10px;  }\n@media screen and (max-width: 600px) {\n  .text.mob-text.b-new-text-98, .b-new-text-98 .grey-text.mob-text {  font-size: 17px !important;  }\n}\n.b-new-text-98 .number-block, .text.b-new-text-98 {  font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400  }\n.b-new-text-98 .big, .text.bold.b-new-text-98 {  font-weight:700  }\n.pb32.b-new-text-98 {  padding-bottom:32px  }\n.plr10.b-new-text-98 {  padding-right:10px;padding-left:10px  }\n@media screen and (max-width:600px) {\n  .b-new-text-98 .grey-text.mob-text, .text.mob-text.b-new-text-98 {  font-size:17px!important  }\n}",
+  "slots": [
+    {
+      "id": "text_1",
+      "kind": "richText",
+      "label": "Текст 1",
+      "default": "Заголовок блока"
+    }
+  ],
+  "tags": [
+    "text",
+    "inline",
+    "X_new"
+  ],
+  "usageCount": 1,
+  "sourceMails": [
+    "X_new/mail-rfm-segmentation-2-134"
+  ],
+  "createdAt": "2026-07-06T12:10:00.070Z",
+  "validated": true
+}
