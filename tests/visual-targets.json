@@ -1,0 +1,40 @@
+{
+  "mails": [
+    {
+      "category": "X_IQ",
+      "mail": "rfm-311",
+      "locales": [
+        "en",
+        "ur"
+      ]
+    },
+    {
+      "category": "X_IQ",
+      "mail": "rfm-segmentation-2-232",
+      "locales": [
+        "en",
+        "ar"
+      ]
+    },
+    {
+      "category": "X_IQBroker",
+      "mail": "welcome",
+      "locales": [
+        "en",
+        "ur"
+      ]
+    }
+  ],
+  "galleries": [
+    {
+      "id": "gallery-top-sections",
+      "placement": "section",
+      "top": 10
+    },
+    {
+      "id": "gallery-top-inline",
+      "placement": "inline",
+      "top": 10
+    }
+  ]
+}

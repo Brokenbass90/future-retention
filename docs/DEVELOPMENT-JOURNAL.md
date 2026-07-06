@@ -188,3 +188,47 @@ Snippet: ...
   нормализация отступов в reconstructPug.
 - Категории кроме X_IQ ещё не нарезаны новым слайсером (запуск:
   `node scripts/slice-mail-to-blocks.mjs --category <cat> --all` → promote → chunk-validate).
+
+---
+
+## Сессия 2026-07-06 (часть 2) — Visual gate, RTL parity, умные RTL-флипы
+
+### Visual regression gate (НОВОЕ) — `scripts/visual-gate.mjs`
+- `npm run visual` / `npm run visual:update`. Цели в `tests/visual-targets.json`
+  (письма+локали — редактируемо) + авто-галереи топ-блоков библиотеки (section/inline).
+- Скриншоты dist HTML: desktop 600px + mobile 375px, headless Chromium
+  (playwright-core; setup: `npx playwright-core install --only-shell chromium`).
+- Внешние картинки стабятся серым PNG (сеть не нужна, прогоны детерминированы).
+- Diff через pixelmatch (fail > 0.1% пикселей), отчёт `tests/visual-report/index.html`
+  (baseline|current|diff рядом). Baseline в `tests/visual-baseline/` (в git),
+  current/report — в .gitignore. Exit 1 = diff, exit 2 = нет baseline.
+- В песочницах без root: стаб libXdamage кладётся в ~/pwlibs (см. верх скрипта).
+
+### Починка битых писем
+- 5 писем имели header.pug и/или index.pug, куда прошлая сессия сохранила ГОТОВЫЙ
+  HTML (перекрывал .jade → «unexpected text @medi»). header.pug удалены (регенерируются
+  из .jade), index.pug восстановлены из git (318481b) / скопированы с rfm-311:
+  mail-rfm-311, mail-test, mail-rfm-311-copy-213, mail-rfm-313-copy, mail-rfm-311-v2604300622.
+
+### RTL: кнопки «всё ещё уезжали» — причина найдена
+- В `public/workbench.js` живёт ТРЕТЬЯ (браузерная) копия applyRtl — она была старой
+  и перезаписывала align="center" → right. Портирован центр-фикс (isSelfCentered +
+  centered-context) в браузерную копию. ВАЖНО: при любой правке RTL менять ОБА файла:
+  email-base/tools/rtl.js (истина) и public/workbench.js (parity).
+
+### RTL: новые умные флипы (в ОБОИХ трансформерах)
+- **Инверсия двухколоночных рядов**: `<tr>` ровно с двумя td классов `m-w` (номер/иконка)
+  + `w-a` (текст) — td меняются местами, номер уходит вправо. Маркер
+  `data-rtl-swapped="1"` на tr → повторный прогон no-op (идемпотентность).
+  Прочие 2-td ряды не трогаются.
+- Asset-карточки (.gray-block с фоновой иконкой) уже флипались ядром правильно
+  (background right 24px → left 24px, direction:rtl на <a>, padding img) — теперь
+  так же работает и в браузере.
+- **Регрессия**: `scripts/test-rtl.mjs` (30 ассертов, гоняет ОБЕ копии на одних кейсах),
+  включён первым в `npm test`.
+
+### Проверено на реальных письмах
+- rfm-311 ar/ur: 2 ряда инвертированы, 2 центрированные кнопки остались по центру.
+- rfm-segmentation-2-215 ar: кнопки center сохранены, forced-right = 0.
+- Baseline gate: 16 шотов (rfm-311 en/ur, rfm-seg-2-232 en/ar, welcome en/ur,
+  2 галереи × desktop+mobile), контрольный прогон — zero diff.

@@ -3675,10 +3675,91 @@ function applyRtl(html) {
     return attrs.replace(/\balign\s*=\s*(["'])([\s\S]*?)\1/i, 'align="right"')
                 .replace(/\balign\s*=\s*([^\s"\'>]+)/i, 'align="right"');
   };
+  // Centered-by-design buttons must STAY centered in RTL (parity with
+  // email-base/tools/rtl.js): own align="center", margin auto, or sitting
+  // inside <center> / a center-aligned td/div — leave untouched.
+  const isSelfCentered = attrs => {
+    if (/\balign\s*=\s*(["']?)(?:center|middle)\1/i.test(attrs)) return true;
+    const sm = String(attrs || '').match(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i);
+    if (sm && /\bmargin\s*:\s*[^;]*\bauto\b/i.test(sm[2])) return true;
+    if (sm && /\bmargin-left\s*:\s*auto\b/i.test(sm[2]) && /\bmargin-right\s*:\s*auto\b/i.test(sm[2])) return true;
+    return false;
+  };
+  const centeredCtxStarts = (() => {
+    const centered = new Set();
+    const stack2 = [];
+    const re = /<(\/?)(table|td|th|center|div)\b([^>]*)>/gi;
+    let mm;
+    while ((mm = re.exec(html)) !== null) {
+      const closing = mm[1] === '/'; const tag = mm[2].toLowerCase(); const attrs = mm[3] || '';
+      if (closing) { stack2.pop(); continue; }
+      if (/\/\s*$/.test(attrs)) continue;
+      let centers = false;
+      if (tag === 'center') centers = true;
+      else if (tag === 'td' || tag === 'th' || tag === 'div') {
+        if (/\balign\s*=\s*(["']?)(?:center|middle)\1/i.test(attrs)) centers = true;
+        else {
+          const sm = attrs.match(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i);
+          if (sm && /\btext-align\s*:\s*center\b/i.test(sm[2])) centers = true;
+        }
+      }
+      if (tag === 'table' && stack2.some(Boolean)) centered.add(mm.index);
+      stack2.push(centers);
+    }
+    return centered;
+  })();
   html = html.replace(/<table\b([^>]*)>/gi, (m, attrs, offset) => {
     if (!isButtonClassToken(attrs) && !buttonShellStarts.has(offset)) return m;
+    if (isSelfCentered(attrs)) return m;
+    if (!/\balign\s*=/i.test(attrs) && centeredCtxStarts.has(offset)) return m;
     return '<table' + forceAlignRightAttr(attrs) + '>';
   });
+
+  // ── 4.5) Two-column content rows (td.m-w + td.w-a): swap cell order so
+  //         the number/icon column sits on the RIGHT in RTL. Marked with
+  //         data-rtl-swapped="1" → re-runs are no-ops. Parity with core.
+  html = (function mirrorTwoColumnRows(h) {
+    const isNarrow = a => hasClassToken(a, /^m-w$/i);
+    const isAuto = a => hasClassToken(a, /^w-a$/i);
+    const qualifies = (a, b) => (isNarrow(a) && isAuto(b)) || (isAuto(a) && isNarrow(b));
+    const re = /<(\/?)(table|tr|td|th)\b([^>]*)>/gi;
+    const stack3 = []; const swaps = [];
+    let mm;
+    while ((mm = re.exec(h)) !== null) {
+      const closing = mm[1] === '/'; const tag = mm[2].toLowerCase();
+      if (!closing) {
+        const frame = { tag, start: mm.index, openEnd: re.lastIndex, attrs: mm[3] || '', tds: [] };
+        if ((tag === 'td' || tag === 'th') && stack3.length && stack3[stack3.length - 1].tag === 'tr') {
+          stack3[stack3.length - 1].tds.push(frame);
+        }
+        stack3.push(frame);
+      } else {
+        let frame = null;
+        for (let i = stack3.length - 1; i >= 0; i--) {
+          if (stack3[i].tag === tag) { frame = stack3[i]; stack3.length = i; break; }
+        }
+        if (!frame) continue;
+        frame.end = re.lastIndex;
+        if (tag === 'tr') {
+          const tds = frame.tds.filter(td => td.end != null);
+          if (tds.length === 2 && !/\bdata-rtl-swapped\b/i.test(frame.attrs) && qualifies(tds[0].attrs, tds[1].attrs)) {
+            swaps.push({ tr: frame, a: tds[0], b: tds[1] });
+          }
+        }
+      }
+    }
+    if (!swaps.length) return h;
+    const inner = swaps.filter(s => !swaps.some(o => o !== s && o.tr.start > s.tr.start && o.tr.end < s.tr.end));
+    inner.sort((x, y) => y.tr.start - x.tr.start);
+    let out = h;
+    for (const { tr, a, b } of inner) {
+      const between = out.slice(a.end, b.start);
+      const swapped = out.slice(b.start, b.end) + between + out.slice(a.start, a.end);
+      out = out.slice(0, a.start) + swapped + out.slice(b.end);
+      out = out.slice(0, tr.start) + '<tr data-rtl-swapped="1"' + tr.attrs + '>' + out.slice(tr.openEnd);
+    }
+    return out;
+  })(html);
 
   // ── 5) p / h* / li get dir + text-align: right (if no text-align set) ──
   const ensureTextAlignRightIfMissing = attrs => {

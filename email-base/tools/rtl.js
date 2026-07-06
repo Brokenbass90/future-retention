@@ -521,6 +521,72 @@ function addDirToButtCells(html) {
   });
 }
 
+/* ─── Two-column content rows: mirror td order for RTL ─────────── */
+/**
+ * The numbered-list / icon-row pattern in the IQ base is a <tr> with exactly
+ * two direct cells: a narrow one (class `m-w` — number/icon) and a flexible
+ * one (class `w-a` — text). In RTL the narrow cell must move to the RIGHT,
+ * i.e. the two tds swap places. We swap the cell markup itself (works in
+ * every email client, no dir tricks) and mark the row with
+ * data-rtl-swapped="1" so a re-run of the transformer is a no-op.
+ */
+function mirrorTwoColumnRows(html) {
+  const isNarrow = (a) => hasClassToken(a, /^m-w$/i);
+  const isAuto = (a) => hasClassToken(a, /^w-a$/i);
+  const qualifies = (a, b) => (isNarrow(a) && isAuto(b)) || (isAuto(a) && isNarrow(b));
+
+  const tagRe = /<(\/?)(table|tr|td|th)\b([^>]*)>/gi;
+  const stack = [];
+  const swaps = [];
+  let m;
+  while ((m = tagRe.exec(html)) !== null) {
+    const closing = m[1] === '/';
+    const tag = m[2].toLowerCase();
+    if (!closing) {
+      const frame = { tag, start: m.index, openEnd: tagRe.lastIndex, attrs: m[3] || '', tds: [] };
+      if ((tag === 'td' || tag === 'th') && stack.length && stack[stack.length - 1].tag === 'tr') {
+        stack[stack.length - 1].tds.push(frame);
+      }
+      stack.push(frame);
+    } else {
+      let frame = null;
+      for (let i = stack.length - 1; i >= 0; i--) {
+        if (stack[i].tag === tag) { frame = stack[i]; stack.length = i; break; }
+      }
+      if (!frame) continue;
+      frame.closeStart = m.index;
+      frame.end = tagRe.lastIndex;
+      if (tag === 'tr') {
+        const tds = frame.tds.filter((td) => td.end != null);
+        if (
+          tds.length === 2 &&
+          !/\bdata-rtl-swapped\b/i.test(frame.attrs) &&
+          qualifies(tds[0].attrs, tds[1].attrs)
+        ) {
+          swaps.push({ tr: frame, a: tds[0], b: tds[1] });
+        }
+      }
+    }
+  }
+  if (!swaps.length) return html;
+
+  // Drop any swap that contains another swap inside its row (defensive —
+  // the m-w/w-a pattern does not nest, but offsets must stay valid).
+  const inner = swaps.filter((s) =>
+    !swaps.some((o) => o !== s && o.tr.start > s.tr.start && o.tr.end < s.tr.end));
+
+  // Apply bottom-up so earlier offsets stay valid.
+  inner.sort((x, y) => y.tr.start - x.tr.start);
+  let out = html;
+  for (const { tr, a, b } of inner) {
+    const between = out.slice(a.end, b.start);
+    const swapped = out.slice(b.start, b.end) + between + out.slice(a.start, a.end);
+    out = out.slice(0, a.start) + swapped + out.slice(b.end);
+    out = out.slice(0, tr.start) + `<tr data-rtl-swapped="1"${tr.attrs}>` + out.slice(tr.openEnd);
+  }
+  return out;
+}
+
 /* ─── Idempotency: strip stale dir="rtl" from previous builds ──── */
 /**
  * Old versions of this transformer used to add `dir="rtl"` to layout
@@ -588,6 +654,10 @@ function applyRtl(html, opts = {}) {
 
   // 4) Button shells: force align="right" (no dir).
   out = alignButtonShellsRight(out);
+
+  // 4.5) Numbered/icon two-column rows (td.m-w + td.w-a): swap cell
+  //      order so the number/icon column sits on the RIGHT in RTL.
+  out = mirrorTwoColumnRows(out);
 
   // 5) p / h* / li: add dir="rtl" + text-align: right (if missing).
   //    Block-level — does NOT flip inline-block sibling order.
