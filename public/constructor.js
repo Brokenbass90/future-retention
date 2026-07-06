@@ -25,6 +25,11 @@ const state = {
   canvas: [],
   selectedUid: null,
   filter: "section",
+  q: "",
+  brand: "all",
+  cat: "all",
+  mobileOnly: false,
+  renderCap: 60,
   _uidCounter: 1,
 };
 
@@ -84,22 +89,49 @@ async function loadLibrary() {
     const res = await fetch("/api/blocks-library");
     const data = await res.json();
     state.library = Array.isArray(data?.blocks) ? data.blocks : [];
+    populateCatalogFilters();
     renderCatalog();
   } catch (err) {
     $("catalogList").innerHTML = `<div class="cat-empty">Не удалось загрузить блоки: ${err.message}</div>`;
   }
 }
 
+// brand = who the block belongs to: canonical / user, or the source
+// category prefix for imported ones (iq, exnova, system, …).
+function brandOf(b) {
+  if (b.source === "canonical" || b.source === "user") return b.source;
+  return String(b.id || "").split("-")[0] || "imported";
+}
+function hasMobile(b) { return /@media/i.test(b.styl || ""); }
+
+function applyCatalogFilters() {
+  const f = state.filter;
+  const q = state.q.trim().toLowerCase();
+  return state.library.filter((b) => {
+    if (f !== "all" && b.placement !== f) return false;
+    if (state.brand !== "all" && brandOf(b) !== state.brand) return false;
+    if (state.cat !== "all" && (b.category || "") !== state.cat) return false;
+    if (state.mobileOnly && !hasMobile(b)) return false;
+    if (q) {
+      const hay = `${b.id} ${b.label || ""} ${b.description || ""} ${b.category || ""} ${b.pug || ""}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
 function renderCatalog() {
   const list = $("catalogList");
-  const f = state.filter;
-  const filtered = state.library.filter((b) => f === "all" ? true : b.placement === f);
+  const filtered = applyCatalogFilters();
+  const counter = $("catCount");
+  if (counter) counter.textContent = `${filtered.length} из ${state.library.length} блоков`;
   if (!filtered.length) {
-    list.innerHTML = `<div class="cat-empty">В этой категории нет блоков.</div>`;
+    list.innerHTML = `<div class="cat-empty">Ничего не найдено. Сбрось фильтры или поменяй запрос.</div>`;
     return;
   }
   list.innerHTML = "";
-  for (const b of filtered) {
+  const visible = filtered.slice(0, state.renderCap);
+  for (const b of visible) {
     const el = document.createElement("div");
     el.className = "cat-item" + (b.source === "user" ? " cat-item-user" : "");
     el.draggable = true;
@@ -114,6 +146,7 @@ function renderCatalog() {
         <span class="cat-item-icon">${PLACEMENT_ICON[b.placement] || "📐"}</span>
         <span>${escapeHtml(b.label || b.id)}</span>
         ${isUser ? `<span class="cat-item-badge" title="User-saved block">👤</span>` : ""}
+        <button class="cat-item-view" data-view-id="${escapeHtml(b.id)}" title="Посмотреть исходник (pug/styl/слоты)">👁</button>
         ${isUser ? `<button class="cat-item-edit" data-edit-id="${escapeHtml(b.id)}" title="Редактировать pug/styl/слоты этого блока">✎</button>` : ""}
         ${isUser ? `<button class="cat-item-del" data-del-id="${escapeHtml(b.id)}" title="Удалить этот user-блок">✕</button>` : ""}
       </div>
@@ -121,7 +154,9 @@ function renderCatalog() {
       <div class="cat-item-meta">
         <span class="pill">${b.placement || "?"}</span>
         <span class="pill">${b.category || "?"}</span>
+        <span class="pill pill-brand">${escapeHtml(brandOf(b))}</span>
         <span class="pill">${slotCount} slot${slotCount === 1 ? "" : "s"}</span>
+        ${hasMobile(b) ? `<span class="pill pill-mobile" title="Есть мобильные @media правила">📱</span>` : ""}
       </div>
     `;
     // Catalog click → addToCanvas (skip if user pressed the × button).
@@ -130,6 +165,13 @@ function renderCatalog() {
       if (delBtn) {
         e.stopPropagation();
         deleteUserBlock(delBtn.dataset.delId);
+        return;
+      }
+      const viewBtn = e.target.closest(".cat-item-view");
+      if (viewBtn) {
+        e.stopPropagation();
+        const blk = state.library.find((x) => x.id === viewBtn.dataset.viewId);
+        if (blk) openBlockView(blk);
         return;
       }
       const editBtn = e.target.closest(".cat-item-edit");
@@ -162,6 +204,44 @@ function renderCatalog() {
     list.appendChild(el);
     try { _thumbObserver.observe(el); } catch {}
   }
+  if (filtered.length > state.renderCap) {
+    const more = document.createElement("button");
+    more.className = "btn cat-more-btn";
+    more.textContent = `Показать ещё (${filtered.length - state.renderCap})`;
+    more.addEventListener("click", () => { state.renderCap += 60; renderCatalog(); });
+    list.appendChild(more);
+  }
+}
+
+/* ─── Block source view modal ─────────────────────────────────────── */
+let _viewBlock = null;
+function openBlockView(b) {
+  _viewBlock = b;
+  $("viewTitle").textContent = `👁 ${b.label || b.id} — ${b.id}`;
+  $("viewMeta").innerHTML = [
+    ["placement", b.placement], ["category", b.category], ["источник", brandOf(b)],
+    ["используется в", (b.usageCount || 0) + " письмах"],
+    ["мобильные стили", hasMobile(b) ? "да" : "нет"],
+  ].map(([k, v]) => `<span class="pill">${escapeHtml(k)}: ${escapeHtml(String(v ?? "?"))}</span>`).join(" ");
+  $("viewPug").textContent = b.pug || "";
+  $("viewStyl").textContent = b.styl || "(нет)";
+  $("viewSlots").innerHTML = (b.slots || []).length
+    ? b.slots.map((sl) => `<span class="pill" title="${escapeHtml(sl.kind || "text")}">${escapeHtml(sl.id)}${sl.default != null ? " = " + escapeHtml(String(sl.default).slice(0, 40)) : ""}</span>`).join(" ")
+    : "<span class='cat-empty'>нет слотов</span>";
+  $("viewModal").classList.remove("hidden");
+}
+function closeBlockView() { $("viewModal").classList.add("hidden"); _viewBlock = null; }
+function duplicateToUserBlock(b) {
+  if (!b) return;
+  // Editable copy: new user id, author modal opens prefilled, id editable.
+  const copy = {
+    ...b,
+    id: `${b.id}-copy`,
+    label: `${b.label || b.id} (копия)`,
+    source: "user",
+  };
+  closeBlockView();
+  openBlockAuthor(copy, { asNew: true });
 }
 
 // ─── Lazy block thumbnails (live mini-render via /api/compose-preview) ──────
@@ -1007,12 +1087,15 @@ function detectSlotTokens(pug, styl) {
   return tokens;
 }
 
-function openBlockAuthor(block) {
-  authorState.editingId = block ? block.id : null;
+function openBlockAuthor(block, opts = {}) {
+  const asNew = !!opts.asNew;
+  authorState.editingId = block && !asNew ? block.id : null;
   authorState.slotMeta = {};
-  $("authorTitle").textContent = block ? `✎ Редактировать блок «${block.label || block.id}»` : "➕ Новый блок";
+  $("authorTitle").textContent = block
+    ? (asNew ? `⧉ Копия блока «${block.label || block.id}»` : `✎ Редактировать блок «${block.label || block.id}»`)
+    : "➕ Новый блок";
   $("abId").value = block ? block.id : "";
-  $("abId").disabled = !!block;
+  $("abId").disabled = !!block && !asNew;
   $("abLabel").value = block ? (block.label || "") : "";
   $("abPlacement").value = block && block.placement === "inline" ? "inline" : "section";
   $("abCategory").value = block ? (block.category || "misc") : "misc";
@@ -1221,6 +1304,7 @@ document.querySelectorAll(".cat-tab").forEach((tab) => {
     document.querySelectorAll(".cat-tab").forEach((t) => t.classList.remove("active"));
     tab.classList.add("active");
     state.filter = tab.dataset.filter;
+    state.renderCap = 60;
     renderCatalog();
   });
 });
@@ -1232,6 +1316,7 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     $("previewModal").classList.add("hidden");
     if (!$("authorModal").classList.contains("hidden")) closeBlockAuthor();
+    if (!$("viewModal").classList.contains("hidden")) closeBlockView();
   }
 });
 
@@ -1249,6 +1334,38 @@ $("previewBtnFs")?.addEventListener("click", () => {
     preview();
   }
 });
+
+// ─── Catalog filter controls ────────────────────────────────────────────
+function populateCatalogFilters() {
+  const brandSel = $("catBrand"), catSel = $("catCategory");
+  if (!brandSel || !catSel) return;
+  const keepBrand = brandSel.value, keepCat = catSel.value;
+  const brands = Array.from(new Set(state.library.map(brandOf))).sort();
+  const cats = Array.from(new Set(state.library.map((b) => b.category || "misc"))).sort();
+  brandSel.innerHTML = '<option value="all">Все бренды</option>' +
+    brands.map((x) => `<option value="${escapeHtml(x)}">${escapeHtml(x)}</option>`).join("");
+  catSel.innerHTML = '<option value="all">Все категории</option>' +
+    cats.map((x) => `<option value="${escapeHtml(x)}">${escapeHtml(x)}</option>`).join("");
+  if (brands.includes(keepBrand)) brandSel.value = keepBrand;
+  if (cats.includes(keepCat)) catSel.value = keepCat;
+}
+let _searchDebounce = null;
+$("catSearch")?.addEventListener("input", (e) => {
+  clearTimeout(_searchDebounce);
+  _searchDebounce = setTimeout(() => {
+    state.q = e.target.value || "";
+    state.renderCap = 60;
+    renderCatalog();
+  }, 150);
+});
+$("catBrand")?.addEventListener("change", (e) => { state.brand = e.target.value; state.renderCap = 60; renderCatalog(); });
+$("catCategory")?.addEventListener("change", (e) => { state.cat = e.target.value; state.renderCap = 60; renderCatalog(); });
+$("catMobile")?.addEventListener("change", (e) => { state.mobileOnly = e.target.checked; state.renderCap = 60; renderCatalog(); });
+
+// View modal wiring
+$("viewCloseBtn")?.addEventListener("click", closeBlockView);
+$("viewDupBtn")?.addEventListener("click", () => duplicateToUserBlock(_viewBlock));
+$("viewModal")?.addEventListener("click", (e) => { if (e.target === $("viewModal")) closeBlockView(); });
 
 wireCanvasDnd();
 loadLibrary();

@@ -29,6 +29,15 @@
         <button class="cat-tab" data-filter="inline">Inner (elements)</button>
         <button class="cat-tab" data-filter="all">All</button>
       </div>
+      <div class="cat-search-row">
+        <input type="search" id="catSearch" class="cat-search" placeholder="Поиск: id, название, текст…" spellcheck="false" />
+      </div>
+      <div class="cat-filters-row">
+        <select id="catBrand" class="cat-select" title="Источник / бренд"><option value="all">Все бренды</option></select>
+        <select id="catCategory" class="cat-select" title="Категория блока"><option value="all">Все категории</option></select>
+        <label class="cat-check" title="Только блоки с мобильной адаптацией (@media)"><input type="checkbox" id="catMobile" />📱</label>
+      </div>
+      <div class="cat-count" id="catCount"></div>
       <button class="btn author-new-btn" id="newBlockBtn" title="Создать новый блок с нуля (pug + stylus + слоты)">➕ Создать блок</button>
       <div class="cat-list" id="catalogList">
         <div class="cat-empty">Загрузка…</div>
@@ -138,6 +147,26 @@
           <button class="btn btn-primary" id="abSave">💾 Сохранить блок</button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Block source view modal -->
+  <div class="author-modal hidden" id="viewModal">
+    <div class="author-card" style="max-width: 860px;">
+      <div class="author-head">
+        <span id="viewTitle">Блок</span>
+        <div style="margin-left:auto; display:flex; gap:8px;">
+          <button class="btn" id="viewDupBtn" title="Создать редактируемую копию в моих блоках">⧉ Дублировать в мои блоки</button>
+          <button class="btn" id="viewCloseBtn">✕</button>
+        </div>
+      </div>
+      <div class="view-meta" id="viewMeta"></div>
+      <div class="view-grid">
+        <div><div class="view-caption">Pug</div><pre class="view-code" id="viewPug"></pre></div>
+        <div><div class="view-caption">Stylus / CSS</div><pre class="view-code" id="viewStyl"></pre></div>
+      </div>
+      <div class="view-caption">Слоты</div>
+      <div class="view-slots" id="viewSlots"></div>
     </div>
   </div>
 

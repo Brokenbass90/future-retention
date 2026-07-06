@@ -561,3 +561,42 @@ body.dragging-canvas-card .canvas { pointer-events: auto; }
 .canvas-pane { display: none !important; }
 .insp-actions { display: flex; gap: 6px; margin: 0 0 12px; }
 .insp-actions .btn { flex: 1; padding: 6px 0; }
+
+/* ─── Catalog filters & search ─────────────────────────────────── */
+.cat-search-row { padding: 0 10px 6px; }
+.cat-search {
+  width: 100%; box-sizing: border-box; padding: 7px 10px;
+  border: 1px solid var(--border, #2a2f3a); border-radius: 8px;
+  background: var(--bg-input, #10131a); color: inherit; font-size: 12px;
+}
+.cat-filters-row { display: flex; gap: 6px; padding: 0 10px 6px; align-items: center; }
+.cat-select {
+  flex: 1; min-width: 0; padding: 6px 6px;
+  border: 1px solid var(--border, #2a2f3a); border-radius: 8px;
+  background: var(--bg-input, #10131a); color: inherit; font-size: 11px;
+}
+.cat-check { display: flex; align-items: center; gap: 3px; font-size: 13px; cursor: pointer; }
+.cat-count { padding: 0 12px 6px; font-size: 11px; color: var(--muted, #8b93a3); }
+.cat-more-btn { width: calc(100% - 20px); margin: 8px 10px 12px; }
+.cat-item-view {
+  margin-left: auto; border: none; background: transparent; cursor: pointer;
+  font-size: 12px; opacity: .55; padding: 2px 4px;
+}
+.cat-item-view:hover { opacity: 1; }
+.cat-item-head .cat-item-edit, .cat-item-head .cat-item-del { margin-left: 2px; }
+.pill-brand { background: rgba(80, 140, 255, .16); }
+.pill-mobile { background: rgba(60, 190, 120, .16); }
+
+/* ─── Block source view modal ──────────────────────────────────── */
+#viewModal .author-card { max-height: 86vh; overflow: auto; }
+.view-meta { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 0 12px; }
+.view-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.view-caption { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted, #8b93a3); margin-bottom: 4px; }
+.view-code {
+  margin: 0; padding: 10px; border-radius: 8px; max-height: 320px; overflow: auto;
+  background: var(--bg-input, #10131a); border: 1px solid var(--border, #2a2f3a);
+  font: 11px/1.5 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  white-space: pre-wrap; word-break: break-word;
+}
+.view-slots { display: flex; flex-wrap: wrap; gap: 6px; padding-bottom: 6px; }
+@media (max-width: 900px) { .view-grid { grid-template-columns: 1fr; } }
