@@ -1,0 +1,37 @@
+{
+  "id": "iq-outer-wrapper",
+  "label": "Обёртка письма (IQ)",
+  "description": "Наружная часть письма: голова со стилями проекта, preheader, контейнер 580px, footer, gmail-fix. Внутрь (include blocks/header) стекаются section-блоки.",
+  "placement": "outer",
+  "category": "wrapper",
+  "version": 2,
+  "source": "canonical",
+  "pug": "doctype PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"\nhtml(xmlns=\"http://www.w3.org/1999/xhtml\")\n\n    include ../../../../vendor/helpers/mixins\n    include ../../../../vendor/helpers/head\n    <u></u>\n    body.body\n        include helpers/preheader\n        table.body\n            tr\n                td(align=\"center\", valign=\"top\").center.bg-col\n                    center\n                        table.container\n                            tr\n                                td.pt0.plr10a\n                                    //- {{ SECTION_BLOCKS }}\n                                    include blocks/header\n                                    include helpers/footer\n\n        //Gmail App Fix\n        include ../../../../vendor/helpers/gmail-fix\n",
+  "styl": "",
+  "slots": [
+    {
+      "id": "preheader",
+      "kind": "text",
+      "label": "Preheader (скрытый предпросмотр)",
+      "default": "",
+      "uiGroup": "content"
+    }
+  ],
+  "childSlots": [
+    {
+      "id": "sections",
+      "marker": "SECTION_BLOCKS",
+      "accepts": [
+        "section",
+        "both"
+      ]
+    }
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "wrapper",
+    "outer",
+    "iq"
+  ],
+  "note": "Голова (стили проекта) подключается через include vendor/helpers/head. Контентные section-блоки идут в include blocks/header."
+}

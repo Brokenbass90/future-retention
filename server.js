@@ -46,6 +46,11 @@ import { runAgent } from "./src/ai-agent.js";
 import os from "node:os";
 import * as fsLink from "node:fs";
 import { composeEmailFromBlocks, listCanonicalBlocks, userBlockPath, userBlockDir } from "./src/compose-email.js";
+import { BlockLibrarySchemaError, normalizeBlockLibrarySavePayload } from "./src/block-library-schema.js";
+import { classifyConstructorTopLevelLine } from "./src/constructor-legacy-parse.js";
+import { stageComposeSkeletonIfDestination } from "./src/compose-skeleton-stage.js";
+import { withComposeSaveTransaction } from "./src/compose-save-transaction.js";
+import { constructorBuildMailArgs } from "./src/constructor-build-policy.js";
 import { responseSchema, cloneEditResponseSchema, translationResponseSchema, designAnalysisSchema } from "./src/ai-schemas.js";
 import { getFigmaIntegrationContract } from "./src/figma-contract.js";
 import { readEvalBenchmarkSnapshot, summarizeEvalBenchmark, findEvalBenchmarkCase, scoreEvalCase } from "./src/eval.js";
@@ -78,6 +83,19 @@ import { buildComposePlanFromDesign } from "./src/design-compose.js";
 import { scaffoldMail } from "./tools/scaffold-system-mail.js";
 import { buildVendorMixinsReference, buildVendorMixinsCompact, buildMarkupPatternsReference } from "./src/vendor-mixins-ref.js";
 import { patchTheme, saveTheme, readTheme, listThemes, normalizeTheme } from "./tools/theme-patcher.js";
+import {
+  isStudioModelFresh,
+  listCodeWorkspace,
+  markStudioModelStale,
+  readCodeHtml,
+  resetCodeHtmlOverride,
+  saveCodeHtmlOverride,
+  writeFileAtomically,
+} from "./src/code-workspace.js";
+import { syncWorkbenchLocaleNamespaces } from "./src/workbench-localization.js";
+import { compareStudioModelSourceSignatures } from "./src/studio-model-signatures.js";
+import { acquireKeyedOperationLock } from "./src/keyed-operation-lock.js";
+import { resolveWorkbenchBuildLocalePolicy } from "./src/workbench-build-locales.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -101,6 +119,7 @@ const legacyToolkitSnapshotPath = path.join(studioDataDir, "imports", "legacy-re
 const port = Number(process.env.PORT || 3000);
 const openAiApiKey = process.env.OPENAI_API_KEY || "";
 const openAiModel = process.env.OPENAI_MODEL || "gpt-4.1-mini";
+const openAiImageModel = process.env.OPENAI_IMAGE_MODEL || "gpt-image-2";
 const deepLApiKey = process.env.DEEPL_API_KEY || "";
 const deepLApiUrl = process.env.DEEPL_API_URL || "https://api-free.deepl.com";
 const figmaApiToken = process.env.FIGMA_API_TOKEN || "";
@@ -1535,6 +1554,52 @@ async function registerUploadedAssets(files) {
       summary: summarizeAssetRegistry(savedRegistry)
     }
   };
+}
+
+async function generateOpenAiImageAsset({ prompt, size, quality }) {
+  if (!openAiApiKey) throw new Error("OPENAI_API_KEY is not configured");
+  const cleanPrompt = cleanText(prompt).slice(0, 4000);
+  if (cleanPrompt.length < 8) throw new Error("Image prompt is too short");
+  const safeSize = new Set(["1024x1024", "1536x1024", "1024x1536"]).has(size) ? size : "1536x1024";
+  const safeQuality = new Set(["low", "medium", "high", "auto"]).has(quality) ? quality : "medium";
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 180_000);
+  let apiResponse;
+  try {
+    apiResponse = await fetch("https://api.openai.com/v1/images/generations", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${openAiApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: openAiImageModel,
+        prompt: cleanPrompt,
+        size: safeSize,
+        quality: safeQuality,
+        n: 1,
+      }),
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeout);
+  }
+  const data = await apiResponse.json().catch(() => ({}));
+  if (!apiResponse.ok) {
+    throw new Error(`OpenAI image API ${apiResponse.status}: ${cleanText(data?.error?.message || "generation failed").slice(0, 240)}`);
+  }
+  const base64 = data?.data?.[0]?.b64_json;
+  if (!base64 || typeof base64 !== "string") throw new Error("OpenAI image API returned no image data");
+  const registered = await registerUploadedAssets([{
+    name: `ai-${Date.now()}-${safeSize}.png`,
+    kind: "asset",
+    dataUrl: `data:image/png;base64,${base64}`,
+    alt: cleanPrompt.slice(0, 120),
+    notes: `AI · ${openAiImageModel} · ${safeSize} · ${safeQuality}\n${cleanPrompt}`,
+    placement: "auto",
+    key: `ai-${Date.now()}`,
+  }]);
+  return { item: registered.items[0], model: openAiImageModel, size: safeSize, quality: safeQuality };
 }
 
 async function updateAssetRegistryEntry(id, patch) {
@@ -16877,26 +16942,8 @@ const server = http.createServer(async (request, response) => {
     if (request.method === "POST" && request.url === "/api/blocks-library/save") {
       try {
         const body = await readRequestBody(request);
-        const id = String(body?.id || "").trim();
-        if (!id || !/^[a-z0-9][a-z0-9_-]{0,63}$/i.test(id)) {
-          sendJson(response, 400, { error: "id must be 1-64 chars, letters/digits/_/-" });
-          return;
-        }
-        const label = String(body?.label || id).trim().slice(0, 120);
-        const description = String(body?.description || "").trim().slice(0, 400);
-        const placement = body?.placement === "section" || body?.placement === "inline" || body?.placement === "helper"
-          ? body.placement : "inline";
-        const category = String(body?.category || "misc").trim().slice(0, 40);
-        const pug = String(body?.pug || "");
-        const styl = String(body?.styl || "");
-        if (!pug.trim()) { sendJson(response, 400, { error: "pug content required" }); return; }
-        const slots = Array.isArray(body?.slots) ? body.slots.map((sl) => ({
-          id: String(sl?.id || "").trim(),
-          kind: String(sl?.kind || "text"),
-          label: String(sl?.label || sl?.id || ""),
-          default: sl?.default,
-          min: sl?.min, max: sl?.max, options: sl?.options,
-        })).filter((sl) => sl.id) : [];
+        const blockJson = normalizeBlockLibrarySavePayload(body);
+        const { id, placement, category, slots } = blockJson;
         const force = Boolean(body?.force);
         const target = userBlockPath(id);
         if (existsSync(target) && !force) {
@@ -16904,18 +16951,12 @@ const server = http.createServer(async (request, response) => {
           return;
         }
         await mkdir(userBlockDir(), { recursive: true });
-        const blockJson = {
-          id, label, description, placement, category,
-          version: 1, source: "user",
-          pug, styl, slots,
-          tags: Array.isArray(body?.tags) ? body.tags.slice(0, 12).map(String) : [],
-          createdAt: new Date().toISOString(),
-        };
         await writeFile(target, JSON.stringify(blockJson, null, 2) + "\n", "utf8");
         try { await appendStudioJournalEntry({ area: "blocks", title: `User block saved: ${id}`, message: `placement=${placement}, slots=${slots.length}`, meta: { id, placement, category, slots: slots.length } }); } catch {}
         sendJson(response, 200, { ok: true, id, path: path.relative(__dirname, target) });
       } catch (err) {
-        sendJson(response, 500, { error: String(err && err.message ? err.message : err) });
+        const status = err instanceof BlockLibrarySchemaError ? 400 : 500;
+        sendJson(response, status, { error: String(err && err.message ? err.message : err) });
       }
       return;
     }
@@ -16937,12 +16978,144 @@ const server = http.createServer(async (request, response) => {
 
     // ── Compose-preview: build a mail from blocks+slots and return dist HTML inline ──
     // No file persistence — uses an in-memory dest under /tmp.
+    // ── Constructor: systemic placeholders registry (per-locale tokens) ──
+    if (request.method === "GET" && request.url === "/api/placeholders") {
+      try {
+        const p = path.join(__dirname, "data", "placeholders.json");
+        const data = existsSync(p) ? JSON.parse(readFileSync(p, "utf8")) : { groups: [] };
+        sendJson(response, 200, data);
+      } catch (err) { sendJson(response, 500, { error: String(err && err.message ? err.message : err) }); }
+      return;
+    }
+
+    // ── Constructor: parse a base email (header.jade) into blocks ──
+    if (request.method === "GET" && request.url.startsWith("/api/constructor/parse-email")) {
+      try {
+        const params = new URL(request.url, "http://localhost").searchParams;
+        const brand = String(params.get("brand") || "").replace(/[^a-zA-Z0-9_]/g, "");
+        const mail = String(params.get("mail") || "").replace(/[^a-zA-Z0-9_-]/g, "");
+        if (!brand || !mail) { sendJson(response, 400, { error: "brand and mail required" }); return; }
+        const mailRoot = path.join(__dirname, "email-base", brand, mail);
+        const studioModelPath = path.join(mailRoot, "studio-model.json");
+        let studioModelStale = false;
+        if (existsSync(studioModelPath)) {
+          try {
+            const model = JSON.parse(readFileSync(studioModelPath, "utf8"));
+            const hasModelEntries = model && typeof model === "object" && Array.isArray(model.entries);
+            // A model without verifiable source signatures is intentionally
+            // treated as stale. This protects legacy constructor state from
+            // overwriting Pug/Stylus changed directly in an editor or by an
+            // external coding agent.
+            const signatureCheck = hasModelEntries
+              ? compareStudioModelSourceSignatures(mailRoot, model.sourceSignatures)
+              : null;
+            const modelFresh = hasModelEntries
+              && isStudioModelFresh(model)
+              && signatureCheck?.matches === true;
+            if (hasModelEntries && !modelFresh) studioModelStale = true;
+            if (modelFresh) {
+              const entries = model.entries;
+              const defsById = new Map();
+              const addDef = (candidate) => {
+                if (candidate && typeof candidate === "object" && typeof candidate.id === "string" && candidate.id) {
+                  defsById.set(candidate.id, candidate);
+                }
+              };
+              if (Array.isArray(model.defs)) model.defs.forEach(addDef);
+              else if (model.defs && typeof model.defs === "object") {
+                for (const [id, candidate] of Object.entries(model.defs)) {
+                  addDef(candidate && typeof candidate === "object" && !candidate.id
+                    ? { id, ...candidate }
+                    : candidate);
+                }
+              }
+
+              const libraryById = new Map(listCanonicalBlocks().map((block) => [block.id, block]));
+              const visitEntries = (items) => {
+                for (const entry of items) {
+                  if (!entry || typeof entry !== "object") continue;
+                  const blockId = entry.blockId || entry.id;
+                  const addEntryDef = (candidate) => {
+                    if (!candidate || typeof candidate !== "object") return;
+                    addDef((candidate.id || !blockId) ? candidate : { ...candidate, id: blockId });
+                  };
+                  addEntryDef(entry.def);
+                  addEntryDef(entry.definition);
+                  addEntryDef(entry.block);
+                  if (blockId && (entry.source === "parsed" || entry.source === "user")) {
+                    addDef(libraryById.get(blockId));
+                    if (typeof entry.pug === "string") addDef(entry);
+                  } else if (blockId && libraryById.get(blockId)?.source === "user") {
+                    addDef(libraryById.get(blockId));
+                  }
+                  if (Array.isArray(entry.children)) visitEntries(entry.children);
+                }
+              };
+              visitEntries(entries);
+              const defs = [...defsById.values()];
+              sendJson(response, 200, {
+                ok: true,
+                brand,
+                mail,
+                source: "studio-model",
+                count: entries.length,
+                model,
+                entries,
+                blocks: entries,
+                defs,
+              });
+              return;
+            }
+          } catch {
+            // A stale or partially-written model must not make a previously
+            // editable email unavailable; continue with the heuristic parser.
+          }
+        }
+        const base = path.join(mailRoot, "app", "templates", "blocks");
+        // The build pipeline prefers .pug when both modern and legacy aliases
+        // exist, so stale-model fallback must inspect the same live source.
+        let hp = path.join(base, "header.pug");
+        if (!existsSync(hp)) hp = path.join(base, "header.jade");
+        if (!existsSync(hp)) { sendJson(response, 404, { error: "header.jade/pug not found for this email" }); return; }
+        const src = readFileSync(hp, "utf8").replace(/\r/g, "");
+        const lines = src.split("\n");
+        const raw = [];
+        let cur = null;
+        const flush = () => { if (cur && cur.lines.some((l) => l.trim())) { cur.pug = cur.lines.join("\n").replace(/\s+$/, ""); delete cur.lines; raw.push(cur); } cur = null; };
+        for (const line of lines) {
+          if (!line.trim()) { if (cur) cur.lines.push(line); continue; }
+          const indent = line.match(/^\s*/)[0].length;
+          if (indent === 0) {
+            flush();
+            const t = line.trim();
+            cur = { ...classifyConstructorTopLevelLine(t), lines: [line] };
+          } else if (cur) { cur.lines.push(line); }
+        }
+        flush();
+        const blocks = raw.map((b, i) => ({
+          id: `parsed-${mail}-${i}`, label: b.label, placement: b.placement,
+          category: b.category || "imported", source: "parsed", pug: b.pug, styl: "", slots: [],
+          ...(b.dividerLevel ? { dividerLevel: b.dividerLevel } : {}),
+        }));
+        sendJson(response, 200, {
+          ok: true,
+          brand,
+          mail,
+          source: "parsed-source",
+          studioModelStale,
+          count: blocks.length,
+          blocks,
+        });
+      } catch (err) { sendJson(response, 500, { error: String(err && err.message ? err.message : err) }); }
+      return;
+    }
+
     if (request.method === "POST" && request.url === "/api/compose-preview") {
       try {
         const body = await readRequestBody(request);
         const blocks = Array.isArray(body?.blocks) ? body.blocks : [];
         if (!blocks.length) { sendJson(response, 400, { error: "blocks array required" }); return; }
-        const mailName = String(body?.mailName || ("preview-" + Date.now())).replace(/[^a-z0-9_-]/gi, "-").toLowerCase();
+        const mailName = String(body?.mailName || (`preview-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`)).replace(/[^a-z0-9_-]/gi, "-").toLowerCase();
         const brand = "X_preview";
         const tmpDir = path.join(os.tmpdir(), "retkit-compose-preview");
         await mkdir(tmpDir, { recursive: true });
@@ -16955,10 +17128,12 @@ const server = http.createServer(async (request, response) => {
           }
         }
         // Compose into tmp dir.
-        const composed = composeEmailFromBlocks({ brand, mailName, blocks, destRoot: tmpDir, markBlocks: true });
+        const _skBrand = String(body?.sourceBrand||"").replace(/[^a-zA-Z0-9_]/g,""); const _skMail = String(body?.sourceMail||"").replace(/[^a-zA-Z0-9_-]/g,"");
+        const _skPath = (_skBrand && _skMail && existsSync(path.join(__dirname,"email-base",_skBrand,_skMail))) ? path.join(__dirname,"email-base",_skBrand,_skMail) : undefined;
+        const composed = composeEmailFromBlocks({ brand, mailName, blocks, destRoot: tmpDir, markBlocks: true, ...(_skPath?{skeleton:_skPath}:{}) });
         // Run build-mail.js synchronously.
         const built = await new Promise((resolve) => {
-          const args = ["tools/build-mail.js", "--category", brand, "--mail", mailName, "--locales", "en", "--pretty"];
+          const args = constructorBuildMailArgs({ brand, mailName, preview: true });
           const child = spawn(process.execPath, args, { cwd: tmpDir, stdio: ["ignore", "pipe", "pipe"] });
           let stderr = "";
           child.stderr.on("data", (d) => { stderr += d.toString(); });
@@ -16993,6 +17168,7 @@ const server = http.createServer(async (request, response) => {
     //    and build it. Used by the constructor's Save button. Refuses if the
     //    target folder already exists (unless force=true).
     if (request.method === "POST" && request.url === "/api/compose-save") {
+      let releaseComposeSaveLock = null;
       try {
         const body = await readRequestBody(request);
         const blocks = Array.isArray(body?.blocks) ? body.blocks : [];
@@ -17004,8 +17180,11 @@ const server = http.createServer(async (request, response) => {
         }
         const brand = String(body?.brand || "X_assembled").replace(/[^a-zA-Z0-9_]/g, "") || "X_assembled";
         const destFolder = path.join(__dirname, "email-base", brand, "mail-" + rawName);
-        const force = Boolean(body?.force);
-        if (existsSync(destFolder) && !force) {
+        const distFolder = path.join(__dirname, "email-base", "dist", brand, "mail-" + rawName);
+        const force = body?.force === true;
+        releaseComposeSaveLock = await acquireKeyedOperationLock(`mail:${brand}/mail-${rawName}`);
+        const hadExistingOutput = existsSync(destFolder) || existsSync(distFolder);
+        if (hadExistingOutput && !force) {
           sendJson(response, 409, {
             error: "mail already exists",
             existsAt: path.relative(__dirname, destFolder),
@@ -17014,30 +17193,61 @@ const server = http.createServer(async (request, response) => {
           return;
         }
         // Compose into email-base directly.
-        const composed = composeEmailFromBlocks({
-          brand, mailName: rawName, blocks,
-          destRoot: path.join(__dirname, "email-base"),
-        });
-        // Build it.
-        const built = await new Promise((resolve) => {
-          const args = ["tools/build-mail.js", "--category", brand, "--mail", rawName, "--locales", "en", "--pretty"];
-          const child = spawn(process.execPath, args, { cwd: path.join(__dirname, "email-base"), stdio: ["ignore", "pipe", "pipe"] });
-          let stderr = "";
-          child.stderr.on("data", (d) => { stderr += d.toString(); });
-          child.on("close", (code) => resolve({ code, stderr }));
-          child.on("error", (err) => resolve({ code: -1, stderr: String(err) }));
-        });
+        const _skB = String(body?.sourceBrand||"").replace(/[^a-zA-Z0-9_]/g,""); const _skM = String(body?.sourceMail||"").replace(/[^a-zA-Z0-9_-]/g,"");
+        const _skP = (_skB && _skM && existsSync(path.join(__dirname,"email-base",_skB,_skM))) ? path.join(__dirname,"email-base",_skB,_skM) : undefined;
+        const stagedSkeleton = await stageComposeSkeletonIfDestination(_skP, destFolder);
+        let transactionResult;
+        try {
+          transactionResult = await withComposeSaveTransaction({
+            destination: destFolder,
+            distDestination: distFolder,
+            force,
+          }, async () => {
+            const composed = composeEmailFromBlocks({
+              brand, mailName: rawName, blocks,
+              destRoot: path.join(__dirname, "email-base"),
+              ...(stagedSkeleton.skeleton ? { skeleton: stagedSkeleton.skeleton } : {}),
+            });
+            const built = await new Promise((resolve) => {
+              const args = constructorBuildMailArgs({ brand, mailName: rawName, preview: false });
+              const child = spawn(process.execPath, args, { cwd: path.join(__dirname, "email-base"), stdio: ["ignore", "pipe", "pipe"] });
+              let stderr = "";
+              child.stderr.on("data", (d) => { stderr += d.toString(); });
+              child.on("close", (code) => resolve({ code, stderr }));
+              child.on("error", (err) => resolve({ code: -1, stderr: String(err) }));
+            });
+            if (built.code !== 0) {
+              const error = new Error("constructor mail build failed");
+              error.code = "COMPOSE_BUILD_FAILED";
+              error.stderr = built.stderr;
+              error.composed = composed;
+              throw error;
+            }
+            return { composed, built };
+          });
+        } catch (err) {
+          if (err?.code === "COMPOSE_BUILD_FAILED") {
+            const composed = err.composed || { blocksUsed: 0, totalBlocks: blocks.length };
+            const journalMeta = { brand, mailName: rawName, blocksUsed: composed.blocksUsed, buildOk: false, restored: hadExistingOutput };
+            try { await appendStudioJournalEntry({ area: "constructor", title: `Mail build failed: ${brand}/mail-${rawName}`, message: hadExistingOutput ? "Previous mail restored after failed build" : "Incomplete mail removed after failed build", meta: journalMeta }); } catch {}
+            sendJson(response, 422, {
+              ok: false,
+              error: hadExistingOutput
+                ? "build failed; previous mail restored"
+                : "build failed; incomplete mail removed",
+              restored: hadExistingOutput,
+              path: path.relative(__dirname, destFolder),
+              stderr: String(err.stderr || "").slice(0, 800),
+            });
+            return;
+          }
+          throw err;
+        } finally {
+          await stagedSkeleton.cleanup();
+        }
+        const { composed, built } = transactionResult;
         const journalMeta = { brand, mailName: rawName, blocksUsed: composed.blocksUsed, buildOk: built.code === 0 };
         try { await appendStudioJournalEntry({ area: "constructor", title: `Mail saved: ${brand}/mail-${rawName}`, message: `${composed.blocksUsed}/${composed.totalBlocks} blocks; build ${built.code === 0 ? "ok" : "failed"}`, meta: journalMeta }); } catch {}
-        if (built.code !== 0) {
-          sendJson(response, 422, {
-            ok: false,
-            error: "saved but build failed",
-            path: path.relative(__dirname, destFolder),
-            stderr: built.stderr.slice(0, 800),
-          });
-          return;
-        }
         sendJson(response, 200, {
           ok: true,
           brand, mailName: rawName,
@@ -17048,6 +17258,8 @@ const server = http.createServer(async (request, response) => {
         });
       } catch (err) {
         sendJson(response, 500, { error: String(err && err.message ? err.message : err) });
+      } finally {
+        releaseComposeSaveLock?.();
       }
       return;
     }
@@ -17110,6 +17322,33 @@ const server = http.createServer(async (request, response) => {
         }
       });
       sendJson(response, 200, result);
+      return;
+    }
+
+    if (request.method === "POST" && request.url === "/api/assets/generate") {
+      if (!openAiApiKey) {
+        sendJson(response, 503, { error: "OPENAI_API_KEY is not configured" });
+        return;
+      }
+      try {
+        const payload = await readRequestBody(request);
+        const result = await generateOpenAiImageAsset({
+          prompt: payload?.prompt,
+          size: cleanText(payload?.size),
+          quality: cleanText(payload?.quality),
+        });
+        await appendStudioJournalEntry({
+          area: "assets",
+          title: "AI image generated",
+          message: `Generated ${cleanText(result.item?.label) || "image"} with ${result.model}.`,
+          meta: { assetId: result.item?.id, model: result.model, size: result.size, quality: result.quality },
+        });
+        sendJson(response, 200, { ok: true, ...result });
+      } catch (error) {
+        const message = String(error?.message || error);
+        const status = /prompt is too short/i.test(message) ? 400 : 502;
+        sendJson(response, status, { error: message });
+      }
       return;
     }
 
@@ -18620,6 +18859,60 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
+    // ── Workbench: Pug → localized HTML workspace ──────────────────────────
+    // Compiled HTML stays in dist. A manually edited locale is persisted in a
+    // private per-mail directory outside dist, so source rebuilds never erase it.
+    if (request.method === "GET" && request.url.startsWith("/api/wb/code-workspace?")) {
+      const params = new URL(request.url, "http://localhost").searchParams;
+      const brand = params.get("brand") || "";
+      const mail = params.get("mail") || "";
+      try {
+        const workspace = await listCodeWorkspace({ emailBaseRoot, brand, mail });
+        sendJson(response, 200, { ok: true, brand, mail, ...workspace });
+      } catch (error) {
+        sendJson(response, 400, { ok: false, error: error.message });
+      }
+      return;
+    }
+
+    if (request.method === "GET" && request.url.startsWith("/api/wb/code-html?")) {
+      const params = new URL(request.url, "http://localhost").searchParams;
+      const brand = params.get("brand") || "";
+      const mail = params.get("mail") || "";
+      const locale = params.get("locale") || "base";
+      try {
+        const result = await readCodeHtml({ emailBaseRoot, brand, mail, locale });
+        sendJson(response, 200, { ok: true, brand, mail, ...result });
+      } catch (error) {
+        sendJson(response, 404, { ok: false, error: error.message });
+      }
+      return;
+    }
+
+    if (request.method === "POST" && request.url === "/api/wb/code-html") {
+      const { brand = "", mail = "", locale = "base", content = "" } = await readRequestBody(request);
+      try {
+        const result = await saveCodeHtmlOverride({ emailBaseRoot, brand, mail, locale, html: content });
+        const workspace = await listCodeWorkspace({ emailBaseRoot, brand, mail });
+        sendJson(response, 200, { ok: true, brand, mail, ...result, locales: workspace.locales });
+      } catch (error) {
+        sendJson(response, 400, { ok: false, error: error.message });
+      }
+      return;
+    }
+
+    if (request.method === "POST" && request.url === "/api/wb/code-html/reset") {
+      const { brand = "", mail = "", locale = "base" } = await readRequestBody(request);
+      try {
+        const result = await resetCodeHtmlOverride({ emailBaseRoot, brand, mail, locale });
+        const workspace = await listCodeWorkspace({ emailBaseRoot, brand, mail });
+        sendJson(response, 200, { ok: true, brand, mail, ...result, locales: workspace.locales });
+      } catch (error) {
+        sendJson(response, 400, { ok: false, error: error.message });
+      }
+      return;
+    }
+
     // ── Workbench: list editable source files for an email ───────────────────
     if (request.method === "GET" && request.url.startsWith("/api/wb/email-files?")) {
       const params = new URL(request.url, "http://localhost").searchParams;
@@ -18680,8 +18973,12 @@ const server = http.createServer(async (request, response) => {
       const safeFile  = file.replace(/\.\./g, "");
       try {
         const filePath = path.join(__dirname, "email-base", safeBrand, safeMail, "app", safeFile);
-        await writeFile(filePath, content, "utf8");
-        sendJson(response, 200, { ok: true });
+        await writeFileAtomically(filePath, content);
+        const sourceAffectsConstructor = /\.(?:pug|jade|styl|css)$/i.test(safeFile);
+        const studioModel = sourceAffectsConstructor
+          ? await markStudioModelStale({ emailBaseRoot, brand: safeBrand, mail: safeMail, sourceFile: safeFile })
+          : { updated: false };
+        sendJson(response, 200, { ok: true, studioModelStale: Boolean(studioModel.updated) });
       } catch(e) {
         sendJson(response, 500, { error: e.message });
       }
@@ -18690,32 +18987,68 @@ const server = http.createServer(async (request, response) => {
 
     // ── Workbench: rebuild an email from source (Pug+Stylus → HTML) ────────
     if (request.method === "POST" && request.url === "/api/wb/build-email") {
-      const { brand = "", mail = "" } = await readRequestBody(request);
+      const { brand = "", mail = "", namespaces = null } = await readRequestBody(request);
       if (!brand || !mail) { sendJson(response, 400, { error: "brand and mail required" }); return; }
       const safeBrand = brand.replace(/\.\./g, "").replace(/[^a-zA-Z0-9_\-]/g, "");
       const safeMail  = mail.replace(/\.\./g, "").replace(/[^a-zA-Z0-9_\-]/g, "");
+      if (!safeBrand || !safeMail) { sendJson(response, 400, { error: "invalid brand or mail" }); return; }
       // build-mail.js convention: --mail <name> where name has no "mail-" prefix
       // (it adds "mail-" internally). Strip it from folder names like "mail-welcome" -> "welcome"
       const mailArg   = safeMail.replace(/^mail-/, "");
+      const mailFolder = `mail-${mailArg}`;
       const emailBaseDir = path.join(__dirname, "email-base");
       const t0 = Date.now();
+      let releaseBuildLock = null;
       try {
-        await new Promise((resolve, reject) => {
+        releaseBuildLock = await acquireKeyedOperationLock(`mail:${safeBrand}/${mailFolder}`);
+        const localeSync = namespaces == null
+          ? { written: 0, unchanged: 0, fileCount: 0, namespaceCount: 0, namespaces: [], locales: [], skippedBuiltins: [] }
+          : await syncWorkbenchLocaleNamespaces({ emailBaseRoot, namespaces });
+        if (localeSync.written > 0) _invalidatePlaceholdersIndexCache();
+        const buildArgs = ["tools/build-mail.js", "--category", safeBrand, "--mail", mailArg];
+        const localePolicy = await resolveWorkbenchBuildLocalePolicy({
+          namespacesProvided: namespaces != null,
+          syncedLocales: localeSync.locales,
+          distRoot: path.join(emailBaseRoot, "dist", safeBrand, mailFolder),
+        });
+        // A Workbench namespace snapshot defines the locale workspace. Building
+        // its editable union is preferred. A builtin-only snapshot preserves
+        // this mail's existing compiled locales instead of pruning EN/RU and
+        // making the preview silently fall back to raw Original HTML.
+        if (localePolicy.mode === "selected") {
+          buildArgs.push("--locales", localePolicy.locales.join(","));
+        } else if (localePolicy.mode === "skip") {
+          buildArgs.push("--skip-locales");
+        }
+        const buildResult = await new Promise((resolve, reject) => {
           const child = spawn(
             process.execPath,
-            ["tools/build-mail.js", "--category", safeBrand, "--mail", mailArg],
+            buildArgs,
             { cwd: emailBaseDir, stdio: ["ignore", "pipe", "pipe"] }
           );
           let errOut = "";
           child.stderr.on("data", d => { errOut += d.toString(); });
           child.on("close", code => {
-            if (code === 0) resolve();
+            if (code === 0) resolve({ stderr: errOut });
             else reject(new Error(errOut.trim().split("\n").pop() || `Exit ${code}`));
           });
+          child.on("error", reject);
         });
-        sendJson(response, 200, { ok: true, duration: Date.now() - t0 });
+        const buildWarnings = String(buildResult.stderr || "")
+          .split("\n")
+          .map(line => line.trim())
+          .filter(line => /WARN|unresolved placeholder|no JSON found/i.test(line));
+        sendJson(response, 200, {
+          ok: true,
+          duration: Date.now() - t0,
+          localeSync,
+          localePolicy,
+          buildWarnings,
+        });
       } catch(err) {
         sendJson(response, 422, { ok: false, error: err.message });
+      } finally {
+        releaseBuildLock?.();
       }
       return;
     }
@@ -18939,7 +19272,7 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
-    if (request.method === "GET" && (request.url === "/workbench" || request.url === "/workbench/")) {
+    if (request.method === "GET" && (request.url.split("?")[0] === "/workbench" || request.url.split("?")[0] === "/workbench/")) {
       const wbPath = path.join(publicDir, "workbench.html");
       const data = await readFile(wbPath);
       response.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" });

@@ -16,13 +16,13 @@
  *      a recognizable body section.
  *   4. Record pass / fail + reason.
  *
- * Output: a colored CLI report + a Markdown summary at
- *   docs/BLOCK-LIBRARY-STATUS.md
+ * Output: a colored CLI report. Pass `--write-report` to also refresh
+ *   docs/BLOCK-LIBRARY-STATUS.md.
  *
  * No tokens spent, no AI calls. Pure compile-time validation.
  *
  * Run:  node scripts/test-blocks.mjs
- * Exit: 0 on at least one passing block; 1 if every block fails.
+ * Exit: 0 only when every block passes; 1 on a failure or skipped block.
  */
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync, rmSync, cpSync, symlinkSync, statSync, readdirSync } from "node:fs";
@@ -99,21 +99,54 @@ function copyTemplateSkippingDist(src, dst) {
   }
 }
 
-function scaffoldMail(id, snippetPug) {
+function scaffoldMail(id, snippetPug, placement) {
   const dest = path.join(TEMP_ROOT, OUTPUT_CATEGORY, `mail-${id}`);
   if (existsSync(dest)) {
     try { rmSync(dest, { recursive: true, force: true }); } catch { /* ignore */ }
   }
   copyTemplateSkippingDist(TEMPLATE_SOURCE, dest);
-  // Overwrite the header block with our snippet.
-  const headerPath = path.join(dest, "app", "templates", "blocks", "header.pug");
-  writeFileSync(headerPath, snippetPug + "\n", "utf8");
-  // Nuke any leftover .jade variant of header so Pug uses ours.
+  // Outer definitions are full document skeletons and belong at index.pug.
+  // Every other block is compiled in the normal blocks/header.pug position.
+  const relativeTarget = placement === "outer"
+    ? path.join("app", "templates", "index.pug")
+    : path.join("app", "templates", "blocks", "header.pug");
+  const targetPath = path.join(dest, relativeTarget);
+  writeFileSync(targetPath, snippetPug + "\n", "utf8");
+  // Nuke the matching legacy Jade variant so the Pug fixture is authoritative.
   try {
-    const jadeHeader = path.join(dest, "app", "templates", "blocks", "header.jade");
-    if (existsSync(jadeHeader)) rmSync(jadeHeader, { force: true });
+    const jadePath = targetPath.replace(/\.pug$/, ".jade");
+    if (existsSync(jadePath)) rmSync(jadePath, { force: true });
   } catch { /* ignore */ }
   return dest;
+}
+
+function escapePugAttribute(value) {
+  return String(value ?? "")
+    .replace(/'/g, "&#39;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+/** Apply canonical slot defaults before sending a definition to Pug. */
+function substituteCanonicalDefaults(pug, slots = []) {
+  const defaults = Object.create(null);
+  for (const slot of slots) {
+    if (slot && slot.id && Object.prototype.hasOwnProperty.call(slot, "default")) {
+      defaults[slot.id] = slot.default;
+    }
+  }
+  const replace = (text, attribute = false) => String(text || "").replace(
+    /\{\{\s*([a-z][a-z0-9_]*)\s*\}\}/gi,
+    (token, id) => Object.prototype.hasOwnProperty.call(defaults, id)
+      ? (attribute ? escapePugAttribute(defaults[id]) : String(defaults[id] ?? ""))
+      : token,
+  );
+  return String(pug || "").split("\n").map((line) => {
+    const match = line.match(/^(\s*[^\s(]+)\(([^)]*)\)(.*)$/);
+    if (!match) return replace(line);
+    return `${match[1]}(${replace(match[2], true)})${replace(match[3])}`;
+  }).join("\n");
 }
 
 function runBuild(id) {
@@ -170,7 +203,7 @@ async function main() {
         const obj = JSON.parse(readFileSync(path.join(canonicalDir, fname), "utf8"));
         handCrafted.push({
           id: obj.id || fname.replace(/\.json$/, ""),
-          pug: obj.pug,
+          pug: substituteCanonicalDefaults(obj.pug, obj.slots),
           sectionKind: obj.category || obj.placement || "(none)",
           placement: obj.placement,
           source: "canonical",
@@ -204,7 +237,7 @@ async function main() {
       continue;
     }
     try {
-      scaffoldMail(id, pug);
+      scaffoldMail(id, pug, entry.placement);
     } catch (err) {
       console.log(bad("✗ scaffold failed: " + err.message));
       results.push({ id, sectionKind, pugLen, source, status: "fail", reason: "scaffold: " + err.message });
@@ -296,14 +329,19 @@ async function main() {
   md.push("Re-run with `node scripts/test-blocks.mjs` after any change.");
 
   const reportPath = path.join(repoRoot, "docs", "BLOCK-LIBRARY-STATUS.md");
-  writeFileSync(reportPath, md.join("\n"), "utf8");
-  console.log();
-  console.log(dim(`Report written: ${path.relative(repoRoot, reportPath)}`));
+  if (process.argv.includes("--write-report")) {
+    writeFileSync(reportPath, md.join("\n"), "utf8");
+    console.log();
+    console.log(dim(`Report written: ${path.relative(repoRoot, reportPath)}`));
+  } else {
+    console.log();
+    console.log(dim("Report not written (pass --write-report to refresh it)."));
+  }
   console.log();
 
   // ── Exit ─────────────────────────────────────────────────────────
-  if (!passed.length) {
-    console.log(bad("✗ Every block failed — something is structurally wrong with the test scaffold, not the blocks."));
+  if (failed.length || skipped.length) {
+    console.log(bad(`✗ Block validation failed (${failed.length} failed, ${skipped.length} skipped).`));
     process.exit(1);
   }
   process.exit(0);

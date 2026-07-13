@@ -1,0 +1,23 @@
+{
+  "id": "iq-hero-image",
+  "label": "Hero — картинка-хедер",
+  "description": "Самостоятельная email-safe hero-картинка для media-зоны. Изображение, ссылка, alt, ширина, рамка, скругление и отступы редактируются отдельно.",
+  "placement": "inner",
+  "category": "hero",
+  "version": 1,
+  "source": "canonical",
+  "pug": "table.iq-hero-image(role=\"presentation\" width=\"100%\")\n    tr\n        td(align=\"{{ align }}\" style=\"padding:{{ padding }}\")\n            a(href=\"{{ href }}\" universal=\"true\" target=\"_blank\")\n                img.iq-hero-image-asset(src=\"{{ image }}\" alt=\"{{ alt }}\" width=\"{{ width }}\" style=\"border:{{ border }};border-radius:{{ radius }};display:block;height:auto;max-width:100%;width:{{ width }}px\")",
+  "styl": ".iq-hero-image{width:100%}\n.iq-hero-image-asset{display:block;float:none;height:auto;margin:0 auto;max-width:100%;width:{{ width }}px}\n@media screen and (max-width:600px){.iq-hero-image-asset{height:auto!important;width:100%!important}}",
+  "slots": [
+    { "id": "image", "kind": "image", "label": "Картинка-хедер", "default": "https://fsms.quadcode.com/storage/public/d6/sk/tijursrq72d919ug/233-head.png", "uiGroup": "assets" },
+    { "id": "href", "kind": "url", "label": "Ссылка картинки", "default": "#", "uiGroup": "content" },
+    { "id": "alt", "kind": "text", "label": "Alt-текст", "default": "", "uiGroup": "content" },
+    { "id": "width", "kind": "number", "label": "Ширина, px", "default": 580, "min": 120, "max": 580, "uiGroup": "appearance" },
+    { "id": "align", "kind": "select", "label": "Выравнивание", "default": "center", "options": ["left", "center", "right"], "uiGroup": "appearance" },
+    { "id": "padding", "kind": "text", "label": "Отступы", "default": "0", "uiGroup": "appearance" },
+    { "id": "border", "kind": "select", "label": "Обводка", "default": "0", "options": ["0", "1px solid #ECECED", "2px solid #FF7700"], "uiGroup": "appearance" },
+    { "id": "radius", "kind": "select", "label": "Скругление", "default": "0", "options": ["0", "8px", "16px", "24px", "32px"], "uiGroup": "appearance" }
+  ],
+  "outlookSafe": true,
+  "tags": ["hero", "header", "image", "inner", "iq"]
+}

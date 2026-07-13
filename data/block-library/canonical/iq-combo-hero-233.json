@@ -1,0 +1,85 @@
+{
+  "id": "iq-combo-hero-233",
+  "label": "Комбо: Hero (лого + картинка + заголовок)",
+  "description": "Рецепт готовой шапки: hero-секция с именованными media/content-зонами, отдельный логотип, картинка-хедер, дата-плашка и текстовый блок. После вставки каждый элемент редактируется самостоятельно.",
+  "placement": "section",
+  "category": "hero",
+  "version": 2,
+  "source": "canonical",
+  "combo": true,
+  "children": [
+    {
+      "id": "iq-section-hero-bg",
+      "role": "container",
+      "slots": {
+        "bg_image": "https://fsms.quadcode.com/storage/public/d6/rs/39rursrq72d919c0/2-2-1-back.png",
+        "background_color": "#000000",
+        "background_position": "center top",
+        "border": "none",
+        "radius": "32px",
+        "media_padding": "0 0 20px",
+        "content_padding": "0 0 50px"
+      }
+    },
+    {
+      "id": "iq-hero-logo",
+      "slotId": "media",
+      "role": "logo",
+      "slots": {
+        "image": "https://fsms.quadcode.com/storage/public/d6/nu/493ursrq72d917kg/logo.png",
+        "href": "#",
+        "alt": "IQ Option",
+        "width": 138,
+        "align": "center",
+        "padding": "32px 0 0",
+        "radius": "0"
+      }
+    },
+    {
+      "id": "iq-hero-image",
+      "slotId": "media",
+      "role": "heroImage",
+      "slots": {
+        "image": "https://fsms.quadcode.com/storage/public/d6/sk/tijursrq72d919ug/233-head.png",
+        "href": "#",
+        "alt": "",
+        "width": 580,
+        "align": "center",
+        "padding": "0",
+        "border": "0",
+        "radius": "0"
+      }
+    },
+    {
+      "id": "iq-hero-date",
+      "slotId": "content",
+      "role": "eyebrow",
+      "slots": {
+        "label": "Дата"
+      }
+    },
+    {
+      "id": "iq-hero-copy",
+      "slotId": "content",
+      "role": "copy",
+      "slots": {
+        "title": "Заголовок письма",
+        "body": "Короткий текст под заголовком."
+      }
+    }
+  ],
+  "pug": "table.row.brad-full.bgr-image\n    tr\n        td.wrapper.last.pt0\n            table.twelve.columns\n                tr\n                    td.pb20\n                        a(href=\"{{ logo_link }}\" universal=\"true\" target=\"_blank\")\n                            img.logo.center(src=\"{{ logo_img }}\")\n                        a(href=\"{{ head_link }}\" universal=\"true\" target=\"_blank\")\n                            img.center(src=\"{{ head_img }}\")\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb50.pt0\n                        div.gmail-blend-screen\n                            div.gmail-blend-diff\n                                p.date {{ date }}\n                                p.white-title.pb16.pt16 {{ title }}\n                                p.white-text {{ body }}",
+  "styl": ".brad-full,.brad-full-32{border-radius:32px!important}\n.bgr{background-position:top center;background-repeat:no-repeat;min-height:auto;border-radius:10px;background-size:cover}\n.bgr-image{background:url({{ bg_image }}) center top no-repeat;background-color:#000;background-size:cover}\n.logo{float:none;max-width:138px;padding-top:32px;padding-bottom:0}\n@media screen and (max-width:600px){.logo{margin:0 auto!important}}\n.date{background-size:cover;border-radius:10px;color:#ff8516;display:inline-block;font-family:Helvetica!important;font-size:24px;font-style:normal;font-weight:700;line-height:36px;padding:4px 12px;background:url(https://fsms.quadcode.com/storage/public/d8/0t/39261bdc700vi72g/bg-orange.png) center no-repeat}\n.white-title{font-family:Helvetica!important;font-weight:700;font-size:42px;line-height:52px;color:#f9f9f9;word-break:break-word;padding-right:30px}\n@media screen and (max-width:600px){.white-title{font-size:26px!important;line-height:32px!important}}\n.white-text{font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#fff;padding-right:20px}\n@media screen and (max-width:600px){.white-text{padding-right:0!important}}",
+  "slots": [
+    { "id": "logo_img", "kind": "image", "label": "Логотип", "default": "https://fsms.quadcode.com/storage/public/d6/nu/493ursrq72d917kg/logo.png", "uiGroup": "assets" },
+    { "id": "logo_link", "kind": "url", "label": "Ссылка логотипа", "default": "#", "uiGroup": "content" },
+    { "id": "head_img", "kind": "image", "label": "Картинка-хедер", "default": "https://fsms.quadcode.com/storage/public/d6/sk/tijursrq72d919ug/233-head.png", "uiGroup": "assets" },
+    { "id": "head_link", "kind": "url", "label": "Ссылка картинки", "default": "#", "uiGroup": "content" },
+    { "id": "bg_image", "kind": "image", "label": "Фон секции", "default": "https://fsms.quadcode.com/storage/public/d6/rs/39rursrq72d919c0/2-2-1-back.png", "uiGroup": "assets" },
+    { "id": "date", "kind": "text", "label": "Дата-плашка", "default": "Дата", "uiGroup": "content" },
+    { "id": "title", "kind": "text", "label": "Заголовок", "default": "Заголовок письма", "uiGroup": "content" },
+    { "id": "body", "kind": "richText", "label": "Текст", "default": "Короткий текст под заголовком.", "uiGroup": "content" }
+  ],
+  "outlookSafe": true,
+  "tags": ["hero", "combo", "iq"]
+}

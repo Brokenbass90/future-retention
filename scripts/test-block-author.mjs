@@ -34,7 +34,10 @@ const section = (s) => console.log("\n" + dim("━━━ ") + s + dim(" ━━�
 
 // ─── Fixture: draft block exactly as the author modal would send it ─────
 const DRAFT = {
+  uid: "draft-banner",
   id: "my-test-banner",
+  parentUid: "outer-root",
+  slotId: "sections",
   def: {
     label: "Test banner",
     placement: "section",
@@ -43,6 +46,7 @@ const DRAFT = {
       "  tr",
       "    td.my-test-banner-td",
       "      p.my-test-banner-text {{ text }}",
+      "      //- {{ INNER_BLOCKS }}",
     ].join("\n"),
     styl: [
       ".my-test-banner-td",
@@ -56,6 +60,9 @@ const DRAFT = {
     slots: [
       { id: "text", kind: "text", label: "Текст", default: "Привет из драфт-блока" },
       { id: "bg_color", kind: "color", label: "Фон", default: "#ff7700" },
+    ],
+    childSlots: [
+      { id: "content", marker: "INNER_BLOCKS", accepts: ["inner", "both"] },
     ],
   },
   slots: {},
@@ -77,7 +84,11 @@ try {
   composed = composeEmailFromBlocks({
     brand: "X_authortest",
     mailName: "author-preview",
-    blocks: [DRAFT, { id: "divider-spacer", slots: {} }],
+    blocks: [
+      { uid: "outer-root", blockId: "iq-outer-wrapper", parentUid: null, slotId: null, slots: {} },
+      DRAFT,
+      { uid: "draft-spacer", blockId: "iq-spacer", parentUid: "draft-banner", slotId: "content", slots: {} },
+    ],
     destRoot: tmpRoot,
   });
 } catch (err) {
@@ -85,7 +96,8 @@ try {
 }
 
 if (composed) {
-  assert(composed.blocksUsed === 2 || composed.totalBlocks === 2, `both blocks resolved (used=${composed.blocksUsed ?? "?"})`);
+  assert(composed.blocksUsed === 2, `draft + canonical child rendered (used=${composed.blocksUsed ?? "?"})`);
+  assert(composed.totalBlocks === 3, "outer context is preserved in the explicit tree");
   assert((composed.warnings || []).length === 0, `no warnings (${(composed.warnings || []).join("; ") || "none"})`);
   const headerPug = readFileSync(path.join(composed.destDir, "app", "templates", "blocks", "header.pug"), "utf8");
   assert(headerPug.includes("Привет из драфт-блока"), "slot default substituted into pug");

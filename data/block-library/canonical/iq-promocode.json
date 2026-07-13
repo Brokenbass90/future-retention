@@ -1,0 +1,25 @@
+{
+  "id": "iq-promocode",
+  "label": "Промокод (лейбл + код + подпись)",
+  "description": "Пунктирная плашка промокода с жирным лейблом сверху и серой подписью снизу. Всё редактируется, тексты — локали-токены.",
+  "placement": "inner",
+  "category": "cta",
+  "version": 2,
+  "source": "canonical",
+  "pug": "p.iq-promocode-label.pt24.pb5(style=\"color:{{ label_color }}\")\n    b {{ label }}\np.iq-promocode-code(style=\"background-color:{{ background_color }};border:{{ border }};border-radius:{{ radius }};color:{{ code_color }};padding:{{ padding }}\") {{ code }}\np.iq-promocode-hint.pt5(style=\"color:{{ hint_color }}\") {{ hint }}",
+  "styl": ".iq-promocode-label{color:{{ label_color }};font-family:Helvetica,Arial,sans-serif!important;font-size:18px;font-weight:400;letter-spacing:0;line-height:26px}\n.iq-promocode-code{background-color:{{ background_color }};border:{{ border }};border-radius:{{ radius }};color:{{ code_color }};font-family:Helvetica,Arial,sans-serif!important;font-size:24px;font-style:normal;font-weight:700;line-height:31px;padding:{{ padding }}}\n.iq-promocode-hint{color:{{ hint_color }};font-family:Helvetica,Arial,sans-serif!important;font-size:16px;font-style:normal;font-weight:400;line-height:24px}",
+  "slots": [
+    { "id": "label", "kind": "text", "label": "Лейбл над кодом", "default": "Promocode", "uiGroup": "content" },
+    { "id": "code", "kind": "text", "label": "Промокод", "default": "CLAIM10C", "uiGroup": "content" },
+    { "id": "hint", "kind": "text", "label": "Подпись под кодом", "default": "Copy the promo code from the field above", "uiGroup": "content" },
+    { "id": "background_color", "kind": "color", "label": "Фон промокода", "default": "#FFEFE0", "uiGroup": "appearance" },
+    { "id": "label_color", "kind": "color", "label": "Цвет лейбла", "default": "#393A44", "uiGroup": "appearance" },
+    { "id": "code_color", "kind": "color", "label": "Цвет промокода", "default": "#FF7700", "uiGroup": "appearance" },
+    { "id": "hint_color", "kind": "color", "label": "Цвет подписи", "default": "#84868B", "uiGroup": "appearance" },
+    { "id": "border", "kind": "select", "label": "Обводка", "default": "2px dashed #FF7700", "options": ["none", "1px solid #FF7700", "2px solid #FF7700", "2px dashed #FF7700"], "uiGroup": "appearance" },
+    { "id": "radius", "kind": "select", "label": "Скругление", "default": "16px", "options": ["0", "8px", "12px", "16px", "24px"], "uiGroup": "appearance" },
+    { "id": "padding", "kind": "text", "label": "Внутренние отступы", "default": "16px 22px", "uiGroup": "appearance" }
+  ],
+  "outlookSafe": true,
+  "tags": ["promocode", "cta", "iq"]
+}

@@ -14,46 +14,65 @@
       <span class="mode-label">🎨 Constructor</span>
     </div>
     <div class="topbar-right">
+      <button class="btn" id="baseBtn" title="Открыть письмо из базы / посмотреть сохранённые">🗂 База</button>
+      <button class="btn" id="clearCanvasBtn" title="Очистить всё письмо">🗑 Очистить</button>
       <button class="btn" id="undoBtn" title="Отменить последнее действие (Ctrl+Z)" disabled>↩ Отменить</button>
       <input class="mail-name" id="mailName" placeholder="welcome-promo" value="welcome-demo" spellcheck="false" />
       <button class="btn" id="previewBtn" title="Собрать письмо и показать превью">▶ Preview</button>
+      <button class="btn" id="toCodeBtn" title="Перенести собранное письмо в окно кода (workbench)">→ В код</button>
       <button class="btn btn-primary" id="saveBtn" title="Сохранить в email-base/X_assembled/">💾 Save mail</button>
     </div>
   </header>
 
   <main class="workspace">
-    <!-- LEFT: catalog -->
+    <!-- LEFT: one contextual rail for both library and structure -->
     <aside class="catalog">
-      <div class="cat-filter">
-        <button class="cat-tab active" data-filter="section">Outer (sections)</button>
-        <button class="cat-tab" data-filter="inline">Inner (elements)</button>
-        <button class="cat-tab" data-filter="all">All</button>
+      <div class="rail-mode-switch" aria-label="Режим левой панели">
+        <button class="rail-mode active" id="paletteBlocksMode" type="button">＋ Блоки</button>
+        <button class="rail-mode" id="paletteOutlineMode" type="button">☷ Структура</button>
+        <button class="rail-auto active" id="paletteAutoBtn" type="button" title="После добавления готовой секции из каталога открыть её внутренние блоки; обычное выделение вкладки не меняет">⚡ После секции</button>
       </div>
-      <div class="cat-search-row">
-        <input type="search" id="catSearch" class="cat-search" placeholder="Поиск: id, название, текст…" spellcheck="false" />
+      <div class="palette-context">
+        <div class="palette-breadcrumb" id="paletteBreadcrumb">Письмо</div>
+        <div class="palette-context-row">
+          <span id="paletteContextHint">Начни с обёртки или готового комбо</span>
+          <button class="palette-back hidden" id="paletteParentBtn" type="button">↑ Родитель</button>
+        </div>
       </div>
-      <div class="cat-filters-row">
-        <select id="catBrand" class="cat-select" title="Источник / бренд"><option value="all">Все бренды</option></select>
-        <select id="catCategory" class="cat-select" title="Категория блока"><option value="all">Все категории</option></select>
-        <label class="cat-check" title="Только блоки с мобильной адаптацией (@media)"><input type="checkbox" id="catMobile" />📱</label>
+
+      <div class="rail-panel" id="blocksModePanel">
+        <div class="cat-filter">
+          <button class="cat-tab active" data-filter="outer">Обёртки</button>
+          <button class="cat-tab" data-filter="section">Секции</button>
+          <button class="cat-tab" data-filter="inner">Внутри</button>
+          <button class="cat-tab" data-filter="combo">Комбо</button>
+          <button class="cat-tab" data-filter="all">Все</button>
+        </div>
+        <div class="cat-search-row">
+          <input type="search" id="catSearch" class="cat-search" placeholder="Поиск блоков…" spellcheck="false" />
+        </div>
+        <div class="cat-filters-row">
+          <select id="catBrand" class="cat-select" title="Источник / бренд"><option value="all">Все бренды</option></select>
+          <select id="catCategory" class="cat-select" title="Категория блока"><option value="all">Все категории</option></select>
+          <label class="cat-check" title="Только блоки с мобильной адаптацией (@media)"><input type="checkbox" id="catMobile" />📱</label>
+        </div>
+        <div class="cat-count" id="catCount"></div>
+        <button class="btn author-new-btn" id="newBlockBtn" title="Создать новый блок с нуля (pug + stylus + слоты)">➕ Создать блок</button>
+        <div class="cat-list" id="catalogList">
+          <div class="cat-empty">Загрузка…</div>
+        </div>
       </div>
-      <div class="cat-count" id="catCount"></div>
-      <button class="btn author-new-btn" id="newBlockBtn" title="Создать новый блок с нуля (pug + stylus + слоты)">➕ Создать блок</button>
-      <div class="cat-list" id="catalogList">
-        <div class="cat-empty">Загрузка…</div>
+
+      <div class="rail-panel hidden" id="outlineModePanel">
+        <div class="canvas-header">
+          <span class="canvas-title">Дерево письма</span>
+          <span class="canvas-hint" id="canvasHint">Перетаскивай между слотами</span>
+        </div>
+        <ol class="canvas" id="canvas">
+          <li class="canvas-empty">Канвас пуст. Выбери блок.</li>
+        </ol>
       </div>
     </aside>
-
-    <!-- CENTER-LEFT: canvas (block stack) -->
-    <section class="canvas-pane">
-      <div class="canvas-header">
-        <span class="canvas-title">Структура</span>
-        <span class="canvas-hint" id="canvasHint">Кликни блок слева</span>
-      </div>
-      <ol class="canvas" id="canvas">
-        <li class="canvas-empty">Канвас пуст. Выбери блок слева.</li>
-      </ol>
-    </section>
 
     <!-- CENTER: live preview -->
     <section class="preview-pane">
@@ -79,7 +98,7 @@
     <!-- RIGHT: slot inspector -->
     <aside class="inspector">
       <div class="insp-header">
-        <span class="insp-title">Свойства блока</span>
+        <span class="insp-title" id="inspectorTitle">Свойства блока</span>
       </div>
       <div class="insp-body" id="inspectorBody">
         <div class="insp-empty">Выбери блок на канвасе чтобы редактировать его поля.</div>
@@ -106,6 +125,16 @@
       </div>
       <div class="author-body">
         <div class="author-form">
+          <div class="author-template-box">
+            <div class="author-template-title">Начать с правильной структуры</div>
+            <div class="author-template-actions">
+              <button type="button" data-author-template="section">Средняя секция</button>
+              <button type="button" data-author-template="outer-divider">Внешний разделитель</button>
+              <button type="button" data-author-template="inner-divider">Внутренний разделитель</button>
+              <button type="button" data-author-template="inner">Внутренний блок</button>
+            </div>
+            <div class="author-tree-hint" id="abTreeHint">Выбери заготовку или напиши Pug вручную.</div>
+          </div>
           <div class="author-row2">
             <label>ID блока
               <input id="abId" placeholder="my-hero" spellcheck="false" maxlength="64" /></label>
@@ -115,8 +144,10 @@
           <div class="author-row2">
             <label>Placement
               <select id="abPlacement">
-                <option value="section">section — секция письма</option>
-                <option value="inline">inline — элемент внутри секции</option>
+                <option value="outer">outer — рамка / скелет проекта</option>
+                <option value="section">section — средняя секция / внешний разделитель</option>
+                <option value="inner">inner — элемент / разделитель внутри секции</option>
+                <option value="both" disabled>both — устаревший неоднозначный уровень</option>
               </select></label>
             <label>Категория
               <input id="abCategory" placeholder="hero / cta / text…" value="misc" maxlength="40" /></label>

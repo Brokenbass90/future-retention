@@ -1,0 +1,36 @@
+<!-- ============================================================
+     INNER BLOCK: promocode-card
+     Внутренний блок — серая карточка с номером шага, заголовком,
+     промокодом и подписью. Кладётся в слот INNER_BLOCKS секции.
+
+     Утилиты отступов (.pt24/.pb5/.pb0/.pt5) и .w100 приходят из
+     outer-фреймворка. Ниже — только компонентный CSS этого блока.
+     Контент помечен слотами {{ ... }} для конструктора.
+     ============================================================ -->
+
+<style data-block="inner-promocode-card">
+    .gray-block{padding:24px;background:#f9f9f9;border-radius:12px}
+    .m-w{min-width:78px!important;width:78px!important;vertical-align:middle}
+    .w-a{width:auto!important;vertical-align:middle}
+    .number{font-family:Helvetica!important;font-weight:700;background:#ececed;width:54px;max-height:54px;border-radius:16px;color:#393a44;font-size:24px;line-height:24px;padding:15px 0;text-align:center}
+    .text{font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400}
+    .big,.text.bold{font-weight:700}
+    .promocode{font-family:Helvetica!important;font-style:normal;background:#ffefe0;border:2px dashed #f70;border-radius:16px;padding:16px 22px;color:#f70;font-size:24px;font-weight:700;line-height:31px}
+    .small-gray-text{font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:16px;line-height:24px;color:#84868b}
+</style>
+
+<div class="gray-block" style="background: #f9f9f9; border-radius: 12px; font-family: 'Helvetica','Arial',sans-serif !important; padding: 24px;">
+    <table class="w100" style="border-collapse: collapse; border-spacing: 0; padding: 0; text-align: left; vertical-align: top; width: 100%;">
+        <tr style="padding: 0; text-align: left; vertical-align: top;">
+            <td class="m-w pb0" style="border-collapse: collapse !important; color: #222; font-family: 'Helvetica','Arial',sans-serif; font-size: 14px; font-weight: 400; line-height: 19px; margin: 0; min-width: 78px !important; padding: 0 0 10px; padding-bottom: 0 !important; text-align: left; vertical-align: middle; width: 78px !important; word-break: normal;">
+                <p class="number" style="background: #ececed; border-radius: 16px; color: #393a44; font-family: Helvetica !important; font-size: 24px; font-weight: 700; line-height: 24px; margin: 0; max-height: 54px; padding: 15px 0; text-align: center; width: 54px;">{{ step_number }}</p>
+            </td>
+            <td class="w-a pb0" style="border-collapse: collapse !important; color: #222; font-family: 'Helvetica','Arial',sans-serif; font-size: 14px; font-weight: 400; line-height: 19px; margin: 0; padding: 0 0 10px; padding-bottom: 0 !important; text-align: left; vertical-align: middle; width: auto !important; word-break: normal;">
+                <p class="text" style="color: #393a44; font-family: Helvetica !important; font-size: 18px; font-weight: 400; letter-spacing: 0; line-height: 26px; margin: 0; padding: 0; text-align: left;"><b>{{ step_title }}</b> {{ step_text }}</p>
+            </td>
+        </tr>
+    </table>
+    <p class="text pt24 pb5" style="color: #393a44; font-family: Helvetica !important; font-size: 18px; font-weight: 400; letter-spacing: 0; line-height: 26px; margin: 0; padding: 0; padding-bottom: 5px; padding-top: 24px; text-align: left;"><b style="font-family: 'Helvetica','Arial',sans-serif !important;">{{ promocode_label }}</b></p>
+    <p class="promocode" style="background: #ffefe0; border: 2px dashed #f70; border-radius: 16px; color: #f70; font-family: Helvetica !important; font-size: 24px; font-style: normal; font-weight: 700; line-height: 31px; margin: 0; padding: 16px 22px; text-align: left;">{{ promocode }}</p>
+    <p class="small-gray-text pt5" style="color: #84868b; font-family: Helvetica !important; font-size: 16px; font-style: normal; font-weight: 400; line-height: 24px; margin: 0; padding: 0; padding-top: 5px; text-align: left;">{{ promocode_hint }}</p>
+</div>

@@ -1,0 +1,33 @@
+{
+  "groups": [
+    {
+      "ns": "embedded",
+      "label": "Системные (встроенные, все локали)",
+      "items": [
+        { "key": "company_address", "label": "Адрес компании", "token": "{{embedded.company_address}}" },
+        { "key": "risk_warning", "label": "Риск-предупреждение", "token": "{{embedded.risk_warning}}" },
+        { "key": "company_terms_link", "label": "Ссылка «Условия»", "token": "{{embedded.company_terms_link}}" },
+        { "key": "unsubscribe_link", "label": "Ссылка отписки", "token": "{{embedded.unsubscribe_link}}" }
+      ]
+    },
+    {
+      "ns": "socials",
+      "label": "Соцсети (ссылки по локалям)",
+      "items": [
+        { "key": "tiktok", "label": "TikTok", "token": "${{ socials.tiktok }}$", "perLocale": true },
+        { "key": "instagram", "label": "Instagram", "token": "${{ socials.instagram }}$", "perLocale": true },
+        { "key": "youtube", "label": "YouTube", "token": "${{ socials.youtube }}$", "perLocale": true },
+        { "key": "telegram", "label": "Telegram", "token": "${{ socials.telegram }}$", "perLocale": true },
+        { "key": "facebook", "label": "Facebook", "token": "${{ socials.facebook }}$", "perLocale": true }
+      ]
+    },
+    {
+      "ns": "app",
+      "label": "Ссылки приложения (по локалям)",
+      "items": [
+        { "key": "appstore", "label": "App Store", "token": "${{ app.appstore }}$", "perLocale": true },
+        { "key": "googleplay", "label": "Google Play", "token": "${{ app.googleplay }}$", "perLocale": true }
+      ]
+    }
+  ]
+}

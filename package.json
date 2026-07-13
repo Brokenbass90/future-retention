@@ -17,8 +17,9 @@
     "stop:mail": "node scripts/stop-port.mjs 3001",
     "build:mail": "node email-base/tools/build-mail.js",
     "enrich:catalog": "node scripts/enrich-block-catalog.mjs",
-    "test": "node scripts/test-rtl.mjs && node scripts/test-locale-align-tool.mjs && node scripts/test-locale-cross-check.mjs && node scripts/test-html-blocks.mjs && node scripts/test-agent-loop.mjs && node scripts/test-locale-crud-tools.mjs && node scripts/test-html-validate.mjs && node scripts/test-email-segment.mjs",
+    "test": "node scripts/test-rtl.mjs && node scripts/test-locale-align-tool.mjs && node scripts/test-locale-cross-check.mjs && node scripts/test-html-blocks.mjs && node scripts/test-agent-loop.mjs && node scripts/test-locale-crud-tools.mjs && node scripts/test-html-validate.mjs && node scripts/test-email-segment.mjs && node scripts/test-build-mail-localization.mjs && node scripts/test-code-workspace.mjs && node scripts/test-workbench-code-flow.mjs && node scripts/test-compose-save-transaction.mjs && node scripts/test-studio-model-signatures.mjs && node scripts/test-keyed-operation-lock.mjs && node scripts/test-workbench-build-locales.mjs",
     "test:blocks": "node scripts/test-blocks.mjs",
+    "test:constructor-tree": "node scripts/test-constructor-tree-policy.mjs && node scripts/test-compose-tree.mjs",
     "visual": "node scripts/visual-gate.mjs",
     "visual:update": "node scripts/visual-gate.mjs --update"
   },

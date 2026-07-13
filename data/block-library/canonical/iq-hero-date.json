@@ -1,0 +1,25 @@
+{
+  "id": "iq-hero-date",
+  "label": "Hero — дата-плашка",
+  "description": "Отдельная текстовая плашка для content-зоны hero. Текст, фон, рамка, скругление, цвет и отступы настраиваются слотами.",
+  "placement": "inner",
+  "category": "hero",
+  "version": 1,
+  "source": "canonical",
+  "pug": "table.iq-hero-date(role=\"presentation\" align=\"{{ align }}\")\n    tr\n        td.iq-hero-date-cell(style=\"background-color:{{ background_color }};background-image:url('{{ background_image }}');background-position:center;background-repeat:no-repeat;background-size:cover;border:{{ border }};border-radius:{{ radius }};padding:{{ padding }}\") {{ label }}",
+  "styl": ".iq-hero-date{border-collapse:separate!important}\n.iq-hero-date-cell{color:{{ text_color }};font-family:Helvetica,Arial,sans-serif!important;font-size:{{ font_size }}px;font-style:normal;font-weight:700;line-height:{{ line_height }}px}",
+  "slots": [
+    { "id": "label", "kind": "text", "label": "Дата", "default": "Дата", "uiGroup": "content" },
+    { "id": "background_image", "kind": "image", "label": "Текстура фона", "default": "https://fsms.quadcode.com/storage/public/d8/0t/39261bdc700vi72g/bg-orange.png", "uiGroup": "assets" },
+    { "id": "background_color", "kind": "color", "label": "Цвет фона", "default": "#3A210E", "uiGroup": "appearance" },
+    { "id": "text_color", "kind": "color", "label": "Цвет текста", "default": "#FF8516", "uiGroup": "appearance" },
+    { "id": "font_size", "kind": "number", "label": "Размер текста, px", "default": 24, "min": 10, "max": 40, "uiGroup": "appearance" },
+    { "id": "line_height", "kind": "number", "label": "Высота строки, px", "default": 36, "min": 12, "max": 52, "uiGroup": "appearance" },
+    { "id": "align", "kind": "select", "label": "Выравнивание", "default": "left", "options": ["left", "center", "right"], "uiGroup": "appearance" },
+    { "id": "border", "kind": "select", "label": "Обводка", "default": "none", "options": ["none", "1px solid #FF8516", "2px solid #FF8516"], "uiGroup": "appearance" },
+    { "id": "radius", "kind": "select", "label": "Скругление", "default": "10px", "options": ["0", "6px", "10px", "16px", "24px"], "uiGroup": "appearance" },
+    { "id": "padding", "kind": "text", "label": "Отступы", "default": "4px 12px", "uiGroup": "appearance" }
+  ],
+  "outlookSafe": true,
+  "tags": ["hero", "date", "badge", "text", "inner", "iq"]
+}

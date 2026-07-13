@@ -4,7 +4,7 @@
  * State model:
  *   state = {
  *     library:        [{ id, label, description, placement, category, slots, ... }, ...],
- *     canvas:         [{ uid: 1, blockId: "header-logo", slots: { brand_url: "..." } }, ...],
+ *     canvas:         [{ uid, blockId, blockSource, parentUid, slotId, slots }, ...],
  *     selectedUid:    1 | null,
  *     filter:         "section" | "inline" | "all",
  *   }
@@ -24,12 +24,15 @@ const state = {
   library: [],
   canvas: [],
   selectedUid: null,
-  filter: "section",
+  filter: "outer",
   q: "",
   brand: "all",
   cat: "all",
   mobileOnly: false,
   renderCap: 60,
+  railMode: "blocks",
+  autoPalette: true,
+  sourceSkeleton: null,
   _uidCounter: 1,
 };
 
@@ -76,12 +79,289 @@ function sanitizeIframePreviewHtml(html) {
 }
 
 const PLACEMENT_ICON = {
+  outer:   "🖼️",
   section: "📦",
+  inner:   "🧩",
   inline:  "🧩",
+  both:    "↕️",
   helper:  "🔧",
 };
 
 function nextUid() { return state._uidCounter++; }
+
+function sameUid(a, b) {
+  return a != null && b != null && String(a) === String(b);
+}
+
+function blockById(id, source) {
+  if (source) {
+    const exact = state.library.find((b) => b.id === id && b.source === source);
+    if (exact) return exact;
+  }
+  return state.library.find((b) => b.id === id) || null;
+}
+
+function blockForEntry(entry) {
+  return entry ? blockById(entry.blockId || entry.id, entry.blockSource || entry.source) : null;
+}
+
+function entryByUid(uid) {
+  return state.canvas.find((entry) => sameUid(entry.uid, uid)) || null;
+}
+
+function placementOf(block) {
+  const p = block?.placement;
+  return p === "inline" ? "inner" : p;
+}
+
+function isInnerBlock(block) {
+  const p = placementOf(block);
+  return p === "inner" || p === "both";
+}
+
+function defaultSlotsFor(block, overrides) {
+  const slots = {};
+  for (const slot of block?.slots || []) {
+    if (Object.prototype.hasOwnProperty.call(slot, "default")) slots[slot.id] = slot.default;
+  }
+  return Object.assign(slots, overrides || {});
+}
+
+function childSlotsFor(block) {
+  if (Array.isArray(block?.childSlots) && block.childSlots.length) {
+    return block.childSlots.map((slot, index) => ({
+      id: slot.id || `children-${index + 1}`,
+      marker: slot.marker || slot.id || `CHILDREN_${index + 1}`,
+      label: slot.label || slot.id || "Содержимое",
+      accepts: Array.isArray(slot.accepts) && slot.accepts.length
+        ? slot.accepts.map((x) => x === "inline" ? "inner" : x)
+        : [placementOf(block) === "outer" ? "section" : "inner"],
+    }));
+  }
+  if (placementOf(block) === "outer") {
+    return [{ id: "sections", marker: "SECTIONS", label: "Секции письма", accepts: ["section"] }];
+  }
+  if (placementOf(block) === "section") {
+    if (/\bINNER_BLOCKS\b/.test(String(block?.pug || ""))) {
+      return [{ id: "content", marker: "INNER_BLOCKS", label: "Содержимое", accepts: ["inner", "both"] }];
+    }
+    return [];
+  }
+  return [];
+}
+
+function slotAcceptsBlock(slot, block) {
+  const p = placementOf(block);
+  return (slot?.accepts || []).some((accept) => accept === p || (p === "both" && accept === "inner"));
+}
+
+function chooseChildSlot(parentBlock, childBlock, preferredSlotId) {
+  const slots = childSlotsFor(parentBlock);
+  if (preferredSlotId) {
+    const preferred = slots.find((slot) => slot.id === preferredSlotId);
+    if (preferred && slotAcceptsBlock(preferred, childBlock)) return preferred;
+  }
+  const compatible = slots.filter((slot) => slotAcceptsBlock(slot, childBlock));
+  if (compatible.length <= 1) return compatible[0] || null;
+  const childHint = `${childBlock?.id || ""} ${childBlock?.category || ""}`.toLowerCase();
+  const wantsMedia = /image|logo|media|photo|picture|banner/.test(childHint)
+    || (childBlock?.slots || []).some((slot) => slot.kind === "image") && !(childBlock?.slots || []).some((slot) => /text|richText/i.test(slot.kind));
+  const semantic = compatible.find((slot) => wantsMedia ? /media|image|visual/.test(slot.id) : /content|text|body/.test(slot.id));
+  return semantic || compatible[0] || null;
+}
+
+function childrenOf(parentUid, slotId) {
+  return state.canvas.filter((entry) => sameUid(entry.parentUid, parentUid) && (!slotId || entry.slotId === slotId));
+}
+
+function descendantUids(uid) {
+  const out = new Set();
+  const visit = (parentUid) => {
+    for (const child of childrenOf(parentUid)) {
+      if (out.has(String(child.uid))) continue;
+      out.add(String(child.uid));
+      visit(child.uid);
+    }
+  };
+  visit(uid);
+  return out;
+}
+
+function rootOuterEntry() {
+  return state.canvas.find((entry) => placementOf(blockForEntry(entry)) === "outer" && entry.parentUid == null) || null;
+}
+
+function latestSectionEntry(childBlock = null) {
+  const selected = entryByUid(state.selectedUid);
+  if (selected) {
+    const selectedBlock = blockForEntry(selected);
+    if (placementOf(selectedBlock) === "section" && (!childBlock || chooseChildSlot(selectedBlock, childBlock))) return selected;
+    if (isInnerBlock(selectedBlock)) {
+      const parent = entryByUid(selected.parentUid);
+      if (placementOf(blockForEntry(parent)) === "section" && (!childBlock || chooseChildSlot(blockForEntry(parent), childBlock))) return parent;
+    }
+  }
+  return [...state.canvas].reverse().find((entry) => (
+    placementOf(blockForEntry(entry)) === "section"
+    && (!childBlock || chooseChildSlot(blockForEntry(entry), childBlock))
+  )) || null;
+}
+
+function findDefaultBlock(placement) {
+  const preferred = placement === "outer"
+    ? ["iq-outer-wrapper"]
+    : ["iq-section", "iq-content-section"];
+  for (const id of preferred) {
+    const block = state.library.find((b) => b.id === id && placementOf(b) === placement);
+    if (block) return block;
+  }
+  return state.library.find((b) => placementOf(b) === placement && b.source !== "parsed") || null;
+}
+
+function createEntry(block, opts = {}) {
+  const entry = {
+    uid: opts.uid ?? nextUid(),
+    blockId: block.id,
+    blockSource: opts.blockSource || block.source || undefined,
+    parentUid: opts.parentUid ?? null,
+    slotId: opts.slotId || (placementOf(block) === "outer" ? "root" : null),
+    slots: defaultSlotsFor(block, opts.slots),
+    ...(opts.recipeInstanceId ? { recipeInstanceId: opts.recipeInstanceId } : {}),
+  };
+  if (opts.appearance && typeof opts.appearance === "object" && Object.keys(opts.appearance).length) {
+    entry.appearance = { ...opts.appearance };
+  }
+  return entry;
+}
+
+function insertEntryAfterSiblings(entry, afterUid, beforeUid) {
+  if (beforeUid != null) {
+    const before = entryByUid(beforeUid);
+    const sameParent = before && sameUid(before.parentUid, entry.parentUid) && before.slotId === entry.slotId;
+    if (sameParent) {
+      const idx = state.canvas.findIndex((candidate) => sameUid(candidate.uid, before.uid));
+      if (idx >= 0) {
+        state.canvas.splice(idx, 0, entry);
+        return;
+      }
+    }
+  }
+  if (afterUid != null) {
+    const idx = state.canvas.findIndex((candidate) => sameUid(candidate.uid, afterUid));
+    if (idx >= 0) {
+      const subtree = descendantUids(afterUid);
+      let end = idx + 1;
+      while (end < state.canvas.length && subtree.has(String(state.canvas[end].uid))) end += 1;
+      state.canvas.splice(end, 0, entry);
+      return;
+    }
+  }
+  const siblings = childrenOf(entry.parentUid, entry.slotId);
+  if (siblings.length) {
+    const last = siblings[siblings.length - 1];
+    const idx = state.canvas.findIndex((candidate) => sameUid(candidate.uid, last.uid));
+    const subtree = descendantUids(last.uid);
+    let end = idx + 1;
+    while (end < state.canvas.length && subtree.has(String(state.canvas[end].uid))) end += 1;
+    state.canvas.splice(end, 0, entry);
+    return;
+  }
+  const parentIndex = state.canvas.findIndex((candidate) => sameUid(candidate.uid, entry.parentUid));
+  state.canvas.splice(parentIndex >= 0 ? parentIndex + 1 : state.canvas.length, 0, entry);
+}
+
+function setCatalogFilter(filter, { manual = false } = {}) {
+  state.filter = filter;
+  state.renderCap = 60;
+  document.querySelectorAll(".cat-tab").forEach((tab) => {
+    tab.classList.toggle("active", tab.dataset.filter === filter);
+  });
+  $("paletteAutoBtn")?.classList.toggle("active", state.autoPalette);
+  renderCatalog();
+}
+
+function isComboBlock(block) {
+  return block?.combo === true || (block?.tags || []).includes("combo");
+}
+
+/**
+ * The rail only advances from a ready section container to its inner blocks
+ * when that section was chosen in the catalog. Merely selecting a node in the
+ * outline/preview must never move the user's catalog tab underneath them.
+ * Kept deliberately pure so the interaction policy can be regression-tested.
+ */
+function shouldAutoOpenInnerForCatalogBlock(block, origin) {
+  const combo = block?.combo === true || (block?.tags || []).includes("combo");
+  if (origin !== "catalog" || block?.placement !== "section" || combo) return false;
+  return (block.childSlots || []).some((slot) =>
+    (slot.accepts || []).some((placement) => placement === "inner" || placement === "inline")
+  );
+}
+
+function canAutoAddCatalogDrop(block, draggingCanvasUid) {
+  if (draggingCanvasUid != null || !block) return false;
+  const placement = block.placement === "inline" ? "inner" : block.placement;
+  return placement === "outer" || placement === "section" || placement === "inner" || placement === "both";
+}
+
+function maybeOpenInnerCatalog(block, origin) {
+  if (!state.autoPalette || !shouldAutoOpenInnerForCatalogBlock(block, origin)) return;
+  setRailMode("blocks");
+  setCatalogFilter("inner");
+}
+
+function setRailMode(mode) {
+  state.railMode = mode === "outline" ? "outline" : "blocks";
+  $("blocksModePanel")?.classList.toggle("hidden", state.railMode !== "blocks");
+  $("outlineModePanel")?.classList.toggle("hidden", state.railMode !== "outline");
+  $("paletteBlocksMode")?.classList.toggle("active", state.railMode === "blocks");
+  $("paletteOutlineMode")?.classList.toggle("active", state.railMode === "outline");
+  if (state.railMode === "outline") renderCanvas();
+}
+
+function selectionPath(entry) {
+  const path = [];
+  const seen = new Set();
+  let current = entry;
+  while (current && !seen.has(String(current.uid))) {
+    seen.add(String(current.uid));
+    const block = blockForEntry(current);
+    path.unshift(block?.label || block?.id || current.blockId);
+    current = entryByUid(current.parentUid);
+  }
+  return path;
+}
+
+function syncPaletteToSelection() {
+  const selected = entryByUid(state.selectedUid);
+  const block = blockForEntry(selected);
+  let hint = "Начни с обёртки или готового комбо";
+
+  if (!state.canvas.length) {
+    hint = "Начни с обёртки, секции или готового комбо";
+  } else if (!selected) {
+    hint = rootOuterEntry() ? "Добавь следующую секцию или комбо" : hint;
+  } else if (placementOf(block) === "outer") {
+    hint = "В эту обёртку можно добавить секцию";
+  } else if (placementOf(block) === "section") {
+    const slots = childSlotsFor(block);
+    hint = slots.length > 1
+      ? `Добавь содержимое в ${slots.map((x) => x.label).join(" / ")}`
+      : slots.length
+        ? "Добавь текст, картинку, кнопку или колонки"
+        : "Готовый блок без вложений — добавь следующую секцию";
+  } else {
+    const parent = entryByUid(selected.parentUid);
+    hint = parent ? `Следующий блок попадёт рядом в «${selected.slotId || "content"}»` : "Выбери контейнер для блока";
+  }
+
+  $("paletteAutoBtn")?.classList.toggle("active", state.autoPalette);
+
+  const path = selected ? selectionPath(selected) : ["Письмо"];
+  if ($("paletteBreadcrumb")) $("paletteBreadcrumb").textContent = path.join("  ›  ");
+  if ($("paletteContextHint")) $("paletteContextHint").textContent = hint;
+  $("paletteParentBtn")?.classList.toggle("hidden", !selected?.parentUid);
+}
 
 // ─── Catalog ────────────────────────────────────────────────────────────
 async function loadLibrary() {
@@ -91,6 +371,9 @@ async function loadLibrary() {
     state.library = Array.isArray(data?.blocks) ? data.blocks : [];
     populateCatalogFilters();
     renderCatalog();
+    restoreCanvasState();
+    setRailMode(state.railMode);
+    syncPaletteToSelection();
   } catch (err) {
     $("catalogList").innerHTML = `<div class="cat-empty">Не удалось загрузить блоки: ${err.message}</div>`;
   }
@@ -108,7 +391,15 @@ function applyCatalogFilters() {
   const f = state.filter;
   const q = state.q.trim().toLowerCase();
   return state.library.filter((b) => {
-    if (f !== "all" && b.placement !== f) return false;
+    if (b.source === "parsed") return false;
+    if (b.source === "imported") return false;
+    const isCombo = isComboBlock(b);
+    const isComboDivider = b.placement === "section" && (b.tags || []).includes("combo-divider");
+    if (f === "combo") { if (!isCombo && !isComboDivider) return false; }
+    else if (f !== "all") {
+      if (isCombo) return false;
+      if (b.placement !== f && b.placement !== "both" && !(f === "inner" && b.placement === "inline")) return false;
+    }
     if (state.brand !== "all" && brandOf(b) !== state.brand) return false;
     if (state.cat !== "all" && (b.category || "") !== state.cat) return false;
     if (state.mobileOnly && !hasMobile(b)) return false;
@@ -136,6 +427,7 @@ function renderCatalog() {
     el.className = "cat-item" + (b.source === "user" ? " cat-item-user" : "");
     el.draggable = true;
     el.dataset.blockId = b.id;
+    el.dataset.blockSource = b.source || "";
     el.dataset.placement = b.placement || "";
     el.title = "Перетащи на канвас (или клик чтобы добавить в конец)";
     const slotCount = (b.slots || []).length;
@@ -181,20 +473,23 @@ function renderCatalog() {
         if (blk) openBlockAuthor(blk);
         return;
       }
-      addToCanvas(b);
+      addToCanvas(b, { origin: "catalog" });
     });
     el.addEventListener("dragstart", (e) => {
       e.dataTransfer.effectAllowed = "copy";
       e.dataTransfer.setData("application/x-retkit-block", b.id);
+      e.dataTransfer.setData("application/x-retkit-block-source", b.source || "");
       // Also set text/plain as fallback for browsers that strip the custom type.
       e.dataTransfer.setData("text/plain", b.id);
       _draggingBlockId = b.id;
+      _draggingBlockSource = b.source || "";
       _draggingPlacement = b.placement || "";
       document.body.classList.add("dragging-from-catalog");
       document.body.dataset.dragPlacement = b.placement || "";
     });
     el.addEventListener("dragend", () => {
       _draggingBlockId = null;
+      _draggingBlockSource = "";
       _draggingPlacement = "";
       document.body.classList.remove("dragging-from-catalog");
       delete document.body.dataset.dragPlacement;
@@ -246,6 +541,7 @@ function duplicateToUserBlock(b) {
 
 // ─── Lazy block thumbnails (live mini-render via /api/compose-preview) ──────
 const _thumbCache = new Map();
+let _thumbRequestCounter = 0;
 const _thumbObserver = (typeof IntersectionObserver !== "undefined")
   ? new IntersectionObserver((entries) => {
       for (const en of entries) {
@@ -256,18 +552,26 @@ const _thumbObserver = (typeof IntersectionObserver !== "undefined")
 
 async function loadBlockThumb(el) {
   const id = el.dataset.blockId;
+  const source = el.dataset.blockSource || "";
   const holder = el.querySelector(".cat-item-thumb");
   if (!id || !holder) return;
+  const _bt = blockById(id, source);
+  if (_bt && _bt.placement === "outer") { holder.style.display = "none"; return; }
   try {
-    let html = _thumbCache.get(id);
+    const cacheKey = `${source}:${id}`;
+    let html = _thumbCache.get(cacheKey);
     if (!html) {
+      const spec = { id };
+      if (_bt && _bt.source !== "canonical") {
+        spec.def = { id: _bt.id, label: _bt.label, placement: _bt.placement, pug: _bt.pug, styl: _bt.styl || "", slots: _bt.slots || [], childSlots: _bt.childSlots || [], appearance: _bt.appearance || {} };
+      }
       const r = await fetch("/api/compose-preview", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ blocks: [{ id }] }),
+        body: JSON.stringify({ mailName: `thumb-${String(id).replace(/[^a-z0-9_-]/gi, "-")}-${++_thumbRequestCounter}`, blocks: [spec] }),
       });
       const j = await r.json();
       if (!j || !j.ok || !j.html) { holder.style.display = "none"; return; }
-      html = j.html; _thumbCache.set(id, html);
+      html = j.html; _thumbCache.set(cacheKey, html);
     }
     holder.innerHTML = "";
     const f = document.createElement("iframe");
@@ -296,69 +600,344 @@ function undoCanvas() {
   state.selectedUid = null;
   renderCanvas();
   renderInspector();
+  syncPaletteToSelection();
   scheduleLivePreview();
   const btn = document.getElementById("undoBtn");
   if (btn) btn.disabled = _canvasUndo.length === 0;
 }
 
-function addToCanvas(block, atIndex) {
-  pushCanvasUndo();
-  const slots = {};
-  for (const s of block.slots || []) {
-    if ("default" in s) slots[s.id] = s.default;
-  }
-  const entry = { uid: nextUid(), blockId: block.id, slots };
-  if (typeof atIndex === "number" && atIndex >= 0 && atIndex <= state.canvas.length) {
-    state.canvas.splice(atIndex, 0, entry);
-  } else {
-    state.canvas.push(entry);
-  }
-  state.selectedUid = entry.uid;
+function ensureOuterForMutation() {
+  const existing = rootOuterEntry();
+  if (existing) return existing;
+  const outer = findDefaultBlock("outer");
+  if (!outer) return null;
+  const entry = createEntry(outer, { parentUid: null, slotId: "root" });
+  state.canvas.unshift(entry);
+  return entry;
+}
+
+function finishCanvasMutation(selectedUid, catalogBlock = null, origin = null) {
+  if (selectedUid != null) state.selectedUid = selectedUid;
   renderCanvas();
   renderInspector();
+  syncPaletteToSelection();
+  maybeOpenInnerCatalog(catalogBlock, origin);
   scheduleLivePreview();
 }
 
-function moveCanvasUid(uid, toIndex) {
+function instantiateCombo(block, opts = {}) {
+  const recipeInstanceId = `recipe-${nextUid()}`;
+  const outer = ensureOuterForMutation();
+  let container = null;
+  let last = null;
+  let lastSection = null;
+  let firstSection = true;
+  const roleEntries = new Map();
+
+  for (const child of block.children || []) {
+    const def = blockById(child.id, child.source);
+    if (!def) continue;
+    const placement = placementOf(def);
+    let parent = null;
+    let slot = null;
+
+    if (placement === "outer") {
+      const current = rootOuterEntry();
+      if (current) {
+        current.blockId = def.id;
+        current.blockSource = def.source || undefined;
+        current.slots = defaultSlotsFor(def, child.slots);
+        current.appearance = child.appearance && typeof child.appearance === "object" ? { ...child.appearance } : {};
+        current.recipeInstanceId = recipeInstanceId;
+        last = current;
+        roleEntries.set(child.role || "outer", current);
+        continue;
+      }
+    } else if (placement === "section") {
+      const requestedParent = opts.parentUid != null ? entryByUid(opts.parentUid) : null;
+      parent = placementOf(blockForEntry(requestedParent)) === "outer" ? requestedParent : outer;
+      slot = chooseChildSlot(blockForEntry(parent), def, firstSection ? (opts.slotId || child.slotId) : child.slotId);
+    } else {
+      parent = child.parentRole ? roleEntries.get(child.parentRole) : null;
+      if (!parent || placementOf(blockForEntry(parent)) !== "section") parent = container || latestSectionEntry(def);
+      if (parent && !chooseChildSlot(blockForEntry(parent), def, child.slotId)) parent = latestSectionEntry(def);
+      if (!parent) {
+        const sectionDef = findDefaultBlock("section");
+        if (sectionDef && outer) {
+          const outerSlot = chooseChildSlot(blockForEntry(outer), sectionDef);
+          parent = createEntry(sectionDef, { parentUid: outer.uid, slotId: outerSlot?.id || "sections", recipeInstanceId });
+          insertEntryAfterSiblings(parent);
+          container = parent;
+        }
+      }
+      slot = chooseChildSlot(blockForEntry(parent), def, child.slotId);
+    }
+
+    if (placement !== "outer" && (!parent || !slot)) continue;
+    const entry = createEntry(def, {
+      parentUid: parent?.uid ?? null,
+      slotId: slot?.id || "root",
+      slots: child.slots,
+      appearance: child.appearance,
+      recipeInstanceId,
+    });
+    const followsLast = last && sameUid(last.parentUid, entry.parentUid) && last.slotId === entry.slotId;
+    const sectionAfter = placement === "section" && lastSection ? lastSection.uid : undefined;
+    insertEntryAfterSiblings(
+      entry,
+      followsLast ? last.uid : sectionAfter ?? (firstSection ? opts.afterUid : undefined),
+      placement === "section" && firstSection ? opts.beforeUid : undefined,
+    );
+    if (placement === "section") {
+      container = entry;
+      lastSection = entry;
+      firstSection = false;
+    }
+    if (child.role) roleEntries.set(child.role, entry);
+    last = entry;
+  }
+  return last || container || outer;
+}
+
+function addToCanvas(block, options = {}) {
+  if (!block) return;
+  const opts = (typeof options === "number") ? {} : (options || {});
   pushCanvasUndo();
-  const fromIndex = state.canvas.findIndex((c) => c.uid === uid);
-  if (fromIndex < 0) return;
-  // Adjust target if removing earlier shifts the array.
-  const insertAt = (toIndex > fromIndex) ? toIndex - 1 : toIndex;
-  const [moved] = state.canvas.splice(fromIndex, 1);
-  state.canvas.splice(Math.max(0, Math.min(insertAt, state.canvas.length)), 0, moved);
-  renderCanvas();
-  scheduleLivePreview();
+
+  if (Array.isArray(block.children) && block.children.length) {
+    const selected = instantiateCombo(block, opts);
+    finishCanvasMutation(selected?.uid, block, opts.origin);
+    return;
+  }
+
+  const placement = placementOf(block);
+  if (placement === "outer") {
+    const existing = rootOuterEntry();
+    if (existing) {
+      existing.blockId = block.id;
+      existing.blockSource = block.source || undefined;
+      existing.slots = defaultSlotsFor(block, opts.slots);
+      existing.slotId = "root";
+      finishCanvasMutation(existing.uid, block, opts.origin);
+      return;
+    }
+    const entry = createEntry(block, { parentUid: null, slotId: "root", slots: opts.slots });
+    state.canvas.unshift(entry);
+    finishCanvasMutation(entry.uid, block, opts.origin);
+    return;
+  }
+
+  const outer = ensureOuterForMutation();
+  if (!outer) {
+    _canvasUndo.pop();
+    alert("В библиотеке нет блока-обёртки. Сначала добавь outer-блок.");
+    return;
+  }
+
+  let parent = opts.parentUid != null ? entryByUid(opts.parentUid) : null;
+  let slot = parent ? chooseChildSlot(blockForEntry(parent), block, opts.slotId) : null;
+
+  if (placement === "section") {
+    parent = outer;
+    slot = chooseChildSlot(blockForEntry(outer), block, opts.slotId);
+  } else if (!parent || !slot) {
+    const selected = entryByUid(state.selectedUid);
+    const selectedBlock = blockForEntry(selected);
+    if (placementOf(selectedBlock) === "section") parent = selected;
+    else if (isInnerBlock(selectedBlock)) parent = entryByUid(selected.parentUid);
+    if (!parent || placementOf(blockForEntry(parent)) !== "section" || !chooseChildSlot(blockForEntry(parent), block, opts.slotId)) {
+      parent = latestSectionEntry(block);
+    }
+    if (!parent) {
+      const sectionDef = findDefaultBlock("section");
+      const outerSlot = chooseChildSlot(blockForEntry(outer), sectionDef);
+      if (sectionDef && outerSlot) {
+        parent = createEntry(sectionDef, { parentUid: outer.uid, slotId: outerSlot.id });
+        insertEntryAfterSiblings(parent);
+      }
+    }
+    slot = chooseChildSlot(blockForEntry(parent), block, opts.slotId);
+  }
+
+  if (!parent || !slot) {
+    _canvasUndo.pop();
+    alert(`Блок «${block.label || block.id}» нельзя вставить в выбранный контейнер.`);
+    return;
+  }
+
+  const entry = createEntry(block, {
+    parentUid: parent.uid,
+    slotId: slot.id,
+    slots: opts.slots,
+    recipeInstanceId: opts.recipeInstanceId,
+  });
+  insertEntryAfterSiblings(entry, opts.afterUid, opts.beforeUid);
+  finishCanvasMutation(entry.uid, block, opts.origin);
+}
+
+function moveCanvasUid(uid, toIndex) {
+  const entry = entryByUid(uid);
+  if (!entry || entry.parentUid == null) return;
+  const target = state.canvas[Math.max(0, Math.min(Number(toIndex) || 0, state.canvas.length - 1))] || null;
+  const targetParent = target?.parentUid != null ? entryByUid(target.parentUid) : entryByUid(entry.parentUid);
+  const targetSlotId = target?.slotId || entry.slotId;
+  const slot = chooseChildSlot(blockForEntry(targetParent), blockForEntry(entry), targetSlotId);
+  if (!targetParent || !slot || descendantUids(entry.uid).has(String(targetParent.uid))) return;
+  pushCanvasUndo();
+  entry.parentUid = targetParent.uid;
+  entry.slotId = slot.id;
+  moveSubtreeBefore(entry.uid, target && !sameUid(target.uid, entry.uid) ? target.uid : null);
+  finishCanvasMutation(entry.uid);
 }
 
 function removeFromCanvas(uid) {
   pushCanvasUndo();
-  state.canvas = state.canvas.filter((c) => c.uid !== uid);
-  if (state.selectedUid === uid) state.selectedUid = null;
+  const entry = entryByUid(uid);
+  if (!entry) { _canvasUndo.pop(); return; }
+  const removeIds = descendantUids(uid);
+  removeIds.add(String(uid));
+  state.canvas = state.canvas.filter((candidate) => !removeIds.has(String(candidate.uid)));
+  if (removeIds.has(String(state.selectedUid))) state.selectedUid = entry.parentUid ?? null;
+  finishCanvasMutation(state.selectedUid);
+}
+
+function clearCanvas() {
+  if (!state.canvas.length) return;
+  if (!confirm("Очистить всё письмо? Все блоки на канве будут удалены.")) return;
+  pushCanvasUndo();
+  state.canvas = [];
+  state.selectedUid = null;
+  state.sourceSkeleton = null;
   renderCanvas();
   renderInspector();
+  syncPaletteToSelection();
   scheduleLivePreview();
 }
 
 function moveInCanvas(uid, delta) {
+  const entry = entryByUid(uid);
+  if (!entry || entry.parentUid == null) return;
+  const siblings = childrenOf(entry.parentUid, entry.slotId);
+  const index = siblings.findIndex((candidate) => sameUid(candidate.uid, uid));
+  const targetIndex = index + delta;
+  if (index < 0 || targetIndex < 0 || targetIndex >= siblings.length) return;
   pushCanvasUndo();
-  const idx = state.canvas.findIndex((c) => c.uid === uid);
-  if (idx < 0) return;
-  const target = idx + delta;
-  if (target < 0 || target >= state.canvas.length) return;
-  const [moved] = state.canvas.splice(idx, 1);
-  state.canvas.splice(target, 0, moved);
-  renderCanvas();
-  scheduleLivePreview();
+  const order = siblings.map((candidate) => candidate.uid);
+  [order[index], order[targetIndex]] = [order[targetIndex], order[index]];
+  rebuildCanvasOrder(entry.parentUid, entry.slotId, order);
+  finishCanvasMutation(entry.uid);
 }
 
 function selectCanvas(uid) {
   state.selectedUid = uid;
   renderCanvas();
   renderInspector();
+  syncPaletteToSelection();
   applyIframeSelection();
 }
 
+function moveSubtreeBefore(uid, beforeUid) {
+  const ids = descendantUids(uid);
+  ids.add(String(uid));
+  const bundle = state.canvas.filter((entry) => ids.has(String(entry.uid)));
+  const remaining = state.canvas.filter((entry) => !ids.has(String(entry.uid)));
+  const beforeIndex = beforeUid == null
+    ? remaining.length
+    : remaining.findIndex((entry) => sameUid(entry.uid, beforeUid));
+  remaining.splice(beforeIndex >= 0 ? beforeIndex : remaining.length, 0, ...bundle);
+  state.canvas = remaining;
+  normalizeCanvasOrder();
+}
+
+function rebuildCanvasOrder(parentUid, slotId, orderedUids) {
+  const rank = new Map(orderedUids.map((uid, index) => [String(uid), index]));
+  normalizeCanvasOrder({ parentUid, slotId, rank });
+}
+
+function normalizeCanvasOrder(override) {
+  const original = [...state.canvas];
+  const emitted = new Set();
+  const out = [];
+  const direct = (parentUid) => original.filter((entry) => (
+    parentUid == null ? entry.parentUid == null : sameUid(entry.parentUid, parentUid)
+  ));
+  const visit = (entry) => {
+    if (!entry || emitted.has(String(entry.uid))) return;
+    emitted.add(String(entry.uid));
+    out.push(entry);
+    let kids = direct(entry.uid);
+    if (override && sameUid(override.parentUid, entry.uid)) {
+      kids = kids.sort((a, b) => {
+        if (a.slotId !== override.slotId || b.slotId !== override.slotId) return 0;
+        return (override.rank.get(String(a.uid)) ?? 99999) - (override.rank.get(String(b.uid)) ?? 99999);
+      });
+    }
+    const slotOrder = childSlotsFor(blockForEntry(entry)).map((slot) => slot.id);
+    kids.sort((a, b) => {
+      const ai = slotOrder.indexOf(a.slotId), bi = slotOrder.indexOf(b.slotId);
+      if (ai < 0 && bi < 0) return 0;
+      if (ai < 0) return 1;
+      if (bi < 0) return -1;
+      return ai - bi;
+    });
+    kids.forEach(visit);
+  };
+  direct(null).forEach(visit);
+  original.forEach(visit);
+  state.canvas = out;
+}
+
+function makeCanvasCard(entry, block) {
+  const li = document.createElement("li");
+  li.className = "canvas-card" + (sameUid(entry.uid, state.selectedUid) ? " selected" : "");
+  li.draggable = true;
+  li.dataset.uid = String(entry.uid);
+  li.dataset.blockId = block.id;
+  li.dataset.placement = block.placement || "";
+  li.dataset.source = entry.blockSource || block.source || "";
+  const siblings = entry.parentUid == null ? [] : childrenOf(entry.parentUid, entry.slotId);
+  const siblingIndex = siblings.findIndex((candidate) => sameUid(candidate.uid, entry.uid));
+  const recipeBadge = entry.recipeInstanceId ? `<span class="pill" title="Часть готового комбо">комбо</span>` : "";
+  li.innerHTML = `
+      <span class="canvas-card-handle" title="Перетащи чтобы переставить">⠿</span>
+      <span class="canvas-card-icon">${PLACEMENT_ICON[block.placement] || "📐"}</span>
+      <div class="canvas-card-body">
+        <div class="canvas-card-title">${escapeHtml(block.label || block.id)}</div>
+        <div class="canvas-card-sub">${escapeHtml(block.placement || "")} · ${(block.slots || []).length} полей ${recipeBadge}</div>
+      </div>
+      <div class="canvas-card-actions">
+        <button title="Вверх" data-act="up" ${siblingIndex <= 0 ? "disabled" : ""}>▲</button>
+        <button title="Вниз" data-act="down" ${siblingIndex < 0 || siblingIndex >= siblings.length - 1 ? "disabled" : ""}>▼</button>
+        <button title="Удалить" data-act="del">✕</button>
+      </div>`;
+  li.addEventListener("click", (e) => { if (e.target.closest("button")) return; selectCanvas(entry.uid); });
+  li.querySelector('[data-act="up"]').addEventListener("click", (e) => { e.stopPropagation(); moveInCanvas(entry.uid, -1); });
+  li.querySelector('[data-act="down"]').addEventListener("click", (e) => { e.stopPropagation(); moveInCanvas(entry.uid, +1); });
+  li.querySelector('[data-act="del"]').addEventListener("click", (e) => { e.stopPropagation(); removeFromCanvas(entry.uid); });
+  li.addEventListener("dragstart", (e) => {
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("application/x-retkit-canvas-uid", String(entry.uid));
+    e.dataTransfer.setData("text/plain", "canvas:" + entry.uid);
+    document.body.classList.add("dragging-canvas-card");
+    document.body.dataset.dragPlacement = block.placement || "";
+    _draggingCanvasUid = entry.uid;
+    _draggingPlacement = block.placement || "";
+    li.classList.add("dragging");
+  });
+  li.addEventListener("dragend", () => {
+    document.body.classList.remove("dragging-canvas-card");
+    delete document.body.dataset.dragPlacement;
+    li.classList.remove("dragging");
+    _draggingCanvasUid = null;
+    _draggingPlacement = "";
+    clearDropIndicators();
+  });
+  return li;
+}
+
+function isChildPlacement(p) { return p === "inner" || p === "inline" || p === "both"; }
+
+// Explicit tree: every card owns named child slots with their own drop zones.
 function renderCanvas() {
   const ol = $("canvas");
   if (!state.canvas.length) {
@@ -366,52 +945,51 @@ function renderCanvas() {
     return;
   }
   ol.innerHTML = "";
-  state.canvas.forEach((entry, idx) => {
-    const block = state.library.find((b) => b.id === entry.blockId);
-    if (!block) return;
-    const li = document.createElement("li");
-    li.className = "canvas-card" + (entry.uid === state.selectedUid ? " selected" : "");
-    li.draggable = true;
-    li.dataset.uid = String(entry.uid);
-    li.dataset.placement = block.placement || "";
-    li.innerHTML = `
-      <span class="canvas-card-handle" title="Перетащи чтобы переставить">⠿</span>
-      <span class="canvas-card-icon">${PLACEMENT_ICON[block.placement] || "📐"}</span>
-      <div class="canvas-card-body">
-        <div class="canvas-card-title">${escapeHtml(block.label || block.id)}</div>
-        <div class="canvas-card-sub">${escapeHtml(block.placement || "")} · ${(block.slots || []).length} slot(s)</div>
-      </div>
-      <div class="canvas-card-actions">
-        <button title="Вверх" data-act="up" ${idx === 0 ? "disabled" : ""}>▲</button>
-        <button title="Вниз" data-act="down" ${idx === state.canvas.length - 1 ? "disabled" : ""}>▼</button>
-        <button title="Удалить" data-act="del">✕</button>
-      </div>
-    `;
-    li.addEventListener("click", (e) => {
-      if (e.target.closest("button")) return;
-      selectCanvas(entry.uid);
-    });
-    li.querySelector('[data-act="up"]').addEventListener("click", (e) => { e.stopPropagation(); moveInCanvas(entry.uid, -1); });
-    li.querySelector('[data-act="down"]').addEventListener("click", (e) => { e.stopPropagation(); moveInCanvas(entry.uid, +1); });
-    li.querySelector('[data-act="del"]').addEventListener("click", (e) => { e.stopPropagation(); removeFromCanvas(entry.uid); });
+  const rendered = new Set();
+  const renderNode = (entry) => {
+    const block = blockForEntry(entry);
+    if (!block || rendered.has(String(entry.uid))) return null;
+    rendered.add(String(entry.uid));
+    const node = document.createElement("li");
+    node.className = "tree-node";
+    node.dataset.uid = String(entry.uid);
+    node.appendChild(makeCanvasCard(entry, block));
 
-    // Drag for reorder.
-    li.addEventListener("dragstart", (e) => {
-      e.dataTransfer.effectAllowed = "move";
-      e.dataTransfer.setData("application/x-retkit-canvas-uid", String(entry.uid));
-      e.dataTransfer.setData("text/plain", "canvas:" + entry.uid);
-      document.body.classList.add("dragging-canvas-card");
-      document.body.dataset.dragPlacement = block.placement || "";
-      li.classList.add("dragging");
-    });
-    li.addEventListener("dragend", () => {
-      document.body.classList.remove("dragging-canvas-card");
-      delete document.body.dataset.dragPlacement;
-      li.classList.remove("dragging");
-      clearDropIndicators();
-    });
+    for (const childSlot of childSlotsFor(block)) {
+      const slotEl = document.createElement("ul");
+      slotEl.className = "tree-slot";
+      slotEl.dataset.parentUid = String(entry.uid);
+      slotEl.dataset.slotId = childSlot.id;
+      slotEl.dataset.accepts = childSlot.accepts.join(",");
+      const children = childrenOf(entry.uid, childSlot.id);
+      const head = document.createElement("li");
+      head.className = "tree-slot-head";
+      head.innerHTML = `<span>${escapeHtml(childSlot.label || childSlot.id)}</span><span class="tree-slot-count">${children.length}</span>`;
+      slotEl.appendChild(head);
+      children.forEach((child) => {
+        const childNode = renderNode(child);
+        if (childNode) slotEl.appendChild(childNode);
+      });
+      const dz = document.createElement("li");
+      dz.className = "child-dropzone";
+      dz.dataset.parentUid = String(entry.uid);
+      dz.dataset.slotId = childSlot.id;
+      dz.textContent = childSlot.accepts.includes("section") ? "＋ секция сюда" : "＋ блок внутрь";
+      slotEl.appendChild(dz);
+      node.appendChild(slotEl);
+    }
+    return node;
+  };
 
-    ol.appendChild(li);
+  state.canvas.filter((entry) => entry.parentUid == null).forEach((entry) => {
+    const node = renderNode(entry);
+    if (node) ol.appendChild(node);
+  });
+  state.canvas.filter((entry) => !rendered.has(String(entry.uid))).forEach((entry) => {
+    const node = renderNode(entry);
+    if (!node) return;
+    node.querySelector(":scope > .canvas-card")?.classList.add("orphan");
+    ol.appendChild(node);
   });
 }
 
@@ -422,6 +1000,7 @@ function renderCanvas() {
 function clearDropIndicators() {
   document.querySelectorAll(".canvas-drop-indicator").forEach((el) => el.remove());
   document.querySelectorAll(".canvas-card.drop-target").forEach((el) => el.classList.remove("drop-target"));
+  document.querySelectorAll(".tree-slot.drop-compatible").forEach((el) => el.classList.remove("drop-compatible"));
 }
 
 function computeInsertionIndex(canvasEl, clientY) {
@@ -437,16 +1016,85 @@ function computeInsertionIndex(canvasEl, clientY) {
 function wireCanvasDnd() {
   const canvasEl = $("canvas");
 
+  const dropContext = (target, clientY) => {
+    const slotEl = target?.closest?.(".tree-slot");
+    if (slotEl) {
+      const parentUid = slotEl.dataset.parentUid;
+      const slotId = slotEl.dataset.slotId;
+      const targetNode = target.closest?.(".tree-node");
+      const targetEntry = targetNode ? entryByUid(targetNode.dataset.uid) : null;
+      const isDirectSibling = targetEntry
+        && sameUid(targetEntry.parentUid, parentUid)
+        && targetEntry.slotId === slotId;
+      let beforeUid = isDirectSibling ? targetEntry.uid : null;
+      if (isDirectSibling && Number.isFinite(clientY)) {
+        const card = targetNode.querySelector(":scope > .canvas-card");
+        const rect = card?.getBoundingClientRect();
+        if (rect && clientY > rect.top + rect.height / 2) {
+          const siblings = childrenOf(parentUid, slotId);
+          const index = siblings.findIndex((entry) => sameUid(entry.uid, targetEntry.uid));
+          beforeUid = siblings[index + 1]?.uid ?? null;
+        }
+      }
+      return {
+        parentUid,
+        slotId,
+        slotEl,
+        beforeUid,
+      };
+    }
+    return { parentUid: null, slotId: null, slotEl: null, beforeUid: null };
+  };
+
+  const draggedBlock = () => {
+    if (_draggingCanvasUid != null) return blockForEntry(entryByUid(_draggingCanvasUid));
+    return blockById(_draggingBlockId, _draggingBlockSource);
+  };
+
+  // Прощающий дроп: если бросили НЕ в конкретный слот, а мимо (пустое место/низ),
+  // и это не обёртка — направляем в первый подходящий контейнер (в конец слота).
+  const resolveTarget = (target, clientY) => {
+    const ctx = dropContext(target, clientY);
+    if (ctx.slotEl) return ctx;
+    const block = draggedBlock();
+    if (!block || placementOf(block) === "outer") return ctx;
+    if (isInnerBlock(block) && placementOf(block) !== "both") {
+      const section = latestSectionEntry(block);
+      const sectionBlock = blockForEntry(section);
+      const childSlot = childSlotsFor(sectionBlock).find((candidate) => chooseChildSlot(sectionBlock, block, candidate.id));
+      if (section && childSlot) {
+        const el = canvasEl.querySelector(`.tree-slot[data-parent-uid="${section.uid}"][data-slot-id="${childSlot.id}"]`);
+        if (el) return { parentUid: String(section.uid), slotId: childSlot.id, slotEl: el, beforeUid: null };
+      }
+    }
+    for (const oe of state.canvas.filter((e) => e.parentUid == null)) {
+      const ob = blockForEntry(oe);
+      const cs = childSlotsFor(ob).find((sl) => chooseChildSlot(ob, block, sl.id));
+      if (cs) {
+        const el = canvasEl.querySelector(`.tree-slot[data-parent-uid="${oe.uid}"][data-slot-id="${cs.id}"]`);
+        if (el) return { parentUid: String(oe.uid), slotId: cs.id, slotEl: el, beforeUid: null };
+      }
+    }
+    if (canAutoAddCatalogDrop(block, _draggingCanvasUid)) {
+      return { ...ctx, autoAdd: true };
+    }
+    return ctx;
+  };
+
   canvasEl.addEventListener("dragover", (e) => {
-    // Accept catalog drops AND canvas reorders.
     const fromCatalog = document.body.classList.contains("dragging-from-catalog");
     const fromCanvas  = document.body.classList.contains("dragging-canvas-card");
     if (!fromCatalog && !fromCanvas) return;
+    const context = resolveTarget(e.target, e.clientY);
+    const parent = entryByUid(context.parentUid);
+    const compatible = context.autoAdd || (context.slotEl
+      ? !!chooseChildSlot(blockForEntry(parent), draggedBlock(), context.slotId)
+      : placementOf(draggedBlock()) === "outer");
+    if (!compatible) return;
     e.preventDefault();
     e.dataTransfer.dropEffect = fromCatalog ? "copy" : "move";
-
-    const insertAt = computeInsertionIndex(canvasEl, e.clientY);
-    showInsertionIndicator(canvasEl, insertAt);
+    clearDropIndicators();
+    context.slotEl?.classList.add("drop-compatible");
   });
 
   canvasEl.addEventListener("dragleave", (e) => {
@@ -455,20 +1103,65 @@ function wireCanvasDnd() {
   });
 
   canvasEl.addEventListener("drop", (e) => {
-    e.preventDefault();
-    clearDropIndicators();
     const canvasUid = e.dataTransfer.getData("application/x-retkit-canvas-uid");
     const blockId   = e.dataTransfer.getData("application/x-retkit-block");
-    const insertAt  = computeInsertionIndex(canvasEl, e.clientY);
-
-    if (canvasUid) {
-      moveCanvasUid(Number(canvasUid), insertAt);
+    const source = e.dataTransfer.getData("application/x-retkit-block-source") || _draggingBlockSource;
+    const context = resolveTarget(e.target, e.clientY);
+    const parent = entryByUid(context.parentUid);
+    const moving = canvasUid ? entryByUid(canvasUid) : null;
+    const block = moving ? blockForEntry(moving) : blockById(blockId, source);
+    const slot = context.slotEl ? chooseChildSlot(blockForEntry(parent), block, context.slotId) : null;
+    if (!block || (context.slotEl && !slot) || (!context.slotEl && !context.autoAdd && placementOf(block) !== "outer")) return;
+    e.preventDefault();
+    clearDropIndicators();
+    if (moving) {
+      if (!parent || descendantUids(moving.uid).has(String(parent.uid))) return;
+      pushCanvasUndo();
+      moving.parentUid = parent.uid;
+      moving.slotId = slot.id;
+      moveSubtreeBefore(moving.uid, context.beforeUid && !sameUid(context.beforeUid, moving.uid) ? context.beforeUid : null);
+      finishCanvasMutation(moving.uid);
       return;
     }
     if (blockId) {
-      const block = state.library.find((b) => b.id === blockId);
-      if (block) addToCanvas(block, insertAt);
+      addToCanvas(block, context.slotEl ? {
+        parentUid: parent.uid,
+        slotId: slot.id,
+        beforeUid: context.beforeUid,
+        origin: "catalog",
+      } : { origin: "catalog" });
     }
+  });
+}
+
+// The iframe does not exist yet on an empty letter, so its own drop handlers
+// cannot bootstrap the first block. Accept catalog drops on the preview stage
+// and delegate to the exact same addToCanvas path as a catalog click.
+function wirePreviewStageDnd() {
+  const stage = $("previewStage");
+  if (!stage) return;
+  const catalogBlock = (dataTransfer) => {
+    const id = dataTransfer?.getData("application/x-retkit-block") || _draggingBlockId;
+    const source = dataTransfer?.getData("application/x-retkit-block-source") || _draggingBlockSource;
+    return blockById(id, source);
+  };
+  stage.addEventListener("dragover", (event) => {
+    if (!document.body.classList.contains("dragging-from-catalog")) return;
+    const block = catalogBlock(event.dataTransfer);
+    if (!canAutoAddCatalogDrop(block, null)) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "copy";
+    stage.classList.add("catalog-drop-ready");
+  });
+  stage.addEventListener("dragleave", (event) => {
+    if (!event.relatedTarget || !stage.contains(event.relatedTarget)) stage.classList.remove("catalog-drop-ready");
+  });
+  stage.addEventListener("drop", (event) => {
+    const block = catalogBlock(event.dataTransfer);
+    if (!canAutoAddCatalogDrop(block, null)) return;
+    event.preventDefault();
+    stage.classList.remove("catalog-drop-ready");
+    addToCanvas(block, { origin: "catalog" });
   });
 }
 
@@ -492,29 +1185,103 @@ function showInsertionIndicator(canvasEl, insertAt) {
 }
 
 // ─── Inspector ──────────────────────────────────────────────────────────
+const COMMON_APPEARANCE_FIELDS = Object.freeze([
+  { key: "background_color", label: "Фон блока", kind: "color", slotIds: ["background_color", "bg_color"] },
+  { key: "border", label: "Обводка", kind: "text", slotIds: ["border"] },
+  { key: "radius", label: "Скругление", kind: "text", slotIds: ["radius", "border_radius"] },
+  { key: "padding", label: "Внутренние отступы", kind: "text", slotIds: ["padding"] },
+]);
+
+function commonAppearanceBindings(block) {
+  const slots = Array.isArray(block?.slots) ? block.slots : [];
+  return COMMON_APPEARANCE_FIELDS.map((field) => {
+    const slot = slots.find((candidate) => field.slotIds.includes(String(candidate.id || "").toLowerCase())
+      && (field.kind !== "color" || String(candidate.kind || "").toLowerCase() === "color"));
+    return { ...field, slot: slot || null };
+  });
+}
+
+function renderFallbackAppearanceControl(binding, entry, block) {
+  const own = entry?.appearance && Object.prototype.hasOwnProperty.call(entry.appearance, binding.key);
+  const inherited = block?.appearance && Object.prototype.hasOwnProperty.call(block.appearance, binding.key);
+  const value = own ? entry.appearance[binding.key] : (inherited ? block.appearance[binding.key] : "");
+  const id = escapeHtml(binding.key);
+  const label = `<label>${escapeHtml(binding.label)} <span class="slot-kind">общий</span></label>`;
+  const reset = `<button type="button" class="slot-value-btn" data-reset-appearance="${id}" title="Убрать переопределение и вернуть оформление блока">↺</button>`;
+  if (binding.kind === "color") {
+    const swatch = /^#[0-9a-f]{6}$/i.test(String(value)) ? String(value) : "#000000";
+    return `<div class="insp-slot insp-style-slot style-background">${label}<div class="insp-value-row insp-color-row"><input type="color" data-appearance-id="${id}" value="${escapeHtml(swatch)}" /><input type="text" data-appearance-id="${id}" value="${escapeHtml(value)}" placeholder="как в блоке / #RRGGBB" /><button type="button" class="slot-value-btn transparent" data-transparent-appearance="${id}" title="Прозрачный: будет виден фон родительского блока">Как родитель</button>${reset}</div></div>`;
+  }
+  const placeholder = binding.key === "border" ? "как в блоке / 1px solid #ECECED"
+    : binding.key === "radius" ? "как в блоке / 16px"
+      : "как в блоке / 16px 24px";
+  return `<div class="insp-slot insp-style-slot style-${escapeHtml(binding.key)}">${label}<div class="insp-value-row"><input type="text" data-appearance-id="${id}" value="${escapeHtml(value)}" placeholder="${escapeHtml(placeholder)}" maxlength="180" />${reset}</div></div>`;
+}
+
+function renderCommonAppearance(block, entry, bindings) {
+  return `<section class="insp-group insp-surface-group" data-group="surface">
+    <div class="insp-group-title"><span>◐</span><span>Поверхность блока</span><button type="button" class="insp-reset-appearance" data-reset-appearance-all title="Вернуть все четыре поля к настройкам блока">Сбросить</button></div>
+    <div class="insp-surface-hint">Фон, рамка и радиус применяются к корню блока; padding — к первой email-ячейке.</div>
+    ${bindings.map((binding) => binding.slot
+      ? renderSlotControl(binding.slot, entry.slots[binding.slot.id], block)
+      : renderFallbackAppearanceControl(binding, entry, block)).join("")}
+  </section>`;
+}
+
 function renderInspector() {
   const body = $("inspectorBody");
   if (!state.selectedUid) {
+    if ($("inspectorTitle")) $("inspectorTitle").textContent = "Свойства блока";
     body.innerHTML = `<div class="insp-empty">Выбери блок на канвасе чтобы редактировать его поля.</div>`;
     return;
   }
-  const entry = state.canvas.find((c) => c.uid === state.selectedUid);
+  const entry = entryByUid(state.selectedUid);
   if (!entry) {
     state.selectedUid = null;
     renderInspector();
     return;
   }
-  const block = state.library.find((b) => b.id === entry.blockId);
+  const block = blockForEntry(entry);
   if (!block) return;
+  if ($("inspectorTitle")) $("inspectorTitle").textContent = block.label || block.id;
+  const parent = entryByUid(entry.parentUid);
+  const parentBlock = blockForEntry(parent);
   let html = `<div class="insp-block-id">${escapeHtml(block.id)} · ${escapeHtml(block.placement)}</div>`;
+  if (parentBlock) {
+    html += `<div class="insp-parent">Внутри: ${escapeHtml(parentBlock.label || parentBlock.id)} → ${escapeHtml(entry.slotId || "content")}</div>`;
+  }
   // Move / delete the selected block (these lived in the removed «Структура» column).
   html += `<div class="insp-actions">
     <button class="btn" data-act="up" type="button" title="Переместить выше">▲ Выше</button>
     <button class="btn" data-act="down" type="button" title="Переместить ниже">▼ Ниже</button>
+    <button class="btn" data-act="code" type="button" title="Открыть код блока (pug+styl)">⟨⟩ Код</button>
     <button class="btn" data-act="del" type="button" title="Удалить блок из письма">🗑</button>
   </div>`;
+  const appearanceBindings = placementOf(block) === "outer" ? [] : commonAppearanceBindings(block);
+  const commonSlotIds = new Set(appearanceBindings.map((binding) => binding.slot?.id).filter(Boolean));
+  if (appearanceBindings.length) html += renderCommonAppearance(block, entry, appearanceBindings);
+  const groups = { content: [], assets: [], appearance: [], advanced: [] };
   for (const slot of block.slots || []) {
-    html += renderSlotControl(slot, entry.slots[slot.id]);
+    if (commonSlotIds.has(slot.id)) continue;
+    groups[slotInspectorGroup(slot)]?.push(slot);
+  }
+  groups.appearance.sort((a, b) => appearanceSlotRank(a) - appearanceSlotRank(b));
+  const groupMeta = {
+    content: ["✎", "Контент и ссылки"],
+    assets: ["▧", "Изображения"],
+    appearance: ["◐", "Точные настройки"],
+    advanced: ["⚙", "Дополнительно"],
+  };
+  // Оформление идёт первым: дополнительные размеры/цвета не должны прятаться
+  // после длинного списка контента. Четыре общих поля выше переиспользуют
+  // native slots, а при их отсутствии используют email-safe fallback.
+  for (const groupId of ["appearance", "content", "assets", "advanced"]) {
+    const slots = groups[groupId];
+    if (!slots.length) continue;
+    const [icon, title] = groupMeta[groupId];
+    html += `<section class="insp-group" data-group="${groupId}"><div class="insp-group-title"><span>${icon}</span>${title}</div>`;
+    for (const slot of slots) html += renderSlotControl(slot, entry.slots[slot.id], block);
+    html += `</section>`;
   }
   // "Save as user block" footer — copies current slot values as new defaults.
   html += `
@@ -528,6 +1295,12 @@ function renderInspector() {
   body.innerHTML = html;
   // Wire up change handlers.
   body.querySelectorAll("[data-slot-id]").forEach((el) => {
+    el.addEventListener("focus", () => {
+      if (el.dataset.undoCaptured === "1") return;
+      pushCanvasUndo();
+      el.dataset.undoCaptured = "1";
+    });
+    el.addEventListener("blur", () => { delete el.dataset.undoCaptured; });
     el.addEventListener("input", () => {
       const id = el.getAttribute("data-slot-id");
       let v = el.value;
@@ -542,16 +1315,121 @@ function renderInspector() {
       scheduleLivePreview();
     });
   });
+  body.querySelectorAll("[data-appearance-id]").forEach((el) => {
+    el.addEventListener("focus", () => {
+      if (el.dataset.undoCaptured === "1") return;
+      pushCanvasUndo();
+      el.dataset.undoCaptured = "1";
+    });
+    el.addEventListener("blur", () => { delete el.dataset.undoCaptured; });
+    el.addEventListener("input", () => {
+      const id = el.dataset.appearanceId;
+      const value = el.value;
+      if (!entry.appearance || typeof entry.appearance !== "object") entry.appearance = {};
+      if (String(value).trim()) entry.appearance[id] = value;
+      else delete entry.appearance[id];
+      body.querySelectorAll(`[data-appearance-id="${CSS.escape(id)}"]`).forEach((other) => {
+        if (other !== el && other.value !== value) other.value = value;
+      });
+      scheduleLivePreview();
+    });
+  });
+  body.querySelectorAll("[data-reset-slot]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const id = button.dataset.resetSlot;
+      const slot = (block.slots || []).find((candidate) => candidate.id === id);
+      if (!slot) return;
+      pushCanvasUndo();
+      entry.slots[id] = Object.prototype.hasOwnProperty.call(slot, "default") ? slot.default : "";
+      renderInspector();
+      scheduleLivePreview(100);
+    });
+  });
+  body.querySelectorAll("[data-transparent-slot]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const id = button.dataset.transparentSlot;
+      if (!(block.slots || []).some((slot) => slot.id === id)) return;
+      pushCanvasUndo();
+      entry.slots[id] = "transparent";
+      renderInspector();
+      scheduleLivePreview(100);
+    });
+  });
+  body.querySelectorAll("[data-reset-appearance]").forEach((button) => {
+    button.addEventListener("click", () => {
+      pushCanvasUndo();
+      if (entry.appearance && typeof entry.appearance === "object") delete entry.appearance[button.dataset.resetAppearance];
+      renderInspector();
+      scheduleLivePreview(100);
+    });
+  });
+  body.querySelectorAll("[data-transparent-appearance]").forEach((button) => {
+    button.addEventListener("click", () => {
+      pushCanvasUndo();
+      if (!entry.appearance || typeof entry.appearance !== "object") entry.appearance = {};
+      entry.appearance[button.dataset.transparentAppearance] = "transparent";
+      renderInspector();
+      scheduleLivePreview(100);
+    });
+  });
+  body.querySelector("[data-reset-appearance-all]")?.addEventListener("click", () => {
+    pushCanvasUndo();
+    entry.appearance = {};
+    for (const binding of appearanceBindings) {
+      if (!binding.slot) continue;
+      entry.slots[binding.slot.id] = Object.prototype.hasOwnProperty.call(binding.slot, "default") ? binding.slot.default : "";
+    }
+    renderInspector();
+    scheduleLivePreview(100);
+  });
   body.querySelector("#insp-save-as-block")?.addEventListener("click", () => saveSelectedAsUserBlock());
   body.querySelector('[data-act="up"]')?.addEventListener("click", () => { moveInCanvas(entry.uid, -1); renderInspector(); });
   body.querySelector('[data-act="down"]')?.addEventListener("click", () => { moveInCanvas(entry.uid, +1); renderInspector(); });
   body.querySelector('[data-act="del"]')?.addEventListener("click", () => removeFromCanvas(entry.uid));
+  body.querySelector('[data-act="code"]')?.addEventListener("click", () => openBlockAuthor(block, { asNew: true }));
+  body.querySelectorAll(".ph-insert").forEach((btn) => btn.addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); openPlaceholderMenu(btn, entry); }));
+  body.querySelectorAll("[data-asset-for]").forEach((btn) => btn.addEventListener("click", () => openAssetPicker(entry, btn.dataset.assetFor)));
+  body.querySelectorAll("[data-upload-for]").forEach((btn) => btn.addEventListener("click", () => uploadAssetForSlot(entry, btn.dataset.uploadFor)));
+  body.querySelectorAll("[data-generate-for]").forEach((btn) => btn.addEventListener("click", () => openImageGenerator(entry, btn.dataset.generateFor, block)));
+}
+
+function slotInspectorGroup(slot) {
+  const explicit = String(slot?.uiGroup || "").toLowerCase();
+  if (["content", "assets", "appearance", "advanced"].includes(explicit)) return explicit;
+  const id = String(slot?.id || "").toLowerCase();
+  const kind = String(slot?.kind || "text").toLowerCase();
+  if (kind === "image") return "assets";
+  if (kind === "color" || /(?:^|_)(bg|background|border|radius|padding|margin|align|width|height|cols|offset|pt|pb)(?:_|$)/.test(id)) return "appearance";
+  if (["text", "richtext", "url", "localizedurl", "number", "select"].includes(kind)) return "content";
+  return "advanced";
+}
+
+function appearanceSlotRole(slot) {
+  const id = String(slot?.id || "").toLowerCase();
+  if (/(?:^|_)(?:bg|background)(?:_color)?(?:_|$)/.test(id)) return "background";
+  if (/(?:^|_)(?:radius|border_radius)(?:_|$)/.test(id)) return "radius";
+  if (/(?:^|_)border(?:_|$)/.test(id)) return "border";
+  if (/(?:^|_)(?:padding|pt|pb|gap|margin|spacing)(?:_|$)/.test(id)) return "spacing";
+  if (/(?:^|_)(?:align|position)(?:_|$)/.test(id)) return "alignment";
+  if (/(?:^|_)(?:width|height|size|cols|offset)(?:_|$)/.test(id)) return "size";
+  return "other";
+}
+
+function appearanceSlotRank(slot) {
+  const rank = { background: 0, border: 10, radius: 20, spacing: 30, alignment: 40, size: 50, other: 90 };
+  return rank[appearanceSlotRole(slot)] ?? rank.other;
+}
+
+function canUseSystemPlaceholder(block, slot) {
+  return block?.category === "footer" && (
+    slot?.allowSystemPlaceholder === true || slot?.perLocale === true || slot?.kind === "localizedUrl"
+  );
 }
 
 async function saveSelectedAsUserBlock() {
-  const entry = state.canvas.find((c) => c.uid === state.selectedUid);
+  const entry = entryByUid(state.selectedUid);
   if (!entry) return;
-  const base = state.library.find((b) => b.id === entry.blockId);
+  const base = blockForEntry(entry);
   if (!base) return;
 
   const proposedId = prompt(
@@ -582,7 +1460,15 @@ async function saveSelectedAsUserBlock() {
     styl: base.styl,
     slots: newSlots,
     tags: Array.isArray(base.tags) ? base.tags.concat(["user"]) : ["user"],
+    childSlots: base.childSlots,
+    combo: base.combo === true,
+    children: base.children,
   };
+  const savedAppearance = {
+    ...(base.appearance && typeof base.appearance === "object" ? base.appearance : {}),
+    ...(entry.appearance && typeof entry.appearance === "object" ? entry.appearance : {}),
+  };
+  if (Object.keys(savedAppearance).length) payload.appearance = savedAppearance;
 
   let res = await fetch("/api/blocks-library/save", {
     method: "POST",
@@ -619,38 +1505,251 @@ async function deleteUserBlock(id) {
   await loadLibrary();
 }
 
-function renderSlotControl(slot, current) {
+function renderSlotControl(slot, current, block) {
   const v = current ?? slot.default ?? "";
   const kind = slot.kind || "text";
   const id = slot.id;
+  const isAppearance = slotInspectorGroup(slot) === "appearance";
+  const appearanceRole = isAppearance ? appearanceSlotRole(slot) : "";
+  const wrapClass = `insp-slot${isAppearance ? ` insp-style-slot style-${appearanceRole}` : ""}`;
   const label = `<label>${escapeHtml(slot.label || id)} <span class="slot-kind">${escapeHtml(kind)}</span></label>`;
+  const resetButton = isAppearance
+    ? `<button type="button" class="slot-value-btn" data-reset-slot="${escapeHtml(id)}" title="Вернуть значение блока по умолчанию">↺</button>`
+    : "";
+  const placeholderButton = canUseSystemPlaceholder(block, slot)
+    ? `<button type="button" class="ph-insert" data-ph-for="${escapeHtml(id)}" title="Вставить системный плейсхолдер">﹢ Системное поле</button>`
+    : "";
   if (kind === "richText") {
-    return `<div class="insp-slot">${label}<textarea data-slot-id="${escapeHtml(id)}" maxlength="${slot.max || 1000}">${escapeHtml(v)}</textarea></div>`;
+    return `<div class="${wrapClass}">${label}<textarea data-slot-id="${escapeHtml(id)}" maxlength="${slot.max || 1000}">${escapeHtml(v)}</textarea>${placeholderButton}</div>`;
   }
   if (kind === "select") {
     const options = (slot.options || []).map((o) => `<option value="${escapeHtml(o)}" ${o === v ? "selected" : ""}>${escapeHtml(o)}</option>`).join("");
-    return `<div class="insp-slot">${label}<select data-slot-id="${escapeHtml(id)}">${options}</select></div>`;
+    return `<div class="${wrapClass}">${label}<div class="insp-value-row"><select data-slot-id="${escapeHtml(id)}">${options}</select>${resetButton}</div></div>`;
   }
   if (kind === "number") {
-    return `<div class="insp-slot">${label}<input type="number" data-slot-id="${escapeHtml(id)}" value="${escapeHtml(v)}" min="${slot.min ?? ''}" max="${slot.max ?? ''}" /></div>`;
+    return `<div class="${wrapClass}">${label}<div class="insp-value-row"><input type="number" data-slot-id="${escapeHtml(id)}" value="${escapeHtml(v)}" min="${slot.min ?? ''}" max="${slot.max ?? ''}" />${resetButton}</div></div>`;
   }
-  if (kind === "url") {
-    return `<div class="insp-slot">${label}<input type="url" data-slot-id="${escapeHtml(id)}" value="${escapeHtml(v)}" /></div>`;
+  if (kind === "url" || kind === "localizedUrl") {
+    return `<div class="${wrapClass}">${label}<input type="url" data-slot-id="${escapeHtml(id)}" value="${escapeHtml(v)}" />${placeholderButton}</div>`;
   }
   if (kind === "image") {
-    return `<div class="insp-slot">${label}<input type="url" data-slot-id="${escapeHtml(id)}" value="${escapeHtml(v)}" placeholder="https://..." /></div>`;
+    return `<div class="${wrapClass}">${label}<input type="url" data-slot-id="${escapeHtml(id)}" value="${escapeHtml(v)}" placeholder="https://..." />
+      <div class="slot-tools">
+        <button type="button" class="slot-tool" data-asset-for="${escapeHtml(id)}">▧ Библиотека</button>
+        <button type="button" class="slot-tool" data-upload-for="${escapeHtml(id)}">↑ Загрузить</button>
+        <button type="button" class="slot-tool ai" data-generate-for="${escapeHtml(id)}">✨ Создать</button>
+      </div></div>`;
   }
   if (kind === "color") {
-    return `<div class="insp-slot">${label}<input type="color" data-slot-id="${escapeHtml(id)}" value="${escapeHtml(v)}" /><input type="text" data-slot-id="${escapeHtml(id)}" value="${escapeHtml(v)}" /></div>`;
+    const swatch = /^#[0-9a-f]{6}$/i.test(String(v)) ? String(v) : "#000000";
+    const transparentButton = appearanceRole === "background"
+      ? `<button type="button" class="slot-value-btn transparent" data-transparent-slot="${escapeHtml(id)}" title="Прозрачный: показывать фон родительского блока">Как родитель</button>`
+      : "";
+    return `<div class="${wrapClass}">${label}<div class="insp-value-row insp-color-row"><input type="color" data-slot-id="${escapeHtml(id)}" value="${escapeHtml(swatch)}" /><input type="text" data-slot-id="${escapeHtml(id)}" value="${escapeHtml(v)}" placeholder="#RRGGBB или transparent" />${transparentButton}${resetButton}</div></div>`;
   }
   // default: text
-  return `<div class="insp-slot">${label}<input type="text" data-slot-id="${escapeHtml(id)}" value="${escapeHtml(v)}" maxlength="${slot.max || 200}" /></div>`;
+  const stylePlaceholder = appearanceRole === "border" ? "none или 1px solid #ECECED"
+    : appearanceRole === "radius" ? "0 или 16px"
+      : appearanceRole === "spacing" ? "напр. 16px 24px"
+        : "";
+  const input = `<input type="text" data-slot-id="${escapeHtml(id)}" value="${escapeHtml(v)}" maxlength="${slot.max || 200}"${stylePlaceholder ? ` placeholder="${escapeHtml(stylePlaceholder)}"` : ""} />`;
+  return `<div class="${wrapClass}">${label}${isAppearance ? `<div class="insp-value-row">${input}${resetButton}</div>` : input}${placeholderButton}</div>`;
+}
+
+function setEntrySlotValue(entry, slotId, value) {
+  if (!entry || !slotId) return;
+  pushCanvasUndo();
+  entry.slots[slotId] = value;
+  renderInspector();
+  scheduleLivePreview(100);
+}
+
+function closeAssetModal() {
+  document.querySelector(".asset-modal")?.remove();
+}
+
+function createAssetModal(title, bodyHtml, footerHtml = "") {
+  closeAssetModal();
+  const modal = document.createElement("div");
+  modal.className = "asset-modal";
+  modal.innerHTML = `<div class="asset-dialog" role="dialog" aria-modal="true">
+    <div class="asset-dialog-head"><strong>${escapeHtml(title)}</strong><button class="btn" data-modal-close type="button">✕</button></div>
+    <div class="asset-dialog-body">${bodyHtml}</div>
+    ${footerHtml ? `<div class="asset-dialog-foot">${footerHtml}</div>` : ""}
+  </div>`;
+  modal.querySelectorAll("[data-modal-close]").forEach((btn) => btn.addEventListener("click", closeAssetModal));
+  modal.addEventListener("click", (event) => { if (event.target === modal) closeAssetModal(); });
+  document.body.appendChild(modal);
+  return modal;
+}
+
+function preferredAssetUrl(item) {
+  return item?.externalUrl || item?.preferredUrl || item?.localUrl || "";
+}
+
+async function openAssetPicker(entry, slotId) {
+  const modal = createAssetModal("Библиотека изображений", `<div class="asset-status">Загружаю библиотеку…</div>`);
+  const body = modal.querySelector(".asset-dialog-body");
+  try {
+    const response = await fetch("/api/assets");
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
+    const items = (data.items || []).filter((item) => String(item.mimeType || "").startsWith("image/") && preferredAssetUrl(item));
+    if (!items.length) {
+      body.innerHTML = `<div class="asset-status">В библиотеке пока нет изображений. Используй «Загрузить» рядом с полем.</div>`;
+      return;
+    }
+    body.innerHTML = `<div class="asset-grid">${items.map((item) => `<button class="asset-card" type="button" data-asset-id="${escapeHtml(item.id)}">
+      <img src="${escapeHtml(preferredAssetUrl(item))}" alt="${escapeHtml(item.alt || item.label || "")}" loading="lazy" />
+      <span>${escapeHtml(item.label || item.fileName || item.id)}</span>
+    </button>`).join("")}</div>`;
+    body.querySelectorAll("[data-asset-id]").forEach((button) => button.addEventListener("click", () => {
+      const item = items.find((candidate) => candidate.id === button.dataset.assetId);
+      const url = preferredAssetUrl(item);
+      if (url) setEntrySlotValue(entry, slotId, url);
+      closeAssetModal();
+    }));
+  } catch (error) {
+    body.innerHTML = `<div class="asset-status">Не удалось открыть библиотеку: ${escapeHtml(error.message)}</div>`;
+  }
+}
+
+function uploadAssetForSlot(entry, slotId) {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+  input.addEventListener("change", async () => {
+    const file = input.files?.[0];
+    if (!file) return;
+    if (file.size > 12 * 1024 * 1024) {
+      alert("Файл больше 12 МБ. Сожми изображение перед загрузкой.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const modal = createAssetModal("Загрузка изображения", `<div class="asset-status">Загружаю ${escapeHtml(file.name)}…</div>`);
+      try {
+        const response = await fetch("/api/assets/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ files: [{ name: file.name, dataUrl: reader.result, kind: "asset" }] }),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
+        const item = data.items?.[0];
+        const url = preferredAssetUrl(item);
+        if (!url) throw new Error("Сервер не вернул URL изображения");
+        setEntrySlotValue(entry, slotId, url);
+        closeAssetModal();
+      } catch (error) {
+        modal.querySelector(".asset-dialog-body").innerHTML = `<div class="asset-status">Ошибка загрузки: ${escapeHtml(error.message)}</div>`;
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+  input.click();
+}
+
+function openImageGenerator(entry, slotId, block) {
+  const current = String(entry?.slots?.[slotId] || "").trim();
+  const modal = createAssetModal(
+    "Создать изображение с AI",
+    `<label class="insp-slot">Описание изображения
+      <textarea class="asset-prompt" id="assetAiPrompt" placeholder="Например: абстрактная оранжевая 3D-композиция для hero-баннера финтех-письма, без текста"></textarea>
+    </label>
+    ${current ? `<div class="asset-status">Текущее изображение останется без изменений, пока генерация не завершится.</div>` : ""}
+    <div class="asset-options">
+      <select id="assetAiSize" aria-label="Размер"><option value="1536x1024">Hero · 1536×1024</option><option value="1024x1024">Квадрат · 1024×1024</option><option value="1024x1536">Вертикальное · 1024×1536</option></select>
+      <select id="assetAiQuality" aria-label="Качество"><option value="medium">Среднее качество</option><option value="low">Черновик быстрее</option><option value="high">Высокое качество</option></select>
+    </div><div class="asset-status" id="assetAiStatus">Результат автоматически сохранится в библиотеке изображений.</div>`,
+    `<button class="btn" data-modal-close type="button">Отмена</button><button class="btn btn-primary" id="assetAiGenerate" type="button">✨ Создать</button>`,
+  );
+  const prompt = modal.querySelector("#assetAiPrompt");
+  prompt.value = `Изображение для email-блока «${block?.label || block?.id || "баннер"}». `;
+  prompt.focus();
+  prompt.setSelectionRange(prompt.value.length, prompt.value.length);
+  modal.querySelector("#assetAiGenerate")?.addEventListener("click", async () => {
+    const textValue = prompt.value.trim();
+    if (textValue.length < 8) { prompt.focus(); return; }
+    const button = modal.querySelector("#assetAiGenerate");
+    const status = modal.querySelector("#assetAiStatus");
+    button.disabled = true;
+    status.textContent = "Генерирую изображение — это может занять до пары минут…";
+    try {
+      const response = await fetch("/api/assets/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: textValue,
+          size: modal.querySelector("#assetAiSize").value,
+          quality: modal.querySelector("#assetAiQuality").value,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.ok) throw new Error(data.error || `HTTP ${response.status}`);
+      const url = preferredAssetUrl(data.item);
+      if (!url) throw new Error("Генератор не вернул URL изображения");
+      setEntrySlotValue(entry, slotId, url);
+      closeAssetModal();
+    } catch (error) {
+      status.textContent = `Не получилось: ${error.message}`;
+      button.disabled = false;
+    }
+  });
+}
+
+// Канва → массив для сборки. Для parsed-блоков передаём полный def (их нет в canonical).
+function canvasToBlocks() {
+  return state.canvas.map((c) => {
+    const b = blockForEntry(c);
+    const out = {
+      uid: c.uid,
+      blockId: c.blockId,
+      id: c.blockId,
+      source: c.blockSource || b?.source || undefined,
+      parentUid: c.parentUid ?? null,
+      slotId: c.slotId || null,
+      slots: c.slots || {},
+      ...(c.recipeInstanceId ? { recipeInstanceId: c.recipeInstanceId } : {}),
+    };
+    if (c.appearance && typeof c.appearance === "object" && Object.keys(c.appearance).length) {
+      out.appearance = { ...c.appearance };
+    }
+    if (b && b.source !== "canonical") {
+      out.def = {
+        id: b.id,
+        label: b.label,
+        placement: b.placement,
+        category: b.category,
+        pug: b.pug,
+        styl: b.styl || "",
+        slots: b.slots || [],
+        childSlots: b.childSlots || [],
+        appearance: b.appearance && typeof b.appearance === "object" ? b.appearance : {},
+      };
+    }
+    return out;
+  });
+}
+function sourceSkeletonPayload() {
+  const s = state.sourceSkeleton;
+  // A studio-model can contain only canonical entries while still depending on
+  // its original branded skeleton. Preserve the chosen source independently of
+  // the current entries' source tags.
+  return (s && s.brand && s.mail) ? { sourceBrand: s.brand, sourceMail: s.mail } : {};
 }
 
 // ─── Live preview (always-on, debounced) ────────────────────────────────
 let _livePreviewTimer = null;
 let _livePreviewToken = 0;
 let _lastLiveHtml = "";
+const _livePreviewSessionNonce = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+
+function livePreviewRequestMailName(rawName, token, nonce = _livePreviewSessionNonce) {
+  const base = String(rawName || "preview").trim().toLowerCase().replace(/[^a-z0-9_-]/g, "-").slice(0, 48) || "preview";
+  const safeNonce = String(nonce || "session").toLowerCase().replace(/[^a-z0-9_-]/g, "-").slice(0, 24) || "session";
+  return `${base}-live-${safeNonce}-${Number(token) || 0}`;
+}
 
 function setLiveStatus(text, cls) {
   const el = $("livePreviewStatus");
@@ -660,6 +1759,7 @@ function setLiveStatus(text, cls) {
 }
 
 function scheduleLivePreview(delay = 650) {
+  saveCanvasState();
   if (_livePreviewTimer) clearTimeout(_livePreviewTimer);
   const stage = $("previewStage");
   if (!state.canvas.length) {
@@ -679,14 +1779,25 @@ async function runLivePreview() {
   const stage = $("previewStage");
   const overlay = $("previewOverlay");
   if (!state.canvas.length) { scheduleLivePreview(0); return; }
+  // Нет ни одной секции (только обёртка) — не мучаем сборку, показываем подсказку.
+  const _hasContent = state.canvas.some((c) => placementOf(blockForEntry(c)) !== "outer");
+  if (!_hasContent) {
+    stage?.classList.remove("has-content");
+    try { $("liveFrame").srcdoc = ""; } catch {}
+    const _ph = $("previewPlaceholder"); if (_ph) _ph.textContent = "Добавь секцию или комбо слева — здесь появится письмо.";
+    setLiveStatus("добавь секцию", "");
+    overlay?.classList.add("hidden");
+    return;
+  }
   overlay?.classList.remove("hidden");
   setLiveStatus("сборка…");
   try {
-    const blocks = state.canvas.map((c) => ({ id: c.blockId, slots: c.slots }));
+    const blocks = canvasToBlocks();
+    const previewMailName = livePreviewRequestMailName($("mailName").value, token);
     const res = await fetch("/api/compose-preview", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mailName: ($("mailName").value.trim() || "preview"), blocks }),
+      body: JSON.stringify({ mailName: previewMailName, blocks, ...sourceSkeletonPayload() }),
     });
     const data = await res.json();
     if (token !== _livePreviewToken) return; // a newer build superseded us
@@ -736,10 +1847,12 @@ function setPreviewDevice(mode) {
 // the drop line is a real DOM node the email's layout positions for us, so
 // there's no fragile cross-frame pixel math.
 let _draggingBlockId = null;
+let _draggingBlockSource = "";
 let _draggingCanvasUid = null;  // reorder: uid of the placed block being dragged
 let _draggingPlacement = "";
-let _blockRanges = [];          // [{ index, id, startComment, endComment, firstEl, lastEl }]
+let _blockRanges = [];          // [{ uid, index, id, startComment, endComment, firstEl, lastEl }]
 let _iframeWired = false;
+let _iframeDropContext = null;
 
 function iframeDoc() {
   try { return $("liveFrame").contentDocument || null; } catch { return null; }
@@ -761,21 +1874,23 @@ function indexIframeBlocks() {
   const doc = iframeDoc();
   if (!doc) return;
   const walker = doc.createTreeWalker(doc.documentElement, NodeFilter.SHOW_COMMENT, null);
-  const starts = {}; // index -> comment node
-  const ends = {};
+  const starts = new Map();
+  const ends = new Map();
   let node;
   while ((node = walker.nextNode())) {
-    const m = /^\s*rk:block-(start|end):(\d+):([a-z0-9_-]+)\s*$/i.exec(node.nodeValue || "");
+    const m = /^\s*rk:block-(start|end):([^:]+):([a-z0-9_-]+)\s*$/i.exec(node.nodeValue || "");
     if (!m) continue;
-    const idx = Number(m[2]);
-    if (m[1] === "start") starts[idx] = { node, id: m[3] };
-    else ends[idx] = { node, id: m[3] };
+    let uid = m[2];
+    try { uid = decodeURIComponent(uid.replace(/~/g, "%")); } catch {}
+    if (m[1] === "start") starts.set(uid, { node, id: m[3] });
+    else ends.set(uid, { node, id: m[3] });
   }
-  Object.keys(starts).map(Number).sort((a, b) => a - b).forEach((idx) => {
-    const s = starts[idx], e = ends[idx];
+  starts.forEach((s, uid) => {
+    const e = ends.get(uid);
     if (!s || !e) return;
     _blockRanges.push({
-      index: idx,
+      uid,
+      index: state.canvas.findIndex((entry) => sameUid(entry.uid, uid)),
       id: s.id,
       startComment: s.node,
       endComment: e.node,
@@ -807,7 +1922,8 @@ function prevElementBefore(commentNode) {
 // Which canvas uid does the i-th rendered block correspond to?
 // Rendered blocks follow the canvas order 1:1 (preview sends the whole canvas).
 function uidForRenderedIndex(idx) {
-  return state.canvas[idx] ? state.canvas[idx].uid : null;
+  const range = _blockRanges.find((candidate) => candidate.index === idx);
+  return range ? entryByUid(range.uid)?.uid ?? range.uid : (state.canvas[idx]?.uid ?? null);
 }
 
 function wireIframeInteractions() {
@@ -832,14 +1948,15 @@ function rangeForTarget(el) {
   if (!doc) return null;
   // Build an ordered list of all marker comments and elements via document order.
   // Cheap approach: for each range, test DOM containment using compareDocumentPosition.
+  let best = null;
   for (const r of _blockRanges) {
     if (!r.firstEl) continue;
     // el is within this block if it comes at-or-after firstEl and at-or-before lastEl.
     const afterStart = r.firstEl === el || (r.firstEl.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING) || r.firstEl.contains(el);
     const beforeEnd = !r.lastEl || r.lastEl === el || (r.lastEl.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_PRECEDING) || r.lastEl.contains(el);
-    if (afterStart && beforeEnd) return r;
+    if (afterStart && beforeEnd) best = r;
   }
-  return null;
+  return best;
 }
 
 function onIframeClick(e) {
@@ -847,7 +1964,7 @@ function onIframeClick(e) {
   const r = rangeForTarget(e.target);
   if (!r) return;
   e.preventDefault();
-  const uid = uidForRenderedIndex(r.index);
+  const uid = entryByUid(r.uid)?.uid ?? r.uid;
   if (uid != null) selectCanvas(uid);
 }
 
@@ -855,21 +1972,99 @@ function onIframeBlockDragStart(e) {
   if (_draggingBlockId) return;            // a catalog drag wins
   const r = rangeForTarget(e.target);
   if (!r) return;
-  const uid = uidForRenderedIndex(r.index);
+  const uid = entryByUid(r.uid)?.uid ?? r.uid;
   if (uid == null) return;
   _draggingCanvasUid = uid;
   try { e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", ""); } catch {}
 }
 function onIframeBlockDragEnd() {
   _draggingCanvasUid = null;
+  _iframeDropContext = null;
   clearIframeDropLine();
 }
+
+function renderedRangeMidpoint(uid) {
+  const range = _blockRanges.find((candidate) => sameUid(candidate.uid, uid));
+  const firstRect = range?.firstEl?.getBoundingClientRect();
+  if (!firstRect) return null;
+  const lastRect = (range.lastEl || range.firstEl).getBoundingClientRect();
+  return firstRect.top + (lastRect.bottom - firstRect.top) / 2;
+}
+
+function siblingBeforeUidAtPointer(parentUid, slotId, anchorUid, clientY) {
+  const anchor = entryByUid(anchorUid);
+  if (!anchor || !sameUid(anchor.parentUid, parentUid) || anchor.slotId !== slotId) return null;
+  const midpoint = renderedRangeMidpoint(anchor.uid);
+  if (midpoint == null || clientY <= midpoint) return anchor.uid;
+  const siblings = childrenOf(parentUid, slotId);
+  const index = siblings.findIndex((entry) => sameUid(entry.uid, anchor.uid));
+  return siblings[index + 1]?.uid ?? null;
+}
+
+function iframeDropContextFor(target, clientY) {
+  const movingEntry = entryByUid(_draggingCanvasUid);
+  const block = movingEntry ? blockForEntry(movingEntry) : blockById(_draggingBlockId, _draggingBlockSource);
+  if (!block) return null;
+  const placement = placementOf(block);
+  const targetRange = rangeForTarget(target);
+  const targetEntry = targetRange ? entryByUid(targetRange.uid) : null;
+  const targetBlock = blockForEntry(targetEntry);
+
+  if (placement === "outer") return { root: true, rangeIndex: iframeInsertionIndex(clientY) };
+  if (placement === "section") {
+    const outer = rootOuterEntry();
+    const slot = chooseChildSlot(blockForEntry(outer), block);
+    if (!outer || !slot) return null;
+    const targetSection = placementOf(targetBlock) === "section"
+      ? targetEntry
+      : (targetEntry ? entryByUid(targetEntry.parentUid) : null);
+    const beforeUid = targetSection
+      ? siblingBeforeUidAtPointer(outer.uid, slot.id, targetSection.uid, clientY)
+      : null;
+    return { parentUid: outer.uid, slotId: slot.id, beforeUid, rangeIndex: iframeInsertionIndex(clientY) };
+  }
+  if (placement === "both") {
+    // Спейсер: на/между секциями → МЕЖДУ секциями (уровень обёртки); на inner → внутрь секции.
+    if (placementOf(targetBlock) === "section" || !targetEntry) {
+      const outer = rootOuterEntry();
+      const slot = outer ? chooseChildSlot(blockForEntry(outer), block) : null;
+      if (outer && slot) {
+        const targetSection = placementOf(targetBlock) === "section"
+          ? targetEntry
+          : (targetEntry ? entryByUid(targetEntry.parentUid) : null);
+        const beforeUid = targetSection
+          ? siblingBeforeUidAtPointer(outer.uid, slot.id, targetSection.uid, clientY)
+          : null;
+        return { parentUid: outer.uid, slotId: slot.id, beforeUid, rangeIndex: iframeInsertionIndex(clientY) };
+      }
+    }
+  }
+
+  let parent = null;
+  let preferredSlot = null;
+  let beforeUid = null;
+  if (placementOf(targetBlock) === "section") {
+    parent = targetEntry;
+  } else if (targetEntry && isInnerBlock(targetBlock)) {
+    parent = entryByUid(targetEntry.parentUid);
+    preferredSlot = targetEntry.slotId;
+    beforeUid = siblingBeforeUidAtPointer(parent?.uid, preferredSlot, targetEntry.uid, clientY);
+  } else {
+    parent = latestSectionEntry(block);
+  }
+  const slot = chooseChildSlot(blockForEntry(parent), block, preferredSlot);
+  if (!parent || !slot) return null;
+  return { parentUid: parent.uid, slotId: slot.id, beforeUid, rangeIndex: iframeInsertionIndex(clientY) };
+}
+
 function onIframeDragOver(e) {
   if (!_draggingBlockId && _draggingCanvasUid == null) return;
+  const context = iframeDropContextFor(e.target, e.clientY);
+  if (!context) return;
   e.preventDefault();
-  e.dataTransfer.dropEffect = "copy";
-  const insertAt = iframeInsertionIndex(e.clientY);
-  showIframeDropLine(insertAt);
+  e.dataTransfer.dropEffect = _draggingCanvasUid == null ? "copy" : "move";
+  _iframeDropContext = context;
+  showIframeDropLine(context);
 }
 
 function onIframeDragLeave(e) {
@@ -879,19 +2074,30 @@ function onIframeDragLeave(e) {
 
 function onIframeDrop(e) {
   if (!_draggingBlockId && _draggingCanvasUid == null) return;
+  const context = _iframeDropContext || iframeDropContextFor(e.target, e.clientY);
+  if (!context) return;
   e.preventDefault();
-  const insertAt = iframeInsertionIndex(e.clientY);
+  _iframeDropContext = null;
   clearIframeDropLine();
   if (_draggingCanvasUid != null) {           // reorder an existing block
-    const uid = _draggingCanvasUid;
+    const moving = entryByUid(_draggingCanvasUid);
     _draggingCanvasUid = null;
-    moveCanvasUid(uid, insertAt);
+    if (!moving || context.root) return;
+    const parent = entryByUid(context.parentUid);
+    const slot = chooseChildSlot(blockForEntry(parent), blockForEntry(moving), context.slotId);
+    if (!parent || !slot || descendantUids(moving.uid).has(String(parent.uid))) return;
+    pushCanvasUndo();
+    moving.parentUid = parent.uid;
+    moving.slotId = slot.id;
+    moveSubtreeBefore(moving.uid, context.beforeUid && !sameUid(context.beforeUid, moving.uid) ? context.beforeUid : null);
+    finishCanvasMutation(moving.uid);
     return;
   }
-  const block = state.library.find((b) => b.id === _draggingBlockId);
+  const block = blockById(_draggingBlockId, _draggingBlockSource);
   _draggingBlockId = null;
+  _draggingBlockSource = "";
   document.body.classList.remove("dragging-from-catalog");
-  if (block) addToCanvas(block, insertAt);
+  if (block) addToCanvas(block, context.root ? { origin: "catalog" } : { ...context, origin: "catalog" });
 }
 
 // Decide insertion index among rendered blocks from a Y coordinate (iframe space).
@@ -914,7 +2120,7 @@ function clearIframeDropLine() {
   doc.getElementById("__rk_drop_line")?.remove();
 }
 
-function showIframeDropLine(insertAt) {
+function showIframeDropLine(contextOrIndex) {
   const doc = iframeDoc();
   if (!doc) return;
   clearIframeDropLine();
@@ -923,6 +2129,28 @@ function showIframeDropLine(insertAt) {
   line.style.cssText =
     "height:4px;background:#2563eb;border-radius:3px;margin:0;box-shadow:0 0 8px #2563eb;" +
     "position:relative;z-index:99999;pointer-events:none;";
+  if (contextOrIndex && typeof contextOrIndex === "object" && contextOrIndex.parentUid != null) {
+    const beforeRange = contextOrIndex.beforeUid != null
+      ? _blockRanges.find((range) => sameUid(range.uid, contextOrIndex.beforeUid))
+      : null;
+    if (beforeRange?.firstEl) {
+      beforeRange.firstEl.insertAdjacentElement("beforebegin", line);
+      return;
+    }
+    const siblings = childrenOf(contextOrIndex.parentUid, contextOrIndex.slotId)
+      .filter((entry) => !sameUid(entry.uid, _draggingCanvasUid));
+    const last = [...siblings].reverse()
+      .map((entry) => _blockRanges.find((range) => sameUid(range.uid, entry.uid)))
+      .find((range) => range?.lastEl || range?.firstEl);
+    const lastAnchor = last?.lastEl || last?.firstEl;
+    if (lastAnchor) {
+      lastAnchor.insertAdjacentElement("afterend", line);
+      return;
+    }
+  }
+  const insertAt = typeof contextOrIndex === "number"
+    ? contextOrIndex
+    : (contextOrIndex?.rangeIndex ?? _blockRanges.length);
   if (insertAt >= _blockRanges.length) {
     const last = _blockRanges[_blockRanges.length - 1];
     const anchor = last?.lastEl || last?.firstEl;
@@ -943,8 +2171,7 @@ function applyIframeSelection() {
     [r.firstEl, r.lastEl].forEach((el) => { if (el) el.style.outline = ""; });
   });
   if (state.selectedUid == null) return;
-  const idx = state.canvas.findIndex((c) => c.uid === state.selectedUid);
-  const r = _blockRanges.find((rr) => rr.index === idx);
+  const r = _blockRanges.find((rr) => sameUid(rr.uid, state.selectedUid));
   if (!r || !r.firstEl) return;
   // Outline every top-level element in the block span.
   outlineSpan(r);
@@ -970,11 +2197,11 @@ async function preview() {
   $("previewModal").classList.remove("hidden");
   $("previewFrame").srcdoc = "<p style='padding:32px;font-family:sans-serif'>Building…</p>";
   try {
-    const blocks = state.canvas.map((c) => ({ id: c.blockId, slots: c.slots }));
+    const blocks = canvasToBlocks();
     const res = await fetch("/api/compose-preview", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mailName: $("mailName").value.trim() || "preview", blocks }),
+      body: JSON.stringify({ mailName: $("mailName").value.trim() || "preview", blocks, ...sourceSkeletonPayload() }),
     });
     const data = await res.json();
     if (!res.ok || !data.ok) {
@@ -997,14 +2224,14 @@ async function save() {
     alert("Введи корректное имя письма (буквы, цифры, дефис, подчёркивание).");
     return;
   }
-  const blocks = state.canvas.map((c) => ({ id: c.blockId, slots: c.slots }));
+  const blocks = canvasToBlocks();
   const brand = "X_assembled";
 
   const doSave = async (force) => {
     const res = await fetch("/api/compose-save", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ brand, mailName, blocks, force: !!force }),
+      body: JSON.stringify({ brand, mailName, blocks, force: !!force, ...sourceSkeletonPayload() }),
     });
     return { status: res.status, data: await res.json() };
   };
@@ -1054,22 +2281,93 @@ function escapeHtml(s) {
 const authorState = {
   editingId: null,        // null = creating new; string = editing existing user block
   slotMeta: {},           // token -> { kind, label, default }
+  childSlots: [],         // structural {{ *_BLOCKS }} markers
+  appearance: {},         // generic surface defaults without native style slots
+};
+
+const AUTHOR_TEMPLATES = {
+  section: {
+    id: "my-section",
+    label: "Моя средняя секция",
+    placement: "section",
+    category: "layout",
+    description: "Средняя секция-контейнер: внутренние блоки вставляются в content.",
+    pug: "table.row.my-section(role='presentation' width='100%' style='background-color:{{ background_color }};border:{{ border }};border-radius:{{ radius }}')\n    tr\n        td.my-section-content(style='padding:{{ padding }};text-align:{{ align }}')\n            //- {{ INNER_BLOCKS }}",
+    styl: ".my-section{width:100%;border-collapse:separate!important}.my-section-content{font-family:Helvetica,Arial,sans-serif}",
+    slots: {
+      background_color: { kind: "color", label: "Цвет фона", default: "#FFFFFF" },
+      border: { kind: "text", label: "Обводка", default: "none" },
+      radius: { kind: "text", label: "Скругление", default: "24px" },
+      padding: { kind: "text", label: "Внутренние отступы", default: "32px 24px" },
+      align: { kind: "text", label: "Выравнивание", default: "left" },
+    },
+  },
+  "outer-divider": {
+    id: "my-section-spacer",
+    label: "Мой внешний разделитель",
+    placement: "section",
+    category: "utility",
+    description: "Разделитель между средними секциями и комбо на уровне обёртки письма.",
+    pug: "table.row.my-section-spacer(role='presentation' width='100%' style='background-color:{{ background_color }}')\n    tr\n        td(height='{{ height }}' style='height:{{ height }}px;font-size:1px;line-height:1px;background-color:{{ background_color }}') &nbsp;",
+    styl: ".my-section-spacer{width:100%;border-collapse:collapse}",
+    slots: {
+      background_color: { kind: "color", label: "Цвет промежутка", default: "transparent" },
+      height: { kind: "number", label: "Высота, px", default: 24 },
+    },
+  },
+  "inner-divider": {
+    id: "my-inner-spacer",
+    label: "Мой внутренний разделитель",
+    placement: "inner",
+    category: "utility",
+    description: "Разделитель между элементами внутри одной средней секции.",
+    pug: "table.my-inner-spacer(role='presentation' width='100%' style='background-color:{{ background_color }}')\n    tr\n        td(height='{{ height }}' style='height:{{ height }}px;font-size:1px;line-height:1px;background-color:{{ background_color }}') &nbsp;",
+    styl: ".my-inner-spacer{width:100%;border-collapse:collapse}",
+    slots: {
+      background_color: { kind: "color", label: "Цвет промежутка", default: "transparent" },
+      height: { kind: "number", label: "Высота, px", default: 16 },
+    },
+  },
+  inner: {
+    id: "my-text-block",
+    label: "Мой внутренний блок",
+    placement: "inner",
+    category: "text",
+    description: "Редактируемый элемент, который вставляется внутрь средней секции.",
+    pug: "table.my-text-block(role='presentation' width='100%' style='background-color:{{ background_color }};border:{{ border }};border-radius:{{ radius }}')\n    tr\n        td(style='padding:{{ padding }};text-align:{{ align }}')\n            p.my-text(style='color:{{ text_color }};text-align:{{ align }}') {{ text }}",
+    styl: ".my-text-block{width:100%;border-collapse:separate!important}.my-text{margin:0;font-family:Helvetica,Arial,sans-serif;font-size:18px;line-height:26px}",
+    slots: {
+      text: { kind: "richText", label: "Текст", default: "Текст блока" },
+      text_color: { kind: "color", label: "Цвет текста", default: "#393A44" },
+      background_color: { kind: "color", label: "Цвет фона", default: "transparent" },
+      border: { kind: "text", label: "Обводка", default: "none" },
+      radius: { kind: "text", label: "Скругление", default: "0" },
+      padding: { kind: "text", label: "Внутренние отступы", default: "0" },
+      align: { kind: "text", label: "Выравнивание", default: "left" },
+    },
+  },
 };
 
 const SLOT_KINDS = ["text", "richText", "url", "image", "color", "number", "select"];
 
 function guessSlotKind(id) {
-  if (/color|background|(^|_)bg($|_)/i.test(id)) return "color";
+  if (/color/i.test(id) || /(?:^|_)(?:bg|background)(?:_color)?$/i.test(id)) return "color";
   if (/href|url|link/i.test(id)) return "url";
+  // CSS shorthands often contain units and several values ("16px 24px"),
+  // therefore treating them as a number silently produces broken styles.
+  if (/border|radius|padding|margin|spacing|gap/i.test(id)) return "text";
+  if (/width|height|size/i.test(id)) return "number";
   if (/image|img|logo|icon|photo|picture/i.test(id)) return "image";
-  if (/width|height|radius|size|padding|margin|spacing/i.test(id)) return "number";
   return "text";
 }
 
 function defaultForKind(kind, id) {
-  if (kind === "color") return "#ff7700";
+  if (kind === "color") return /background|(^|_)bg($|_)/i.test(id) ? "transparent" : "#393A44";
   if (kind === "number") return 16;
   if (kind === "url" || kind === "image") return "https://example.com";
+  if (/border/i.test(id)) return "none";
+  if (/radius|padding|margin|spacing|gap/i.test(id)) return "0";
+  if (/align/i.test(id)) return "left";
   return id.replace(/_/g, " ");
 }
 
@@ -1081,23 +2379,101 @@ function detectSlotTokens(pug, styl) {
     let m;
     while ((m = re.exec(src))) {
       const t = m[1];
+      if (/^[A-Z][A-Z0-9_]*_BLOCKS$/.test(t)) continue;
       if (!seen.has(t)) { seen.add(t); tokens.push(t); }
     }
   }
   return tokens;
 }
 
+function childSlotIdForMarker(marker) {
+  if (marker === "SECTION_BLOCKS") return "sections";
+  if (marker === "INNER_BLOCKS") return "content";
+  return marker.toLowerCase().replace(/_blocks$/, "").replace(/_/g, "-").slice(0, 64) || "content";
+}
+
+function buildAuthorChildSlots() {
+  const placement = $("abPlacement").value;
+  if (placement !== "outer" && placement !== "section") return [];
+  const previous = new Map((authorState.childSlots || []).map((slot) => [slot.marker, slot]));
+  const markers = [];
+  const seen = new Set();
+  const re = /\{\{\s*([A-Z][A-Z0-9_]*_BLOCKS)\s*\}\}/g;
+  let match;
+  while ((match = re.exec($("abPug").value || ""))) {
+    const marker = match[1];
+    if (seen.has(marker)) continue;
+    seen.add(marker);
+    const old = previous.get(marker);
+    markers.push({
+      id: old?.id || childSlotIdForMarker(marker),
+      marker,
+      accepts: placement === "outer" ? ["section"] : ["inner"],
+    });
+  }
+  authorState.childSlots = markers;
+  return markers;
+}
+
+function refreshAuthorTreeHint() {
+  const placement = $("abPlacement").value;
+  const childSlots = buildAuthorChildSlots();
+  const hint = $("abTreeHint");
+  if (!hint) return;
+  hint.className = "author-tree-hint";
+  if (placement === "section" && childSlots.length) {
+    hint.textContent = `✓ Средняя секция-контейнер: ${childSlots.map((slot) => slot.id).join(" / ")} принимает внутренние блоки.`;
+    hint.classList.add("ok");
+  } else if (placement === "section") {
+    hint.textContent = "Самостоятельная section без вложений — подходит для внешнего разделителя. Для составной секции используй заготовку «Средняя секция».";
+    hint.classList.add("warn");
+  } else if (placement === "inner") {
+    hint.textContent = "Внутренний блок: конструктор разрешит вставку только внутрь средней секции.";
+  } else if (placement === "outer") {
+    hint.textContent = "Outer — логическая рамка дерева. Реальный head/body-каркас берётся из скелета проекта; произвольный Outer Pug не заменяет его при сборке.";
+    hint.classList.add("warn");
+  } else {
+    hint.textContent = "Старый уровень both сохранён только для совместимости. Выбери явный section или inner.";
+    hint.classList.add("warn");
+  }
+}
+
+function applyAuthorTemplate(templateId) {
+  const template = AUTHOR_TEMPLATES[templateId];
+  if (!template) return;
+  if ($("abPug").value.trim() && !confirm("Заменить текущую Pug/Stylus-заготовку выбранным шаблоном?")) return;
+  if (!$("abId").disabled && !$("abId").value.trim()) $("abId").value = template.id;
+  $("abLabel").value = template.label;
+  $("abPlacement").value = template.placement;
+  $("abCategory").value = template.category;
+  $("abDesc").value = template.description;
+  $("abPug").value = template.pug;
+  $("abStyl").value = template.styl;
+  authorState.slotMeta = JSON.parse(JSON.stringify(template.slots || {}));
+  authorState.childSlots = [];
+  authorState.appearance = {};
+  renderAuthorSlots();
+  refreshAuthorTreeHint();
+  scheduleAuthorPreview(150);
+}
+
 function openBlockAuthor(block, opts = {}) {
   const asNew = !!opts.asNew;
   authorState.editingId = block && !asNew ? block.id : null;
   authorState.slotMeta = {};
+  authorState.childSlots = Array.isArray(block?.childSlots)
+    ? block.childSlots.map((slot) => ({ ...slot, accepts: [...(slot.accepts || [])] }))
+    : [];
+  authorState.appearance = block?.appearance && typeof block.appearance === "object"
+    ? { ...block.appearance }
+    : {};
   $("authorTitle").textContent = block
     ? (asNew ? `⧉ Копия блока «${block.label || block.id}»` : `✎ Редактировать блок «${block.label || block.id}»`)
     : "➕ Новый блок";
   $("abId").value = block ? block.id : "";
   $("abId").disabled = !!block && !asNew;
   $("abLabel").value = block ? (block.label || "") : "";
-  $("abPlacement").value = block && block.placement === "inline" ? "inline" : "section";
+  $("abPlacement").value = block && block.placement ? block.placement : "inner";
   $("abCategory").value = block ? (block.category || "misc") : "misc";
   $("abDesc").value = block ? (block.description || "") : "";
   $("abPug").value = block ? (block.pug || "") : "";
@@ -1112,6 +2488,7 @@ function openBlockAuthor(block, opts = {}) {
     }
   }
   renderAuthorSlots();
+  refreshAuthorTreeHint();
   $("abFrame").srcdoc = "";
   $("abStatus").textContent = "пусто";
   $("abStatus").className = "preview-pane-status";
@@ -1137,6 +2514,7 @@ function renderAuthorSlots() {
     };
   }
   authorState.slotMeta = next;
+  refreshAuthorTreeHint();
 
   const list = $("abSlotList");
   if (!tokens.length) {
@@ -1177,17 +2555,24 @@ function buildAuthorSlots() {
     kind: m.kind || "text",
     label: m.label || id,
     default: m.kind === "number" ? (Number(m.default) || 0) : String(m.default ?? ""),
+    uiGroup: slotInspectorGroup({ id, kind: m.kind || "text" }),
   }));
 }
 
 function buildAuthorDef() {
-  return {
+  const def = {
     label: $("abLabel").value.trim() || $("abId").value.trim() || "draft",
     placement: $("abPlacement").value,
     pug: $("abPug").value,
     styl: $("abStyl").value,
     slots: buildAuthorSlots(),
   };
+  const childSlots = buildAuthorChildSlots();
+  if (childSlots.length) def.childSlots = childSlots;
+  if (authorState.appearance && Object.keys(authorState.appearance).length) {
+    def.appearance = { ...authorState.appearance };
+  }
+  return def;
 }
 
 let _authorPreviewTimer = null;
@@ -1250,18 +2635,32 @@ async function saveAuthorBlock() {
     $("abPug").focus();
     return;
   }
+  const childSlots = buildAuthorChildSlots();
+  const placement = $("abPlacement").value;
+  const category = $("abCategory").value.trim() || "misc";
+  const structuralTags = ["user", "authored"];
+  const dividerHint = `${id} ${category} ${$("abLabel").value}`;
+  if (placement === "section" && !childSlots.length && /spacer|divider|разделител|utility/i.test(dividerHint)) {
+    structuralTags.push("outer-divider", "combo-divider");
+  } else if (placement === "inner" && /spacer|divider|разделител|utility/i.test(dividerHint)) {
+    structuralTags.push("inner-divider");
+  }
   const payload = {
     id,
     label: $("abLabel").value.trim() || id,
     description: $("abDesc").value.trim(),
-    placement: $("abPlacement").value,
-    category: $("abCategory").value.trim() || "misc",
+    placement,
+    category,
     pug: $("abPug").value,
     styl: $("abStyl").value,
     slots: buildAuthorSlots(),
-    tags: ["user", "authored"],
+    tags: structuralTags,
     force: !!authorState.editingId,
   };
+  if (childSlots.length) payload.childSlots = childSlots;
+  if (authorState.appearance && Object.keys(authorState.appearance).length) {
+    payload.appearance = { ...authorState.appearance };
+  }
   let res = await fetch("/api/blocks-library/save", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -1291,22 +2690,35 @@ $("newBlockBtn")?.addEventListener("click", () => openBlockAuthor(null));
 $("authorClose")?.addEventListener("click", closeBlockAuthor);
 $("abCancel")?.addEventListener("click", closeBlockAuthor);
 $("abSave")?.addEventListener("click", saveAuthorBlock);
+document.querySelectorAll("[data-author-template]").forEach((button) => {
+  button.addEventListener("click", () => applyAuthorTemplate(button.dataset.authorTemplate));
+});
 ["abPug", "abStyl"].forEach((fid) => {
   $(fid)?.addEventListener("input", () => { renderAuthorSlots(); scheduleAuthorPreview(); });
 });
 ["abPlacement", "abId"].forEach((fid) => {
-  $(fid)?.addEventListener("input", () => scheduleAuthorPreview());
+  $(fid)?.addEventListener("input", () => { refreshAuthorTreeHint(); scheduleAuthorPreview(); });
 });
 
 // ─── Wire up ────────────────────────────────────────────────────────────
 document.querySelectorAll(".cat-tab").forEach((tab) => {
   tab.addEventListener("click", () => {
-    document.querySelectorAll(".cat-tab").forEach((t) => t.classList.remove("active"));
-    tab.classList.add("active");
-    state.filter = tab.dataset.filter;
-    state.renderCap = 60;
-    renderCatalog();
+    setRailMode("blocks");
+    setCatalogFilter(tab.dataset.filter, { manual: true });
   });
+});
+
+$("paletteBlocksMode")?.addEventListener("click", () => setRailMode("blocks"));
+$("paletteOutlineMode")?.addEventListener("click", () => setRailMode("outline"));
+$("paletteAutoBtn")?.addEventListener("click", () => {
+  state.autoPalette = !state.autoPalette;
+  $("paletteAutoBtn").classList.toggle("active", state.autoPalette);
+  if (state.autoPalette) syncPaletteToSelection();
+  saveCanvasState();
+});
+$("paletteParentBtn")?.addEventListener("click", () => {
+  const selected = entryByUid(state.selectedUid);
+  if (selected?.parentUid != null) selectCanvas(selected.parentUid);
 });
 
 $("previewBtn").addEventListener("click", preview);
@@ -1368,6 +2780,7 @@ $("viewDupBtn")?.addEventListener("click", () => duplicateToUserBlock(_viewBlock
 $("viewModal")?.addEventListener("click", (e) => { if (e.target === $("viewModal")) closeBlockView(); });
 
 wireCanvasDnd();
+wirePreviewStageDnd();
 loadLibrary();
 
 
@@ -1382,5 +2795,344 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-try { console.log('%c[RetKit] constructor build 2026-06-25k: drag-reorder + undo', 'color:#f70;font-weight:bold'); } catch {}
-const RETKIT_CONSTRUCTOR_BUILD = '2026-06-25k';
+try { console.log('%c[RetKit] constructor build 2026-07-13-style-surface: explicit gaps + block appearance', 'color:#f70;font-weight:bold'); } catch {}
+const RETKIT_CONSTRUCTOR_BUILD = '2026-07-13-style-surface';
+
+/* ─── База писем в конструкторе: переиспользуем workbench-эндпоинт /api/wb/emails.
+   Кнопка «🗂 База» → модалка (поиск) → клик открывает письмо в редакторе. */
+(function initBaseBrowser() {
+  const btn = document.getElementById("baseBtn");
+  if (!btn) return;
+  let overlay = null;
+  const close = () => { if (overlay) { overlay.remove(); overlay = null; } };
+
+  function render(list) {
+    overlay = document.createElement("div");
+    overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;";
+    const box = document.createElement("div");
+    box.style.cssText = "background:#1c1f26;color:#e6e6e6;width:min(680px,92vw);max-height:82vh;border-radius:12px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.5);";
+    box.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #2c313c;">
+        <b style="font-size:15px;">База писем</b>
+        <span style="color:#8b93a3;font-size:12px;">${list.length} писем</span>
+        <input id="baseSearch" placeholder="Поиск: бренд / имя…" style="margin-left:auto;background:#12151b;border:1px solid #2c313c;color:#e6e6e6;border-radius:8px;padding:7px 10px;width:230px;" />
+        <button id="baseClose" style="background:#2c313c;border:none;color:#e6e6e6;border-radius:8px;padding:7px 11px;cursor:pointer;">✕</button>
+      </div>
+      <div id="baseList" style="overflow:auto;padding:8px;"></div>`;
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+    const listEl = box.querySelector("#baseList");
+    const draw = (q) => {
+      const ql = (q || "").trim().toLowerCase();
+      const rows = list.filter((e) => !ql || (e.brand + " " + e.name).toLowerCase().includes(ql));
+      listEl.innerHTML = rows.slice(0, 500).map((e) => `
+        <div class="base-row" data-brand="${e.brand}" data-mail="${e.name}" style="display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:8px;">
+          <span style="width:8px;height:8px;border-radius:50%;background:${e.built ? "#3ad07a" : "#5b6472"};flex:none;" title="${e.built ? "собрано" : "не собрано"}"></span>
+          <span style="color:#8b93a3;font-size:11px;min-width:140px;">${e.brand}</span>
+          <span style="flex:1;">${e.name.replace(/^mail-/, "")}</span>
+          <button class="base-ctor" style="background:#2c3a5a;border:none;color:#cfe0ff;border-radius:6px;padding:5px 9px;cursor:pointer;font-size:11px;">в конструктор</button>
+          <button class="base-wb" style="background:#2c313c;border:none;color:#e6e6e6;border-radius:6px;padding:5px 9px;cursor:pointer;font-size:11px;">в код</button>
+        </div>`).join("") || `<div style="padding:20px;color:#8b93a3;">Ничего не найдено</div>`;
+      listEl.querySelectorAll(".base-row").forEach((r) => {
+        r.addEventListener("mouseenter", () => r.style.background = "#232833");
+        r.addEventListener("mouseleave", () => r.style.background = "");
+        r.querySelector(".base-wb").addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          window.location.href = `/workbench?brand=${encodeURIComponent(r.dataset.brand)}&mail=${encodeURIComponent(r.dataset.mail)}`;
+        });
+        r.querySelector(".base-ctor").addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          close();
+          loadParsedEmail(r.dataset.brand, r.dataset.mail);
+        });
+      });
+    };
+    draw("");
+    box.querySelector("#baseSearch").addEventListener("input", (e) => draw(e.target.value));
+    box.querySelector("#baseClose").addEventListener("click", close);
+    overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
+    document.addEventListener("keydown", function esc(ev) { if (ev.key === "Escape") { close(); document.removeEventListener("keydown", esc); } });
+  }
+
+  btn.addEventListener("click", async () => {
+    try {
+      const r = await fetch("/api/wb/emails");
+      const data = await r.json();
+      const flat = [];
+      for (const g of (data.emails || [])) for (const m of (g.mails || [])) flat.push({ brand: g.brand, name: m.name, built: m.built });
+      render(flat);
+    } catch (err) { alert("Не удалось загрузить базу: " + err.message); }
+  });
+})();
+
+/* Удаление выделенного блока по Delete/Backspace (если фокус не в поле ввода). */
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Delete" && e.key !== "Backspace") return;
+  const t = e.target;
+  if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
+  if (!state.selectedUid) return;
+  e.preventDefault();
+  removeFromCanvas(state.selectedUid);
+});
+
+/* ─── Системные плейсхолдеры: реестр + вставка в слот ───────────────────── */
+state.placeholders = [];
+(function loadPlaceholders() {
+  fetch("/api/placeholders").then((r) => r.json()).then((d) => {
+    state.placeholders = Array.isArray(d.groups) ? d.groups : [];
+  }).catch(() => {});
+})();
+
+function openPlaceholderMenu(btn, entry) {
+  document.querySelectorAll(".ph-menu").forEach((m) => m.remove());
+  const forId = btn.getAttribute("data-ph-for");
+  const menu = document.createElement("div");
+  menu.className = "ph-menu";
+  menu.style.cssText = "position:fixed;z-index:10000;background:#1c1f26;color:#e6e6e6;border:1px solid #2c313c;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.5);max-height:60vh;overflow:auto;min-width:250px;padding:6px;";
+  const groups = state.placeholders || [];
+  if (!groups.length) {
+    menu.innerHTML = `<div style="padding:10px;color:#8b93a3;">Реестр плейсхолдеров пуст</div>`;
+  } else {
+    menu.innerHTML = groups.map((g) => `
+      <div style="padding:6px 8px 2px;color:#8b93a3;font-size:11px;text-transform:uppercase;">${g.label || g.ns}</div>
+      ${(g.items || []).map((it) => `
+        <div class="ph-item" data-token="${it.token.replace(/"/g,'&quot;')}" style="padding:7px 9px;border-radius:7px;cursor:pointer;font-size:13px;">
+          <b>${it.label}</b> ${it.perLocale ? '<span style="color:#f79b3a;font-size:10px;">по локалям</span>' : ''}
+          <div style="color:#5b6472;font-size:11px;font-family:ui-monospace,Menlo,monospace;">${it.token}</div>
+        </div>`).join("")}`).join("");
+  }
+  document.body.appendChild(menu);
+  const r = btn.getBoundingClientRect();
+  menu.style.top = Math.min(r.bottom + 4, window.innerHeight - menu.offsetHeight - 8) + "px";
+  menu.style.left = Math.max(8, Math.min(r.left, window.innerWidth - menu.offsetWidth - 8)) + "px";
+
+  menu.querySelectorAll(".ph-item").forEach((el) => {
+    el.addEventListener("mouseenter", () => el.style.background = "#232833");
+    el.addEventListener("mouseleave", () => el.style.background = "");
+    el.addEventListener("click", () => {
+      const token = el.getAttribute("data-token");
+      const input = document.querySelector(`[data-slot-id="${CSS.escape(forId)}"]`);
+      if (input) {
+        // вставляем в позицию курсора (или в конец)
+        pushCanvasUndo();
+        const start = input.selectionStart ?? input.value.length;
+        const end = input.selectionEnd ?? input.value.length;
+        input.value = input.value.slice(0, start) + token + input.value.slice(end);
+        entry.slots[forId] = input.value;
+        scheduleLivePreview();
+      }
+      menu.remove();
+    });
+  });
+  const close = (ev) => { if (!menu.contains(ev.target) && ev.target !== btn) { menu.remove(); document.removeEventListener("mousedown", close); } };
+  setTimeout(() => document.addEventListener("mousedown", close), 0);
+}
+
+
+/* ─── Открыть письмо базы В КОНСТРУКТОРЕ: разбор на блоки (parse-email) ──── */
+function parsedEmailLoadBlockReason(data) {
+  if (!data?.studioModelStale) return "";
+  return "Письмо отвязано от конструктора после правок кода. Чтобы не затереть Pug/Stylus и локали, продолжайте работу в Workbench или создайте копию письма с новым именем.";
+}
+
+async function loadParsedEmail(brand, mail) {
+  try {
+    const r = await fetch(`/api/constructor/parse-email?brand=${encodeURIComponent(brand)}&mail=${encodeURIComponent(mail)}`);
+    const d = await r.json();
+    const blockedReason = parsedEmailLoadBlockReason(d);
+    if (blockedReason) { alert(blockedReason); return; }
+    if (!d.ok || !Array.isArray(d.blocks) || !d.blocks.length) { alert("Не удалось разобрать письмо: " + (d.error || "пусто")); return; }
+    const defs = d.source === "studio-model" ? (d.defs || []) : d.blocks;
+    const existing = new Set(state.library.map((b) => `${b.source || ""}:${b.id}`));
+    for (const rawDef of defs) {
+      if (!rawDef?.id || typeof rawDef.pug !== "string") continue;
+      const def = { ...rawDef, source: rawDef.source || "parsed" };
+      const key = `${def.source}:${def.id}`;
+      if (!existing.has(key)) { state.library.push(def); existing.add(key); }
+    }
+    if (d.source === "studio-model") {
+      for (const modelEntry of d.entries || d.blocks) {
+        if (!modelEntry?.def || typeof modelEntry.def.pug !== "string") continue;
+        const id = modelEntry.blockId || modelEntry.id;
+        const def = { ...modelEntry.def, id, source: modelEntry.source || "parsed" };
+        const key = `${def.source}:${def.id}`;
+        if (!existing.has(key)) { state.library.push(def); existing.add(key); }
+      }
+      state.canvas = migrateCanvasTree(d.entries || d.blocks);
+    } else {
+      state.canvas = migrateCanvasTree(d.blocks.map((b) => ({
+        uid: nextUid(),
+        blockId: b.id,
+        blockSource: b.source || "parsed",
+        slots: defaultSlotsFor(b),
+      })));
+    }
+    state.sourceSkeleton = { brand, mail };
+    state.selectedUid = null;
+    const nameInput = document.getElementById("mailName");
+    if (nameInput) nameInput.value = mail.replace(/^mail-/, "");
+    populateCatalogFilters();
+    renderCanvas(); renderInspector(); syncPaletteToSelection(); scheduleLivePreview();
+  } catch (e) { alert("Ошибка разбора: " + e.message); }
+}
+
+
+/* ─── Автосохранение канвы (письмо не пропадает между сессиями) ─────────── */
+function migrateCanvasTree(rawEntries) {
+  const raw = Array.isArray(rawEntries) ? rawEntries.filter(Boolean).map((entry) => ({ ...entry, slots: { ...(entry.slots || {}) } })) : [];
+  const used = new Set();
+  for (const entry of raw) {
+    let uid = entry.uid;
+    if (uid == null || used.has(String(uid))) uid = nextUid();
+    entry.uid = uid;
+    used.add(String(uid));
+    entry.blockId = entry.blockId || entry.id;
+    entry.blockSource = entry.blockSource || entry.source || undefined;
+    if (typeof uid === "number" && Number.isFinite(uid)) state._uidCounter = Math.max(state._uidCounter, uid + 1);
+  }
+  const hasExplicitRelations = raw.some((entry) => Object.prototype.hasOwnProperty.call(entry, "parentUid"));
+  if (hasExplicitRelations) {
+    // Compatibility with the short-lived ambiguous iq-spacer definition: old
+    // saved trees could place it directly under outer. Keep those layouts, but
+    // migrate them to the explicit section-level divider definition.
+    for (const entry of raw) {
+      const parent = raw.find((candidate) => sameUid(candidate.uid, entry.parentUid));
+      if (entry.blockId === "iq-spacer" && placementOf(blockForEntry(parent)) === "outer" && blockById("iq-section-spacer")) {
+        entry.blockId = "iq-section-spacer";
+        entry.blockSource = blockById("iq-section-spacer").source || entry.blockSource;
+      } else if (entry.blockId === "iq-section-spacer" && placementOf(blockForEntry(parent)) === "section" && blockById("iq-spacer")) {
+        entry.blockId = "iq-spacer";
+        entry.blockSource = blockById("iq-spacer").source || entry.blockSource;
+      }
+    }
+    for (const entry of raw) {
+      const block = blockForEntry(entry);
+      if (placementOf(block) === "outer") {
+        entry.parentUid = null;
+        entry.slotId = entry.slotId || "root";
+      } else if (!Object.prototype.hasOwnProperty.call(entry, "parentUid")) {
+        entry.parentUid = null;
+      }
+    }
+    state.canvas = raw;
+    normalizeCanvasOrder();
+    return state.canvas;
+  }
+
+  const result = [];
+  let outer = raw.find((entry) => placementOf(blockForEntry(entry)) === "outer") || null;
+  if (!outer) {
+    const def = findDefaultBlock("outer");
+    if (def) outer = createEntry(def, { parentUid: null, slotId: "root" });
+  }
+  if (outer) {
+    outer.parentUid = null;
+    outer.slotId = "root";
+    result.push(outer);
+  }
+  let section = null;
+  for (const entry of raw) {
+    if (sameUid(entry.uid, outer?.uid)) continue;
+    const block = blockForEntry(entry);
+    const placement = placementOf(block);
+    if (placement === "outer") continue;
+    if (placement === "section") {
+      const slot = chooseChildSlot(blockForEntry(outer), block);
+      entry.parentUid = outer?.uid ?? null;
+      entry.slotId = slot?.id || "sections";
+      section = entry;
+      result.push(entry);
+      continue;
+    }
+    if (!section) {
+      const sectionDef = findDefaultBlock("section");
+      if (sectionDef && outer) {
+        const outerSlot = chooseChildSlot(blockForEntry(outer), sectionDef);
+        section = createEntry(sectionDef, { parentUid: outer.uid, slotId: outerSlot?.id || "sections" });
+        result.push(section);
+      }
+    }
+    const slot = chooseChildSlot(blockForEntry(section), block);
+    entry.parentUid = section?.uid ?? null;
+    entry.slotId = slot?.id || "content";
+    result.push(entry);
+  }
+  state.canvas = result;
+  normalizeCanvasOrder();
+  return state.canvas;
+}
+
+function saveCanvasState() {
+  try {
+    const parsedDefs = state.library.filter((b) => b.source === "parsed");
+    localStorage.setItem("retkit-constructor-canvas", JSON.stringify({
+      canvas: state.canvas,
+      sourceSkeleton: state.sourceSkeleton || null,
+      mailName: document.getElementById("mailName")?.value || "",
+      parsedDefs,
+      _uidCounter: state._uidCounter,
+      schemaVersion: 2,
+      railMode: state.railMode,
+      autoPalette: state.autoPalette,
+    }));
+  } catch (e) { /* ignore */ }
+}
+function restoreCanvasState() {
+  try {
+    const raw = localStorage.getItem("retkit-constructor-canvas");
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    if (Array.isArray(d.parsedDefs)) {
+      const have = new Set(state.library.map((b) => b.id));
+      for (const b of d.parsedDefs) if (!have.has(b.id)) state.library.push(b);
+    }
+    if (typeof d._uidCounter === "number") state._uidCounter = Math.max(state._uidCounter, d._uidCounter);
+    if (Array.isArray(d.canvas) && d.canvas.length) {
+      // оставляем только те, чей блок есть в библиотеке
+      state.canvas = migrateCanvasTree(d.canvas.filter((e) => blockById(e.blockId || e.id, e.blockSource || e.source)));
+      state.sourceSkeleton = d.sourceSkeleton || null;
+      state.autoPalette = d.autoPalette !== false;
+      setRailMode(d.railMode || "blocks");
+      const nameInput = document.getElementById("mailName");
+      if (nameInput && d.mailName) nameInput.value = d.mailName;
+      renderCanvas(); renderInspector(); syncPaletteToSelection(); scheduleLivePreview();
+    }
+  } catch (e) { /* ignore */ }
+}
+
+
+/* ─── «→ В код»: перенос собранного письма в workbench ─────────────────── */
+async function transferToCode() {
+  if (!state.canvas.length) { alert("Канвас пуст — сначала собери письмо."); return; }
+  const rawName = (document.getElementById("mailName")?.value || "").trim() || "draft";
+  if (!/^[a-z0-9_-]+$/i.test(rawName)) { alert("Имя письма: только буквы, цифры, дефис, подчёркивание."); return; }
+  const toBase = confirm("Перенести письмо в окно кода.\n\nСохранить его в базу насовсем?\n\nOK = да, сохранить в email-base\nОтмена = временно (только чтобы доработать сейчас)");
+  const brand = toBase ? "X_assembled" : "X_preview";
+  try {
+    const send = async (force) => {
+      const response = await fetch("/api/compose-save", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ brand, mailName: rawName, blocks: canvasToBlocks(), force, ...sourceSkeletonPayload() }),
+      });
+      return { response, data: await response.json() };
+    };
+    let { response: res, data: d } = await send(false);
+    if (res.status === 409) {
+      const overwrite = confirm(
+        `Письмо «${rawName}» уже существует в ${d.existsAt || brand}.\n\n` +
+        "Пересборка удалит ручные правки Pug/Stylus/HTML в этой папке. Продолжить и перезаписать?"
+      );
+      if (!overwrite) return;
+      ({ response: res, data: d } = await send(true));
+    }
+    if (res.status === 200 && d.ok) {
+      const mid = d.mail || ("mail-" + rawName);
+      window.location.href = "/workbench?brand=" + encodeURIComponent(brand) + "&mail=" + encodeURIComponent(mid);
+    } else {
+      alert("Не удалось перенести:\n" + (d.error || "unknown") + (d.stderr ? "\n\n" + d.stderr.slice(0, 300) : ""));
+    }
+  } catch (e) { alert("Ошибка переноса: " + e.message); }
+}
+document.getElementById("toCodeBtn")?.addEventListener("click", transferToCode);
+
+document.getElementById("clearCanvasBtn")?.addEventListener("click", clearCanvas);

@@ -197,13 +197,21 @@
       <button class="find-close-btn" id="findCloseBtn">✕</button>
     </div>
 
-    <!-- Compiled HTML read-only banner -->
+    <!-- Pug → localized HTML workspace -->
     <div class="compiled-view-banner hidden" id="compiledViewBanner">
       <span class="compiled-view-icon">⚡</span>
-      <span class="compiled-view-label">HTML-превью сборки. Для правок открой Pug/Stylus во вкладках.</span>
+      <span class="compiled-view-label">HTML собран из Pug.</span>
+      <label class="compiled-locale-picker" title="Выбрать готовую HTML-локаль">
+        <span>Локаль</span>
+        <select id="compiledLocaleSelect" aria-label="HTML-локаль"></select>
+      </label>
+      <span class="compiled-locale-status" id="compiledLocaleStatus" data-state="linked">Связана с Pug</span>
+      <span class="compiled-localization-status hidden" id="compiledLocalizationStatus"></span>
       <button class="compiled-view-back" id="compiledViewBackBtn">← Назад к исходникам</button>
-      <button class="compiled-view-edit-html hidden" id="compiledViewEditHtmlBtn" title="Редактировать HTML напрямую (изменения применятся к Pug через AI)">✏️ Редактировать HTML</button>
-      <button class="compiled-view-apply-ai hidden" id="compiledViewApplyAiBtn" title="Применить изменения HTML к Pug-источнику через AI">🤖 Применить к Pug</button>
+      <button class="compiled-view-edit-html" id="compiledViewEditHtmlBtn" title="Создать независимую ручную версию только для выбранной локали">✏️ Править HTML</button>
+      <button class="compiled-view-save-html hidden" id="compiledViewSaveHtmlBtn">Сохранить локаль</button>
+      <button class="compiled-view-cancel-html hidden" id="compiledViewCancelHtmlBtn">Отменить</button>
+      <button class="compiled-view-reset-html hidden" id="compiledViewResetHtmlBtn" title="Удалить ручную версию и снова взять эту локаль из Pug-сборки">↺ Вернуть из Pug</button>
     </div>
 
     <!-- Blocks shelf — drag & drop email block constructor -->

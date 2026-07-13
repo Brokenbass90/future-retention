@@ -1,0 +1,161 @@
+{
+  "id": "iq-section",
+  "label": "Средний блок (секция-контейнер)",
+  "description": "Универсальная секция-контейнер с типизированной content-зоной. Фон, ширина, выравнивание, обводка, скругление и отступы настраиваются слотами; email-safe табличный каркас остаётся неизменным.",
+  "placement": "section",
+  "category": "layout",
+  "version": 2,
+  "source": "canonical",
+  "pug": "table.row.iq-section(class=\"{{ bg }}\" role=\"presentation\" style=\"background-color:{{ background_color }};border:{{ border }};border-radius:{{ radius }}\")\n    tr\n        td.wrapper.last(class=\"{{ offset }}\")\n            table.columns(class=\"{{ cols }}\" role=\"presentation\")\n                tr\n                    td.text-pad-small(class=\"{{ pt }} {{ pb }}\" style=\"padding-top:{{ padding_top }};padding-right:{{ padding_right }};padding-bottom:{{ padding_bottom }};padding-left:{{ padding_left }};text-align:{{ align }}\")\n                        //- {{ INNER_BLOCKS }}",
+  "styl": ".iq-section{border-collapse:separate!important;border-radius:{{ radius }}!important}\n.white-bg{background-color:#fff}\n.bgr-image{background-image:url({{ bg_image }});background-position:{{ background_position }};background-repeat:no-repeat;background-size:cover}\n@media screen and (max-width:600px){.text-pad-small{padding-left:20px!important}.text-pad-small,.text-pad-small-right{padding-right:20px!important}}",
+  "slots": [
+    {
+      "id": "bg",
+      "kind": "select",
+      "label": "Фон",
+      "default": "white-bg",
+      "options": [
+        "white-bg",
+        "bgr-image",
+        ""
+      ],
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "bg_image",
+      "kind": "image",
+      "label": "Фон-картинка (если bgr-image)",
+      "default": "https://fsms.quadcode.com/storage/public/d6/rs/39rursrq72d919c0/2-2-1-back.png",
+      "uiGroup": "assets"
+    },
+    {
+      "id": "background_color",
+      "kind": "color",
+      "label": "Цвет фона",
+      "default": "#FFFFFF",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "background_position",
+      "kind": "select",
+      "label": "Позиция фоновой картинки",
+      "default": "center top",
+      "options": ["center top", "center center", "left top", "right top"],
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "border",
+      "kind": "text",
+      "label": "Рамка (напр. 4px solid #FF7700)",
+      "default": "none",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "radius",
+      "kind": "select",
+      "label": "Скругление",
+      "default": "32px",
+      "options": ["0", "8px", "16px", "24px", "32px"],
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "cols",
+      "kind": "select",
+      "label": "Ширина (колонки)",
+      "default": "ten",
+      "options": [
+        "ten",
+        "eleven",
+        "twelve"
+      ],
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "offset",
+      "kind": "select",
+      "label": "Отступ слева",
+      "default": "offset-by-one",
+      "options": [
+        "offset-by-one",
+        ""
+      ],
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "pt",
+      "kind": "select",
+      "label": "Padding сверху",
+      "default": "pt44",
+      "options": [
+        "pt0",
+        "pt24",
+        "pt30",
+        "pt44",
+        "pt68",
+        ""
+      ],
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "pb",
+      "kind": "select",
+      "label": "Padding снизу",
+      "default": "pb44",
+      "options": [
+        "pb0",
+        "pb20",
+        "pb40",
+        "pb44",
+        "pb50",
+        ""
+      ],
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "padding_top",
+      "kind": "text",
+      "label": "Padding сверху (override)",
+      "default": "",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "padding_right",
+      "kind": "text",
+      "label": "Padding справа (override)",
+      "default": "",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "padding_bottom",
+      "kind": "text",
+      "label": "Padding снизу (override)",
+      "default": "",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "padding_left",
+      "kind": "text",
+      "label": "Padding слева (override)",
+      "default": "",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "align",
+      "kind": "select",
+      "label": "Выравнивание контента",
+      "default": "left",
+      "options": ["left", "center", "right"],
+      "uiGroup": "appearance"
+    }
+  ],
+  "childSlots": [
+    { "id": "content", "marker": "INNER_BLOCKS", "accepts": ["inner", "inline", "both"] }
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "section",
+    "layout",
+    "container",
+    "iq"
+  ]
+}

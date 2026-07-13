@@ -1,0 +1,154 @@
+{
+  "id": "iq-combo-promo-steps",
+  "label": "Комбо: Промо-инструкция (шаги + промокод + CTA)",
+  "description": "Белая секция с рамкой: заголовок, два нумерованных шага, промокод и кнопка. children — состав для раскладывания на отдельные редактируемые блоки.",
+  "placement": "section",
+  "category": "cta",
+  "version": 2,
+  "source": "canonical",
+  "combo": true,
+  "children": [
+    {
+      "id": "iq-section",
+      "role": "container",
+      "slots": {
+        "bg": "white-bg",
+        "background_color": "#FFFFFF",
+        "border": "4px solid #FF7700",
+        "radius": "32px",
+        "cols": "ten"
+      }
+    },
+    {
+      "id": "iq-text-title",
+      "slotId": "content",
+      "role": "heading",
+      "slots": {
+        "title": "${{ rfm-233-Second-Email.block_04 }}$",
+        "body": "",
+        "title_padding": "0 0 32px",
+        "body_padding": "0"
+      }
+    },
+    {
+      "id": "iq-step-card",
+      "slotId": "content",
+      "role": "step",
+      "slots": {
+        "number": "1",
+        "text": "${{ rfm-233-Second-Email.block_05 }}$"
+      }
+    },
+    {
+      "id": "iq-spacer",
+      "slotId": "content",
+      "role": "spacer",
+      "slots": {
+        "height": "12"
+      }
+    },
+    {
+      "id": "iq-step-card",
+      "slotId": "content",
+      "role": "step",
+      "slots": {
+        "number": "2",
+        "text": "${{ rfm-233-Second-Email.block_06 }}$"
+      }
+    },
+    {
+      "id": "iq-promocode",
+      "slotId": "content",
+      "role": "promocode",
+      "slots": {
+        "label": "${{ rfm-233-Second-Email.block_07 }}$",
+        "code": "${{ rfm-233-Second-Email.block_08 }}$",
+        "hint": "${{ rfm-233-Second-Email.block_09 }}$"
+      }
+    },
+    {
+      "id": "iq-spacer",
+      "slotId": "content",
+      "role": "spacer",
+      "slots": {
+        "height": "40"
+      }
+    },
+    {
+      "id": "iq-cta-button",
+      "slotId": "content",
+      "role": "cta",
+      "slots": {
+        "label": "${{ rfm-233-Second-Email.block_10 }}$",
+        "href": "https://api.iqoption.com/v1/multi-links/deposit?promocode=CLAIM10C&aff=7"
+      }
+    }
+  ],
+  "pug": "table.row.brad-full.white-bg(style=\"border: 4px solid #FF7700\")\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.middle-title.pb32 {{ title }}\n                        .gray-block\n                            table.w100\n                                tr\n                                    td.m-w.pb0\n                                        p.number 1\n                                    td.w-a.pb0\n                                        p.text {{ step1 }}\n                        .h-12 &nbsp;\n                        .gray-block\n                            table.w100\n                                tr\n                                    td.m-w.pb0\n                                        p.number 2\n                                    td.w-a.pb0\n                                        p.text {{ step2 }}\n                            p.text.pt24.pb5\n                                b {{ promo_label }}\n                            p.promocode {{ promo_code }}\n                            p.small-gray-text.pt5 {{ promo_hint }}\n                        .h-40 &nbsp;\n                        table.w280(align=\"center\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"{{ cta_href }}\" universal=\"true\" target=\"_blank\") {{ cta_label }}",
+  "styl": ".brad-full{border-radius:32px!important}\n.white-bg{background-color:#fff}\n.gray-block{padding:24px;background:#f9f9f9;border-radius:12px}\n.w100{width:100%}\n.m-w{min-width:78px!important;width:78px!important;vertical-align:middle}\n.w-a{width:auto!important;vertical-align:middle}\n.number{font-family:Helvetica!important;font-weight:700;background:#ececed;width:54px;max-height:54px;border-radius:16px;color:#393a44;font-size:24px;line-height:24px;padding:15px 0;text-align:center}\n.middle-title{font-family:Helvetica!important;font-weight:700;font-size:32px;line-height:42px;color:#393a44}\n@media screen and (max-width:600px){.middle-title{font-size:28px!important;line-height:34px!important}.text-pad-small{padding-left:20px!important}.text-pad-small,.text-pad-small-right{padding-right:20px!important}}\n.text{font-family:Helvetica!important;font-size:18px;color:#393a44;letter-spacing:0;line-height:26px;font-weight:400}\n.promocode{font-family:Helvetica!important;font-style:normal;background:#ffefe0;border:2px dashed #f70;border-radius:16px;padding:16px 22px;color:#f70;font-size:24px;font-weight:700;line-height:31px}\n.small-gray-text{font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:16px;line-height:24px;color:#84868b}\n.w280{width:100%;max-width:280px}\n@media screen and (max-width:600px){.w280{max-width:100%!important}}\n.butt{background-color:#f70;border-radius:16px!important;font-size:18px!important;font-weight:700!important;font-family:Helvetica!important;height:auto}\n.butt-link{font-size:18px;font-weight:700;text-decoration:none;color:#f9f9f9;display:block;line-height:27px;padding:16px 0;text-align:center}",
+  "slots": [
+    {
+      "id": "title",
+      "kind": "text",
+      "label": "Заголовок",
+      "default": "${{ rfm-233-Second-Email.block_04 }}$",
+      "uiGroup": "content"
+    },
+    {
+      "id": "step1",
+      "kind": "richText",
+      "label": "Шаг 1",
+      "default": "${{ rfm-233-Second-Email.block_05 }}$",
+      "uiGroup": "content"
+    },
+    {
+      "id": "step2",
+      "kind": "richText",
+      "label": "Шаг 2",
+      "default": "${{ rfm-233-Second-Email.block_06 }}$",
+      "uiGroup": "content"
+    },
+    {
+      "id": "promo_label",
+      "kind": "text",
+      "label": "Лейбл промокода",
+      "default": "${{ rfm-233-Second-Email.block_07 }}$",
+      "uiGroup": "content"
+    },
+    {
+      "id": "promo_code",
+      "kind": "text",
+      "label": "Промокод",
+      "default": "${{ rfm-233-Second-Email.block_08 }}$",
+      "uiGroup": "content"
+    },
+    {
+      "id": "promo_hint",
+      "kind": "text",
+      "label": "Подпись",
+      "default": "${{ rfm-233-Second-Email.block_09 }}$",
+      "uiGroup": "content"
+    },
+    {
+      "id": "cta_label",
+      "kind": "text",
+      "label": "Текст кнопки",
+      "default": "${{ rfm-233-Second-Email.block_10 }}$",
+      "uiGroup": "content"
+    },
+    {
+      "id": "cta_href",
+      "kind": "url",
+      "label": "Ссылка кнопки",
+      "default": "https://api.iqoption.com/v1/multi-links/deposit?promocode=CLAIM10C&aff=7",
+      "uiGroup": "content"
+    }
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "combo",
+    "promo",
+    "cta",
+    "iq"
+  ]
+}

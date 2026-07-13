@@ -1,0 +1,26 @@
+{
+  "id": "iq-section-hero-bg",
+  "label": "Секция — hero с фоновой картинкой",
+  "description": "Полноширинная hero-секция с отдельными drop-зонами для медиа и контента. Фон, рамка, скругление и отступы управляются слотами без изменения email-safe табличного каркаса.",
+  "placement": "section",
+  "category": "hero",
+  "version": 2,
+  "source": "canonical",
+  "pug": "table.row.iq-hero-section.bgr-image(role=\"presentation\" style=\"background-color:{{ background_color }};border:{{ border }};border-radius:{{ radius }}\")\n    tr\n        td.wrapper.last.pt0\n            table.twelve.columns(role=\"presentation\")\n                tr\n                    td.iq-hero-media(style=\"padding:{{ media_padding }}\")\n                        //- {{ MEDIA_BLOCKS }}\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns(role=\"presentation\")\n                tr\n                    td.iq-hero-content.text-pad-small(style=\"padding:{{ content_padding }}\")\n                        .gmail-blend-screen\n                            .gmail-blend-diff\n                                //- {{ CONTENT_BLOCKS }}",
+  "styl": ".iq-hero-section{background-position:{{ background_position }};background-repeat:no-repeat;background-size:cover;border-collapse:separate!important;border-radius:{{ radius }}!important}\n.iq-hero-section.bgr-image{background-image:url({{ bg_image }});background-color:{{ background_color }};background-position:{{ background_position }};background-repeat:no-repeat;background-size:cover}\n.iq-hero-media,.iq-hero-content{vertical-align:top}\n@media screen and (max-width:600px){.iq-hero-content.text-pad-small{padding-left:20px!important;padding-right:20px!important}}",
+  "slots": [
+    { "id": "bg_image", "kind": "image", "label": "Фоновая картинка секции", "default": "https://fsms.quadcode.com/storage/public/d6/rs/39rursrq72d919c0/2-2-1-back.png", "uiGroup": "assets" },
+    { "id": "background_color", "kind": "color", "label": "Цвет подложки", "default": "#000000", "uiGroup": "appearance" },
+    { "id": "background_position", "kind": "select", "label": "Позиция фона", "default": "center top", "options": ["center top", "center center", "left top", "right top"], "uiGroup": "appearance" },
+    { "id": "border", "kind": "select", "label": "Обводка", "default": "none", "options": ["none", "1px solid #ECECED", "2px solid #FF7700", "4px solid #FF7700"], "uiGroup": "appearance" },
+    { "id": "radius", "kind": "select", "label": "Скругление", "default": "32px", "options": ["0", "8px", "16px", "24px", "32px"], "uiGroup": "appearance" },
+    { "id": "media_padding", "kind": "text", "label": "Отступы медиа", "default": "0 0 20px", "uiGroup": "appearance" },
+    { "id": "content_padding", "kind": "text", "label": "Отступы контента", "default": "0 0 50px", "uiGroup": "appearance" }
+  ],
+  "childSlots": [
+    { "id": "media", "marker": "MEDIA_BLOCKS", "accepts": ["inner", "inline", "both"] },
+    { "id": "content", "marker": "CONTENT_BLOCKS", "accepts": ["inner", "inline", "both"] }
+  ],
+  "outlookSafe": true,
+  "tags": ["section", "hero", "background", "iq"]
+}

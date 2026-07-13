@@ -303,7 +303,7 @@ function buildTranslationIndex(langDirAbs, locale) {
 function getDeep(obj, pathParts) {
   let cur = obj;
   for (const p of pathParts) {
-    if (cur == null) return undefined;
+    if (cur == null || !Object.prototype.hasOwnProperty.call(Object(cur), p)) return undefined;
     cur = cur[p];
   }
   return cur;
@@ -320,7 +320,15 @@ function localizeHtmlPlaceholders(html, translationIndex, opts = {}) {
       return m;
     }
     const parts = (keyPath || '').split('.').filter(Boolean);
-    const val = parts.length ? getDeep(json, parts) : undefined;
+    // Both locale JSON conventions exist in the historical base:
+    //   namespace.json → { block_00: "..." }                       (flat)
+    //   namespace.json → { namespace: { block_00: "..." } }        (wrapped)
+    // Prefer the direct path so legacy tokens such as footer.footer.warn keep
+    // their exact meaning; use the redundant namespace wrapper as a fallback.
+    let val = parts.length ? getDeep(json, parts) : undefined;
+    if (val == null && json && typeof json === 'object' && json[fileKey]) {
+      val = getDeep(json[fileKey], parts);
+    }
     if (val == null) {
       if (failOnMissing) throw new Error(`Missing translation key: ${fileKey}.${keyPath}`);
       return m;
@@ -383,7 +391,7 @@ async function inlineHtml(html, inlineCssText) {
 
 async function main() {
   const argv = minimist(process.argv.slice(2), {
-    boolean: ['minifyCss', 'base', 'failOnMissing', 'pretty', 'trimCss', 'minifyHtml', 'minifyAll'],
+    boolean: ['minifyCss', 'base', 'failOnMissing', 'pretty', 'trimCss', 'minifyHtml', 'minifyAll', 'skip-locales'],
     default: {
       minifyCss: true,
       base: true,
@@ -394,6 +402,7 @@ async function main() {
       trimCss: true,
       minifyHtml: false,
       minifyAll: false,
+      'skip-locales': false,
     },
     alias: {
       c: 'category',
@@ -478,7 +487,9 @@ async function writeHtmlPair(dirAbs, htmlCompact, htmlPretty, { emitPretty = fal
   }
 
   const langDirAbs = path.join(projectRoot, argv.langDir);
-  const locales = parseLocalesArg(argv.locales) || (await listLocales(langDirAbs));
+  const locales = argv['skip-locales']
+    ? []
+    : (parseLocalesArg(argv.locales) || (await listLocales(langDirAbs)));
 
   // 1) CSS (compile once, then assemble per-output). In RAW HTML MODE
   // with no stylus entry, we use an empty CSS — HTML is taken verbatim.

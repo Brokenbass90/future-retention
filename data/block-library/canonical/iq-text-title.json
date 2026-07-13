@@ -1,0 +1,69 @@
+{
+  "id": "iq-text-title",
+  "label": "Текст — заголовок + абзац",
+  "description": "Самостоятельный email-safe inner-блок: средний заголовок и абзац. Контент, цвета, выравнивание и отступы редактируются отдельно.",
+  "placement": "inner",
+  "category": "text",
+  "version": 2,
+  "source": "canonical",
+  "pug": "table.iq-text-title(role=\"presentation\" width=\"100%\")\n    tr\n        td(style=\"text-align:{{ align }}\")\n            p.iq-middle-title(style=\"color:{{ title_color }};padding:{{ title_padding }}\") {{ title }}\n            p.iq-body-text(style=\"color:{{ body_color }};padding:{{ body_padding }}\") {{ body }}",
+  "styl": ".iq-text-title{width:100%}\n.iq-middle-title{color:{{ title_color }};font-family:Helvetica,Arial,sans-serif!important;font-size:32px;font-weight:700;line-height:42px;margin:0;padding:{{ title_padding }};vertical-align:middle}\n@media screen and (max-width:600px){.iq-middle-title{font-size:28px!important;line-height:34px!important}}\n.iq-body-text{color:{{ body_color }};font-family:Helvetica,Arial,sans-serif!important;font-size:18px;font-weight:400;letter-spacing:0;line-height:26px;margin:0;padding:{{ body_padding }}}",
+  "slots": [
+    {
+      "id": "title",
+      "kind": "text",
+      "label": "Заголовок",
+      "default": "Заголовок",
+      "uiGroup": "content"
+    },
+    {
+      "id": "body",
+      "kind": "richText",
+      "label": "Текст абзаца",
+      "default": "Основной текст письма — короткое описание.",
+      "uiGroup": "content"
+    },
+    {
+      "id": "title_color",
+      "kind": "color",
+      "label": "Цвет заголовка",
+      "default": "#393A44",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "body_color",
+      "kind": "color",
+      "label": "Цвет текста",
+      "default": "#393A44",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "align",
+      "kind": "select",
+      "label": "Выравнивание",
+      "default": "left",
+      "options": ["left", "center", "right"],
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "title_padding",
+      "kind": "text",
+      "label": "Отступы заголовка",
+      "default": "0 0 16px",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "body_padding",
+      "kind": "text",
+      "label": "Отступы абзаца",
+      "default": "0 0 32px",
+      "uiGroup": "appearance"
+    }
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "text",
+    "title",
+    "iq"
+  ]
+}

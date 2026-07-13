@@ -1,0 +1,33 @@
+<!-- ============================================================
+     SECTION BLOCK: white-bordered
+     Внутренне-внешний блок — секция-обёртка с белым фоном и
+     оранжевой рамкой 4px, скруглением 32px. Внутрь стекаются
+     inner-блоки (в слот INNER_BLOCKS).
+
+     Каркас (.row / .wrapper / .last / .offset-by-one / .ten.columns /
+     .pb44 / .pt44) приходит из outer-фреймворка и здесь НЕ дублируется.
+     Ниже — только компонентный CSS этого блока; на сборке он
+     доклеивается в общий <style> и дедупится.
+     ============================================================ -->
+
+<style data-block="section-white-bordered">
+    .brad-full,.brad-full-32{border-radius:32px!important}
+    .white-bg{background-color:#fff}
+    @media screen and (max-width:600px){.text-pad-small{padding-left:20px!important}.text-pad-small,.text-pad-small-right{padding-right:20px!important}}
+</style>
+
+<table class="row brad-full white-bg" style="background-color: #fff; border: 4px solid #FF7700; border-collapse: collapse; border-radius: 32px !important; border-spacing: 0; display: block; padding: 0; position: relative; text-align: left; vertical-align: top; width: 100%;">
+    <tr style="padding: 0; text-align: left; vertical-align: top;">
+        <td class="wrapper last offset-by-one" style="border-collapse: collapse !important; color: #222; font-family: 'Helvetica','Arial',sans-serif; font-size: 14px; font-weight: 400; line-height: 19px; margin: 0; padding: 0; padding-left: 50px; padding-right: 0; position: relative; text-align: left; vertical-align: top; word-break: normal;">
+            <table class="ten columns" style="border-collapse: collapse; border-spacing: 0; margin: 0; padding: 0; text-align: left; vertical-align: top; width: 480px;">
+                <tr style="padding: 0; text-align: left; vertical-align: top;">
+                    <td class="text-pad-small pb44 pt44" style="border-collapse: collapse !important; color: #222; font-family: 'Helvetica','Arial',sans-serif; font-size: 14px; font-weight: 400; line-height: 19px; margin: 0; padding: 0 0 10px; padding-bottom: 44px; padding-top: 44px; text-align: left; vertical-align: top; word-break: normal;">
+
+                        <!-- {{ INNER_BLOCKS }} — сюда стекаются inner (внутренние) блоки -->
+
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>

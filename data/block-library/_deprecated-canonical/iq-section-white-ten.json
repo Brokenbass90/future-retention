@@ -1,0 +1,16 @@
+{
+  "id": "iq-section-white-ten",
+  "label": "Секция — белая карточка, 10 колонок",
+  "description": "Секция-обёртка на белом фоне со скруглением 32px, отступ offset-by-one, 10 колонок. Опциональная оранжевая рамка. Внутрь стекаются inner-блоки (текст, кнопки, карточки).",
+  "placement": "section",
+  "category": "text",
+  "version": 1,
+  "source": "canonical",
+  "pug": "table.row.brad-full.white-bg(style=\"border: {{ border }}\")\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        //- {{ INNER_BLOCKS }}\n",
+  "styl": ".brad-full,.brad-full-32{border-radius:32px!important}\n.white-bg{background-color:#fff}\n@media screen and (max-width:600px){.text-pad-small{padding-left:20px!important}.text-pad-small,.text-pad-small-right{padding-right:20px!important}}",
+  "slots": [
+    { "id": "border", "kind": "text", "label": "Рамка (CSS border)", "default": "none" }
+  ],
+  "outlookSafe": true,
+  "tags": ["section", "white", "card", "iq"]
+}

@@ -5,8 +5,8 @@
  * End-to-end smoke test for composeEmailFromBlocks (Phase 6).
  *
  * What it does:
- *   1. Composes a real email from 3 canonical blocks: header-logo +
- *      hero-stack + cta-banner, all with custom slot values.
+ *   1. Composes a real email from the current IQ tree: outer → hero/regular
+ *      sections → atomic image, copy and CTA blocks, with custom slot values.
  *   2. Runs the actual build-mail.js pipeline on it.
  *   3. Asserts the resulting dist HTML contains the slot values
  *      (proving slot substitution worked end-to-end).
@@ -75,39 +75,75 @@ async function main() {
   setupTempRoot();
   console.log("  scaffold root: " + dim(TEMP_ROOT));
 
-  section("Compose mail from 3 canonical blocks");
+  section("Compose mail from the canonical IQ block tree");
   const composeResult = composeEmailFromBlocks({
     brand: "X_assembled",
     mailName: "test-compose-demo",
     destRoot: TEMP_ROOT,
     blocks: [
+      { uid: "outer", blockId: "iq-outer-wrapper", parentUid: null, slotId: null, slots: {} },
+      { uid: "hero", blockId: "iq-section-hero-bg", parentUid: "outer", slotId: "sections", slots: {} },
       {
-        id: "header-logo",
+        uid: "hero-logo",
+        blockId: "iq-hero-logo",
+        parentUid: "hero",
+        slotId: "media",
         slots: {
-          brand_url: "https://test-brand.example/",
-          logo_url: "https://placehold.co/280x60?text=TEST-LOGO",
-          brand_name: "TestBrand",
+          href: "https://test-brand.example/",
+          image: "https://placehold.co/280x60?text=TEST-LOGO",
+          alt: "TestBrand",
         },
       },
       {
-        id: "hero-stack",
+        uid: "hero-image",
+        blockId: "iq-hero-image",
+        parentUid: "hero",
+        slotId: "media",
         slots: {
-          image_url: "https://placehold.co/480x240?text=Hero",
-          image_alt: "Hero",
-          image_link: "https://test-brand.example/welcome",
+          image: "https://placehold.co/480x240?text=Hero",
+          alt: "Hero",
+          href: "https://test-brand.example/welcome",
+        },
+      },
+      {
+        uid: "hero-copy",
+        blockId: "iq-hero-copy",
+        parentUid: "hero",
+        slotId: "content",
+        slots: {
           title: "TESTCOMPOSE-TITLE",
           body: "TESTCOMPOSE-BODY a short hero paragraph.",
-          cta_label: "TESTCOMPOSE-CTA",
-          cta_href: "https://test-brand.example/start",
         },
       },
       {
-        id: "cta-banner",
+        uid: "hero-cta",
+        blockId: "iq-cta-button",
+        parentUid: "hero",
+        slotId: "content",
+        slots: {
+          label: "TESTCOMPOSE-CTA",
+          href: "https://test-brand.example/start",
+        },
+      },
+      { uid: "banner", blockId: "iq-section", parentUid: "outer", slotId: "sections", slots: {} },
+      {
+        uid: "banner-copy",
+        blockId: "iq-text-title",
+        parentUid: "banner",
+        slotId: "content",
         slots: {
           title: "TESTCOMPOSE-BANNER-TITLE",
-          subtitle: "TESTCOMPOSE-BANNER-SUB",
-          cta_label: "TESTCOMPOSE-BANNER-CTA",
-          cta_href: "https://test-brand.example/signup",
+          body: "TESTCOMPOSE-BANNER-SUB",
+        },
+      },
+      {
+        uid: "banner-cta",
+        blockId: "iq-cta-button",
+        parentUid: "banner",
+        slotId: "content",
+        slots: {
+          label: "TESTCOMPOSE-BANNER-CTA",
+          href: "https://test-brand.example/signup",
         },
       },
     ],
@@ -115,7 +151,9 @@ async function main() {
   console.log("  destDir   : " + dim(composeResult.destDir));
   console.log("  blocksUsed: " + composeResult.blocksUsed + "/" + composeResult.totalBlocks);
   if (composeResult.warnings.length) console.log("  warnings  : " + composeResult.warnings.join("; "));
-  assert(composeResult.blocksUsed === 3, "all 3 blocks resolved");
+  assert(composeResult.blocksUsed === 8, "all 8 renderable IQ blocks resolved");
+  assert(composeResult.totalBlocks === 9, "outer context is retained but not counted as rendered content");
+  assert(composeResult.warnings.length === 0, "tree composes without placement warnings");
   assert(existsSync(composeResult.headerPugPath), "header.pug written");
   assert(existsSync(composeResult.mainStylPath), "main.styl written");
 
@@ -125,8 +163,8 @@ async function main() {
   assert(composedPug.includes("TESTCOMPOSE-BODY"), "hero body substituted");
   assert(composedPug.includes("TESTCOMPOSE-CTA"), "hero CTA label substituted");
   assert(composedPug.includes("TESTCOMPOSE-BANNER-TITLE"), "banner title substituted");
-  assert(composedPug.includes("//- block-start: header-logo"), "block boundary marker present (header)");
-  assert(composedPug.includes("//- block-end: cta-banner"), "block boundary marker present (cta tail)");
+  assert(composedPug.includes("//- block-start: iq-section-hero-bg"), "block boundary marker present (hero section)");
+  assert(composedPug.includes("//- block-end: iq-cta-button"), "block boundary marker present (CTA)");
   assert(!composedPug.match(/\{\{\s*[a-z]/i), "no unsubstituted {{ slot }} tokens remain");
 
   section("Build the composed mail via tools/build-mail.js");
