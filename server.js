@@ -42,11 +42,17 @@ import {
 import { parseFigmaUrl, flattenFigmaLayers, fetchFigmaNodeData, inspectFigmaUrl, exportFigmaImages, browseFigmaFile, downloadImageBuffer, buildFigmaImportFromUrl } from "./src/figma.js";
 import { callOpenAiWithRetry, extractResponseText } from "./src/ai-client.js";
 import { placeholderizeHtml, fixLocaleTxt, translateLocaleTxt } from "./src/locale-ai.js";
+import { placeholderizePugSource } from "./src/pug-placeholderize.js";
 import { runAgent } from "./src/ai-agent.js";
 import os from "node:os";
 import * as fsLink from "node:fs";
-import { composeEmailFromBlocks, listCanonicalBlocks, userBlockPath, userBlockDir } from "./src/compose-email.js";
+import { composeEmailFromBlocks, listCanonicalBlocks, userBlockPath } from "./src/compose-email.js";
 import { BlockLibrarySchemaError, normalizeBlockLibrarySavePayload } from "./src/block-library-schema.js";
+import {
+  assertPortableBlockSource,
+  saveUserBlockWithLifecycle,
+  transitionUserBlockReviewWithLifecycle,
+} from "./src/block-library-review.js";
 import { classifyConstructorTopLevelLine } from "./src/constructor-legacy-parse.js";
 import { stageComposeSkeletonIfDestination } from "./src/compose-skeleton-stage.js";
 import { withComposeSaveTransaction } from "./src/compose-save-transaction.js";
@@ -96,6 +102,19 @@ import { syncWorkbenchLocaleNamespaces } from "./src/workbench-localization.js";
 import { compareStudioModelSourceSignatures } from "./src/studio-model-signatures.js";
 import { acquireKeyedOperationLock } from "./src/keyed-operation-lock.js";
 import { resolveWorkbenchBuildLocalePolicy } from "./src/workbench-build-locales.js";
+import {
+  createPreviewBuildCoordinator,
+  createPreviewBuildKey,
+  previewBuildPriority,
+} from "./src/preview-build-coordinator.js";
+import { shouldClassifyAiToolIntent } from "./src/ai-intent-routing.js";
+import { ACTIVE_EMAIL_BASE_BRANDS, partitionEmailBaseGroups, visibleEmailBaseGroups } from "./src/active-base-policy.js";
+import {
+  auditMailSourceBeforeBuild,
+  resolveWorkbenchMailRoot,
+  resolveWorkbenchSourcePath,
+  validateWorkbenchSourceContent,
+} from "./src/mail-source-security.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -127,6 +146,19 @@ const figmaImportSecret = process.env.FIGMA_IMPORT_SECRET || "";
 const appAuthUser = process.env.APP_AUTH_USER || "";
 const appAuthPassword = process.env.APP_AUTH_PASSWORD || "";
 const appAuthEnabled = Boolean(appAuthUser && appAuthPassword);
+// Build subprocesses compile author-provided Pug/Stylus. The portable-source
+// gate is the primary boundary; a minimal environment is defense in depth so
+// a compiler regression cannot expose server/API credentials.
+const buildSubprocessEnv = Object.freeze(Object.fromEntries(
+  ["PATH", "HOME", "TMPDIR", "TMP", "TEMP", "LANG", "LC_ALL", "TZ", "NODE_ENV", "TESSDATA_PREFIX", "OMP_THREAD_LIMIT"]
+    .filter((key) => typeof process.env[key] === "string")
+    .map((key) => [key, process.env[key]])
+));
+const previewBuildCoordinator = createPreviewBuildCoordinator({
+  maxConcurrent: process.env.PREVIEW_BUILD_CONCURRENCY,
+  maxCacheEntries: process.env.PREVIEW_BUILD_CACHE_ENTRIES,
+  ttlMs: process.env.PREVIEW_BUILD_CACHE_TTL_MS,
+});
 const categoryIgnoreList = new Set(["vendor", "docs", "dist", "tools", "node_modules", "_legacy"]);
 const localeDirPattern = /^[A-Za-z]{2}([_-][A-Za-z]{2})?$/;
 const templateSourceExtensions = [".pug", ".jade"];
@@ -1984,10 +2016,19 @@ function extractAssetRecordsFromHtml(html) {
 }
 
 async function runCommand(command, args, cwd) {
+  if (command === process.execPath
+      && args?.[0] === "mail"
+      && /^build(?:-pretty)?$/.test(String(args?.[1] || ""))) {
+    auditMailSourceBeforeBuild({
+      emailBaseRoot: cwd,
+      brand: args[2],
+      mail: args[3],
+    });
+  }
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, {
       cwd,
-      env: process.env
+      env: buildSubprocessEnv
     });
     let stdout = "";
     let stderr = "";
@@ -5626,6 +5667,15 @@ async function writeEmailBaseDraftFiles({
     const headerPath = path.join(templatesRoot, "blocks", "header.pug");
     const footerPath = path.join(templatesRoot, "helpers", "footer.pug");
     const mainStylePath = path.join(stylesRoot, "blocks", "main.styl");
+
+    if (!existsSync(referenceStylesRoot)) {
+      const error = new Error(
+        "Affiliate password-reset template is unavailable after base cleanup; "
+        + "choose X_IQ/X_IQBroker or add an approved affiliate scaffold."
+      );
+      error.statusCode = 422;
+      throw error;
+    }
 
     await mkdir(path.join(templatesRoot, "blocks"), { recursive: true });
     await mkdir(path.join(templatesRoot, "helpers"), { recursive: true });
@@ -15260,8 +15310,8 @@ function isRtlLocale(locale) {
   return _rtlIsRtlLocale(locale);
 }
 
-function applyLocaleDirectionToHtml(html, locale) {
-  return _rtlApply(html, locale, cleanText);
+function applyLocaleDirectionToHtml(html, locale, opts = {}) {
+  return _rtlApply(html, locale, cleanText, opts);
 }
 
 async function resolveDiscussionResponse(payload) {
@@ -15838,7 +15888,7 @@ async function tryAiToolsDispatch(payload) {
   if (!intent && continuationPolicy.confirmsPriorFix) {
     intent = "fix-locale";
   }
-  if (!intent && hasNamespaceWorkspace && userText && userText.length > 6 && userText.length < 400) {
+  if (!intent && shouldClassifyAiToolIntent({ text: userText, hasNamespaceWorkspace })) {
     // Free-text fallback: ask the model to classify into one of our supported intents.
     try {
       intent = await classifyAiIntent(userText);
@@ -15921,12 +15971,14 @@ async function tryAiToolsDispatch(payload) {
     // Source: prefer baseEmailHtml; fallback to currently-open Pug file content.
     let source = String(payload?.baseEmailHtml || "").trim();
     let kind = "html";
+    let sourceFile = "";
     if (!source && payload?.pugSourceFiles && typeof payload.pugSourceFiles === "object") {
       // Pick the first non-empty .pug/.jade file in the bundle.
       for (const [path, content] of Object.entries(payload.pugSourceFiles)) {
         if (/\.(pug|jade)$/i.test(path) && typeof content === "string" && content.trim()) {
           source = content;
           kind = "pug";
+          sourceFile = path;
           break;
         }
       }
@@ -15943,12 +15995,17 @@ async function tryAiToolsDispatch(payload) {
     if (!refTxt) {
       return aiToolReply(`В namespace ${ns.namespace} нет блоков для reference (искал ${refLocaleCode}).`);
     }
-    const result = await placeholderizeHtml({
-      html, refLocaleTxt: refTxt, namespace: ns.namespace,
-      apiKey: openAiApiKey, model: "gpt-4.1-mini",
-      logger: appendStudioJournalEntry,
-      mailHint: ns.namespace,
-    });
+    // Pug is not HTML. Running it through the DOM placeholderizer silently
+    // produced zero edits. Source mode uses a conservative line-aware mapper;
+    // compiled/plain HTML keeps the existing AI DOM mapper.
+    const result = kind === "pug"
+      ? placeholderizePugSource({ pug: source, refLocaleTxt: refTxt, namespace: ns.namespace })
+      : await placeholderizeHtml({
+          html, refLocaleTxt: refTxt, namespace: ns.namespace,
+          apiKey: openAiApiKey, model: "gpt-4.1-mini",
+          logger: appendStudioJournalEntry,
+          mailHint: ns.namespace,
+        });
     if (result.report) {
       try {
         await appendStudioJournalEntry({
@@ -15966,7 +16023,7 @@ async function tryAiToolsDispatch(payload) {
         });
       } catch { /* non-blocking */ }
     }
-    const total = (ns.locales[refLocaleCode] || []).length;
+    const total = kind === "pug" ? result.total : (ns.locales[refLocaleCode] || []).length;
     const refBlocks = ns.locales[refLocaleCode] || [];
     const blockPreview = (i) => {
       const raw = String(refBlocks[i] || "").replace(/@@/g, "");
@@ -15995,8 +16052,10 @@ async function tryAiToolsDispatch(payload) {
       lines.push("Переключайся на любую локаль — переводы подставятся из TXT.");
     }
     return aiToolReply(lines.join(" "), {
-      kind: "placeholderize",
-      editorHtml: result.html,
+      kind: kind === "pug" ? "placeholderize-source" : "placeholderize",
+      ...(kind === "pug"
+        ? { editorSource: result.pug, sourceFile }
+        : { editorHtml: result.html }),
       summary: { anchors: result.anchors, total, missed: result.missed, ambiguous: result.ambiguous },
     });
   }
@@ -16216,7 +16275,7 @@ async function classifyAiIntent(text) {
     "  3. If the message asks to TRANSLATE meaning into another language → translate-*.\n" +
     "  4. Be lenient on word forms, typos (плей/плэй, расставь/расставить), and Russian/English/mixed wording.\n" +
     "Return intent + confidence (0..1). Use confidence ≥0.8 when the verb is explicit; 0.5–0.8 when it's implied.";
-  const data = await callOpenAiWithRetry(
+  const data = await _aiCall(
     async () => ({
       url: "https://api.openai.com/v1/responses",
       body: {
@@ -16228,7 +16287,7 @@ async function classifyAiIntent(text) {
         text: { format: { type: "json_schema", name: "ai_intent", strict: true, schema: _AI_INTENT_SCHEMA } },
       },
     }),
-    { label: "ai-intent-classify", apiKey: openAiApiKey }
+    "ai-intent-classify"
   );
   const txt = extractResponseText(data);
   if (!txt) return null;
@@ -16841,6 +16900,7 @@ const server = http.createServer(async (request, response) => {
         model: openAiModel,
         modelRouting: summarizeOpenAiModelRouting(),
         tokenUsage,
+        previewBuilds: previewBuildCoordinator.stats(),
         config: summarizeRuntimeConfig(),
         providers: getProviderCatalog(),
         clientProfiles,
@@ -16946,17 +17006,51 @@ const server = http.createServer(async (request, response) => {
         const { id, placement, category, slots } = blockJson;
         const force = Boolean(body?.force);
         const target = userBlockPath(id);
+        const protectedDefinition = listCanonicalBlocks().find((block) => block.id === id && block.source !== "user");
+        if (protectedDefinition) {
+          sendJson(response, 409, { error: "canonical/imported block id is protected", hint: "save the copy under a new id" });
+          return;
+        }
         if (existsSync(target) && !force) {
           sendJson(response, 409, { error: "block id already exists", hint: "send force=true to overwrite" });
           return;
         }
-        await mkdir(userBlockDir(), { recursive: true });
-        await writeFile(target, JSON.stringify(blockJson, null, 2) + "\n", "utf8");
+        const saved = await saveUserBlockWithLifecycle({ payload: blockJson, target, force });
         try { await appendStudioJournalEntry({ area: "blocks", title: `User block saved: ${id}`, message: `placement=${placement}, slots=${slots.length}`, meta: { id, placement, category, slots: slots.length } }); } catch {}
-        sendJson(response, 200, { ok: true, id, path: path.relative(__dirname, target) });
+        sendJson(response, 200, { ok: true, id, path: path.relative(__dirname, target), review: saved.review });
       } catch (err) {
-        const status = err instanceof BlockLibrarySchemaError ? 400 : 500;
-        sendJson(response, status, { error: String(err && err.message ? err.message : err) });
+        const status = err instanceof BlockLibrarySchemaError ? 400 : Number(err?.statusCode) || 500;
+        sendJson(response, status, {
+          error: String(err && err.message ? err.message : err),
+          ...(err?.validation ? { validation: err.validation } : {}),
+        });
+      }
+      return;
+    }
+
+    // ── Explicit lifecycle transition for a hand-authored block. AI review is
+    // advisory metadata only; approval always re-runs the deterministic gate.
+    if (request.method === "POST" && request.url.startsWith("/api/blocks-library/user/") && request.url.endsWith("/review")) {
+      try {
+        const encodedId = request.url.slice("/api/blocks-library/user/".length, -"/review".length);
+        const id = decodeURIComponent(encodedId);
+        if (!/^[a-z0-9][a-z0-9_-]{0,63}$/i.test(id)) { sendJson(response, 400, { error: "invalid id" }); return; }
+        const target = userBlockPath(id);
+        if (!existsSync(target)) { sendJson(response, 404, { error: "not found" }); return; }
+        const body = await readRequestBody(request);
+        const requestedStatus = String(body?.status || "approved");
+        if (!["draft", "candidate", "approved"].includes(requestedStatus)) {
+          sendJson(response, 400, { error: "status must be draft, candidate or approved" });
+          return;
+        }
+        const transitioned = await transitionUserBlockReviewWithLifecycle({ target, requestedStatus });
+        sendJson(response, 200, { ok: true, id, review: transitioned.review });
+      } catch (err) {
+        const status = err instanceof BlockLibrarySchemaError ? 400 : Number(err?.statusCode) || 500;
+        sendJson(response, status, {
+          error: String(err && err.message ? err.message : err),
+          ...(err?.validation ? { validation: err.validation } : {}),
+        });
       }
       return;
     }
@@ -17115,7 +17209,7 @@ const server = http.createServer(async (request, response) => {
         const body = await readRequestBody(request);
         const blocks = Array.isArray(body?.blocks) ? body.blocks : [];
         if (!blocks.length) { sendJson(response, 400, { error: "blocks array required" }); return; }
-        const mailName = String(body?.mailName || (`preview-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`)).replace(/[^a-z0-9_-]/gi, "-").toLowerCase();
+        const requestedMailName = String(body?.mailName || "preview").replace(/[^a-z0-9_-]/gi, "-").toLowerCase() || "preview";
         const brand = "X_preview";
         const tmpDir = path.join(os.tmpdir(), "retkit-compose-preview");
         await mkdir(tmpDir, { recursive: true });
@@ -17127,39 +17221,88 @@ const server = http.createServer(async (request, response) => {
             try { fsLink.symlinkSync(src, dst, "dir"); } catch { /* ignore */ }
           }
         }
-        // Compose into tmp dir.
         const _skBrand = String(body?.sourceBrand||"").replace(/[^a-zA-Z0-9_]/g,""); const _skMail = String(body?.sourceMail||"").replace(/[^a-zA-Z0-9_-]/g,"");
         const _skPath = (_skBrand && _skMail && existsSync(path.join(__dirname,"email-base",_skBrand,_skMail))) ? path.join(__dirname,"email-base",_skBrand,_skMail) : undefined;
-        const composed = composeEmailFromBlocks({ brand, mailName, blocks, destRoot: tmpDir, markBlocks: true, ...(_skPath?{skeleton:_skPath}:{}) });
-        // Run build-mail.js synchronously.
-        const built = await new Promise((resolve) => {
-          const args = constructorBuildMailArgs({ brand, mailName, preview: true });
-          const child = spawn(process.execPath, args, { cwd: tmpDir, stdio: ["ignore", "pipe", "pipe"] });
-          let stderr = "";
-          child.stderr.on("data", (d) => { stderr += d.toString(); });
-          child.on("close", (code) => resolve({ code, stderr }));
-          child.on("error", (err) => resolve({ code: -1, stderr: String(err) }));
+        const previewKey = createPreviewBuildKey({ blocks, sourceBrand: _skBrand, sourceMail: _skMail });
+        // Stable, content-derived temp names make duplicate requests share the
+        // same build without leaking the constructor's ever-growing live token
+        // into thousands of temp directories.
+        const buildMailName = `preview-${previewKey.slice(0, 24)}`;
+        const coordinated = await previewBuildCoordinator.run({
+          key: previewKey,
+          priority: previewBuildPriority(requestedMailName),
+          task: async () => {
+            const sourceDir = path.join(tmpDir, brand, `mail-${buildMailName}`);
+            const distDir = path.join(tmpDir, "dist", brand, `mail-${buildMailName}`);
+            const buildStartedAt = Date.now();
+            try {
+              const composed = composeEmailFromBlocks({
+                brand,
+                mailName: buildMailName,
+                blocks,
+                destRoot: tmpDir,
+                markBlocks: true,
+                preserveSkeletonPreheader: Boolean(_skPath),
+                ...(_skPath ? { skeleton: _skPath } : {}),
+              });
+              const built = await new Promise((resolve) => {
+                const args = constructorBuildMailArgs({ brand, mailName: buildMailName, preview: true });
+                const child = spawn(process.execPath, args, {
+                  cwd: tmpDir,
+                  env: buildSubprocessEnv,
+                  stdio: ["ignore", "pipe", "pipe"],
+                });
+                let stderr = "";
+                child.stderr.on("data", (d) => { stderr += d.toString(); });
+                child.on("close", (code) => resolve({ code, stderr }));
+                child.on("error", (err) => resolve({ code: -1, stderr: String(err) }));
+              });
+              if (built.code !== 0) {
+                const error = new Error("build failed");
+                error.statusCode = 422;
+                error.stderr = built.stderr.slice(0, 800);
+                throw error;
+              }
+              const distHtml = path.join(distDir, "en", "index.html");
+              if (!existsSync(distHtml)) throw new Error("build succeeded but dist HTML missing");
+              const rawHtml = await readFile(distHtml, "utf8");
+              const html = sanitizeHtmlForIframePreview(rawHtml);
+              return {
+                html,
+                htmlLength: html.length,
+                rawHtmlLength: rawHtml.length,
+                blocksUsed: composed.blocksUsed,
+                totalBlocks: composed.totalBlocks,
+                warnings: composed.warnings,
+                buildMs: Date.now() - buildStartedAt,
+              };
+            } finally {
+              // Preview HTML is held in the bounded memory cache. Generated
+              // source/dist folders are disposable and used to accumulate for
+              // every live-preview token during long editing sessions.
+              await Promise.all([
+                rm(sourceDir, { recursive: true, force: true }),
+                rm(distDir, { recursive: true, force: true }),
+              ]).catch(() => {});
+            }
+          },
         });
-        if (built.code !== 0) {
-          sendJson(response, 422, { error: "build failed", stderr: built.stderr.slice(0, 800) });
-          return;
-        }
-        const distHtml = path.join(tmpDir, "dist", brand, "mail-" + mailName, "en", "index.html");
-        if (!existsSync(distHtml)) {
-          sendJson(response, 500, { error: "build succeeded but dist HTML missing" });
-          return;
-        }
-        const rawHtml = await readFile(distHtml, "utf8");
-        const html = sanitizeHtmlForIframePreview(rawHtml);
         sendJson(response, 200, {
-          ok: true, mailName, brand,
-          html, htmlLength: html.length,
-          rawHtmlLength: rawHtml.length,
-          blocksUsed: composed.blocksUsed, totalBlocks: composed.totalBlocks,
-          warnings: composed.warnings,
+          ok: true,
+          mailName: requestedMailName,
+          brand,
+          ...coordinated.value,
+          previewBuild: {
+            cache: coordinated.cacheStatus,
+            queueMs: coordinated.queueMs,
+            runMs: coordinated.runMs,
+          },
         });
       } catch (err) {
-        sendJson(response, 500, { error: String(err && err.message ? err.message : err) });
+        sendJson(response, Number(err?.statusCode) || 500, {
+          error: String(err && err.message ? err.message : err),
+          ...(err?.stderr ? { stderr: String(err.stderr).slice(0, 800) } : {}),
+        });
       }
       return;
     }
@@ -17206,11 +17349,17 @@ const server = http.createServer(async (request, response) => {
             const composed = composeEmailFromBlocks({
               brand, mailName: rawName, blocks,
               destRoot: path.join(__dirname, "email-base"),
+              preserveSkeletonPreheader: Boolean(_skP),
+              trustedSkeletonRoots: stagedSkeleton.staged ? [stagedSkeleton.skeleton] : [],
               ...(stagedSkeleton.skeleton ? { skeleton: stagedSkeleton.skeleton } : {}),
             });
             const built = await new Promise((resolve) => {
               const args = constructorBuildMailArgs({ brand, mailName: rawName, preview: false });
-              const child = spawn(process.execPath, args, { cwd: path.join(__dirname, "email-base"), stdio: ["ignore", "pipe", "pipe"] });
+              const child = spawn(process.execPath, args, {
+                cwd: path.join(__dirname, "email-base"),
+                env: buildSubprocessEnv,
+                stdio: ["ignore", "pipe", "pipe"],
+              });
               let stderr = "";
               child.stderr.on("data", (d) => { stderr += d.toString(); });
               child.on("close", (code) => resolve({ code, stderr }));
@@ -18570,6 +18719,21 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
+    // ── Source: place ${{ ns.block_NN }}$ placeholders directly in Pug/Jade ──
+    if (request.method === "POST" && request.url === "/api/wb/placeholderize-source") {
+      try {
+        const { pug = "", refLocaleTxt = "", namespace = "" } = await readRequestBody(request);
+        if (!pug || !refLocaleTxt || !namespace) {
+          sendJson(response, 400, { error: "pug, refLocaleTxt, namespace required" }); return;
+        }
+        const result = placeholderizePugSource({ pug, refLocaleTxt, namespace });
+        sendJson(response, 200, { ok: true, ...result });
+      } catch (error) {
+        sendJson(response, 422, { error: error.message });
+      }
+      return;
+    }
+
     // ── AI: place ${{ ns.block_NN }}$ placeholders in HTML matching reference TXT ──
     if (request.method === "POST" && request.url === "/api/wb/ai/placeholderize") {
       try {
@@ -18710,7 +18874,8 @@ const server = http.createServer(async (request, response) => {
         const html = String(body?.html || "");
         if (!html.trim()) { sendJson(response, 400, { error: "html required" }); return; }
         const locale = cleanText(body?.locale || "ar");
-        const out = applyLocaleDirectionToHtml(html, locale);
+        const mode = cleanText(body?.mode || "text");
+        const out = applyLocaleDirectionToHtml(html, locale, { mode });
         sendJson(response, 200, { ok: true, html: out });
       } catch (err) {
         sendJson(response, 500, { error: String(err && err.message ? err.message : err) });
@@ -18819,7 +18984,7 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
-    if (request.method === "GET" && request.url === "/api/wb/emails") {
+    if (request.method === "GET" && (request.url === "/api/wb/emails" || request.url.startsWith("/api/wb/emails?"))) {
       const srcRoot  = path.join(__dirname, "email-base");
       const distRoot = path.join(__dirname, "email-base", "dist");
       const result   = [];
@@ -18839,7 +19004,17 @@ const server = http.createServer(async (request, response) => {
           if (mails.length) result.push({ brand, mails });
         }
       } catch(e) { console.error('[wb] emails list error:', e.message); }
-      sendJson(response, 200, { ok: true, emails: result });
+      const params = new URL(request.url, "http://localhost").searchParams;
+      const scope = params.get("scope") === "all" ? "all" : "active";
+      const partitioned = partitionEmailBaseGroups(result);
+      sendJson(response, 200, {
+        ok: true,
+        scope,
+        activeBrands: ACTIVE_EMAIL_BASE_BRANDS,
+        emails: visibleEmailBaseGroups(result, scope),
+        archivedCount: partitioned.archived.reduce((sum, group) => sum + (group.mails?.length || 0), 0),
+        archivedBrands: partitioned.archived.map((group) => group.brand),
+      });
       return;
     }
 
@@ -18916,11 +19091,11 @@ const server = http.createServer(async (request, response) => {
     // ── Workbench: list editable source files for an email ───────────────────
     if (request.method === "GET" && request.url.startsWith("/api/wb/email-files?")) {
       const params = new URL(request.url, "http://localhost").searchParams;
-      const brand  = (params.get("brand") || "").replace(/\.\./g, "");
-      const mail   = (params.get("mail")  || "").replace(/\.\./g, "");
+      const brand = params.get("brand") || "";
+      const mail = params.get("mail") || "";
       if (!brand || !mail) { sendJson(response, 400, { error: "brand and mail required" }); return; }
-      const emailDir = path.join(__dirname, "email-base", brand, mail, "app");
       try {
+        const resolved = resolveWorkbenchMailRoot({ emailBaseRoot, brand, mail });
         const files = [];
         const walk = (dir, rel) => {
           const entries = readdirSync(dir, { withFileTypes: true });
@@ -18939,10 +19114,10 @@ const server = http.createServer(async (request, response) => {
             }
           }
         };
-        walk(emailDir, "");
-        sendJson(response, 200, { ok: true, files, brand, mail });
+        walk(resolved.appRoot, "");
+        sendJson(response, 200, { ok: true, files, brand: resolved.brand, mail: resolved.mail });
       } catch(e) {
-        sendJson(response, 404, { error: e.message });
+        sendJson(response, Number(e?.statusCode) || 404, { error: e.message });
       }
       return;
     }
@@ -18950,16 +19125,22 @@ const server = http.createServer(async (request, response) => {
     // ── Workbench: read a source file ────────────────────────────────────────
     if (request.method === "GET" && request.url.startsWith("/api/wb/email-file?")) {
       const params = new URL(request.url, "http://localhost").searchParams;
-      const brand  = (params.get("brand") || "").replace(/\.\./g, "");
-      const mail   = (params.get("mail")  || "").replace(/\.\./g, "");
-      const file   = (params.get("file")  || "").replace(/\.\./g, "");
+      const brand = params.get("brand") || "";
+      const mail = params.get("mail") || "";
+      const file = params.get("file") || "";
       if (!brand || !mail || !file) { sendJson(response, 400, { error: "brand, mail, file required" }); return; }
       try {
-        const filePath = path.join(__dirname, "email-base", brand, mail, "app", file);
-        const content = await readFile(filePath, "utf8");
-        sendJson(response, 200, { ok: true, content, brand, mail, file });
+        const resolved = resolveWorkbenchSourcePath({ emailBaseRoot, brand, mail, file });
+        const content = await readFile(resolved.target, "utf8");
+        sendJson(response, 200, {
+          ok: true,
+          content,
+          brand: resolved.brand,
+          mail: resolved.mail,
+          file: resolved.file,
+        });
       } catch(e) {
-        sendJson(response, 404, { error: "File not found" });
+        sendJson(response, Number(e?.statusCode) || 404, { error: e.message || "File not found" });
       }
       return;
     }
@@ -18968,19 +19149,35 @@ const server = http.createServer(async (request, response) => {
     if (request.method === "POST" && request.url === "/api/wb/email-file") {
       const { brand = "", mail = "", file = "", content = "" } = await readRequestBody(request);
       if (!brand || !mail || !file) { sendJson(response, 400, { error: "brand, mail, file required" }); return; }
-      const safeBrand = brand.replace(/\.\./g, "");
-      const safeMail  = mail.replace(/\.\./g, "");
-      const safeFile  = file.replace(/\.\./g, "");
+      let releaseSourceLock = null;
       try {
-        const filePath = path.join(__dirname, "email-base", safeBrand, safeMail, "app", safeFile);
-        await writeFileAtomically(filePath, content);
-        const sourceAffectsConstructor = /\.(?:pug|jade|styl|css)$/i.test(safeFile);
+        const resolved = resolveWorkbenchSourcePath({ emailBaseRoot, brand, mail, file });
+        releaseSourceLock = await acquireKeyedOperationLock(`mail:${resolved.brand}/${resolved.mail}`);
+        // Resolve again under the shared build/save lock so validation and the
+        // atomic replacement apply to the same in-mail source path.
+        const lockedSource = resolveWorkbenchSourcePath({ emailBaseRoot, brand, mail, file });
+        validateWorkbenchSourceContent({
+          content,
+          target: lockedSource.target,
+          file: lockedSource.file,
+          mailRoot: lockedSource.mailRoot,
+          emailBaseRoot,
+        });
+        await writeFileAtomically(lockedSource.target, String(content ?? ""));
+        const sourceAffectsConstructor = /\.(?:pug|jade|styl|css)$/i.test(lockedSource.file);
         const studioModel = sourceAffectsConstructor
-          ? await markStudioModelStale({ emailBaseRoot, brand: safeBrand, mail: safeMail, sourceFile: safeFile })
+          ? await markStudioModelStale({
+              emailBaseRoot,
+              brand: lockedSource.brand,
+              mail: lockedSource.mail,
+              sourceFile: lockedSource.file,
+            })
           : { updated: false };
         sendJson(response, 200, { ok: true, studioModelStale: Boolean(studioModel.updated) });
       } catch(e) {
-        sendJson(response, 500, { error: e.message });
+        sendJson(response, Number(e?.statusCode) || 422, { ok: false, error: e.message });
+      } finally {
+        releaseSourceLock?.();
       }
       return;
     }
@@ -18989,18 +19186,22 @@ const server = http.createServer(async (request, response) => {
     if (request.method === "POST" && request.url === "/api/wb/build-email") {
       const { brand = "", mail = "", namespaces = null } = await readRequestBody(request);
       if (!brand || !mail) { sendJson(response, 400, { error: "brand and mail required" }); return; }
-      const safeBrand = brand.replace(/\.\./g, "").replace(/[^a-zA-Z0-9_\-]/g, "");
-      const safeMail  = mail.replace(/\.\./g, "").replace(/[^a-zA-Z0-9_\-]/g, "");
-      if (!safeBrand || !safeMail) { sendJson(response, 400, { error: "invalid brand or mail" }); return; }
-      // build-mail.js convention: --mail <name> where name has no "mail-" prefix
-      // (it adds "mail-" internally). Strip it from folder names like "mail-welcome" -> "welcome"
-      const mailArg   = safeMail.replace(/^mail-/, "");
-      const mailFolder = `mail-${mailArg}`;
       const emailBaseDir = path.join(__dirname, "email-base");
       const t0 = Date.now();
       let releaseBuildLock = null;
       try {
+        const requestedMailFolder = String(mail).startsWith("mail-") ? String(mail) : `mail-${mail}`;
+        const resolved = resolveWorkbenchMailRoot({
+          emailBaseRoot,
+          brand,
+          mail: requestedMailFolder,
+        });
+        const safeBrand = resolved.brand;
+        const mailFolder = resolved.mail;
+        // build-mail.js convention: --mail <name> where name has no "mail-" prefix.
+        const mailArg = mailFolder.replace(/^mail-/, "");
         releaseBuildLock = await acquireKeyedOperationLock(`mail:${safeBrand}/${mailFolder}`);
+        auditMailSourceBeforeBuild({ emailBaseRoot, brand: safeBrand, mail: mailFolder });
         const localeSync = namespaces == null
           ? { written: 0, unchanged: 0, fileCount: 0, namespaceCount: 0, namespaces: [], locales: [], skippedBuiltins: [] }
           : await syncWorkbenchLocaleNamespaces({ emailBaseRoot, namespaces });
@@ -19024,7 +19225,11 @@ const server = http.createServer(async (request, response) => {
           const child = spawn(
             process.execPath,
             buildArgs,
-            { cwd: emailBaseDir, stdio: ["ignore", "pipe", "pipe"] }
+            {
+              cwd: emailBaseDir,
+              stdio: ["ignore", "pipe", "pipe"],
+              env: buildSubprocessEnv,
+            }
           );
           let errOut = "";
           child.stderr.on("data", d => { errOut += d.toString(); });
@@ -19111,13 +19316,21 @@ const server = http.createServer(async (request, response) => {
       const { code = "", from } = body;
       try {
         if (from === "pug") {
+          assertPortableBlockSource(
+            { id: "workbench-converter", pug: String(code || ""), styl: "", slots: [] },
+            { label: "Workbench Pug converter source" },
+          );
           const { default: pug } = await import("pug");
-          const html = pug.render(code, { pretty: true });
+          const html = pug.render(String(code || ""), { pretty: true, compileDebug: false });
           sendJson(response, 200, { ok: true, result: html, to: "html" });
         } else if (from === "stylus") {
+          assertPortableBlockSource(
+            { id: "workbench-converter", pug: "", styl: String(code || ""), slots: [] },
+            { label: "Workbench Stylus converter source" },
+          );
           const { default: stylus } = await import("stylus");
           const css = await new Promise((res, rej) => {
-            stylus(code).render((err, css) => err ? rej(err) : res(css));
+            stylus(String(code || "")).render((err, css) => err ? rej(err) : res(css));
           });
           sendJson(response, 200, { ok: true, result: css, to: "css" });
         } else if (from === "html2pug") {
@@ -19313,7 +19526,8 @@ const server = http.createServer(async (request, response) => {
       response.end();
       return;
     }
-    sendJson(response, 500, {
+    const statusCode = Number(error?.statusCode);
+    sendJson(response, Number.isInteger(statusCode) && statusCode >= 400 && statusCode <= 599 ? statusCode : 500, {
       error: error instanceof Error ? error.message : "Unknown server error"
     });
   }

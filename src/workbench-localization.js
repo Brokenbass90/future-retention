@@ -185,14 +185,23 @@ export function describeHtmlLocalization(html, locale = "base") {
   const tokens = findLocalizationTokens(html);
   const expectedRaw = normalizedLocale === "base" || normalizedLocale === "original";
   const unresolvedTokens = expectedRaw ? [] : tokens;
+  const unresolvedNamespaces = [...new Set(unresolvedTokens.map((token) => {
+    LOCALIZATION_TOKEN_CAPTURE_RE.lastIndex = 0;
+    return LOCALIZATION_TOKEN_CAPTURE_RE.exec(token)?.[1] || "";
+  }).filter(Boolean))];
   return {
     locale: normalizedLocale === "original" ? "base" : normalizedLocale,
     expectedRaw,
     status: expectedRaw ? "source" : (unresolvedTokens.length ? "unresolved" : "localized"),
     tokenCount: tokens.length,
     unresolvedCount: unresolvedTokens.length,
+    issueType: unresolvedTokens.length ? "missing-localization-data" : null,
+    message: unresolvedTokens.length
+      ? "Locale namespace/key data is missing; RTL changes direction only and cannot translate placeholders."
+      : "",
     tokens,
     unresolvedTokens,
+    unresolvedNamespaces,
   };
 }
 
@@ -203,6 +212,20 @@ function getDeep(value, pathParts) {
     current = current[part];
   }
   return current;
+}
+
+function createLocalizationTextPositionChecker(source) {
+  const text = String(source || "");
+  const lower = text.toLowerCase();
+  return (offset) => {
+    const at = Math.max(0, Number(offset) || 0);
+    if (text.lastIndexOf("<", at) > text.lastIndexOf(">", at)) return false;
+    if (text.lastIndexOf("<!--", at) > text.lastIndexOf("-->", at)) return false;
+    for (const tag of ["style", "script"]) {
+      if (lower.lastIndexOf(`<${tag}`, at) > lower.lastIndexOf(`</${tag}`, at)) return false;
+    }
+    return true;
+  };
 }
 
 /**
@@ -237,8 +260,9 @@ export async function resolveRemainingHtmlLocalization({ emailBaseRoot, html, lo
   }
 
   let replacedCount = 0;
+  const isTextPosition = createLocalizationTextPositionChecker(source);
   LOCALIZATION_TOKEN_CAPTURE_RE.lastIndex = 0;
-  const resolved = source.replace(LOCALIZATION_TOKEN_CAPTURE_RE, (token, namespace, keyPath) => {
+  const resolved = source.replace(LOCALIZATION_TOKEN_CAPTURE_RE, (token, namespace, keyPath, offset) => {
     const translation = files.get(namespace);
     const parts = String(keyPath || "").split(".").filter(Boolean);
     let value = translation && parts.length ? getDeep(translation, parts) : undefined;
@@ -248,7 +272,7 @@ export async function resolveRemainingHtmlLocalization({ emailBaseRoot, html, lo
     if (value == null) return token;
     replacedCount += 1;
     const text = String(value);
-    if (isRtlLocale(normalizedLocale) && text.trim() && !/<bdi\b/i.test(text)) {
+    if (isRtlLocale(normalizedLocale) && isTextPosition(offset) && text.trim() && !/<bdi\b/i.test(text)) {
       return `<bdi>${text}</bdi>`;
     }
     return text;

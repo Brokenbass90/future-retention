@@ -17,11 +17,12 @@
     "stop:mail": "node scripts/stop-port.mjs 3001",
     "build:mail": "node email-base/tools/build-mail.js",
     "enrich:catalog": "node scripts/enrich-block-catalog.mjs",
-    "test": "node scripts/test-rtl.mjs && node scripts/test-locale-align-tool.mjs && node scripts/test-locale-cross-check.mjs && node scripts/test-html-blocks.mjs && node scripts/test-agent-loop.mjs && node scripts/test-locale-crud-tools.mjs && node scripts/test-html-validate.mjs && node scripts/test-email-segment.mjs && node scripts/test-build-mail-localization.mjs && node scripts/test-code-workspace.mjs && node scripts/test-workbench-code-flow.mjs && node scripts/test-compose-save-transaction.mjs && node scripts/test-studio-model-signatures.mjs && node scripts/test-keyed-operation-lock.mjs && node scripts/test-workbench-build-locales.mjs",
+    "test": "node scripts/test-rtl.mjs && node scripts/test-locale-align-tool.mjs && node scripts/test-locale-cross-check.mjs && node scripts/test-html-blocks.mjs && node scripts/test-agent-loop.mjs && node scripts/test-agent-compose.mjs && node scripts/test-locale-crud-tools.mjs && node scripts/test-html-validate.mjs && node scripts/test-email-segment.mjs && node scripts/test-pug-placeholderize.mjs && node scripts/test-build-mail-css-pipeline.mjs && node scripts/test-build-mail-localization.mjs && node scripts/test-code-workspace.mjs && node scripts/test-workbench-code-flow.mjs && node scripts/test-compose-save-transaction.mjs && node scripts/test-block-library-review.mjs && node scripts/test-compose-security.mjs && node scripts/test-mail-source-security.mjs && node scripts/test-studio-model-signatures.mjs && node scripts/test-keyed-operation-lock.mjs && node scripts/test-workbench-build-locales.mjs && node scripts/test-preview-build-coordinator.mjs && node scripts/test-ai-intent-routing.mjs && node scripts/audit-ui-controls.mjs",
     "test:blocks": "node scripts/test-blocks.mjs",
-    "test:constructor-tree": "node scripts/test-constructor-tree-policy.mjs && node scripts/test-compose-tree.mjs",
+    "test:constructor-tree": "node scripts/test-constructor-tree-policy.mjs && node scripts/test-compose-tree.mjs && node scripts/test-style-slots.mjs && node scripts/test-block-library-review.mjs && node scripts/test-compose-security.mjs && node scripts/test-active-base-policy.mjs",
     "visual": "node scripts/visual-gate.mjs",
-    "visual:update": "node scripts/visual-gate.mjs --update"
+    "visual:update": "node scripts/visual-gate.mjs --update",
+    "audit:ui": "node scripts/audit-ui-controls.mjs"
   },
   "dependencies": {
     "csso": "^5.0.5",

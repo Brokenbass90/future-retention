@@ -24,7 +24,7 @@
       "slotId": "content",
       "role": "heading",
       "slots": {
-        "title": "${{ rfm-233-Second-Email.block_04 }}$",
+        "title": "Как воспользоваться предложением",
         "body": "",
         "title_padding": "0 0 32px",
         "body_padding": "0"
@@ -36,7 +36,7 @@
       "role": "step",
       "slots": {
         "number": "1",
-        "text": "${{ rfm-233-Second-Email.block_05 }}$"
+        "text": "Выполните первый шаг инструкции."
       }
     },
     {
@@ -53,7 +53,7 @@
       "role": "step",
       "slots": {
         "number": "2",
-        "text": "${{ rfm-233-Second-Email.block_06 }}$"
+        "text": "Завершите второй шаг и примените промокод."
       }
     },
     {
@@ -61,9 +61,9 @@
       "slotId": "content",
       "role": "promocode",
       "slots": {
-        "label": "${{ rfm-233-Second-Email.block_07 }}$",
-        "code": "${{ rfm-233-Second-Email.block_08 }}$",
-        "hint": "${{ rfm-233-Second-Email.block_09 }}$"
+        "label": "Промокод",
+        "code": "PROMO2026",
+        "hint": "Скопируйте код и используйте его при активации."
       }
     },
     {
@@ -79,7 +79,7 @@
       "slotId": "content",
       "role": "cta",
       "slots": {
-        "label": "${{ rfm-233-Second-Email.block_10 }}$",
+        "label": "Активировать",
         "href": "https://api.iqoption.com/v1/multi-links/deposit?promocode=CLAIM10C&aff=7"
       }
     }
@@ -91,49 +91,49 @@
       "id": "title",
       "kind": "text",
       "label": "Заголовок",
-      "default": "${{ rfm-233-Second-Email.block_04 }}$",
+      "default": "Как воспользоваться предложением",
       "uiGroup": "content"
     },
     {
       "id": "step1",
       "kind": "richText",
       "label": "Шаг 1",
-      "default": "${{ rfm-233-Second-Email.block_05 }}$",
+      "default": "Выполните первый шаг инструкции.",
       "uiGroup": "content"
     },
     {
       "id": "step2",
       "kind": "richText",
       "label": "Шаг 2",
-      "default": "${{ rfm-233-Second-Email.block_06 }}$",
+      "default": "Завершите второй шаг и примените промокод.",
       "uiGroup": "content"
     },
     {
       "id": "promo_label",
       "kind": "text",
       "label": "Лейбл промокода",
-      "default": "${{ rfm-233-Second-Email.block_07 }}$",
+      "default": "Промокод",
       "uiGroup": "content"
     },
     {
       "id": "promo_code",
       "kind": "text",
       "label": "Промокод",
-      "default": "${{ rfm-233-Second-Email.block_08 }}$",
+      "default": "PROMO2026",
       "uiGroup": "content"
     },
     {
       "id": "promo_hint",
       "kind": "text",
       "label": "Подпись",
-      "default": "${{ rfm-233-Second-Email.block_09 }}$",
+      "default": "Скопируйте код и используйте его при активации.",
       "uiGroup": "content"
     },
     {
       "id": "cta_label",
       "kind": "text",
       "label": "Текст кнопки",
-      "default": "${{ rfm-233-Second-Email.block_10 }}$",
+      "default": "Активировать",
       "uiGroup": "content"
     },
     {

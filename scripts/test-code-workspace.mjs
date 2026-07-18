@@ -39,6 +39,12 @@ try {
     block_99: "stale Workbench block",
   }, null, 2) + "\n");
   await put("vendor/data/en/unrelated.json", "{\"keep\":true}\n");
+  await put("vendor/data/ar/assets.json", JSON.stringify({
+    image_url: "https://img.example/ar-hero.png",
+    image_alt: "صورة العرض",
+    link_url: "https://example.com/ar-offer",
+    block_00: "نص عربي",
+  }));
   const sync = await syncWorkbenchLocaleNamespaces({
     emailBaseRoot: root,
     namespaces: [
@@ -92,6 +98,10 @@ try {
   assert.deepEqual(initial.locales.map((entry) => entry.code), ["base", "en", "ru"]);
   assert.equal(initial.defaultLocale, "base");
   assert.equal(initial.locales.find((entry) => entry.code === "ru")?.detached, false);
+  assert.equal(initial.locales.find((entry) => entry.code === "en")?.ready, null);
+  assert.equal(initial.locales.find((entry) => entry.code === "en")?.localization, null);
+  assert.equal(initial.locales.find((entry) => entry.code === "ru")?.ready, null);
+  assert.equal(initial.locales.find((entry) => entry.code === "ru")?.diagnosticsCached, false);
 
   const original = await readCodeHtml({ emailBaseRoot: root, brand, mail, locale: "original" });
   assert.equal(original.html, "<html>${{ promo.block_00 }}$</html>");
@@ -103,6 +113,9 @@ try {
   assert.equal(localizedEn.localization.status, "unresolved");
   assert.equal(localizedEn.localization.replacedCount, 1);
   assert.deepEqual(localizedEn.localization.unresolvedTokens, ["${{ missing.block_00 }}$"]);
+  assert.deepEqual(localizedEn.localization.unresolvedNamespaces, ["missing"]);
+  assert.equal(localizedEn.localization.issueType, "missing-localization-data");
+  assert.match(localizedEn.localization.message, /RTL changes direction only and cannot translate/);
   const inheritedLookup = await resolveRemainingHtmlLocalization({
     emailBaseRoot: root,
     locale: "en",
@@ -111,6 +124,20 @@ try {
   assert.equal(inheritedLookup.html, "<html>${{ promo.constructor.name }}$</html>");
   assert.equal(inheritedLookup.localization.unresolvedCount, 1);
   assert.equal((await readCodeHtml({ emailBaseRoot: root, brand, mail, locale: "ru" })).source, "pug");
+
+  const inspected = await listCodeWorkspace({ emailBaseRoot: root, brand, mail });
+  assert.equal(inspected.locales.find((entry) => entry.code === "en")?.ready, false);
+  assert.equal(inspected.locales.find((entry) => entry.code === "en")?.localization?.unresolvedCount, 1);
+  assert.equal(inspected.locales.find((entry) => entry.code === "ru")?.ready, true);
+  assert.equal(inspected.locales.find((entry) => entry.code === "ru")?.diagnosticsCached, true);
+
+  // Listing uses only path metadata. Replacing a locale invalidates its cached
+  // diagnostics until that locale is explicitly opened again.
+  await put(`dist/${brand}/${mail}/en/index.html`, "<html>fresh en</html>");
+  const invalidated = await listCodeWorkspace({ emailBaseRoot: root, brand, mail });
+  assert.equal(invalidated.locales.find((entry) => entry.code === "en")?.ready, null);
+  assert.equal(invalidated.locales.find((entry) => entry.code === "en")?.diagnosticsCached, false);
+  assert.equal((await readCodeHtml({ emailBaseRoot: root, brand, mail, locale: "en" })).html, "<html>fresh en</html>");
 
   const rtlOnce = await resolveRemainingHtmlLocalization({
     emailBaseRoot: root,
@@ -125,6 +152,15 @@ try {
   });
   assert.equal(rtlTwice.html, rtlOnce.html);
   assert.equal(rtlTwice.localization.replacedCount, 0);
+  const rtlAttributes = await resolveRemainingHtmlLocalization({
+    emailBaseRoot: root,
+    locale: "ar",
+    html: '<html><a href="${{ assets.link_url }}$"><img src="${{ assets.image_url }}$" alt="${{ assets.image_alt }}$"></a><p>${{ assets.block_00 }}$</p></html>',
+  });
+  assert.equal(
+    rtlAttributes.html,
+    '<html><a href="https://example.com/ar-offer"><img src="https://img.example/ar-hero.png" alt="صورة العرض"></a><p><bdi>نص عربي</bdi></p></html>',
+  );
 
   const detached = await saveCodeHtmlOverride({
     emailBaseRoot: root,

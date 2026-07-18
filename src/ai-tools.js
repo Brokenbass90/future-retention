@@ -32,8 +32,9 @@ import { analyzeLocaleAgainstHtml } from "./locale-analyze.js";
 import { compareLocales } from "./locale-cross-check.js";
 import { listHtmlSections, insertHtml, removeHtml } from "./html-blocks.js";
 import { validateHtml } from "./html-validate.js";
-import { composeEmailFromBlocks, listCanonicalBlocks, loadCanonicalBlock, userBlockPath, userBlockDir } from "./compose-email.js";
-import { readFileSync as _readFileSyncBlocks, writeFileSync as _writeFileSyncBlocks, mkdirSync as _mkdirSyncBlocks, rmSync as _rmSyncBlocks, existsSync as _existsSyncBlocks } from "node:fs";
+import { composeEmailFromBlocks, listCanonicalBlocks, loadCanonicalBlock, userBlockPath } from "./compose-email.js";
+import { saveUserBlockWithLifecycle } from "./block-library-review.js";
+import { rmSync as _rmSyncBlocks, existsSync as _existsSyncBlocks } from "node:fs";
 
 function serializeBlocks(blocks) {
   return Array.isArray(blocks) && blocks.length
@@ -387,8 +388,8 @@ export const TOOL_DEFINITIONS = [
     type: "function",
     name: "list_canonical_blocks",
     description:
-      "List every block in the canonical library (data/block-library/canonical/). " +
-      "Each entry has id, label, placement (section / inline / helper), category, slots[]. " +
+      "List only release-safe canonical blocks (never imported/legacy campaign slices). " +
+      "Each entry has id, label, placement (outer / section / inner), combo, childSlots and slots[]. " +
       "Use this BEFORE compose_email_from_blocks so you know which ids exist and what slots they expect.",
     parameters: {
       type: "object",
@@ -470,11 +471,12 @@ export const TOOL_DEFINITIONS = [
     type: "function",
     name: "compose_email_from_blocks",
     description:
-      "Assemble a new email from canonical blocks. Each block is a pre-tested, " +
-      "production-ready pug+stylus pair; composition is guaranteed renderable. " +
-      "Provide an ordered list of `{ id, slots: {...} }` — slots not provided use " +
-      "their schema defaults. Server scaffolds a fresh mail folder under " +
-      "email-base/<brand>/mail-<mailName>/ and runs build-mail.js. " +
+      "Scaffold a new email source from release-safe canonical blocks. Each block is a " +
+      "pre-tested Pug+Stylus pair. The simplest input is an ordered list of top-level " +
+      "section/combo `{ id, slots }` entries. For a custom three-level tree, every entry " +
+      "must include a unique `uid` and `parentUid` (null for the root); use `slotId` to " +
+      "target the parent's child slot. Missing slot values use schema defaults. The " +
+      "server writes email-base/<brand>/mail-<mailName>/; build/open it in Workbench next. " +
       "Use this when the user asks to create a NEW email from scratch (welcome, " +
       "transactional, simple promo) rather than editing an existing one.",
     parameters: {
@@ -492,6 +494,9 @@ export const TOOL_DEFINITIONS = [
             additionalProperties: false,
             properties: {
               id: { type: "string", description: "Canonical block id (use list_canonical_blocks to discover)." },
+              uid: { type: ["string", "number"], description: "Stable node id. Required on every entry when explicit tree mode is used." },
+              parentUid: { type: ["string", "number", "null"], description: "Parent node uid, or null for a root. If present on one entry, provide it on all entries." },
+              slotId: { type: "string", description: "Named child slot on the parent, e.g. sections or content." },
               slots: {
                 type: "object",
                 additionalProperties: true,
@@ -957,7 +962,10 @@ export const TOOL_HANDLERS = {
   },
 
   async list_canonical_blocks(_args, _ctx) {
-    const blocks = listCanonicalBlocks();
+    // Imported blocks are validated as historical source fragments, not as a
+    // mutually compatible design system. Feeding all 955 legacy slices to the
+    // model wastes context and lets campaign assets/styles leak into new mail.
+    const blocks = listCanonicalBlocks().filter((block) => block.source === "canonical");
     return {
       count: blocks.length,
       blocks: blocks.map((b) => ({
@@ -969,8 +977,13 @@ export const TOOL_HANDLERS = {
         source: b.source,
         tags: b.tags || [],
         usageCount: b.usageCount || 0,
+        combo: b.combo === true,
         hasMobileStyles: /@media/i.test(b.styl || ""),
         stylBytes: (b.styl || "").length,
+        childSlots: (b.childSlots || []).map((slot) => ({
+          id: slot.id,
+          accepts: Array.isArray(slot.accepts) ? slot.accepts : [],
+        })),
         slots: (b.slots || []).map((s) => ({
           id: s.id, kind: s.kind, label: s.label,
           default: s.default, max: s.max, min: s.min, options: s.options,
@@ -1006,10 +1019,6 @@ export const TOOL_HANDLERS = {
     if (existing && existing.source && existing.source !== "user") {
       throw new Error(`id '${id}' belongs to a ${existing.source} block — save under a new id`);
     }
-    if (_existsSyncBlocks(target) && !args?.force) {
-      throw new Error("user block already exists — pass force=true to overwrite");
-    }
-    _mkdirSyncBlocks(userBlockDir(), { recursive: true });
     const slots = Array.isArray(args?.slots) ? args.slots.map((sl) => ({
       id: String(sl?.id || "").trim(),
       kind: String(sl?.kind || "text"),
@@ -1031,8 +1040,18 @@ export const TOOL_HANDLERS = {
       tags: Array.isArray(args?.tags) ? args.tags.slice(0, 12).map(String) : [],
       createdAt: new Date().toISOString(),
     };
-    _writeFileSyncBlocks(target, JSON.stringify(blockJson, null, 2) + "\n", "utf8");
-    return { ok: true, id, slots: slots.length };
+    const saved = await saveUserBlockWithLifecycle({
+      payload: blockJson,
+      target,
+      force: Boolean(args?.force),
+    });
+    return {
+      ok: true,
+      id,
+      slots: slots.length,
+      review: saved.review,
+      validation: saved.validation,
+    };
   },
 
   async delete_user_block(args, _ctx) {
@@ -1091,10 +1110,22 @@ export const TOOL_HANDLERS = {
 
   async compose_email_from_blocks(args, ctx) {
     try {
+      const requested = Array.isArray(args.blocks) ? args.blocks : [];
+      const unsafeIds = requested.map((entry) => String(entry?.id || "").trim()).filter((id) => {
+        if (!id) return true;
+        try { return loadCanonicalBlock(id).source !== "canonical"; }
+        catch { return true; }
+      });
+      if (unsafeIds.length) {
+        return {
+          error: `compose_email_from_blocks accepts canonical ids only; unavailable/legacy: ${[...new Set(unsafeIds)].join(", ")}`,
+          hint: "Call list_canonical_blocks and choose from that result.",
+        };
+      }
       const result = composeEmailFromBlocks({
         brand: args.brand || "X_assembled",
         mailName: args.mailName,
-        blocks: args.blocks || [],
+        blocks: requested,
       });
       // Stash where the mail landed so `finish` can mention it.
       ctx.composedMailPath = result.destDir;

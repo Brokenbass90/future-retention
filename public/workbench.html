@@ -144,6 +144,9 @@
         <div class="convert-error hidden" id="convertError"></div>
       </div>
       <div class="editor-actions">
+        <button class="editor-action-btn" id="aiPlaceholdersBtn" style="color:#c4b5fd;border-color:rgba(139,92,246,.45)" title="Расставить плейсхолдеры по reference-локали. В письме из базы меняется Pug-исходник, а не скомпилированный HTML.">
+          ✱ Плейсхолдеры
+        </button>
         <!-- Save source file button — shown only in source edit mode -->
         <button class="editor-action-btn hidden" id="saveSourceBtn" style="color:#22c55e;border-color:rgba(34,197,94,.4)" title="Сохранить файл источника (Ctrl+S)">
           <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M2 1h8l3 3v9H2V1z" stroke="currentColor" stroke-width="1.4"/><rect x="4" y="8" width="6" height="5" rx=".5" stroke="currentColor" stroke-width="1.3"/><path d="M5 1v3h4" stroke="currentColor" stroke-width="1.3"/></svg>
@@ -194,7 +197,7 @@
       <button class="find-btn" id="replaceOneBtn">Заменить</button>
       <button class="find-btn" id="replaceAllBtn">Все</button>
       <span class="find-count" id="findCount"></span>
-      <button class="find-close-btn" id="findCloseBtn">✕</button>
+      <button class="find-close-btn" id="findCloseBtn" title="Закрыть поиск">✕</button>
     </div>
 
     <!-- Pug → localized HTML workspace -->
@@ -207,11 +210,11 @@
       </label>
       <span class="compiled-locale-status" id="compiledLocaleStatus" data-state="linked">Связана с Pug</span>
       <span class="compiled-localization-status hidden" id="compiledLocalizationStatus"></span>
-      <button class="compiled-view-back" id="compiledViewBackBtn">← Назад к исходникам</button>
+      <button class="compiled-view-back" id="compiledViewBackBtn">← Вернуться к Pug</button>
       <button class="compiled-view-edit-html" id="compiledViewEditHtmlBtn" title="Создать независимую ручную версию только для выбранной локали">✏️ Править HTML</button>
       <button class="compiled-view-save-html hidden" id="compiledViewSaveHtmlBtn">Сохранить локаль</button>
       <button class="compiled-view-cancel-html hidden" id="compiledViewCancelHtmlBtn">Отменить</button>
-      <button class="compiled-view-reset-html hidden" id="compiledViewResetHtmlBtn" title="Удалить ручную версию и снова взять эту локаль из Pug-сборки">↺ Вернуть из Pug</button>
+      <button class="compiled-view-reset-html hidden" id="compiledViewResetHtmlBtn" title="Удалить ручную HTML-версию и снова связать локаль с Pug-сборкой">↺ Удалить override · вернуть Pug</button>
     </div>
 
     <!-- Blocks shelf — drag & drop email block constructor -->
@@ -262,7 +265,7 @@
 
     <div class="validation-bar hidden" id="validationBar">
       <div class="validation-inner" id="validationInner"></div>
-      <button class="validation-close" id="validationClose">✕</button>
+      <button class="validation-close" id="validationClose" title="Закрыть результаты проверки">✕</button>
     </div>
 
     <!-- AI Chat drawer -->
@@ -276,7 +279,7 @@
         </div>
         <div class="ai-handle-right">
           <span class="ai-token-counter" id="aiTokenCounter" hidden>🪙 0</span>
-          <button class="ai-drawer-toggle" id="aiDrawerToggle">
+          <button class="ai-drawer-toggle" id="aiDrawerToggle" title="Открыть или свернуть AI-помощник">
             <svg width="14" height="14" viewBox="0 0 14 14" id="aiToggleIcon">
               <path d="M2 4.5l5-3 5 3M2 9.5l5 3 5-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -304,7 +307,7 @@
           </button>
           <input type="file" id="aiImageInput" accept="image/*" hidden />
           <textarea class="ai-input" id="aiInput" placeholder="Напиши задачу... (Enter — отправить, Shift+Enter — новая строка)" rows="2"></textarea>
-          <button class="ai-send-btn" id="aiSendBtn">
+          <button class="ai-send-btn" id="aiSendBtn" title="Отправить запрос к AI">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M14 8L2 2l3 6-3 6 12-6z" fill="currentColor"/></svg>
           </button>
         </div>
@@ -334,7 +337,8 @@
       <button class="pencil-toggle" id="pencilToggle" title="Pencil mode — click any element in the preview to edit" aria-pressed="false">🖊</button>
       <button class="pencil-toggle" id="previewMaxBtn" title="Развернуть письмо на весь экран (скрыть код)" aria-pressed="false">⛶</button>
       <button class="pencil-toggle" id="previewRtlBtn" title="Сделать письмо RTL (право-центрировать). Идемпотентно — можно жать повторно.">⇄ RTL</button>
-      <button class="pencil-toggle" id="blocksPaletteToggle" title="Блоки — перетащи в письмо" aria-pressed="false">🧩 Блоки</button>
+      <button class="pencil-toggle hidden" id="blocksPaletteToggle" title="Блоки — перетащи в письмо" aria-pressed="false">🧩 Блоки</button>
+      <button class="pencil-toggle" id="backToConstructorBtn" title="Увести письмо обратно в DnD-конструктор и доделать там">🎨 В конструктор</button>
       <div style="flex:1"></div>
       <div class="preview-ns-label hidden" id="previewNsLabel"></div>
     </div>
@@ -497,7 +501,7 @@
     </div>
     <div class="modal-header-right">
       <span class="block-count-badge" id="localeBlockBadge"></span>
-      <button class="modal-close" id="closeLocaleEditBtn">✕</button>
+        <button class="modal-close" id="closeLocaleEditBtn" title="Закрыть редактор локали">✕</button>
     </div>
   </div>
   <div class="modal-body locale-edit-body">
@@ -527,7 +531,7 @@
 <div class="modal hidden" id="addLocaleModal">
   <div class="modal-header">
     <h2>Добавить локаль</h2>
-    <button class="modal-close" id="closeAddLocaleBtn">✕</button>
+    <button class="modal-close" id="closeAddLocaleBtn" title="Закрыть создание локали">✕</button>
   </div>
   <div class="modal-body">
     <div class="settings-row">
@@ -558,7 +562,7 @@
 <div class="modal hidden" id="aiSettingsModal">
   <div class="modal-header">
     <h2>Настройки AI</h2>
-    <button class="modal-close" id="closeAiSettingsBtn">✕</button>
+    <button class="modal-close" id="closeAiSettingsBtn" title="Закрыть настройки AI">✕</button>
   </div>
   <div class="modal-body">
     <div class="settings-row"><label>API Key</label><div class="settings-status" id="aiKeyStatus">—</div></div>
@@ -571,7 +575,7 @@
 <div class="ph-picker hidden" id="phPicker">
   <div class="ph-picker-header">
     <span class="ph-picker-title" id="phPickerTitle"></span>
-    <button class="ph-picker-close" id="phPickerClose">✕</button>
+    <button class="ph-picker-close" id="phPickerClose" title="Закрыть выбор плейсхолдера">✕</button>
   </div>
   <div class="ph-picker-list" id="phPickerList"></div>
 </div>
@@ -651,7 +655,7 @@
 <div class="modal brand-modal hidden" id="brandModal">
   <div class="modal-header">
     <h2 id="brandModalTitle">Создать бренд</h2>
-    <button class="modal-close" id="closeBrandModalBtn">✕</button>
+    <button class="modal-close" id="closeBrandModalBtn" title="Закрыть настройки бренда">✕</button>
   </div>
   <div class="modal-body brand-modal-body">
     <div class="brand-modal-cols">
@@ -725,7 +729,7 @@
 <div class="modal hidden" id="mismatchModal" style="max-width:520px">
   <div class="modal-header">
     <h2>⚠ Ошибки в блоках</h2>
-    <button class="modal-close" id="closeMismatchBtn">✕</button>
+    <button class="modal-close" id="closeMismatchBtn" title="Закрыть проверку локалей">✕</button>
   </div>
   <div class="modal-body" id="mismatchBody" style="gap:6px;max-height:60vh;overflow-y:auto"></div>
   <div class="modal-footer" style="justify-content:flex-end">
@@ -738,7 +742,7 @@
 <div class="modal hidden" id="saveToBaseModal" style="max-width:380px">
   <div class="modal-header">
     <h2>Сохранить в базу писем</h2>
-    <button class="modal-close" id="closeSaveToBaseBtn">✕</button>
+    <button class="modal-close" id="closeSaveToBaseBtn" title="Закрыть сохранение в базу">✕</button>
   </div>
   <div class="modal-body" style="display:flex;flex-direction:column;gap:14px;padding:18px 20px">
     <div>
@@ -757,7 +761,7 @@
       <div style="font-size:10px;color:var(--text-3);margin-top:3px">Папка: <code id="saveToBasePreview">mail-…</code></div>
     </div>
     <div style="display:flex;gap:8px;align-items:flex-start;font-size:12px;line-height:1.4;background:rgba(255,255,255,.02);padding:9px 11px;border-radius:6px;border:1px solid var(--border, rgba(255,255,255,.08))">
-      <input type="checkbox" id="saveToBaseRawHtml" style="margin-top:2px" />
+      <input type="checkbox" id="saveToBaseRawHtml" style="margin-top:2px" checked />
       <label for="saveToBaseRawHtml" style="cursor:pointer">
         <strong>Сохранить как готовый HTML</strong> (без Pug/Stylus)<br>
         <span style="color:var(--text-3);font-size:11px">Используй для импорта вёрстки извне — HTML кладётся в письмо как есть, build-mail.js пропускает компиляцию, прогоняет только локализацию и RTL.</span>

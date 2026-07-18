@@ -38,13 +38,9 @@ const ROLE_TO_CATEGORY = {
 
 // When several section blocks share a category, prefer these ids.
 const PREFERRED_BLOCK_BY_CATEGORY = {
-  header: "header-logo",
-  hero: "hero-stack",
-  text: "text-block",
-  cta: "cta-banner",
-  "feature-list": "three-promo-column-row",
-  footer: "legal-unsubscribe-footer",
-  image: "header-logo-row",
+  hero: "iq-combo-hero-233",
+  cta: "iq-combo-promo-steps",
+  footer: "iq-footer",
 };
 
 function clean(v) { return typeof v === "string" ? v.trim() : ""; }
@@ -105,12 +101,26 @@ function fillSlots(block, texts, images, sectionStyle, tokens) {
     return null;
   };
 
-  const firstImageUrl = () => {
-    const img = images.find((i) => i.assetSource?.url || i.assetSource?.dataUrl || i.url);
+  const imageUrl = (img) => img && (img.assetSource?.url || img.assetSource?.dataUrl || img.url);
+  const imageLooksLike = (img, role) => {
+    const hint = [img?.roleHint, img?.name, img?.alt, img?.id].map(clean).join(" ").toLowerCase();
+    return hint.includes(role);
+  };
+  const imageForSlot = (id) => {
+    let img = null;
+    if (/logo/.test(id)) img = images.find((candidate) => imageUrl(candidate) && imageLooksLike(candidate, "logo"));
+    else if (/(?:hero|head|banner|image|asset)/.test(id)) {
+      img = images.find((candidate) => imageUrl(candidate) && !imageLooksLike(candidate, "logo"));
+    }
+    if (!img && !/logo/.test(id)) img = images.find((candidate) => imageUrl(candidate));
+    return img;
+  };
+  const firstImageUrl = (id) => {
+    const img = imageForSlot(id);
     return img ? (img.assetSource?.url || img.assetSource?.dataUrl || img.url) : null;
   };
-  const firstImageAlt = () => {
-    const img = images.find((i) => clean(i.alt));
+  const firstImageAlt = (id) => {
+    const img = imageForSlot(id) || images.find((i) => clean(i.alt));
     return img ? clean(img.alt) : null;
   };
 
@@ -118,7 +128,7 @@ function fillSlots(block, texts, images, sectionStyle, tokens) {
     const id = clean(slot.id).toLowerCase();
     const kind = clean(slot.kind) || "text";
     if (kind === "image") {
-      const url = firstImageUrl();
+      const url = firstImageUrl(id);
       if (url) slots[slot.id] = url;
       continue;
     }
@@ -135,11 +145,21 @@ function fillSlots(block, texts, images, sectionStyle, tokens) {
     if (kind === "select") continue;
     // text / richText
     let node = null;
-    if (/title|heading|head|subtitle|eyebrow/.test(id)) node = takeFrom([headings, others, bodies]);
-    else if (/body|copy|text|paragraph|desc/.test(id)) node = takeFrom([bodies, others, headings]);
-    else if (/cta|label|button/.test(id)) node = takeFrom([ctas, others]);
-    else if (/alt/.test(id)) { const a = firstImageAlt(); if (a) slots[slot.id] = a; continue; }
-    else node = takeFrom([others, headings, bodies]);
+    if (/alt/.test(id)) { const a = firstImageAlt(id); if (a) slots[slot.id] = a; continue; }
+    if (/(?:^|_)(?:cta|button|action)(?:_label|_text)?$/.test(id) || /(?:cta|button|action)_label/.test(id)) {
+      node = takeFrom([ctas]);
+    } else if (/(?:^|_)(?:title|heading|headline)(?:_|$)/.test(id)) {
+      node = takeFrom([headings, others]);
+    } else if (/(?:^|_)(?:body|copy|text|paragraph|description|desc)(?:_|$)/.test(id)) {
+      node = takeFrom([bodies, others]);
+    } else if (/(?:^|_)(?:date|eyebrow|kicker)(?:_|$)/.test(id)) {
+      node = takeFrom([others]);
+    } else {
+      // Product-specific labels/codes/step numbers keep their canonical
+      // defaults. Do not consume a heading or CTA merely because the slot id
+      // contains the generic word "label".
+      node = takeFrom([others]);
+    }
     if (node) slots[slot.id] = clean(node.text);
   }
   return { slots, styleSlotsFilled };
@@ -163,7 +183,11 @@ export function buildComposePlanFromDesign({ schema, library = null } = {}) {
   if (!schema || typeof schema !== "object") {
     return { plan: [], sections: [], styleTokens: {}, styleSlotGap: false, warnings: ["no schema"] };
   }
-  const blocks = Array.isArray(library) ? library : listCanonicalBlocks();
+  const blocks = (Array.isArray(library) ? library : listCanonicalBlocks())
+    // Imported slices are historical campaign fragments. They can depend on
+    // foreign CSS, assets and parent tables, so deterministic design compose
+    // must never pick one merely because its category happens to match.
+    .filter((block) => block?.source === "canonical");
   const sectionBlocks = blocks.filter((b) => clean(b.placement) === "section");
   const allTexts = Array.isArray(schema.textNodes) ? schema.textNodes : [];
   const allImages = Array.isArray(schema.imageSlots) ? schema.imageSlots : [];

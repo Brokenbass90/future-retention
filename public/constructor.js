@@ -29,6 +29,7 @@ const state = {
   brand: "all",
   cat: "all",
   mobileOnly: false,
+  sourceScope: "curated",
   renderCap: 60,
   railMode: "blocks",
   autoPalette: true,
@@ -218,6 +219,20 @@ function findDefaultBlock(placement) {
   return state.library.find((b) => placementOf(b) === placement && b.source !== "parsed") || null;
 }
 
+function markEntrySlotExplicit(entry, slotId) {
+  if (!entry || !slotId) return;
+  const id = String(slotId);
+  if (!Array.isArray(entry.explicitSlots)) entry.explicitSlots = [];
+  if (!entry.explicitSlots.includes(id)) entry.explicitSlots.push(id);
+}
+
+function clearEntrySlotExplicit(entry, slotId) {
+  if (!entry || !Array.isArray(entry.explicitSlots)) return;
+  const id = String(slotId);
+  entry.explicitSlots = entry.explicitSlots.filter((candidate) => candidate !== id);
+  if (!entry.explicitSlots.length) delete entry.explicitSlots;
+}
+
 function createEntry(block, opts = {}) {
   const entry = {
     uid: opts.uid ?? nextUid(),
@@ -228,6 +243,9 @@ function createEntry(block, opts = {}) {
     slots: defaultSlotsFor(block, opts.slots),
     ...(opts.recipeInstanceId ? { recipeInstanceId: opts.recipeInstanceId } : {}),
   };
+  if (Array.isArray(opts.explicitSlots) && opts.explicitSlots.length) {
+    entry.explicitSlots = [...new Set(opts.explicitSlots.map(String).filter(Boolean))];
+  }
   if (opts.appearance && typeof opts.appearance === "object" && Object.keys(opts.appearance).length) {
     entry.appearance = { ...opts.appearance };
   }
@@ -276,8 +294,15 @@ function setCatalogFilter(filter, { manual = false } = {}) {
   document.querySelectorAll(".cat-tab").forEach((tab) => {
     tab.classList.toggle("active", tab.dataset.filter === filter);
   });
-  $("paletteAutoBtn")?.classList.toggle("active", state.autoPalette);
+  updatePaletteAutoButton();
   renderCatalog();
+}
+
+function updatePaletteAutoButton() {
+  const button = $("paletteAutoBtn");
+  if (!button) return;
+  button.classList.toggle("active", state.autoPalette);
+  button.setAttribute("aria-pressed", String(state.autoPalette));
 }
 
 function isComboBlock(block) {
@@ -355,7 +380,7 @@ function syncPaletteToSelection() {
     hint = parent ? `Следующий блок попадёт рядом в «${selected.slotId || "content"}»` : "Выбери контейнер для блока";
   }
 
-  $("paletteAutoBtn")?.classList.toggle("active", state.autoPalette);
+  updatePaletteAutoButton();
 
   const path = selected ? selectionPath(selected) : ["Письмо"];
   if ($("paletteBreadcrumb")) $("paletteBreadcrumb").textContent = path.join("  ›  ");
@@ -387,12 +412,37 @@ function brandOf(b) {
 }
 function hasMobile(b) { return /@media/i.test(b.styl || ""); }
 
+function blockReviewStatus(block) {
+  if (block?.source === "canonical") return "approved";
+  const status = block?.review?.status;
+  return ["draft", "candidate", "approved"].includes(status) ? status : "draft";
+}
+
+function blockReviewLabel(block) {
+  const status = blockReviewStatus(block);
+  if (status === "approved") return "approved";
+  if (status === "candidate") return "candidate";
+  return "draft";
+}
+
+function blockCatalogUsable(block) {
+  return block?.source !== "user" || blockReviewStatus(block) !== "draft";
+}
+
+function catalogSourceAllowed(block, scope = "curated") {
+  if (!block || block.source === "parsed") return false;
+  if (scope === "all") return true;
+  if (scope === "user") return block.source === "user";
+  const reviewStatus = block?.review?.status;
+  return block.source === "canonical"
+    || (block.source === "user" && reviewStatus === "approved");
+}
+
 function applyCatalogFilters() {
   const f = state.filter;
   const q = state.q.trim().toLowerCase();
   return state.library.filter((b) => {
-    if (b.source === "parsed") return false;
-    if (b.source === "imported") return false;
+    if (!catalogSourceAllowed(b, state.sourceScope)) return false;
     const isCombo = isComboBlock(b);
     const isComboDivider = b.placement === "section" && (b.tags || []).includes("combo-divider");
     if (f === "combo") { if (!isCombo && !isComboDivider) return false; }
@@ -415,7 +465,15 @@ function renderCatalog() {
   const list = $("catalogList");
   const filtered = applyCatalogFilters();
   const counter = $("catCount");
-  if (counter) counter.textContent = `${filtered.length} из ${state.library.length} блоков`;
+  const sourceTotal = state.library.filter((block) => catalogSourceAllowed(block, state.sourceScope)).length;
+  if (counter) counter.textContent = `${filtered.length} из ${sourceTotal} блоков`;
+  const sourceWarning = $("catLegacyWarning");
+  if (sourceWarning) {
+    sourceWarning.classList.toggle("hidden", state.sourceScope === "curated");
+    sourceWarning.textContent = state.sourceScope === "user"
+      ? "Draft не прошёл детерминированную проверку и не вставляется в письмо. Candidate уже компилируется, но попадёт в «Проверенные» только после ручного одобрения. AI-review можно добавить позже как совет, не как пропуск."
+      : "Legacy-блоки вырезаны из старых писем: их стили и картинки относятся к конкретным кампаниям и могут плохо сочетаться между собой.";
+  }
   if (!filtered.length) {
     list.innerHTML = `<div class="cat-empty">Ничего не найдено. Сбрось фильтры или поменяй запрос.</div>`;
     return;
@@ -424,12 +482,16 @@ function renderCatalog() {
   const visible = filtered.slice(0, state.renderCap);
   for (const b of visible) {
     const el = document.createElement("div");
-    el.className = "cat-item" + (b.source === "user" ? " cat-item-user" : "");
-    el.draggable = true;
+    const reviewStatus = blockReviewStatus(b);
+    const usable = blockCatalogUsable(b);
+    el.className = "cat-item" + (b.source === "user" ? ` cat-item-user review-${reviewStatus}` : "") + (b.source === "imported" ? " cat-item-legacy" : "") + (!usable ? " cat-item-disabled" : "");
+    el.draggable = usable;
     el.dataset.blockId = b.id;
     el.dataset.blockSource = b.source || "";
     el.dataset.placement = b.placement || "";
-    el.title = "Перетащи на канвас (или клик чтобы добавить в конец)";
+    el.title = usable
+      ? "Перетащи на канвас (или клик чтобы добавить в конец)"
+      : "Draft нельзя вставить: открой код и исправь ошибки проверки";
     const slotCount = (b.slots || []).length;
     const isUser = b.source === "user";
     el.innerHTML = `
@@ -437,12 +499,14 @@ function renderCatalog() {
       <div class="cat-item-head">
         <span class="cat-item-icon">${PLACEMENT_ICON[b.placement] || "📐"}</span>
         <span>${escapeHtml(b.label || b.id)}</span>
-        ${isUser ? `<span class="cat-item-badge" title="User-saved block">👤</span>` : ""}
+        ${isUser ? `<span class="cat-item-badge block-review-badge review-${reviewStatus}" title="Статус ручного блока: ${reviewStatus}">${blockReviewLabel(b)}</span>` : ""}
+        ${b.source === "imported" ? `<span class="cat-item-badge" title="Legacy: стили и ассеты из конкретного старого письма">legacy</span>` : ""}
         <button class="cat-item-view" data-view-id="${escapeHtml(b.id)}" title="Посмотреть исходник (pug/styl/слоты)">👁</button>
+        ${isUser && reviewStatus === "candidate" ? `<button class="cat-item-approve" data-approve-id="${escapeHtml(b.id)}" title="Повторно проверить и перевести в approved">✓</button>` : ""}
         ${isUser ? `<button class="cat-item-edit" data-edit-id="${escapeHtml(b.id)}" title="Редактировать pug/styl/слоты этого блока">✎</button>` : ""}
         ${isUser ? `<button class="cat-item-del" data-del-id="${escapeHtml(b.id)}" title="Удалить этот user-блок">✕</button>` : ""}
       </div>
-      <div class="cat-item-desc">${escapeHtml(b.description || "")}</div>
+      <div class="cat-item-desc">${escapeHtml(b.description || "")}${b.source === "imported" ? `<div class="cat-legacy-note">Картинки и CSS из исходной кампании — проверь перед использованием.</div>` : ""}</div>
       <div class="cat-item-meta">
         <span class="pill">${b.placement || "?"}</span>
         <span class="pill">${b.category || "?"}</span>
@@ -473,9 +537,20 @@ function renderCatalog() {
         if (blk) openBlockAuthor(blk);
         return;
       }
+      const approveBtn = e.target.closest(".cat-item-approve");
+      if (approveBtn) {
+        e.stopPropagation();
+        approveUserBlock(approveBtn.dataset.approveId);
+        return;
+      }
+      if (!usable) {
+        alert("Этот блок пока draft: он не прошёл проверку Pug/Stylus или контрактов слотов. Открой ✎, исправь ошибку и сохрани снова.");
+        return;
+      }
       addToCanvas(b, { origin: "catalog" });
     });
     el.addEventListener("dragstart", (e) => {
+      if (!usable) { e.preventDefault(); return; }
       e.dataTransfer.effectAllowed = "copy";
       e.dataTransfer.setData("application/x-retkit-block", b.id);
       e.dataTransfer.setData("application/x-retkit-block-source", b.source || "");
@@ -515,6 +590,7 @@ function openBlockView(b) {
   $("viewTitle").textContent = `👁 ${b.label || b.id} — ${b.id}`;
   $("viewMeta").innerHTML = [
     ["placement", b.placement], ["category", b.category], ["источник", brandOf(b)],
+    ...(b.source === "user" ? [["review", blockReviewStatus(b)]] : []),
     ["используется в", (b.usageCount || 0) + " письмах"],
     ["мобильные стили", hasMobile(b) ? "да" : "нет"],
   ].map(([k, v]) => `<span class="pill">${escapeHtml(k)}: ${escapeHtml(String(v ?? "?"))}</span>`).join(" ");
@@ -647,6 +723,11 @@ function instantiateCombo(block, opts = {}) {
         current.blockId = def.id;
         current.blockSource = def.source || undefined;
         current.slots = defaultSlotsFor(def, child.slots);
+        if (Array.isArray(child.explicitSlots) && child.explicitSlots.length) {
+          current.explicitSlots = [...new Set(child.explicitSlots.map(String).filter(Boolean))];
+        } else {
+          delete current.explicitSlots;
+        }
         current.appearance = child.appearance && typeof child.appearance === "object" ? { ...child.appearance } : {};
         current.recipeInstanceId = recipeInstanceId;
         last = current;
@@ -678,6 +759,7 @@ function instantiateCombo(block, opts = {}) {
       parentUid: parent?.uid ?? null,
       slotId: slot?.id || "root",
       slots: child.slots,
+      explicitSlots: child.explicitSlots,
       appearance: child.appearance,
       recipeInstanceId,
     });
@@ -717,11 +799,16 @@ function addToCanvas(block, options = {}) {
       existing.blockId = block.id;
       existing.blockSource = block.source || undefined;
       existing.slots = defaultSlotsFor(block, opts.slots);
+      if (Array.isArray(opts.explicitSlots) && opts.explicitSlots.length) {
+        existing.explicitSlots = [...new Set(opts.explicitSlots.map(String).filter(Boolean))];
+      } else {
+        delete existing.explicitSlots;
+      }
       existing.slotId = "root";
       finishCanvasMutation(existing.uid, block, opts.origin);
       return;
     }
-    const entry = createEntry(block, { parentUid: null, slotId: "root", slots: opts.slots });
+    const entry = createEntry(block, { parentUid: null, slotId: "root", slots: opts.slots, explicitSlots: opts.explicitSlots });
     state.canvas.unshift(entry);
     finishCanvasMutation(entry.uid, block, opts.origin);
     return;
@@ -769,6 +856,7 @@ function addToCanvas(block, options = {}) {
     parentUid: parent.uid,
     slotId: slot.id,
     slots: opts.slots,
+    explicitSlots: opts.explicitSlots,
     recipeInstanceId: opts.recipeInstanceId,
   });
   insertEntryAfterSiblings(entry, opts.afterUid, opts.beforeUid);
@@ -1194,7 +1282,10 @@ const COMMON_APPEARANCE_FIELDS = Object.freeze([
 
 function commonAppearanceBindings(block) {
   const slots = Array.isArray(block?.slots) ? block.slots : [];
-  return COMMON_APPEARANCE_FIELDS.map((field) => {
+  const fields = placementOf(block) === "outer"
+    ? COMMON_APPEARANCE_FIELDS.filter((field) => field.key === "background_color")
+    : COMMON_APPEARANCE_FIELDS;
+  return fields.map((field) => {
     const slot = slots.find((candidate) => field.slotIds.includes(String(candidate.id || "").toLowerCase())
       && (field.kind !== "color" || String(candidate.kind || "").toLowerCase() === "color"));
     return { ...field, slot: slot || null };
@@ -1219,9 +1310,12 @@ function renderFallbackAppearanceControl(binding, entry, block) {
 }
 
 function renderCommonAppearance(block, entry, bindings) {
+  const hint = placementOf(block) === "outer"
+    ? "Фон применяется к реальным body, внешней таблице и оболочке письма."
+    : "Фон, рамка и радиус применяются к корню блока; padding — к первой email-ячейке.";
   return `<section class="insp-group insp-surface-group" data-group="surface">
-    <div class="insp-group-title"><span>◐</span><span>Поверхность блока</span><button type="button" class="insp-reset-appearance" data-reset-appearance-all title="Вернуть все четыре поля к настройкам блока">Сбросить</button></div>
-    <div class="insp-surface-hint">Фон, рамка и радиус применяются к корню блока; padding — к первой email-ячейке.</div>
+    <div class="insp-group-title"><span>◐</span><span>Поверхность блока</span><button type="button" class="insp-reset-appearance" data-reset-appearance-all title="Вернуть оформление к настройкам блока">Сбросить</button></div>
+    <div class="insp-surface-hint">${hint}</div>
     ${bindings.map((binding) => binding.slot
       ? renderSlotControl(binding.slot, entry.slots[binding.slot.id], block)
       : renderFallbackAppearanceControl(binding, entry, block)).join("")}
@@ -1257,7 +1351,7 @@ function renderInspector() {
     <button class="btn" data-act="code" type="button" title="Открыть код блока (pug+styl)">⟨⟩ Код</button>
     <button class="btn" data-act="del" type="button" title="Удалить блок из письма">🗑</button>
   </div>`;
-  const appearanceBindings = placementOf(block) === "outer" ? [] : commonAppearanceBindings(block);
+  const appearanceBindings = commonAppearanceBindings(block);
   const commonSlotIds = new Set(appearanceBindings.map((binding) => binding.slot?.id).filter(Boolean));
   if (appearanceBindings.length) html += renderCommonAppearance(block, entry, appearanceBindings);
   const groups = { content: [], assets: [], appearance: [], advanced: [] };
@@ -1306,6 +1400,7 @@ function renderInspector() {
       let v = el.value;
       if (el.type === "number") v = Number(v);
       entry.slots[id] = v;
+      markEntrySlotExplicit(entry, id);
       // Keep the paired color text/swatch inputs in sync.
       if (el.type === "color" || (el.type === "text" && el.previousElementSibling?.type === "color")) {
         body.querySelectorAll(`[data-slot-id="${CSS.escape(id)}"]`).forEach((other) => {
@@ -1341,6 +1436,7 @@ function renderInspector() {
       if (!slot) return;
       pushCanvasUndo();
       entry.slots[id] = Object.prototype.hasOwnProperty.call(slot, "default") ? slot.default : "";
+      clearEntrySlotExplicit(entry, id);
       renderInspector();
       scheduleLivePreview(100);
     });
@@ -1351,6 +1447,7 @@ function renderInspector() {
       if (!(block.slots || []).some((slot) => slot.id === id)) return;
       pushCanvasUndo();
       entry.slots[id] = "transparent";
+      markEntrySlotExplicit(entry, id);
       renderInspector();
       scheduleLivePreview(100);
     });
@@ -1378,6 +1475,7 @@ function renderInspector() {
     for (const binding of appearanceBindings) {
       if (!binding.slot) continue;
       entry.slots[binding.slot.id] = Object.prototype.hasOwnProperty.call(binding.slot, "default") ? binding.slot.default : "";
+      clearEntrySlotExplicit(entry, binding.slot.id);
     }
     renderInspector();
     scheduleLivePreview(100);
@@ -1477,6 +1575,10 @@ async function saveSelectedAsUserBlock() {
   });
   let data = await res.json();
   if (res.status === 409) {
+    if (/protected/i.test(String(data.error || ""))) {
+      alert(`ID "${id}" принадлежит системному блоку. Выбери новое имя для своей копии — системные и legacy-определения нельзя затереть.`);
+      return;
+    }
     if (!confirm(`Блок "${id}" уже есть. Перезаписать?`)) return;
     res = await fetch("/api/blocks-library/save", {
       method: "POST",
@@ -1490,8 +1592,31 @@ async function saveSelectedAsUserBlock() {
     return;
   }
   // Refresh library so the new block shows up in the catalog.
+  state.sourceScope = "user";
+  if ($("catSourceScope")) $("catSourceScope").value = "user";
   await loadLibrary();
-  alert(`✓ Блок "${id}" сохранён.\nТеперь он есть в каталоге, фильтр "All" покажет его сразу.`);
+  const status = data.review?.status || "draft";
+  const errors = data.review?.deterministic?.errors || [];
+  alert(status === "candidate"
+    ? `✓ Блок "${id}" прошёл детерминированную проверку и сохранён как candidate.\nПроверь превью и нажми ✓ в «Мои блоки», чтобы перевести его в approved.`
+    : `Блок "${id}" сохранён как draft и пока не вставляется в письмо.\n${errors.slice(0, 3).join("\n") || "Исправь Pug/Stylus и сохрани снова."}`);
+}
+
+async function approveUserBlock(id) {
+  if (!confirm(`Одобрить блок "${id}"?\n\nСервер ещё раз проверит Pug, Stylus и соответствие слотов. AI-review для этого не требуется.`)) return;
+  const res = await fetch(`/api/blocks-library/user/${encodeURIComponent(id)}/review`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status: "approved" }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const errors = data.validation?.errors || [];
+    alert(`Не получилось одобрить: ${data.error || res.status}${errors.length ? `\n\n${errors.slice(0, 4).join("\n")}` : ""}`);
+    return;
+  }
+  await loadLibrary();
+  alert(`✓ Блок "${id}" approved. Теперь он виден в «Проверенных блоках».`);
 }
 
 async function deleteUserBlock(id) {
@@ -1560,6 +1685,7 @@ function setEntrySlotValue(entry, slotId, value) {
   if (!entry || !slotId) return;
   pushCanvasUndo();
   entry.slots[slotId] = value;
+  markEntrySlotExplicit(entry, slotId);
   renderInspector();
   scheduleLivePreview(100);
 }
@@ -1761,12 +1887,24 @@ function setLiveStatus(text, cls) {
 function scheduleLivePreview(delay = 650) {
   saveCanvasState();
   if (_livePreviewTimer) clearTimeout(_livePreviewTimer);
+  _livePreviewTimer = null;
   const stage = $("previewStage");
   if (!state.canvas.length) {
-    // Nothing to render — reset to placeholder.
+    // Invalidate a build that may already be in flight. Without this token bump,
+    // its late response can paint the deleted email back into an empty canvas.
+    _livePreviewToken += 1;
     _lastLiveHtml = "";
+    _blockRanges = [];
     stage?.classList.remove("has-content");
-    $("liveFrame").srcdoc = "";
+    const frame = $("liveFrame");
+    if (frame) {
+      frame.onload = null;
+      frame.srcdoc = "";
+      frame.style.height = "";
+    }
+    $("previewOverlay")?.classList.add("hidden");
+    const placeholder = $("previewPlaceholder");
+    if (placeholder) placeholder.innerHTML = "Добавь блоки слева — здесь появится живое превью письма.<br><br>Можно перетаскивать блоки прямо сюда, в письмо, а клик по блоку выделяет его для правки.";
     setLiveStatus("пусто");
     return;
   }
@@ -2225,7 +2363,8 @@ async function save() {
     return;
   }
   const blocks = canvasToBlocks();
-  const brand = "X_assembled";
+  const brand = await chooseSaveTarget();
+  if (!brand) return;
 
   const doSave = async (force) => {
     const res = await fetch("/api/compose-save", {
@@ -2668,6 +2807,11 @@ async function saveAuthorBlock() {
   });
   let data = await res.json();
   if (res.status === 409) {
+    if (/protected/i.test(String(data.error || ""))) {
+      alert(`ID "${id}" принадлежит системному блоку. Сохрани ручной вариант под новым ID — оригинал защищён от перезаписи.`);
+      $("abId").focus();
+      return;
+    }
     if (!confirm(`Блок "${id}" уже существует. Перезаписать?`)) return;
     res = await fetch("/api/blocks-library/save", {
       method: "POST",
@@ -2680,8 +2824,15 @@ async function saveAuthorBlock() {
     alert("Не получилось сохранить: " + (data.error || res.status));
     return;
   }
+  state.sourceScope = "user";
+  if ($("catSourceScope")) $("catSourceScope").value = "user";
   await loadLibrary();
   closeBlockAuthor();
+  const reviewStatus = data.review?.status || "draft";
+  const reviewErrors = data.review?.deterministic?.errors || [];
+  alert(reviewStatus === "candidate"
+    ? `✓ Блок "${id}" сохранён как candidate. После визуальной проверки нажми ✓ в «Мои блоки», чтобы одобрить его.`
+    : `Блок "${id}" сохранён как draft и пока не вставляется.\n${reviewErrors.slice(0, 3).join("\n") || "Исправь код и повтори сохранение."}`);
   // If the edited block is on the canvas, refresh preview so changes show up.
   if (state.canvas.some((c) => c.blockId === id)) scheduleLivePreview(100);
 }
@@ -2712,7 +2863,7 @@ $("paletteBlocksMode")?.addEventListener("click", () => setRailMode("blocks"));
 $("paletteOutlineMode")?.addEventListener("click", () => setRailMode("outline"));
 $("paletteAutoBtn")?.addEventListener("click", () => {
   state.autoPalette = !state.autoPalette;
-  $("paletteAutoBtn").classList.toggle("active", state.autoPalette);
+  updatePaletteAutoButton();
   if (state.autoPalette) syncPaletteToSelection();
   saveCanvasState();
 });
@@ -2752,8 +2903,9 @@ function populateCatalogFilters() {
   const brandSel = $("catBrand"), catSel = $("catCategory");
   if (!brandSel || !catSel) return;
   const keepBrand = brandSel.value, keepCat = catSel.value;
-  const brands = Array.from(new Set(state.library.map(brandOf))).sort();
-  const cats = Array.from(new Set(state.library.map((b) => b.category || "misc"))).sort();
+  const eligible = state.library.filter((block) => catalogSourceAllowed(block, state.sourceScope));
+  const brands = Array.from(new Set(eligible.map(brandOf))).sort();
+  const cats = Array.from(new Set(eligible.map((b) => b.category || "misc"))).sort();
   brandSel.innerHTML = '<option value="all">Все бренды</option>' +
     brands.map((x) => `<option value="${escapeHtml(x)}">${escapeHtml(x)}</option>`).join("");
   catSel.innerHTML = '<option value="all">Все категории</option>' +
@@ -2773,6 +2925,14 @@ $("catSearch")?.addEventListener("input", (e) => {
 $("catBrand")?.addEventListener("change", (e) => { state.brand = e.target.value; state.renderCap = 60; renderCatalog(); });
 $("catCategory")?.addEventListener("change", (e) => { state.cat = e.target.value; state.renderCap = 60; renderCatalog(); });
 $("catMobile")?.addEventListener("change", (e) => { state.mobileOnly = e.target.checked; state.renderCap = 60; renderCatalog(); });
+$("catSourceScope")?.addEventListener("change", (e) => {
+  state.sourceScope = ["curated", "user", "all"].includes(e.target.value) ? e.target.value : "curated";
+  state.brand = "all";
+  state.cat = "all";
+  state.renderCap = 60;
+  populateCatalogFilters();
+  renderCatalog();
+});
 
 // View modal wiring
 $("viewCloseBtn")?.addEventListener("click", closeBlockView);
@@ -2781,7 +2941,19 @@ $("viewModal")?.addEventListener("click", (e) => { if (e.target === $("viewModal
 
 wireCanvasDnd();
 wirePreviewStageDnd();
-loadLibrary();
+/* Deep-link из workbench: /constructor?brand=..&mail=.. — разобрать письмо
+   из базы обратно в канвас (кнопка «🎨 В конструктор» в окне кода). */
+loadLibrary().then(() => {
+  try {
+    const query = new URLSearchParams(window.location.search);
+    const brand = query.get("brand");
+    const mail = query.get("mail");
+    if (brand && mail) {
+      history.replaceState(null, "", "/constructor"); // не перечитывать при reload
+      loadParsedEmail(brand, mail);
+    }
+  } catch { /* ignore */ }
+});
 
 
 // ─── Undo wiring ─────────────────────────────────────────────────────────
@@ -2806,7 +2978,7 @@ const RETKIT_CONSTRUCTOR_BUILD = '2026-07-13-style-surface';
   let overlay = null;
   const close = () => { if (overlay) { overlay.remove(); overlay = null; } };
 
-  function render(list) {
+  function render(list, meta = {}) {
     overlay = document.createElement("div");
     overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;";
     const box = document.createElement("div");
@@ -2814,7 +2986,8 @@ const RETKIT_CONSTRUCTOR_BUILD = '2026-07-13-style-surface';
     box.innerHTML = `
       <div style="display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #2c313c;">
         <b style="font-size:15px;">База писем</b>
-        <span style="color:#8b93a3;font-size:12px;">${list.length} писем</span>
+        <span style="color:#8b93a3;font-size:12px;">${list.length} писем · ${meta.scope === "all" ? "active + архив" : "active 1.0"}</span>
+        <button id="baseScope" style="background:#2c313c;border:1px solid #3b4250;color:#cbd3e2;border-radius:7px;padding:6px 9px;cursor:pointer;font-size:11px;">${meta.scope === "all" ? "Только active" : `Архив (${meta.archivedCount || 0})`}</button>
         <input id="baseSearch" placeholder="Поиск: бренд / имя…" style="margin-left:auto;background:#12151b;border:1px solid #2c313c;color:#e6e6e6;border-radius:8px;padding:7px 10px;width:230px;" />
         <button id="baseClose" style="background:#2c313c;border:none;color:#e6e6e6;border-radius:8px;padding:7px 11px;cursor:pointer;">✕</button>
       </div>
@@ -2850,19 +3023,26 @@ const RETKIT_CONSTRUCTOR_BUILD = '2026-07-13-style-surface';
     draw("");
     box.querySelector("#baseSearch").addEventListener("input", (e) => draw(e.target.value));
     box.querySelector("#baseClose").addEventListener("click", close);
+    box.querySelector("#baseScope").addEventListener("click", () => {
+      const nextScope = meta.scope === "all" ? "active" : "all";
+      close();
+      loadBaseScope(nextScope);
+    });
     overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
     document.addEventListener("keydown", function esc(ev) { if (ev.key === "Escape") { close(); document.removeEventListener("keydown", esc); } });
   }
 
-  btn.addEventListener("click", async () => {
+  async function loadBaseScope(scope = "active") {
     try {
-      const r = await fetch("/api/wb/emails");
+      const r = await fetch(`/api/wb/emails?scope=${encodeURIComponent(scope)}`);
       const data = await r.json();
       const flat = [];
       for (const g of (data.emails || [])) for (const m of (g.mails || [])) flat.push({ brand: g.brand, name: m.name, built: m.built });
-      render(flat);
+      render(flat, data);
     } catch (err) { alert("Не удалось загрузить базу: " + err.message); }
-  });
+  }
+
+  btn.addEventListener("click", () => loadBaseScope("active"));
 })();
 
 /* Удаление выделенного блока по Delete/Backspace (если фокус не в поле ввода). */
@@ -2919,6 +3099,7 @@ function openPlaceholderMenu(btn, entry) {
         const end = input.selectionEnd ?? input.value.length;
         input.value = input.value.slice(0, start) + token + input.value.slice(end);
         entry.slots[forId] = input.value;
+        markEntrySlotExplicit(entry, forId);
         scheduleLivePreview();
       }
       menu.remove();
@@ -2933,6 +3114,49 @@ function openPlaceholderMenu(btn, entry) {
 function parsedEmailLoadBlockReason(data) {
   if (!data?.studioModelStale) return "";
   return "Письмо отвязано от конструктора после правок кода. Чтобы не затереть Pug/Stylus и локали, продолжайте работу в Workbench или создайте копию письма с новым именем.";
+}
+
+function modelCampaignBindings(entries) {
+  const findings = [];
+  const visit = (items) => {
+    for (const entry of Array.isArray(items) ? items : []) {
+      if (!entry || typeof entry !== "object") continue;
+      const blockId = entry.blockId || entry.id || "unknown";
+      const inlineDef = entry.def || entry.definition || entry.block;
+      const known = blockById(blockId, entry.blockSource || entry.source);
+      const category = String(inlineDef?.category || known?.category || "").toLowerCase();
+      // Footer placeholders are an explicit product feature. Everywhere else a
+      // campaign namespace makes a reusable block silently depend on one mail.
+      if (category !== "footer") {
+        for (const [slotId, raw] of Object.entries(entry.slots || {})) {
+          if (typeof raw !== "string") continue;
+          const matches = raw.match(/\$\{\{\s*[a-z0-9_.-]+\s*\}\}\$/gi) || [];
+          matches.forEach((token) => findings.push({ blockId, slotId, token }));
+        }
+      }
+      if (Array.isArray(entry.children)) visit(entry.children);
+    }
+  };
+  visit(entries);
+  return findings;
+}
+
+function showLoadedSourceNotice(data) {
+  const notice = $("loadedLegacyWarning");
+  if (!notice) return;
+  if (data?.source === "parsed-source") {
+    notice.textContent = "Открыто legacy-письмо без модели конструктора. Секции, картинки и стили сохранены в исходном порядке как цельный код; отдельные поля внутри них не распознаны.";
+    notice.classList.remove("hidden");
+    return;
+  }
+  const bindings = modelCampaignBindings(data?.entries || data?.blocks || []);
+  if (bindings.length) {
+    const sample = bindings.slice(0, 2).map((item) => `${item.blockId}.${item.slotId}`).join(", ");
+    notice.textContent = `В сохранённой модели найдено ${bindings.length} привязок к namespace конкретной кампании (${sample}). Они оставлены без изменений; замени их вручную перед повторным использованием.`;
+    notice.classList.remove("hidden");
+    return;
+  }
+  notice.classList.add("hidden");
 }
 
 async function loadParsedEmail(brand, mail) {
@@ -2968,6 +3192,7 @@ async function loadParsedEmail(brand, mail) {
       })));
     }
     state.sourceSkeleton = { brand, mail };
+    showLoadedSourceNotice(d);
     state.selectedUid = null;
     const nameInput = document.getElementById("mailName");
     if (nameInput) nameInput.value = mail.replace(/^mail-/, "");
@@ -2979,7 +3204,15 @@ async function loadParsedEmail(brand, mail) {
 
 /* ─── Автосохранение канвы (письмо не пропадает между сессиями) ─────────── */
 function migrateCanvasTree(rawEntries) {
-  const raw = Array.isArray(rawEntries) ? rawEntries.filter(Boolean).map((entry) => ({ ...entry, slots: { ...(entry.slots || {}) } })) : [];
+  const raw = Array.isArray(rawEntries) ? rawEntries.filter(Boolean).map((entry) => {
+    const copy = { ...entry, slots: { ...(entry.slots || {}) } };
+    const explicitSlots = Array.isArray(entry.explicitSlots)
+      ? [...new Set(entry.explicitSlots.map(String).filter(Boolean))]
+      : [];
+    if (explicitSlots.length) copy.explicitSlots = explicitSlots;
+    else delete copy.explicitSlots;
+    return copy;
+  }) : [];
   const used = new Set();
   for (const entry of raw) {
     let uid = entry.uid;
@@ -3101,13 +3334,70 @@ function restoreCanvasState() {
 }
 
 
+/* ─── Выбор целевого бренда для сохранения письма ──────────────────────── */
+async function chooseSaveTarget({ allowTemp = false } = {}) {
+  let brands = [];
+  try {
+    const r = await fetch("/api/wb/emails");
+    const data = await r.json();
+    brands = (data.emails || []).map((g) => g.brand).filter((b) => b && b !== "X_preview");
+  } catch { /* сеть упала — останется ручной ввод нового бренда */ }
+  if (!brands.includes("X_assembled")) brands.push("X_assembled");
+
+  return new Promise((resolve) => {
+    const row = "display:flex;gap:8px;align-items:center;padding:8px 10px;border-radius:8px;cursor:pointer;background:#12151b;";
+    const overlay = document.createElement("div");
+    overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;";
+    const options = [
+      ...(allowTemp ? [`<label style="${row}"><input type="radio" name="saveTarget" value="__temp__" checked /> ⏱ Временно (X_preview) — только доработать сейчас</label>`] : []),
+      ...brands.map((b, i) => `<label style="${row}"><input type="radio" name="saveTarget" value="${escapeHtml(b)}" ${!allowTemp && i === 0 ? "checked" : ""} /> 📁 ${escapeHtml(b)}</label>`),
+      `<label style="${row}"><input type="radio" name="saveTarget" value="__new__" /> ➕ Новый бренд: <input id="newBrandName" type="text" placeholder="X_MyBrand" style="flex:1;background:#0d1015;border:1px solid #2c313c;color:#e6e6e6;border-radius:6px;padding:5px 8px;" /></label>`,
+    ].join("");
+    overlay.innerHTML = `
+      <div style="background:#1c1f26;color:#e6e6e6;width:min(460px,92vw);border-radius:12px;padding:16px;box-shadow:0 10px 40px rgba(0,0,0,.5);display:flex;flex-direction:column;gap:10px;">
+        <div style="font-weight:600;font-size:14px;">Куда сохранить письмо?</div>
+        ${options}
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px;">
+          <button id="saveTargetCancel" style="background:#2c313c;border:none;color:#e6e6e6;border-radius:8px;padding:7px 14px;cursor:pointer;">Отмена</button>
+          <button id="saveTargetOk" style="background:#2c3a5a;border:none;color:#cfe0ff;border-radius:8px;padding:7px 14px;cursor:pointer;">Продолжить</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    const done = (value) => { overlay.remove(); resolve(value); };
+    overlay.querySelector("#newBrandName").addEventListener("focus", () => {
+      overlay.querySelector('input[name="saveTarget"][value="__new__"]').checked = true;
+    });
+    overlay.querySelector("#saveTargetCancel").addEventListener("click", () => done(null));
+    overlay.addEventListener("click", (e) => { if (e.target === overlay) done(null); });
+    overlay.querySelector("#saveTargetOk").addEventListener("click", () => {
+      const picked = overlay.querySelector('input[name="saveTarget"]:checked')?.value;
+      if (!picked) { done(null); return; }
+      if (picked === "__temp__") { done("X_preview"); return; }
+      if (picked === "__new__") {
+        let name = (overlay.querySelector("#newBrandName").value || "").trim().replace(/[^a-zA-Z0-9_]/g, "");
+        if (!name) { alert("Введи имя нового бренда (буквы/цифры/подчёркивание)."); return; }
+        if (!/^X_/i.test(name)) name = "X_" + name;
+        done(name); return;
+      }
+      done(picked);
+    });
+  });
+}
+
 /* ─── «→ В код»: перенос собранного письма в workbench ─────────────────── */
 async function transferToCode() {
   if (!state.canvas.length) { alert("Канвас пуст — сначала собери письмо."); return; }
   const rawName = (document.getElementById("mailName")?.value || "").trim() || "draft";
   if (!/^[a-z0-9_-]+$/i.test(rawName)) { alert("Имя письма: только буквы, цифры, дефис, подчёркивание."); return; }
-  const toBase = confirm("Перенести письмо в окно кода.\n\nСохранить его в базу насовсем?\n\nOK = да, сохранить в email-base\nОтмена = временно (только чтобы доработать сейчас)");
-  const brand = toBase ? "X_assembled" : "X_preview";
+  // Opening the code workspace is not a permanent save/version action.
+  // Persist the working copy in the hidden service base; the explicit
+  // “Save mail” button remains the only path that asks for a destination.
+  const brand = "X_preview";
+  const button = document.getElementById("toCodeBtn");
+  if (button) {
+    button.disabled = true;
+    button.textContent = "→ Готовлю Pug…";
+  }
   try {
     const send = async (force) => {
       const response = await fetch("/api/compose-save", {
@@ -3118,11 +3408,6 @@ async function transferToCode() {
     };
     let { response: res, data: d } = await send(false);
     if (res.status === 409) {
-      const overwrite = confirm(
-        `Письмо «${rawName}» уже существует в ${d.existsAt || brand}.\n\n` +
-        "Пересборка удалит ручные правки Pug/Stylus/HTML в этой папке. Продолжить и перезаписать?"
-      );
-      if (!overwrite) return;
       ({ response: res, data: d } = await send(true));
     }
     if (res.status === 200 && d.ok) {
@@ -3131,7 +3416,14 @@ async function transferToCode() {
     } else {
       alert("Не удалось перенести:\n" + (d.error || "unknown") + (d.stderr ? "\n\n" + d.stderr.slice(0, 300) : ""));
     }
-  } catch (e) { alert("Ошибка переноса: " + e.message); }
+  } catch (e) {
+    alert("Ошибка переноса: " + e.message);
+  } finally {
+    if (button && window.location.pathname === "/constructor") {
+      button.disabled = false;
+      button.textContent = "→ В код";
+    }
+  }
 }
 document.getElementById("toCodeBtn")?.addEventListener("click", transferToCode);
 

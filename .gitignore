@@ -24,6 +24,7 @@ email-base/**/mail-*-copy*/
 email-base/X_IQ/mail-rfm-*-v*/
 email-base/X_IQBroker/mail-welcome-test-clone/
 email-base/X_assembled/
+email-base/X_preview/
 mail-review-*.html
 
 # visual gate artifacts (baseline IS committed)

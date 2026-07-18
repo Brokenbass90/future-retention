@@ -24,10 +24,26 @@ try {
     "<p>${{ wrapped.block_00 }}$</p>",
     "<p>${{ missing.block_00 }}$</p>",
     "<p>${{ flat.constructor.name }}$</p>",
+    "<a href=\"${{ assets.link_url }}$\"><img src=\"${{ assets.image_url }}$\" alt=\"${{ assets.image_alt }}$\" align=\"left\" style=\"float:left;padding-left:12px\"></a>",
+    "<table background=\"${{ assets.background_url }}$\"><tr><td>${{ assets.block_00 }}$</td></tr></table>",
     "</body></html>",
   ].join(""));
   await put("vendor/data/en/flat.json", JSON.stringify({ block_00: "Flat value" }));
   await put("vendor/data/en/wrapped.json", JSON.stringify({ wrapped: { block_00: "Wrapped value" } }));
+  await put("vendor/data/en/assets.json", JSON.stringify({
+    image_url: "https://img.example/en-hero.png",
+    image_alt: "English hero",
+    link_url: "https://example.com/en-offer",
+    background_url: "https://img.example/en-background.png",
+    block_00: "Visible English text",
+  }));
+  await put("vendor/data/ar/assets.json", JSON.stringify({
+    image_url: "https://img.example/ar-hero.png",
+    image_alt: "صورة العرض",
+    link_url: "https://example.com/ar-offer",
+    background_url: "https://img.example/ar-background.png",
+    block_00: "نص عربي ظاهر",
+  }));
 
   const result = await execFileAsync(process.execPath, [
     buildMailPath,
@@ -43,7 +59,35 @@ try {
   assert.match(localized, /Wrapped value/);
   assert.match(localized, /\$\{\{ missing\.block_00 \}\}\$/);
   assert.match(localized, /\$\{\{ flat\.constructor\.name \}\}\$/);
-  assert.match(result.stderr, /2 unresolved placeholder/);
+  assert.match(result.stderr, /2 unresolved localization placeholder/);
+  assert.match(result.stderr, /missing namespace\/key data; RTL changes direction only and cannot translate/i);
+
+  await execFileAsync(process.execPath, [
+    buildMailPath,
+    "--category", "X_Test",
+    "--mail", "demo",
+    "--locales", "ar",
+  ], { cwd: root, maxBuffer: 2 * 1024 * 1024 });
+  const localizedAr = await readFile(path.join(root, "dist/X_Test/mail-demo/ar/index.html"), "utf8");
+  assert.match(localizedAr, /src="https:\/\/img\.example\/ar-hero\.png"/);
+  assert.match(localizedAr, /alt="صورة العرض"/);
+  assert.match(localizedAr, /href="https:\/\/example\.com\/ar-offer"/);
+  assert.match(localizedAr, /background="https:\/\/img\.example\/ar-background\.png"/);
+  assert.doesNotMatch(localizedAr, /(?:src|alt|href|background)="<bdi>/);
+  assert.match(localizedAr, /<bdi>نص عربي ظاهر<\/bdi>/);
+  assert.match(localizedAr, /<html\b[^>]*><!--retkit-rtl:v2:text-->/);
+  assert.match(localizedAr, /align="left" style="float:left;padding-left:12px"/);
+
+  await execFileAsync(process.execPath, [
+    buildMailPath,
+    "--category", "X_Test",
+    "--mail", "demo",
+    "--locales", "ar",
+    "--rtl-mode", "mirror",
+  ], { cwd: root, maxBuffer: 2 * 1024 * 1024 });
+  const mirroredAr = await readFile(path.join(root, "dist/X_Test/mail-demo/ar/index.html"), "utf8");
+  assert.match(mirroredAr, /<html\b[^>]*><!--retkit-rtl:v2:mirror-->/);
+  assert.match(mirroredAr, /align="right" style="float: right;padding-right: 12px"/);
 
   // An explicitly empty Workbench locale workspace must build Original only,
   // not silently expand to every historical vendor/data locale.
@@ -58,7 +102,7 @@ try {
     readFile(path.join(root, "dist/X_Test/mail-demo/en/index.html"), "utf8"),
     (error) => error?.code === "ENOENT",
   );
-  console.log("✓ build-mail localization: flat + wrapped JSON, Original, missing diagnostics");
+  console.log("✓ build-mail localization: flat/wrapped JSON, safe RTL attributes, Original, diagnostics");
 } finally {
   await rm(root, { recursive: true, force: true });
 }

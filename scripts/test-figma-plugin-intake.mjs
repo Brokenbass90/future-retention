@@ -4,7 +4,8 @@
  * Feeds a payload shaped EXACTLY like figma-plugin/code.js emits, through the
  * real studio pipeline: buildInternalDesignSchema → buildComposePlanFromDesign
  * → composeEmailFromBlocks → build-mail. Proves a CLOSED-Figma paste/send flow
- * yields a buildable email with the design's content AND exact style tokens.
+ * yields a buildable email with the design's content, while any exact style
+ * tokens that current canonical combos cannot absorb stay explicit as a gap.
  *
  * Zero-AI, no network, no Figma. Exit 0 = pass.
  */
@@ -59,10 +60,12 @@ check("exact style tokens normalized", schema && schema.tokens.primaryColor === 
 const result = buildComposePlanFromDesign({ schema });
 const ids = result.plan.map((p) => p.id);
 console.log("  plan:", JSON.stringify(ids));
-check("plan maps roles → header-logo / hero-stack / cta-banner",
-  JSON.stringify(ids) === JSON.stringify(["header-logo", "hero-stack", "cta-banner"]));
-check("hero heading content carried over", result.plan.find((p) => p.id === "hero-stack")?.slots.title === "Welcome aboard, trader");
-check("exact style tokens transferred into block slots", result.styleSlotsFilled > 0 && result.styleSlotGap === false);
+check("plan uses release-safe canonical hero/cta combos only",
+  JSON.stringify(ids) === JSON.stringify(["iq-combo-hero-233", "iq-combo-promo-steps"]));
+check("legacy header fallback is refused and reported",
+  result.sections.find((section) => section.role === "header")?.status === "no-canonical-block");
+check("hero heading content carried over", result.plan.find((p) => p.id === "iq-combo-hero-233")?.slots.title === "Welcome aboard, trader");
+check("unabsorbed exact style tokens remain visible as a gap", result.styleSlotsFilled === 0 && result.styleSlotGap === true);
 
 // Must actually build.
 const tmp = path.join(os.tmpdir(), "retkit-figma-intake-test");

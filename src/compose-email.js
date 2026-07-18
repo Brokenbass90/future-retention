@@ -30,10 +30,11 @@
  *   - eventually: the drag-and-drop constructor "Save" button
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync, rmSync, readdirSync, statSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync, rmSync, readdirSync, realpathSync, statSync } from "node:fs";
 import path from "node:path";
 import url from "node:url";
 import { buildStudioModelSourceSignatures } from "./studio-model-signatures.js";
+import { assertPortableBlockSource } from "./block-library-review.js";
 
 const here = path.dirname(url.fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(here, "..");
@@ -43,6 +44,47 @@ const USER_BLOCK_DIR = path.join(REPO_ROOT, "data", "block-library", "user");
 const IMPORTED_DIR = path.join(REPO_ROOT, "data", "block-library", "imported");
 const EMAIL_BASE = path.join(REPO_ROOT, "email-base");
 const DEFAULT_SKELETON = path.join(EMAIL_BASE, "X_IQBroker", "mail-welcome");
+const SAFE_PATH_SEGMENT_RE = /^[a-z0-9][a-z0-9_-]{0,127}$/i;
+const SAFE_BLOCK_ID_RE = /^[a-z0-9][a-z0-9_-]{0,127}$/i;
+
+function assertSafePathSegment(value, label) {
+  const segment = String(value ?? "");
+  if (!SAFE_PATH_SEGMENT_RE.test(segment) || segment === "." || segment === "..") {
+    throw new Error(`invalid ${label}: "${segment}" (use 1-128 letters, digits, _ or -; start with a letter/digit)`);
+  }
+  return segment;
+}
+
+function pathIsWithin(root, candidate, { allowRoot = false } = {}) {
+  const resolvedRoot = path.resolve(root);
+  const resolvedCandidate = path.resolve(candidate);
+  return (allowRoot && resolvedCandidate === resolvedRoot)
+    || resolvedCandidate.startsWith(`${resolvedRoot}${path.sep}`);
+}
+
+function assertContainedPath(root, candidate, label, options) {
+  if (!pathIsWithin(root, candidate, options)) {
+    throw new Error(`${label} escapes its allowed root`);
+  }
+  return path.resolve(candidate);
+}
+
+function resolveTrustedSkeleton(skeleton, trustedSkeletonRoots = []) {
+  const resolved = path.resolve(String(skeleton || ""));
+  if (!existsSync(resolved) || !statSync(resolved).isDirectory()) {
+    throw new Error(`skeleton is not a readable directory: ${resolved}`);
+  }
+  const realSkeleton = realpathSync(resolved);
+  const allowedRoots = [EMAIL_BASE, ...(Array.isArray(trustedSkeletonRoots) ? trustedSkeletonRoots : [])]
+    .filter(Boolean)
+    .map((root) => path.resolve(String(root)))
+    .filter((root) => existsSync(root) && statSync(root).isDirectory())
+    .map((root) => realpathSync(root));
+  if (!allowedRoots.some((root) => pathIsWithin(root, realSkeleton, { allowRoot: true }))) {
+    throw new Error("skeleton is outside email-base; an internal trustedSkeletonRoots override is required");
+  }
+  return realSkeleton;
+}
 
 /* ─── Slot substitution ─────────────────────────────────────────── */
 
@@ -53,6 +95,92 @@ function htmlEscapeAttr(s) {
     .replace(/"/g, "&quot;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
+}
+
+function slotTokenPattern(id) {
+  return new RegExp(`\\{\\{\\s*${String(id).replace(/[^a-z0-9_]/gi, "")}\\s*\\}\\}`, "i");
+}
+
+function slotUsedInPugStyle(pugSource, id) {
+  const token = slotTokenPattern(id);
+  return String(pugSource || "").split("\n").some((line) => {
+    const styleAttrs = line.match(/\bstyle\s*=\s*(["'])(.*?)\1/gi) || [];
+    return styleAttrs.some((attr) => token.test(attr));
+  });
+}
+
+function slotUsedInStyl(stylSource, id) {
+  return slotTokenPattern(id).test(String(stylSource || ""));
+}
+
+function failSlot(block, slot, message) {
+  const error = new Error(`block ${block?.id || "unknown"}: slot "${slot?.id || "unknown"}" ${message}`);
+  error.code = "UNSAFE_SLOT_VALUE";
+  error.statusCode = 422;
+  throw error;
+}
+
+/**
+ * Slot values are data, never Pug/Stylus source. Attribute values are escaped
+ * later; this contract additionally prevents a value from creating a new line,
+ * interpolation expression or CSS declaration in either language.
+ */
+function normalizeTypedSlotValue(block, slot, raw) {
+  if (raw == null) return "";
+  if (!["string", "number", "boolean"].includes(typeof raw)) {
+    failSlot(block, slot, "must be a string, number or boolean");
+  }
+  const kind = String(slot?.kind || "text").toLowerCase();
+  let value = String(raw);
+  const inPugStyle = slotUsedInPugStyle(block?.pug, slot.id);
+  const inStyl = slotUsedInStyl(block?.styl, slot.id);
+  const cssContext = inPugStyle || inStyl;
+  if (/\r|\n|\u0000|\u2028|\u2029/.test(value)) {
+    failSlot(block, slot, "cannot contain line breaks or control separators");
+  }
+  if (/[#!]\{/.test(value)) {
+    failSlot(block, slot, "cannot contain Pug interpolation (#{...}/!{...})");
+  }
+  if (/^\s*(?:!?=|-\s|\+[a-z]|&attributes\b|:\s*[a-z]|(?:if|unless|else|each|for|while|case|when|include|extends|mixin)\b)/i.test(value)) {
+    failSlot(block, slot, "cannot begin with Pug syntax");
+  }
+  if (/\{\{\s*[A-Z][A-Z0-9_]*\s*\}\}/.test(value)) {
+    failSlot(block, slot, "cannot create a constructor child-slot marker");
+  }
+  if (/\b(?:process|global|globalThis|require|module|exports|Function|eval)\s*(?:\.|\[|\()/i.test(value)) {
+    failSlot(block, slot, "cannot contain JavaScript expressions");
+  }
+  if (/<\s*script\b|\bon[a-z]+\s*=|\b(?:javascript|vbscript)\s*:/i.test(value)) {
+    failSlot(block, slot, "contains executable HTML/URL content");
+  }
+
+  if (kind === "number") {
+    const number = Number(value);
+    if (!Number.isFinite(number)) failSlot(block, slot, "must be a finite number");
+    if (slot.min != null && number < Number(slot.min)) failSlot(block, slot, `must be at least ${slot.min}`);
+    if (slot.max != null && number > Number(slot.max)) failSlot(block, slot, `must be at most ${slot.max}`);
+    value = String(number);
+  }
+  if (kind === "select" && !cssContext && Array.isArray(slot.options) && slot.options.length) {
+    const option = slot.options.find((candidate) => String(candidate) === value);
+    if (option === undefined) failSlot(block, slot, `must be one of: ${slot.options.map(String).join(", ")}`);
+    value = String(option);
+  }
+  if (["url", "image", "localizedurl"].includes(kind)
+      && /^\s*(?:javascript|vbscript|data\s*:\s*text\/html)/i.test(value)) {
+    failSlot(block, slot, "uses a forbidden URL scheme");
+  }
+
+  if (cssContext) {
+    if (/[;{}\r\n]/.test(value)) failSlot(block, slot, "cannot terminate or add a CSS declaration");
+    if (inStyl && /["']/.test(value)) {
+      failSlot(block, slot, "cannot contain quotes when used in Stylus");
+    }
+    if (/^\s*@?(?:import|require|use)\b|\b(?:require|use|json|embedurl|image-size)\s*\(/i.test(value)) {
+      failSlot(block, slot, "cannot inject Stylus imports or file-reading functions");
+    }
+  }
+  return value;
 }
 
 function substituteSlotsInString(template, values, opts = {}) {
@@ -87,10 +215,21 @@ function substituteSlotsInPug(pug, values) {
       const [, head, attrs, rest] = m;
       const attrsSub = substituteSlotsInString(attrs, values, { attrEscape: true });
       const restSub = substituteSlotsInString(rest, values, { attrEscape: false });
-      return `${head}(${attrsSub})${restSub}`;
+      return stripEmptyPugStyleDeclarations(`${head}(${attrsSub})${restSub}`);
     }
-    return substituteSlotsInString(line, values, { attrEscape: false });
+    return stripEmptyPugStyleDeclarations(substituteSlotsInString(line, values, { attrEscape: false }));
   }).join("\n");
+}
+
+/** Remove optional `property:` fragments after empty slot substitution. */
+function stripEmptyPugStyleDeclarations(line) {
+  return String(line || "").replace(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/gi, (_all, quote, css) => {
+    const declarations = String(css).split(";").filter((declaration) => {
+      const colonAt = declaration.indexOf(":");
+      return colonAt < 0 || declaration.slice(colonAt + 1).trim() !== "";
+    });
+    return `style=${quote}${declarations.join(";")}${quote}`;
+  });
 }
 
 /* ─── Generic block appearance ──────────────────────────────────── */
@@ -191,16 +330,79 @@ export function applyBlockAppearanceToPug(pug, appearance = {}) {
   return lines.join("\n");
 }
 
+function mergePugStyleAttribute(line, declaration) {
+  const source = String(line || "");
+  const openAt = source.indexOf("(");
+  if (openAt < 0) {
+    const token = source.match(/^(\s*[^\s]+)/)?.[1];
+    if (!token) return source;
+    return `${token}(style="${declaration}")${source.slice(token.length)}`;
+  }
+  let quote = "";
+  let depth = 0;
+  let closeAt = -1;
+  for (let i = openAt; i < source.length; i += 1) {
+    const char = source[i];
+    if (quote) {
+      if (char === quote && source[i - 1] !== "\\") quote = "";
+      continue;
+    }
+    if (char === "\"" || char === "'") { quote = char; continue; }
+    if (char === "(") depth += 1;
+    else if (char === ")" && --depth === 0) { closeAt = i; break; }
+  }
+  if (closeAt < 0) return source;
+  let attrs = source.slice(openAt + 1, closeAt);
+  const styleRe = /\bstyle\s*=\s*(["'])([\s\S]*?)\1/i;
+  if (styleRe.test(attrs)) {
+    attrs = attrs.replace(styleRe, (_all, q, current) => {
+      const prefix = String(current || "").trim().replace(/;+$/, "");
+      return `style=${q}${prefix ? `${prefix};` : ""}${declaration}${q}`;
+    });
+  } else {
+    attrs += `${attrs.trim() ? " " : ""}style="${declaration}"`;
+  }
+  return `${source.slice(0, openAt + 1)}${attrs}${source.slice(closeAt)}`;
+}
+
+/** Apply the constructor outer-wrapper color to the real scaffold shell. */
+export function applyOuterWrapperBackgroundToPug(pug, rawColor) {
+  const color = safeAppearanceCssValue(rawColor);
+  if (!color) return String(pug || "");
+  const declaration = `background-color:${color}`;
+  return String(pug || "").split("\n").map((line) => {
+    const trimmed = line.trim();
+    if (/^body\.body(?:\(|\s|$)/.test(trimmed)) return mergePugStyleAttribute(line, declaration);
+    if (/^table\.body(?:\(|\s|$)/.test(trimmed)) return mergePugStyleAttribute(line, declaration);
+    if (/^td(?:\([^)]*\))?(?:\.[\w-]+)*\.bg-col(?:\.|\(|\s|$)/.test(trimmed)) {
+      return mergePugStyleAttribute(line, declaration);
+    }
+    return line;
+  }).join("\n");
+}
+
 /* ─── Block loading + validation ────────────────────────────────── */
 
 export function loadCanonicalBlock(id) {
-  // Try canonical first, then user-saved blocks.
-  const tryCanonical = path.join(CANONICAL_DIR, `${id}.json`);
-  if (existsSync(tryCanonical)) return JSON.parse(readFileSync(tryCanonical, "utf8"));
-  const tryUser = path.join(USER_BLOCK_DIR, `${id}.json`);
-  if (existsSync(tryUser)) return JSON.parse(readFileSync(tryUser, "utf8"));
-  const tryImported = path.join(IMPORTED_DIR, `${id}.json`);
-  if (existsSync(tryImported)) return JSON.parse(readFileSync(tryImported, "utf8"));
+  return loadBlockRecord(id).block;
+}
+
+function loadBlockRecord(id) {
+  const safeId = String(id || "");
+  if (!SAFE_BLOCK_ID_RE.test(safeId)) throw new Error(`invalid block id: ${safeId}`);
+  // Directory provenance is the trust boundary; a manually edited user JSON
+  // cannot promote itself merely by claiming source:"canonical".
+  for (const [dir, origin] of [
+    [CANONICAL_DIR, "canonical"],
+    [USER_BLOCK_DIR, "user"],
+    [IMPORTED_DIR, "imported"],
+  ]) {
+    const candidate = assertContainedPath(dir, path.resolve(dir, `${safeId}.json`), "block path");
+    if (existsSync(candidate)) {
+      const block = JSON.parse(readFileSync(candidate, "utf8"));
+      return { block: { ...block, source: origin }, origin };
+    }
+  }
   throw new Error(`block not found: ${id}`);
 }
 
@@ -217,7 +419,7 @@ function _readBlocksFromDir(dir, sourceTag) {
             try {
               const b = JSON.parse(readFileSync(path.join(dir, `${id}.json`), "utf8"));
               if (b.validated === false) return null;
-              return { ...b, source: b.source || sourceTag };
+              return { ...b, source: sourceTag };
             } catch { return null; }
           }).filter(Boolean);
         }
@@ -230,7 +432,7 @@ function _readBlocksFromDir(dir, sourceTag) {
       try {
         const b = JSON.parse(readFileSync(path.join(dir, f), "utf8"));
         if (b.validated === false) return null; // skip blocks that failed build validation
-        return { ...b, source: b.source || sourceTag };
+        return { ...b, source: sourceTag };
       } catch { return null; }
     })
     .filter(Boolean);
@@ -244,10 +446,10 @@ export function listCanonicalBlocks() {
   return [...canonical, ...imported, ...user];
 }
 
-// Path resolver used by the server when it needs to write or delete a user
-// block on disk. NOT a security boundary — callers must validate the id.
 export function userBlockPath(id) {
-  return path.join(USER_BLOCK_DIR, `${id}.json`);
+  const safeId = String(id || "");
+  if (!SAFE_BLOCK_ID_RE.test(safeId)) throw new Error("invalid user block id");
+  return assertContainedPath(USER_BLOCK_DIR, path.resolve(USER_BLOCK_DIR, `${safeId}.json`), "user block path");
 }
 export function userBlockDir() { return USER_BLOCK_DIR; }
 
@@ -256,12 +458,18 @@ export function userBlockDir() { return USER_BLOCK_DIR; }
  * Throws if a required slot is missing AND has no default.
  */
 export function resolveBlockSlotValues(block, userSlots = {}) {
-  const out = {};
+  if (!userSlots || typeof userSlots !== "object" || Array.isArray(userSlots)) {
+    throw new Error(`block ${block?.id || "unknown"}: slots must be an object`);
+  }
+  const out = Object.create(null);
   for (const slot of block.slots || []) {
-    if (slot.id in userSlots) {
-      out[slot.id] = userSlots[slot.id];
+    if (!slot || !SAFE_BLOCK_ID_RE.test(String(slot.id || ""))) {
+      throw new Error(`block ${block?.id || "unknown"}: invalid slot definition`);
+    }
+    if (Object.prototype.hasOwnProperty.call(userSlots, slot.id)) {
+      out[slot.id] = normalizeTypedSlotValue(block, slot, userSlots[slot.id]);
     } else if ("default" in slot) {
-      out[slot.id] = slot.default;
+      out[slot.id] = normalizeTypedSlotValue(block, slot, slot.default);
     } else {
       throw new Error(`block ${block.id}: required slot "${slot.id}" missing and no default`);
     }
@@ -454,10 +662,21 @@ export function composeEmailFromBlocks({
   blocks,
   skeleton = DEFAULT_SKELETON,
   destRoot = EMAIL_BASE,
+  trustedSkeletonRoots = [],
   markBlocks = false,
+  preserveSkeletonPreheader = false,
 }) {
-  if (!mailName || !/^[a-z0-9_-]+$/i.test(mailName)) {
-    throw new Error(`invalid mailName: "${mailName}" (use letters, digits, _ -)`);
+  const safeBrand = assertSafePathSegment(brand, "brand");
+  const safeMailName = assertSafePathSegment(mailName, "mailName");
+  const resolvedDestRoot = path.resolve(String(destRoot || ""));
+  const resolvedSkeleton = resolveTrustedSkeleton(skeleton, trustedSkeletonRoots);
+  const destDir = assertContainedPath(
+    resolvedDestRoot,
+    path.resolve(resolvedDestRoot, safeBrand, `mail-${safeMailName}`),
+    "compose destination",
+  );
+  if (destDir === resolvedSkeleton) {
+    throw new Error("skeleton and destination are the same directory; stage a trusted snapshot before composing");
   }
   if (!Array.isArray(blocks) || !blocks.length) {
     throw new Error(`blocks must be a non-empty array`);
@@ -468,12 +687,16 @@ export function composeEmailFromBlocks({
   const warnings = [];
   for (let inputIndex = 0; inputIndex < blocks.length; inputIndex++) {
     const entry = blocks[inputIndex];
-    const blockId = entry && (entry.blockId || entry.id);
+    const blockId = entry && String(entry.blockId || entry.id || "");
     if (!entry || !blockId) {
       warnings.push(`skipped block with no id: ${JSON.stringify(entry).slice(0, 60)}`);
       continue;
     }
+    if (!SAFE_BLOCK_ID_RE.test(blockId)) {
+      throw new Error(`invalid block id: ${blockId}`);
+    }
     let block;
+    let origin;
     if (entry.def && typeof entry.def === "object" && typeof entry.def.pug === "string" && entry.def.pug.trim()) {
       // Ad-hoc (unsaved) block definition — used by the constructor's block
       // authoring preview. Same shape as a library block JSON.
@@ -487,15 +710,23 @@ export function composeEmailFromBlocks({
         childSlots: Array.isArray(entry.def.childSlots) ? entry.def.childSlots : [],
         appearance: entry.def.appearance && typeof entry.def.appearance === "object" ? entry.def.appearance : {},
       };
+      origin = "ad-hoc";
     } else {
-      try { block = loadCanonicalBlock(blockId); }
+      try {
+        const record = loadBlockRecord(blockId);
+        block = record.block;
+        origin = record.origin;
+      }
       catch (err) {
         warnings.push(`block "${blockId}" not found in canonical library — skipped`);
         continue;
       }
     }
+    if (origin !== "canonical") {
+      assertPortableBlockSource(block, { label: `${origin} block "${blockId}"` });
+    }
     const slotValues = resolveBlockSlotValues(block, entry.slots || {});
-    resolved.push({ entry, block, slotValues, inputIndex });
+    resolved.push({ entry, block, origin, slotValues, inputIndex });
   }
   if (!resolved.length) throw new Error(`no resolvable blocks (warnings: ${warnings.join("; ")})`);
 
@@ -744,11 +975,63 @@ export function composeEmailFromBlocks({
   const composedStyl = stylParts.join("\n");
 
   // 3) Scaffold the destination mail folder.
-  const destDir = path.join(destRoot, brand, `mail-${mailName}`);
   if (existsSync(destDir)) {
     try { rmSync(destDir, { recursive: true, force: true }); } catch { /* ignore */ }
   }
-  copyTreeSkippingDist(skeleton, destDir);
+  copyTreeSkippingDist(resolvedSkeleton, destDir);
+
+  // The outer block is a constructor context node and is not emitted into
+  // blocks/header.pug. Its one meaningful visual setting belongs on the real
+  // scaffold shell instead, otherwise the inspector appears to accept a color
+  // that never reaches either preview or saved HTML.
+  const outerContext = resolved.find((item) => (
+    item.block.placement === "outer"
+    && (!explicitTree || item.entry.parentUid === null)
+  ));
+
+  // A new constructor mail must not inherit the campaign namespace of the
+  // default IQ Broker skeleton. Reopened/parsed mail round-trips opt out via
+  // preserveSkeletonPreheader so their authored source stays byte-for-byte in
+  // control; fresh canonical composition receives a neutral, valid preheader.
+  const outerHasPreheaderSlot = Boolean(
+    outerContext?.entry?.slots
+    && Object.prototype.hasOwnProperty.call(outerContext.entry.slots, "preheader")
+  );
+  const explicitOuterPreheader = Boolean(
+    outerHasPreheaderSlot
+    && (
+      (Array.isArray(outerContext.entry.explicitSlots) && outerContext.entry.explicitSlots.includes("preheader"))
+      // Backward compatibility for constructor models saved before explicitSlots:
+      // a non-empty authored value was necessarily deliberate. The ambiguous
+      // synthesized empty default is inherited unless the new marker is set.
+      || String(outerContext.entry.slots.preheader ?? "").trim()
+    )
+  );
+  if (!preserveSkeletonPreheader || explicitOuterPreheader) {
+    let preheaderText = String(outerContext?.slotValues?.preheader ?? "").trim();
+    if (/\$\{\{\s*[a-z0-9_.-]+\s*\}\}\$/i.test(preheaderText)) {
+      warnings.push("outer preheader campaign placeholder was removed from a reusable constructor mail");
+      preheaderText = "";
+    }
+    const hiddenFill = "\u00a0".repeat(120);
+    const preheaderPug = `div.preheader= ${JSON.stringify(`${preheaderText}${preheaderText ? " " : ""}${hiddenFill}`)}\n`;
+    const helperDir = path.join(destDir, "app", "templates", "helpers");
+    mkdirSync(helperDir, { recursive: true });
+    writeFileSync(path.join(helperDir, "preheader.pug"), preheaderPug, "utf8");
+    writeFileSync(path.join(helperDir, "preheader.jade"), preheaderPug, "utf8");
+  }
+
+  const outerBackground = outerContext?.entry?.appearance?.background_color
+    ?? outerContext?.block?.appearance?.background_color
+    ?? outerContext?.slotValues?.background_color;
+  if (outerBackground != null && String(outerBackground).trim()) {
+    for (const extension of ["pug", "jade"]) {
+      const indexPath = path.join(destDir, "app", "templates", `index.${extension}`);
+      if (!existsSync(indexPath)) continue;
+      const indexSource = readFileSync(indexPath, "utf8");
+      writeFileSync(indexPath, applyOuterWrapperBackgroundToPug(indexSource, outerBackground), "utf8");
+    }
+  }
 
   // 4) Drop the composed pug into blocks/header.pug + styl into blocks/main.styl.
   const headerPug = path.join(destDir, "app", "templates", "blocks", "header.pug");
@@ -788,8 +1071,8 @@ export function composeEmailFromBlocks({
 
   return {
     destDir,
-    brand,
-    mailName,
+    brand: safeBrand,
+    mailName: safeMailName,
     totalBlocks: blocks.length,
     blocksUsed: emitted.length,
     warnings,

@@ -30,7 +30,7 @@
       <div class="rail-mode-switch" aria-label="Режим левой панели">
         <button class="rail-mode active" id="paletteBlocksMode" type="button">＋ Блоки</button>
         <button class="rail-mode" id="paletteOutlineMode" type="button">☷ Структура</button>
-        <button class="rail-auto active" id="paletteAutoBtn" type="button" title="После добавления готовой секции из каталога открыть её внутренние блоки; обычное выделение вкладки не меняет">⚡ После секции</button>
+        <button class="rail-auto active" id="paletteAutoBtn" type="button" aria-pressed="true" title="После добавления секции из каталога автоматически открыть вкладку внутренних блоков. Обычное выделение уже добавленного блока вкладки не переключает.">Авто → Внутри</button>
       </div>
       <div class="palette-context">
         <div class="palette-breadcrumb" id="paletteBreadcrumb">Письмо</div>
@@ -51,10 +51,23 @@
         <div class="cat-search-row">
           <input type="search" id="catSearch" class="cat-search" placeholder="Поиск блоков…" spellcheck="false" />
         </div>
+        <div class="cat-source-row">
+          <select id="catSourceScope" class="cat-select" title="Какие источники блоков показывать">
+            <option value="curated">Проверенные блоки</option>
+            <option value="user">Мои блоки: draft / candidate</option>
+            <option value="all">Все, включая legacy</option>
+          </select>
+        </div>
+        <div class="cat-source-warning hidden" id="catLegacyWarning">
+          Legacy-блоки вырезаны из старых писем: их стили и картинки относятся к конкретным кампаниям и могут плохо сочетаться между собой.
+        </div>
         <div class="cat-filters-row">
           <select id="catBrand" class="cat-select" title="Источник / бренд"><option value="all">Все бренды</option></select>
           <select id="catCategory" class="cat-select" title="Категория блока"><option value="all">Все категории</option></select>
           <label class="cat-check" title="Только блоки с мобильной адаптацией (@media)"><input type="checkbox" id="catMobile" />📱</label>
+        </div>
+        <div class="cat-source-warning hidden" id="loadedLegacyWarning">
+          Открыто legacy-письмо без модели конструктора. Секции, картинки и стили сохранены в исходном порядке как цельный код; отдельные поля внутри них не распознаны.
         </div>
         <div class="cat-count" id="catCount"></div>
         <button class="btn author-new-btn" id="newBlockBtn" title="Создать новый блок с нуля (pug + stylus + слоты)">➕ Создать блок</button>
@@ -111,7 +124,7 @@
     <div class="preview-modal-bar">
       <span class="preview-title">Preview</span>
       <span class="preview-stats" id="previewStats"></span>
-      <button class="btn preview-close" id="previewClose">✕</button>
+      <button class="btn preview-close" id="previewClose" title="Закрыть полноэкранное превью">✕</button>
     </div>
     <iframe class="preview-frame" id="previewFrame" sandbox="allow-same-origin"></iframe>
   </div>
@@ -121,7 +134,7 @@
     <div class="author-card">
       <div class="author-bar">
         <span class="author-title" id="authorTitle">➕ Новый блок</span>
-        <button class="btn preview-close" id="authorClose">✕</button>
+        <button class="btn preview-close" id="authorClose" title="Закрыть редактор блока">✕</button>
       </div>
       <div class="author-body">
         <div class="author-form">
@@ -172,7 +185,7 @@
         </div>
       </div>
       <div class="author-footer">
-        <span class="author-hint" id="abFootHint">Блок сохранится в «My blocks» и сразу появится в каталоге.</span>
+        <span class="author-hint" id="abFootHint">Сохранение запускает проверку Pug/Stylus и слотов: draft нельзя вставить, candidate можно проверить и одобрить вручную. AI-review опционален и не заменяет эту проверку.</span>
         <div style="display:flex;gap:8px">
           <button class="btn" id="abCancel">Отмена</button>
           <button class="btn btn-primary" id="abSave">💾 Сохранить блок</button>
@@ -188,7 +201,7 @@
         <span id="viewTitle">Блок</span>
         <div style="margin-left:auto; display:flex; gap:8px;">
           <button class="btn" id="viewDupBtn" title="Создать редактируемую копию в моих блоках">⧉ Дублировать в мои блоки</button>
-          <button class="btn" id="viewCloseBtn">✕</button>
+          <button class="btn" id="viewCloseBtn" title="Закрыть просмотр блока">✕</button>
         </div>
       </div>
       <div class="view-meta" id="viewMeta"></div>

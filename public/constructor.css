@@ -507,11 +507,42 @@ body.dragging-canvas-card .canvas { pointer-events: auto; }
   border-color: rgba(63, 185, 80, .35);
   background: linear-gradient(180deg, rgba(63, 185, 80, .07), var(--bg-2));
 }
+.cat-item.cat-item-user.review-candidate { border-color: rgba(245, 185, 76, .5); }
+.cat-item.cat-item-user.review-approved { border-color: rgba(63, 185, 80, .65); }
+.cat-item.cat-item-user.review-draft,
+.cat-item.cat-item-disabled { border-color: rgba(248, 81, 73, .34); opacity: .78; }
+.cat-item.cat-item-disabled .cat-item-thumb { filter: grayscale(.7); }
+.cat-item.cat-item-legacy { border-color: rgba(210, 153, 48, .28); }
+.cat-item.cat-item-legacy .cat-item-badge {
+  color: #d8b66b;
+  font: 600 9px/1 ui-monospace, Menlo, monospace;
+  text-transform: uppercase;
+}
+.cat-legacy-note { margin-top: 5px; color: #c39d52; font-size: 10px; line-height: 1.35; }
 .cat-item-badge {
   margin-left: 4px;
   font-size: 11px;
   opacity: .8;
 }
+.block-review-badge {
+  border-radius: 999px;
+  padding: 2px 6px;
+  font: 700 8px/1 ui-monospace, Menlo, monospace;
+  text-transform: uppercase;
+}
+.block-review-badge.review-draft { color: #ff9b96; background: rgba(248,81,73,.13); }
+.block-review-badge.review-candidate { color: #f5c76f; background: rgba(245,185,76,.13); }
+.block-review-badge.review-approved { color: #75dc89; background: rgba(63,185,80,.13); }
+.cat-item-approve {
+  border: 1px solid rgba(63,185,80,.4);
+  border-radius: 5px;
+  background: rgba(63,185,80,.12);
+  color: #75dc89;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+}
+.cat-item-approve:hover { background: rgba(63,185,80,.22); border-color: rgba(63,185,80,.7); }
 .cat-item-del {
   margin-left: auto;
   background: transparent;
@@ -683,6 +714,7 @@ body.dragging-canvas-card .canvas { pointer-events: auto; }
 
 /* ─── Catalog filters & search ─────────────────────────────────── */
 .cat-search-row { padding: 0 10px 6px; }
+.cat-source-row { padding: 0 10px 6px; }
 .cat-search {
   width: 100%; box-sizing: border-box; padding: 7px 10px;
   border: 1px solid var(--border, #2a2f3a); border-radius: 8px;
@@ -695,6 +727,16 @@ body.dragging-canvas-card .canvas { pointer-events: auto; }
   background: var(--bg-input, #10131a); color: inherit; font-size: 11px;
 }
 .cat-check { display: flex; align-items: center; gap: 3px; font-size: 13px; cursor: pointer; }
+.cat-source-warning {
+  margin: 0 10px 7px;
+  padding: 7px 8px;
+  border: 1px solid rgba(210, 153, 48, .42);
+  border-radius: 7px;
+  background: rgba(210, 153, 48, .09);
+  color: #d8b66b;
+  font-size: 10px;
+  line-height: 1.35;
+}
 .cat-count { padding: 0 12px 6px; font-size: 11px; color: var(--muted, #8b93a3); }
 .cat-more-btn { width: calc(100% - 20px); margin: 8px 10px 12px; }
 .cat-item-view {

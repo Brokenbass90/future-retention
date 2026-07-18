@@ -32,7 +32,15 @@ Optional:
 DEEPL_API_KEY
 DEEPL_API_URL
 FIGMA_API_TOKEN
+OPENAI_IMAGE_MODEL
+PREVIEW_BUILD_CONCURRENCY
+PREVIEW_BUILD_CACHE_ENTRIES
+PREVIEW_BUILD_CACHE_TTL_MS
 ```
+
+Preview build defaults are `2` concurrent compilers, `80` cached results and a
+`30000` ms TTL. On small dynos keep concurrency at `1` or `2`; raising it can
+make constructor thumbnails compete with the active canvas for CPU and memory.
 
 Never commit `.env` or production credentials.
 

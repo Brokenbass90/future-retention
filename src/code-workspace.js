@@ -9,7 +9,12 @@ export const BASE_HTML_LOCALE = "base";
 const LOCALE_RE = /^[A-Za-z]{2}(?:[_-][A-Za-z]{2})?$/;
 const OVERRIDE_DIR = ".retkit-workbench/html-overrides";
 const MAX_HTML_BYTES = 20 * 1024 * 1024;
+const MAX_DIAGNOSTICS_CACHE_ENTRIES = 512;
 const overrideWriteTails = new Map();
+// Workspace listing is a hot path (open mail, switch locale, finish build).
+// Keep diagnostics discovered while reading the *active* HTML document, but do
+// not read and localize every locale merely to render the selector.
+const htmlDiagnosticsCache = new Map();
 
 function privateSiblingPath(destination, purpose) {
   return path.join(
@@ -81,14 +86,25 @@ function overrideHtmlPath(overrideRoot, locale) {
   return path.join(overrideRoot, `${locale}.html`);
 }
 
+async function fileMetadata(filePath) {
+  const info = await stat(filePath);
+  return {
+    mtimeMs: info.mtimeMs,
+    size: info.size,
+    version: `${info.dev}:${info.ino}:${info.size}:${info.mtimeMs}:${info.ctimeMs}`,
+  };
+}
+
 async function listCompiledLocales(distRoot) {
-  const locales = new Set();
-  if (existsSync(path.join(distRoot, "index.html"))) locales.add(BASE_HTML_LOCALE);
+  const locales = new Map();
+  const basePath = path.join(distRoot, "index.html");
+  if (existsSync(basePath)) locales.set(BASE_HTML_LOCALE, await fileMetadata(basePath));
   if (!existsSync(distRoot)) return locales;
   const entries = await readdir(distRoot, { withFileTypes: true });
   for (const entry of entries) {
     if (!entry.isDirectory() || !LOCALE_RE.test(entry.name)) continue;
-    if (existsSync(path.join(distRoot, entry.name, "index.html"))) locales.add(entry.name);
+    const filePath = path.join(distRoot, entry.name, "index.html");
+    if (existsSync(filePath)) locales.set(entry.name, await fileMetadata(filePath));
   }
   return locales;
 }
@@ -102,8 +118,11 @@ async function listOverrideLocales(overrideRoot) {
     const locale = entry.name.slice(0, -5);
     try {
       const normalized = normalizeCodeLocale(locale);
-      const info = await stat(path.join(overrideRoot, entry.name));
-      locales.set(normalized, info.mtime.toISOString());
+      const metadata = await fileMetadata(path.join(overrideRoot, entry.name));
+      locales.set(normalized, {
+        ...metadata,
+        detachedAt: new Date(metadata.mtimeMs).toISOString(),
+      });
     } catch {
       // Ignore unrelated files in the private workbench directory.
     }
@@ -115,13 +134,41 @@ function localeLabel(locale) {
   return locale === BASE_HTML_LOCALE ? "Original" : locale;
 }
 
+function summarizeLocalization(diagnostics) {
+  if (!diagnostics) return null;
+  return {
+    status: diagnostics.status,
+    expectedRaw: diagnostics.expectedRaw === true,
+    tokenCount: Number(diagnostics.tokenCount || 0),
+    unresolvedCount: Number(diagnostics.unresolvedCount || 0),
+    replacedCount: Number(diagnostics.replacedCount || 0),
+    unresolvedTokens: (diagnostics.unresolvedTokens || []).slice(0, 20),
+  };
+}
+
+function rememberHtmlDiagnostics(filePath, metadata, diagnostics) {
+  htmlDiagnosticsCache.delete(filePath);
+  htmlDiagnosticsCache.set(filePath, {
+    version: metadata.version,
+    localization: summarizeLocalization(diagnostics),
+  });
+  while (htmlDiagnosticsCache.size > MAX_DIAGNOSTICS_CACHE_ENTRIES) {
+    htmlDiagnosticsCache.delete(htmlDiagnosticsCache.keys().next().value);
+  }
+}
+
+function cachedHtmlDiagnostics(filePath, metadata) {
+  const cached = htmlDiagnosticsCache.get(filePath);
+  return cached?.version === metadata?.version ? cached.localization : null;
+}
+
 export async function listCodeWorkspace({ emailBaseRoot, brand, mail }) {
   const { distRoot, overrideRoot } = resolveMailPaths(emailBaseRoot, brand, mail);
   const [compiled, overrides] = await Promise.all([
     listCompiledLocales(distRoot),
     listOverrideLocales(overrideRoot),
   ]);
-  const all = new Set([...compiled, ...overrides.keys()]);
+  const all = new Set([...compiled.keys(), ...overrides.keys()]);
   const ordered = [...all].sort((left, right) => {
     if (left === BASE_HTML_LOCALE) return -1;
     if (right === BASE_HTML_LOCALE) return 1;
@@ -129,13 +176,30 @@ export async function listCodeWorkspace({ emailBaseRoot, brand, mail }) {
     if (right === "en") return 1;
     return left.localeCompare(right);
   });
-  const locales = ordered.map((code) => ({
-    code,
-    label: localeLabel(code),
-    detached: overrides.has(code),
-    detachedAt: overrides.get(code) || null,
-    hasCompiled: compiled.has(code),
-  }));
+  const locales = ordered.map((code) => {
+    const override = overrides.get(code) || null;
+    const compiledMetadata = compiled.get(code) || null;
+    const effectiveMetadata = override || compiledMetadata;
+    const effectivePath = override
+      ? overrideHtmlPath(overrideRoot, code)
+      : compiledHtmlPath(distRoot, code);
+    const localization = cachedHtmlDiagnostics(effectivePath, effectiveMetadata);
+    // `null` means "not inspected yet", not "broken". The active HTML read
+    // fills the cache and supplies complete diagnostics to the editor banner.
+    const ready = code === BASE_HTML_LOCALE
+      ? true
+      : (localization ? localization.status !== "missing" && localization.unresolvedCount === 0 : null);
+    return {
+      code,
+      label: localeLabel(code),
+      detached: Boolean(override),
+      detachedAt: override?.detachedAt || null,
+      hasCompiled: compiled.has(code),
+      ready,
+      localization,
+      diagnosticsCached: Boolean(localization),
+    };
+  });
   return {
     locales,
     defaultLocale: compiled.has(BASE_HTML_LOCALE)
@@ -149,11 +213,13 @@ export async function readCodeHtml({ emailBaseRoot, brand, mail, locale }) {
   const { distRoot, overrideRoot } = resolveMailPaths(emailBaseRoot, brand, mail);
   const overridePath = overrideHtmlPath(overrideRoot, normalizedLocale);
   if (existsSync(overridePath)) {
+    const metadata = await fileMetadata(overridePath);
     const resolved = await resolveRemainingHtmlLocalization({
       emailBaseRoot,
       html: await readFile(overridePath, "utf8"),
       locale: normalizedLocale,
     });
+    rememberHtmlDiagnostics(overridePath, metadata, resolved.localization);
     return {
       locale: normalizedLocale,
       html: resolved.html,
@@ -164,11 +230,13 @@ export async function readCodeHtml({ emailBaseRoot, brand, mail, locale }) {
   }
   const builtPath = compiledHtmlPath(distRoot, normalizedLocale);
   if (!existsSync(builtPath)) throw new Error("Compiled locale not found");
+  const metadata = await fileMetadata(builtPath);
   const resolved = await resolveRemainingHtmlLocalization({
     emailBaseRoot,
     html: await readFile(builtPath, "utf8"),
     locale: normalizedLocale,
   });
+  rememberHtmlDiagnostics(builtPath, metadata, resolved.localization);
   return {
     locale: normalizedLocale,
     html: resolved.html,

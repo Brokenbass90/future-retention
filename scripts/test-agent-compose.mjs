@@ -62,19 +62,19 @@ async function main() {
   const SCRIPT = [
     // Turn 0: list available blocks.
     { output: [mkFnCall("c1", "list_canonical_blocks", {})] },
-    // Turn 1: compose using 3 of them.
+    // Turn 1: compose using three current, release-safe canonical sections.
     { output: [mkFnCall("c2", "compose_email_from_blocks", {
       brand: TEST_BRAND,
       mailName: TEST_MAIL,
       blocks: [
-        { id: "header-logo", slots: { brand_name: "AgentBrand" } },
-        { id: "hero-stack",  slots: { title: "AGENT-HERO-TITLE", body: "AGENT-HERO-BODY" } },
-        { id: "cta-banner",  slots: { title: "AGENT-BANNER", cta_label: "Click" } },
+        { id: "iq-combo-hero-233", slots: { title: "AGENT-HERO-TITLE", body: "AGENT-HERO-BODY" } },
+        { id: "iq-combo-promo-steps", slots: { title: "AGENT-BANNER", cta_label: "Click" } },
+        { id: "iq-footer", slots: {} },
       ],
     })] },
     // Turn 2: finish.
     { output: [mkFnCall("c3", "finish", {
-      summary: "Собрал email из 3 блоков: header-logo + hero-stack + cta-banner. Запиши под email-base/X_assembled/mail-agent-compose-test/.",
+      summary: "Собрал email из трёх canonical-секций: hero, promo и footer.",
     })] },
   ];
 
@@ -110,6 +110,7 @@ async function main() {
   const byName = {};
   for (const f of frames) if (f.kind === "tool_result") byName[f.name] = f.result;
   assert(byName.list_canonical_blocks?.count >= 8, "list returned ≥ 8 blocks");
+  assert(byName.list_canonical_blocks?.blocks?.every((block) => block.source === "canonical"), "list excludes imported/user blocks");
   assert(byName.compose_email_from_blocks?.blocksUsed === 3, "compose used 3 blocks");
   assert(byName.compose_email_from_blocks?.brand === TEST_BRAND, "compose returned brand");
   assert(byName.compose_email_from_blocks?.mailName === TEST_MAIL, "compose returned mailName");
@@ -124,8 +125,8 @@ async function main() {
     const pug = readFileSync(headerPug, "utf8");
     assert(pug.includes("AGENT-HERO-TITLE"), "hero title from agent's slot is in composed pug");
     assert(pug.includes("AGENT-BANNER"),     "banner title from agent's slot is in composed pug");
-    assert(pug.includes("//- block-start: header-logo"), "block boundary marker for header-logo");
-    assert(pug.includes("//- block-end: cta-banner"),     "block boundary marker for cta-banner");
+    assert(pug.includes("//- block-start: iq-combo-hero-233"), "block boundary marker for hero combo");
+    assert(pug.includes("//- block-end: iq-footer"),           "block boundary marker for footer");
   }
 
   section("Cleanup");

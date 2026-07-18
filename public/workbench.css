@@ -2884,6 +2884,11 @@ svg { display: block; flex-shrink: 0; }
   border-color: rgba(245,158,11,.45);
   background: rgba(245,158,11,.1);
 }
+.compiled-locale-status[data-state="unresolved"] {
+  color: #f87171;
+  border-color: rgba(239,68,68,.5);
+  background: rgba(239,68,68,.1);
+}
 .compiled-locale-status[data-state="editing"] {
   color: #fff;
   border-color: var(--accent);

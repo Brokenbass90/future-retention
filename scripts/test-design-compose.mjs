@@ -50,23 +50,23 @@ const result = buildComposePlanFromDesign({ schema });
 const ids = result.plan.map((p) => p.id);
 console.log("  plan:", JSON.stringify(ids));
 
-check("roles map to header-logo / hero-stack / cta-banner",
-  JSON.stringify(ids) === JSON.stringify(["header-logo", "hero-stack", "cta-banner"]));
+check("only roles with release-safe canonical sections are mapped",
+  JSON.stringify(ids) === JSON.stringify(["iq-combo-hero-233", "iq-combo-promo-steps"]));
+check("missing canonical header is reported instead of using a legacy slice",
+  result.sections.find((section) => section.role === "header")?.status === "no-canonical-block");
 
-const hero = result.plan.find((p) => p.id === "hero-stack");
+const hero = result.plan.find((p) => p.id === "iq-combo-hero-233");
 check("hero title filled from design heading", hero?.slots.title === "Welcome traders");
 check("hero body filled from design body", hero?.slots.body === "Trade smarter today.");
-check("hero image filled from design image", hero?.slots.image_url === "https://example.com/hero.png");
+check("hero image filled from design image", hero?.slots.head_img === "https://example.com/hero.png");
 
-const cta = result.plan.find((p) => p.id === "cta-banner");
+const cta = result.plan.find((p) => p.id === "iq-combo-promo-steps");
 check("cta label filled from design cta text", cta?.slots.cta_label === "Sign up");
 
-// Exact style tokens now land in the block's STYLE slots (gap closed).
-check("cta button bg filled from primaryColor token", cta?.slots.button_bg === "#FF7700");
-check("cta banner bg filled from bgColor token", cta?.slots.bg_color === "#0D1117");
-check("cta button radius filled from buttonRadius token", cta?.slots.button_radius === 12);
-check("style slots were filled from tokens", result.styleSlotsFilled > 0);
-check("styleSlotGap closed once tokens are absorbed", result.styleSlotGap === false);
+// Current combo recipes expose content slots but not a complete theme surface.
+// Keep that limitation explicit instead of silently borrowing campaign CSS.
+check("style tokens are not silently written into unrelated content slots", result.styleSlotsFilled === 0);
+check("styleSlotGap remains explicit until canonical combos expose theme slots", result.styleSlotGap === true);
 
 // The plan must actually build into a real email.
 const tmp = path.join(os.tmpdir(), "retkit-design-compose-test");

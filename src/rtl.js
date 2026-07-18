@@ -22,7 +22,14 @@ import path from "node:path";
 
 const require = createRequire(import.meta.url);
 
-const RTL_PREFIXES = ["ar", "he", "fa", "ur"];
+const RTL_SCRIPT_CODES = new Set([
+  "adlm", "arab", "hebr", "mand", "nkoo", "rohg", "samr", "syrc", "thaa", "yezi",
+]);
+const RTL_DEFAULT_LANGUAGES = new Set([
+  "ar", "arc", "dv", "fa", "he", "khw", "ks", "ps", "sd", "ug", "ur", "yi",
+]);
+const RTL_V2_MARKER_RE = /<!--\s*retkit-rtl:v2:(text|mirror)\s*-->/i;
+const RTL_ANY_MARKER_RE = /<!--\s*retkit-rtl:v(?:1|2(?::(?:text|mirror))?)\s*-->/i;
 
 // Cache the resolved module — but invalidate when the file on disk
 // changes. Without this, edits to email-base/tools/rtl.js wouldn't take
@@ -35,15 +42,93 @@ let _rtlCoreMtimeMs = 0;
 let _rtlCorePath = null;
 
 function normalizeLocaleCode(locale) {
-  return String(locale || "").trim();
+  return String(locale || "").trim().replace(/_/g, "-").split(/[.@]/, 1)[0];
+}
+
+function parseLocaleForDirection(locale) {
+  const normalized = normalizeLocaleCode(locale);
+  const parts = normalized.split("-").filter(Boolean);
+  const language = /^[a-z]{2,3}$/i.test(parts[0] || "") ? parts[0].toLowerCase() : "";
+  let script = "";
+  let region = "";
+  for (const part of parts.slice(1)) {
+    if (/^[a-z0-9]$/i.test(part)) break;
+    if (!script && /^[a-z]{4}$/i.test(part)) script = part.toLowerCase();
+    else if (!region && /^(?:[a-z]{2}|\d{3})$/i.test(part)) region = part.toUpperCase();
+  }
+  return { normalized, language, script, region };
+}
+
+function fallbackLikelyScript({ language, region }) {
+  if (language === "ha") return "latn";
+  if (language === "ku") return /^(?:IQ|IR)$/.test(region) ? "arab" : "latn";
+  if (language === "ks") return "arab";
+  if (language === "az") return region === "IR" ? "arab" : "latn";
+  if (language === "pa") return region === "PK" ? "arab" : "guru";
+  if (language === "uz") return region === "AF" ? "arab" : "latn";
+  return RTL_DEFAULT_LANGUAGES.has(language) ? "arab" : "latn";
+}
+
+function resolveLocaleScript(locale) {
+  const parsed = parseLocaleForDirection(locale);
+  if (!parsed.language) return "";
+  if (parsed.script) return parsed.script;
+  try {
+    if (typeof Intl !== "undefined" && typeof Intl.Locale === "function") {
+      const likely = new Intl.Locale(parsed.normalized).maximize();
+      if (likely.script) return String(likely.script).toLowerCase();
+    }
+  } catch {
+    // Invalid/private locale: deterministic fallback below.
+  }
+  return fallbackLikelyScript(parsed);
 }
 
 export function isRtlLocale(locale) {
-  const normalized = normalizeLocaleCode(locale).toLowerCase();
-  if (!normalized) return false;
-  return RTL_PREFIXES.some(
-    (prefix) => normalized === prefix || normalized.startsWith(`${prefix}_`) || normalized.startsWith(`${prefix}-`)
+  return RTL_SCRIPT_CODES.has(resolveLocaleScript(locale));
+}
+
+function normalizeRtlMode(opts) {
+  const rawMode = typeof opts === "string"
+    ? opts
+    : (opts && (opts.mode || opts.layout || opts.layoutMode));
+  return /^(?:mirror|full)$/i.test(String(rawMode || "").trim()) ? "mirror" : "text";
+}
+
+function getAppliedRtlMode(html) {
+  const marker = RTL_V2_MARKER_RE.exec(String(html || ""));
+  return marker ? marker[1].toLowerCase() : "";
+}
+
+function hasLegacyRtlMarker(html) {
+  const source = String(html || "");
+  return (!getAppliedRtlMode(source) && RTL_ANY_MARKER_RE.test(source))
+    || /<html\b[^>]*\bdata-retkit-rtl\s*=\s*(["']?)1\1/i.test(source);
+}
+
+function createRtlModeConflict(appliedMode, requestedMode) {
+  const error = new Error(
+    `[rtl] HTML is already transformed in "${appliedMode}" mode and cannot be switched to ` +
+    `"${requestedMode}" after mutation. Rebuild from clean source (Original) and apply the requested mode.`
   );
+  error.code = "RETKIT_RTL_MODE_CONFLICT";
+  error.appliedMode = appliedMode;
+  error.requestedMode = requestedMode;
+  return error;
+}
+
+function assertRtlModeCanApply(html, mode) {
+  const appliedMode = getAppliedRtlMode(html);
+  if (appliedMode) {
+    if (appliedMode === mode) return false;
+    throw createRtlModeConflict(appliedMode, mode);
+  }
+  if (hasLegacyRtlMarker(html)) throw createRtlModeConflict("legacy/unknown", mode);
+  if (/\bdata-rtl-swapped\s*=/i.test(String(html || ""))) {
+    if (mode === "mirror") return false;
+    throw createRtlModeConflict("mirror", mode);
+  }
+  return true;
 }
 
 function loadRtlCore() {
@@ -77,14 +162,26 @@ function loadRtlCore() {
  * is unavailable. Intentionally MINIMAL: it never adds `dir="rtl"` to
  * wrappers, links, inline tags, or whole tables/rows. The core module
  * in email-base/tools/rtl.js does the precise innermost-text-cell
- * detection; this fallback just does the safe attribute/CSS flips so
- * the email isn't completely LTR in a degraded mode. If a deployment
+ * detection; this fallback limits changes to text nodes and CTA shells so
+ * framework-derived inline layout is not moved in degraded mode. If a deployment
  * runs this fallback for a while, the result is "mostly correct RTL
  * text alignment, no aggressive dir injection that could squeeze
  * layout".
  */
-function rtlInlineFallback(source) {
+function rtlInlineFallback(source, opts = {}) {
   let html = source;
+  const mode = normalizeRtlMode(opts);
+  if (!assertRtlModeCanApply(html, mode)) {
+    // A marker with this mode is an exact no-op. Legacy mirror signatures are
+    // left untouched because their source has already been mutated.
+    if (!getAppliedRtlMode(html) && /\bdata-rtl-swapped\s*=/i.test(html)) {
+      const marker = `<!--retkit-rtl:v2:mirror-->`;
+      return /<html\b/i.test(html)
+        ? html.replace(/<html\b[^>]*>/i, (open) => `${open}${marker}`)
+        : `${marker}${html}`;
+    }
+    return html;
+  }
   const flipCss = (css) =>
     String(css || "").replace(
       /\btext-align\s*:\s*(left|start|end)\b([^;}\n]*)/gi,
@@ -122,33 +219,56 @@ function rtlInlineFallback(source) {
           .replace(/\balign\s*=\s*(["'])([\s\S]*?)\1/i, 'align="right"')
           .replace(/\balign\s*=\s*([^\s"'>]+)/i, 'align="right"')
       : `${attrs} align="right"`;
-  html = html
-    // 1) flip text-align in <style> blocks
-    .replace(
-      /(<style[^>]*>)([\s\S]*?)(<\/style>)/gi,
-      (_m, open, body, close) => `${open}${flipCss(body)}${close}`
-    )
-    // 2) flip text-align inside inline style="..." on every tag
-    .replace(/<([a-z][\w:-]*)([^>]*)>/gi, (m, tag, attrs) => {
+  const withDirRtl = (attrs) => /\bdir\s*=/i.test(attrs) ? attrs : ` dir="rtl"${attrs}`;
+  const ensureTextAlignRight = (attrs) => {
+    const styleMatch = String(attrs || "").match(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i);
+    const textAlign = styleMatch?.[2]?.match(/\btext-align\s*:\s*([a-zA-Z-]+)/i)?.[1]?.toLowerCase();
+    if (textAlign && !/^(?:left|start|end)$/.test(textAlign)) return attrs;
+    if (textAlign) {
+      attrs = attrs.replace(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i,
+        (_full, q, body) => `style=${q}${flipCss(body)}${q}`);
+    }
+    const align = readAttr(attrs, "align").toLowerCase();
+    if (/^(?:center|middle|right|justify)$/.test(align)) return attrs;
+    if (/^(?:left|start|end)$/.test(align)) attrs = forceAlignRight(attrs);
+    if (textAlign) return attrs;
+    if (/\bstyle\s*=/i.test(attrs)) {
+      return attrs.replace(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i,
+        (_full, q, body) => `style=${q}${body.replace(/\s*;?\s*$/, ";")} text-align: right;${q}`);
+    }
+    return `${attrs} style="text-align: right;"`;
+  };
+
+  // Full mirroring remains an explicit opt-in even in degraded mode.
+  if (mode === "mirror") {
+    html = html.replace(/<([a-z][\w:-]*)([^>]*)>/gi, (m, tag, attrs) => {
       if (/^(?:style|script)$/i.test(tag) || !/\bstyle\s*=/i.test(attrs)) return m;
       return `<${tag}${attrs.replace(
         /\bstyle\s*=\s*(["'])([\s\S]*?)\1/i,
         (_full, q, body) => `style=${q}${flipCss(body)}${q}`
       )}>`;
-    })
-    // 3) flip align="left|start|end" → align="right" — no dir added
-    .replace(/<([a-z][\w:-]*)([^>]*)>/gi, (m, tag, attrs) => {
+    });
+    html = html.replace(/<([a-z][\w:-]*)([^>]*)>/gi, (m, tag, attrs) => {
       if (/^(?:style|script)$/i.test(tag) || !/\balign\s*=/i.test(attrs)) return m;
       return `<${tag}${flipAlign(attrs)}>`;
-    })
-    // 4) button class tables → force align="right" (no dir).
-    //    Centered-by-design buttons (align="center" / margin auto) stay centered.
-    .replace(/<table\b([^>]*)>/gi, (m, attrs) => {
-      if (!isButtonClassToken(attrs)) return m;
-      if (isSelfCentered(attrs)) return m;
-      return `<table${forceAlignRight(attrs)}>`;
     });
-  return html;
+  }
+
+  html = html.replace(/<table\b([^>]*)>/gi, (m, attrs) => {
+    if (!isButtonClassToken(attrs) || isSelfCentered(attrs)) return m;
+    return `<table${forceAlignRight(attrs)}>`;
+  });
+  html = html.replace(/<(p|h[1-6]|li)\b([^>]*)>/gi,
+    (_m, tag, attrs) => `<${tag}${ensureTextAlignRight(withDirRtl(attrs))}>`);
+  html = html.replace(/<(td|th)\b([^>]*)>([^<]+)<\/\1>/gi, (m, tag, attrs, text) => {
+    if (!/[A-Za-zА-Яа-яЁё֐-׿؀-ۿݐ-ݿ]/.test(text)) return m;
+    return `<${tag}${ensureTextAlignRight(withDirRtl(attrs))}>${text}</${tag}>`;
+  });
+
+  const marker = `<!--retkit-rtl:v2:${mode}-->`;
+  return /<html\b/i.test(html)
+    ? html.replace(/<html\b[^>]*>/i, (open) => `${open}${marker}`)
+    : `${marker}${html}`;
 }
 
 /**
@@ -159,18 +279,19 @@ function rtlInlineFallback(source) {
  * @param {(s:string)=>string} [cleanText]  optional pre-clean function (e.g. server.js's cleanText)
  * @returns {string}
  */
-export function applyLocaleDirectionToHtml(html, locale, cleanText) {
+export function applyLocaleDirectionToHtml(html, locale, cleanText, opts = {}) {
   const source = typeof cleanText === "function" ? cleanText(html) : String(html || "");
   if (!source || !isRtlLocale(locale)) return source;
   const core = loadRtlCore();
   if (core && typeof core.applyRtl === "function") {
     try {
-      return core.applyRtl(source);
+      return core.applyRtl(source, opts);
     } catch (err) {
+      if (err && err.code === "RETKIT_RTL_MODE_CONFLICT") throw err;
       console.warn("[rtl] core apply failed:", err && err.message ? err.message : err);
     }
   }
-  return rtlInlineFallback(source);
+  return rtlInlineFallback(source, opts);
 }
 
 /**

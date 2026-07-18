@@ -5,14 +5,16 @@
  * Design principle: change as little as possible. The email column
  * keeps its centered structural layout intact; only:
  *   - text reading direction is set on the INNERMOST text-bearing
- *     <td>/<th> cells (where the actual localized text lives),
+ *     <td>/<th> cells (where the actual localized text lives), except
+ *     mixed text/media blocks whose inline source order must stay intact,
  *   - text alignment is flipped from left → right (or added as right
  *     when no text-align was set) on the elements that carry text
  *     (p / h1..h6 / li / leaf div, plus the innermost text td),
+ *   - direct-text <td>/<th> cells get the same treatment,
  *   - button shell tables are pulled to align="right" so CTA buttons
  *     end up on the right side of their column.
  *
- * EVERYTHING ELSE is left alone:
+ * In the default `text` mode EVERYTHING ELSE is left alone:
  *   - no dir="rtl" on wrappers, layout tables, structural <td>,
  *     spacers, <a>, <button>, <span>, <font>, <b>, etc.
  *   - no text-align inserted on elements that already declare
@@ -27,6 +29,12 @@
  *     <td class="butt…">. Detected by a stack-walk over the token
  *     stream. We never mark outer wrapper tables.
  *
+ * Opt-in `mirror` mode additionally mirrors physical inline sides and
+ * known two-column rows. It exists for templates whose art direction really
+ * calls for a complete mirror; it is deliberately not the default because
+ * inline-css has already copied framework rules onto body/table/td/img by the
+ * time this transformer runs.
+ *
  * Used by:
  *   - email-base/tools/build-mail.js          (build-time, on disk HTML)
  *   - server.js → applyLocaleDirectionToHtml  (preview/AI flow in the studio)
@@ -34,16 +42,65 @@
 
 'use strict';
 
-const RTL_LANG_PREFIXES = new Set([
-  'ar', 'he', 'fa', 'ur', 'ps', 'sd', 'ug', 'yi', 'ku', 'ks', 'dv', 'arc', 'ha',
+const RTL_SCRIPT_CODES = new Set([
+  'adlm', 'arab', 'hebr', 'mand', 'nkoo', 'rohg', 'samr', 'syrc', 'thaa', 'yezi',
+]);
+const RTL_DEFAULT_LANGUAGES = new Set([
+  'ar', 'arc', 'dv', 'fa', 'he', 'khw', 'ks', 'ps', 'sd', 'ug', 'ur', 'yi',
 ]);
 
+/**
+ * Parse the BCP-47 pieces needed for text direction without trusting input.
+ * Underscore locale names are common in the email base, while Intl.Locale
+ * accepts only hyphens. A small deterministic fallback keeps Node/browser
+ * behaviour aligned when Intl.Locale or full ICU likely-subtags are absent.
+ */
+function parseLocaleForDirection(localeRaw) {
+  const normalized = String(localeRaw || '')
+    .trim()
+    .replace(/_/g, '-')
+    .split(/[.@]/, 1)[0];
+  const parts = normalized.split('-').filter(Boolean);
+  const language = /^[a-z]{2,3}$/i.test(parts[0] || '') ? parts[0].toLowerCase() : '';
+  let script = '';
+  let region = '';
+  for (const part of parts.slice(1)) {
+    if (/^[a-z0-9]$/i.test(part)) break; // extensions/private-use are not script tags
+    if (!script && /^[a-z]{4}$/i.test(part)) script = part.toLowerCase();
+    else if (!region && /^(?:[a-z]{2}|\d{3})$/i.test(part)) region = part.toUpperCase();
+  }
+  return { normalized, language, script, region };
+}
+
+function fallbackLikelyScript({ language, region }) {
+  if (language === 'ha') return 'latn';
+  if (language === 'ku') return /^(?:IQ|IR)$/.test(region) ? 'arab' : 'latn';
+  if (language === 'ks') return 'arab';
+  if (language === 'az') return region === 'IR' ? 'arab' : 'latn';
+  if (language === 'pa') return region === 'PK' ? 'arab' : 'guru';
+  if (language === 'uz') return region === 'AF' ? 'arab' : 'latn';
+  return RTL_DEFAULT_LANGUAGES.has(language) ? 'arab' : 'latn';
+}
+
+function resolveLocaleScript(localeRaw) {
+  const parsed = parseLocaleForDirection(localeRaw);
+  if (!parsed.language) return '';
+  // An explicit script is authoritative: ar-Latn/ks-Deva are LTR and
+  // en-Arab/ha-Arab are RTL regardless of the language default.
+  if (parsed.script) return parsed.script;
+  try {
+    if (typeof Intl !== 'undefined' && typeof Intl.Locale === 'function') {
+      const likely = new Intl.Locale(parsed.normalized).maximize();
+      if (likely.script) return String(likely.script).toLowerCase();
+    }
+  } catch {
+    // Invalid/private locale: use the deterministic table below.
+  }
+  return fallbackLikelyScript(parsed);
+}
+
 function isRtlLocale(localeRaw) {
-  if (!localeRaw) return false;
-  const code = String(localeRaw).trim();
-  if (!code) return false;
-  const prefix = code.split(/[-_]/)[0].toLowerCase();
-  return RTL_LANG_PREFIXES.has(prefix);
+  return RTL_SCRIPT_CODES.has(resolveLocaleScript(localeRaw));
 }
 
 const VISIBLE_TEXT_RE = /[A-Za-zА-Яа-яЁё֐-׿؀-ۿݐ-ݿ]/;
@@ -77,6 +134,13 @@ function withDirRtl(attrs) {
   return ` dir="rtl"${attrs}`;
 }
 
+function normalizeRtlMode(opts) {
+  const raw = typeof opts === 'string'
+    ? opts
+    : (opts && (opts.mode || opts.layout || opts.layoutMode));
+  return /^(?:mirror|full)$/i.test(String(raw || '').trim()) ? 'mirror' : 'text';
+}
+
 /* ─── Style flippers: text-align only, !important preserved ─────── */
 
 function flipTextAlignInCss(css) {
@@ -94,11 +158,6 @@ function flipTextAlignInStyleAttr(attrs) {
   if (!/\bstyle\s*=/i.test(attrs)) return attrs;
   return attrs.replace(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i,
     (_m, q, body) => `style=${q}${flipTextAlignInCss(body)}${q}`);
-}
-
-function transformHeadStyles(html) {
-  return html.replace(/(<style[^>]*>)([\s\S]*?)(<\/style>)/gi,
-    (_m, open, body, close) => `${open}${flipTextAlignInCss(body)}${close}`);
 }
 
 function flipAllInlineStyles(html) {
@@ -210,11 +269,6 @@ function swapPhysicalSidesInStyleAttr(attrs) {
   if (!/\bstyle\s*=/i.test(attrs)) return attrs;
   return attrs.replace(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i,
     (_m, q, body) => `style=${q}${swapPhysicalSidesInCss(body)}${q}`);
-}
-
-function swapPhysicalSidesInHeadStyles(html) {
-  return html.replace(/(<style[^>]*>)([\s\S]*?)(<\/style>)/gi,
-    (_m, open, body, close) => `${open}${swapPhysicalSidesInCss(body)}${close}`);
 }
 
 function swapPhysicalSidesOnAllTags(html) {
@@ -369,10 +423,16 @@ function readTextAlignFromStyle(attrs) {
  */
 function ensureTextAlignRightIfMissing(attrs) {
   const current = readTextAlignFromStyle(attrs);
+  if (current !== null && !/^(?:left|start|end)$/i.test(current)) return attrs;
+  if (current !== null) attrs = flipTextAlignInStyleAttr(attrs);
+  const align = readAttr(attrs, 'align').toLowerCase();
+  if (align === 'center' || align === 'middle' || align === 'right' || align === 'justify') {
+    return attrs;
+  }
+  if (align === 'left' || align === 'start' || align === 'end') {
+    attrs = forceAlignRightAttr(attrs);
+  }
   if (current !== null) {
-    // Designer already declared an alignment; respect it. flipAllInlineStyles
-    // has already turned left/start/end into right earlier in the pipeline,
-    // so center/right/justify/inherit/initial are the only values we see here.
     return attrs;
   }
   // No text-align declared. Add it.
@@ -383,10 +443,75 @@ function ensureTextAlignRightIfMissing(attrs) {
   return `${attrs} style="text-align: right;"`;
 }
 
+/* ─── Direct-text cells: direction without touching layout cells ─── */
+
+const CELL_BLOCK_TAG_RE = /^(?:table|tbody|thead|tfoot|tr|td|th|center|div|p|h[1-6]|ul|ol|li|blockquote)$/i;
+const INLINE_ORDER_MEDIA_RE = /<(?:img|svg|picture|video|object|embed|input)\b/i;
+
+function hasMeaningfulDirectText(text) {
+  const stripped = String(text || '')
+    .replace(/&nbsp;|&#160;|&#xa0;|&#8203;|&#x200b;/gi, '')
+    .replace(/\s+/g, '');
+  return stripped.length > 0 && hasVisibleText(stripped);
+}
+
+function hasDirectVisibleText(inner) {
+  const tokenRe = /<!--[\s\S]*?-->|<[^>]+>|[^<]+/g;
+  let blockDepth = 0;
+  let token;
+  while ((token = tokenRe.exec(String(inner || ''))) !== null) {
+    const part = token[0];
+    if (part.startsWith('<!--')) continue;
+    if (part.startsWith('<')) {
+      const tag = /^<\s*(\/?)\s*([a-z][\w:-]*)\b[^>]*>/i.exec(part);
+      if (!tag || !CELL_BLOCK_TAG_RE.test(tag[2])) continue;
+      if (tag[1]) blockDepth = Math.max(0, blockDepth - 1);
+      else if (!/\/\s*>$/.test(part)) blockDepth += 1;
+      continue;
+    }
+    if (blockDepth === 0 && hasMeaningfulDirectText(part)) return true;
+  }
+  return false;
+}
+
+function findDirectTextCellStarts(html) {
+  const pairs = [];
+  const stack = [];
+  const tagRe = /<(\/?)\s*(td|th)\b([^>]*)>/gi;
+  let match;
+  while ((match = tagRe.exec(html)) !== null) {
+    const closing = Boolean(match[1]);
+    if (!closing) {
+      stack.push({ start: match.index, openEnd: tagRe.lastIndex });
+      continue;
+    }
+    const frame = stack.pop();
+    if (frame) pairs.push({ ...frame, closeStart: match.index });
+  }
+  return new Map(
+    pairs
+      .map((pair) => ({ ...pair, inner: html.slice(pair.openEnd, pair.closeStart) }))
+      .filter((pair) => hasDirectVisibleText(pair.inner))
+      .map((pair) => [pair.start, INLINE_ORDER_MEDIA_RE.test(pair.inner)])
+  );
+}
+
+function addRtlToDirectTextCells(html, opts = {}) {
+  const marked = findDirectTextCellStarts(html);
+  return html.replace(/<(td|th)\b([^>]*)>/gi, (match, tag, attrs, offset) => {
+    if (!marked.has(offset)) return match;
+    const preserveInlineOrder = opts.preserveInlineOrder !== false && marked.get(offset);
+    const next = ensureTextAlignRightIfMissing(preserveInlineOrder ? attrs : withDirRtl(attrs));
+    return `<${tag}${next}>`;
+  });
+}
+
 /* ─── Text-block elements: p / h* / li / leaf div get text-align right ─── */
 
 /**
  * Add dir="rtl" + text-align: right (if missing) on text-block elements.
+ * In safe text mode, mixed text/media blocks receive alignment only: adding
+ * `dir` there can reorder an inline image relative to the copy.
  * These are block-level — they don't affect inline-block sibling flow,
  * so it's safe to put dir on them without flipping multi-card grids.
  *
@@ -395,9 +520,39 @@ function ensureTextAlignRightIfMissing(attrs) {
  * place punctuation in unexpected spots. Explicit dir="rtl" keeps
  * the paragraph anchored as an RTL block.
  */
-function addRtlAndAlignToPHLi(html) {
+function findTextBlockStartsWithInlineMedia(html) {
+  const marked = new Set();
+  const stack = [];
+  const tagRe = /<(\/?)\s*(p|h[1-6]|li)\b([^>]*)>/gi;
+  let match;
+  while ((match = tagRe.exec(html)) !== null) {
+    if (!match[1]) {
+      stack.push({ tag: match[2].toLowerCase(), start: match.index, openEnd: tagRe.lastIndex });
+      continue;
+    }
+    const tag = match[2].toLowerCase();
+    let frame = null;
+    for (let index = stack.length - 1; index >= 0; index -= 1) {
+      if (stack[index].tag === tag) {
+        frame = stack[index];
+        stack.length = index;
+        break;
+      }
+    }
+    if (frame && INLINE_ORDER_MEDIA_RE.test(html.slice(frame.openEnd, match.index))) {
+      marked.add(frame.start);
+    }
+  }
+  return marked;
+}
+
+function addRtlAndAlignToPHLi(html, opts = {}) {
+  const mediaBlocks = findTextBlockStartsWithInlineMedia(html);
   return html.replace(/<(p|h[1-6]|li)\b([^>]*)>/gi,
-    (_m, tag, attrs) => `<${tag}${ensureTextAlignRightIfMissing(withDirRtl(attrs))}>`);
+    (_m, tag, attrs, offset) => {
+      const preserveInlineOrder = opts.preserveInlineOrder !== false && mediaBlocks.has(offset);
+      return `<${tag}${ensureTextAlignRightIfMissing(preserveInlineOrder ? attrs : withDirRtl(attrs))}>`;
+    });
 }
 
 function isSpacerDivContent(inner) {
@@ -417,16 +572,18 @@ function isSpacerDivContent(inner) {
  * the card or text block, and `text-align: right` if no alignment
  * was declared.
  *
- * Cards in modern email templates often nest a leaf <div> with text
+ * Mixed text/media leaves are alignment-only in safe text mode so the media
+ * keeps its authored source order. Cards in modern email templates often nest a leaf <div> with text
  * directly inside a table cell (instead of a <p>) — without dir
  * here, that inner block keeps LTR bidi order.
  */
-function addRtlToLeafDivs(html) {
+function addRtlToLeafDivs(html, opts = {}) {
   return html.replace(/<div\b([^>]*)>([\s\S]*?)<\/div>/gi, (m, attrs, inner) => {
     if (/<(?:p|h[1-6]|li|div|table)\b/i.test(inner)) return m;
     if (!hasVisibleText(inner)) return m;
     if (isSpacerDivContent(inner)) return m;
-    let next = withDirRtl(attrs);
+    const preserveInlineOrder = opts.preserveInlineOrder !== false && INLINE_ORDER_MEDIA_RE.test(inner);
+    let next = preserveInlineOrder ? attrs : withDirRtl(attrs);
     next = ensureTextAlignRightIfMissing(next);
     return `<div${next}>${inner}</div>`;
   });
@@ -587,7 +744,7 @@ function mirrorTwoColumnRows(html) {
   return out;
 }
 
-/* ─── Idempotency: strip stale dir="rtl" from previous builds ──── */
+/* ─── Explicit legacy cleanup: stale dir="rtl" from old builds ── */
 /**
  * Old versions of this transformer used to add `dir="rtl"` to layout
  * wrappers (outer <td>, <center>, layout <table>, spacer <div>, etc.).
@@ -596,13 +753,62 @@ function mirrorTwoColumnRows(html) {
  * pipeline won't re-add dir on those wrappers, but the OLD dir is
  * still there in the source and makes the email fold right.
  *
- * Strip every `dir="rtl"` at the start. The subsequent pipeline will
- * re-add dir to the correct subset of elements (p, h*, li, leaf div,
- * butt td). dir="ltr" and dir="auto" are preserved — those are
- * deliberate designer choices, not artifacts of a stale build.
+ * This cleanup is intentionally NOT automatic: fresh authored markup may
+ * contain a deliberate `dir="rtl"`. It runs only with
+ * `{ cleanupLegacy: true }`; the subsequent pipeline then re-adds direction
+ * to the safe subset. `dir="ltr"` and `dir="auto"` are always preserved.
  */
 function stripStaleDirRtl(html) {
   return html.replace(/\s+dir\s*=\s*(["']?)rtl\1/gi, '');
+}
+
+/* ─── Whole-document idempotency ──────────────────────────────── */
+
+const RTL_FRAGMENT_MARKER_RE = /<!--\s*retkit-rtl:v(?:1|2(?::(?:text|mirror))?)\s*-->/i;
+const RTL_V2_MARKER_RE = /<!--\s*retkit-rtl:v2:(text|mirror)\s*-->/i;
+
+function getAppliedRtlMode(html) {
+  const marker = RTL_V2_MARKER_RE.exec(String(html || ''));
+  return marker ? marker[1].toLowerCase() : '';
+}
+
+function createRtlModeConflict(appliedMode, requestedMode) {
+  const error = new Error(
+    `[rtl] HTML is already transformed in "${appliedMode}" mode and cannot be switched to ` +
+    `"${requestedMode}" after mutation. Rebuild from clean source (Original) and apply the requested mode.`
+  );
+  error.code = 'RETKIT_RTL_MODE_CONFLICT';
+  error.appliedMode = appliedMode;
+  error.requestedMode = requestedMode;
+  return error;
+}
+
+function hasRtlAppliedMarker(html) {
+  return /<html\b[^>]*\bdata-retkit-rtl\s*=\s*(["']?)1\1/i.test(html)
+    || RTL_FRAGMENT_MARKER_RE.test(html);
+}
+
+function looksLikeLegacyRtlOutput(html) {
+  // Builds emitted before the explicit marker can still re-enter the RTL
+  // pipeline through a preview endpoint. Re-running the physical-side pass on
+  // such HTML toggles left/right back to LTR. These signatures are only added
+  // by this transformer and are therefore safe evidence that the pass already
+  // ran once.
+  // data-rtl-swapped is emitted only by RetKit. A plain dir="rtl" is not
+  // enough evidence: it may be deliberate source markup and must still get
+  // the remaining text/CTA treatment.
+  return /\bdata-rtl-swapped\s*=/i.test(html);
+}
+
+function markRtlApplied(html, mode) {
+  if (hasRtlAppliedMarker(html)) return html;
+  const marker = `<!--retkit-rtl:v2:${normalizeRtlMode({ mode })}-->`;
+  if (/<html\b/i.test(html)) {
+    // Keep the doctype first (standards mode) and avoid adding non-XHTML
+    // attributes to legacy Strict email documents.
+    return html.replace(/<html\b[^>]*>/i, (open) => `${open}${marker}`);
+  }
+  return `${marker}${html}`;
 }
 
 /* ─── Smart icon-text mirroring inside <a>/<button> ──────────── */
@@ -630,50 +836,61 @@ function smartMirrorButtonIcons(html) {
 
 function applyRtl(html, opts = {}) {
   if (!html || typeof html !== 'string') return html;
+  const mode = normalizeRtlMode(opts);
+  const appliedMode = getAppliedRtlMode(html);
+  if (appliedMode) {
+    if (appliedMode === mode) return html;
+    throw createRtlModeConflict(appliedMode, mode);
+  }
+  // v1/data-retkit-rtl had no mode metadata. A second pass cannot safely
+  // infer whether physical sides were already swapped, so require Original.
+  if (hasRtlAppliedMarker(html)) throw createRtlModeConflict('legacy/unknown', mode);
+  if (looksLikeLegacyRtlOutput(html)) {
+    if (mode !== 'mirror') throw createRtlModeConflict('mirror', mode);
+    return markRtlApplied(html, 'mirror');
+  }
   let out = html;
 
-  // 0) Strip any stale dir="rtl" left over from a prior build with an
-  //    older transformer. Makes the pipeline idempotent — re-running it
-  //    on an already-RTL'd HTML cleans up wrappers before re-applying
-  //    dir to the right subset of elements.
-  out = stripStaleDirRtl(out);
+  // Legacy cleanup is explicit. Unmarked dir="rtl" in a fresh source can be
+  // author intent, so silently stripping it is not safe.
+  if (opts && typeof opts === 'object' && opts.cleanupLegacy === true) {
+    out = stripStaleDirRtl(out);
+  }
 
-  // 1) CSS / inline-style: flip text-align left|start|end → right.
-  out = transformHeadStyles(out);
-  out = flipAllInlineStyles(out);
-
-  // 2) Physical-side swap: padding-left ↔ padding-right, margin-left ↔
-  //    margin-right, float: left ↔ right. So column-offset utility
-  //    classes (.offset-by-one with padding-left: 50px etc) mirror
-  //    correctly in RTL instead of leaving content on the wrong side.
-  out = swapPhysicalSidesInHeadStyles(out);
-  out = swapPhysicalSidesOnAllTags(out);
-
-  // 3) align="" attribute: flip left|start|end → right (no dir added).
-  out = flipAlignOnAllTags(out);
+  // By the time RTL runs, inline-css has copied framework selectors onto
+  // body/table/td/img. Global inline passes therefore still move the whole
+  // email even when <head> is preserved. They are opt-in only.
+  if (mode === 'mirror') {
+    out = flipAllInlineStyles(out);
+    out = swapPhysicalSidesOnAllTags(out);
+    out = flipAlignOnAllTags(out);
+  }
 
   // 4) Button shells: force align="right" (no dir).
   out = alignButtonShellsRight(out);
 
   // 4.5) Numbered/icon two-column rows (td.m-w + td.w-a): swap cell
   //      order so the number/icon column sits on the RIGHT in RTL.
-  out = mirrorTwoColumnRows(out);
+  if (mode === 'mirror') out = mirrorTwoColumnRows(out);
 
   // 5) p / h* / li: add dir="rtl" + text-align: right (if missing).
-  //    Block-level — does NOT flip inline-block sibling order.
-  out = addRtlAndAlignToPHLi(out);
+  //    In text mode, mixed text/media blocks get alignment without dir so an
+  //    inline image keeps its authored position.
+  out = addRtlAndAlignToPHLi(out, { preserveInlineOrder: mode !== 'mirror' });
 
   // 6) leaf <div> with real text: add dir="rtl" + text-align: right.
-  //    "Leaf" = no block children (p/h*/li/div/table) inside.
-  out = addRtlToLeafDivs(out);
+  //    "Leaf" = no block children (p/h*/li/div/table) inside; mixed
+  //    text/media leaves keep source order in text mode.
+  out = addRtlToLeafDivs(out, { preserveInlineOrder: mode !== 'mirror' });
 
-  //   NOTE: per user's directive ("don't put dir on td at all, just
-  //   mirror physical CSS"), the addRtlToDeepTextTd pass is INTENTIONALLY
-  //   not invoked. dir lives only on block-text elements (p/h*/li,
-  //   leaf div) and on butt cells. Layout cells stay clean.
-  //   The physical-side swap pass above mirrors padding/margin/float and
-  //   `background-position: left|right` so the visual layout reads RTL
-  //   without needing dir on wrappers.
+  // 6.5) Plain text directly inside a td/th (possibly wrapped only by inline
+  //      tags) needs direction too. Structural cells containing nested block
+  //      layout remain byte-for-byte untouched.
+  out = addRtlToDirectTextCells(out, { preserveInlineOrder: mode !== 'mirror' });
+
+  // The broad depth-based td pass is intentionally not invoked. The precise
+  // direct-text pass above covers unwrapped copy while keeping layout cells,
+  // card grids and nested table structure free from direction changes.
 
   // 7) Button cells get dir="rtl" so localized link text reads RTL.
   out = addDirToButtCells(out);
@@ -684,11 +901,11 @@ function applyRtl(html, opts = {}) {
   //   elements above, card source order is preserved.
 
   // 8) Icon-in-button visual order flip (opt-out via opts.smart === false).
-  if (opts.smart !== false) {
+  if (mode === 'mirror' && opts.smart !== false) {
     out = smartMirrorButtonIcons(out);
   }
 
-  return out;
+  return markRtlApplied(out, mode);
 }
 
 module.exports = { isRtlLocale, applyRtl };

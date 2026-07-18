@@ -244,8 +244,43 @@ let _undoSnapshots = [];
 let cmLocale = null;
 
 // ─── RTL ─────────────────────────────────────────────────────────
-const RTL_LOCALES = new Set(['ar','ur','he','fa','arc','dv','ha','khw','ks','ku','ps','sd','ug','yi']);
-const isRtlLocale = code => RTL_LOCALES.has((code||'').split(/[-_]/)[0].toLowerCase());
+const RTL_SCRIPT_CODES = new Set(['adlm','arab','hebr','mand','nkoo','rohg','samr','syrc','thaa','yezi']);
+const RTL_DEFAULT_LANGUAGES = new Set(['ar','arc','dv','fa','he','khw','ks','ps','sd','ug','ur','yi']);
+function parseLocaleForDirection(code) {
+  const normalized = String(code || '').trim().replace(/_/g, '-').split(/[.@]/, 1)[0];
+  const parts = normalized.split('-').filter(Boolean);
+  const language = /^[a-z]{2,3}$/i.test(parts[0] || '') ? parts[0].toLowerCase() : '';
+  let script = '';
+  let region = '';
+  for (const part of parts.slice(1)) {
+    if (/^[a-z0-9]$/i.test(part)) break;
+    if (!script && /^[a-z]{4}$/i.test(part)) script = part.toLowerCase();
+    else if (!region && /^(?:[a-z]{2}|\d{3})$/i.test(part)) region = part.toUpperCase();
+  }
+  return { normalized, language, script, region };
+}
+function fallbackLikelyLocaleScript({ language, region }) {
+  if (language === 'ha') return 'latn';
+  if (language === 'ku') return /^(?:IQ|IR)$/.test(region) ? 'arab' : 'latn';
+  if (language === 'ks') return 'arab';
+  if (language === 'az') return region === 'IR' ? 'arab' : 'latn';
+  if (language === 'pa') return region === 'PK' ? 'arab' : 'guru';
+  if (language === 'uz') return region === 'AF' ? 'arab' : 'latn';
+  return RTL_DEFAULT_LANGUAGES.has(language) ? 'arab' : 'latn';
+}
+function resolveLocaleScript(code) {
+  const parsed = parseLocaleForDirection(code);
+  if (!parsed.language) return '';
+  if (parsed.script) return parsed.script;
+  try {
+    if (typeof Intl !== 'undefined' && typeof Intl.Locale === 'function') {
+      const likely = new Intl.Locale(parsed.normalized).maximize();
+      if (likely.script) return String(likely.script).toLowerCase();
+    }
+  } catch { /* deterministic fallback below */ }
+  return fallbackLikelyLocaleScript(parsed);
+}
+const isRtlLocale = code => RTL_SCRIPT_CODES.has(resolveLocaleScript(code));
 const hasRtlGlyphs = text => /[\u0590-\u05ff\u0600-\u06ff\u0750-\u077f]/.test(String(text || ''));
 const cleanMailFolderName = name => {
   let value = String(name || '').trim().replace(/^mail-/i, '');
@@ -280,6 +315,26 @@ function escapeHtml(s) {
 }
 function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t=setTimeout(()=>fn(...a),ms); }; }
 function uid() { return `${Date.now()}-${Math.random().toString(36).slice(2,6)}`; }
+
+function bumpEditorRevision(ctx, key) {
+  if (!ctx) return 0;
+  const next = Number(ctx[key] || 0) + 1;
+  ctx[key] = next;
+  return next;
+}
+
+function captureEditorRevision(ctx, key, value) {
+  return {
+    revision: Number(ctx?.[key] || 0),
+    value: String(value ?? ''),
+  };
+}
+
+function isEditorRevisionCurrent(ctx, key, value, snapshot) {
+  return Boolean(snapshot)
+    && Number(ctx?.[key] || 0) === snapshot.revision
+    && String(value ?? '') === snapshot.value;
+}
 
 function pushUndoSnapshot(label = 'Изменение') {
   try {
@@ -418,6 +473,7 @@ const LS_THEME      = 'wb-theme';
 const LS_FILES      = 'wb-files';
 const LS_ACTIVE_FILE = 'wb-active-file';
 const LS_NAMESPACES = 'wb-namespaces';
+const LS_NAMESPACES_SCOPE_PREFIX = 'wb-namespaces:';
 const LS_BRANDS     = 'wb-brands';
 const LS_SRC_CTX    = 'wb-src-ctx';
 const LS_WORKSPACE_SPLIT = 'wb-workspace-split';
@@ -426,6 +482,111 @@ const LS_CODE_SPLIT = 'wb-code-split';
 const LS_CODE_SPLIT_ACTIVE = 'wb-code-split-active';
 const LS_FS_SPLIT_ACTIVE = 'wb-fullscreen-split-active';
 const LS_BOTTOM_PANEL_HEIGHT = 'wb-bottom-panel-height';
+const WORKBENCH_NAMESPACE_RE = /^[A-Za-z0-9_-]{1,160}$/;
+
+function normalizeWorkbenchNamespaceName(value, fallback = 'mail-namespace') {
+  const raw = String(value || '').trim();
+  if (WORKBENCH_NAMESPACE_RE.test(raw)) return raw;
+  const cleaned = raw
+    .normalize('NFKD')
+    .replace(/[^A-Za-z0-9_-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 160);
+  return cleaned || String(fallback || 'mail-namespace').replace(/[^A-Za-z0-9_-]+/g, '-').slice(0, 160) || 'mail-namespace';
+}
+
+function ensureValidNamespaceNames(namespaces = state.namespaces) {
+  const records = Array.isArray(namespaces) ? namespaces : [];
+  const used = new Set();
+  const renamed = [];
+  records.forEach((ns, index) => {
+    if (!ns || typeof ns !== 'object') return;
+    const previous = String(ns.name || ns.namespace || '').trim();
+    const base = normalizeWorkbenchNamespaceName(previous, `namespace-${index + 1}`);
+    let next = base;
+    let suffix = 2;
+    while (used.has(next.toLowerCase())) {
+      const tail = `-${suffix++}`;
+      next = `${base.slice(0, Math.max(1, 160 - tail.length))}${tail}`;
+    }
+    used.add(next.toLowerCase());
+    if (previous !== next) renamed.push({ from: previous, to: next });
+    ns.name = next;
+  });
+  return renamed;
+}
+
+function repairInvalidNamespaceTokens(source) {
+  return String(source || '').replace(
+    /\$\{\{\s*([^{}\r\n]+?)\.([A-Za-z0-9_.-]+)\s*\}\}\$/g,
+    (token, rawNamespace, key) => {
+      const namespace = String(rawNamespace || '').trim();
+      const safe = normalizeWorkbenchNamespaceName(namespace);
+      return safe === namespace ? token : `\${{ ${safe}.${key} }}$`;
+    },
+  );
+}
+
+function namespaceScopeStorageKey(brand = '', mail = '') {
+  const safeBrand = String(brand || '').trim();
+  const safeMail = String(mail || '').trim();
+  return safeBrand && safeMail
+    ? `${LS_NAMESPACES_SCOPE_PREFIX}${encodeURIComponent(safeBrand)}/${encodeURIComponent(safeMail)}`
+    : LS_NAMESPACES;
+}
+
+function userNamespaces(namespaces = state.namespaces) {
+  return (Array.isArray(namespaces) ? namespaces : []).filter(ns => ns && !ns.builtin);
+}
+
+function readNamespaceScope(brand = '', mail = '', storage = localStorage) {
+  try {
+    const raw = storage.getItem(namespaceScopeStorageKey(brand, mail));
+    const parsed = raw ? JSON.parse(raw) : [];
+    if (!Array.isArray(parsed)) return [];
+    const renamed = ensureValidNamespaceNames(parsed);
+    if (renamed.length) storage.setItem(namespaceScopeStorageKey(brand, mail), JSON.stringify(userNamespaces(parsed)));
+    return parsed;
+  } catch {
+    return [];
+  }
+}
+
+function persistNamespaceScope(brand = '', mail = '', namespaces = state.namespaces, storage = localStorage) {
+  try {
+    ensureValidNamespaceNames(namespaces);
+    storage.setItem(namespaceScopeStorageKey(brand, mail), JSON.stringify(userNamespaces(namespaces)));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function replaceNamespacesForScope(brand = '', mail = '') {
+  const builtins = (state.namespaces || []).filter(ns => ns?.builtin);
+  const scoped = readNamespaceScope(brand, mail);
+  const names = new Set(scoped.map(ns => ns?.name).filter(Boolean));
+  state.namespaces = [...scoped, ...builtins.filter(ns => !names.has(ns.name))];
+}
+
+function switchNamespaceScope(brand = '', mail = '') {
+  const previous = state.srcCtx;
+  persistNamespaceScope(previous?.brand || '', previous?.mail || '', state.namespaces);
+  replaceNamespacesForScope(brand, mail);
+  state.activeLocale = 'original';
+  renderLocalesBar();
+  renderNamespaceBar();
+  validateLocales();
+}
+
+function buildNamespacesForContext(ctx) {
+  if (!ctx) return [];
+  const scoped = state.srcCtx === ctx
+    ? userNamespaces(state.namespaces)
+    : userNamespaces(readNamespaceScope(ctx.brand, ctx.mail));
+  ensureValidNamespaceNames(scoped);
+  return scoped;
+}
 
 // ─── Placeholder regex ──────────────────────────────────────────
 // Format: ${{ namespace.block_NN }}$  — 0-indexed, always 2-digit (block_00, block_01 …)
@@ -513,7 +674,7 @@ function initCodeMirror() {
   cm.on('change', () => {
     const ctx = state.srcCtx;
     if (_suppressSrcModified || !ctx?.viewingCompiledHtml || !ctx.htmlEditMode) return;
-    ctx.htmlDirty = cm.getValue() !== _compiledHtmlSnapshot;
+    markDetachedHtmlBuffer(ctx, cm.getValue());
     renderCompiledLocaleControls();
   });
 
@@ -769,6 +930,15 @@ function rememberCompiledHtml(ctx, payload) {
   };
   if (!ctx.compiledHtmlByLocale) ctx.compiledHtmlByLocale = Object.create(null);
   ctx.compiledHtmlByLocale[locale] = cached;
+  const localeMeta = (ctx.htmlLocales || []).find(item => item.code === locale);
+  if (localeMeta && cached.localization) {
+    localeMeta.localization = cached.localization;
+    localeMeta.diagnosticsCached = true;
+    localeMeta.ready = locale === HTML_BASE_LOCALE
+      || cached.localization.expectedRaw === true
+      || (cached.localization.status !== 'missing'
+        && Number(cached.localization.unresolvedCount || 0) === 0);
+  }
   return cached;
 }
 
@@ -784,6 +954,16 @@ function useCompiledHtml(ctx, payload) {
 function getActiveHtmlLocaleMeta(ctx = state.srcCtx) {
   if (!ctx) return null;
   return (ctx.htmlLocales || []).find(item => item.code === (ctx.activeHtmlLocale || HTML_BASE_LOCALE)) || null;
+}
+
+function markDetachedHtmlBuffer(ctx, value) {
+  if (!ctx?.viewingCompiledHtml || !ctx.htmlEditMode) return;
+  const next = String(value ?? '');
+  if (ctx.htmlRevisionValue !== next) {
+    ctx.htmlRevisionValue = next;
+    bumpEditorRevision(ctx, 'htmlRevision');
+  }
+  ctx.htmlDirty = next !== _compiledHtmlSnapshot;
 }
 
 async function refreshCodeWorkspace(ctx = state.srcCtx) {
@@ -849,7 +1029,12 @@ function renderCompiledLocaleControls() {
     for (const item of localeItems) {
       const option = document.createElement('option');
       option.value = item.code;
-      option.textContent = `${item.label || item.code}${item.detached ? ' · ручная' : (item.pending ? ' · сборка…' : '')}`;
+      const suffix = item.detached
+        ? ' · ручная'
+        : (item.ready === false
+          ? ` · ⚠ без текста${item.localization?.unresolvedCount ? ` (${item.localization.unresolvedCount})` : ''}`
+          : (item.pending ? ' · сборка…' : ''));
+      option.textContent = `${item.label || item.code}${suffix}`;
       r.compiledLocaleSelect.appendChild(option);
     }
     r.compiledLocaleSelect.value = locale || selected;
@@ -858,10 +1043,14 @@ function renderCompiledLocaleControls() {
 
   if (r.compiledLocaleStatus) {
     const detached = Boolean(meta.detached || ctx.compiledHtmlDetached);
-    r.compiledLocaleStatus.dataset.state = editing ? 'editing' : (detached ? 'detached' : 'linked');
+    const unresolvedCount = Number(ctx.localization?.unresolvedCount ?? meta.localization?.unresolvedCount ?? 0);
+    const unresolved = !detached && (meta.ready === false || unresolvedCount > 0);
+    r.compiledLocaleStatus.dataset.state = editing ? 'editing' : (detached ? 'detached' : (unresolved ? 'unresolved' : 'linked'));
     r.compiledLocaleStatus.textContent = editing
       ? (detached ? 'Правка ручной версии' : 'После сохранения отвяжется')
-      : (detached ? 'Отвязана от Pug' : 'Связана с Pug');
+      : (detached
+        ? 'Отвязана от Pug'
+        : (unresolved ? `Не готова${unresolvedCount ? ` · ${unresolvedCount} без текста` : ''}` : 'Связана с Pug'));
   }
 
   const label = r.compiledViewBanner?.querySelector('.compiled-view-label');
@@ -878,7 +1067,7 @@ function renderCompiledLocaleControls() {
   if (r.compiledViewEditHtmlBtn) {
     const canEdit = Boolean(ctx.viewingCompiledHtml && ctx.compiledHtml);
     r.compiledViewEditHtmlBtn.disabled = !canEdit;
-    r.compiledViewEditHtmlBtn.textContent = meta.detached ? '✏️ Править ручную версию' : '✏️ Редактировать эту локаль';
+    r.compiledViewEditHtmlBtn.textContent = meta.detached ? '✏️ Править ручную версию' : '✏️ Отвязать и править HTML';
     r.compiledViewEditHtmlBtn.title = canEdit
       ? 'Создать независимую HTML-версию только для выбранной локали'
       : 'Сначала откройте собранный HTML';
@@ -911,6 +1100,7 @@ function applyCompiledHtmlToEditor(ctx, payload, minified = false) {
   cm?.setOption('mode', 'htmlmixed');
   cm?.setValue(minified ? minifyHtml(rawHtml) : prettyHtml(rawHtml));
   cm?.setOption('readOnly', true);
+  ctx.htmlRevisionValue = cm?.getValue() || rawHtml;
   setTimeout(() => { _suppressSrcModified = false; }, 0);
 
   state.editorType = 'html';
@@ -1045,9 +1235,19 @@ r.compiledViewEditHtmlBtn?.addEventListener('click', () => {
     toast('Сначала откройте HTML нужной локали', 'warning');
     return;
   }
+  const meta = getActiveHtmlLocaleMeta(ctx);
+  const locale = ctx.activeHtmlLocale || HTML_BASE_LOCALE;
+  const localeLabel = locale === HTML_BASE_LOCALE ? 'Original' : locale.toUpperCase();
+  if (!meta?.detached && !confirm(
+    `${localeLabel} сейчас связана с Pug.\n\n` +
+    'После сохранения появится отдельный HTML override только для этой локали. ' +
+    'Следующие изменения Pug её не перезапишут, пока вы не нажмёте «Удалить override · вернуть Pug».\n\n' +
+    'Отвязать и начать редактирование HTML?'
+  )) return;
   _compiledHtmlSnapshot = cm?.getValue() || ctx.compiledHtml || '';
   ctx.htmlEditMode = true;
   ctx.htmlDirty = false;
+  ctx.htmlRevisionValue = _compiledHtmlSnapshot;
   cm?.setOption('readOnly', false);
   try { cm?.refresh(); } catch {}
   renderCompiledLocaleControls();
@@ -1055,38 +1255,81 @@ r.compiledViewEditHtmlBtn?.addEventListener('click', () => {
   toast('Правки сохранятся только для этой HTML-локали', 'info', 2400);
 });
 
-r.compiledViewSaveHtmlBtn?.addEventListener('click', async () => {
-  const ctx = state.srcCtx;
-  if (!ctx?.htmlEditMode || !ctx.htmlDirty) return;
-  const content = stripPreviewArtifacts(cm?.getValue() || '');
-  const requestId = ++_compiledHtmlRequest;
-  ctx.htmlOperation = 'save';
-  r.compiledViewSaveHtmlBtn.disabled = true;
-  r.compiledViewSaveHtmlBtn.textContent = 'Сохраняю…';
+async function saveDetachedHtmlRevisions(ctx = state.srcCtx) {
+  if (!ctx?.htmlEditMode || !ctx.htmlDirty || !cm) return null;
+  ctx.htmlSaveRequested = true;
+  if (ctx.htmlSavePromise) return ctx.htmlSavePromise;
+
+  const operation = (async () => {
+    let lastData = null;
+    while (ctx.htmlSaveRequested && ctx.htmlEditMode) {
+      ctx.htmlSaveRequested = false;
+      const locale = ctx.activeHtmlLocale || HTML_BASE_LOCALE;
+      const content = stripPreviewArtifacts(cm.getValue());
+      const snapshot = captureEditorRevision(ctx, 'htmlRevision', content);
+      ++_compiledHtmlRequest;
+      ctx.htmlOperation = 'save';
+      if (state.srcCtx === ctx) {
+        r.compiledViewSaveHtmlBtn.disabled = true;
+        r.compiledViewSaveHtmlBtn.textContent = 'Сохраняю…';
+      }
+
+      try {
+        const res = await fetch('/api/wb/code-html', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ brand: ctx.brand, mail: ctx.mail, locale, content }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.error || 'Не удалось сохранить HTML');
+        lastData = data;
+        ctx.htmlLocales = data.locales || ctx.htmlLocales;
+
+        const currentContent = state.srcCtx === ctx && ctx.htmlEditMode && ctx.activeHtmlLocale === locale
+          ? stripPreviewArtifacts(cm.getValue())
+          : null;
+        const current = isEditorRevisionCurrent(ctx, 'htmlRevision', currentContent, snapshot);
+        if (!current) {
+          // The response persisted an older buffer. Keep the editor untouched
+          // and immediately save the newer revision instead of clearing dirty.
+          rememberCompiledHtml(ctx, data);
+          if (state.srcCtx === ctx && ctx.htmlEditMode && ctx.activeHtmlLocale === locale) {
+            ctx.htmlDirty = true;
+            ctx.htmlSaveRequested = true;
+            renderCompiledLocaleControls();
+          }
+          continue;
+        }
+
+        ctx.htmlPersistedRevision = snapshot.revision;
+        applyCompiledHtmlToEditor(ctx, data, false);
+        toast(`HTML ${data.locale === HTML_BASE_LOCALE ? 'Original' : data.locale.toUpperCase()} сохранён отдельно от Pug`, 'success', 3000);
+      } catch (error) {
+        ctx.htmlDirty = true;
+        ctx.htmlSaveRequested = false;
+        if (state.srcCtx === ctx) toast('Ошибка сохранения HTML: ' + error.message, 'error');
+        throw error;
+      } finally {
+        if (ctx.htmlOperation === 'save') ctx.htmlOperation = null;
+      }
+    }
+    return lastData;
+  })();
+
+  ctx.htmlSavePromise = operation;
   try {
-    const res = await fetch('/api/wb/code-html', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        brand: ctx.brand,
-        mail: ctx.mail,
-        locale: ctx.activeHtmlLocale || HTML_BASE_LOCALE,
-        content,
-      }),
-    });
-    const data = await res.json();
-    if (!res.ok || !data.ok) throw new Error(data.error || 'Не удалось сохранить HTML');
-    if (state.srcCtx !== ctx || requestId !== _compiledHtmlRequest) return;
-    ctx.htmlLocales = data.locales || ctx.htmlLocales;
-    applyCompiledHtmlToEditor(ctx, data, false);
-    toast(`HTML ${data.locale === HTML_BASE_LOCALE ? 'Original' : data.locale.toUpperCase()} сохранён отдельно от Pug`, 'success', 3000);
-  } catch (error) {
-    toast('Ошибка сохранения HTML: ' + error.message, 'error');
+    return await operation;
   } finally {
-    if (ctx.htmlOperation === 'save') ctx.htmlOperation = null;
-    r.compiledViewSaveHtmlBtn.disabled = !ctx.htmlDirty;
-    r.compiledViewSaveHtmlBtn.textContent = 'Сохранить локаль';
+    if (ctx.htmlSavePromise === operation) ctx.htmlSavePromise = null;
+    if (state.srcCtx === ctx) {
+      r.compiledViewSaveHtmlBtn.disabled = !ctx.htmlDirty || Boolean(ctx.htmlOperation);
+      r.compiledViewSaveHtmlBtn.textContent = 'Сохранить локаль';
+    }
   }
+}
+
+r.compiledViewSaveHtmlBtn?.addEventListener('click', () => {
+  saveDetachedHtmlRevisions().catch(() => {});
 });
 
 r.compiledViewCancelHtmlBtn?.addEventListener('click', () => {
@@ -1370,6 +1613,23 @@ function renderBlocksPalette() {
   });
 })();
 
+/* «🎨 В конструктор» — увести открытое письмо обратно в DnD-конструктор.
+   Мини-конструктор (палитра блоков) в правом окне убран: доводка структуры
+   письма делается в основном конструкторе, здесь остаётся только код+превью. */
+(function setupBackToConstructor() {
+  const btn = document.getElementById('backToConstructorBtn');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    const ctx = state.srcCtx;
+    if (!ctx?.brand || !ctx?.mail) {
+      toast('Сначала открой письмо из базы — тогда его можно увести в конструктор.', 'warning', 5000);
+      return;
+    }
+    if (ctx.modified && !confirm('Есть несохранённые правки кода — они не попадут в конструктор.\n\nПерейти без сохранения?')) return;
+    window.location.href = '/constructor?brand=' + encodeURIComponent(ctx.brand) + '&mail=' + encodeURIComponent(ctx.mail);
+  });
+})();
+
 (function setupPreviewRtlButton() {
   const btn = document.getElementById('previewRtlBtn');
   if (!btn) return;
@@ -1449,6 +1709,76 @@ $('fsDownloadBtn')?.addEventListener('click', () => {
   URL.revokeObjectURL(url);
 });
 
+// Source panes outside the primary editor (split/fullscreen) used to POST
+// directly. Two debounced requests for the same file could then finish out of
+// order and an older response would overwrite newer Pug/Stylus. Keep one
+// latest-value queue per mail/file and rebuild only after its newest revision
+// is safely persisted.
+const _auxSourceSaveQueues = new Map();
+
+function auxiliarySourceSaveKey(ctx, file) {
+  return `${ctx?.brand || ''}/${ctx?.mail || ''}/${file || ''}`;
+}
+
+async function saveAuxiliarySourceFile(ctx, file, content, options = {}) {
+  if (!ctx?.brand || !ctx?.mail || !file) return { ok: false };
+  const rawContent = stripPreviewArtifacts(String(content ?? ''));
+  const safeContent = /\.(?:pug|jade)$/i.test(file)
+    ? repairInvalidNamespaceTokens(rawContent)
+    : rawContent;
+  ensureValidNamespaceNames(state.srcCtx === ctx ? state.namespaces : readNamespaceScope(ctx.brand, ctx.mail));
+  if (state.srcCtx === ctx) persistNamespaceScope(ctx.brand, ctx.mail, state.namespaces);
+  const key = auxiliarySourceSaveKey(ctx, file);
+  let queue = _auxSourceSaveQueues.get(key);
+  if (!queue) {
+    queue = { pending: null, promise: null };
+    _auxSourceSaveQueues.set(key, queue);
+  }
+  queue.pending = {
+    ctx,
+    file,
+    content: safeContent,
+    rebuild: options.rebuild !== false || Boolean(queue.pending?.rebuild),
+  };
+  if (queue.promise) return queue.promise;
+
+  const operation = (async () => {
+    let lastResult = { ok: true };
+    while (queue.pending) {
+      const request = queue.pending;
+      queue.pending = null;
+      const res = await fetch('/api/wb/email-file', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          brand: request.ctx.brand,
+          mail: request.ctx.mail,
+          file: request.file,
+          content: request.content,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || 'Не удалось сохранить исходник');
+      lastResult = data;
+
+      // If another edit arrived during POST, persist it first and compile only
+      // the final bytes. The global build coordinator serializes different
+      // source files of the same mail.
+      if (!queue.pending && request.rebuild && state.srcCtx === request.ctx) {
+        await rebuildSourceEmail({ keepSourceView: true, background: true });
+      }
+    }
+    return lastResult;
+  })();
+  queue.promise = operation;
+  try {
+    return await operation;
+  } finally {
+    if (queue.promise === operation) queue.promise = null;
+    if (!queue.pending && !queue.promise) _auxSourceSaveQueues.delete(key);
+  }
+}
+
 // ── Fullscreen Split ───────────────────────────────────────────────
 $('fsSplitBtn')?.addEventListener('click', toggleFsSplit);
 
@@ -1492,19 +1822,8 @@ async function toggleFsSplit() {
     });
     cmFullscreenSplit.on('change', debounce(async () => {
       if (!_fsSplitActiveFile || !state.srcCtx) return;
-      // Save to main split CM if same file as main split
-      try {
-        await fetch('/api/wb/email-file', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            brand: state.srcCtx.brand,
-            mail: state.srcCtx.mail,
-            file: _fsSplitActiveFile,
-            content: cmFullscreenSplit.getValue(),
-          })
-        });
-      } catch {}
+      try { await saveAuxiliarySourceFile(state.srcCtx, _fsSplitActiveFile, cmFullscreenSplit.getValue()); }
+      catch {}
     }, 1200));
   }
 
@@ -1687,30 +2006,15 @@ function hideFsPaneMenus() {
 async function saveFullscreenLeftFileIfNeeded(nextFilePath = null) {
   const ctx = state.srcCtx;
   if (!ctx || !cmFullscreen || !_fsActiveFile || _fsActiveFile === nextFilePath) return;
-  try {
-    await fetch('/api/wb/email-file', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ brand: ctx.brand, mail: ctx.mail, file: _fsActiveFile, content: cmFullscreen.getValue() }),
-    });
-  } catch {}
+  try { await saveAuxiliarySourceFile(ctx, _fsActiveFile, cmFullscreen.getValue()); }
+  catch {}
 }
 
 async function saveFullscreenSplitFileIfNeeded(nextFilePath = null) {
   const ctx = state.srcCtx;
   if (!ctx || !cmFullscreenSplit || !_fsSplitActiveFile || _fsSplitActiveFile === nextFilePath) return;
-  try {
-    await fetch('/api/wb/email-file', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        brand: ctx.brand,
-        mail: ctx.mail,
-        file: _fsSplitActiveFile,
-        content: cmFullscreenSplit.getValue(),
-      }),
-    });
-  } catch {}
+  try { await saveAuxiliarySourceFile(ctx, _fsSplitActiveFile, cmFullscreenSplit.getValue()); }
+  catch {}
 }
 
 function renderFsPaneFileMenus() {
@@ -2000,18 +2304,8 @@ async function loadFileIntoFsSplit(filePath) {
     });
     cmFullscreenSplit.on('change', debounce(async () => {
       if (!_fsSplitActiveFile || !state.srcCtx) return;
-      try {
-        await fetch('/api/wb/email-file', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            brand: state.srcCtx.brand,
-            mail: state.srcCtx.mail,
-            file: _fsSplitActiveFile,
-            content: cmFullscreenSplit.getValue(),
-          })
-        });
-      } catch {}
+      try { await saveAuxiliarySourceFile(state.srcCtx, _fsSplitActiveFile, cmFullscreenSplit.getValue()); }
+      catch {}
     }, 1200));
   }
 
@@ -2070,7 +2364,7 @@ function openFullscreen() {
           cm.setValue(cmFullscreen.getValue());
           setTimeout(() => { _suppressSrcModified = false; }, 0);
         }
-        state.srcCtx.htmlDirty = cmFullscreen.getValue() !== _compiledHtmlSnapshot;
+        markDetachedHtmlBuffer(state.srcCtx, cmFullscreen.getValue());
         renderCompiledLocaleControls();
         updateEditorStats();
         updateFullscreenStats();
@@ -2078,11 +2372,7 @@ function openFullscreen() {
         return;
       }
       if (_fsActiveFile && state.srcCtx && _fsActiveFile !== state.srcCtx.activeFile) {
-        fetch('/api/wb/email-file', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ brand: state.srcCtx.brand, mail: state.srcCtx.mail, file: _fsActiveFile, content: cmFullscreen.getValue() }),
-        }).catch(() => {});
+        saveAuxiliarySourceFile(state.srcCtx, _fsActiveFile, cmFullscreen.getValue()).catch(() => {});
         updateFullscreenStats();
         return;
       }
@@ -2092,12 +2382,9 @@ function openFullscreen() {
         setTimeout(() => { _suppressSrcModified = false; }, 0);
       }
       if (state.srcCtx?.activeFile && !state.srcCtx.viewingCompiledHtml) {
-        if (!_backupOffered && !state.srcCtx.modified) {
-          _backupOffered = true;
-          _showBackupModal(state.srcCtx.brand, state.srcCtx.mail);
-        } else {
-          markSourceModified(state.srcCtx);
-        }
+        // Editing the opened mail is the normal path. A copy is created only
+        // through the explicit Clone/Create version action in the mail base.
+        markSourceModified(state.srcCtx);
       }
       updateEditorStats();
       updateFullscreenStats();
@@ -2173,7 +2460,7 @@ function closeFullscreen() {
     _suppressSrcModified = true;
     cm.setValue(cmFullscreen.getValue());
     setTimeout(() => { _suppressSrcModified = false; }, 0);
-    state.srcCtx.htmlDirty = cmFullscreen.getValue() !== _compiledHtmlSnapshot;
+    markDetachedHtmlBuffer(state.srcCtx, cmFullscreen.getValue());
     renderCompiledLocaleControls();
     updatePreview();
   } else if (cmFullscreen && cm && !state.srcCtx?.viewingCompiledHtml) {
@@ -2203,11 +2490,7 @@ function closeFullscreen() {
       renderEtypeFilesDropdown();
       renderSplitPaneControls();
       saveToLocalStorage();
-      fetch('/api/wb/email-file', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ brand: ctx.brand, mail: ctx.mail, file: _fsActiveFile, content: fsContent }),
-      }).then(() => rebuildSourceEmail()).catch(() => {});
+      saveAuxiliarySourceFile(ctx, _fsActiveFile, fsContent).catch(() => {});
     } else {
       // Same file — sync back normally
       _suppressSrcModified = true;
@@ -2549,6 +2832,12 @@ function syncLocaleRawFromBlocks(ns, localeCode) {
 function getNs(id) { return state.namespaces.find(n => n.id === id); }
 
 function importFilesIntoNamespace(fileList, nsName) {
+  const requestedName = String(nsName || '').trim();
+  const safeName = normalizeWorkbenchNamespaceName(requestedName);
+  if (requestedName && requestedName !== safeName) {
+    toast(`Namespace «${requestedName}» исправлен на «${safeName}»`, 'warning', 3500);
+  }
+  nsName = safeName;
   let ns = state.namespaces.find(n => n.name === nsName);
   if (!ns) {
     ns = { id: `ns-${uid()}`, name: nsName, locales: {} };
@@ -3623,7 +3912,11 @@ r.confirmAddLocaleBtn.addEventListener('click', async () => {
   if (!code) { r.newLocaleCode.focus(); toast('Введите код локали', 'warning'); return; }
   let ns;
   if (r.newLocaleNs.value === '__new__') {
-    const nsName = r.newNsName.value.trim() || code;
+    const requestedName = r.newNsName.value.trim() || code;
+    const nsName = normalizeWorkbenchNamespaceName(requestedName, code);
+    if (requestedName !== nsName) {
+      toast(`Namespace «${requestedName}» исправлен на «${nsName}»`, 'warning', 3500);
+    }
     ns = { id: `ns-${uid()}`, name: nsName, locales: {} };
     state.namespaces.push(ns);
   } else {
@@ -3937,23 +4230,64 @@ function boldify(text) {
 // preview can RTL-transform on locale switch without a server round-trip).
 // Whenever you touch one file, mirror the change in the other.
 //
-// Pipeline (must match server-side):
-//   0) strip stale dir="rtl" (idempotent on already-RTL'd HTML)
-//   1) flip text-align in <style> blocks + inline styles (skip !important)
-//   2) physical mirror in CSS: padding-left↔right, margin-left↔right,
-//      float: left↔right, background-position left↔right, background
-//      shorthand left↔right (outside url(...))
-//   3) flip align="left|start|end" → align="right" (no dir added)
+// Default pipeline (must match server-side) is text-only: framework-derived
+// inline layout on body/table/td/img stays untouched. opts.mode="mirror" adds
+// physical side/align/known-column mirroring for templates that require it.
 //   4) button shells (table with innermost <td class="butt…">) get
 //      align="right" (no dir added)
 //   5) <p>/<h1-6>/<li> get dir="rtl" + text-align: right (if missing)
+//      (mixed text/media blocks are alignment-only in safe text mode)
 //   6) leaf <div> with text (no block children, not spacer) gets dir + align
+//      (mixed text/media leaves preserve their authored source order)
+//   6.5) direct-text <td>/<th> gets dir + align; structural cells stay intact
 //   7) <td class="butt"> gets dir="rtl"
-//   8) smart-RTL: direction: rtl on <a>/<button> with icon+text mix
+//   8) mirror mode only: direction:rtl on icon+text <a>/<button>
 //
 //   NO dir="rtl" on layout <td>, <table>, <center>, wrappers, or spacers.
-function applyRtl(html) {
+function applyRtl(html, opts = {}) {
   if (!html || typeof html !== 'string') return html;
+
+  const modeRaw = typeof opts === 'string' ? opts : (opts && (opts.mode || opts.layout || opts.layoutMode));
+  const mode = /^(?:mirror|full)$/i.test(String(modeRaw || '').trim()) ? 'mirror' : 'text';
+  const RTL_FRAGMENT_MARKER_RE = /<!--\s*retkit-rtl:v(?:1|2(?::(?:text|mirror))?)\s*-->/i;
+  const RTL_V2_MARKER_RE = /<!--\s*retkit-rtl:v2:(text|mirror)\s*-->/i;
+  const getAppliedRtlMode = source => {
+    const marker = RTL_V2_MARKER_RE.exec(String(source || ''));
+    return marker ? marker[1].toLowerCase() : '';
+  };
+  const hasRtlAppliedMarker = source =>
+    /<html\b[^>]*\bdata-retkit-rtl\s*=\s*(["']?)1\1/i.test(source)
+      || RTL_FRAGMENT_MARKER_RE.test(source);
+  const looksLikeLegacyRtlOutput = source =>
+    /\bdata-rtl-swapped\s*=/i.test(source);
+  const markRtlApplied = (source, appliedMode = mode) => {
+    if (hasRtlAppliedMarker(source)) return source;
+    const marker = '<!--retkit-rtl:v2:' + appliedMode + '-->';
+    if (/<html\b/i.test(source)) {
+      return source.replace(/<html\b[^>]*>/i, open => open + marker);
+    }
+    return marker + source;
+  };
+  const createRtlModeConflict = (appliedMode, requestedMode) => {
+    const error = new Error('[rtl] HTML is already transformed in "' + appliedMode +
+      '" mode and cannot be switched to "' + requestedMode +
+      '" after mutation. Rebuild from clean source (Original) and apply the requested mode.');
+    error.code = 'RETKIT_RTL_MODE_CONFLICT';
+    error.appliedMode = appliedMode;
+    error.requestedMode = requestedMode;
+    return error;
+  };
+
+  const appliedMode = getAppliedRtlMode(html);
+  if (appliedMode) {
+    if (appliedMode === mode) return html;
+    throw createRtlModeConflict(appliedMode, mode);
+  }
+  if (hasRtlAppliedMarker(html)) throw createRtlModeConflict('legacy/unknown', mode);
+  if (looksLikeLegacyRtlOutput(html)) {
+    if (mode !== 'mirror') throw createRtlModeConflict('mirror', mode);
+    return markRtlApplied(html, 'mirror');
+  }
 
   const VISIBLE_TEXT_RE = /[A-Za-zА-Яа-яЁё֐-׿؀-ۿݐ-ݿ]/;
   const hasVisibleText = s => {
@@ -3976,9 +4310,12 @@ function applyRtl(html) {
     .split(/\s+/).filter(Boolean).some(t => re.test(t));
 
   const withDirRtl = attrs => /\bdir\s*=/i.test(attrs) ? attrs : ' dir="rtl"' + attrs;
+  const INLINE_ORDER_MEDIA_RE = /<(?:img|svg|picture|video|object|embed|input)\b/i;
 
-  // ── 0) Strip any stale dir="rtl" (idempotent) ─────────────────────
-  html = html.replace(/\s+dir\s*=\s*(["']?)rtl\1/gi, '');
+  // ── 0) Explicit cleanup of stale legacy dir="rtl" ────────────────
+  if (opts && typeof opts === 'object' && opts.cleanupLegacy === true) {
+    html = html.replace(/\s+dir\s*=\s*(["']?)rtl\1/gi, '');
+  }
 
   // ── 1) text-align flip in CSS and inline styles ──────────────────
   const flipTextAlignInCss = css => !css ? css : css.replace(
@@ -3990,13 +4327,16 @@ function applyRtl(html) {
     return attrs.replace(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i,
       (_m, q, body) => 'style=' + q + flipTextAlignInCss(body) + q);
   };
-  html = html.replace(/(<style[^>]*>)([\s\S]*?)(<\/style>)/gi,
-    (_m, open, body, close) => open + flipTextAlignInCss(body) + close);
-  html = html.replace(/<([a-z][\w:-]*)([^>]*)>/gi, (m, tag, attrs) => {
-    if (/^(?:style|script)$/i.test(tag)) return m;
-    if (!/\bstyle\s*=/i.test(attrs)) return m;
-    return '<' + tag + flipTextAlignInStyleAttr(attrs) + '>';
-  });
+  // Keep global framework CSS in <head> intact. In particular, changing
+  // `img{float:left}` globally makes logos and content images jump sides.
+  // Precise inline/text-block rules below are sufficient for RTL content.
+  if (mode === 'mirror') {
+    html = html.replace(/<([a-z][\w:-]*)([^>]*)>/gi, (m, tag, attrs) => {
+      if (/^(?:style|script)$/i.test(tag)) return m;
+      if (!/\bstyle\s*=/i.test(attrs)) return m;
+      return '<' + tag + flipTextAlignInStyleAttr(attrs) + '>';
+    });
+  }
 
   // ── 2) Physical-side swap (padding/margin/float + background-position)
   const swapPhysicalSidesInCss = css => {
@@ -4034,20 +4374,22 @@ function applyRtl(html) {
     return attrs.replace(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i,
       (_m, q, body) => 'style=' + q + swapPhysicalSidesInCss(body) + q);
   };
-  html = html.replace(/(<style[^>]*>)([\s\S]*?)(<\/style>)/gi,
-    (_m, open, body, close) => open + swapPhysicalSidesInCss(body) + close);
-  html = html.replace(/<([a-z][\w:-]*)([^>]*)>/gi, (m, tag, attrs) => {
-    if (/^(?:style|script)$/i.test(tag)) return m;
-    if (!/\bstyle\s*=/i.test(attrs)) return m;
-    return '<' + tag + swapPhysicalSidesInStyleAttr(attrs) + '>';
-  });
+  if (mode === 'mirror') {
+    html = html.replace(/<([a-z][\w:-]*)([^>]*)>/gi, (m, tag, attrs) => {
+      if (/^(?:style|script)$/i.test(tag)) return m;
+      if (!/\bstyle\s*=/i.test(attrs)) return m;
+      return '<' + tag + swapPhysicalSidesInStyleAttr(attrs) + '>';
+    });
+  }
 
   // ── 3) Flip align="left|start|end" on every tag (no dir added) ───
   const flipAlign = attrs => attrs.replace(/\balign\s*=\s*(["']?)(left|start|end)\1/gi, 'align="right"');
-  html = html.replace(/<([a-z][\w:-]*)([^>]*)>/gi, (m, tag, attrs) => {
-    if (/^(?:style|script)$/i.test(tag) || !/\balign\s*=/i.test(attrs)) return m;
-    return '<' + tag + flipAlign(attrs) + '>';
-  });
+  if (mode === 'mirror') {
+    html = html.replace(/<([a-z][\w:-]*)([^>]*)>/gi, (m, tag, attrs) => {
+      if (/^(?:style|script)$/i.test(tag) || !/\balign\s*=/i.test(attrs)) return m;
+      return '<' + tag + flipAlign(attrs) + '>';
+    });
+  }
 
   // ── 4) Button shells — innermost <table> enclosing a <td class="butt…">
   const buttonShellStarts = (() => {
@@ -4119,7 +4461,7 @@ function applyRtl(html) {
   // ── 4.5) Two-column content rows (td.m-w + td.w-a): swap cell order so
   //         the number/icon column sits on the RIGHT in RTL. Marked with
   //         data-rtl-swapped="1" → re-runs are no-ops. Parity with core.
-  html = (function mirrorTwoColumnRows(h) {
+  if (mode === 'mirror') html = (function mirrorTwoColumnRows(h) {
     const isNarrow = a => hasClassToken(a, /^m-w$/i);
     const isAuto = a => hasClassToken(a, /^w-a$/i);
     const qualifies = (a, b) => (isNarrow(a) && isAuto(b)) || (isAuto(a) && isNarrow(b));
@@ -4164,13 +4506,43 @@ function applyRtl(html) {
 
   // ── 5) p / h* / li get dir + text-align: right (if no text-align set) ──
   const ensureTextAlignRightIfMissing = attrs => {
+    const currentMatch = String(attrs || '').match(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i);
+    const currentAlign = currentMatch && currentMatch[2].match(/\btext-align\s*:\s*([a-zA-Z-]+)/i);
+    if (currentAlign && !/^(?:left|start|end)$/i.test(currentAlign[1])) return attrs;
+    if (currentAlign) attrs = flipTextAlignInStyleAttr(attrs);
+    const attrAlign = readAttr(attrs, 'align').toLowerCase();
+    if (/^(?:center|middle|right|justify)$/.test(attrAlign)) return attrs;
+    if (/^(?:left|start|end)$/.test(attrAlign)) attrs = forceAlignRightAttr(attrs);
+    if (currentAlign) return attrs;
     if (!/\bstyle\s*=/i.test(attrs)) return attrs + ' style="text-align: right;"';
-    if (/\btext-align\s*:/i.test(attrs)) return attrs;
     return attrs.replace(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i,
       (_m, q, body) => 'style=' + q + body.replace(/\s*;?\s*$/, ';') + ' text-align: right;' + q);
   };
-  html = html.replace(/<(p|h[1-6]|li)\b([^>]*)>/gi,
-    (m, tag, attrs) => '<' + tag + ensureTextAlignRightIfMissing(withDirRtl(attrs)) + '>');
+  const textBlocksWithInlineMedia = (() => {
+    const marked = new Set();
+    const stack = [];
+    const re = /<(\/?)\s*(p|h[1-6]|li)\b([^>]*)>/gi;
+    let match;
+    while ((match = re.exec(html)) !== null) {
+      if (!match[1]) {
+        stack.push({ tag: match[2].toLowerCase(), start: match.index, openEnd: re.lastIndex });
+        continue;
+      }
+      const tag = match[2].toLowerCase();
+      let frame = null;
+      for (let index = stack.length - 1; index >= 0; index -= 1) {
+        if (stack[index].tag === tag) {
+          frame = stack[index]; stack.length = index; break;
+        }
+      }
+      if (frame && INLINE_ORDER_MEDIA_RE.test(html.slice(frame.openEnd, match.index))) marked.add(frame.start);
+    }
+    return marked;
+  })();
+  html = html.replace(/<(p|h[1-6]|li)\b([^>]*)>/gi, (m, tag, attrs, offset) => {
+    const preserveInlineOrder = mode !== 'mirror' && textBlocksWithInlineMedia.has(offset);
+    return '<' + tag + ensureTextAlignRightIfMissing(preserveInlineOrder ? attrs : withDirRtl(attrs)) + '>';
+  });
 
   // ── 6) leaf <div> with real text (not spacer) gets dir + align ───
   const isSpacerDivContent = inner => {
@@ -4185,7 +4557,59 @@ function applyRtl(html) {
     if (/<(?:p|h[1-6]|li|div|table)\b/i.test(inner)) return m;
     if (!hasVisibleText(inner)) return m;
     if (isSpacerDivContent(inner)) return m;
-    return '<div' + ensureTextAlignRightIfMissing(withDirRtl(attrs)) + '>' + inner + '</div>';
+    const preserveInlineOrder = mode !== 'mirror' && INLINE_ORDER_MEDIA_RE.test(inner);
+    return '<div' + ensureTextAlignRightIfMissing(preserveInlineOrder ? attrs : withDirRtl(attrs)) + '>' + inner + '</div>';
+  });
+
+  // ── 6.5) Direct-text td/th gets direction; layout-only cells do not ──
+  const hasMeaningfulDirectText = text => {
+    const stripped = String(text || '')
+      .replace(/&nbsp;|&#160;|&#xa0;|&#8203;|&#x200b;/gi, '')
+      .replace(/\s+/g, '');
+    return stripped.length > 0 && hasVisibleText(stripped);
+  };
+  const hasDirectVisibleText = inner => {
+    const blockTagRe = /^(?:table|tbody|thead|tfoot|tr|td|th|center|div|p|h[1-6]|ul|ol|li|blockquote)$/i;
+    const tokenRe = /<!--[\s\S]*?-->|<[^>]+>|[^<]+/g;
+    let depth = 0;
+    let token;
+    while ((token = tokenRe.exec(String(inner || ''))) !== null) {
+      const part = token[0];
+      if (part.startsWith('<!--')) continue;
+      if (part.startsWith('<')) {
+        const tag = /^<\s*(\/?)\s*([a-z][\w:-]*)\b[^>]*>/i.exec(part);
+        if (!tag || !blockTagRe.test(tag[2])) continue;
+        if (tag[1]) depth = Math.max(0, depth - 1);
+        else if (!/\/\s*>$/.test(part)) depth += 1;
+        continue;
+      }
+      if (depth === 0 && hasMeaningfulDirectText(part)) return true;
+    }
+    return false;
+  };
+  const directTextCellStarts = (() => {
+    const pairs = [];
+    const stack = [];
+    const re = /<(\/?)\s*(td|th)\b([^>]*)>/gi;
+    let match;
+    while ((match = re.exec(html)) !== null) {
+      if (!match[1]) stack.push({ start: match.index, openEnd: re.lastIndex });
+      else {
+        const frame = stack.pop();
+        if (frame) pairs.push(Object.assign(frame, { closeStart: match.index }));
+      }
+    }
+    return new Map(
+      pairs
+        .map(pair => Object.assign(pair, { inner: html.slice(pair.openEnd, pair.closeStart) }))
+        .filter(pair => hasDirectVisibleText(pair.inner))
+        .map(pair => [pair.start, INLINE_ORDER_MEDIA_RE.test(pair.inner)])
+    );
+  })();
+  html = html.replace(/<(td|th)\b([^>]*)>/gi, (m, tag, attrs, offset) => {
+    if (!directTextCellStarts.has(offset)) return m;
+    const preserveInlineOrder = mode !== 'mirror' && directTextCellStarts.get(offset);
+    return '<' + tag + ensureTextAlignRightIfMissing(preserveInlineOrder ? attrs : withDirRtl(attrs)) + '>';
   });
 
   // ── 7) <td class="butt…"> gets dir="rtl" (link text reads RTL) ──
@@ -4195,21 +4619,23 @@ function applyRtl(html) {
   });
 
   // ── 8) smart icon-text mirror for <a>/<button> ──────────────────
-  html = html.replace(/<(a|button)\b([^>]*)>([\s\S]*?)<\/\1>/gi, (m, tag, attrs, inner) => {
-    if (!/<(?:img|svg|i\b|span\s+class=["\'][^"\']*\bicon)/i.test(inner)) return m;
-    if (!hasVisibleText(inner)) return m;
-    if (/\bdirection\s*:/i.test(attrs)) return m;
-    let nextAttrs;
-    if (/\bstyle\s*=/i.test(attrs)) {
-      nextAttrs = attrs.replace(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i,
-        (_full, q, body) => 'style=' + q + body.replace(/\s*;?\s*$/, ';') + ' direction: rtl;' + q);
-    } else {
-      nextAttrs = attrs + ' style="direction: rtl;"';
-    }
-    return '<' + tag + nextAttrs + '>' + inner + '</' + tag + '>';
-  });
+  if (mode === 'mirror' && opts.smart !== false) {
+    html = html.replace(/<(a|button)\b([^>]*)>([\s\S]*?)<\/\1>/gi, (m, tag, attrs, inner) => {
+      if (!/<(?:img|svg|i\b|span\s+class=["\'][^"\']*\bicon)/i.test(inner)) return m;
+      if (!hasVisibleText(inner)) return m;
+      if (/\bdirection\s*:/i.test(attrs)) return m;
+      let nextAttrs;
+      if (/\bstyle\s*=/i.test(attrs)) {
+        nextAttrs = attrs.replace(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i,
+          (_full, q, body) => 'style=' + q + body.replace(/\s*;?\s*$/, ';') + ' direction: rtl;' + q);
+      } else {
+        nextAttrs = attrs + ' style="direction: rtl;"';
+      }
+      return '<' + tag + nextAttrs + '>' + inner + '</' + tag + '>';
+    });
+  }
 
-  return html;
+  return markRtlApplied(html, mode);
 }
 
 // ─── Preview click → editor highlight ──────────────────────────
@@ -5385,6 +5811,11 @@ async function openSourceContext(brand, mail, options = {}) {
   const data = await res.json();
   if (!data.ok) throw new Error(data.error || 'Cannot list files');
 
+  // Locales belong to one concrete email. Persist the previous mail's
+  // selection before replacing it; a constructor handoff or an A → B switch
+  // must never reuse namespaces left in the global Workbench state.
+  switchNamespaceScope(brand, mail);
+
   // Identify key files — header.pug (content) and main.styl / common.styl (styles)
   const files = data.files;
   const headerPug  = files.find(f => f.path.includes('header.pug') || f.path.includes('header.jade'))
@@ -5405,6 +5836,10 @@ async function openSourceContext(brand, mail, options = {}) {
     openedFiles,
     activeFile: null,
     modified: false,
+    sourceRevision: 0,
+    sourcePersistedRevision: 0,
+    sourceSaveRequest: null,
+    sourceSavePromise: null,
     compiledHtml: null,
     compiledHtmlDetached: false,
     compiledHtmlByLocale: Object.create(null),
@@ -5412,6 +5847,10 @@ async function openSourceContext(brand, mail, options = {}) {
     activeHtmlLocale: null,
     htmlEditMode: false,
     htmlDirty: false,
+    htmlRevision: 0,
+    htmlPersistedRevision: 0,
+    htmlSaveRequested: false,
+    htmlSavePromise: null,
     htmlOperation: null,
     buildState: 'idle',
     lastBuildError: '',
@@ -5423,7 +5862,17 @@ async function openSourceContext(brand, mail, options = {}) {
   // The constructor handoff opens the primary content Pug first. HTML locale
   // metadata and preview are loaded in the background without stealing focus.
   const openPugFirst = options.initialView === 'pug';
-  if (openPugFirst && headerPug) await loadSourceFile(headerPug.path);
+  if (openPugFirst && headerPug) {
+    await loadSourceFile(headerPug.path);
+    try {
+      await repairOpenedSourceNamespaces(ctx);
+    } catch (error) {
+      // The repaired Pug stays open and editable even when another, unrelated
+      // build error remains. The background loader below can still expose the
+      // last successful HTML/locales.
+      console.warn('[namespace-repair] build failed:', error && error.message);
+    }
+  }
 
   // Load localized built HTML. If not built yet — run the existing compiler.
   async function loadCompiledOrBuild() {
@@ -5529,7 +5978,7 @@ function renderSrcFileTabs() {
   rebuildBtn.innerHTML = ctx.buildState === 'building'
     ? '<span class="src-build-spinner" aria-hidden="true"></span><span>Собираю…</span>'
     : `<svg width="11" height="11" viewBox="0 0 14 14" fill="none"><path d="M2 7a5 5 0 1 0 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M7 1v3l2-1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  rebuildBtn.addEventListener('click', () => rebuildSourceEmail());
+  rebuildBtn.addEventListener('click', () => { rebuildCurrentSourceFromUi(); });
   r.srcFileTabs.appendChild(rebuildBtn);
 
   // Close context button
@@ -5539,7 +5988,13 @@ function renderSrcFileTabs() {
   closeBtn.innerHTML = `<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 1l8 8M9 1L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`;
   closeBtn.addEventListener('click', () => {
     if (!confirmDiscardHtmlDraft()) return;
+    persistNamespaceScope(ctx.brand, ctx.mail, state.namespaces);
     state.srcCtx = null;
+    replaceNamespacesForScope();
+    state.activeLocale = 'original';
+    renderLocalesBar();
+    renderNamespaceBar();
+    validateLocales();
     splitState.active = false;
     localStorage.setItem(LS_CODE_SPLIT_ACTIVE, '0');
     r.etypeSplitBtn?.classList.remove('split-active');
@@ -5753,7 +6208,7 @@ function renderEtypeFilesDropdown() {
   const rbtn = document.createElement('button');
   rbtn.className = 'eft-rebuild-btn';
   rbtn.innerHTML = `<svg width="10" height="10" viewBox="0 0 14 14" fill="none"><path d="M2 7a5 5 0 1 0 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M7 1v3l2-1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Собрать письмо`;
-  rbtn.addEventListener('click', () => { dd.classList.add('hidden'); rebuildSourceEmail(); });
+  rbtn.addEventListener('click', () => { dd.classList.add('hidden'); rebuildCurrentSourceFromUi(); });
   dd.appendChild(rbtn);
 }
 
@@ -5877,11 +6332,7 @@ function initCmSplit() {
         saveToLocalStorage();
       }
     } else if (target.kind === 'source' && state.srcCtx) {
-      fetch('/api/wb/email-file', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ brand: state.srcCtx.brand, mail: state.srcCtx.mail, file: target.path, content: cmSplit.getValue() }),
-      }).catch(() => {});
+      saveAuxiliarySourceFile(state.srcCtx, target.path, cmSplit.getValue()).catch(() => {});
     }
   }, 700));
 }
@@ -5945,7 +6396,9 @@ function renderSplitPaneControls() {
     if (!menu) return;
     const activeKey = pane === 'left' ? currentSplitLeftKey() : currentSplitRightKey();
     menu.innerHTML = '';
-    options.forEach(opt => {
+    options
+      .filter(opt => pane !== 'right' || splitOptionKey(opt) !== currentSplitLeftKey())
+      .forEach(opt => {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'split-pane-menu-item' + (splitOptionKey(opt) === activeKey ? ' active' : '');
@@ -5956,7 +6409,7 @@ function renderSplitPaneControls() {
         loadSplitFileIntoPane(pane, opt);
       });
       menu.appendChild(btn);
-    });
+      });
   };
   buildMenu(r.splitLeftFileMenu, 'left');
   buildMenu(r.splitRightFileMenu, 'right');
@@ -5968,6 +6421,11 @@ async function loadSplitFileIntoPane(pane, opt) {
     if (opt.kind === 'source') await loadSourceFile(opt.path);
     else activateFile(opt.id);
     renderSplitPaneControls();
+    return;
+  }
+
+  if (opt.kind === 'source' && splitOptionKey(opt) === currentSplitLeftKey()) {
+    toast('Этот исходник уже открыт слева', 'info', 1600);
     return;
   }
 
@@ -6116,9 +6574,57 @@ if (r.cmSplitDivider) {
   });
 }
 
+let _sourceFileLoadSequence = 0;
+
+async function waitForPrimaryCodeEditor(timeoutMs = 1800) {
+  if (cm) return cm;
+  const started = Date.now();
+  while (!cm && Date.now() - started < timeoutMs) {
+    await new Promise(resolve => setTimeout(resolve, 25));
+  }
+  if (!cm) throw new Error('Редактор кода не инициализирован. Обновите страницу или проверьте загрузку CodeMirror.');
+  return cm;
+}
+
+function hydrateSourceEditor(ctx, filePath, content, loadSequence) {
+  if (!cm || state.srcCtx !== ctx || ctx.activeFile !== filePath || loadSequence !== _sourceFileLoadSequence) return false;
+  const ext = filePath.split('.').pop().toLowerCase();
+  _suppressSrcModified = true;
+  cm.setOption('readOnly', false);
+  cm.setOption('mode', EXT_MODE[ext] || 'htmlmixed');
+  cm.setValue(content);
+  try { cm.refresh(); } catch {}
+  setTimeout(() => {
+    if (loadSequence === _sourceFileLoadSequence) _suppressSrcModified = false;
+    try { cm?.refresh(); } catch {}
+  }, 0);
+  updateEditorStats();
+  updatePreview();
+  return true;
+}
+
+function verifyInitialSourceHydration(ctx, filePath, content, loadSequence) {
+  // During a constructor deep-link the source tab and CodeMirror are created by
+  // separate DOM/startup paths. A late workspace/locale paint used to leave the
+  // already-active header.pug visually empty until the user clicked its tab.
+  // Re-hydrate only when the editor was cleared, this exact load is still the
+  // active one and the user has not started editing.
+  const verify = () => {
+    if (!cm || state.srcCtx !== ctx || ctx.activeFile !== filePath || ctx.viewingCompiledHtml) return;
+    if (loadSequence !== _sourceFileLoadSequence || ctx.modified || !String(content).trim()) return;
+    if (cm.getValue().trim()) return;
+    hydrateSourceEditor(ctx, filePath, content, loadSequence);
+    renderSrcFileTabs();
+    renderSplitPaneControls();
+  };
+  setTimeout(verify, 0);
+  setTimeout(verify, 450);
+}
+
 async function loadSourceFile(filePath, options = {}) {
   const ctx = state.srcCtx;
   if (!ctx) return;
+  const loadSequence = ++_sourceFileLoadSequence;
   if (!options.force && !confirmDiscardHtmlDraft()) return;
   ctx.htmlEditMode = false;
   ctx.htmlDirty = false;
@@ -6130,32 +6636,29 @@ async function loadSourceFile(filePath, options = {}) {
   }
 
   try {
+    await waitForPrimaryCodeEditor();
     const res  = await fetch(`/api/wb/email-file?brand=${encodeURIComponent(ctx.brand)}&mail=${encodeURIComponent(ctx.mail)}&file=${encodeURIComponent(filePath)}`);
     const data = await res.json();
     if (!data.ok) throw new Error(data.error);
+    if (state.srcCtx !== ctx || loadSequence !== _sourceFileLoadSequence) return;
 
     ctx.activeFile = filePath;
     ctx.modified   = false;
+    ctx.sourceRevision = 0;
+    ctx.sourcePersistedRevision = 0;
+    ctx.sourceRevisionValue = stripPreviewArtifacts(data.content);
     ctx.viewingCompiledHtml = false;  // back to source mode
     state.activeFileId = null;
 
     const ext = filePath.split('.').pop();
-    const mode = EXT_MODE[ext] || 'htmlmixed';
 
-    // Load into editor — suppress change listener while setting value
-    if (cm) {
-      _suppressSrcModified = true;
-      cm.setOption('readOnly', false);
-      // Set mode FIRST, then value — guarantees the right tokenizer runs from line 0.
-      cm.setOption('mode', mode);
-      cm.setValue(data.content);
-      try { cm.refresh(); } catch {}
-      setTimeout(() => { _suppressSrcModified = false; try { cm.refresh(); } catch {} }, 0);
-      state.editorType = ext === 'styl' ? 'stylus' : (ext === 'pug' || ext === 'jade' ? 'pug' : 'html');
-      document.querySelectorAll('.etype-tab').forEach(t =>
-        t.classList.toggle('active', t.dataset.etype === state.editorType)
-      );
-    }
+    // Load into editor — mode before value guarantees the right tokenizer
+    // from line 0. The startup guard below handles a late empty repaint.
+    hydrateSourceEditor(ctx, filePath, data.content, loadSequence);
+    state.editorType = ext === 'styl' ? 'stylus' : (ext === 'pug' || ext === 'jade' ? 'pug' : 'html');
+    document.querySelectorAll('.etype-tab').forEach(t =>
+      t.classList.toggle('active', t.dataset.etype === state.editorType)
+    );
 
     // Show save button, hide convert/saveToBase/minify
     r.saveSourceBtn?.classList.remove('hidden');
@@ -6176,11 +6679,43 @@ async function loadSourceFile(filePath, options = {}) {
     renderSrcFileTabs();
     renderSplitPaneControls();
     applyEditorPaddingNow();
+    verifyInitialSourceHydration(ctx, filePath, data.content, loadSequence);
     toast(`📂 ${filePath.split('/').pop()}`, 'info', 1500);
     if (window.WB?.fireFileChange) window.WB.fireFileChange();
   } catch(e) {
     toast('Ошибка загрузки: ' + e.message, 'error');
   }
+}
+
+async function repairOpenedSourceNamespaces(ctx = state.srcCtx) {
+  if (!ctx || state.srcCtx !== ctx) return false;
+
+  const renamed = ensureValidNamespaceNames(state.namespaces);
+  persistNamespaceScope(ctx.brand, ctx.mail, state.namespaces);
+
+  const isMarkup = /\.(?:pug|jade)$/i.test(ctx.activeFile || '');
+  if (!isMarkup || ctx.viewingCompiledHtml || !cm) {
+    if (renamed.length) toast('Исправлены несовместимые имена namespace', 'warning', 3200);
+    return renamed.length > 0;
+  }
+
+  const before = stripPreviewArtifacts(cm.getValue());
+  const after = repairInvalidNamespaceTokens(before);
+  if (after === before) {
+    if (renamed.length) toast('Исправлены несовместимые имена namespace', 'warning', 3200);
+    return renamed.length > 0;
+  }
+
+  _suppressSrcModified = true;
+  cm.setValue(after);
+  _suppressSrcModified = false;
+  ctx.sourceRevisionValue = after;
+  bumpEditorRevision(ctx, 'sourceRevision');
+  ctx.modified = true;
+  renderSrcFileTabs();
+  toast('Исправлен namespace в Pug — сохраняю и пересобираю письмо', 'warning', 3600);
+  await saveCurrentSourceFile(after, { awaitBuild: true });
+  return true;
 }
 
 function applyEditorPaddingNow() {
@@ -6198,7 +6733,7 @@ document.addEventListener('keydown', e => {
         _suppressSrcModified = true;
         cm?.setValue(fullscreenHtml);
         setTimeout(() => { _suppressSrcModified = false; }, 0);
-        ctx.htmlDirty = fullscreenHtml !== _compiledHtmlSnapshot;
+        markDetachedHtmlBuffer(ctx, fullscreenHtml);
         renderCompiledLocaleControls();
       }
       if (ctx.htmlEditMode && ctx.htmlDirty) r.compiledViewSaveHtmlBtn?.click();
@@ -6220,40 +6755,148 @@ async function saveCurrentSourceFile(contentOverride = null, options = {}) {
     throw new Error('HTML-режим нельзя сохранить как исходный Pug-файл');
   }
 
-  r.saveSourceBtn.disabled = true;
-  r.saveSourceBtn.textContent = 'Сохраняю…';
+  let content = stripPreviewArtifacts(typeof contentOverride === 'string' ? contentOverride : cm.getValue());
+  const renamed = ensureValidNamespaceNames(state.namespaces);
+  const repaired = /\.(?:pug|jade)$/i.test(ctx.activeFile)
+    ? repairInvalidNamespaceTokens(content)
+    : content;
+  const tokenWasRepaired = repaired !== content;
+  if (tokenWasRepaired) {
+    content = repaired;
+    if (state.srcCtx === ctx && ctx.activeFile && !ctx.viewingCompiledHtml) {
+      _suppressSrcModified = true;
+      cm.setValue(content);
+      _suppressSrcModified = false;
+      ctx.sourceRevisionValue = content;
+      bumpEditorRevision(ctx, 'sourceRevision');
+      ctx.modified = true;
+      toast('Исправлен недопустимый namespace в Pug', 'warning', 3200);
+    }
+  }
+  persistNamespaceScope(ctx.brand, ctx.mail, state.namespaces);
+  if (renamed.length && !tokenWasRepaired) {
+    toast('Исправлены несовместимые имена namespace', 'warning', 3200);
+  }
+  ctx.sourceSaveRequest = {
+    file: ctx.activeFile,
+    content,
+    snapshot: captureEditorRevision(ctx, 'sourceRevision', content),
+    awaitBuild: Boolean(options.awaitBuild) || Boolean(ctx.sourceSaveRequest?.awaitBuild),
+  };
+  if (ctx.sourceSavePromise) return ctx.sourceSavePromise;
 
+  const operation = (async () => {
+    let lastBuildPromise = null;
+    while (ctx.sourceSaveRequest) {
+      const request = ctx.sourceSaveRequest;
+      ctx.sourceSaveRequest = null;
+      if (state.srcCtx === ctx) {
+        r.saveSourceBtn.disabled = true;
+        r.saveSourceBtn.textContent = 'Сохраняю…';
+      }
+
+      let persistedCurrent = false;
+      try {
+        const res = await fetch('/api/wb/email-file', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            brand: ctx.brand,
+            mail: ctx.mail,
+            file: request.file,
+            content: request.content,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.error || 'Не удалось сохранить исходник');
+
+        const currentContent = state.srcCtx === ctx
+          && !ctx.viewingCompiledHtml
+          && ctx.activeFile === request.file
+          ? stripPreviewArtifacts(cm.getValue())
+          : null;
+        const current = isEditorRevisionCurrent(ctx, 'sourceRevision', currentContent, request.snapshot);
+        if (!current) {
+          // A newer edit arrived while POST was in flight. The old revision is
+          // safely on disk, but it must not clear dirty or trigger a stale build.
+          ctx.modified = true;
+          if (state.srcCtx === ctx && !ctx.viewingCompiledHtml && ctx.activeFile === request.file) {
+            const latest = stripPreviewArtifacts(cm.getValue());
+            ctx.sourceSaveRequest = {
+              file: request.file,
+              content: latest,
+              snapshot: captureEditorRevision(ctx, 'sourceRevision', latest),
+              awaitBuild: request.awaitBuild || Boolean(ctx.sourceSaveRequest?.awaitBuild),
+            };
+            renderSrcFileTabs();
+          }
+          continue;
+        }
+
+        ctx.sourcePersistedRevision = request.snapshot.revision;
+        ctx.modified = false;
+        persistedCurrent = true;
+        if (state.srcCtx === ctx) {
+          renderSrcFileTabs();
+          toast(data.studioModelStale
+            ? '✓ Pug сохранён · DnD-модель устарела · HTML собирается в фоне'
+            : '✓ Исходник сохранён · HTML собирается в фоне', 'success', data.studioModelStale ? 2800 : 1900);
+        }
+
+        // Persistence is complete, so release controls before compilation.
+        // A later edit queues another save/build without losing this revision.
+        if (state.srcCtx === ctx) {
+          r.saveSourceBtn.disabled = false;
+          r.saveSourceBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M2 1h8l3 3v9H2V1z" stroke="currentColor" stroke-width="1.4"/><rect x="4" y="8" width="6" height="5" rx=".5" stroke="currentColor" stroke-width="1.3"/><path d="M5 1v3h4" stroke="currentColor" stroke-width="1.3"/></svg> Сохранить`;
+        }
+        const buildPromise = rebuildSourceEmail({ keepSourceView: true, background: true });
+        lastBuildPromise = buildPromise;
+        if (request.awaitBuild) {
+          const ok = await buildPromise;
+          if (!ok) throw new Error(ctx.lastBuildError || 'Сборка Pug не завершилась');
+        }
+      } catch (error) {
+        if (!persistedCurrent) ctx.modified = true;
+        if (state.srcCtx === ctx) {
+          toast(`${persistedCurrent ? 'Ошибка сборки' : 'Ошибка сохранения'}: ${error.message}`, 'error');
+        }
+        throw error;
+      } finally {
+        if (state.srcCtx === ctx && !ctx.sourceSaveRequest) {
+          r.saveSourceBtn.disabled = false;
+          r.saveSourceBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M2 1h8l3 3v9H2V1z" stroke="currentColor" stroke-width="1.4"/><rect x="4" y="8" width="6" height="5" rx=".5" stroke="currentColor" stroke-width="1.3"/><path d="M5 1v3h4" stroke="currentColor" stroke-width="1.3"/></svg> Сохранить`;
+        }
+      }
+    }
+    return { ok: true, buildPromise: lastBuildPromise };
+  })();
+
+  ctx.sourceSavePromise = operation;
   try {
-    const res = await fetch('/api/wb/email-file', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ brand: ctx.brand, mail: ctx.mail, file: ctx.activeFile, content: stripPreviewArtifacts(typeof contentOverride === 'string' ? contentOverride : cm.getValue()) }),
-    });
-    const data = await res.json();
-    if (!data.ok) throw new Error(data.error);
-
-    ctx.modified = false;
-    renderSrcFileTabs();
-    toast(data.studioModelStale
-      ? '✓ Pug сохранён · DnD-модель устарела · HTML собирается в фоне'
-      : '✓ Исходник сохранён · HTML собирается в фоне', 'success', data.studioModelStale ? 2800 : 1900);
-  } catch(e) {
-    toast('Ошибка сохранения: ' + e.message, 'error');
-    throw e;
+    return await operation;
   } finally {
-    r.saveSourceBtn.disabled = false;
-    r.saveSourceBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M2 1h8l3 3v9H2V1z" stroke="currentColor" stroke-width="1.4"/><rect x="4" y="8" width="6" height="5" rx=".5" stroke="currentColor" stroke-width="1.3"/><path d="M5 1v3h4" stroke="currentColor" stroke-width="1.3"/></svg> Сохранить`;
+    if (ctx.sourceSavePromise === operation) ctx.sourceSavePromise = null;
+    if (state.srcCtx === ctx) {
+      r.saveSourceBtn.disabled = false;
+      r.saveSourceBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M2 1h8l3 3v9H2V1z" stroke="currentColor" stroke-width="1.4"/><rect x="4" y="8" width="6" height="5" rx=".5" stroke="currentColor" stroke-width="1.3"/><path d="M5 1v3h4" stroke="currentColor" stroke-width="1.3"/></svg> Сохранить`;
+    }
   }
+}
 
-  // Persistence is complete at this point, so the editor becomes available
-  // immediately. Compilation is serialized separately and another edit made
-  // while it runs queues one more pass instead of being lost.
-  const buildPromise = rebuildSourceEmail({ keepSourceView: true, background: true });
-  if (options.awaitBuild) {
-    const ok = await buildPromise;
-    if (!ok) throw new Error(ctx.lastBuildError || 'Сборка Pug не завершилась');
+async function rebuildCurrentSourceFromUi() {
+  const ctx = state.srcCtx;
+  if (!ctx) return false;
+  try {
+    if (!ctx.viewingCompiledHtml && ctx.activeFile && ctx.modified) {
+      await saveCurrentSourceFile(null, { awaitBuild: true });
+      return ctx.buildState !== 'error';
+    }
+    if (ctx.sourceSavePromise) await ctx.sourceSavePromise;
+    return await rebuildSourceEmail({ keepSourceView: !ctx.viewingCompiledHtml });
+  } catch (error) {
+    if (state.srcCtx === ctx) toast('Не удалось собрать письмо: ' + error.message, 'error');
+    return false;
   }
-  return { ok: true, buildPromise };
 }
 
 let _isBuilding = false;
@@ -6276,7 +6919,11 @@ async function performSourceEmailBuild(ctx) {
     const res  = await fetch('/api/wb/build-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ brand: ctx.brand, mail: ctx.mail, namespaces: state.namespaces }),
+      body: JSON.stringify({
+        brand: ctx.brand,
+        mail: ctx.mail,
+        namespaces: buildNamespacesForContext(ctx),
+      }),
     });
     const data = await res.json();
     if (!data.ok) throw new Error(data.error);
@@ -6468,10 +7115,15 @@ $('confirmSaveToBaseBtn')?.addEventListener('click', async () => {
 let _srcChangeListener   = null;
 let _srcAutoCompileTimer = null;
 let _suppressSrcModified = false; // set true when setValue() called programmatically
-let _backupOffered = false; // true once backup modal was shown for current srcCtx
+let _backupOffered = true; // legacy flag; versioning is now explicit, never first-keystroke UI
 
 function markSourceModified(ctx = state.srcCtx) {
   if (!ctx?.activeFile || ctx.viewingCompiledHtml) return;
+  const current = stripPreviewArtifacts(cm?.getValue() || '');
+  if (ctx.sourceRevisionValue !== current) {
+    ctx.sourceRevisionValue = current;
+    bumpEditorRevision(ctx, 'sourceRevision');
+  }
   ctx.modified = true;
   if (ctx.buildState !== 'building') ctx.buildState = 'queued';
 
@@ -6507,7 +7159,7 @@ function hookSourceModified() {
     _srcChangeListener = null;
   }
   if (!state.srcCtx) return;
-  _backupOffered = false; // reset for new email
+  _backupOffered = true;
 
   _srcChangeListener = () => {
     // Skip if we set the value ourselves (showCompiledHtml / loadSourceFile)
@@ -6519,13 +7171,6 @@ function hookSourceModified() {
 
     // Only track modification for actual source files (not compiled HTML view)
     if (ctx.viewingCompiledHtml) return;
-
-    // Offer backup on first real edit
-    if (!_backupOffered && !ctx.modified) {
-      _backupOffered = true;
-      _showBackupModal(ctx.brand, ctx.mail);
-      return; // delay edit — modal will let user proceed or switch to copy
-    }
 
     markSourceModified(ctx);
   };
@@ -6863,10 +7508,14 @@ async function buildEmail(brand, mail, btnEl) {
     statusEl.classList.remove('hidden');
   }
   try {
+    const isOpenMail = state.srcCtx?.brand === brand && state.srcCtx?.mail === mail;
+    const targetNamespaces = isOpenMail
+      ? userNamespaces(state.namespaces)
+      : userNamespaces(readNamespaceScope(brand, mail));
     const res  = await fetch('/api/wb/build-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ brand, mail, namespaces: state.namespaces }),
+      body: JSON.stringify({ brand, mail, namespaces: targetNamespaces }),
     });
     const data = await res.json();
     if (!data.ok) throw new Error(data.error || 'Ошибка сборки');
@@ -7805,14 +8454,15 @@ async function runAgentChat(text, images = []) {
       // Apply locale updates if any.
       if (Array.isArray(finalPayload.localeUpdates) && finalPayload.localeUpdates.length) {
         for (const upd of finalPayload.localeUpdates) {
+          const safeNamespace = normalizeWorkbenchNamespaceName(upd.namespace);
           const apply = document.createElement('button');
           apply.className = 'ai-preset';
-          apply.textContent = `↩ Применить локаль ${upd.namespace}/${upd.locale}`;
+          apply.textContent = `↩ Применить локаль ${safeNamespace}/${upd.locale}`;
           apply.onclick = () => {
             try {
-              let ns = state.namespaces.find(n => n.name === upd.namespace);
+              let ns = state.namespaces.find(n => n.name === safeNamespace);
               if (!ns) {
-                ns = { id: `ns-${uid()}`, name: upd.namespace, locales: {} };
+                ns = { id: `ns-${uid()}`, name: safeNamespace, locales: {} };
                 state.namespaces.push(ns);
               }
               setLocaleRawContent(ns, upd.locale, upd.txt);
@@ -7820,7 +8470,7 @@ async function runAgentChat(text, images = []) {
               renderNamespaceBar();
               saveToLocalStorage();
               try { activateLocale(upd.locale); } catch {}
-              apply.disabled = true; apply.textContent = `✓ ${upd.namespace}/${upd.locale}`;
+              apply.disabled = true; apply.textContent = `✓ ${safeNamespace}/${upd.locale}`;
             } catch (err) { apply.textContent = '✗ ' + (err.message || 'error'); }
           };
           timeline.appendChild(apply);
@@ -8563,11 +9213,11 @@ async function sendAiMessage() {
             if (reply.length > fullText.length) { fullText=reply; bubble.textContent=fullText; }
             if (frame.payload.tokenUsage) updateTokenDisplay(frame.payload.tokenUsage);
             // ── New: AI-tool dispatcher result (placeholderize / translate / fix-locale)
-            // Server returns { mode: 'ai-tool', aiToolResult: { editorHtml?, localeUpdates? } }
-            // Apply editorHtml directly to the editor and localeUpdates to the namespace store.
+            // Server returns source-aware proposals: editorSource for Pug,
+            // editorHtml for standalone HTML, plus optional locale updates.
             const tool = frame.payload.aiToolResult;
             if (!localeAuditRequested && tool && typeof tool === 'object') {
-              const safeTool = localeOnlyMode ? { ...tool, editorHtml: undefined } : tool;
+              const safeTool = localeOnlyMode ? { ...tool, editorHtml: undefined, editorSource: undefined } : tool;
               try { applyAiToolResult(safeTool, bubble); } catch (err) { console.warn('[AI] applyAiToolResult failed', err); }
             }
             // Auto-apply modified HTML from clone-edit mode
@@ -8613,6 +9263,33 @@ async function sendAiMessage() {
 // may update open HTML immediately; locale changes require a diff confirmation.
 function applyAiToolResult(tool, bubble) {
   let didSomething = false;
+  if (typeof tool.editorSource === 'string' && tool.editorSource.trim().length > 20 && state.srcCtx) {
+    const ctx = state.srcCtx;
+    const sourceFile = String(tool.sourceFile || ctx.activeFile || '');
+    const activePug = !ctx.viewingCompiledHtml
+      && sourceFile === ctx.activeFile
+      && /\.(?:pug|jade)$/i.test(sourceFile);
+    if (activePug && cm) {
+      pushUndoSnapshot('Плейсхолдеры Pug');
+      _suppressSrcModified = true;
+      const lastLine = cm.lastLine();
+      const lastCh = cm.getLine(lastLine)?.length ?? 0;
+      cm.operation(() => {
+        cm.replaceRange(tool.editorSource, { line: 0, ch: 0 }, { line: lastLine, ch: lastCh });
+      });
+      setTimeout(() => { _suppressSrcModified = false; }, 0);
+      _backupOffered = true;
+      markSourceModified(ctx);
+      renderSrcFileTabs();
+      updateEditorStats();
+      updatePreview();
+      didSomething = true;
+    } else if (sourceFile && ctx.files?.some(file => file.path === sourceFile)) {
+      // Do not replace a Stylus/HTML editor behind the user's back. The
+      // existing source-edit proposal saves the named Pug file explicitly.
+      offerSourceFileEditsApply(bubble, [{ path: sourceFile, content: tool.editorSource }]);
+    }
+  }
   if (typeof tool.editorHtml === 'string' && tool.editorHtml.trim().length > 50) {
     if (tool.kind === 'placeholderize' && cm && !state.srcCtx) {
       pushUndoSnapshot('Плейсхолдеры AI');
@@ -8696,7 +9373,9 @@ function applyAiToolResult(tool, bubble) {
   if (didSomething && bubble) {
     const mark = document.createElement('div');
     mark.style.cssText = 'margin-top:6px;font-size:11px;color:#16a34a;font-weight:600;';
-    mark.textContent = '✓ Плейсхолдеры применены к открытому HTML';
+    mark.textContent = state.srcCtx
+      ? '✓ Плейсхолдеры применены к Pug-исходнику'
+      : '✓ Плейсхолдеры применены к открытому HTML';
     bubble.appendChild(mark);
   }
 }
@@ -8884,14 +9563,11 @@ function offerSourceFileEditsApply(bubble, edits) {
     btn.textContent = 'Сохраняю файлы…';
     pushUndoSnapshot('AI source files');
     try {
+      // Do not let a still-running manual/autosave overwrite an accepted AI
+      // revision after this operation finishes.
+      if (ctx.sourceSavePromise) await ctx.sourceSavePromise;
       for (const edit of edits) {
-        const res = await fetch('/api/wb/email-file', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ brand: ctx.brand, mail: ctx.mail, file: edit.path, content: edit.content }),
-        });
-        const data = await res.json();
-        if (!data.ok) throw new Error(data.error || `Не удалось сохранить ${edit.path}`);
+        await saveAuxiliarySourceFile(ctx, edit.path, edit.content, { rebuild: false });
         if (!ctx.openedFiles) ctx.openedFiles = [];
         if (!ctx.openedFiles.includes(edit.path)) ctx.openedFiles.push(edit.path);
       }
@@ -9202,7 +9878,7 @@ function saveToLocalStorage() {
     }
     localStorage.setItem(LS_FILES,      JSON.stringify(state.files));
     localStorage.setItem(LS_ACTIVE_FILE, state.activeFileId || '');
-    localStorage.setItem(LS_NAMESPACES, JSON.stringify((state.namespaces || []).filter(n => !n.builtin)));
+    persistNamespaceScope(state.srcCtx?.brand || '', state.srcCtx?.mail || '', state.namespaces);
     localStorage.setItem(LS_BRANDS,     JSON.stringify({ brands: state.brands, activeBrandId: state.activeBrandId }));
     // Save current email source context (brand/mail/opened files)
     if (state.srcCtx) {
@@ -9558,7 +10234,9 @@ function init() {
   r.aiDrawer.dataset.state  = 'collapsed';
   // A constructor handoff is authoritative: do not briefly restore the old
   // HTML/source tab from localStorage and let it race with the requested mail.
-  restoreUiFromState({ skipWorkspace: Boolean(getDirectMailHandoff()) });
+  const directMailHandoff = getDirectMailHandoff();
+  if (directMailHandoff) state.namespaces = [];
+  restoreUiFromState({ skipWorkspace: Boolean(directMailHandoff) });
   refreshAiStatus();
   setInterval(refreshAiStatus, 30_000);
   setupBlocksDragDrop();
@@ -9644,19 +10322,20 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// ─── AI: placeholderize HTML + translate/fix locale TXT ────────────────
+// ─── Placeholders in Pug/HTML + AI translate/fix locale TXT ───────────
 // Three operations wired into the locale-bar buttons:
-//   ✱ aiPlaceholdersBtn  → /api/wb/ai/placeholderize        (HTML → ${{ ns.block_NN }}$)
+//   ✱ aiPlaceholdersBtn  → /api/wb/placeholderize-source    (Pug → ${{ ns.block_NN }}$)
+//                         → /api/wb/ai/placeholderize        (plain HTML fallback)
 //   🌐 aiTranslateBtn     → /api/wb/ai/translate-locale-txt  (en TXT → target TXT)
 //   🩹 aiFixLocaleBtn     → /api/wb/ai/fix-locale-txt        (broken TXT → fixed TXT)
 (function setupAiLocaleButtons() {
   const tBtn = document.getElementById('aiTranslateBtn');
   const pBtn = document.getElementById('aiPlaceholdersBtn');
   let fBtn = document.getElementById('aiFixLocaleBtn');
-  if (!tBtn || !pBtn) return;
+  if (!pBtn) return;
 
   // Inject the third "fix locale" button if missing — keeps HTML changes minimal.
-  if (!fBtn) {
+  if (tBtn && !fBtn) {
     fBtn = document.createElement('button');
     fBtn.id = 'aiFixLocaleBtn';
     fBtn.className = 'locale-add-manual-btn';
@@ -9693,45 +10372,82 @@ document.addEventListener('DOMContentLoaded', () => {
     return '';
   }
 
-  // ── Placeholderize current HTML editor content ──────────────────────────
+  // ── Placeholderize editable Pug source (or a standalone HTML file) ──────
   pBtn.addEventListener('click', async () => {
     if (!cm) { toast('Редактор не готов', 'warning'); return; }
-    const html = cm.getValue();
-    if (!html.trim()) { toast('Нет HTML в редакторе', 'warning'); return; }
+    let ctx = state.srcCtx;
+    if (ctx) {
+      // The action always owns Pug. If the user is looking at linked/detached
+      // HTML or Stylus, return to the primary Pug first instead of mutating a
+      // compiled document by accident.
+      const currentExt = ctx.activeFile?.split('.').pop()?.toLowerCase();
+      if (ctx.viewingCompiledHtml || !['pug', 'jade'].includes(currentExt)) {
+        const pugFile = ctx.files?.find(file => /templates\/blocks\/header\.(?:pug|jade)$/.test(file.path))?.path
+          || ctx.files?.find(file => file.ext === 'pug' || file.ext === 'jade')?.path;
+        if (!pugFile) { toast('В этом письме нет Pug/Jade-исходника', 'warning'); return; }
+        if (ctx.viewingCompiledHtml && !confirmDiscardHtmlDraft()) return;
+        await loadSourceFile(pugFile, { force: true });
+        ctx = state.srcCtx;
+      }
+    }
+    const editorSource = cm.getValue();
+    if (!editorSource.trim()) { toast('Редактор пуст', 'warning'); return; }
     const ns = getActiveNs();
     if (!ns) { toast('Сначала загрузите namespace с локалями', 'warning'); return; }
     const refLocale = (rawTxtFor(ns, 'en') ? 'en' : Object.keys(ns.locales || {})[0]);
     const refTxt = rawTxtFor(ns, refLocale);
     if (!refTxt) { toast('Нет reference TXT в этом namespace', 'warning'); return; }
-    setBusy(pBtn, '✱');
+    const sourceMode = Boolean(ctx && !ctx.viewingCompiledHtml && /\.(?:pug|jade)$/i.test(ctx.activeFile || ''));
+    setBusy(pBtn, '✱ Плейсхолдеры');
     try {
-      const res = await fetch('/api/wb/ai/placeholderize', {
+      const res = await fetch(sourceMode ? '/api/wb/placeholderize-source' : '/api/wb/ai/placeholderize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ html, refLocaleTxt: refTxt, namespace: ns.name }),
+        body: JSON.stringify(sourceMode
+          ? { pug: editorSource, refLocaleTxt: refTxt, namespace: ns.name }
+          : { html: editorSource, refLocaleTxt: refTxt, namespace: ns.name }),
       });
       const json = await res.json();
-      if (res.status === 404) throw new Error('Сервер не подхватил новые AI-endpoints. Перезапусти `npm start` и попробуй снова.');
+      if (res.status === 404) throw new Error('Сервер не подхватил новый редактор исходников. Перезапусти студию и попробуй снова.');
       if (!res.ok || !json.ok) throw new Error(json.error || `HTTP ${res.status}`);
-      const total = parseTxt(refTxt).length;
+      const total = Number(json.total ?? parseTxt(refTxt).length);
+      if (!json.anchors) {
+        toast(`Совпадений не найдено: 0/${total}. Проверь выбранный namespace и reference-локаль.`, 'warning', 4800);
+        return;
+      }
       const summary =
-        `AI поставил ${json.anchors}/${total} плейсхолдеров. ` +
+        `${sourceMode ? 'В Pug найдено' : 'AI нашёл'} ${json.anchors}/${total} текстовых блоков. ` +
         (json.missed?.length ? `Не нашёл: ${json.missed.join(', ')}. ` : '') +
         (json.ambiguous?.length ? `Неоднозначно: ${json.ambiguous.join(', ')}. ` : '') +
-        '\n\nПрименить к редактору?';
-      if (!confirm(summary)) { toast('AI плейсхолдеры не применены', 'info'); return; }
-      cm.setValue(json.html);
+        `\n\nПрименить к ${sourceMode ? 'Pug-исходнику' : 'HTML'}?`;
+      if (!confirm(summary)) { toast('Плейсхолдеры не применены', 'info'); return; }
+      pushUndoSnapshot('Плейсхолдеры по ' + String(refLocale || '').toUpperCase());
+      _suppressSrcModified = true;
+      cm.operation(() => {
+        const lastLine = cm.lastLine();
+        const lastCh = cm.getLine(lastLine)?.length ?? 0;
+        cm.replaceRange(sourceMode ? json.pug : json.html, { line: 0, ch: 0 }, { line: lastLine, ch: lastCh });
+      });
+      setTimeout(() => { _suppressSrcModified = false; }, 0);
+      if (sourceMode && ctx) {
+        // The user has confirmed this bulk edit, so do not show the separate
+        // first-keystroke backup dialog over it. Keep normal undo/autosave.
+        _backupOffered = true;
+        markSourceModified(ctx);
+        renderSrcFileTabs();
+      }
       updatePreview();
-      toast(`✓ Поставлено ${json.anchors} плейсхолдеров`, 'success', 3000);
+      updateEditorStats();
+      toast(`✓ ${json.anchors} плейсхолдеров применено к ${sourceMode ? 'Pug' : 'HTML'}`, 'success', 3200);
     } catch (err) {
-      toast(`AI placeholderize failed: ${err.message}`, 'error');
+      toast(`Не удалось расставить плейсхолдеры: ${err.message}`, 'error');
     } finally {
       clearBusy(pBtn);
     }
   });
 
   // ── Translate active locale's TXT from EN (or chosen src) ───────────────
-  tBtn.addEventListener('click', async () => {
+  tBtn?.addEventListener('click', async () => {
     const target = (state.activeLocale || '').trim();
     if (!target || target === 'original') {
       toast('Сначала переключитесь на конкретную локаль (ar, ur, ru, ...)', 'warning'); return;
@@ -9765,7 +10481,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ── Fix the active locale TXT — with dry-run preview + rollback ─────────
-  fBtn.addEventListener('click', async () => {
+  fBtn?.addEventListener('click', async () => {
     const code = (state.activeLocale || '').trim();
     if (!code || code === 'original') {
       toast('Сначала переключитесь на конкретную локаль', 'warning'); return;
@@ -9821,7 +10537,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // ─── AI preset chips → autosubmit ────────────────────────────────
 (function setupAiPresets() {
   const PRESETS = {
-    'placeholderize':    'Расставь плейсхолдеры в HTML по EN-локали (по порядку blockов).',
+    'placeholderize':    'Расставь плейсхолдеры в открытом Pug-исходнике по EN-локали (по порядку blockов).',
   };
   const root = document.getElementById('aiPresets');
   if (!root || !r.aiInput || !r.aiSendBtn) return;
@@ -10520,6 +11236,8 @@ if (r.previewFrame) {
       nsName = prompt('Имя namespace для этих файлов:', 'mail-namespace-REG') || 'mail-namespace-REG';
     }
 
+    nsName = normalizeWorkbenchNamespaceName(nsName);
+
     importFilesIntoNamespace(txtFiles, nsName);
     toast(`Загрузил ${txtFiles.length} файлов локалей в "${nsName}"`, 'success', 3500);
 
@@ -10725,10 +11443,10 @@ function toastWithAction(message, actionLabel, onAction, type = 'success', timeo
   }
 
   function activeNamespaceName() {
-    if (nsInput && nsInput.value.trim()) return nsInput.value.trim();
+    if (nsInput && nsInput.value.trim()) return normalizeWorkbenchNamespaceName(nsInput.value.trim());
     if (typeof state !== 'undefined' && Array.isArray(state.namespaces)) {
       const ns = state.namespaces.find(n => n.id === state.activeNamespaceId) || state.namespaces[0];
-      if (ns && ns.name) return ns.name;
+      if (ns && ns.name) return normalizeWorkbenchNamespaceName(ns.name);
     }
     return '';
   }
@@ -10899,6 +11617,25 @@ if (typeof window !== 'undefined') {
   window.WB.getActiveCm = getActiveCm;
   window.WB.getSrcCtx = () => state.srcCtx;
   window.WB.getState = () => state;
+  window.WB.getCodeEditorSnapshot = () => ({
+    activeFile: state.srcCtx?.activeFile || null,
+    viewingCompiledHtml: Boolean(state.srcCtx?.viewingCompiledHtml),
+    htmlDetached: Boolean(state.srcCtx?.compiledHtmlDetached),
+    editorType: state.editorType,
+    readOnly: Boolean(cm?.getOption?.('readOnly')),
+    chars: cm?.getValue?.().length || 0,
+    lines: cm?.lineCount?.() || 0,
+  });
+  window.WB.waitForEditableSource = async (timeoutMs = 4000) => {
+    const started = Date.now();
+    while (Date.now() - started < timeoutMs) {
+      const snapshot = window.WB.getCodeEditorSnapshot();
+      if (snapshot.activeFile && /\.(?:pug|jade)$/i.test(snapshot.activeFile)
+          && !snapshot.viewingCompiledHtml && !snapshot.readOnly && snapshot.chars > 0) return snapshot;
+      await new Promise(resolve => setTimeout(resolve, 40));
+    }
+    throw new Error(`Editable Pug did not become ready: ${JSON.stringify(window.WB.getCodeEditorSnapshot())}`);
+  };
   // Helpers we'll let outline-mode subscribe to.
   window.WB.onFileChange = (cb) => {
     window.WB._fileChangeListeners = window.WB._fileChangeListeners || [];

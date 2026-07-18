@@ -6,7 +6,7 @@
   "category": "hero",
   "version": 1,
   "source": "canonical",
-  "pug": "table.iq-hero-date(role=\"presentation\" align=\"{{ align }}\")\n    tr\n        td.iq-hero-date-cell(style=\"background-color:{{ background_color }};background-image:url('{{ background_image }}');background-position:center;background-repeat:no-repeat;background-size:cover;border:{{ border }};border-radius:{{ radius }};padding:{{ padding }}\") {{ label }}",
+  "pug": "table.iq-hero-date(role=\"presentation\" align=\"{{ align }}\")\n    tr\n        td.iq-hero-date-cell(align=\"{{ align }}\" style=\"background-color:{{ background_color }};background-image:url('{{ background_image }}');background-position:center;background-repeat:no-repeat;background-size:cover;border:{{ border }};border-radius:{{ radius }};padding:{{ padding }};text-align:{{ align }}\") {{ label }}",
   "styl": ".iq-hero-date{border-collapse:separate!important}\n.iq-hero-date-cell{color:{{ text_color }};font-family:Helvetica,Arial,sans-serif!important;font-size:{{ font_size }}px;font-style:normal;font-weight:700;line-height:{{ line_height }}px}",
   "slots": [
     { "id": "label", "kind": "text", "label": "Дата", "default": "Дата", "uiGroup": "content" },

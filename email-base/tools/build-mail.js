@@ -309,11 +309,29 @@ function getDeep(obj, pathParts) {
   return cur;
 }
 
+function createLocalizationTextPositionChecker(source) {
+  const text = String(source || '');
+  const lower = text.toLowerCase();
+  return (offset) => {
+    const at = Math.max(0, Number(offset) || 0);
+    // A translation token inside an opening tag is an attribute value (src,
+    // href, alt, background, style, ...). Injecting <bdi> there corrupts the
+    // attribute and is especially destructive for image URLs.
+    if (text.lastIndexOf('<', at) > text.lastIndexOf('>', at)) return false;
+    if (text.lastIndexOf('<!--', at) > text.lastIndexOf('-->', at)) return false;
+    for (const tag of ['style', 'script']) {
+      if (lower.lastIndexOf(`<${tag}`, at) > lower.lastIndexOf(`</${tag}`, at)) return false;
+    }
+    return true;
+  };
+}
+
 function localizeHtmlPlaceholders(html, translationIndex, opts = {}) {
   const { failOnMissing = false, wrapWithBdi = false } = opts;
+  const isTextPosition = createLocalizationTextPositionChecker(html);
   // Matches: ${{ file.path.to.key }}$
   const re = /\$\{\{\s*([a-zA-Z0-9_-]+)(?:\.([a-zA-Z0-9_.-]+))\s*\}\}\$/g;
-  return html.replace(re, (m, fileKey, keyPath) => {
+  return html.replace(re, (m, fileKey, keyPath, offset) => {
     const json = translationIndex.get(fileKey);
     if (!json) {
       if (failOnMissing) throw new Error(`Missing translation file: ${fileKey}.json`);
@@ -338,9 +356,9 @@ function localizeHtmlPlaceholders(html, translationIndex, opts = {}) {
     // <bdi>. Prevents the "punctuation jumps" artifact when a block contains
     // LTR placeholders (like `{{Level_Name}}`) inside Arabic/Urdu prose, or
     // when the surrounding HTML mixes directions.
-    // Skip wrapping if the value already contains a <bdi> (idempotent), or
-    // if it's empty / whitespace-only.
-    if (wrapWithBdi && str.trim() && !/<bdi\b/i.test(str)) {
+    // Skip wrapping inside attributes/style/script, if the value already
+    // contains a <bdi> (idempotent), or if it's empty / whitespace-only.
+    if (wrapWithBdi && isTextPosition(offset) && str.trim() && !/<bdi\b/i.test(str)) {
       return `<bdi>${str}</bdi>`;
     }
     return str;
@@ -392,6 +410,7 @@ async function inlineHtml(html, inlineCssText) {
 async function main() {
   const argv = minimist(process.argv.slice(2), {
     boolean: ['minifyCss', 'base', 'failOnMissing', 'pretty', 'trimCss', 'minifyHtml', 'minifyAll', 'skip-locales'],
+    string: ['rtl-mode'],
     default: {
       minifyCss: true,
       base: true,
@@ -403,6 +422,7 @@ async function main() {
       minifyHtml: false,
       minifyAll: false,
       'skip-locales': false,
+      'rtl-mode': 'text',
     },
     alias: {
       c: 'category',
@@ -490,6 +510,7 @@ async function writeHtmlPair(dirAbs, htmlCompact, htmlPretty, { emitPretty = fal
   const locales = argv['skip-locales']
     ? []
     : (parseLocalesArg(argv.locales) || (await listLocales(langDirAbs)));
+  const rtlMode = /^(?:mirror|full)$/i.test(String(argv['rtl-mode'] || '').trim()) ? 'mirror' : 'text';
 
   // 1) CSS (compile once, then assemble per-output). In RAW HTML MODE
   // with no stylus entry, we use an empty CSS — HTML is taken verbatim.
@@ -735,7 +756,8 @@ async function writeHtmlPair(dirAbs, htmlCompact, htmlPretty, { emitPretty = fal
       const unresolved = findUnresolvedLocalizationTokens(localized);
       if (unresolved.length) {
         console.warn(
-          `[build] WARN locale '${locale}': ${unresolved.length} unresolved placeholder(s): ${formatTokenPreview(unresolved)}`
+          `[build] WARN locale '${locale}': ${unresolved.length} unresolved localization placeholder(s): ${formatTokenPreview(unresolved)}. ` +
+          `This locale is missing namespace/key data; RTL changes direction only and cannot translate it.`
         );
       }
     }
@@ -751,9 +773,9 @@ async function writeHtmlPair(dirAbs, htmlCompact, htmlPretty, { emitPretty = fal
     }
 
     if (isRtlLocaleCode(locale)) {
-      try { localized = applyRtlToHtml(localized); } catch (e) { console.warn(`[build] RTL apply failed for '${locale}': ${e.message || e}`); }
+      try { localized = applyRtlToHtml(localized, { mode: rtlMode }); } catch (e) { console.warn(`[build] RTL apply failed for '${locale}': ${e.message || e}`); }
       if (localizedPretty) {
-        try { localizedPretty = applyRtlToHtml(localizedPretty); } catch {}
+        try { localizedPretty = applyRtlToHtml(localizedPretty, { mode: rtlMode }); } catch {}
       }
     }
     await writeHtmlPair(localeDir, localized, localizedPretty, { emitPretty: argv.pretty });
