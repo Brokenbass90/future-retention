@@ -1,0 +1,41 @@
+{
+  "id": "iq-cta-w280",
+  "label": "Кнопка CTA (w280, оранжевая)",
+  "description": "table.w280 с td.butt и a.butt-link — фирменная оранжевая кнопка 233.",
+  "placement": "inner",
+  "category": "cta",
+  "version": 2,
+  "source": "canonical",
+  "outlookSafe": true,
+  "pug": "table.w280.iq-cta-w280(align=\"{{ align }}\" role=\"presentation\")\n    tr\n        td.butt.pb0\n            a.butt-link(href=\"{{ href }}\" universal=\"true\" target=\"_blank\") {{ label }}",
+  "styl": ".w280\n  width 100%\n  max-width 280px\n  @media screen and (max-width: 600px)\n    max-width 100% !important\n.butt\n  background-size cover\n  background-color #FF7700\n  font-size 18px !important\n  font-weight 700 !important\n  border-radius: 16px !important\n  text-transform: none\n  font-family: Helvetica !important\n  height auto\n.butt-link\n  font-size 18px\n  line-height 27px\n  font-weight 700\n  text-transform none\n  text-decoration: none\n  color #F9F9F9\n  display block\n  padding: 16px 0 16px\n  text-align center\n  letter-spacing 0px",
+  "slots": [
+    {
+      "id": "label",
+      "kind": "text",
+      "label": "Текст кнопки",
+      "default": "Button text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "href",
+      "kind": "text",
+      "label": "Ссылка",
+      "default": "https://api.iqoption.com/v1/multi-links/deposit?promocode=CLAIM10C&aff=7&afftrack=mail_IQ-RFM-2-3-3-Second-Email&retrack=mail_IQ-RFM-2-3-3-Second-Email",
+      "uiGroup": "content",
+      "allowSystemPlaceholder": true
+    },
+    {
+      "id": "align",
+      "kind": "select",
+      "label": "Выравнивание",
+      "default": "center",
+      "options": [
+        "left",
+        "center",
+        "right"
+      ],
+      "uiGroup": "appearance"
+    }
+  ]
+}

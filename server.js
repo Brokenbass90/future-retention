@@ -19493,7 +19493,7 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
-    if (request.method === "GET" && (request.url === "/constructor" || request.url === "/constructor/")) {
+    if (request.method === "GET" && (request.url.split("?")[0] === "/constructor" || request.url.split("?")[0] === "/constructor/")) {
       const cPath = path.join(publicDir, "constructor.html");
       const data = await readFile(cPath);
       response.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" });

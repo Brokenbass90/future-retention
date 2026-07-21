@@ -5,6 +5,7 @@ import vm from "node:vm";
 const source = await readFile(new URL("../public/workbench.js", import.meta.url), "utf8");
 const html = await readFile(new URL("../public/workbench.html", import.meta.url), "utf8");
 const css = await readFile(new URL("../public/workbench.css", import.meta.url), "utf8");
+const serverSource = await readFile(new URL("../server.js", import.meta.url), "utf8");
 
 function functionSource(name) {
   const start = source.indexOf(`function ${name}(`);
@@ -34,6 +35,61 @@ function functionSource(name) {
   }
   throw new Error(`Cannot extract ${name}`);
 }
+
+assert.match(
+  serverSource,
+  /request\.url\.split\("\?"\)\[0\] === "\/constructor"/,
+  "Constructor route must accept the brand/mail query used by the Workbench return button",
+);
+assert.match(
+  source,
+  /window\.location\.href = '\/constructor\?brand='[\s\S]*?'&mail='/,
+  "Workbench return button must preserve the open source brand and mail",
+);
+const constructorReturnReason = functionSource("workbenchConstructorReturnBlockReason");
+const constructorReturnRequest = functionSource("requestConstructorReturn");
+const constructorReturnNavigation = functionSource("navigateBackToConstructor");
+assert.match(constructorReturnRequest, /\/api\/constructor\/parse-email\?brand=/,
+  "Workbench must preflight the live parse endpoint before leaving the code editor");
+assert.match(constructorReturnRequest, /workbenchConstructorReturnBlockReason\(data\)/,
+  "Workbench must interpret the server studioModelStale guard");
+assert.ok(
+  constructorReturnNavigation.indexOf("await requestConstructorReturn") < constructorReturnNavigation.indexOf("window.location.href"),
+  "Workbench must finish the stale-model preflight before navigating",
+);
+assert.match(constructorReturnNavigation, /if \(!availability\.canOpen\)[\s\S]*?toast\(availability\.blockedReason/,
+  "a stale model must keep the user in Workbench with an actionable message");
+assert.match(constructorReturnNavigation, /catch \(error\)[\s\S]*?Код остаётся открыт в Workbench/,
+  "a failed preflight must preserve the code editor instead of navigating blindly");
+
+const constructorReturnSandbox = { result: null, calls: [], encodeURIComponent };
+await vm.runInNewContext(`(async () => {
+${constructorReturnReason}
+const payloads = [
+  { ok: true, studioModelStale: true },
+  { ok: true, studioModelStale: false },
+];
+const fetch = async (url) => {
+  calls.push(url);
+  const payload = payloads.shift();
+  return { ok: true, status: 200, json: async () => payload };
+};
+async ${constructorReturnRequest}
+const stale = await requestConstructorReturn('X Brand', 'mail-one');
+const fresh = await requestConstructorReturn('X Brand', 'mail-one');
+result = { stale, fresh, calls };
+})()`, constructorReturnSandbox);
+assert.deepEqual(JSON.parse(JSON.stringify(constructorReturnSandbox.result)), {
+  stale: {
+    canOpen: false,
+    blockedReason: "Переход отменён: модель конструктора устарела после правок Pug/Stylus. Код остаётся открыт в Workbench. Чтобы вернуться к drag-and-drop без потери правок, создайте копию письма и откройте её в конструкторе.",
+  },
+  fresh: { canOpen: true, blockedReason: "" },
+  calls: [
+    "/api/constructor/parse-email?brand=X%20Brand&mail=mail-one",
+    "/api/constructor/parse-email?brand=X%20Brand&mail=mail-one",
+  ],
+});
 
 const openSource = functionSource("openSourceContext");
 assert.match(openSource, /options\.initialView === 'pug'/, "constructor handoff must request Pug");

@@ -73,7 +73,9 @@ async function cleanupSmokeMail() {
     path.join(projectRoot, "email-base", "X_preview", `mail-${SMOKE_MAIL}`),
     path.join(projectRoot, "email-base", "dist", "X_preview", `mail-${SMOKE_MAIL}`),
   ]) {
-    await rm(folder, { recursive: true, force: true }).catch(() => {});
+    await rm(folder, { recursive: true, force: true }).catch((error) => {
+      console.warn(`⚠ не удалось убрать за собой ${folder}: ${error.message} — удалите вручную`);
+    });
   }
 }
 

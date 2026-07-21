@@ -1,26 +1,112 @@
 {
   "id": "iq-hero-copy",
   "label": "Hero — заголовок + текст",
-  "description": "Самостоятельная текстовая часть hero: крупный заголовок и абзац. Контент, цвета, размеры, выравнивание и отступы редактируются отдельно.",
+  "description": "Самостоятельная текстовая часть hero: крупный заголовок и абзац. Контент, цвета, размеры, выравнивание и отступы редактируются отдельно. Текст в gmail-blend обёртке: защита от инверсии цвета в тёмной теме Gmail.",
   "placement": "inner",
   "category": "hero",
-  "version": 1,
+  "version": 2,
   "source": "canonical",
-  "pug": "table.iq-hero-copy(role=\"presentation\" width=\"100%\")\n    tr\n        td(style=\"padding:{{ padding }};text-align:{{ align }}\")\n            p.iq-hero-title {{ title }}\n            p.iq-hero-body {{ body }}",
+  "pug": "table.iq-hero-copy(role=\"presentation\" width=\"100%\")\n    tr\n        td(style=\"padding:{{ padding }};text-align:{{ align }}\")\n            div.gmail-blend-screen\n                div.gmail-blend-diff\n                    p.iq-hero-title {{ title }}\n                    p.iq-hero-body {{ body }}",
   "styl": ".iq-hero-copy{width:100%}\n.iq-hero-title{color:{{ title_color }};font-family:Helvetica,Arial,sans-serif!important;font-size:{{ title_size }}px;font-weight:700;line-height:{{ title_line_height }}px;margin:0;padding:{{ title_padding }};word-break:break-word}\n.iq-hero-body{color:{{ body_color }};font-family:Helvetica,Arial,sans-serif!important;font-size:{{ body_size }}px;font-style:normal;font-weight:400;line-height:{{ body_line_height }}px;margin:0;padding:0}\n@media screen and (max-width:600px){.iq-hero-title{font-size:26px!important;line-height:32px!important}.iq-hero-body{padding-right:0!important}}",
   "slots": [
-    { "id": "title", "kind": "text", "label": "Заголовок", "default": "Заголовок письма", "uiGroup": "content" },
-    { "id": "body", "kind": "richText", "label": "Текст", "default": "Короткий текст под заголовком.", "uiGroup": "content" },
-    { "id": "title_color", "kind": "color", "label": "Цвет заголовка", "default": "#F9F9F9", "uiGroup": "appearance" },
-    { "id": "body_color", "kind": "color", "label": "Цвет текста", "default": "#FFFFFF", "uiGroup": "appearance" },
-    { "id": "title_size", "kind": "number", "label": "Размер заголовка, px", "default": 42, "min": 18, "max": 64, "uiGroup": "appearance" },
-    { "id": "title_line_height", "kind": "number", "label": "Строка заголовка, px", "default": 52, "min": 22, "max": 76, "uiGroup": "appearance" },
-    { "id": "body_size", "kind": "number", "label": "Размер текста, px", "default": 18, "min": 12, "max": 32, "uiGroup": "appearance" },
-    { "id": "body_line_height", "kind": "number", "label": "Строка текста, px", "default": 27, "min": 16, "max": 46, "uiGroup": "appearance" },
-    { "id": "align", "kind": "select", "label": "Выравнивание", "default": "left", "options": ["left", "center", "right"], "uiGroup": "appearance" },
-    { "id": "padding", "kind": "text", "label": "Отступы блока", "default": "16px 0 0", "uiGroup": "appearance" },
-    { "id": "title_padding", "kind": "text", "label": "Отступы заголовка", "default": "0 30px 16px 0", "uiGroup": "appearance" }
+    {
+      "id": "title",
+      "kind": "text",
+      "label": "Заголовок",
+      "default": "Заголовок письма",
+      "uiGroup": "content"
+    },
+    {
+      "id": "body",
+      "kind": "richText",
+      "label": "Текст",
+      "default": "Короткий текст под заголовком.",
+      "uiGroup": "content"
+    },
+    {
+      "id": "title_color",
+      "kind": "color",
+      "label": "Цвет заголовка",
+      "default": "#F9F9F9",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "body_color",
+      "kind": "color",
+      "label": "Цвет текста",
+      "default": "#FFFFFF",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "title_size",
+      "kind": "number",
+      "label": "Размер заголовка, px",
+      "default": 42,
+      "min": 18,
+      "max": 64,
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "title_line_height",
+      "kind": "number",
+      "label": "Строка заголовка, px",
+      "default": 52,
+      "min": 22,
+      "max": 76,
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "body_size",
+      "kind": "number",
+      "label": "Размер текста, px",
+      "default": 18,
+      "min": 12,
+      "max": 32,
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "body_line_height",
+      "kind": "number",
+      "label": "Строка текста, px",
+      "default": 27,
+      "min": 16,
+      "max": 46,
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "align",
+      "kind": "select",
+      "label": "Выравнивание",
+      "default": "left",
+      "options": [
+        "left",
+        "center",
+        "right"
+      ],
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "padding",
+      "kind": "text",
+      "label": "Отступы блока",
+      "default": "16px 0 0",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "title_padding",
+      "kind": "text",
+      "label": "Отступы заголовка",
+      "default": "0 30px 16px 0",
+      "uiGroup": "appearance"
+    }
   ],
   "outlookSafe": true,
-  "tags": ["hero", "copy", "title", "text", "inner", "iq"]
+  "tags": [
+    "hero",
+    "copy",
+    "title",
+    "text",
+    "inner",
+    "iq"
+  ]
 }

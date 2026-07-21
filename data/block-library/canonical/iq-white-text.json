@@ -1,0 +1,33 @@
+{
+  "id": "iq-white-text",
+  "label": "Белый текст",
+  "description": "p.white-text 18px, для тёмного фона. В gmail-blend обёртке.",
+  "placement": "inner",
+  "category": "text",
+  "version": 2,
+  "source": "canonical",
+  "outlookSafe": true,
+  "pug": "div.gmail-blend-screen\n    div.gmail-blend-diff\n        p.white-text(style=\"text-align:{{ align }}\") {{ text }}",
+  "styl": ".white-text\n  font-family: Helvetica !important\n  font-style: normal\n  font-weight: 400\n  font-size: 18px\n  line-height: 27px\n  color: #FFFFFF\n  padding-right 20px\n  @media screen and (max-width: 600px)\n    padding-right 0 !important",
+  "slots": [
+    {
+      "id": "text",
+      "kind": "richText",
+      "label": "Текст",
+      "default": "Body text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "align",
+      "kind": "select",
+      "label": "Выравнивание",
+      "default": "left",
+      "options": [
+        "left",
+        "center",
+        "right"
+      ],
+      "uiGroup": "appearance"
+    }
+  ]
+}

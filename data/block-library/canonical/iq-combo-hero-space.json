@@ -1,0 +1,98 @@
+{
+  "id": "iq-combo-hero-space",
+  "label": "Комбо: Хеддер с фоном-сценой (лого + панель с аватаром)",
+  "description": "Комбо (рецепт) 325: тёмный hero, где вся картинка — фон секции: лого, высокий держатель места под сцену, крупный белый заголовок 48px и полупрозрачная панель с аватаром и текстом. Раскладывается на отдельные редактируемые блоки.",
+  "placement": "section",
+  "category": "hero",
+  "version": 1,
+  "source": "canonical",
+  "combo": true,
+  "tags": [
+    "combo",
+    "hero",
+    "iq"
+  ],
+  "outlookSafe": true,
+  "pug": "table.row.brad-full.bgr-image.iq-combo-hero-space(role=\"presentation\" style=\"background-color:#000000;background-image:url('https://fsms.quadcode.com/storage/public/d7/7o/osansqgk5ucdfn00/3-2-5-head.png');background-position:center top;background-repeat:no-repeat;background-size:cover;border-radius:32px\")\n    tr\n        td.wrapper.last.pt0\n            table.twelve.columns(role=\"presentation\")\n                tr\n                    td.pb5\n                        a(href=\"{{ logo_href }}\" universal=\"true\" target=\"_blank\")\n                            img.logo.center(src=\"{{ logo_image }}\" alt=\"Logo\")\n                        div(style=\"font-size:8px;line-height:335px;height:335px\") &nbsp;\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns(role=\"presentation\")\n                tr\n                    td.text-pad-small.pb50.pt0\n                        div.gmail-blend-screen\n                            div.gmail-blend-diff\n                                p.white-title.pb16(style=\"font-size:48px;line-height:58px\") {{ title }}\n                                .opacity-block(style=\"background-image:url('https://fsms.quadcode.com/storage/public/d7/7o/os1cr7pkt9m67j50/orange-bg-opac.png')\")\n                                    p.small-white-title.pb16 {{ panel_title }}\n                                    table.w100(role=\"presentation\")\n                                        tr\n                                            td.pb0(style=\"min-width:74px;width:74px;vertical-align:top\")\n                                                a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                                    img.ava(src=\"https://fsms.quadcode.com/storage/public/d6/1e/vbvvhhgea139ul80/rfm-324-ava.png\" alt=\"\" style=\"float:none\")\n                                            td.pb0.w-a\n                                                p.white-text(style=\"padding-right:45px\") {{ panel_text }}",
+  "styl": ".brad-full\n  border-radius 32px !important\n.logo\n  float: none\n  max-width 138px\n  padding-top: 32px\n  padding-bottom: 0\n  @media screen and (max-width: 600px)\n    margin 0 auto !important\n.white-title\n  font-family: Helvetica !important\n  font-weight: 700\n  font-size: 48px\n  line-height: 58px\n  color: #F9F9F9\n  word-break: break-word\n  @media screen and (max-width: 600px)\n    font-size: 26px !important\n    line-height: 32px !important\n    padding-right 0 !important\n.opacity-block\n  background-position: center top\n  background-repeat: no-repeat\n  background-size cover\n  padding 24px\n  border-radius: 24px\n.small-white-title\n  font-family: Helvetica !important\n  font-style: normal\n  font-weight: 700\n  font-size: 24px\n  line-height: 31px\n  color: #FFFFFF\n.ava\n  width 50px !important\n  float none\n.white-text\n  font-family: Helvetica !important\n  font-style: normal\n  font-weight: 400\n  font-size: 18px\n  line-height: 27px\n  color: #FFFFFF\n  @media screen and (max-width: 600px)\n    padding-right 0 !important\n.w100\n  width 100%\n.w-a\n  width auto !important\n  vertical-align: middle\n.text-pad-small\n  @media screen and (max-width: 600px)\n    padding-left: 20px !important\n    padding-right: 20px !important",
+  "slots": [
+    {
+      "id": "logo_image",
+      "kind": "image",
+      "label": "Логотип",
+      "default": "https://fsms.quadcode.com/storage/public/d6/nu/493ursrq72d917kg/logo.png",
+      "uiGroup": "assets"
+    },
+    {
+      "id": "logo_href",
+      "kind": "text",
+      "label": "Ссылка логотипа",
+      "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_IQ-RFM-3-2-5&retrack=mail_IQ-RFM-3-2-5&type=forex&asset=1",
+      "uiGroup": "content",
+      "allowSystemPlaceholder": true
+    },
+    {
+      "id": "title",
+      "kind": "text",
+      "label": "Заголовок",
+      "default": "Title text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "panel_title",
+      "kind": "text",
+      "label": "Заголовок панели",
+      "default": "Small title text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "panel_text",
+      "kind": "richText",
+      "label": "Текст панели",
+      "default": "Body text",
+      "uiGroup": "content"
+    }
+  ],
+  "children": [
+    {
+      "id": "iq-section-hero-bg",
+      "role": "container",
+      "slots": {
+        "bg_image": "https://fsms.quadcode.com/storage/public/d7/7o/osansqgk5ucdfn00/3-2-5-head.png",
+        "background_color": "#000000",
+        "radius": "32px",
+        "media_padding": "0 0 5px"
+      }
+    },
+    {
+      "id": "iq-logo-link",
+      "slotId": "media",
+      "role": "logo",
+      "slots": {}
+    },
+    {
+      "id": "iq-hold-spacer",
+      "slotId": "media",
+      "role": "scene-space",
+      "slots": {
+        "height": "335"
+      }
+    },
+    {
+      "id": "iq-white-title",
+      "slotId": "content",
+      "role": "title",
+      "slots": {
+        "text": "Title text",
+        "font_size": "48px",
+        "line_height": "58px"
+      }
+    },
+    {
+      "id": "iq-opacity-panel",
+      "slotId": "content",
+      "role": "panel",
+      "slots": {}
+    }
+  ]
+}

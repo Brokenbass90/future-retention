@@ -1,0 +1,43 @@
+{
+  "id": "iq-promo-note-link",
+  "label": "Сноска со ссылкой внутри",
+  "description": "Сноска, в середине которой синяя ссылка (например, на Promo Code Policy) и продолжение текста после неё.",
+  "placement": "inner",
+  "category": "text",
+  "version": 1,
+  "source": "canonical",
+  "outlookSafe": true,
+  "pug": "p.promo-text-foot.center.pb40.iq-promo-note-link {{ text }}&nbsp;\n    a.link(href=\"{{ link_href }}\" target=\"_blank\") {{ link_label }}\n    | {{ tail }}",
+  "styl": ".promo-text-foot\n  font-family: Helvetica !important\n  font-style: normal\n  font-weight: 400\n  font-size: 18px\n  line-height: 26px\n  color: #71717D\n.link\n  color #4882FF !important",
+  "slots": [
+    {
+      "id": "text",
+      "kind": "text",
+      "label": "Текст до ссылки",
+      "default": "Note text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "link_label",
+      "kind": "text",
+      "label": "Текст ссылки",
+      "default": "Link text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "link_href",
+      "kind": "text",
+      "label": "Адрес ссылки",
+      "default": "https://iqoption.com/terms-and-conditions/promocodes-policy",
+      "uiGroup": "content",
+      "allowSystemPlaceholder": true
+    },
+    {
+      "id": "tail",
+      "kind": "text",
+      "label": "Текст после ссылки",
+      "default": ".",
+      "uiGroup": "content"
+    }
+  ]
+}

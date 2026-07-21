@@ -1,0 +1,43 @@
+{
+  "id": "iq-section-text-row",
+  "label": "Секция: текстовый ряд (без фона)",
+  "description": "Обёртка: прозрачный ряд, ten.columns c offset, pt50. Для юридических текстов и сносок.",
+  "placement": "section",
+  "category": "layout",
+  "version": 2,
+  "source": "canonical",
+  "outlookSafe": true,
+  "tags": [
+    "section",
+    "plain",
+    "iq"
+  ],
+  "childSlots": [
+    {
+      "id": "content",
+      "marker": "INNER_BLOCKS",
+      "accepts": [
+        "inner",
+        "inline",
+        "both"
+      ]
+    }
+  ],
+  "pug": "table.row.iq-section-text-row(role=\"presentation\")\n    tr\n        td.wrapper.last.offset-by-one(class=\"{{ pt }}\")\n            table.ten.columns(role=\"presentation\")\n                tr\n                    td.pb0.text-pad-small\n                        //- {{ INNER_BLOCKS }}",
+  "styl": ".text-pad-small\n  @media screen and (max-width: 600px)\n    padding-left: 20px !important\n    padding-right: 20px !important",
+  "slots": [
+    {
+      "id": "pt",
+      "kind": "select",
+      "label": "Отступ сверху",
+      "default": "pt50",
+      "uiGroup": "appearance",
+      "options": [
+        "pt0",
+        "pt30",
+        "pt50",
+        "pt68"
+      ]
+    }
+  ]
+}

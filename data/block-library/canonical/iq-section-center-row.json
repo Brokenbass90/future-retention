@@ -1,0 +1,29 @@
+{
+  "id": "iq-section-center-row",
+  "label": "Секция: центрированный ряд (без фона)",
+  "description": "Обёртка: прозрачный ряд, twelve.columns, pt30, контент по центру. Для соцсетей, лого и подобного.",
+  "placement": "section",
+  "category": "layout",
+  "version": 1,
+  "source": "canonical",
+  "outlookSafe": true,
+  "tags": [
+    "section",
+    "plain",
+    "iq"
+  ],
+  "childSlots": [
+    {
+      "id": "content",
+      "marker": "INNER_BLOCKS",
+      "accepts": [
+        "inner",
+        "inline",
+        "both"
+      ]
+    }
+  ],
+  "pug": "table.row.iq-section-center-row(role=\"presentation\")\n    tr\n        td.wrapper.last.pt30\n            table.twelve.columns(role=\"presentation\")\n                tr\n                    td.pb0.center(align=\"center\")\n                        //- {{ INNER_BLOCKS }}",
+  "styl": "",
+  "slots": []
+}

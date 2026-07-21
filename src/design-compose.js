@@ -38,8 +38,9 @@ const ROLE_TO_CATEGORY = {
 
 // When several section blocks share a category, prefer these ids.
 const PREFERRED_BLOCK_BY_CATEGORY = {
-  hero: "iq-combo-hero-233",
-  cta: "iq-combo-promo-steps",
+  hero: "iq-combo-hero-bgr",
+  cta: "iq-combo-steps-promocode",
+  "feature-list": "iq-combo-steps-promocode",
   footer: "iq-footer",
 };
 
@@ -150,10 +151,12 @@ function fillSlots(block, texts, images, sectionStyle, tokens) {
       node = takeFrom([ctas]);
     } else if (/(?:^|_)(?:title|heading|headline)(?:_|$)/.test(id)) {
       node = takeFrom([headings, others]);
+    } else if (/(?:^|_)(?:date|eyebrow|kicker|badge)(?:_|$)/.test(id)) {
+      // ВАЖНО: проверяется ДО body-ветки — иначе date_text съедает текст тела
+      // (суффикс _text матчится body-паттерном) и body_text остаётся пустым.
+      node = takeFrom([others]);
     } else if (/(?:^|_)(?:body|copy|text|paragraph|description|desc)(?:_|$)/.test(id)) {
       node = takeFrom([bodies, others]);
-    } else if (/(?:^|_)(?:date|eyebrow|kicker)(?:_|$)/.test(id)) {
-      node = takeFrom([others]);
     } else {
       // Product-specific labels/codes/step numbers keep their canonical
       // defaults. Do not consume a heading or CTA merely because the slot id
@@ -187,7 +190,7 @@ export function buildComposePlanFromDesign({ schema, library = null } = {}) {
     // Imported slices are historical campaign fragments. They can depend on
     // foreign CSS, assets and parent tables, so deterministic design compose
     // must never pick one merely because its category happens to match.
-    .filter((block) => block?.source === "canonical");
+    .filter((block) => block?.source === "canonical" && block?.retired !== true);
   const sectionBlocks = blocks.filter((b) => clean(b.placement) === "section");
   const allTexts = Array.isArray(schema.textNodes) ? schema.textNodes : [];
   const allImages = Array.isArray(schema.imageSlots) ? schema.imageSlots : [];

@@ -1,0 +1,37 @@
+{
+  "id": "iq-section-card-border",
+  "label": "Секция: белая карта с рамкой",
+  "description": "Обёртка: белая карта, скругление 32px, рамка (по умолчанию оранжевая 4px), ten.columns, отступы 44px сверху/снизу. Наполняется внутренними блоками.",
+  "placement": "section",
+  "category": "layout",
+  "version": 1,
+  "source": "canonical",
+  "outlookSafe": true,
+  "tags": [
+    "section",
+    "card",
+    "iq"
+  ],
+  "childSlots": [
+    {
+      "id": "content",
+      "marker": "INNER_BLOCKS",
+      "accepts": [
+        "inner",
+        "inline",
+        "both"
+      ]
+    }
+  ],
+  "pug": "table.row.brad-full.white-bg.iq-section-card-border(role=\"presentation\" style=\"border:{{ border }}\")\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns(role=\"presentation\")\n                tr\n                    td.text-pad-small.pb44.pt44\n                        //- {{ INNER_BLOCKS }}",
+  "styl": ".white-bg\n  background-color: #ffffff\n.brad-full\n  border-radius 32px !important\n.text-pad-small\n  @media screen and (max-width: 600px)\n    padding-left: 20px !important\n    padding-right: 20px !important",
+  "slots": [
+    {
+      "id": "border",
+      "kind": "text",
+      "label": "Рамка карты",
+      "default": "4px solid #FF7700",
+      "uiGroup": "appearance"
+    }
+  ]
+}

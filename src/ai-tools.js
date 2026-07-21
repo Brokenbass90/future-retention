@@ -965,7 +965,7 @@ export const TOOL_HANDLERS = {
     // Imported blocks are validated as historical source fragments, not as a
     // mutually compatible design system. Feeding all 955 legacy slices to the
     // model wastes context and lets campaign assets/styles leak into new mail.
-    const blocks = listCanonicalBlocks().filter((block) => block.source === "canonical");
+    const blocks = listCanonicalBlocks().filter((block) => block.source === "canonical" && block.retired !== true);
     return {
       count: blocks.length,
       blocks: blocks.map((b) => ({

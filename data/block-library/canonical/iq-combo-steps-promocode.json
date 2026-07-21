@@ -1,0 +1,147 @@
+{
+  "id": "iq-combo-steps-promocode",
+  "label": "Комбо: Шаги с промокодом (белая карта, оранжевая рамка)",
+  "description": "Комбо (рецепт): белая карта с оранжевой рамкой + заголовок, шаг 1, разделитель, шаг 2 с промокодом внутри, разделитель, CTA. Раскладывается на отдельные редактируемые блоки.",
+  "placement": "section",
+  "category": "cta",
+  "version": 2,
+  "source": "canonical",
+  "outlookSafe": true,
+  "pug": "table.row.brad-full.white-bg.iq-combo-steps-promocode(role=\"presentation\" style=\"border:{{ border }}\")\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns(role=\"presentation\")\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.middle-title.pb32 {{ title_text }}\n                        .gray-block\n                            table.w100(role=\"presentation\")\n                                tr\n                                    td.m-w.pb0\n                                        p.number 1\n                                    td.w-a.pb0\n                                        p.text {{ step1_text }}\n                        .h-12 &nbsp;\n                        .gray-block\n                            table.w100(role=\"presentation\")\n                                tr\n                                    td.m-w.pb0\n                                        p.number 2\n                                    td.w-a.pb0\n                                        p.text {{ step2_text }}\n                            p.text.pt24.pb5\n                                b {{ promo_lead }}\n                            p.promocode {{ promo_code }}\n                            p.small-gray-text.pt5 {{ promo_hint }}\n                        .h-40 &nbsp;\n                        table.w280(align=\"center\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"{{ cta_href }}\" universal=\"true\" target=\"_blank\") {{ cta_label }}",
+  "styl": ".white-bg\n  background-color: #ffffff\n.brad-full\n  border-radius 32px !important\n.middle-title\n  font-family: Helvetica !important\n  font-weight: 700\n  font-size: 32px\n  line-height: 42px\n  color: #393A44\n  vertical-align: middle\n  @media screen and (max-width: 600px)\n    font-size 28px !important\n    line-height 34px !important\n.gray-block\n  padding: 24px\n  background: #F9F9F9\n  border-radius: 12px\n.number\n  background #ECECED\n  width: 54px\n  max-height: 54px\n  border-radius: 16px\n  font-family: Helvetica !important\n  color: #393A44\n  font-weight: 700\n  font-size: 24px\n  line-height: 24px\n  padding 15px 0\n  text-align: center\n.text\n  font-family: Helvetica !important\n  font-size: 18px\n  color: #393A44\n  letter-spacing: 0\n  line-height: 26px\n  font-weight 400\n.promocode\n  background: #ffefe0\n  border: 2px dashed #f70\n  border-radius: 16px\n  color: #f70\n  font-family: Helvetica !important\n  font-size: 24px\n  font-style: normal\n  font-weight: 700\n  line-height: 31px\n  padding: 16px 22px\n.small-gray-text\n  font-family: Helvetica !important\n  font-style: normal\n  font-weight: 400\n  font-size: 16px\n  line-height: 24px\n  color: #84868B\n.w100\n  width 100%\n.w-a\n  width auto !important\n  vertical-align: middle\ntable[class=body] table.column td, table[class=body] table.columns td.m-w\n  min-width: 78px !important\n  width 78px !important\n  vertical-align: middle\n.w280\n  width 100%\n  max-width 280px\n  @media screen and (max-width: 600px)\n    max-width 100% !important\n.butt\n  background-size cover\n  background-color #FF7700\n  font-size 18px !important\n  font-weight 700 !important\n  border-radius: 16px !important\n  text-transform: none\n  font-family: Helvetica !important\n  height auto\n.butt-link\n  font-size 18px\n  line-height 27px\n  font-weight 700\n  text-transform none\n  text-decoration: none\n  color #F9F9F9\n  display block\n  padding: 16px 0 16px\n  text-align center\n  letter-spacing 0px\n.h-12\n  font-size 8px\n  line-height 12px\n  height 12px\n.h-40\n  font-size 8px\n  line-height 40px\n  height 40px\n.pb44\n  padding-bottom: 44px\n.pt44\n  padding-top: 44px\n.text-pad-small\n  @media screen and (max-width: 600px)\n    padding-left: 20px !important\n    padding-right: 20px !important",
+  "slots": [
+    {
+      "id": "border",
+      "kind": "text",
+      "label": "Рамка карты",
+      "default": "4px solid #FF7700",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "title_text",
+      "kind": "text",
+      "label": "Заголовок",
+      "default": "Title text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "step1_text",
+      "kind": "richText",
+      "label": "Шаг 1",
+      "default": "Step one text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "step2_text",
+      "kind": "richText",
+      "label": "Шаг 2",
+      "default": "Step two text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "promo_lead",
+      "kind": "text",
+      "label": "Подводка к промокоду (жирная)",
+      "default": "Promo lead text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "promo_code",
+      "kind": "text",
+      "label": "Промокод",
+      "default": "PROMOCODE",
+      "uiGroup": "content"
+    },
+    {
+      "id": "promo_hint",
+      "kind": "text",
+      "label": "Сноска под промокодом",
+      "default": "Small note text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "cta_label",
+      "kind": "text",
+      "label": "Текст кнопки",
+      "default": "Button text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "cta_href",
+      "kind": "text",
+      "label": "Ссылка кнопки",
+      "default": "https://api.iqoption.com/v1/multi-links/deposit?promocode=CLAIM10C&aff=7&afftrack=mail_IQ-RFM-2-3-3-Second-Email&retrack=mail_IQ-RFM-2-3-3-Second-Email",
+      "allowSystemPlaceholder": true,
+      "uiGroup": "content"
+    }
+  ],
+  "combo": true,
+  "tags": [
+    "combo",
+    "promo",
+    "feature-list",
+    "iq"
+  ],
+  "children": [
+    {
+      "id": "iq-section-card-border",
+      "role": "container",
+      "slots": {
+        "border": "4px solid #FF7700"
+      }
+    },
+    {
+      "id": "iq-middle-title",
+      "slotId": "content",
+      "role": "heading",
+      "slots": {
+        "text": "Title text"
+      }
+    },
+    {
+      "id": "iq-gray-step",
+      "slotId": "content",
+      "role": "step-1",
+      "slots": {
+        "number": "1",
+        "text": "Step one text"
+      }
+    },
+    {
+      "id": "iq-spacer",
+      "slotId": "content",
+      "role": "spacer",
+      "slots": {
+        "height": "12"
+      }
+    },
+    {
+      "id": "iq-gray-step-promo",
+      "slotId": "content",
+      "role": "step-2",
+      "slots": {
+        "number": "2",
+        "text": "Step two text",
+        "promo_lead": "Promo lead text",
+        "promo_code": "PROMOCODE",
+        "promo_hint": "Small note text"
+      }
+    },
+    {
+      "id": "iq-spacer",
+      "slotId": "content",
+      "role": "spacer",
+      "slots": {
+        "height": "40"
+      }
+    },
+    {
+      "id": "iq-cta-w280",
+      "slotId": "content",
+      "role": "cta",
+      "slots": {
+        "label": "Button text"
+      }
+    }
+  ]
+}

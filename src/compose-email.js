@@ -1050,7 +1050,16 @@ export function composeEmailFromBlocks({
 
   const mainStyl = path.join(destDir, "app", "styles", "blocks", "main.styl");
   mkdirSync(path.dirname(mainStyl), { recursive: true });
-  writeFileSync(mainStyl, composedStyl, "utf8");
+  // Скелет (copyTreeSkippingDist выше) принёс родной blocks/main.styl семьи —
+  // с pt/pb-хелперами, h-*, center, m-w и мобильными media. Раньше мы его
+  // затирали и композиции теряли отступы/адаптив. Теперь стили блоков
+  // ДОПОЛНЯЮТ скелетные: при конфликте классов последние (блочные) побеждают.
+  let skeletonStyl = "";
+  try { if (existsSync(mainStyl)) skeletonStyl = readFileSync(mainStyl, "utf8"); } catch { /* ignore */ }
+  const mergedStyl = skeletonStyl.trim()
+    ? skeletonStyl.replace(/\s+$/, "") + "\n\n/* ── RetKit constructor blocks ── */\n" + composedStyl
+    : composedStyl;
+  writeFileSync(mainStyl, mergedStyl, "utf8");
 
   // Durable constructor source of truth. Pug/Styl are compilation products;
   // this JSON lets the studio reopen the exact tree (including recipe IDs and

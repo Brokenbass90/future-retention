@@ -431,6 +431,7 @@ function blockCatalogUsable(block) {
 
 function catalogSourceAllowed(block, scope = "curated") {
   if (!block || block.source === "parsed") return false;
+  if (block.retired) return false; // устаревшие комбо: скрыты, но остаются в библиотеке для старых писем
   if (scope === "all") return true;
   if (scope === "user") return block.source === "user";
   const reviewStatus = block?.review?.status;
@@ -2943,17 +2944,21 @@ wireCanvasDnd();
 wirePreviewStageDnd();
 /* Deep-link из workbench: /constructor?brand=..&mail=.. — разобрать письмо
    из базы обратно в канвас (кнопка «🎨 В конструктор» в окне кода). */
-loadLibrary().then(() => {
+async function loadConstructorDeepLink(search = window.location.search) {
   try {
-    const query = new URLSearchParams(window.location.search);
+    const query = new URLSearchParams(search);
     const brand = query.get("brand");
     const mail = query.get("mail");
-    if (brand && mail) {
-      history.replaceState(null, "", "/constructor"); // не перечитывать при reload
-      loadParsedEmail(brand, mail);
-    }
-  } catch { /* ignore */ }
-});
+    if (!brand || !mail) return false;
+    const loaded = await loadParsedEmail(brand, mail);
+    if (!loaded) return false;
+    // Query остаётся в адресе при ошибке/stale, поэтому reload может повторить
+    // загрузку. Убираем его только после успешной гидрации канваса.
+    history.replaceState(null, "", "/constructor");
+    return true;
+  } catch { return false; }
+}
+loadLibrary().then(() => loadConstructorDeepLink());
 
 
 // ─── Undo wiring ─────────────────────────────────────────────────────────
@@ -2976,73 +2981,262 @@ const RETKIT_CONSTRUCTOR_BUILD = '2026-07-13-style-surface';
   const btn = document.getElementById("baseBtn");
   if (!btn) return;
   let overlay = null;
+  const htmlCache = new Map(); // "brand/mail" -> sanitized html | null (не собрано/ошибка)
   const close = () => { if (overlay) { overlay.remove(); overlay = null; } };
 
-  function render(list, meta = {}) {
+  async function fetchList() {
+    const r = await fetch("/api/wb/emails");
+    const data = await r.json();
+    const flat = [];
+    for (const g of (data.emails || [])) for (const m of (g.mails || [])) flat.push({ brand: g.brand, name: m.name, built: m.built });
+    return flat;
+  }
+
+  async function builtHtmlFor(brand, mail) {
+    const key = brand + "/" + mail;
+    if (htmlCache.has(key)) return htmlCache.get(key);
+    try {
+      const r = await fetch(`/api/wb/email?brand=${encodeURIComponent(brand)}&mail=${encodeURIComponent(mail)}`);
+      const d = await r.json();
+      const html = d && d.ok && d.html ? sanitizeIframePreviewHtml(d.html) : null;
+      htmlCache.set(key, html);
+      return html;
+    } catch { htmlCache.set(key, null); return null; }
+  }
+
+  function normalizeMailFolderName(raw) {
+    let name = String(raw || "").trim().replace(/[^a-zA-Z0-9_-]/g, "-").replace(/^-+|-+$/g, "");
+    if (!name) return null;
+    if (!/^mail-/.test(name)) name = "mail-" + name;
+    return name;
+  }
+
+  function render(initialList) {
+    let listData = initialList;
     overlay = document.createElement("div");
     overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;";
     const box = document.createElement("div");
-    box.style.cssText = "background:#1c1f26;color:#e6e6e6;width:min(680px,92vw);max-height:82vh;border-radius:12px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.5);";
+    box.style.cssText = "background:#1c1f26;color:#e6e6e6;width:min(980px,95vw);height:min(660px,90vh);border-radius:12px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.5);";
     box.innerHTML = `
-      <div style="display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #2c313c;">
+      <div style="display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid #2c313c;flex:none;">
         <b style="font-size:15px;">База писем</b>
-        <span style="color:#8b93a3;font-size:12px;">${list.length} писем · ${meta.scope === "all" ? "active + архив" : "active 1.0"}</span>
-        <button id="baseScope" style="background:#2c313c;border:1px solid #3b4250;color:#cbd3e2;border-radius:7px;padding:6px 9px;cursor:pointer;font-size:11px;">${meta.scope === "all" ? "Только active" : `Архив (${meta.archivedCount || 0})`}</button>
+        <span id="baseCount" style="color:#8b93a3;font-size:12px;"></span>
         <input id="baseSearch" placeholder="Поиск: бренд / имя…" style="margin-left:auto;background:#12151b;border:1px solid #2c313c;color:#e6e6e6;border-radius:8px;padding:7px 10px;width:230px;" />
         <button id="baseClose" style="background:#2c313c;border:none;color:#e6e6e6;border-radius:8px;padding:7px 11px;cursor:pointer;">✕</button>
       </div>
-      <div id="baseList" style="overflow:auto;padding:8px;"></div>`;
+      <div style="display:flex;flex:1;min-height:0;">
+        <div id="baseList" style="flex:1;overflow:auto;padding:8px;border-right:1px solid #2c313c;"></div>
+        <div style="width:344px;flex:none;display:flex;flex-direction:column;background:#12151b;min-height:0;">
+          <div id="basePreviewLabel" style="padding:8px 12px;font-size:11px;color:#8b93a3;border-bottom:1px solid #2c313c;flex:none;">Наведи на письмо — предпросмотр</div>
+          <div id="basePreviewWrap" style="flex:1;overflow-y:auto;overflow-x:hidden;position:relative;">
+            <div id="basePreviewScaler" style="position:relative;width:340px;height:0;overflow:hidden;">
+              <iframe id="basePreviewFrame" title="Предпросмотр письма" sandbox="allow-same-origin"
+                style="position:absolute;top:0;left:0;width:640px;height:2400px;transform:scale(0.53);transform-origin:0 0;border:0;background:#fff;pointer-events:none;display:none;"></iframe>
+            </div>
+            <div id="basePreviewEmpty" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#5b6472;font-size:12px;padding:0 20px;text-align:center;">Наведи на письмо в списке</div>
+          </div>
+        </div>
+      </div>
+      <div style="padding:6px 16px;border-top:1px solid #2c313c;color:#5b6472;font-size:11px;flex:none;">Правый клик по письму: дублировать · переименовать · удалить. Клик — закрепить предпросмотр.</div>`;
     overlay.appendChild(box);
     document.body.appendChild(overlay);
     const listEl = box.querySelector("#baseList");
+    const searchEl = box.querySelector("#baseSearch");
+
+    /* ── Предпросмотр справа ── */
+    let previewToken = 0;
+    let pinnedKey = null; // клик «закрепляет» письмо: hover больше не перебивает
+    async function showPreview(entry, { pinned = false } = {}) {
+      if (!pinned && pinnedKey) return;
+      const token = ++previewToken;
+      const label = box.querySelector("#basePreviewLabel");
+      const frame = box.querySelector("#basePreviewFrame");
+      const scaler = box.querySelector("#basePreviewScaler");
+      const empty = box.querySelector("#basePreviewEmpty");
+      label.textContent = `${entry.brand} / ${entry.name.replace(/^mail-/, "")}${pinned ? " 📌" : ""}`;
+      if (!entry.built) {
+        frame.style.display = "none"; scaler.style.height = "0";
+        empty.style.display = "flex"; empty.textContent = "Письмо ещё не собрано — нет HTML для предпросмотра";
+        return;
+      }
+      empty.style.display = "flex"; empty.textContent = "Загрузка…";
+      const html = await builtHtmlFor(entry.brand, entry.name);
+      if (token !== previewToken) return;
+      if (!html) {
+        frame.style.display = "none"; scaler.style.height = "0";
+        empty.textContent = "Не удалось загрузить HTML";
+        return;
+      }
+      frame.srcdoc = html;
+      frame.style.display = "block";
+      scaler.style.height = Math.round(2400 * 0.53) + "px";
+      empty.style.display = "none";
+    }
+
+    /* ── Мини-превью в строках (лениво, только для видимых) ── */
+    const thumbObserver = new IntersectionObserver((entries) => {
+      for (const it of entries) {
+        if (!it.isIntersecting) continue;
+        const el = it.target;
+        thumbObserver.unobserve(el);
+        const brand = el.dataset.brand, mail = el.dataset.mail;
+        builtHtmlFor(brand, mail).then((html) => {
+          if (!html || !el.isConnected) return;
+          const f = document.createElement("iframe");
+          f.setAttribute("sandbox", "allow-same-origin");
+          f.style.cssText = "width:640px;height:840px;transform:scale(0.0625);transform-origin:0 0;border:0;background:#fff;pointer-events:none;";
+          f.srcdoc = html;
+          el.textContent = "";
+          el.appendChild(f);
+        });
+      }
+    }, { root: listEl, rootMargin: "120px" });
+
+    /* ── Контекстное меню (ПКМ) ── */
+    function ctxAction(label, fn, danger = false) {
+      const b = document.createElement("button");
+      b.textContent = label;
+      b.style.cssText = `display:block;width:100%;text-align:left;background:none;border:none;color:${danger ? "#ff8b8b" : "#e6e6e6"};padding:8px 11px;border-radius:7px;cursor:pointer;font-size:13px;`;
+      b.addEventListener("mouseenter", () => b.style.background = danger ? "#4a2430" : "#2c3a5a");
+      b.addEventListener("mouseleave", () => b.style.background = "none");
+      b.addEventListener("click", fn);
+      return b;
+    }
+
+    async function mailAction(url, payload, okMessage) {
+      try {
+        const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+        const d = await r.json();
+        if (!r.ok || d.error) { alert("Не получилось: " + (d.error || r.status)); return false; }
+        if (okMessage) console.log("[base]", okMessage);
+        return true;
+      } catch (e) { alert("Ошибка: " + e.message); return false; }
+    }
+
+    async function refreshList() {
+      try {
+        listData = await fetchList();
+        draw(searchEl.value);
+      } catch (e) { alert("Не удалось обновить базу: " + e.message); }
+    }
+
+    function openContextMenu(x, y, entry) {
+      document.querySelectorAll(".base-ctx-menu").forEach((m) => m.remove());
+      const menu = document.createElement("div");
+      menu.className = "base-ctx-menu";
+      menu.style.cssText = `position:fixed;left:${x}px;top:${y}px;z-index:10001;background:#232833;border:1px solid #2c313c;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.5);padding:6px;min-width:230px;`;
+      const closeMenu = () => menu.remove();
+      menu.appendChild(ctxAction("🎨 Открыть в конструкторе", () => { closeMenu(); close(); loadParsedEmail(entry.brand, entry.name); }));
+      menu.appendChild(ctxAction("⟨⟩ Открыть в коде", () => {
+        window.location.href = `/workbench?brand=${encodeURIComponent(entry.brand)}&mail=${encodeURIComponent(entry.name)}`;
+      }));
+      const hr = document.createElement("div");
+      hr.style.cssText = "height:1px;background:#2c313c;margin:5px 4px;";
+      menu.appendChild(hr);
+      menu.appendChild(ctxAction("📋 Дублировать…", async () => {
+        closeMenu();
+        const suggested = entry.name + "-copy";
+        const raw = prompt("Имя копии письма:", suggested);
+        if (raw == null) return;
+        const newName = normalizeMailFolderName(raw);
+        if (!newName) { alert("Некорректное имя."); return; }
+        if (await mailAction("/api/wb/email-clone", { brand: entry.brand, mail: entry.name, newName }, `clone → ${newName}`)) refreshList();
+      }));
+      menu.appendChild(ctxAction("✏️ Переименовать…", async () => {
+        closeMenu();
+        const raw = prompt("Новое имя письма:", entry.name);
+        if (raw == null || raw === entry.name) return;
+        const newName = normalizeMailFolderName(raw);
+        if (!newName) { alert("Некорректное имя."); return; }
+        if (await mailAction("/api/wb/email-rename", { brand: entry.brand, mail: entry.name, newName }, `rename → ${newName}`)) {
+          htmlCache.delete(entry.brand + "/" + entry.name);
+          refreshList();
+        }
+      }));
+      menu.appendChild(ctxAction("🗑 Удалить (в _trash)", async () => {
+        closeMenu();
+        if (!confirm(`Убрать «${entry.name.replace(/^mail-/, "")}» из ${entry.brand} в корзину (_trash)?`)) return;
+        if (await mailAction("/api/wb/email-delete", { brand: entry.brand, mail: entry.name }, "moved to _trash")) {
+          htmlCache.delete(entry.brand + "/" + entry.name);
+          if (pinnedKey === entry.brand + "/" + entry.name) pinnedKey = null;
+          refreshList();
+        }
+      }, true));
+      document.body.appendChild(menu);
+      const rect = menu.getBoundingClientRect();
+      if (rect.right > window.innerWidth - 8) menu.style.left = Math.max(8, window.innerWidth - rect.width - 8) + "px";
+      if (rect.bottom > window.innerHeight - 8) menu.style.top = Math.max(8, window.innerHeight - rect.height - 8) + "px";
+      const dismiss = (ev) => {
+        if (!menu.contains(ev.target)) { closeMenu(); document.removeEventListener("mousedown", dismiss, true); }
+      };
+      setTimeout(() => document.addEventListener("mousedown", dismiss, true), 0);
+    }
+
+    /* ── Список ── */
+    let hoverTimer = null;
     const draw = (q) => {
       const ql = (q || "").trim().toLowerCase();
-      const rows = list.filter((e) => !ql || (e.brand + " " + e.name).toLowerCase().includes(ql));
+      const rows = listData.filter((e) => !ql || (e.brand + " " + e.name).toLowerCase().includes(ql));
+      box.querySelector("#baseCount").textContent = `${rows.length} из ${listData.length} писем`;
       listEl.innerHTML = rows.slice(0, 500).map((e) => `
-        <div class="base-row" data-brand="${e.brand}" data-mail="${e.name}" style="display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:8px;">
+        <div class="base-row" data-brand="${e.brand}" data-mail="${e.name}" style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:8px;cursor:default;">
+          <div class="base-thumb" data-brand="${e.brand}" data-mail="${e.name}"
+               style="width:40px;height:52px;flex:none;border-radius:5px;overflow:hidden;background:${e.built ? "#0d1015" : "#181c24"};border:1px solid #2c313c;display:flex;align-items:center;justify-content:center;color:#3f4757;font-size:15px;">${e.built ? "…" : "∅"}</div>
           <span style="width:8px;height:8px;border-radius:50%;background:${e.built ? "#3ad07a" : "#5b6472"};flex:none;" title="${e.built ? "собрано" : "не собрано"}"></span>
-          <span style="color:#8b93a3;font-size:11px;min-width:140px;">${e.brand}</span>
-          <span style="flex:1;">${e.name.replace(/^mail-/, "")}</span>
+          <span style="color:#8b93a3;font-size:11px;min-width:110px;">${e.brand}</span>
+          <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e.name.replace(/^mail-/, "")}</span>
           <button class="base-ctor" style="background:#2c3a5a;border:none;color:#cfe0ff;border-radius:6px;padding:5px 9px;cursor:pointer;font-size:11px;">в конструктор</button>
           <button class="base-wb" style="background:#2c313c;border:none;color:#e6e6e6;border-radius:6px;padding:5px 9px;cursor:pointer;font-size:11px;">в код</button>
         </div>`).join("") || `<div style="padding:20px;color:#8b93a3;">Ничего не найдено</div>`;
+      listEl.querySelectorAll(".base-thumb").forEach((el) => {
+        if (el.textContent === "…") thumbObserver.observe(el);
+      });
       listEl.querySelectorAll(".base-row").forEach((r) => {
-        r.addEventListener("mouseenter", () => r.style.background = "#232833");
-        r.addEventListener("mouseleave", () => r.style.background = "");
+        const entry = { brand: r.dataset.brand, name: r.dataset.mail, built: !!listData.find((e) => e.brand === r.dataset.brand && e.name === r.dataset.mail && e.built) };
+        r.addEventListener("mouseenter", () => {
+          r.style.background = "#232833";
+          clearTimeout(hoverTimer);
+          hoverTimer = setTimeout(() => showPreview(entry), 140);
+        });
+        r.addEventListener("mouseleave", () => { r.style.background = ""; clearTimeout(hoverTimer); });
+        r.addEventListener("click", () => {
+          const key = entry.brand + "/" + entry.name;
+          pinnedKey = pinnedKey === key ? null : key;
+          if (pinnedKey) showPreview(entry, { pinned: true });
+        });
+        r.addEventListener("contextmenu", (ev) => {
+          ev.preventDefault();
+          openContextMenu(ev.clientX, ev.clientY, entry);
+        });
         r.querySelector(".base-wb").addEventListener("click", (ev) => {
           ev.stopPropagation();
-          window.location.href = `/workbench?brand=${encodeURIComponent(r.dataset.brand)}&mail=${encodeURIComponent(r.dataset.mail)}`;
+          window.location.href = `/workbench?brand=${encodeURIComponent(entry.brand)}&mail=${encodeURIComponent(entry.name)}`;
         });
         r.querySelector(".base-ctor").addEventListener("click", (ev) => {
           ev.stopPropagation();
           close();
-          loadParsedEmail(r.dataset.brand, r.dataset.mail);
+          loadParsedEmail(entry.brand, entry.name);
         });
       });
     };
     draw("");
-    box.querySelector("#baseSearch").addEventListener("input", (e) => draw(e.target.value));
+    searchEl.addEventListener("input", (e) => draw(e.target.value));
     box.querySelector("#baseClose").addEventListener("click", close);
-    box.querySelector("#baseScope").addEventListener("click", () => {
-      const nextScope = meta.scope === "all" ? "active" : "all";
-      close();
-      loadBaseScope(nextScope);
-    });
     overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
-    document.addEventListener("keydown", function esc(ev) { if (ev.key === "Escape") { close(); document.removeEventListener("keydown", esc); } });
+    document.addEventListener("keydown", function esc(ev) {
+      if (ev.key === "Escape") {
+        const menu = document.querySelector(".base-ctx-menu");
+        if (menu) { menu.remove(); return; }
+        close(); document.removeEventListener("keydown", esc);
+      }
+    });
   }
 
-  async function loadBaseScope(scope = "active") {
+  btn.addEventListener("click", async () => {
     try {
-      const r = await fetch(`/api/wb/emails?scope=${encodeURIComponent(scope)}`);
-      const data = await r.json();
-      const flat = [];
-      for (const g of (data.emails || [])) for (const m of (g.mails || [])) flat.push({ brand: g.brand, name: m.name, built: m.built });
-      render(flat, data);
+      render(await fetchList());
     } catch (err) { alert("Не удалось загрузить базу: " + err.message); }
-  }
-
-  btn.addEventListener("click", () => loadBaseScope("active"));
+  });
 })();
 
 /* Удаление выделенного блока по Delete/Backspace (если фокус не в поле ввода). */
@@ -3164,8 +3358,8 @@ async function loadParsedEmail(brand, mail) {
     const r = await fetch(`/api/constructor/parse-email?brand=${encodeURIComponent(brand)}&mail=${encodeURIComponent(mail)}`);
     const d = await r.json();
     const blockedReason = parsedEmailLoadBlockReason(d);
-    if (blockedReason) { alert(blockedReason); return; }
-    if (!d.ok || !Array.isArray(d.blocks) || !d.blocks.length) { alert("Не удалось разобрать письмо: " + (d.error || "пусто")); return; }
+    if (blockedReason) { alert(blockedReason); return false; }
+    if (!d.ok || !Array.isArray(d.blocks) || !d.blocks.length) { alert("Не удалось разобрать письмо: " + (d.error || "пусто")); return false; }
     const defs = d.source === "studio-model" ? (d.defs || []) : d.blocks;
     const existing = new Set(state.library.map((b) => `${b.source || ""}:${b.id}`));
     for (const rawDef of defs) {
@@ -3198,7 +3392,8 @@ async function loadParsedEmail(brand, mail) {
     if (nameInput) nameInput.value = mail.replace(/^mail-/, "");
     populateCatalogFilters();
     renderCanvas(); renderInspector(); syncPaletteToSelection(); scheduleLivePreview();
-  } catch (e) { alert("Ошибка разбора: " + e.message); }
+    return true;
+  } catch (e) { alert("Ошибка разбора: " + e.message); return false; }
 }
 
 

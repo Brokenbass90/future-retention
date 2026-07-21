@@ -4,7 +4,7 @@
   "description": "Стандартный футер письма: системные адрес и риск-предупреждение, ссылки «Условия» и «Отписаться». Это один из немногих контекстов, где инспектор разрешает системные плейсхолдеры.",
   "placement": "section",
   "category": "footer",
-  "version": 2,
+  "version": 4,
   "source": "canonical",
   "pug": "table.row.footer.bg-col(role=\"presentation\" style=\"background-color:{{ background_color }};border:{{ border }};border-radius:{{ radius }}\")\n    tr\n        td.pb30\n            table.twelve.columns(role=\"presentation\")\n                tr\n                    td\n                        .mobile-paddding(style=\"padding:{{ padding }}\")\n                            p.warning {{ company_address }}\n                            p.warning.pt20 {{ risk_warning }}\n                            p.subscribe\n                                a.left(href=\"{{ terms_href }}\" universal=\"true\" target=\"_blank\") {{ conditions }}\n                                a.right(href=\"{{ unsubscribe_href }}\" universal=\"true\" target=\"_blank\") {{ unsubscribe }}",
   "styl": ".footer{background-color:{{ background_color }};border-collapse:separate!important;border-radius:{{ radius }}!important;padding-bottom:0;padding-top:0}\n.mobile-paddding{padding:{{ padding }}}\n@media screen and (max-width:600px){.mobile-paddding{padding:30px 20px 0!important}}\n.warning{color:{{ text_color }};font-family:Helvetica!important;font-size:14px;letter-spacing:0;line-height:22px;text-align:center}\n.subscribe{color:{{ link_color }}!important;font-family:'Roboto','Helvetica','Arial',sans-serif;font-size:14px;font-weight:300;margin:0 auto;padding-top:20px;text-align:left!important;text-decoration:none!important}\na.left{color:{{ link_color }};display:inline-block;font-weight:400;text-align:left;word-break:break-word}\na.right{color:{{ link_color }};display:inline-block;float:right;font-weight:400;text-align:right}\n@media screen and (max-width:600px){a.left{display:block!important;padding-bottom:10px!important;text-align:center!important}a.right{display:block!important;float:none!important;text-align:center!important}}",
@@ -44,16 +44,16 @@
     {
       "id": "conditions",
       "kind": "text",
-      "label": "Текст ссылки «Условия»",
-      "default": "${{ footer.footer.conditions }}$",
+      "label": "Текст «Условия» (builtin footer_upload)",
+      "default": "${{ footer_upload.block_00 }}$",
       "allowSystemPlaceholder": true,
       "uiGroup": "content"
     },
     {
       "id": "unsubscribe",
       "kind": "text",
-      "label": "Текст ссылки «Отписаться»",
-      "default": "${{ footer.footer.unsubscribe }}$",
+      "label": "Текст «Отписаться» (builtin footer_upload)",
+      "default": "${{ footer_upload.block_01 }}$",
       "allowSystemPlaceholder": true,
       "uiGroup": "content"
     },
@@ -83,7 +83,11 @@
       "kind": "select",
       "label": "Обводка",
       "default": "none",
-      "options": ["none", "1px solid #ECECED", "2px solid #FF7700"],
+      "options": [
+        "none",
+        "1px solid #ECECED",
+        "2px solid #FF7700"
+      ],
       "uiGroup": "appearance"
     },
     {
@@ -91,7 +95,13 @@
       "kind": "select",
       "label": "Скругление",
       "default": "0",
-      "options": ["0", "8px", "16px", "24px", "32px"],
+      "options": [
+        "0",
+        "8px",
+        "16px",
+        "24px",
+        "32px"
+      ],
       "uiGroup": "appearance"
     },
     {
@@ -104,10 +114,10 @@
   ],
   "outlookSafe": true,
   "tags": [
+    "combo",
     "footer",
-    "section",
     "iq",
-    "combo"
+    "section"
   ],
   "combo": true
 }

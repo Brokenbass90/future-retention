@@ -108,6 +108,94 @@
           "Avregistrera prenumeration"
         ]
       }
+    },
+    {
+      "id": "ns-builtin-socials",
+      "name": "soc-block-2",
+      "builtin": true,
+      "description": "Ссылки на соцсети для футера (IQ): block_00 TikTok, block_01 Instagram, block_02 Trading Dashboard, block_03 YouTube, block_04 Telegram, block_05 Facebook. Использовать как ${{ soc-block-2.block_NN }}$ в href. Локали без своих ссылок используют английские (файлы уже разложены по vendor/data/<locale>/soc-block-2.json).",
+      "locales": {
+        "en": [
+          "https://tiktok.com/@iqoption_official",
+          "https://www.instagram.com/iqoption_official/",
+          "https://tradingdashboard.com?utm_source=iq&amp;utm_medium=emai",
+          "https://www.youtube.com/@iqoption",
+          "https://t.me/+gK6WSNuEDb01MWVi",
+          "https://www.facebook.com/iqoptionglobal"
+        ],
+        "ar": [
+          "https://tiktok.com/@iqoption_official",
+          "https://www.instagram.com/iqoption.arabic/",
+          "https://tradingdashboard.com?utm_source=iq&amp;utm_medium=emai",
+          "https://www.youtube.com/@iqoption",
+          "https://t.me/+lZJewd8NUb42ZmU9",
+          "https://www.facebook.com/iqoptioninarabic/"
+        ],
+        "es": [
+          "https://tiktok.com/@iqoption_official",
+          "https://www.instagram.com/iqoption_latino/",
+          "https://tradingdashboard.com?utm_source=iq&amp;utm_medium=emai",
+          "https://www.youtube.com/@iqoption",
+          "https://t.me/+YT9pgzUgLr8zMmQy",
+          "https://www.facebook.com/profile.php?id=100022508400856"
+        ],
+        "fr": [
+          "https://tiktok.com/@iqoption_official",
+          "https://www.instagram.com/iqoption_official/",
+          "https://tradingdashboard.com?utm_source=iq&amp;utm_medium=emai",
+          "https://www.youtube.com/@iqoption",
+          "https://t.me/+gK6WSNuEDb01MWVi",
+          "https://www.facebook.com/iqoptionglobal"
+        ],
+        "id": [
+          "https://tiktok.com/@iqoption_official",
+          "https://www.instagram.com/iqoption_official/",
+          "https://tradingdashboard.com?utm_source=iq&amp;utm_medium=emai",
+          "https://www.youtube.com/@iqoption",
+          "https://t.me/+gK6WSNuEDb01MWVi",
+          "https://www.facebook.com/iqoptionglobal"
+        ],
+        "pt": [
+          "https://tiktok.com/@iqoption_official",
+          "https://www.instagram.com/iqoption_pt/",
+          "https://tradingdashboard.com?utm_source=iq&amp;utm_medium=emai",
+          "https://www.youtube.com/@iqoption",
+          "https://t.me/+f3bR4wpS73g2OTQy",
+          "https://www.facebook.com/iqoptionportuguese"
+        ],
+        "th": [
+          "https://tiktok.com/@iqoption_official",
+          "https://www.instagram.com/iqoption_official/",
+          "https://tradingdashboard.com?utm_source=iq&amp;utm_medium=emai",
+          "https://www.youtube.com/@iqoption",
+          "https://t.me/+gK6WSNuEDb01MWVi",
+          "https://www.facebook.com/IQOptionThOfficial"
+        ],
+        "tl": [
+          "https://tiktok.com/@iqoption_official",
+          "https://www.instagram.com/iqoption_official/",
+          "https://tradingdashboard.com?utm_source=iq&amp;utm_medium=emai",
+          "https://www.youtube.com/@iqoption",
+          "https://t.me/+gK6WSNuEDb01MWVi",
+          "https://www.facebook.com/iqoptionglobal"
+        ],
+        "ur": [
+          "https://tiktok.com/@iqoption_official",
+          "https://www.instagram.com/iqoption_official/",
+          "https://tradingdashboard.com?utm_source=iq&amp;utm_medium=emai",
+          "https://www.youtube.com/@iqoption",
+          "https://t.me/+gK6WSNuEDb01MWVi",
+          "https://www.facebook.com/iqoptionglobal"
+        ],
+        "vi": [
+          "https://tiktok.com/@iqoption_official",
+          "https://www.instagram.com/iqoption_official/",
+          "https://tradingdashboard.com?utm_source=iq&amp;utm_medium=emai",
+          "https://www.youtube.com/@iqoption",
+          "https://t.me/+gK6WSNuEDb01MWVi",
+          "https://www.facebook.com/iqoptionglobal"
+        ]
+      }
     }
   ]
 }

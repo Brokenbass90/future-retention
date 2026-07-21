@@ -1,0 +1,47 @@
+{
+  "id": "iq-white-title",
+  "label": "Белый заголовок",
+  "description": "p.white-title 42px, для тёмного фона. В gmail-blend обёртке.",
+  "placement": "inner",
+  "category": "text",
+  "version": 3,
+  "source": "canonical",
+  "outlookSafe": true,
+  "pug": "div.gmail-blend-screen\n    div.gmail-blend-diff\n        p.white-title.pb16.pt16(style=\"text-align:{{ align }};font-size:{{ font_size }};line-height:{{ line_height }}\") {{ text }}",
+  "styl": ".white-title\n  font-family: Helvetica !important\n  font-weight: 700\n  font-size: 42px\n  line-height: 52px\n  color: #F9F9F9\n  word-break: break-word\n  padding-right 30px\n  @media screen and (max-width: 600px)\n    font-size: 26px !important\n    line-height: 32px !important",
+  "slots": [
+    {
+      "id": "text",
+      "kind": "text",
+      "label": "Заголовок",
+      "default": "Title text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "align",
+      "kind": "select",
+      "label": "Выравнивание",
+      "default": "left",
+      "options": [
+        "left",
+        "center",
+        "right"
+      ],
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "font_size",
+      "kind": "text",
+      "label": "Размер шрифта",
+      "default": "42px",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "line_height",
+      "kind": "text",
+      "label": "Межстрочный",
+      "default": "52px",
+      "uiGroup": "appearance"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "id": "iq-middle-title",
+  "label": "Средний заголовок",
+  "description": "p.middle-title 32px тёмный, pb32.",
+  "placement": "inner",
+  "category": "text",
+  "version": 2,
+  "source": "canonical",
+  "outlookSafe": true,
+  "pug": "p.middle-title.pb32.iq-middle-title(style=\"text-align:{{ align }}\") {{ text }}",
+  "styl": ".middle-title\n  font-family: Helvetica !important\n  font-weight: 700\n  font-size: 32px\n  line-height: 42px\n  color: #393A44\n  vertical-align: middle\n  @media screen and (max-width: 600px)\n    font-size 28px !important\n    line-height 34px !important",
+  "slots": [
+    {
+      "id": "text",
+      "kind": "text",
+      "label": "Заголовок",
+      "default": "Title text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "align",
+      "kind": "select",
+      "label": "Выравнивание",
+      "default": "left",
+      "options": [
+        "left",
+        "center",
+        "right"
+      ],
+      "uiGroup": "appearance"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "id": "iq-hold-spacer",
+  "label": "Держатель места (высокий спейсер)",
+  "description": "Прозрачный держатель произвольной высоты — резервирует место под фоновую картинку секции (как .h-406 в 325). Высота задаётся инлайн — работает с любым значением.",
+  "placement": "inner",
+  "category": "utility",
+  "version": 1,
+  "source": "canonical",
+  "outlookSafe": true,
+  "pug": "div.iq-hold-spacer(style=\"font-size:8px;line-height:{{ height }}px;height:{{ height }}px\") &nbsp;",
+  "styl": "",
+  "slots": [
+    {
+      "id": "height",
+      "kind": "number",
+      "label": "Высота (px)",
+      "default": "335",
+      "uiGroup": "appearance"
+    }
+  ]
+}

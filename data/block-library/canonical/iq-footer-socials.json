@@ -1,0 +1,92 @@
+{
+  "id": "iq-footer-socials",
+  "label": "Футер: соцсети (встроенные ссылки по локалям)",
+  "description": "Ряд иконок соцсетей для футера. Ссылки по умолчанию берутся из встроенного namespace soc-block-2 (vendor/data/<locale>/soc-block-2.json) и локализуются при сборке автоматически: TikTok, Instagram, Trading Dashboard, YouTube, Telegram. Любую ссылку можно переопределить в слоте на свою.",
+  "placement": "section",
+  "category": "footer",
+  "version": 2,
+  "source": "canonical",
+  "outlookSafe": true,
+  "pug": "table.row.iq-footer-socials\n    tr\n        td.wrapper.last.pt30\n            table.twelve.columns\n                tr\n                    td.pb0.center(align=\"center\")\n                        .socials.center\n                            a.first-link(href=\"{{ link_tiktok }}\" universal=\"true\" target=\"_blank\")\n                                img.soc-icon.fb(src=\"{{ icon_tiktok }}\" alt=\"TikTok\")\n                            a(href=\"{{ link_instagram }}\" universal=\"true\" target=\"_blank\")\n                                img.soc-icon.twitter(src=\"{{ icon_instagram }}\" alt=\"Instagram\")\n                            a(href=\"{{ link_dashboard }}\" universal=\"true\" target=\"_blank\")\n                                img.soc-icon.you(src=\"{{ icon_dashboard }}\" alt=\"Trading Dashboard\")\n                            a(href=\"{{ link_youtube }}\" universal=\"true\" target=\"_blank\")\n                                img.soc-icon.you(src=\"{{ icon_youtube }}\" alt=\"YouTube\")\n                            a.last-link(href=\"{{ link_telegram }}\" universal=\"true\" target=\"_blank\")\n                                img.soc-icon.ig(src=\"{{ icon_telegram }}\" alt=\"Telegram\")",
+  "styl": ".socials\n  display: inline-block\n  font-size: 0\n  margin 0 auto\n  @media screen and (max-width: 600px)\n    width 100% !important\n  a\n    display: inline-block\n    vertical-align: middle\n    margin: 0 10px\n    @media screen and (max-width: 600px)\n      margin-bottom: 10px !important\n.social-links\n  display: block\n  text-align: center\n.soc-icon\n  float: none !important\n  max-width: 24px\n.ig\n  max-width 20px\n  margin-left 6px\n  @media screen and (max-width: 600px)\n    width 20px !important\n.you\n  max-width 24px\n  margin 0 6px\n  @media screen and (max-width: 600px)\n    width 24px !important\n.twitter\n  max-width 24px\n  margin 0 6px\n  @media screen and (max-width: 600px)\n    width 24px !important\n.fb\n  max-width 24px\n  margin-right 6px\n  @media screen and (max-width: 600px)\n    width 24px !important",
+  "slots": [
+    {
+      "id": "link_tiktok",
+      "kind": "text",
+      "label": "Ссылка TikTok",
+      "default": "${{ soc-block-2.block_00 }}$",
+      "allowSystemPlaceholder": true,
+      "uiGroup": "content"
+    },
+    {
+      "id": "link_instagram",
+      "kind": "text",
+      "label": "Ссылка Instagram",
+      "default": "${{ soc-block-2.block_01 }}$",
+      "allowSystemPlaceholder": true,
+      "uiGroup": "content"
+    },
+    {
+      "id": "link_dashboard",
+      "kind": "text",
+      "label": "Ссылка Dashboard",
+      "default": "${{ soc-block-2.block_02 }}$",
+      "allowSystemPlaceholder": true,
+      "uiGroup": "content"
+    },
+    {
+      "id": "link_youtube",
+      "kind": "text",
+      "label": "Ссылка YouTube",
+      "default": "${{ soc-block-2.block_03 }}$",
+      "allowSystemPlaceholder": true,
+      "uiGroup": "content"
+    },
+    {
+      "id": "link_telegram",
+      "kind": "text",
+      "label": "Ссылка Telegram",
+      "default": "${{ soc-block-2.block_04 }}$",
+      "allowSystemPlaceholder": true,
+      "uiGroup": "content"
+    },
+    {
+      "id": "icon_tiktok",
+      "kind": "image",
+      "label": "Иконка TikTok",
+      "default": "https://fsms.quadcode.com/storage/public/d5/ka/q8fvhhge5gv5vatg/tiktok-logo.png",
+      "uiGroup": "assets"
+    },
+    {
+      "id": "icon_instagram",
+      "kind": "image",
+      "label": "Иконка Instagram",
+      "default": "https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7ve0/ig.png",
+      "uiGroup": "assets"
+    },
+    {
+      "id": "icon_dashboard",
+      "kind": "image",
+      "label": "Иконка Dashboard",
+      "default": "https://fsms.quadcode.com/storage/public/d7/td/ip13i8as70fjdvp0/dashboard.png",
+      "uiGroup": "assets"
+    },
+    {
+      "id": "icon_youtube",
+      "kind": "image",
+      "label": "Иконка YouTube",
+      "default": "https://fsms.iqoption.com/storage/public/cn/td/gb285cee2vclvjq0/yt.png",
+      "uiGroup": "assets"
+    },
+    {
+      "id": "icon_telegram",
+      "kind": "image",
+      "label": "Иконка Telegram",
+      "default": "https://fsms.quadcode.com/storage/public/d5/ka/rf7vhhge5gv5vau0/tg.png",
+      "uiGroup": "assets"
+    }
+  ],
+  "tags": [
+    "combo"
+  ]
+}

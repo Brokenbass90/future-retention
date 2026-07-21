@@ -1,0 +1,50 @@
+{
+  "id": "iq-orange-panel",
+  "label": "Оранжевая панель: список + картинка справа",
+  "description": "Средний блок 234: .orange-block на оранжевой подложке-картинке — слева жирная подводка и список из двух пунктов, справа картинка. На мобильном складывается в столбик.",
+  "placement": "inner",
+  "category": "feature-list",
+  "version": 1,
+  "source": "canonical",
+  "outlookSafe": true,
+  "pug": ".orange-block.iq-orange-panel\n    .w40\n        p.text.pb16\n            b {{ lead }}\n        ul\n            li.text {{ item_1 }}\n            li.text {{ item_2 }}\n    a(href=\"{{ image_href }}\" universal=\"true\" target=\"_blank\")\n        img.right-img(src=\"{{ image }}\" alt=\"\")",
+  "styl": "ul\n  margin 0\n  padding 0 0 0 20px\n.orange-block\n  background url('https://fsms.quadcode.com/storage/public/d6/o2/ua3ursrq72d917s0/bcg.png') center no-repeat\n  background-size cover\n  background-color #FFF8F0\n  border-radius: 24px\n.w40\n  float none\n  display inline-block\n  width 210px\n  vertical-align: bottom\n  padding 24px 0 24px 32px\n  @media screen and (max-width: 600px)\n    float none !important\n    display block !important\n    margin 0 auto !important\n    width auto !important\n.right-img\n  float none\n  display inline-block\n  width 214px !important\n  vertical-align: bottom\n  @media screen and (max-width: 600px)\n    float none !important\n    display block !important\n    margin 0 auto !important\n.text\n  font-family: Helvetica !important\n  font-size: 18px\n  color: #393A44\n  letter-spacing: 0\n  line-height: 26px\n  font-weight 400",
+  "slots": [
+    {
+      "id": "lead",
+      "kind": "text",
+      "label": "Подводка (жирная)",
+      "default": "Bold lead text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "item_1",
+      "kind": "text",
+      "label": "Пункт списка 1",
+      "default": "List item one",
+      "uiGroup": "content"
+    },
+    {
+      "id": "item_2",
+      "kind": "text",
+      "label": "Пункт списка 2",
+      "default": "List item two",
+      "uiGroup": "content"
+    },
+    {
+      "id": "image",
+      "kind": "image",
+      "label": "Картинка справа",
+      "default": "https://fsms.quadcode.com/storage/public/d6/sm/6hjs2mcraq8anbsg/crok.png",
+      "uiGroup": "assets"
+    },
+    {
+      "id": "image_href",
+      "kind": "text",
+      "label": "Ссылка картинки",
+      "default": "#",
+      "uiGroup": "content",
+      "allowSystemPlaceholder": true
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "id": "iq-note-gray",
+  "label": "Серая сноска",
+  "description": "p.small-gray-text — мелкий серый пояснительный текст.",
+  "placement": "inner",
+  "category": "text",
+  "version": 2,
+  "source": "canonical",
+  "outlookSafe": true,
+  "pug": "p.small-gray-text.pt5.iq-note-gray(style=\"text-align:{{ align }}\") {{ text }}",
+  "styl": ".small-gray-text\n  font-family: Helvetica !important\n  font-style: normal\n  font-weight: 400\n  font-size: 16px\n  line-height: 24px\n  color: #84868B",
+  "slots": [
+    {
+      "id": "text",
+      "kind": "text",
+      "label": "Текст сноски",
+      "default": "Small note text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "align",
+      "kind": "select",
+      "label": "Выравнивание",
+      "default": "left",
+      "options": [
+        "left",
+        "center",
+        "right"
+      ],
+      "uiGroup": "appearance"
+    }
+  ]
+}

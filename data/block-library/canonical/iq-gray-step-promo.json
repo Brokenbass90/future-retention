@@ -1,0 +1,49 @@
+{
+  "id": "iq-gray-step-promo",
+  "label": "Серый шаг с промокодом",
+  "description": "Средний блок: шаг с номером, внутри которого подводка, промокод в пунктирной рамке и серая сноска — как в референсе 233.",
+  "placement": "inner",
+  "category": "feature-list",
+  "version": 1,
+  "source": "canonical",
+  "outlookSafe": true,
+  "pug": ".gray-block.iq-gray-step-promo\n    table.w100(role=\"presentation\")\n        tr\n            td.m-w.pb0\n                p.number {{ number }}\n            td.w-a.pb0\n                p.text {{ text }}\n    p.text.pt24.pb5\n        b {{ promo_lead }}\n    p.promocode {{ promo_code }}\n    p.small-gray-text.pt5 {{ promo_hint }}",
+  "styl": ".gray-block\n  padding: 24px\n  background: #F9F9F9\n  border-radius: 12px\n.number\n  background #ECECED\n  width: 54px\n  max-height: 54px\n  border-radius: 16px\n  font-family: Helvetica !important\n  color: #393A44\n  font-weight: 700\n  font-size: 24px\n  line-height: 24px\n  padding 15px 0\n  text-align: center\n.w100\n  width 100%\n.w-a\n  width auto !important\n  vertical-align: middle\ntable[class=body] table.column td, table[class=body] table.columns td.m-w\n  min-width: 78px !important\n  width 78px !important\n  vertical-align: middle\n.text\n  font-family: Helvetica !important\n  font-size: 18px\n  color: #393A44\n  letter-spacing: 0\n  line-height: 26px\n  font-weight 400\n.promocode\n  background: #ffefe0\n  border: 2px dashed #f70\n  border-radius: 16px\n  color: #f70\n  font-family: Helvetica !important\n  font-size: 24px\n  font-style: normal\n  font-weight: 700\n  line-height: 31px\n  padding: 16px 22px\n.small-gray-text\n  font-family: Helvetica !important\n  font-style: normal\n  font-weight: 400\n  font-size: 16px\n  line-height: 24px\n  color: #84868B",
+  "slots": [
+    {
+      "id": "number",
+      "kind": "text",
+      "label": "Номер",
+      "default": "2",
+      "uiGroup": "content"
+    },
+    {
+      "id": "text",
+      "kind": "richText",
+      "label": "Текст шага",
+      "default": "Step text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "promo_lead",
+      "kind": "text",
+      "label": "Подводка (жирная)",
+      "default": "Promo lead text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "promo_code",
+      "kind": "text",
+      "label": "Промокод",
+      "default": "PROMOCODE",
+      "uiGroup": "content"
+    },
+    {
+      "id": "promo_hint",
+      "kind": "text",
+      "label": "Сноска",
+      "default": "Small note text",
+      "uiGroup": "content"
+    }
+  ]
+}

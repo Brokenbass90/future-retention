@@ -61,10 +61,10 @@ const result = buildComposePlanFromDesign({ schema });
 const ids = result.plan.map((p) => p.id);
 console.log("  plan:", JSON.stringify(ids));
 check("plan uses release-safe canonical hero/cta combos only",
-  JSON.stringify(ids) === JSON.stringify(["iq-combo-hero-233", "iq-combo-promo-steps"]));
+  JSON.stringify(ids) === JSON.stringify(["iq-combo-hero-bgr", "iq-combo-steps-promocode"]));
 check("legacy header fallback is refused and reported",
   result.sections.find((section) => section.role === "header")?.status === "no-canonical-block");
-check("hero heading content carried over", result.plan.find((p) => p.id === "iq-combo-hero-233")?.slots.title === "Welcome aboard, trader");
+check("hero heading content carried over", result.plan.find((p) => p.id === "iq-combo-hero-bgr")?.slots.title_text === "Welcome aboard, trader");
 check("unabsorbed exact style tokens remain visible as a gap", result.styleSlotsFilled === 0 && result.styleSlotGap === true);
 
 // Must actually build.

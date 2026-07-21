@@ -1,0 +1,41 @@
+{
+  "id": "iq-logo-link",
+  "label": "Логотип-ссылка",
+  "description": "a > img.logo.center — логотип 138px по центру.",
+  "placement": "inner",
+  "category": "image",
+  "version": 2,
+  "source": "canonical",
+  "outlookSafe": true,
+  "pug": "div.iq-logo-link(align=\"{{ align }}\" style=\"text-align:{{ align }}\")\n    a(href=\"{{ href }}\" universal=\"true\" target=\"_blank\")\n        img.logo(src=\"{{ image }}\" alt=\"Logo\" style=\"display:inline-block\")",
+  "styl": ".logo\n  float: none\n  max-width 138px\n  padding-top: 32px\n  padding-bottom: 0\n  @media screen and (max-width: 600px)\n    margin 0 auto !important",
+  "slots": [
+    {
+      "id": "image",
+      "kind": "image",
+      "label": "Логотип",
+      "default": "https://fsms.quadcode.com/storage/public/d6/nu/493ursrq72d917kg/logo.png",
+      "uiGroup": "assets"
+    },
+    {
+      "id": "href",
+      "kind": "text",
+      "label": "Ссылка",
+      "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_mail&retrack=mail_mail&type=forex&asset=1",
+      "uiGroup": "content",
+      "allowSystemPlaceholder": true
+    },
+    {
+      "id": "align",
+      "kind": "select",
+      "label": "Выравнивание",
+      "default": "center",
+      "options": [
+        "left",
+        "center",
+        "right"
+      ],
+      "uiGroup": "appearance"
+    }
+  ]
+}

@@ -86,6 +86,38 @@ assert.equal(loadBlockReason({ studioModelStale: false }), "", "fresh studio mod
 assert.match(loadBlockReason({ studioModelStale: true }), /отвязано.*Workbench|Workbench.*копию/i, "stale studio model is blocked with an actionable workbench/copy message");
 const loadParsedSource = functionSource("loadParsedEmail");
 assert.ok(loadParsedSource.indexOf("parsedEmailLoadBlockReason(d)") < loadParsedSource.indexOf("state.canvas ="), "stale guard runs before any constructor state mutation");
+assert.match(loadParsedSource, /blockedReason\)[\s\S]*?return false/, "stale parse reports an explicit unsuccessful load");
+assert.match(loadParsedSource, /scheduleLivePreview\(\);\s*return true/, "constructor reports success only after the canvas is hydrated");
+
+const deepLinkSource = functionSource("loadConstructorDeepLink");
+assert.ok(
+  deepLinkSource.indexOf("await loadParsedEmail") < deepLinkSource.indexOf("history.replaceState"),
+  "deep-link query is not removed before the constructor load finishes",
+);
+assert.match(deepLinkSource, /if \(!loaded\) return false;[\s\S]*?history\.replaceState/,
+  "failed or stale deep links retain brand/mail for reload and diagnosis");
+const deepLinkHistoryCalls = [];
+const deepLinkLoadCalls = [];
+let deepLinkLoadResult = false;
+const loadConstructorDeepLink = Function(
+  "URLSearchParams",
+  "history",
+  "loadParsedEmail",
+  `return (async ${deepLinkSource});`,
+)(
+  URLSearchParams,
+  { replaceState: (...args) => deepLinkHistoryCalls.push(args) },
+  async (brand, mail) => {
+    deepLinkLoadCalls.push([brand, mail]);
+    return deepLinkLoadResult;
+  },
+);
+assert.equal(await loadConstructorDeepLink("?brand=X_preview&mail=mail-stale"), false, "stale deep link remains unsuccessful");
+assert.deepEqual(deepLinkHistoryCalls, [], "stale deep link keeps its query string");
+deepLinkLoadResult = true;
+assert.equal(await loadConstructorDeepLink("?brand=X_preview&mail=mail-fresh"), true, "fresh deep link succeeds");
+assert.deepEqual(deepLinkLoadCalls, [["X_preview", "mail-stale"], ["X_preview", "mail-fresh"]], "deep link forwards the exact source identity");
+assert.deepEqual(deepLinkHistoryCalls, [[null, "", "/constructor"]], "query is cleared exactly once, after successful hydration");
 
 const markExplicitSlot = Function(`return (${functionSource("markEntrySlotExplicit")})`)();
 const clearExplicitSlot = Function(`return (${functionSource("clearEntrySlotExplicit")})`)();

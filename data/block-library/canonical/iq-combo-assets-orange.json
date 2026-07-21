@@ -1,0 +1,132 @@
+{
+  "id": "iq-combo-assets-orange",
+  "label": "Комбо: Оранжевая панель + ассет-чипсы",
+  "description": "Комбо (рецепт) 234: белая карта — заголовок, оранжевая панель со списком и картинкой, подводящий текст и четыре ассет-чипса парами. Раскладывается на отдельные редактируемые блоки.",
+  "placement": "section",
+  "category": "feature-list",
+  "version": 1,
+  "source": "canonical",
+  "combo": true,
+  "tags": [
+    "combo",
+    "assets",
+    "iq"
+  ],
+  "outlookSafe": true,
+  "pug": "table.row.brad-full.white-bg.iq-combo-assets-orange(role=\"presentation\")\n    tr\n        td.wrapper.last.offset-by-one.pt44\n            table.eleven.columns(role=\"presentation\")\n                tr\n                    td.text-pad-small.pb44\n                        p.middle-title.pb32 {{ title }}\n                        .orange-block\n                            .w40\n                                p.text.pb16\n                                    b {{ lead }}\n                                ul\n                                    li.text {{ item_1 }}\n                                    li.text {{ item_2 }}\n                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                img.right-img(src=\"https://fsms.quadcode.com/storage/public/d6/sm/6hjs2mcraq8anbsg/crok.png\" alt=\"\")\n                        p.text.pt24.pb32 {{ after_text }}\n                        .asset-block.mr16\n                            .pd20\n                                table.w100(role=\"presentation\")\n                                    tr\n                                        td.pb0.m-w-2\n                                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                                img.asset-logo-top(src=\"https://fsms.quadcode.com/storage/public/d6/q2/2tbursrq72d918u0/US500.png\" alt=\"\")\n                                        td.pb0.w-a\n                                            p.asset US500\n                        .asset-block.no-gap\n                            .pd20\n                                table.w100(role=\"presentation\")\n                                    tr\n                                        td.pb0.m-w-2\n                                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                                img.asset-logo-top(src=\"https://fsms.quadcode.com/storage/public/5f/cd/f131dab956i7h9f1j8/Bitcoin.png\" alt=\"\")\n                                        td.pb0.w-a\n                                            p.asset Bitcoin\n                        .asset-block.mr16\n                            .pd20\n                                table.w100(role=\"presentation\")\n                                    tr\n                                        td.pb0.m-w-2\n                                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                                img.asset-logo-top(src=\"https://fsms.quadcode.com/storage/public/d6/pu/9lbs2mcraq8anaqg/Magnificent7.png\" alt=\"\")\n                                        td.pb0.w-a\n                                            p.asset Magnificent 7\n                        .asset-block.no-gap\n                            .pd20\n                                table.w100(role=\"presentation\")\n                                    tr\n                                        td.pb0.m-w-2\n                                            a(href=\"#\" universal=\"true\" target=\"_blank\")\n                                                img.asset-logo-top(src=\"https://fsms.quadcode.com/storage/public/d6/rv/hrbursrq72d919i0/gold.png\" alt=\"\")\n                                        td.pb0.w-a\n                                            p.asset Gold",
+  "styl": ".middle-title\n  font-family: Helvetica !important\n  font-weight: 700\n  font-size: 32px\n  line-height: 42px\n  color: #393A44\n  vertical-align: middle\n  @media screen and (max-width: 600px)\n    font-size 28px !important\n    line-height 34px !important\n.white-bg\n  background-color: #ffffff\n.brad-full\n  border-radius 32px !important\n.text-pad-small\n  @media screen and (max-width: 600px)\n    padding-left: 20px !important\n    padding-right: 20px !important\nul\n  margin 0\n  padding 0 0 0 20px\n.orange-block\n  background url('https://fsms.quadcode.com/storage/public/d6/o2/ua3ursrq72d917s0/bcg.png') center no-repeat\n  background-size cover\n  background-color #FFF8F0\n  border-radius: 24px\n.w40\n  float none\n  display inline-block\n  width 210px\n  vertical-align: bottom\n  padding 24px 0 24px 32px\n  @media screen and (max-width: 600px)\n    float none !important\n    display block !important\n    margin 0 auto !important\n    width auto !important\n.right-img\n  float none\n  display inline-block\n  width 214px !important\n  vertical-align: bottom\n  @media screen and (max-width: 600px)\n    float none !important\n    display block !important\n    margin 0 auto !important\n.text\n  font-family: Helvetica !important\n  font-size: 18px\n  color: #393A44\n  letter-spacing: 0\n  line-height: 26px\n  font-weight 400\n.asset-block\n  display inline-block\n  border: 1px solid #ECECED\n  border-radius: 24px\n  width 222px\n  margin-bottom 16px\n  @media screen and (max-width: 600px)\n    display block !important\n    margin 0 auto 16px !important\n.pd20\n  padding: 20px\n  @media screen and (max-width: 600px)\n    padding 20px !important\n.asset\n  font-family: Helvetica !important\n  font-style: normal\n  font-weight: 700\n  font-size: 18px\n  line-height: 27px\n  color: #393A44\n.asset-logo-top\n  display inline-block\n  width 40px !important\n  float none\n  vertical-align: middle\n.m-w-2\n  min-width: 48px !important\n  width 48px !important\n.mr16\n  margin-right 14px\n  @media screen and (max-width: 600px)\n    margin-right 0 !important\n.w100\n  width 100%\n.w-a\n  width auto !important\n  vertical-align: middle",
+  "slots": [
+    {
+      "id": "title",
+      "kind": "text",
+      "label": "Заголовок",
+      "default": "Title text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "lead",
+      "kind": "text",
+      "label": "Подводка",
+      "default": "Bold lead text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "item_1",
+      "kind": "text",
+      "label": "Пункт 1",
+      "default": "List item one",
+      "uiGroup": "content"
+    },
+    {
+      "id": "item_2",
+      "kind": "text",
+      "label": "Пункт 2",
+      "default": "List item two",
+      "uiGroup": "content"
+    },
+    {
+      "id": "after_text",
+      "kind": "text",
+      "label": "Текст после панели",
+      "default": "Body text",
+      "uiGroup": "content"
+    }
+  ],
+  "children": [
+    {
+      "id": "iq-section-card",
+      "role": "container",
+      "slots": {}
+    },
+    {
+      "id": "iq-middle-title",
+      "slotId": "content",
+      "role": "heading",
+      "slots": {
+        "text": "Title text"
+      }
+    },
+    {
+      "id": "iq-orange-panel",
+      "slotId": "content",
+      "role": "panel",
+      "slots": {}
+    },
+    {
+      "id": "iq-text-plain",
+      "slotId": "content",
+      "role": "after-text",
+      "slots": {
+        "text": "Body text"
+      }
+    },
+    {
+      "id": "iq-spacer",
+      "slotId": "content",
+      "role": "spacer",
+      "slots": {
+        "height": "24"
+      }
+    },
+    {
+      "id": "iq-asset-chip",
+      "slotId": "content",
+      "role": "asset-1",
+      "slots": {
+        "name": "US500",
+        "icon": "https://fsms.quadcode.com/storage/public/d6/q2/2tbursrq72d918u0/US500.png",
+        "spacing": "mr16"
+      }
+    },
+    {
+      "id": "iq-asset-chip",
+      "slotId": "content",
+      "role": "asset-2",
+      "slots": {
+        "name": "Bitcoin",
+        "icon": "https://fsms.quadcode.com/storage/public/5f/cd/f131dab956i7h9f1j8/Bitcoin.png",
+        "spacing": "no-gap"
+      }
+    },
+    {
+      "id": "iq-asset-chip",
+      "slotId": "content",
+      "role": "asset-3",
+      "slots": {
+        "name": "Magnificent 7",
+        "icon": "https://fsms.quadcode.com/storage/public/d6/pu/9lbs2mcraq8anaqg/Magnificent7.png",
+        "spacing": "mr16"
+      }
+    },
+    {
+      "id": "iq-asset-chip",
+      "slotId": "content",
+      "role": "asset-4",
+      "slots": {
+        "name": "Gold",
+        "icon": "https://fsms.quadcode.com/storage/public/d6/rv/hrbursrq72d919i0/gold.png",
+        "spacing": "no-gap"
+      }
+    }
+  ]
+}

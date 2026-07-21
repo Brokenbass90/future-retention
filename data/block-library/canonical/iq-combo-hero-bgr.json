@@ -1,0 +1,141 @@
+{
+  "id": "iq-combo-hero-bgr",
+  "label": "Комбо: Хеддер на тёмном фоне (лого + картинка + дата + CTA)",
+  "description": "Комбо (рецепт): секция hero на тёмном фоне + лого, головная картинка, дата-бейдж, белый заголовок/текст (gmail-blend), CTA. При добавлении раскладывается на отдельные редактируемые блоки.",
+  "placement": "section",
+  "category": "hero",
+  "version": 3,
+  "source": "canonical",
+  "outlookSafe": true,
+  "pug": "table.row.brad-full.bgr-image.iq-combo-hero-bgr(role=\"presentation\")\n    tr\n        td.wrapper.last.pt0\n            table.twelve.columns(role=\"presentation\")\n                tr\n                    td.pb20\n                        a(href=\"{{ logo_href }}\" universal=\"true\" target=\"_blank\")\n                            img.logo.center(src=\"{{ logo_image }}\" alt=\"Logo\")\n                        a(href=\"{{ head_image_href }}\" universal=\"true\" target=\"_blank\")\n                            img.center(src=\"{{ head_image }}\" alt=\"\")\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns(role=\"presentation\")\n                tr\n                    td.text-pad-small.pb50.pt0\n                        div.gmail-blend-screen\n                            div.gmail-blend-diff\n                                p.date {{ date_text }}\n                                p.white-title.pb16.pt16 {{ title_text }}\n                                p.white-text {{ body_text }}\n                        table.w280(align=\"center\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"{{ cta_href }}\" universal=\"true\" target=\"_blank\") {{ cta_label }}",
+  "styl": ".bgr-image\n  background url('https://fsms.quadcode.com/storage/public/d6/rs/39rursrq72d919c0/2-2-1-back.png') center top no-repeat\n  background-size cover\n  background-color: #000000\n.brad-full\n  border-radius 32px !important\n.logo\n  float: none\n  max-width 138px\n  padding-top: 32px\n  padding-bottom: 0\n  @media screen and (max-width: 600px)\n    margin 0 auto !important\n.date\n  border-radius: 10px\n  color: #ff8516\n  display: inline-block\n  font-family: Helvetica !important\n  font-size: 24px\n  font-style: normal\n  font-weight: 700\n  line-height: 36px\n  padding: 4px 12px\n  background: url('https://fsms.quadcode.com/storage/public/d8/0t/39261bdc700vi72g/bg-orange.png') center no-repeat\n  background-size: cover\n.white-title\n  font-family: Helvetica !important\n  font-weight: 700\n  font-size: 42px\n  line-height: 52px\n  color: #F9F9F9\n  word-break: break-word\n  padding-right 30px\n  @media screen and (max-width: 600px)\n    font-size: 26px !important\n    line-height: 32px !important\n.white-text\n  font-family: Helvetica !important\n  font-style: normal\n  font-weight: 400\n  font-size: 18px\n  line-height: 27px\n  color: #FFFFFF\n  padding-right 20px\n  @media screen and (max-width: 600px)\n    padding-right 0 !important\n.w280\n  width 100%\n  max-width 280px\n  @media screen and (max-width: 600px)\n    max-width 100% !important\n.butt\n  background-size cover\n  background-color #FF7700\n  font-size 18px !important\n  font-weight 700 !important\n  border-radius: 16px !important\n  text-transform: none\n  font-family: Helvetica !important\n  height auto\n.butt-link\n  font-size 18px\n  line-height 27px\n  font-weight 700\n  text-transform none\n  text-decoration: none\n  color #F9F9F9\n  display block\n  padding: 16px 0 16px\n  text-align center\n  letter-spacing 0px\n.text-pad-small\n  @media screen and (max-width: 600px)\n    padding-left: 20px !important\n    padding-right: 20px !important",
+  "slots": [
+    {
+      "id": "logo_image",
+      "kind": "image",
+      "label": "Логотип",
+      "default": "https://fsms.quadcode.com/storage/public/d6/nu/493ursrq72d917kg/logo.png",
+      "uiGroup": "assets"
+    },
+    {
+      "id": "logo_href",
+      "kind": "text",
+      "label": "Ссылка логотипа",
+      "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7&afftrack=mail_mail&retrack=mail_mail&type=forex&asset=1",
+      "allowSystemPlaceholder": true,
+      "uiGroup": "content"
+    },
+    {
+      "id": "head_image",
+      "kind": "image",
+      "label": "Головная картинка",
+      "default": "https://fsms.quadcode.com/storage/public/d6/sk/tijursrq72d919ug/233-head.png",
+      "uiGroup": "assets"
+    },
+    {
+      "id": "head_image_href",
+      "kind": "text",
+      "label": "Ссылка картинки",
+      "default": "#",
+      "allowSystemPlaceholder": true,
+      "uiGroup": "content"
+    },
+    {
+      "id": "date_text",
+      "kind": "text",
+      "label": "Дата / бейдж",
+      "default": "Date text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "title_text",
+      "kind": "text",
+      "label": "Заголовок",
+      "default": "Title text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "body_text",
+      "kind": "richText",
+      "label": "Текст",
+      "default": "Body text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "cta_label",
+      "kind": "text",
+      "label": "Текст кнопки",
+      "default": "Button text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "cta_href",
+      "kind": "text",
+      "label": "Ссылка кнопки",
+      "default": "https://api.iqoption.com/v1/multi-links/deposit?promocode=CLAIM10C&aff=7&afftrack=mail_IQ-RFM-2-3-3-Second-Email&retrack=mail_IQ-RFM-2-3-3-Second-Email",
+      "allowSystemPlaceholder": true,
+      "uiGroup": "content"
+    }
+  ],
+  "combo": true,
+  "tags": [
+    "combo",
+    "hero",
+    "iq"
+  ],
+  "children": [
+    {
+      "id": "iq-section-hero-bg",
+      "role": "container",
+      "slots": {
+        "bg_image": "https://fsms.quadcode.com/storage/public/d6/rs/39rursrq72d919c0/2-2-1-back.png",
+        "background_color": "#000000",
+        "radius": "32px"
+      }
+    },
+    {
+      "id": "iq-logo-link",
+      "slotId": "media",
+      "role": "logo",
+      "slots": {}
+    },
+    {
+      "id": "iq-image-link",
+      "slotId": "media",
+      "role": "hero-image",
+      "slots": {}
+    },
+    {
+      "id": "iq-date-badge",
+      "slotId": "content",
+      "role": "date",
+      "slots": {
+        "text": "Date text"
+      }
+    },
+    {
+      "id": "iq-white-title",
+      "slotId": "content",
+      "role": "title",
+      "slots": {
+        "text": "Title text"
+      }
+    },
+    {
+      "id": "iq-white-text",
+      "slotId": "content",
+      "role": "body",
+      "slots": {
+        "text": "Body text"
+      }
+    },
+    {
+      "id": "iq-cta-w280",
+      "slotId": "content",
+      "role": "cta",
+      "slots": {
+        "label": "Button text"
+      }
+    }
+  ]
+}

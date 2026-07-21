@@ -1,0 +1,33 @@
+{
+  "id": "iq-lead-bold",
+  "label": "Жирная подводка",
+  "description": "p.text с жирным текстом внутри (b).",
+  "placement": "inner",
+  "category": "text",
+  "version": 2,
+  "source": "canonical",
+  "outlookSafe": true,
+  "pug": "p.text.pt24.pb5.iq-lead-bold(style=\"text-align:{{ align }}\")\n    b {{ text }}",
+  "styl": ".text\n  font-family: Helvetica !important\n  font-size: 18px\n  color: #393A44\n  letter-spacing: 0\n  line-height: 26px\n  font-weight 400",
+  "slots": [
+    {
+      "id": "text",
+      "kind": "text",
+      "label": "Текст",
+      "default": "Bold lead text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "align",
+      "kind": "select",
+      "label": "Выравнивание",
+      "default": "left",
+      "options": [
+        "left",
+        "center",
+        "right"
+      ],
+      "uiGroup": "appearance"
+    }
+  ]
+}

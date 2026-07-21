@@ -1,0 +1,29 @@
+{
+  "id": "iq-section-card",
+  "label": "Секция: белая карта без рамки",
+  "description": "Обёртка: белая карта, скругление 32px, eleven.columns, pt44 сверху, pb44 снизу.",
+  "placement": "section",
+  "category": "layout",
+  "version": 1,
+  "source": "canonical",
+  "outlookSafe": true,
+  "tags": [
+    "section",
+    "card",
+    "iq"
+  ],
+  "childSlots": [
+    {
+      "id": "content",
+      "marker": "INNER_BLOCKS",
+      "accepts": [
+        "inner",
+        "inline",
+        "both"
+      ]
+    }
+  ],
+  "pug": "table.row.brad-full.white-bg.iq-section-card(role=\"presentation\")\n    tr\n        td.wrapper.last.offset-by-one.pt44\n            table.eleven.columns(role=\"presentation\")\n                tr\n                    td.text-pad-small.pb44\n                        //- {{ INNER_BLOCKS }}",
+  "styl": ".white-bg\n  background-color: #ffffff\n.brad-full\n  border-radius 32px !important\n.text-pad-small\n  @media screen and (max-width: 600px)\n    padding-left: 20px !important\n    padding-right: 20px !important",
+  "slots": []
+}

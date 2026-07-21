@@ -1,0 +1,41 @@
+{
+  "id": "iq-image-link",
+  "label": "Картинка-ссылка (по центру)",
+  "description": "a > img.center — картинка по центру, опционально кликабельная.",
+  "placement": "inner",
+  "category": "image",
+  "version": 3,
+  "source": "canonical",
+  "outlookSafe": true,
+  "pug": "div.iq-image-link(align=\"{{ align }}\" style=\"text-align:{{ align }}\")\n    a(href=\"{{ href }}\" universal=\"true\" target=\"_blank\")\n        img(src=\"{{ image }}\" alt=\"\" style=\"display:inline-block;float:none;max-width:100%\")",
+  "styl": "",
+  "slots": [
+    {
+      "id": "image",
+      "kind": "image",
+      "label": "Картинка",
+      "default": "https://fsms.quadcode.com/storage/public/d6/sk/tijursrq72d919ug/233-head.png",
+      "uiGroup": "assets"
+    },
+    {
+      "id": "href",
+      "kind": "text",
+      "label": "Ссылка",
+      "default": "#",
+      "uiGroup": "content",
+      "allowSystemPlaceholder": true
+    },
+    {
+      "id": "align",
+      "kind": "select",
+      "label": "Выравнивание",
+      "default": "center",
+      "options": [
+        "left",
+        "center",
+        "right"
+      ],
+      "uiGroup": "appearance"
+    }
+  ]
+}

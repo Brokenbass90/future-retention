@@ -1,0 +1,50 @@
+{
+  "id": "iq-opacity-panel",
+  "label": "Панель на полупрозрачном фоне (заголовок + аватар + текст)",
+  "description": "Средний блок 325: .opacity-block — белый малый заголовок, слева аватар 50px, справа белый текст. Для тёмных hero-фонов. Ячейка аватара использует инлайн-ширину (без конфликтов с m-w-2 других блоков).",
+  "placement": "inner",
+  "category": "hero",
+  "version": 1,
+  "source": "canonical",
+  "outlookSafe": true,
+  "pug": ".opacity-block.iq-opacity-panel(style=\"background-image:url('{{ bg_image }}')\")\n    p.small-white-title.pb16 {{ title }}\n    table.w100(role=\"presentation\")\n        tr\n            td.pb0(style=\"min-width:74px;width:74px;vertical-align:top\")\n                a(href=\"{{ avatar_href }}\" universal=\"true\" target=\"_blank\")\n                    img.ava(src=\"{{ avatar }}\" alt=\"\" style=\"float:none\")\n            td.pb0.w-a\n                p.white-text(style=\"padding-right:45px\") {{ text }}",
+  "styl": ".opacity-block\n  background-position: center top\n  background-repeat: no-repeat\n  background-size cover\n  padding 24px\n  border-radius: 24px\n.small-white-title\n  font-family: Helvetica !important\n  font-style: normal\n  font-weight: 700\n  font-size: 24px\n  line-height: 31px\n  color: #FFFFFF\n.ava\n  width 50px !important\n  float none\n.white-text\n  font-family: Helvetica !important\n  font-style: normal\n  font-weight: 400\n  font-size: 18px\n  line-height: 27px\n  color: #FFFFFF\n  @media screen and (max-width: 600px)\n    padding-right 0 !important\n.w100\n  width 100%\n.w-a\n  width auto !important\n  vertical-align: middle",
+  "slots": [
+    {
+      "id": "title",
+      "kind": "text",
+      "label": "Малый заголовок",
+      "default": "Small title text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "avatar",
+      "kind": "image",
+      "label": "Аватар",
+      "default": "https://fsms.quadcode.com/storage/public/d6/1e/vbvvhhgea139ul80/rfm-324-ava.png",
+      "uiGroup": "assets"
+    },
+    {
+      "id": "avatar_href",
+      "kind": "text",
+      "label": "Ссылка аватара",
+      "default": "#",
+      "uiGroup": "content",
+      "allowSystemPlaceholder": true
+    },
+    {
+      "id": "text",
+      "kind": "richText",
+      "label": "Текст",
+      "default": "Body text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "bg_image",
+      "kind": "image",
+      "label": "Фон панели",
+      "default": "https://fsms.quadcode.com/storage/public/d7/7o/os1cr7pkt9m67j50/orange-bg-opac.png",
+      "uiGroup": "assets"
+    }
+  ]
+}

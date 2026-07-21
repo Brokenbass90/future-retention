@@ -1616,18 +1616,50 @@ function renderBlocksPalette() {
 /* «🎨 В конструктор» — увести открытое письмо обратно в DnD-конструктор.
    Мини-конструктор (палитра блоков) в правом окне убран: доводка структуры
    письма делается в основном конструкторе, здесь остаётся только код+превью. */
+function workbenchConstructorReturnBlockReason(data) {
+  if (!data?.studioModelStale) return '';
+  return 'Переход отменён: модель конструктора устарела после правок Pug/Stylus. Код остаётся открыт в Workbench. Чтобы вернуться к drag-and-drop без потери правок, создайте копию письма и откройте её в конструкторе.';
+}
+
+async function requestConstructorReturn(brand, mail) {
+  const response = await fetch('/api/constructor/parse-email?brand=' + encodeURIComponent(brand) + '&mail=' + encodeURIComponent(mail));
+  let data = null;
+  try { data = await response.json(); } catch { /* handled below */ }
+  if (!response.ok || !data?.ok) {
+    throw new Error(data?.error || ('HTTP ' + response.status));
+  }
+  const blockedReason = workbenchConstructorReturnBlockReason(data);
+  return { canOpen: !blockedReason, blockedReason };
+}
+
+async function navigateBackToConstructor(ctx, btn) {
+  if (!ctx?.brand || !ctx?.mail) {
+    toast('Сначала открой письмо из базы — тогда его можно увести в конструктор.', 'warning', 5000);
+    return false;
+  }
+  if (ctx.modified && !confirm('Есть несохранённые правки кода — они не попадут в конструктор.\n\nПерейти без сохранения?')) return false;
+
+  if (btn) btn.disabled = true;
+  try {
+    const availability = await requestConstructorReturn(ctx.brand, ctx.mail);
+    if (!availability.canOpen) {
+      toast(availability.blockedReason, 'warning', 9000);
+      return false;
+    }
+    window.location.href = '/constructor?brand=' + encodeURIComponent(ctx.brand) + '&mail=' + encodeURIComponent(ctx.mail);
+    return true;
+  } catch (error) {
+    toast('Не удалось безопасно открыть конструктор: ' + error.message + '. Код остаётся открыт в Workbench.', 'error', 8000);
+    return false;
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
 (function setupBackToConstructor() {
   const btn = document.getElementById('backToConstructorBtn');
   if (!btn) return;
-  btn.addEventListener('click', () => {
-    const ctx = state.srcCtx;
-    if (!ctx?.brand || !ctx?.mail) {
-      toast('Сначала открой письмо из базы — тогда его можно увести в конструктор.', 'warning', 5000);
-      return;
-    }
-    if (ctx.modified && !confirm('Есть несохранённые правки кода — они не попадут в конструктор.\n\nПерейти без сохранения?')) return;
-    window.location.href = '/constructor?brand=' + encodeURIComponent(ctx.brand) + '&mail=' + encodeURIComponent(ctx.mail);
-  });
+  btn.addEventListener('click', () => { void navigateBackToConstructor(state.srcCtx, btn); });
 })();
 
 (function setupPreviewRtlButton() {
@@ -3545,7 +3577,18 @@ function syncEditorToLocale(code, prev) {
 // NAMESPACE BAR
 // ═══════════════════════════════════════════════════════════════
 
+function ensureBuiltinNamespacesLast() {
+  // footer_upload / soc-block-2 и прочие builtin всегда в конце списка,
+  // чтобы рабочие namespace письма не приходилось искать за ними.
+  const arr = state.namespaces || [];
+  if (!arr.some(ns => ns?.builtin)) return;
+  const user = arr.filter(ns => !ns?.builtin);
+  const builtins = arr.filter(ns => ns?.builtin);
+  state.namespaces = [...user, ...builtins];
+}
+
 function renderNamespaceBar() {
+  ensureBuiltinNamespacesLast();
   if (!state.namespaces.length) { r.namespaceBar.classList.add('hidden'); return; }
   r.namespaceBar.classList.remove('hidden');
   r.namespaceBar.innerHTML = '';
@@ -4052,8 +4095,13 @@ function getRenderedHtml(forExport = false) {
       if (blocks) html = applyNamespaceLocale(html, ns.name, blocks, !forExport);
     });
   } else if (!forExport) {
-    // Original mode: wrap raw ${{ }}$ placeholders in clickable spans (preview only)
-    html = html.replace(/\$\{\{\s*([a-zA-Z0-9_\-]+)\.block_(\d+)\s*\}\}\$/g, (match, ns, n) => {
+    // Original mode: wrap raw ${{ }}$ placeholders in clickable spans (preview only).
+    // ВАЖНО: токен внутри атрибута (href="${{ soc-block-2.block_00 }}$" и т.п.)
+    // оборачивать нельзя — <span> внутри href разрывает якоря, и, например,
+    // соцсети в Original рассыпались в столбик. Такие токены оставляем как есть.
+    const phSource = html;
+    html = html.replace(/\$\{\{\s*([a-zA-Z0-9_\-]+)\.block_(\d+)\s*\}\}\$/g, (match, ns, n, offset) => {
+      if (!htmlOffsetIsTextPosition(phSource, offset)) return match;
       return `<span data-retkit-ph="${escapeHtml(ns)}.block_${n}" style="cursor:pointer;border-bottom:1px dashed rgba(96,165,250,.5);background:rgba(96,165,250,.06)">${escapeHtml(match)}</span>`;
     });
   }
@@ -4206,19 +4254,28 @@ function updatePreview() {
 function applyNamespaceLocale(html, nsName, blocks, wrapForClick) {
   const esc = nsName.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
   const re = new RegExp(`\\$\\{\\{\\s*${esc}\\.block_(\\d+)\\s*\\}\\}\\$`, 'g');
-  return html.replace(re, (match, nStr) => {
+  const sourceHtml = html;
+  return html.replace(re, (match, nStr, offset) => {
     // 0-indexed: block_00 → blocks[0], block_01 → blocks[1] …
     const idx = parseInt(nStr, 10);
     if (idx >= 0 && idx < blocks.length) {
       const raw = blocks[idx];
       // Empty block → &nbsp; so the surrounding container keeps its dimensions.
       const text = (raw == null || raw === '') ? '&nbsp;' : boldify(raw);
+      // Внутри атрибутов (href и т.п.) подставляем голое значение без <span> —
+      // иначе разметка ломается. &nbsp;-заглушку в атрибут тоже не пишем.
+      if (!htmlOffsetIsTextPosition(sourceHtml, offset)) return String(raw ?? '');
       return wrapForClick
         ? `<span data-retkit-ph="${escapeHtml(nsName)}.block_${PH_NUM(idx)}">${text}</span>`
         : text;
     }
     return match;
   });
+}
+
+/** true, если offset в html находится в текстовой позиции (не внутри тега/атрибута). */
+function htmlOffsetIsTextPosition(html, offset) {
+  return html.lastIndexOf('>', offset) >= html.lastIndexOf('<', offset);
 }
 
 function boldify(text) {
@@ -9903,6 +9960,10 @@ function loadFromLocalStorage() {
     const sn = localStorage.getItem(LS_NAMESPACES);
     if (sn) {
       state.namespaces = JSON.parse(sn) || [];
+      // Self-heal: старые сохранения могли содержать имена с запрещёнными
+      // символами (например "!TESTEBTVOUMAT") — сервер такие отвергает при сборке.
+      const healed = ensureValidNamespaceNames(state.namespaces);
+      if (healed.length) console.warn('[load] namespace names repaired:', healed);
       // Diagnostics — flag broken saves at boot. Helps catch the
       // "namespace persists but locale tabs empty" bug.
       for (const ns of state.namespaces) {

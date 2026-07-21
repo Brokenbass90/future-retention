@@ -9,3 +9,14 @@
 // - dark-mode / client-specific tweaks that depend on head context.
 //
 // Keep it minimal.
+
+// ── Gmail dark mode: защита от инверсии цвета ─────────────────────────────
+// Обернуть контент в div.gmail-blend-screen > div.gmail-blend-diff.
+// Селектор u + .body срабатывает только в Gmail; в остальных клиентах
+// обёртки-div полностью инертны.
+u + .body .gmail-blend-screen
+  background: #000000
+  mix-blend-mode: screen
+u + .body .gmail-blend-diff
+  background: #000000
+  mix-blend-mode: difference

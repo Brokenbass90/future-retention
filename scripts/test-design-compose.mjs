@@ -51,16 +51,16 @@ const ids = result.plan.map((p) => p.id);
 console.log("  plan:", JSON.stringify(ids));
 
 check("only roles with release-safe canonical sections are mapped",
-  JSON.stringify(ids) === JSON.stringify(["iq-combo-hero-233", "iq-combo-promo-steps"]));
+  JSON.stringify(ids) === JSON.stringify(["iq-combo-hero-bgr", "iq-combo-steps-promocode"]));
 check("missing canonical header is reported instead of using a legacy slice",
   result.sections.find((section) => section.role === "header")?.status === "no-canonical-block");
 
-const hero = result.plan.find((p) => p.id === "iq-combo-hero-233");
-check("hero title filled from design heading", hero?.slots.title === "Welcome traders");
-check("hero body filled from design body", hero?.slots.body === "Trade smarter today.");
-check("hero image filled from design image", hero?.slots.head_img === "https://example.com/hero.png");
+const hero = result.plan.find((p) => p.id === "iq-combo-hero-bgr");
+check("hero title filled from design heading", hero?.slots.title_text === "Welcome traders");
+check("hero body filled from design body", hero?.slots.body_text === "Trade smarter today.");
+check("hero image filled from design image", hero?.slots.head_image === "https://example.com/hero.png");
 
-const cta = result.plan.find((p) => p.id === "iq-combo-promo-steps");
+const cta = result.plan.find((p) => p.id === "iq-combo-steps-promocode");
 check("cta label filled from design cta text", cta?.slots.cta_label === "Sign up");
 
 // Current combo recipes expose content slots but not a complete theme surface.

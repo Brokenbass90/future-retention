@@ -1,0 +1,28 @@
+{
+  "id": "iq-gray-step",
+  "label": "Серый шаг (номер + текст)",
+  "description": "Средний блок: .gray-block с номером в квадрате и текстом шага.",
+  "placement": "inner",
+  "category": "feature-list",
+  "version": 1,
+  "source": "canonical",
+  "outlookSafe": true,
+  "pug": ".gray-block.iq-gray-step\n    table.w100(role=\"presentation\")\n        tr\n            td.m-w.pb0\n                p.number {{ number }}\n            td.w-a.pb0\n                p.text {{ text }}",
+  "styl": ".gray-block\n  padding: 24px\n  background: #F9F9F9\n  border-radius: 12px\n.number\n  background #ECECED\n  width: 54px\n  max-height: 54px\n  border-radius: 16px\n  font-family: Helvetica !important\n  color: #393A44\n  font-weight: 700\n  font-size: 24px\n  line-height: 24px\n  padding 15px 0\n  text-align: center\n.w100\n  width 100%\n.w-a\n  width auto !important\n  vertical-align: middle\ntable[class=body] table.column td, table[class=body] table.columns td.m-w\n  min-width: 78px !important\n  width 78px !important\n  vertical-align: middle\n.text\n  font-family: Helvetica !important\n  font-size: 18px\n  color: #393A44\n  letter-spacing: 0\n  line-height: 26px\n  font-weight 400",
+  "slots": [
+    {
+      "id": "number",
+      "kind": "text",
+      "label": "Номер",
+      "default": "1",
+      "uiGroup": "content"
+    },
+    {
+      "id": "text",
+      "kind": "richText",
+      "label": "Текст шага",
+      "default": "Step text",
+      "uiGroup": "content"
+    }
+  ]
+}
