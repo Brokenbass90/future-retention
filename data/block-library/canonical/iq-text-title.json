@@ -4,10 +4,9 @@
   "description": "Самостоятельный email-safe inner-блок: средний заголовок и абзац. Контент, цвета, выравнивание и отступы редактируются отдельно.",
   "placement": "inner",
   "category": "text",
-  "version": 2,
-  "source": "canonical",
-  "pug": "table.iq-text-title(role=\"presentation\" width=\"100%\")\n    tr\n        td(style=\"text-align:{{ align }}\")\n            p.iq-middle-title(style=\"color:{{ title_color }};padding:{{ title_padding }}\") {{ title }}\n            p.iq-body-text(style=\"color:{{ body_color }};padding:{{ body_padding }}\") {{ body }}",
-  "styl": ".iq-text-title{width:100%}\n.iq-middle-title{color:{{ title_color }};font-family:Helvetica,Arial,sans-serif!important;font-size:32px;font-weight:700;line-height:42px;margin:0;padding:{{ title_padding }};vertical-align:middle}\n@media screen and (max-width:600px){.iq-middle-title{font-size:28px!important;line-height:34px!important}}\n.iq-body-text{color:{{ body_color }};font-family:Helvetica,Arial,sans-serif!important;font-size:18px;font-weight:400;letter-spacing:0;line-height:26px;margin:0;padding:{{ body_padding }}}",
+  "version": 3,
+  "pug": "table.iq-text-title--iq-text-title(role=\"presentation\" width=\"100%\")\n    tr\n        td(style=\"text-align:{{ align }}\")\n            p.iq-text-title--iq-middle-title(style=\"color:{{ title_color }};padding:{{ title_padding }}\") {{ title }}\n            p.iq-text-title--iq-body-text(style=\"color:{{ body_color }};padding:{{ body_padding }}\") {{ body }}",
+  "styl": ".iq-text-title--iq-text-title{width:100%}\n.iq-text-title--iq-middle-title{color:{{ title_color }};font-family:Helvetica,Arial,sans-serif!important;font-size:32px;font-weight:700;line-height:42px;margin:0;padding:{{ title_padding }};vertical-align:middle}\n@media screen and (max-width:600px){.iq-text-title--iq-middle-title{font-size:28px!important;line-height:34px!important}}\n.iq-text-title--iq-body-text{color:{{ body_color }};font-family:Helvetica,Arial,sans-serif!important;font-size:18px;font-weight:400;letter-spacing:0;line-height:26px;margin:0;padding:{{ body_padding }}}",
   "slots": [
     {
       "id": "title",
@@ -42,7 +41,11 @@
       "kind": "select",
       "label": "Выравнивание",
       "default": "left",
-      "options": ["left", "center", "right"],
+      "options": [
+        "left",
+        "center",
+        "right"
+      ],
       "uiGroup": "appearance"
     },
     {
@@ -65,5 +68,6 @@
     "text",
     "title",
     "iq"
-  ]
+  ],
+  "scoped": true
 }

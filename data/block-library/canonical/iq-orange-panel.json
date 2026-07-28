@@ -4,11 +4,10 @@
   "description": "Средний блок 234: .orange-block на оранжевой подложке-картинке — слева жирная подводка и список из двух пунктов, справа картинка. На мобильном складывается в столбик.",
   "placement": "inner",
   "category": "feature-list",
-  "version": 1,
-  "source": "canonical",
+  "version": 2,
   "outlookSafe": true,
-  "pug": ".orange-block.iq-orange-panel\n    .w40\n        p.text.pb16\n            b {{ lead }}\n        ul\n            li.text {{ item_1 }}\n            li.text {{ item_2 }}\n    a(href=\"{{ image_href }}\" universal=\"true\" target=\"_blank\")\n        img.right-img(src=\"{{ image }}\" alt=\"\")",
-  "styl": "ul\n  margin 0\n  padding 0 0 0 20px\n.orange-block\n  background url('https://fsms.quadcode.com/storage/public/d6/o2/ua3ursrq72d917s0/bcg.png') center no-repeat\n  background-size cover\n  background-color #FFF8F0\n  border-radius: 24px\n.w40\n  float none\n  display inline-block\n  width 210px\n  vertical-align: bottom\n  padding 24px 0 24px 32px\n  @media screen and (max-width: 600px)\n    float none !important\n    display block !important\n    margin 0 auto !important\n    width auto !important\n.right-img\n  float none\n  display inline-block\n  width 214px !important\n  vertical-align: bottom\n  @media screen and (max-width: 600px)\n    float none !important\n    display block !important\n    margin 0 auto !important\n.text\n  font-family: Helvetica !important\n  font-size: 18px\n  color: #393A44\n  letter-spacing: 0\n  line-height: 26px\n  font-weight 400",
+  "pug": ".iq-orange-panel--orange-block.iq-orange-panel\n    .iq-orange-panel--w40\n        p.iq-orange-panel--text.iq-orange-panel--pb16\n            b {{ lead }}\n        ul\n            li.iq-orange-panel--text {{ item_1 }}\n            li.iq-orange-panel--text {{ item_2 }}\n    a(href=\"{{ image_href }}\" universal=\"true\" target=\"_blank\")\n        img.iq-orange-panel--right-img(src=\"{{ image }}\" alt=\"\")",
+  "styl": "ul\n  margin 0\n  padding 0 0 0 20px\n.iq-orange-panel--orange-block\n  background url('https://fsms.quadcode.com/storage/public/d6/o2/ua3ursrq72d917s0/bcg.png') center no-repeat\n  background-size cover\n  background-color #FFF8F0\n  border-radius: 24px\n.iq-orange-panel--w40\n  float none\n  display inline-block\n  width 210px\n  vertical-align: bottom\n  padding 24px 0 24px 32px\n  @media screen and (max-width: 600px)\n    float none !important\n    display block !important\n    margin 0 auto !important\n    width auto !important\n.iq-orange-panel--right-img\n  float none\n  display inline-block\n  width 214px !important\n  vertical-align: bottom\n  @media screen and (max-width: 600px)\n    float none !important\n    display block !important\n    margin 0 auto !important\n.iq-orange-panel--text\n  font-family: Helvetica !important\n  font-size: 18px\n  color: #393A44\n  letter-spacing: 0\n  line-height: 26px\n  font-weight 400\n\n/* втянуто из стилей семьи при скоупе — блок больше не зависит от main.styl */\n.iq-orange-panel--pb16{padding-bottom:16px}",
   "slots": [
     {
       "id": "lead",
@@ -46,5 +45,6 @@
       "uiGroup": "content",
       "allowSystemPlaceholder": true
     }
-  ]
+  ],
+  "scoped": true
 }

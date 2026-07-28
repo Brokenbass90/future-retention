@@ -4,11 +4,10 @@
   "description": "Средний блок 325: .opacity-block — белый малый заголовок, слева аватар 50px, справа белый текст. Для тёмных hero-фонов. Ячейка аватара использует инлайн-ширину (без конфликтов с m-w-2 других блоков).",
   "placement": "inner",
   "category": "hero",
-  "version": 1,
-  "source": "canonical",
+  "version": 2,
   "outlookSafe": true,
-  "pug": ".opacity-block.iq-opacity-panel(style=\"background-image:url('{{ bg_image }}')\")\n    p.small-white-title.pb16 {{ title }}\n    table.w100(role=\"presentation\")\n        tr\n            td.pb0(style=\"min-width:74px;width:74px;vertical-align:top\")\n                a(href=\"{{ avatar_href }}\" universal=\"true\" target=\"_blank\")\n                    img.ava(src=\"{{ avatar }}\" alt=\"\" style=\"float:none\")\n            td.pb0.w-a\n                p.white-text(style=\"padding-right:45px\") {{ text }}",
-  "styl": ".opacity-block\n  background-position: center top\n  background-repeat: no-repeat\n  background-size cover\n  padding 24px\n  border-radius: 24px\n.small-white-title\n  font-family: Helvetica !important\n  font-style: normal\n  font-weight: 700\n  font-size: 24px\n  line-height: 31px\n  color: #FFFFFF\n.ava\n  width 50px !important\n  float none\n.white-text\n  font-family: Helvetica !important\n  font-style: normal\n  font-weight: 400\n  font-size: 18px\n  line-height: 27px\n  color: #FFFFFF\n  @media screen and (max-width: 600px)\n    padding-right 0 !important\n.w100\n  width 100%\n.w-a\n  width auto !important\n  vertical-align: middle",
+  "pug": ".iq-opacity-panel--opacity-block.iq-opacity-panel(style=\"background-image:url('{{ bg_image }}')\")\n    p.iq-opacity-panel--small-white-title.iq-opacity-panel--pb16 {{ title }}\n    table.iq-opacity-panel--w100(role=\"presentation\")\n        tr\n            td.pb0(style=\"min-width:74px;width:74px;vertical-align:top\")\n                a(href=\"{{ avatar_href }}\" universal=\"true\" target=\"_blank\")\n                    img.iq-opacity-panel--ava(src=\"{{ avatar }}\" alt=\"\" style=\"float:none\")\n            td.pb0.iq-opacity-panel--w-a\n                p.iq-opacity-panel--white-text(style=\"padding-right:45px\") {{ text }}",
+  "styl": ".iq-opacity-panel--opacity-block\n  background-position: center top\n  background-repeat: no-repeat\n  background-size cover\n  padding 24px\n  border-radius: 24px\n.iq-opacity-panel--small-white-title\n  font-family: Helvetica !important\n  font-style: normal\n  font-weight: 700\n  font-size: 24px\n  line-height: 31px\n  color: #FFFFFF\n.iq-opacity-panel--ava\n  width 50px !important\n  float none\n.iq-opacity-panel--white-text\n  font-family: Helvetica !important\n  font-style: normal\n  font-weight: 400\n  font-size: 18px\n  line-height: 27px\n  color: #FFFFFF\n  @media screen and (max-width: 600px)\n    padding-right 0 !important\n.iq-opacity-panel--w100\n  width 100%\n.iq-opacity-panel--w-a\n  width auto !important\n  vertical-align: middle\n\n/* втянуто из стилей семьи при скоупе — блок больше не зависит от main.styl */\n.iq-opacity-panel--pb16{padding-bottom:16px}",
   "slots": [
     {
       "id": "title",
@@ -46,5 +45,6 @@
       "default": "https://fsms.quadcode.com/storage/public/d7/7o/os1cr7pkt9m67j50/orange-bg-opac.png",
       "uiGroup": "assets"
     }
-  ]
+  ],
+  "scoped": true
 }

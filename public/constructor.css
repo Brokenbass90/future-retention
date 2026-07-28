@@ -952,3 +952,417 @@ body.dragging-from-catalog .child-dropzone {
   .topbar .btn { padding-inline: 8px; }
   .mail-name { width: 130px; }
 }
+
+/* ─── Контекстное меню блока на канвасе ─────────────────────────────────── */
+.canvas-ctx-menu {
+  position: fixed;
+  z-index: 9000;
+  min-width: 232px;
+  padding: 6px;
+  border-radius: 10px;
+  background: #161c2b;
+  border: 1px solid #2c3550;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, .5);
+  font-size: 13px;
+}
+.canvas-ctx-menu button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #dfe5f2;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.canvas-ctx-menu button:hover:not(:disabled) { background: #222c44; }
+.canvas-ctx-menu button:disabled { opacity: .38; cursor: default; }
+.canvas-ctx-menu button.ctx-danger:hover:not(:disabled) { background: #4a1d24; color: #ffb4b4; }
+.canvas-ctx-menu kbd {
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #0f1421;
+  border: 1px solid #2c3550;
+  color: #8f9bb5;
+  font: 11px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.canvas-ctx-menu .ctx-sep {
+  height: 1px;
+  margin: 5px 8px;
+  background: #2c3550;
+}
+
+/* Короткое уведомление о действии с буфером — вместо alert на каждый Ctrl+C. */
+.canvas-hint {
+  position: fixed;
+  left: 50%;
+  bottom: 26px;
+  z-index: 9100;
+  transform: translate(-50%, 12px);
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: #1d2740;
+  border: 1px solid #34405f;
+  color: #e6ebf7;
+  font-size: 13px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .16s ease, transform .16s ease;
+}
+.canvas-hint.visible { opacity: 1; transform: translate(-50%, 0); }
+
+/* Мини-превью блока на карточке дерева: по названию блоки неразличимы. */
+.canvas-card-thumb {
+  flex: 0 0 auto;
+  width: 46px;
+  height: 34px;
+  overflow: hidden;
+  border-radius: 5px;
+  background: #fff;
+  border: 1px solid #2c3550;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+.canvas-card-thumb img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+  object-position: top center;
+}
+.canvas-card.selected .canvas-card-thumb { border-color: #5b8cff; }
+
+/* «Сейчас: …» — фактически применённое значение, прочитанное из живого превью.
+   Поле рядом остаётся полем ПЕРЕОПРЕДЕЛЕНИЯ: пустое = как в блоке. */
+.insp-applied {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0 0 2px;
+  font-size: 11px;
+  color: #8f9bb5;
+}
+.insp-applied-label { text-transform: uppercase; letter-spacing: .04em; font-size: 10px; }
+.insp-applied code {
+  font: 11px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: #c8d2e6;
+  background: #131a29;
+  border: 1px solid #262f45;
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+.applied-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  border: 1px solid #3a4560;
+  flex: 0 0 auto;
+}
+
+/* ─── Каталог плиткой во весь экран ─────────────────────────────────────── */
+.gallery-open-btn { width: 100%; margin: 6px 0 4px; }
+
+.gallery-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 8500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  background: rgba(6, 9, 16, .72);
+  backdrop-filter: blur(2px);
+}
+.gallery-box {
+  display: flex;
+  flex-direction: column;
+  width: min(1500px, 100%);
+  height: 100%;
+  border-radius: 14px;
+  background: #10151f;
+  border: 1px solid #2c3550;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, .6);
+  overflow: hidden;
+}
+.gallery-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid #232c42;
+  background: #131a27;
+  flex: 0 0 auto;
+}
+.gallery-search {
+  flex: 1 1 auto;
+  min-width: 200px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid #2c3550;
+  background: #0d121c;
+  color: #e6ebf7;
+  font-size: 14px;
+}
+.gallery-select {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #2c3550;
+  background: #0d121c;
+  color: #cbd4e8;
+  font-size: 13px;
+}
+.gallery-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #97a3bb;
+  font-size: 12px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.gallery-count { color: #7d8aa4; font-size: 12px; white-space: nowrap; }
+
+.gallery-grid {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
+  gap: 14px;
+  align-content: start;
+}
+.gallery-tile {
+  margin: 0;
+  border-radius: 10px;
+  background: #151c2a;
+  border: 1px solid #262f45;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color .12s ease, transform .12s ease;
+}
+.gallery-tile:hover, .gallery-tile:focus-visible {
+  border-color: #5b8cff;
+  transform: translateY(-2px);
+  outline: none;
+}
+.gallery-tile.disabled { opacity: .45; cursor: not-allowed; }
+.gallery-thumb {
+  position: relative;
+  height: 176px;
+  overflow: hidden;
+  background: #fff;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+.gallery-thumb img { width: 100%; height: auto; display: block; object-position: top center; }
+/* Счётчик одинаковых на вид блоков. Клик по нему раскрывает группу. */
+.gallery-dupes {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  padding: 3px 9px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(17, 24, 39, .88);
+  color: #cbd5e1;
+  font: 11px/1.6 inherit;
+  cursor: pointer;
+}
+.gallery-dupes:hover { background: #2563eb; color: #fff; }
+.gallery-tile figcaption { padding: 8px 10px 10px; }
+.gallery-title {
+  color: #e6ebf7;
+  font-size: 13px;
+  line-height: 1.35;
+  margin-bottom: 5px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.gallery-meta { display: flex; flex-wrap: wrap; gap: 4px; }
+.gallery-empty {
+  grid-column: 1 / -1;
+  padding: 48px 20px;
+  text-align: center;
+  color: #8390a8;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ─── Панель оператора студии ───────────────────────────────────────────── */
+.chat-open-btn { width: 100%; margin: 6px 0 0; }
+
+.chat-panel {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 8800;
+  display: none;
+  flex-direction: column;
+  width: min(430px, calc(100vw - 36px));
+  height: min(620px, calc(100vh - 36px));
+  border-radius: 14px;
+  background: #10151f;
+  border: 1px solid #2c3550;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .55);
+  overflow: hidden;
+}
+.chat-panel.open { display: flex; }
+.chat-panel.drag { border-color: #5b8cff; }
+
+.chat-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #131a27;
+  border-bottom: 1px solid #232c42;
+  flex: 0 0 auto;
+}
+.chat-title { flex: 1 1 auto; color: #e6ebf7; font-size: 13px; font-weight: 600; }
+.chat-head button {
+  border: 0;
+  background: transparent;
+  color: #8f9bb5;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+}
+.chat-head button:hover { background: #222c44; color: #dfe5f2; }
+
+.chat-log {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.chat-msg {
+  max-width: 92%;
+  padding: 8px 11px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.chat-user { align-self: flex-end; background: #24406e; color: #eaf1ff; }
+.chat-assistant { align-self: flex-start; background: #1a2233; color: #dbe3f2; }
+.chat-error { align-self: flex-start; background: #40202a; color: #ffc4c4; }
+
+/* Шаги агента: видно, что он делает, а не «крутится и молчит». */
+.chat-step {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 4px;
+  color: #7f8ba3;
+  font-size: 12px;
+}
+.chat-step-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #5b8cff;
+  flex: 0 0 auto;
+  animation: chat-pulse 1s ease-in-out infinite;
+}
+.chat-step.done { color: #5f6e88; }
+.chat-step.done .chat-step-dot { background: #3d8a55; animation: none; }
+@keyframes chat-pulse { 0%, 100% { opacity: .3 } 50% { opacity: 1 } }
+
+.chat-attachments { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 12px; }
+.chat-attachments:empty { display: none; }
+.chat-thumb { position: relative; width: 54px; height: 54px; border-radius: 6px; overflow: hidden; border: 1px solid #2c3550; }
+.chat-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.chat-thumb button {
+  position: absolute; top: 1px; right: 1px;
+  width: 17px; height: 17px;
+  border: 0; border-radius: 50%;
+  background: rgba(10, 14, 22, .85);
+  color: #dbe3f2; font-size: 10px; line-height: 1; cursor: pointer;
+}
+
+.chat-form { padding: 10px 12px 12px; border-top: 1px solid #232c42; flex: 0 0 auto; }
+.chat-input {
+  width: 100%;
+  resize: vertical;
+  min-height: 46px;
+  padding: 9px 11px;
+  border-radius: 9px;
+  border: 1px solid #2c3550;
+  background: #0d121c;
+  color: #e6ebf7;
+  font: inherit;
+  font-size: 13px;
+}
+.chat-actions { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.chat-attach {
+  cursor: pointer;
+  padding: 5px 9px;
+  border-radius: 7px;
+  border: 1px solid #2c3550;
+  color: #a9b4c9;
+  font-size: 14px;
+}
+.chat-attach:hover { border-color: #5b8cff; }
+.chat-send { margin-left: auto; }
+.chat-panel.busy .chat-send { opacity: .5; pointer-events: none; }
+
+/* Панель оператора можно двигать по экрану за заголовок. */
+.chat-drag-handle { cursor: grab; user-select: none; }
+.chat-panel.dragging { opacity: .92; }
+.chat-panel.dragging .chat-drag-handle { cursor: grabbing; }
+.chat-panel { resize: both; min-width: 320px; min-height: 280px; }
+
+/* ─── Превью в карточках: честно показываем, что картинка обрезана ──────── */
+.cat-item-thumb, .gallery-thumb { position: relative; }
+/* Высокий блок не влезает в плитку целиком. Без подсказки кажется, что блок
+   такой и есть — поэтому низ уводим в мягкое затухание. */
+.cat-item-thumb::after, .gallery-thumb::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 34px;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, .92));
+}
+.cat-item-thumb:has(.cat-thumb-failed)::after,
+.cat-item-thumb:not(:has(img))::after,
+.gallery-thumb:not(:has(img))::after { display: none; }
+
+/* Картинка тянется по ширине карточки и прижата к верху: у большинства блоков
+   смысл в первых экранах, а не в нижнем отступе. */
+.cat-item-thumb img, .gallery-thumb img { width: 100%; height: auto; display: block; }
+
+/* Плитка должна складываться из превью и подписи явно.
+   Без этого figure в grid считала свою высоту по подписи, превью вылезало
+   за пределы плитки и обрезалось вместе с названием блока. */
+.gallery-tile {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.gallery-thumb { flex: 0 0 176px; height: 176px; }
+.gallery-tile figcaption { flex: 1 1 auto; min-height: 0; }
+
+/* Строки сетки должны определяться содержимым плитки, а не делиться поровну
+   на высоту окна. Без явного max-content браузер растягивал восемь рядов по
+   81px каждый, превью вылезало за плитку, а название блока обрезалось. */
+.gallery-grid {
+  grid-auto-rows: max-content;
+  align-items: start;
+}
+.gallery-tile { height: auto; }

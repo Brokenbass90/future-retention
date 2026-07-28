@@ -4,8 +4,7 @@
   "description": "УСТАРЕЛ: будет заменён новыми комбо из нарезки писем. Скрыт из каталога, оставлен для совместимости старых писем и design-compose. Рецепт из универсальной секции-контейнера и отдельного блока соцсетей. После вставки контейнер и соцсети редактируются независимо.",
   "placement": "section",
   "category": "footer",
-  "version": 2,
-  "source": "canonical",
+  "version": 3,
   "combo": true,
   "children": [
     {
@@ -44,8 +43,8 @@
       }
     }
   ],
-  "pug": "table.row\n    tr\n        td.wrapper.last.pt30\n            table.twelve.columns\n                tr\n                    td(align=\"center\").pb0.center\n                        .socials.center\n                            a.first-link(href=\"{{ link_0 }}\" universal=\"true\" target=\"_blank\")\n                                img.soc-icon.fb(src=\"{{ icon_0 }}\")\n                            a(href=\"{{ link_1 }}\" universal=\"true\" target=\"_blank\")\n                                img.soc-icon.twitter(src=\"{{ icon_1 }}\")\n                            a(href=\"{{ link_2 }}\" universal=\"true\" target=\"_blank\")\n                                img.soc-icon.you(src=\"{{ icon_2 }}\")\n                            a.last-link(href=\"{{ link_3 }}\" universal=\"true\" target=\"_blank\")\n                                img.soc-icon.ig(src=\"{{ icon_3 }}\")",
-  "styl": ".socials{display:inline-block;font-size:0;margin:0 auto}\n@media screen and (max-width:600px){.socials{width:100%!important}}\n.socials a{display:inline-block;vertical-align:middle;margin:0 10px}\n@media screen and (max-width:600px){.socials a{margin-bottom:10px!important}}\n.soc-icon{float:none!important;max-width:24px}\n.fb{max-width:24px;margin-right:6px}\n.twitter{max-width:24px;margin:0 6px}\n.you{max-width:24px;margin:0 6px}\n.ig{max-width:24px;margin-left:6px}",
+  "pug": "table.row\n    tr\n        td.wrapper.last.pt30\n            table.twelve.columns\n                tr\n                    td(align=\"center\").pb0.center\n                        .iq-combo-socials-row--socials.center\n                            a.first-link(href=\"{{ link_0 }}\" universal=\"true\" target=\"_blank\")\n                                img.iq-combo-socials-row--soc-icon.iq-combo-socials-row--fb(src=\"{{ icon_0 }}\")\n                            a(href=\"{{ link_1 }}\" universal=\"true\" target=\"_blank\")\n                                img.iq-combo-socials-row--soc-icon.iq-combo-socials-row--twitter(src=\"{{ icon_1 }}\")\n                            a(href=\"{{ link_2 }}\" universal=\"true\" target=\"_blank\")\n                                img.iq-combo-socials-row--soc-icon.iq-combo-socials-row--you(src=\"{{ icon_2 }}\")\n                            a.last-link(href=\"{{ link_3 }}\" universal=\"true\" target=\"_blank\")\n                                img.iq-combo-socials-row--soc-icon.iq-combo-socials-row--ig(src=\"{{ icon_3 }}\")",
+  "styl": ".iq-combo-socials-row--socials{display:inline-block;font-size:0;margin:0 auto}\n@media screen and (max-width:600px){.iq-combo-socials-row--socials{width:100%!important}}\n.iq-combo-socials-row--socials a{display:inline-block;vertical-align:middle;margin:0 10px}\n@media screen and (max-width:600px){.iq-combo-socials-row--socials a{margin-bottom:10px!important}}\n.iq-combo-socials-row--soc-icon{float:none!important;max-width:24px}\n.iq-combo-socials-row--fb{max-width:24px;margin-right:6px}\n.iq-combo-socials-row--twitter{max-width:24px;margin:0 6px}\n.iq-combo-socials-row--you{max-width:24px;margin:0 6px}\n.iq-combo-socials-row--ig{max-width:24px;margin-left:6px}",
   "slots": [
     {
       "id": "link_0",
@@ -120,5 +119,6 @@
     "per-locale",
     "iq"
   ],
-  "retired": true
+  "retired": true,
+  "scoped": true
 }

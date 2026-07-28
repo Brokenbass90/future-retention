@@ -4,11 +4,10 @@
   "description": "Блок сторов: две кнопки приложений по центру, на мобильном в столбик.",
   "placement": "inner",
   "category": "cta",
-  "version": 1,
-  "source": "canonical",
+  "version": 2,
   "outlookSafe": true,
-  "pug": ".stor.center.iq-store-buttons\n    a(href=\"{{ app_href }}\" target=\"_blank\")\n        img.a-app(src=\"{{ app_img }}\" alt=\"App Store\")\n    a(href=\"{{ google_href }}\" target=\"_blank\")\n        img.a-google(src=\"{{ google_img }}\" alt=\"Google Play\")",
-  "styl": ".stor\n  width 100% !important\n  max-width: 450px\n  margin 0 auto\n  @media screen and (max-width: 600px)\n    width 100% !important\n.a-app\n  display inline-block\n  padding 0 15px 15px 15px\n  max-width 120px\n  height 40px !important\n  float: none\n  @media screen and (max-width: 600px)\n    display block !important\n    float none !important\n    margin 0 auto !important\n.a-google\n  display inline-block\n  max-width 135px\n  height 40px !important\n  float: none\n  padding 0 15px 15px 15px\n  @media screen and (max-width: 600px)\n    display block !important\n    float none !important\n    margin 0 auto !important",
+  "pug": ".iq-store-buttons--stor.center.iq-store-buttons\n    a(href=\"{{ app_href }}\" target=\"_blank\")\n        img.iq-store-buttons--a-app(src=\"{{ app_img }}\" alt=\"App Store\")\n    a(href=\"{{ google_href }}\" target=\"_blank\")\n        img.iq-store-buttons--a-google(src=\"{{ google_img }}\" alt=\"Google Play\")",
+  "styl": ".iq-store-buttons--stor\n  width 100% !important\n  max-width: 450px\n  margin 0 auto\n  @media screen and (max-width: 600px)\n    width 100% !important\n.iq-store-buttons--a-app\n  display inline-block\n  padding 0 15px 15px 15px\n  max-width 120px\n  height 40px !important\n  float: none\n  @media screen and (max-width: 600px)\n    display block !important\n    float none !important\n    margin 0 auto !important\n.iq-store-buttons--a-google\n  display inline-block\n  max-width 135px\n  height 40px !important\n  float: none\n  padding 0 15px 15px 15px\n  @media screen and (max-width: 600px)\n    display block !important\n    float none !important\n    margin 0 auto !important",
   "slots": [
     {
       "id": "app_href",
@@ -40,5 +39,6 @@
       "default": "https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjr0/play.png",
       "uiGroup": "assets"
     }
-  ]
+  ],
+  "scoped": true
 }

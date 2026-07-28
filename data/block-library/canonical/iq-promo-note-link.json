@@ -4,11 +4,10 @@
   "description": "Сноска, в середине которой синяя ссылка (например, на Promo Code Policy) и продолжение текста после неё.",
   "placement": "inner",
   "category": "text",
-  "version": 1,
-  "source": "canonical",
+  "version": 2,
   "outlookSafe": true,
-  "pug": "p.promo-text-foot.center.pb40.iq-promo-note-link {{ text }}&nbsp;\n    a.link(href=\"{{ link_href }}\" target=\"_blank\") {{ link_label }}\n    | {{ tail }}",
-  "styl": ".promo-text-foot\n  font-family: Helvetica !important\n  font-style: normal\n  font-weight: 400\n  font-size: 18px\n  line-height: 26px\n  color: #71717D\n.link\n  color #4882FF !important",
+  "pug": "p.iq-promo-note-link--promo-text-foot.center.pb40.iq-promo-note-link {{ text }}&nbsp;\n    a.iq-promo-note-link--link(href=\"{{ link_href }}\" target=\"_blank\") {{ link_label }}\n    | {{ tail }}",
+  "styl": ".iq-promo-note-link--promo-text-foot\n  font-family: Helvetica !important\n  font-style: normal\n  font-weight: 400\n  font-size: 18px\n  line-height: 26px\n  color: #71717D\n.iq-promo-note-link--link\n  color #4882FF !important",
   "slots": [
     {
       "id": "text",
@@ -39,5 +38,6 @@
       "default": ".",
       "uiGroup": "content"
     }
-  ]
+  ],
+  "scoped": true
 }

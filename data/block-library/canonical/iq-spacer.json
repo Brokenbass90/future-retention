@@ -4,14 +4,41 @@
   "description": "Отступ между элементами внутри одной средней секции. По умолчанию прозрачный; при необходимости промежутку задаётся точный цвет фона.",
   "placement": "inner",
   "category": "utility",
-  "version": 2,
-  "source": "canonical",
+  "version": 3,
   "pug": ".h-{{ height }}(style=\"background-color:{{ background_color }}\") &nbsp;",
-  "styl": ".h-8,.h-12,.h-16{font-size:8px;line-height:8px;height:8px}\n.h-12,.h-16{line-height:12px;height:12px}\n.h-16{line-height:16px;height:16px}\n.h-20,.h-24,.h-28{font-size:8px;line-height:20px;height:20px}\n.h-24,.h-28{line-height:24px;height:24px}\n.h-28{line-height:28px;height:28px}\n.h-30,.h-32,.h-40{font-size:8px;line-height:30px;height:30px}\n.h-32,.h-40{line-height:32px;height:32px}\n.h-40{line-height:40px;height:40px}",
+  "styl": ".iq-spacer--h-8,.iq-spacer--h-12,.iq-spacer--h-16{font-size:8px;line-height:8px;height:8px}\n.iq-spacer--h-12,.iq-spacer--h-16{line-height:12px;height:12px}\n.iq-spacer--h-16{line-height:16px;height:16px}\n.iq-spacer--h-20,.iq-spacer--h-24,.iq-spacer--h-28{font-size:8px;line-height:20px;height:20px}\n.iq-spacer--h-24,.iq-spacer--h-28{line-height:24px;height:24px}\n.iq-spacer--h-28{line-height:28px;height:28px}\n.iq-spacer--h-30,.iq-spacer--h-32,.iq-spacer--h-40{font-size:8px;line-height:30px;height:30px}\n.iq-spacer--h-32,.iq-spacer--h-40{line-height:32px;height:32px}\n.iq-spacer--h-40{line-height:40px;height:40px}",
   "slots": [
-    { "id": "background_color", "kind": "color", "label": "Цвет промежутка", "default": "transparent", "uiGroup": "appearance" },
-    { "id": "height", "kind": "select", "label": "Высота, px", "default": "12", "options": ["8", "12", "16", "20", "24", "28", "32", "40"], "uiGroup": "appearance" }
+    {
+      "id": "background_color",
+      "kind": "color",
+      "label": "Цвет промежутка",
+      "default": "transparent",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "height",
+      "kind": "select",
+      "label": "Высота, px",
+      "default": "12",
+      "options": [
+        "8",
+        "12",
+        "16",
+        "20",
+        "24",
+        "28",
+        "32",
+        "40"
+      ],
+      "uiGroup": "appearance"
+    }
   ],
   "outlookSafe": true,
-  "tags": ["spacer", "divider", "utility", "inner-divider"]
+  "tags": [
+    "spacer",
+    "divider",
+    "utility",
+    "inner-divider"
+  ],
+  "scoped": true
 }

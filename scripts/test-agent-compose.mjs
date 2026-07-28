@@ -14,7 +14,8 @@
  */
 
 import { runAgent } from "../src/ai-agent.js";
-import { existsSync, rmSync, readFileSync } from "node:fs";
+import { TOOL_HANDLERS } from "../src/ai-tools.js";
+import { existsSync, mkdirSync, rmSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import url from "node:url";
 
@@ -36,6 +37,7 @@ const section = (s) => console.log("\n" + dim("━━ ") + s + dim(" ━━"));
 const TEST_BRAND = "X_assembled";
 const TEST_MAIL = "agent-compose-test";
 const TEST_DEST = path.join(REPO_ROOT, "email-base", TEST_BRAND, "mail-" + TEST_MAIL);
+const TEST_DIST = path.join(REPO_ROOT, "email-base", "dist", TEST_BRAND, "mail-" + TEST_MAIL);
 
 function mkFnCall(call_id, name, args) {
   return { type: "function_call", call_id, name, arguments: JSON.stringify(args) };
@@ -54,8 +56,10 @@ async function main() {
   console.log("\n" + C.bold + "══ Agent compose-from-blocks (tool-use) ══" + C.reset);
 
   // Clean any prior test mail.
-  if (existsSync(TEST_DEST)) {
-    try { rmSync(TEST_DEST, { recursive: true, force: true }); } catch {}
+  for (const target of [TEST_DEST, TEST_DIST]) {
+    if (existsSync(target)) {
+      try { rmSync(target, { recursive: true, force: true }); } catch {}
+    }
   }
 
   // Script the model's three turns.
@@ -114,6 +118,8 @@ async function main() {
   assert(byName.compose_email_from_blocks?.blocksUsed === 3, "compose used 3 blocks");
   assert(byName.compose_email_from_blocks?.brand === TEST_BRAND, "compose returned brand");
   assert(byName.compose_email_from_blocks?.mailName === TEST_MAIL, "compose returned mailName");
+  assert(result?.composed?.brand === TEST_BRAND, "final result exposes composed brand");
+  assert(result?.composed?.mailName === TEST_MAIL, "final result exposes composed mailName");
 
   section("Mail folder created on disk");
   const headerPug = path.join(TEST_DEST, "app", "templates", "blocks", "header.pug");
@@ -129,12 +135,39 @@ async function main() {
     assert(pug.includes("//- block-end: iq-footer"),           "block boundary marker for footer");
   }
 
+  section("Existing mail protection + transactional rollback");
+  const sourceSentinel = path.join(TEST_DEST, "sentinel.txt");
+  const distSentinel = path.join(TEST_DIST, "EN", "index.html");
+  mkdirSync(path.dirname(distSentinel), { recursive: true });
+  writeFileSync(sourceSentinel, "KEEP EXISTING SOURCE", "utf8");
+  writeFileSync(distSentinel, "KEEP EXISTING DIST", "utf8");
+  const protectedResult = await TOOL_HANDLERS.compose_email_from_blocks({
+    brand: TEST_BRAND,
+    mailName: TEST_MAIL,
+    blocks: [{ id: "iq-combo-hero-233", slots: { title: "MUST NOT REPLACE" } }],
+  }, {});
+  assert(protectedResult?.code === "COMPOSE_SAVE_TARGET_EXISTS", "existing mail is refused without force");
+  assert(readFileSync(sourceSentinel, "utf8") === "KEEP EXISTING SOURCE", "source sentinel unchanged without force");
+  assert(readFileSync(distSentinel, "utf8") === "KEEP EXISTING DIST", "dist sentinel unchanged without force");
+
+  const failedForcedResult = await TOOL_HANDLERS.compose_email_from_blocks({
+    brand: TEST_BRAND,
+    mailName: TEST_MAIL,
+    force: true,
+    blocks: [{ id: "iq-combo-hero-233", slots: { title: "unsafe\nslot" } }],
+  }, {});
+  assert(/line breaks/i.test(String(failedForcedResult?.error || "")), "forced compose surfaces the synthetic slot-validation failure");
+  assert(readFileSync(sourceSentinel, "utf8") === "KEEP EXISTING SOURCE", "source restored after failed forced compose");
+  assert(readFileSync(distSentinel, "utf8") === "KEEP EXISTING DIST", "dist restored after failed forced compose");
+
   section("Cleanup");
-  try {
-    rmSync(TEST_DEST, { recursive: true, force: true });
-    console.log("  removed " + dim(TEST_DEST));
-  } catch (e) {
-    console.log("  (could not remove test mail folder — manual cleanup needed)");
+  for (const target of [TEST_DEST, TEST_DIST]) {
+    try {
+      rmSync(target, { recursive: true, force: true });
+      console.log("  removed " + dim(target));
+    } catch (e) {
+      console.log("  (could not remove test mail folder — manual cleanup needed)");
+    }
   }
 
   section("Verdict");

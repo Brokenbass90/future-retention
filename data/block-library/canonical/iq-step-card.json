@@ -4,22 +4,106 @@
   "description": "Серая карточка с круглым номером слева и текстом справа. Для нумерованных инструкций. Номер и текст редактируются.",
   "placement": "inner",
   "category": "text",
-  "version": 2,
-  "source": "canonical",
-  "pug": ".iq-step-card(style=\"background-color:{{ background_color }};border:{{ border }};border-radius:{{ radius }};padding:{{ padding }}\")\n    table.iq-step-table(role=\"presentation\" width=\"100%\")\n        tr\n            td.iq-step-number-cell.pb0\n                p.iq-step-number(style=\"background-color:{{ number_background }};border-radius:{{ number_radius }};color:{{ number_color }}\") {{ number }}\n            td.iq-step-text-cell.pb0\n                p.iq-step-text(style=\"color:{{ text_color }}\") {{ text }}",
-  "styl": ".iq-step-card{background-color:{{ background_color }};border:{{ border }};border-radius:{{ radius }};padding:{{ padding }}}\n.iq-step-table{width:100%}\n.iq-step-number-cell{min-width:78px!important;vertical-align:middle;width:78px!important}\n.iq-step-text-cell{vertical-align:middle;width:auto!important}\n.iq-step-number{background-color:{{ number_background }};border-radius:{{ number_radius }};color:{{ number_color }};font-family:Helvetica,Arial,sans-serif!important;font-size:24px;font-weight:700;line-height:24px;max-height:54px;padding:15px 0;text-align:center;width:54px}\n.iq-step-text{color:{{ text_color }};font-family:Helvetica,Arial,sans-serif!important;font-size:18px;font-weight:400;letter-spacing:0;line-height:26px}",
+  "version": 3,
+  "pug": ".iq-step-card--iq-step-card(style=\"background-color:{{ background_color }};border:{{ border }};border-radius:{{ radius }};padding:{{ padding }}\")\n    table.iq-step-card--iq-step-table(role=\"presentation\" width=\"100%\")\n        tr\n            td.iq-step-card--iq-step-number-cell.pb0\n                p.iq-step-card--iq-step-number(style=\"background-color:{{ number_background }};border-radius:{{ number_radius }};color:{{ number_color }}\") {{ number }}\n            td.iq-step-card--iq-step-text-cell.pb0\n                p.iq-step-card--iq-step-text(style=\"color:{{ text_color }}\") {{ text }}",
+  "styl": ".iq-step-card--iq-step-card{background-color:{{ background_color }};border:{{ border }};border-radius:{{ radius }};padding:{{ padding }}}\n.iq-step-card--iq-step-table{width:100%}\n.iq-step-card--iq-step-number-cell{min-width:78px!important;vertical-align:middle;width:78px!important}\n.iq-step-card--iq-step-text-cell{vertical-align:middle;width:auto!important}\n.iq-step-card--iq-step-number{background-color:{{ number_background }};border-radius:{{ number_radius }};color:{{ number_color }};font-family:Helvetica,Arial,sans-serif!important;font-size:24px;font-weight:700;line-height:24px;max-height:54px;padding:15px 0;text-align:center;width:54px}\n.iq-step-card--iq-step-text{color:{{ text_color }};font-family:Helvetica,Arial,sans-serif!important;font-size:18px;font-weight:400;letter-spacing:0;line-height:26px}",
   "slots": [
-    { "id": "number", "kind": "text", "label": "Номер", "default": "1", "uiGroup": "content" },
-    { "id": "text", "kind": "richText", "label": "Текст шага", "default": "Что нужно сделать на этом шаге.", "uiGroup": "content" },
-    { "id": "background_color", "kind": "color", "label": "Фон карточки", "default": "#F9F9F9", "uiGroup": "appearance" },
-    { "id": "text_color", "kind": "color", "label": "Цвет текста", "default": "#393A44", "uiGroup": "appearance" },
-    { "id": "border", "kind": "select", "label": "Обводка", "default": "none", "options": ["none", "1px solid #ECECED", "2px solid #FF7700"], "uiGroup": "appearance" },
-    { "id": "radius", "kind": "select", "label": "Скругление карточки", "default": "12px", "options": ["0", "8px", "12px", "16px", "24px"], "uiGroup": "appearance" },
-    { "id": "padding", "kind": "text", "label": "Отступы карточки", "default": "24px", "uiGroup": "appearance" },
-    { "id": "number_background", "kind": "color", "label": "Фон номера", "default": "#ECECED", "uiGroup": "appearance" },
-    { "id": "number_color", "kind": "color", "label": "Цвет номера", "default": "#393A44", "uiGroup": "appearance" },
-    { "id": "number_radius", "kind": "select", "label": "Скругление номера", "default": "16px", "options": ["0", "8px", "12px", "16px", "27px"], "uiGroup": "appearance" }
+    {
+      "id": "number",
+      "kind": "text",
+      "label": "Номер",
+      "default": "1",
+      "uiGroup": "content"
+    },
+    {
+      "id": "text",
+      "kind": "richText",
+      "label": "Текст шага",
+      "default": "Что нужно сделать на этом шаге.",
+      "uiGroup": "content"
+    },
+    {
+      "id": "background_color",
+      "kind": "color",
+      "label": "Фон карточки",
+      "default": "#F9F9F9",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "text_color",
+      "kind": "color",
+      "label": "Цвет текста",
+      "default": "#393A44",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "border",
+      "kind": "select",
+      "label": "Обводка",
+      "default": "none",
+      "options": [
+        "none",
+        "1px solid #ECECED",
+        "2px solid #FF7700"
+      ],
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "radius",
+      "kind": "select",
+      "label": "Скругление карточки",
+      "default": "12px",
+      "options": [
+        "0",
+        "8px",
+        "12px",
+        "16px",
+        "24px"
+      ],
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "padding",
+      "kind": "text",
+      "label": "Отступы карточки",
+      "default": "24px",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "number_background",
+      "kind": "color",
+      "label": "Фон номера",
+      "default": "#ECECED",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "number_color",
+      "kind": "color",
+      "label": "Цвет номера",
+      "default": "#393A44",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "number_radius",
+      "kind": "select",
+      "label": "Скругление номера",
+      "default": "16px",
+      "options": [
+        "0",
+        "8px",
+        "12px",
+        "16px",
+        "27px"
+      ],
+      "uiGroup": "appearance"
+    }
   ],
   "outlookSafe": true,
-  "tags": ["step", "card", "text", "iq"]
+  "tags": [
+    "step",
+    "card",
+    "text",
+    "iq"
+  ],
+  "scoped": true
 }

@@ -462,12 +462,43 @@ function applyCatalogFilters() {
   });
 }
 
+/**
+ * Схлопывание одинаковых на вид блоков в боковой колонке.
+ * Группы считает scripts/group-block-duplicates.mjs по перцептивному хешу
+ * превью; здесь мы просто оставляем представителя. Ничего не теряется:
+ * у плитки есть счётчик, а полный список открывается в галерее.
+ */
+function collapseDuplicateBlocks(list) {
+  const seen = new Set();
+  const out = [];
+  for (const b of list) {
+    const gid = b.preview?.group?.id;
+    if (!gid) { out.push(b); continue; }
+    if (seen.has(gid)) continue;
+    seen.add(gid);
+    out.push(list.find((c) => c.preview?.group?.id === gid && c.preview.group.primary) || b);
+  }
+  return out;
+}
+
 function renderCatalog() {
   const list = $("catalogList");
-  const filtered = applyCatalogFilters();
+  const unfiltered = applyCatalogFilters();
+  const filtered = collapseDuplicateBlocks(unfiltered);
+  // Счётчик на карточке считает только те блоки группы, что прошли фильтры:
+  // иначе «×8» на плитке, за которой стоит один доступный блок.
+  const catalogGroupCounts = new Map();
+  for (const b of unfiltered) {
+    const gid = b.preview?.group?.id;
+    if (gid) catalogGroupCounts.set(gid, (catalogGroupCounts.get(gid) || 0) + 1);
+  }
   const counter = $("catCount");
   const sourceTotal = state.library.filter((block) => catalogSourceAllowed(block, state.sourceScope)).length;
-  if (counter) counter.textContent = `${filtered.length} из ${sourceTotal} блоков`;
+  if (counter) {
+    const hidden = unfiltered.length - filtered.length;
+    counter.textContent = `${filtered.length} из ${sourceTotal} блоков`
+      + (hidden > 0 ? ` · ${hidden} одинаковых скрыто` : "");
+  }
   const sourceWarning = $("catLegacyWarning");
   if (sourceWarning) {
     sourceWarning.classList.toggle("hidden", state.sourceScope === "curated");
@@ -496,12 +527,13 @@ function renderCatalog() {
     const slotCount = (b.slots || []).length;
     const isUser = b.source === "user";
     el.innerHTML = `
-      <div class="cat-item-thumb" style="width:100%;height:140px;overflow:hidden;border-radius:8px;background:#fff;margin-bottom:8px;position:relative;display:flex;align-items:flex-start;justify-content:center;"><span style="color:#9aa3b2;font-size:11px;align-self:center">…</span></div>
+      <div class="cat-item-thumb" style="width:100%;height:140px;overflow:hidden;border-radius:8px;background:#fff;margin-bottom:8px;position:relative;display:flex;align-items:flex-start;justify-content:center;">${catalogThumbMarkup(b)}</div>
       <div class="cat-item-head">
         <span class="cat-item-icon">${PLACEMENT_ICON[b.placement] || "📐"}</span>
         <span>${escapeHtml(b.label || b.id)}</span>
         ${isUser ? `<span class="cat-item-badge block-review-badge review-${reviewStatus}" title="Статус ручного блока: ${reviewStatus}">${blockReviewLabel(b)}</span>` : ""}
         ${b.source === "imported" ? `<span class="cat-item-badge" title="Legacy: стили и ассеты из конкретного старого письма">legacy</span>` : ""}
+        ${(catalogGroupCounts.get(b.preview?.group?.id) || 1) > 1 ? `<span class="cat-item-badge" title="Ещё ${catalogGroupCounts.get(b.preview.group.id) - 1} блоков выглядят так же — открой каталог плиткой">×${catalogGroupCounts.get(b.preview.group.id)}</span>` : ""}
         <button class="cat-item-view" data-view-id="${escapeHtml(b.id)}" title="Посмотреть исходник (pug/styl/слоты)">👁</button>
         ${isUser && reviewStatus === "candidate" ? `<button class="cat-item-approve" data-approve-id="${escapeHtml(b.id)}" title="Повторно проверить и перевести в approved">✓</button>` : ""}
         ${isUser ? `<button class="cat-item-edit" data-edit-id="${escapeHtml(b.id)}" title="Редактировать pug/styl/слоты этого блока">✎</button>` : ""}
@@ -514,6 +546,7 @@ function renderCatalog() {
         <span class="pill pill-brand">${escapeHtml(brandOf(b))}</span>
         <span class="pill">${slotCount} slot${slotCount === 1 ? "" : "s"}</span>
         ${hasMobile(b) ? `<span class="pill pill-mobile" title="Есть мобильные @media правила">📱</span>` : ""}
+        ${b.preview && b.preview.signature ? `<span class="pill" title="Высота блока на 600px">${b.preview.signature.height}px</span>` : ""}
       </div>
     `;
     // Catalog click → addToCanvas (skip if user pressed the × button).
@@ -550,6 +583,10 @@ function renderCatalog() {
       }
       addToCanvas(b, { origin: "catalog" });
     });
+    el.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+      openCatalogContextMenu(e.clientX, e.clientY, b);
+    });
     el.addEventListener("dragstart", (e) => {
       if (!usable) { e.preventDefault(); return; }
       e.dataTransfer.effectAllowed = "copy";
@@ -573,7 +610,12 @@ function renderCatalog() {
       clearIframeDropLine();
     });
     list.appendChild(el);
-    try { _thumbObserver.observe(el); } catch {}
+    // Пререндеренное превью уже в разметке. Живая сборка остаётся только для
+    // блоков без картинки — например, только что сохранённого user-блока,
+    // который ещё не попал в прогон render-block-previews.
+    if (!(b.preview && b.preview.status === "ok" && b.preview.desktop)) {
+      try { _thumbObserver.observe(el); } catch {}
+    }
   }
   if (filtered.length > state.renderCap) {
     const more = document.createElement("button");
@@ -582,6 +624,197 @@ function renderCatalog() {
     more.addEventListener("click", () => { state.renderCap += 60; renderCatalog(); });
     list.appendChild(more);
   }
+}
+
+/* ─── Большой каталог плиткой ────────────────────────────────────────────
+ * Узкая колонка слева годится, когда блоков десяток. При тысяче искать в
+ * ней невозможно: карточки идут в один столбец, превью ужато до 140px.
+ * Галерея — то же содержимое, но во весь экран, плиткой и с поиском.
+ *
+ * Два принципиальных отличия от боковой колонки:
+ *   1. одинаковые на вид блоки схлопнуты в одну плитку (группировка по
+ *      перцептивному хешу превью, см. scripts/group-block-duplicates.mjs) —
+ *      иначе половина экрана это 79 одинаковых «Текстовый абзац»;
+ *   2. по умолчанию показываем только то, что можно положить в текущее
+ *      место письма, но одним кликом снимаем это ограничение — человек
+ *      должен видеть, что библиотека больше, чем ему сейчас предлагают.
+ */
+let _galleryState = { query: "", cat: "all", showAll: false, expandedGroup: null, ignoreContext: false };
+
+function openBlockGallery() {
+  closeBlockGallery();
+  const overlay = document.createElement("div");
+  overlay.className = "gallery-overlay";
+  overlay.id = "blockGallery";
+  overlay.innerHTML = `
+    <div class="gallery-box" role="dialog" aria-label="Каталог блоков">
+      <header class="gallery-head">
+        <input id="galleryQuery" class="gallery-search" type="search" autocomplete="off"
+               placeholder="Поиск: название, id, тег, категория…" />
+        <select id="galleryCat" class="gallery-select" aria-label="Категория"></select>
+        <label class="gallery-toggle" title="Показать блоки, которые не подходят в выбранное место">
+          <input type="checkbox" id="galleryIgnoreContext" /> вся библиотека
+        </label>
+        <label class="gallery-toggle" title="Не схлопывать одинаковые на вид блоки">
+          <input type="checkbox" id="galleryShowAll" /> показывать дубли
+        </label>
+        <span class="gallery-count" id="galleryCount"></span>
+        <button class="btn" id="galleryClose" type="button" title="Закрыть (Esc)">✕</button>
+      </header>
+      <div class="gallery-grid" id="galleryGrid"></div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  const cats = [...new Set(state.library.map((b) => b.category).filter(Boolean))].sort();
+  $("galleryCat").innerHTML = `<option value="all">все категории</option>`
+    + cats.map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
+  $("galleryCat").value = _galleryState.cat;
+  $("galleryQuery").value = _galleryState.query;
+  $("galleryIgnoreContext").checked = _galleryState.ignoreContext;
+  $("galleryShowAll").checked = _galleryState.showAll;
+
+  $("galleryQuery").addEventListener("input", (e) => { _galleryState.query = e.target.value; renderGallery(); });
+  $("galleryCat").addEventListener("change", (e) => { _galleryState.cat = e.target.value; renderGallery(); });
+  $("galleryIgnoreContext").addEventListener("change", (e) => { _galleryState.ignoreContext = e.target.checked; renderGallery(); });
+  $("galleryShowAll").addEventListener("change", (e) => { _galleryState.showAll = e.target.checked; renderGallery(); });
+  $("galleryClose").addEventListener("click", closeBlockGallery);
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) closeBlockGallery(); });
+  document.addEventListener("keydown", galleryEscHandler, true);
+
+  renderGallery();
+  setTimeout(() => $("galleryQuery")?.focus(), 30);
+}
+
+function galleryEscHandler(e) {
+  if (e.key !== "Escape") return;
+  if (!document.getElementById("blockGallery")) return;
+  if (_galleryState.expandedGroup) { _galleryState.expandedGroup = null; renderGallery(); e.stopPropagation(); return; }
+  closeBlockGallery();
+  e.stopPropagation();
+}
+
+function closeBlockGallery() {
+  document.getElementById("blockGallery")?.remove();
+  document.removeEventListener("keydown", galleryEscHandler, true);
+  _galleryState.expandedGroup = null;
+}
+
+/** Блоки для галереи с учётом всех фильтров и схлопывания групп. */
+function galleryBlocks() {
+  const q = _galleryState.query.trim().toLowerCase();
+  // Контекстный фильтр — тот же, что у боковой колонки: галерея не должна
+  // предлагать положить секцию внутрь текстового блока.
+  let list = _galleryState.ignoreContext
+    ? state.library.filter((b) => catalogSourceAllowed(b, state.sourceScope))
+    : applyCatalogFilters();
+
+  if (_galleryState.cat !== "all") list = list.filter((b) => b.category === _galleryState.cat);
+  if (q) {
+    list = list.filter((b) => [b.label, b.id, b.description, b.category, ...(b.tags || [])]
+      .filter(Boolean).join(" ").toLowerCase().includes(q));
+  }
+
+  if (_galleryState.expandedGroup) {
+    return list.filter((b) => b.preview?.group?.id === _galleryState.expandedGroup);
+  }
+  if (_galleryState.showAll) return list;
+
+  // Схлопывание: оставляем представителя группы. Если он отфильтрован
+  // (не подходит по контексту или поиску), представителем становится первый
+  // уцелевший — иначе целая группа молча исчезла бы из выдачи.
+  const seen = new Set();
+  const out = [];
+  for (const b of list) {
+    const gid = b.preview?.group?.id;
+    if (!gid) { out.push(b); continue; }
+    if (seen.has(gid)) continue;
+    seen.add(gid);
+    out.push(list.find((c) => c.preview?.group?.id === gid && c.preview.group.primary) || b);
+  }
+  return out;
+}
+
+/** gid → сколько блоков этой группы проходит текущие фильтры галереи. */
+function groupCountsForVisible() {
+  const saved = _galleryState.expandedGroup;
+  _galleryState.expandedGroup = null;
+  const showAll = _galleryState.showAll;
+  _galleryState.showAll = true;                 // без схлопывания — считаем всех
+  const counts = new Map();
+  for (const b of galleryBlocks()) {
+    const gid = b.preview?.group?.id;
+    if (gid) counts.set(gid, (counts.get(gid) || 0) + 1);
+  }
+  _galleryState.showAll = showAll;
+  _galleryState.expandedGroup = saved;
+  return counts;
+}
+
+function renderGallery() {
+  const grid = $("galleryGrid");
+  if (!grid) return;
+  const list = galleryBlocks();
+  // Бейдж «ещё N» должен считать только те блоки, которые человек реально
+  // увидит при раскрытии. Группа может быть из 8 блоков, но если 7 из них
+  // отсечены источником или поиском, обещать «ещё 7» — врать.
+  const visibleInGroup = groupCountsForVisible();
+  const total = state.library.filter((b) => catalogSourceAllowed(b, state.sourceScope)).length;
+
+  const counter = $("galleryCount");
+  if (counter) {
+    counter.textContent = _galleryState.expandedGroup
+      ? `${list.length} похожих блоков · Esc чтобы вернуться`
+      : `${list.length} из ${total}`;
+  }
+
+  if (!list.length) {
+    grid.innerHTML = `<div class="gallery-empty">Ничего не нашлось.
+      ${_galleryState.ignoreContext ? "" : "Попробуй включить «вся библиотека» — сейчас показаны только блоки, подходящие в выбранное место."}</div>`;
+    return;
+  }
+
+  grid.innerHTML = list.map((b) => {
+    const group = b.preview?.group;
+    const sameLook = group ? (visibleInGroup.get(group.id) || 1) : 1;
+    const dupes = group && !_galleryState.showAll && !_galleryState.expandedGroup && sameLook > 1
+      ? `<button class="gallery-dupes" data-group="${escapeHtml(group.id)}"
+           title="Показать ${sameLook - 1} блоков, которые выглядят так же">ещё ${sameLook - 1}</button>`
+      : "";
+    const usable = blockCatalogUsable(b);
+    const sig = b.preview?.signature;
+    return `
+      <figure class="gallery-tile${usable ? "" : " disabled"}" data-block-id="${escapeHtml(b.id)}"
+              data-block-source="${escapeHtml(b.source || "")}" tabindex="0">
+        <div class="gallery-thumb">${catalogThumbMarkup(b)}${dupes}</div>
+        <figcaption>
+          <div class="gallery-title">${escapeHtml(b.label || b.id)}</div>
+          <div class="gallery-meta">
+            <span class="pill">${escapeHtml(b.placement || "?")}</span>
+            <span class="pill">${escapeHtml(b.category || "?")}</span>
+            ${sig ? `<span class="pill">${sig.height}px</span>` : ""}
+            ${b.source === "imported" ? `<span class="pill">legacy</span>` : ""}
+          </div>
+        </figcaption>
+      </figure>`;
+  }).join("");
+
+  grid.querySelectorAll(".gallery-tile").forEach((tile) => {
+    const pick = () => {
+      const b = blockById(tile.dataset.blockId, tile.dataset.blockSource);
+      if (!b) return;
+      if (!blockCatalogUsable(b)) { flashCanvasHint("Этот блок пока draft — открой его код и исправь ошибки"); return; }
+      addToCanvas(b, { origin: "gallery" });
+      flashCanvasHint(`Добавлено: ${b.label || b.id}`);
+    };
+    tile.addEventListener("click", (e) => {
+      const dupBtn = e.target.closest(".gallery-dupes");
+      if (dupBtn) { _galleryState.expandedGroup = dupBtn.dataset.group; renderGallery(); return; }
+      pick();
+    });
+    tile.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); }
+    });
+  });
 }
 
 /* ─── Block source view modal ─────────────────────────────────────── */
@@ -594,7 +827,9 @@ function openBlockView(b) {
     ...(b.source === "user" ? [["review", blockReviewStatus(b)]] : []),
     ["используется в", (b.usageCount || 0) + " письмах"],
     ["мобильные стили", hasMobile(b) ? "да" : "нет"],
-  ].map(([k, v]) => `<span class="pill">${escapeHtml(k)}: ${escapeHtml(String(v ?? "?"))}</span>`).join(" ");
+  ].map(([k, v]) => `<span class="pill">${escapeHtml(k)}: ${escapeHtml(String(v ?? "?"))}</span>`).join(" ")
+    + signaturePillsMarkup(b)
+    + previewPairMarkup(b);
   $("viewPug").textContent = b.pug || "";
   $("viewStyl").textContent = b.styl || "(нет)";
   $("viewSlots").innerHTML = (b.slots || []).length
@@ -614,6 +849,55 @@ function duplicateToUserBlock(b) {
   };
   closeBlockView();
   openBlockAuthor(copy, { asNew: true });
+}
+
+/* ─── Пререндеренные превью блоков ──────────────────────────────────────────
+ * Картинки делает scripts/render-block-previews.mjs, сервер отдаёт их из
+ * data/block-previews. Раньше каждая карточка запускала полную сборку письма
+ * (~1.6 с в подпроцессе) и при любой ошибке молча пряталась — сломанный блок
+ * выглядел ровно как нормальный. Теперь: картинка сразу, а если превью не
+ * собралось — честный бейдж с причиной.
+ */
+function catalogThumbMarkup(b) {
+  const p = b && b.preview;
+  if (p && p.status === "ok" && p.desktop) {
+    const alt = escapeHtml(`${b.label || b.id} — превью блока`);
+    return `<img class="cat-thumb-img" src="${escapeHtml(p.desktop.url)}" alt="${alt}" loading="lazy" decoding="async"
+      style="width:100%;height:auto;display:block;object-fit:cover;object-position:top center;">`;
+  }
+  if (p && p.status === "failed") {
+    return `<span class="cat-thumb-failed" title="${escapeHtml(p.error || "")}"
+      style="align-self:center;color:#c2410c;font-size:11px;text-align:center;padding:0 8px;line-height:1.35">
+      превью не собралось<br><span style="color:#9aa3b2">блок не рендерится</span></span>`;
+  }
+  // Нет записи в индексе — блок новый; ниже подхватит живой iframe-фолбэк.
+  return `<span style="color:#9aa3b2;font-size:11px;align-self:center">…</span>`;
+}
+
+/** Визуальная сигнатура блока пилюлями — то же, что видит AI. */
+function signaturePillsMarkup(b) {
+  const sig = b && b.preview && b.preview.signature;
+  if (!sig) return "";
+  const pills = (sig.tags || []).map((t) => `<span class="pill">${escapeHtml(t)}</span>`).join(" ");
+  const swatches = (sig.palette || []).slice(0, 4).map((hex) =>
+    `<span title="${escapeHtml(hex)}" style="display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid #d1d5db;background:${escapeHtml(hex)};vertical-align:middle"></span>`
+  ).join(" ");
+  return `<div style="margin-top:6px">${pills} ${swatches}</div>`;
+}
+
+/** Увеличенное превью: desktop + mobile рядом, для окна просмотра блока. */
+function previewPairMarkup(b) {
+  const p = b && b.preview;
+  if (!p || p.status !== "ok") return "";
+  const shot = (s, label) => s
+    ? `<figure style="margin:0;flex:0 1 auto;max-width:${s.width > 400 ? "62%" : "38%"}">
+         <img src="${escapeHtml(s.url)}" alt="${escapeHtml(label)}" style="width:100%;height:auto;border:1px solid #e5e7eb;border-radius:6px;background:#fff">
+         <figcaption style="font-size:11px;color:#6b7280;margin-top:4px">${escapeHtml(label)} · ${s.width}×${s.height}</figcaption>
+       </figure>`
+    : "";
+  return `<div style="display:flex;gap:12px;align-items:flex-start;margin:10px 0">
+      ${shot(p.desktop, "600 px")}${shot(p.mobile, "375 px")}
+    </div>`;
 }
 
 // ─── Lazy block thumbnails (live mini-render via /api/compose-preview) ──────
@@ -976,6 +1260,20 @@ function normalizeCanvasOrder(override) {
   state.canvas = out;
 }
 
+/**
+ * Мини-превью на карточке блока в дереве. Дерево из десяти строк «Текст ·
+ * inner · 7 полей» нечитаемо: по названию блоки не отличаются, особенно
+ * внутренние. Берём пререндеренную картинку; если её нет (только что
+ * созданный user-блок) — оставляем иконку размещения, как было.
+ */
+function canvasCardThumbMarkup(block) {
+  const shot = block?.preview?.status === "ok" && block.preview.desktop;
+  if (!shot) return `<span class="canvas-card-icon">${PLACEMENT_ICON[block.placement] || "📐"}</span>`;
+  return `<span class="canvas-card-thumb" title="${escapeHtml(block.label || block.id)}">
+      <img src="${escapeHtml(shot.url)}" alt="" loading="lazy" decoding="async">
+    </span>`;
+}
+
 function makeCanvasCard(entry, block) {
   const li = document.createElement("li");
   li.className = "canvas-card" + (sameUid(entry.uid, state.selectedUid) ? " selected" : "");
@@ -989,7 +1287,7 @@ function makeCanvasCard(entry, block) {
   const recipeBadge = entry.recipeInstanceId ? `<span class="pill" title="Часть готового комбо">комбо</span>` : "";
   li.innerHTML = `
       <span class="canvas-card-handle" title="Перетащи чтобы переставить">⠿</span>
-      <span class="canvas-card-icon">${PLACEMENT_ICON[block.placement] || "📐"}</span>
+      ${canvasCardThumbMarkup(block)}
       <div class="canvas-card-body">
         <div class="canvas-card-title">${escapeHtml(block.label || block.id)}</div>
         <div class="canvas-card-sub">${escapeHtml(block.placement || "")} · ${(block.slots || []).length} полей ${recipeBadge}</div>
@@ -1000,6 +1298,14 @@ function makeCanvasCard(entry, block) {
         <button title="Удалить" data-act="del">✕</button>
       </div>`;
   li.addEventListener("click", (e) => { if (e.target.closest("button")) return; selectCanvas(entry.uid); });
+  li.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Меню всегда работает с тем блоком, по которому кликнули, поэтому сначала
+    // выделяем его: иначе Ctrl+C после меню скопировал бы предыдущий выбор.
+    if (!sameUid(state.selectedUid, entry.uid)) selectCanvas(entry.uid);
+    openCanvasContextMenu(e.clientX, e.clientY, entry.uid);
+  });
   li.querySelector('[data-act="up"]').addEventListener("click", (e) => { e.stopPropagation(); moveInCanvas(entry.uid, -1); });
   li.querySelector('[data-act="down"]').addEventListener("click", (e) => { e.stopPropagation(); moveInCanvas(entry.uid, +1); });
   li.querySelector('[data-act="del"]').addEventListener("click", (e) => { e.stopPropagation(); removeFromCanvas(entry.uid); });
@@ -1023,6 +1329,353 @@ function makeCanvasCard(entry, block) {
   });
   return li;
 }
+
+/* ─── Буфер блоков: копировать / вырезать / вставить / дублировать ─────────
+ * Копируется всё поддерево вместе со значениями слотов и оформлением, а не
+ * один узел: комбо и секции с наполнением иначе вставлялись бы пустыми.
+ * Uid'ы в буфере нормализуются в 0..N, при вставке выдаются свежие — два
+ * экземпляра одного блока не должны делить идентификатор.
+ * Дублируется и в localStorage, чтобы копия переживала перезагрузку вкладки.
+ */
+const BLOCK_CLIPBOARD_KEY = "retkit.blockClipboard.v1";
+let _blockClipboard = null;
+
+function readBlockClipboard() {
+  if (_blockClipboard) return _blockClipboard;
+  try {
+    const raw = localStorage.getItem(BLOCK_CLIPBOARD_KEY);
+    if (raw) _blockClipboard = JSON.parse(raw);
+  } catch { /* приватный режим / переполнение — работаем в памяти */ }
+  return _blockClipboard;
+}
+
+function writeBlockClipboard(clip) {
+  _blockClipboard = clip;
+  try { localStorage.setItem(BLOCK_CLIPBOARD_KEY, JSON.stringify(clip)); } catch { /* не критично */ }
+  updateClipboardAffordances();
+}
+
+/** Поддерево блока в переносимом виде: корень всегда uid 0, parentUid null. */
+function serializeSubtree(uid) {
+  const root = entryByUid(uid);
+  if (!root) return null;
+  const ids = descendantUids(uid);
+  ids.add(String(uid));
+  const bundle = state.canvas.filter((e) => ids.has(String(e.uid)));
+  // Порядок важен: сначала корень, дальше в исходном порядке канваса —
+  // так вставка сохраняет и вложенность, и очерёдность соседей.
+  const ordered = [root, ...bundle.filter((e) => !sameUid(e.uid, uid))];
+  const remap = new Map(ordered.map((e, i) => [String(e.uid), i]));
+  return {
+    label: blockForEntry(root)?.label || root.blockId,
+    entries: ordered.map((e, i) => ({
+      uid: i,
+      blockId: e.blockId || e.id,
+      blockSource: e.blockSource || e.source || undefined,
+      parentUid: i === 0 ? null : (remap.has(String(e.parentUid)) ? remap.get(String(e.parentUid)) : null),
+      slotId: i === 0 ? null : e.slotId,
+      slots: e.slots ? JSON.parse(JSON.stringify(e.slots)) : {},
+      ...(e.explicitSlots ? { explicitSlots: [...e.explicitSlots] } : {}),
+      ...(e.appearance ? { appearance: { ...e.appearance } } : {}),
+    })),
+    rootPlacement: placementOf(blockForEntry(root)) || null,
+  };
+}
+
+/** Разложить буфер на канвас под указанного родителя. */
+function instantiateClipboard(clip, { parentUid, slotId }) {
+  const created = [];
+  const uidMap = new Map();
+  for (const item of clip.entries) {
+    const block = blockById(item.blockId, item.blockSource);
+    if (!block) continue;  // блок удалили из библиотеки после копирования
+    const entry = createEntry(block, {
+      blockSource: item.blockSource,
+      parentUid: item.parentUid == null ? parentUid : uidMap.get(item.parentUid),
+      slotId: item.parentUid == null ? slotId : item.slotId,
+      slots: item.slots,
+      explicitSlots: item.explicitSlots,
+      appearance: item.appearance,
+    });
+    uidMap.set(item.uid, entry.uid);
+    created.push(entry);
+  }
+  return created;
+}
+
+function copyBlock(uid) {
+  const clip = serializeSubtree(uid);
+  if (!clip) return false;
+  writeBlockClipboard(clip);
+  flashCanvasHint(`Скопировано: ${clip.label}${clip.entries.length > 1 ? ` (+${clip.entries.length - 1} внутри)` : ""}`);
+  return true;
+}
+
+function cutBlock(uid) {
+  if (!copyBlock(uid)) return;
+  removeFromCanvas(uid);
+}
+
+/**
+ * Вставка. По умолчанию — соседом сразу после цели: это единственное место,
+ * где вставка заведомо корректна структурно (раз цель там стоит, то и копия
+ * влезет). `inside: true` кладёт внутрь цели, если её слот принимает такой блок.
+ */
+function pasteBlock(targetUid, { inside = false } = {}) {
+  const clip = readBlockClipboard();
+  if (!clip || !clip.entries?.length) { flashCanvasHint("Буфер пуст"); return; }
+
+  const rootBlock = blockById(clip.entries[0].blockId, clip.entries[0].blockSource);
+  if (!rootBlock) { flashCanvasHint("Блок из буфера больше не существует в библиотеке"); return; }
+
+  const target = entryByUid(targetUid) || entryByUid(state.selectedUid);
+  let parentUid = null;
+  let slotId = null;
+  let afterUid = null;
+
+  if (target && inside) {
+    const slot = chooseChildSlot(blockForEntry(target), rootBlock);
+    if (!slot) { flashCanvasHint("Этот блок нельзя положить внутрь выбранного"); return; }
+    parentUid = target.uid;
+    slotId = slot.id;
+  } else if (target && target.parentUid != null) {
+    const parent = entryByUid(target.parentUid);
+    const siblingSlot = childSlotsFor(blockForEntry(parent))
+      .find((candidate) => candidate.id === target.slotId);
+    if (!parent || !siblingSlot || !slotAcceptsBlock(siblingSlot, rootBlock)) {
+      flashCanvasHint("Этот блок нельзя вставить рядом: родительский слот принимает другой уровень блоков");
+      return;
+    }
+    parentUid = parent.uid;
+    slotId = siblingSlot.id;
+    afterUid = target.uid;
+  } else {
+    // Ничего не выбрано (или выбрана внешняя обёртка) — кладём как секцию.
+    const outer = ensureOuterForMutation();
+    if (!outer) { flashCanvasHint("Некуда вставить: на канвасе нет обёртки письма"); return; }
+    const slot = chooseChildSlot(blockForEntry(outer), rootBlock);
+    if (!slot) { flashCanvasHint("Этот блок нельзя вставить на верхний уровень письма"); return; }
+    parentUid = outer.uid;
+    slotId = slot.id;
+  }
+
+  pushCanvasUndo();
+  const created = instantiateClipboard(clip, { parentUid, slotId });
+  if (!created.length) { _canvasUndo.pop(); flashCanvasHint("Нечего вставлять"); return; }
+  state.canvas.push(...created);
+  if (afterUid != null) {
+    const siblings = childrenOf(parentUid, slotId).map((e) => e.uid);
+    const rootUid = created[0].uid;
+    const withoutRoot = siblings.filter((u) => !sameUid(u, rootUid));
+    const at = withoutRoot.findIndex((u) => sameUid(u, afterUid));
+    withoutRoot.splice(at < 0 ? withoutRoot.length : at + 1, 0, rootUid);
+    rebuildCanvasOrder(parentUid, slotId, withoutRoot);
+  }
+  normalizeCanvasOrder();
+  finishCanvasMutation(created[0].uid);
+  flashCanvasHint(`Вставлено: ${clip.label}`);
+}
+
+function duplicateBlock(uid) {
+  const entry = entryByUid(uid);
+  if (!entry) return;
+  const saved = readBlockClipboard();
+  const clip = serializeSubtree(uid);
+  if (!clip) return;
+  _blockClipboard = clip;
+  pasteBlock(uid, { inside: false });
+  // Дублирование не должно молча затирать то, что человек копировал раньше.
+  if (saved) _blockClipboard = saved;
+}
+
+/** Короткая подсказка в углу канваса вместо alert'ов на каждое действие. */
+let _canvasHintTimer = null;
+function flashCanvasHint(text) {
+  let el = document.getElementById("canvasHint");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "canvasHint";
+    el.className = "canvas-hint";
+    document.body.appendChild(el);
+  }
+  el.textContent = text;
+  el.classList.add("visible");
+  clearTimeout(_canvasHintTimer);
+  _canvasHintTimer = setTimeout(() => el.classList.remove("visible"), 1800);
+}
+
+/** Пункты меню, зависящие от буфера, должны гаснуть, когда он пуст. */
+function updateClipboardAffordances() {
+  const has = Boolean(readBlockClipboard()?.entries?.length);
+  document.querySelectorAll("[data-needs-clipboard]").forEach((el) => {
+    el.disabled = !has;
+    el.classList.toggle("disabled", !has);
+  });
+}
+
+/* ─── Контекстное меню блока на канвасе ──────────────────────────────────── */
+
+function closeCanvasContextMenu() {
+  document.querySelector(".canvas-ctx-menu")?.remove();
+}
+
+function openCanvasContextMenu(x, y, uid) {
+  closeCanvasContextMenu();
+  const entry = entryByUid(uid);
+  if (!entry) return;
+  const block = blockForEntry(entry);
+  const clip = readBlockClipboard();
+  const clipRoot = clip?.entries?.length ? blockById(clip.entries[0].blockId, clip.entries[0].blockSource) : null;
+  const canPasteInside = Boolean(clipRoot && chooseChildSlot(block, clipRoot));
+  const siblings = entry.parentUid == null ? [] : childrenOf(entry.parentUid, entry.slotId);
+  const index = siblings.findIndex((c) => sameUid(c.uid, entry.uid));
+
+  const items = [
+    { key: "copy", label: "Копировать", hint: "Ctrl+C" },
+    { key: "cut", label: "Вырезать", hint: "Ctrl+X" },
+    { key: "duplicate", label: "Дублировать", hint: "Ctrl+D" },
+    { separator: true },
+    { key: "paste", label: "Вставить после", hint: "Ctrl+V", disabled: !clipRoot },
+    { key: "paste-inside", label: "Вставить внутрь", disabled: !canPasteInside },
+    { separator: true },
+    { key: "up", label: "Переместить выше", disabled: index <= 0 },
+    { key: "down", label: "Переместить ниже", disabled: index < 0 || index >= siblings.length - 1 },
+    { separator: true },
+    { key: "code", label: "Открыть код блока" },
+    { key: "ai", label: "Обсудить с ИИ" },
+    { key: "delete", label: "Удалить", hint: "Delete", danger: true },
+  ];
+
+  const menu = renderContextMenu(x, y, items);
+
+  menu.addEventListener("click", (ev) => {
+    const btn = ev.target.closest("[data-ctx]");
+    if (!btn || btn.disabled) return;
+    closeCanvasContextMenu();
+    switch (btn.dataset.ctx) {
+      case "copy": copyBlock(uid); break;
+      case "cut": cutBlock(uid); break;
+      case "duplicate": duplicateBlock(uid); break;
+      case "paste": pasteBlock(uid, { inside: false }); break;
+      case "paste-inside": pasteBlock(uid, { inside: true }); break;
+      case "up": moveInCanvas(uid, -1); break;
+      case "down": moveInCanvas(uid, +1); break;
+      case "code": selectCanvas(uid); openBlockAuthor(block, { asNew: true }); break;
+      case "ai": discussBlockWithAi(block, entry); break;
+      case "delete": removeFromCanvas(uid); break;
+    }
+  });
+}
+
+/** Общая отрисовка меню: и для блока в письме, и для карточки каталога. */
+function renderContextMenu(x, y, items) {
+  const menu = document.createElement("div");
+  menu.className = "canvas-ctx-menu";
+  menu.setAttribute("role", "menu");
+  menu.innerHTML = items.map((item) => item.separator
+    ? `<div class="ctx-sep"></div>`
+    : `<button type="button" role="menuitem" data-ctx="${item.key}" ${item.disabled ? "disabled" : ""}
+         class="${item.danger ? "ctx-danger" : ""}">
+         <span>${escapeHtml(item.label)}</span>${item.hint ? `<kbd>${escapeHtml(item.hint)}</kbd>` : ""}
+       </button>`).join("");
+  document.body.appendChild(menu);
+
+  // Держим меню в пределах экрана — у нижних блоков оно иначе уезжает за край.
+  const rect = menu.getBoundingClientRect();
+  menu.style.left = `${Math.max(8, Math.min(x, window.innerWidth - rect.width - 8))}px`;
+  menu.style.top = `${Math.max(8, Math.min(y, window.innerHeight - rect.height - 8))}px`;
+
+  const dismiss = (ev) => {
+    if (menu.contains(ev.target)) return;
+    closeCanvasContextMenu();
+    document.removeEventListener("mousedown", dismiss, true);
+  };
+  document.addEventListener("mousedown", dismiss, true);
+  return menu;
+}
+
+/** ПКМ по карточке каталога: добавить, посмотреть, спросить у оператора. */
+function openCatalogContextMenu(x, y, block) {
+  closeCanvasContextMenu();
+  if (!block) return;
+  const usable = blockCatalogUsable(block);
+  const group = block.preview?.group;
+  const items = [
+    { key: "add", label: "Добавить в письмо", disabled: !usable },
+    { key: "view", label: "Посмотреть исходник" },
+    { key: "copy-id", label: "Скопировать id блока" },
+    { separator: true },
+    { key: "similar", label: `Показать похожие${group?.size > 1 ? ` (${group.size - 1})` : ""}`, disabled: !(group?.size > 1) },
+    { key: "ai", label: "Обсудить с ИИ" },
+    ...(block.source === "user" ? [{ separator: true }, { key: "edit", label: "Редактировать блок" }] : []),
+  ];
+  const menu = renderContextMenu(x, y, items);
+  menu.addEventListener("click", (ev) => {
+    const btn = ev.target.closest("[data-ctx]");
+    if (!btn || btn.disabled) return;
+    closeCanvasContextMenu();
+    switch (btn.dataset.ctx) {
+      case "add": addToCanvas(block, { origin: "catalog-menu" }); break;
+      case "view": openBlockView(block); break;
+      case "copy-id":
+        navigator.clipboard?.writeText(block.id).catch(() => {});
+        flashCanvasHint(`Скопирован id: ${block.id}`);
+        break;
+      case "similar":
+        openBlockGallery();
+        _galleryState.expandedGroup = group.id;
+        _galleryState.ignoreContext = true;
+        setTimeout(() => {
+          const box = $("galleryIgnoreContext");
+          if (box) box.checked = true;
+          renderGallery();
+        }, 30);
+        break;
+      case "ai": discussBlockWithAi(block, null); break;
+      case "edit": openBlockAuthor(block); break;
+    }
+  });
+}
+
+/**
+ * Открыть оператора с этим блоком в контексте. Вопрос не задаём за человека —
+ * подставляем заготовку в поле ввода, чтобы он дописал своё и отправил.
+ */
+function discussBlockWithAi(block, entry) {
+  const chat = ensureStudioChat();
+  if (!chat) { alert("Панель оператора не загрузилась — обнови страницу"); return; }
+  chat.mount();
+  chat.open();
+  const name = block?.label || block?.id || "блок";
+  const where = entry ? " в этом письме" : "";
+  const draft = `Блок «${name}» (id: ${block?.id})${where}. `;
+  if (chat.input && !chat.input.value.trim()) {
+    chat.input.value = draft;
+    chat.input.focus();
+    chat.input.setSelectionRange(draft.length, draft.length);
+  }
+}
+
+/* ─── Горячие клавиши буфера ─────────────────────────────────────────────── */
+
+function isTypingTarget(el) {
+  if (!el) return false;
+  const tag = el.tagName;
+  return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || el.isContentEditable;
+}
+
+document.addEventListener("keydown", (e) => {
+  if (!(e.metaKey || e.ctrlKey) || e.altKey) return;
+  // Пока курсор в поле ввода, Ctrl+C/V принадлежат тексту, а не блокам.
+  if (isTypingTarget(document.activeElement)) return;
+  const key = String(e.key || "").toLowerCase();
+  const uid = state.selectedUid;
+
+  if (key === "c" && uid != null) { e.preventDefault(); copyBlock(uid); return; }
+  if (key === "x" && uid != null) { e.preventDefault(); cutBlock(uid); return; }
+  if (key === "d" && uid != null) { e.preventDefault(); duplicateBlock(uid); return; }
+  if (key === "v") { e.preventDefault(); pasteBlock(uid, { inside: false }); return; }
+});
 
 function isChildPlacement(p) { return p === "inner" || p === "inline" || p === "both"; }
 
@@ -1273,6 +1926,108 @@ function showInsertionIndicator(canvasEl, insertAt) {
   }
 }
 
+/* ─── Фактически применённые стили блока ─────────────────────────────────
+ * Поля «Поверхность блока» показывали только ПЕРЕОПРЕДЕЛЕНИЕ: пока его нет,
+ * поле пустое с подсказкой «как в блоке / #RRGGBB», и человек не видит, какой
+ * же цвет там на самом деле. Правильный источник правды — не JSON блока
+ * (в нём значения могут быть слотами, классами или вовсе прийти из семьи),
+ * а то, что реально посчитал браузер в живом превью.
+ *
+ * Значение поля НЕ подменяем: пустое поле по-прежнему значит «как в блоке»,
+ * иначе сброс и «унаследовать» перестанут работать. Показываем отдельной
+ * строкой «сейчас: …» со свотчем.
+ */
+const APPLIED_STYLE_READERS = {
+  background_color(cs, el) {
+    // Прозрачный корень блока — обычное дело: фон рисует ячейка внутри.
+    // Идём вглубь до первого непрозрачного, иначе покажем «нет фона» там,
+    // где человек отчётливо видит цвет.
+    let node = el;
+    let guard = 0;
+    while (node && guard++ < 4) {
+      const value = node.ownerDocument.defaultView.getComputedStyle(node).backgroundColor;
+      if (value && value !== "rgba(0, 0, 0, 0)" && value !== "transparent") return value;
+      node = node.querySelector?.("td, div, table") || null;
+    }
+    return "прозрачный";
+  },
+  border(cs) {
+    const width = parseFloat(cs.borderTopWidth) || 0;
+    if (!width) return "нет";
+    return `${cs.borderTopWidth} ${cs.borderTopStyle} ${cs.borderTopColor}`;
+  },
+  radius(cs) {
+    const r = cs.borderTopLeftRadius;
+    return !r || r === "0px" ? "нет" : r;
+  },
+  padding(cs, el) {
+    const read = (node) => {
+      const s = node.ownerDocument.defaultView.getComputedStyle(node);
+      return [s.paddingTop, s.paddingRight, s.paddingBottom, s.paddingLeft];
+    };
+    let parts = read(el);
+    // padding применяется к первой email-ячейке, а не к корню таблицы —
+    // читаем оттуда же, куда его и пишем.
+    if (parts.every((p) => parseFloat(p) === 0)) {
+      const cell = el.querySelector?.("td");
+      if (cell) parts = read(cell);
+    }
+    if (parts.every((p) => parseFloat(p) === 0)) return "нет";
+    const [t, r, b, l] = parts;
+    if (t === r && r === b && b === l) return t;
+    if (t === b && r === l) return `${t} ${r}`;
+    return `${t} ${r} ${b} ${l}`;
+  },
+};
+
+/** uid → { background_color, border, radius, padding } из живого превью. */
+let _appliedStyles = new Map();
+
+function refreshAppliedStyles() {
+  const doc = iframeDoc();
+  if (!doc || !doc.defaultView) return;
+  const next = new Map();
+  for (const range of _blockRanges) {
+    const el = range.firstEl;
+    if (!el || el.nodeType !== 1) continue;
+    let cs;
+    try { cs = doc.defaultView.getComputedStyle(el); } catch { continue; }
+    const applied = {};
+    for (const [key, read] of Object.entries(APPLIED_STYLE_READERS)) {
+      try { applied[key] = read(cs, el); } catch { /* пропускаем нечитаемое */ }
+    }
+    next.set(String(range.uid), applied);
+  }
+  _appliedStyles = next;
+}
+
+function appliedStyleFor(uid, key) {
+  return _appliedStyles.get(String(uid))?.[key] ?? null;
+}
+
+/** Строка «сейчас: …» под полем переопределения. */
+function appliedStyleNote(uid, key) {
+  const value = appliedStyleFor(uid, key);
+  if (!value) return "";
+  const isColor = /^rgba?\(/.test(value);
+  const swatch = isColor
+    ? `<span class="applied-swatch" style="background:${escapeHtml(value)}"></span>`
+    : "";
+  const shown = isColor ? rgbToHex(value) || value : value;
+  return `<div class="insp-applied" title="Значение, которое реально применено к блоку прямо сейчас">
+      ${swatch}<span class="insp-applied-label">сейчас</span><code>${escapeHtml(shown)}</code>
+    </div>`;
+}
+
+/** rgb(255, 119, 0) → #ff7700; всё остальное отдаём как есть. */
+function rgbToHex(value) {
+  const m = /^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)$/.exec(String(value).trim());
+  if (!m) return null;
+  if (m[4] !== undefined && Number(m[4]) === 0) return "прозрачный";
+  const hex = "#" + [m[1], m[2], m[3]].map((n) => Number(n).toString(16).padStart(2, "0")).join("");
+  return m[4] !== undefined && Number(m[4]) < 1 ? `${hex} (${Math.round(Number(m[4]) * 100)}%)` : hex;
+}
+
 // ─── Inspector ──────────────────────────────────────────────────────────
 const COMMON_APPEARANCE_FIELDS = Object.freeze([
   { key: "background_color", label: "Фон блока", kind: "color", slotIds: ["background_color", "bg_color"] },
@@ -1310,6 +2065,23 @@ function renderFallbackAppearanceControl(binding, entry, block) {
   return `<div class="insp-slot insp-style-slot style-${escapeHtml(binding.key)}">${label}<div class="insp-value-row"><input type="text" data-appearance-id="${id}" value="${escapeHtml(value)}" placeholder="${escapeHtml(placeholder)}" maxlength="180" />${reset}</div></div>`;
 }
 
+/**
+ * Точечно обновить строки «сейчас: …» в открытом инспекторе.
+ * Полная перерисовка тут не годится: она сбрасывает фокус и каретку в поле,
+ * которое человек прямо сейчас редактирует, — а превью пересобирается как
+ * раз после его правок.
+ */
+function refreshInspectorAppliedNotes() {
+  const uid = state.selectedUid;
+  if (uid == null) return;
+  document.querySelectorAll("[data-applied-for]").forEach((holder) => {
+    const markup = appliedStyleNote(uid, holder.dataset.appliedFor);
+    const existing = holder.querySelector(":scope > .insp-applied");
+    if (existing) existing.remove();
+    if (markup) holder.insertAdjacentHTML("beforeend", markup);
+  });
+}
+
 function renderCommonAppearance(block, entry, bindings) {
   const hint = placementOf(block) === "outer"
     ? "Фон применяется к реальным body, внешней таблице и оболочке письма."
@@ -1317,9 +2089,15 @@ function renderCommonAppearance(block, entry, bindings) {
   return `<section class="insp-group insp-surface-group" data-group="surface">
     <div class="insp-group-title"><span>◐</span><span>Поверхность блока</span><button type="button" class="insp-reset-appearance" data-reset-appearance-all title="Вернуть оформление к настройкам блока">Сбросить</button></div>
     <div class="insp-surface-hint">${hint}</div>
-    ${bindings.map((binding) => binding.slot
-      ? renderSlotControl(binding.slot, entry.slots[binding.slot.id], block)
-      : renderFallbackAppearanceControl(binding, entry, block)).join("")}
+    ${bindings.map((binding) => {
+      // Заметка «сейчас: …» вешается на ОБА варианта поля. Раньше она была
+      // только у fallback-контрола, и у блоков, где фон/рамка/радиус заведены
+      // настоящими слотами, фактическое значение так и не показывалось.
+      const control = binding.slot
+        ? renderSlotControl(binding.slot, entry.slots[binding.slot.id], block)
+        : renderFallbackAppearanceControl(binding, entry, block);
+      return `<div class="insp-surface-field" data-applied-for="${escapeHtml(binding.key)}">${control}${appliedStyleNote(entry?.uid, binding.key)}</div>`;
+    }).join("")}
   </section>`;
 }
 
@@ -1394,12 +2172,38 @@ function renderInspector() {
       if (el.dataset.undoCaptured === "1") return;
       pushCanvasUndo();
       el.dataset.undoCaptured = "1";
+      const id = el.getAttribute("data-slot-id");
+      const slot = (block.slots || []).find((candidate) => candidate.id === id);
+      if (String(slot?.kind || "").toLowerCase() === "image") {
+        el.dataset.lastPublicAssetValue = String(entry.slots[id] || "");
+        el.dataset.lastPublicAssetExplicit = Array.isArray(entry.explicitSlots)
+          && entry.explicitSlots.includes(String(id)) ? "1" : "0";
+      }
     });
-    el.addEventListener("blur", () => { delete el.dataset.undoCaptured; });
+    el.addEventListener("blur", () => {
+      delete el.dataset.undoCaptured;
+      if (el.validationMessage && el.dataset.lastPublicAssetValue !== undefined) {
+        const id = el.getAttribute("data-slot-id");
+        entry.slots[id] = el.dataset.lastPublicAssetValue;
+        if (el.dataset.lastPublicAssetExplicit === "1") markEntrySlotExplicit(entry, id);
+        else clearEntrySlotExplicit(entry, id);
+        el.value = el.dataset.lastPublicAssetValue;
+        el.setCustomValidity("");
+        flashCanvasHint("Локальный /studio-assets URL не применён: вставь публичный HTTPS-адрес");
+      }
+      delete el.dataset.lastPublicAssetValue;
+      delete el.dataset.lastPublicAssetExplicit;
+    });
     el.addEventListener("input", () => {
       const id = el.getAttribute("data-slot-id");
       let v = el.value;
       if (el.type === "number") v = Number(v);
+      const slot = (block.slots || []).find((candidate) => candidate.id === id);
+      if (String(slot?.kind || "").toLowerCase() === "image" && isLocalStudioAssetUrl(v)) {
+        el.setCustomValidity("Локальный /studio-assets URL нельзя отправить получателям. Укажи публичный HTTPS-адрес.");
+        return;
+      }
+      el.setCustomValidity("");
       entry.slots[id] = v;
       markEntrySlotExplicit(entry, id);
       // Keep the paired color text/swatch inputs in sync.
@@ -1684,11 +2488,16 @@ function renderSlotControl(slot, current, block) {
 
 function setEntrySlotValue(entry, slotId, value) {
   if (!entry || !slotId) return;
+  if (isLocalStudioAssetUrl(value)) {
+    flashCanvasHint("Локальный /studio-assets URL не применён: для письма нужен публичный HTTPS-адрес");
+    return false;
+  }
   pushCanvasUndo();
   entry.slots[slotId] = value;
   markEntrySlotExplicit(entry, slotId);
   renderInspector();
   scheduleLivePreview(100);
+  return true;
 }
 
 function closeAssetModal() {
@@ -1710,31 +2519,148 @@ function createAssetModal(title, bodyHtml, footerHtml = "") {
   return modal;
 }
 
+const LOCAL_STUDIO_ASSET_PREFIX = "/studio-assets/";
+let _assetStorageStatusCache = null;
+let _assetStorageStatusRequest = null;
+
+/**
+ * `/studio-assets/…` is a preview-only path served by the Studio process.
+ * Even when somebody pastes an absolute URL with that path, it still points
+ * at app-local/ephemeral storage and must not leak into the sent email.
+ */
+function isLocalStudioAssetUrl(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return false;
+  if (/^\/studio-assets(?:\/|$)/i.test(raw)) return true;
+  try {
+    return /^\/studio-assets(?:\/|$)/i.test(new URL(raw).pathname);
+  } catch {
+    return false;
+  }
+}
+
+function isPrivateEmailAssetHostname(hostname) {
+  const host = String(hostname || "").trim().toLowerCase().replace(/^\[|\]$/g, "").replace(/\.$/, "");
+  if (!host) return false;
+  if (host === "localhost" || host.endsWith(".localhost") || host.endsWith(".local")) return true;
+  const ipv4 = host.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (ipv4) {
+    const octets = ipv4.slice(1).map(Number);
+    if (octets.some((part) => part > 255)) return true;
+    const [a, b] = octets;
+    return a === 0
+      || a === 10
+      || a === 127
+      || (a === 169 && b === 254)
+      || (a === 172 && b >= 16 && b <= 31)
+      || (a === 192 && b === 168)
+      || (a === 100 && b >= 64 && b <= 127);
+  }
+  if (host.includes(":")) {
+    return host === "::"
+      || host === "::1"
+      || host === "0:0:0:0:0:0:0:1"
+      || /^f[cd][0-9a-f]*:/i.test(host)
+      || /^fe[89ab][0-9a-f]*:/i.test(host)
+      || host.startsWith("::ffff:");
+  }
+  return false;
+}
+
+function isPublicEmailAssetUrl(value) {
+  const raw = String(value || "").trim();
+  if (!raw || isLocalStudioAssetUrl(raw)) return false;
+  try {
+    const parsed = new URL(raw.startsWith("//") ? `https:${raw}` : raw);
+    return (parsed.protocol === "https:" || parsed.protocol === "http:")
+      && !isPrivateEmailAssetHostname(parsed.hostname);
+  } catch {
+    return false;
+  }
+}
+
+async function loadAssetStorageStatus() {
+  if (_assetStorageStatusCache) return _assetStorageStatusCache;
+  if (_assetStorageStatusRequest) return _assetStorageStatusRequest;
+  _assetStorageStatusRequest = fetch("/api/assets/status")
+    .then(async (response) => {
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
+      _assetStorageStatusCache = data;
+      return data;
+    })
+    .catch((error) => ({
+      driver: "unknown",
+      ready: false,
+      publicUrls: false,
+      note: `Не удалось проверить публичность хранилища: ${error.message}`,
+    }))
+    .finally(() => { _assetStorageStatusRequest = null; });
+  return _assetStorageStatusRequest;
+}
+
+/** URL, который можно безопасно записать в разметку отправляемого письма. */
 function preferredAssetUrl(item) {
-  return item?.externalUrl || item?.preferredUrl || item?.localUrl || "";
+  const candidates = [item?.externalUrl, item?.preferredUrl, item?.url];
+  return candidates.find((candidate) => isPublicEmailAssetUrl(candidate)) || "";
+}
+
+/** URL только для миниатюры внутри Studio; он никогда не пишется в письмо. */
+function assetPreviewUrl(item) {
+  return preferredAssetUrl(item) || item?.localUrl || "";
+}
+
+function nonPublicAssetMessage(status) {
+  const storageNote = String(status?.note || "").trim();
+  return "Этот файл доступен только внутри Studio по /studio-assets/ и не откроется у получателей."
+    + (storageNote ? `\n\n${storageNote}` : "")
+    + "\n\nВставь публичный HTTPS-адрес картинки:";
+}
+
+async function applyAssetItemToSlot(entry, slotId, item, status = null) {
+  const publicUrl = preferredAssetUrl(item);
+  if (publicUrl) return setEntrySlotValue(entry, slotId, publicUrl);
+
+  const storageStatus = status || await loadAssetStorageStatus();
+  const externalUrl = prompt(nonPublicAssetMessage(storageStatus), String(item?.externalUrl || ""));
+  if (externalUrl == null || !String(externalUrl).trim()) {
+    flashCanvasHint("Локальная картинка сохранена в библиотеке, но не применена к письму без публичного URL");
+    return false;
+  }
+  if (!isPublicEmailAssetUrl(externalUrl)) {
+    alert("Нужен полный внешний URL вида https://cdn.example.com/image.png. Локальный /studio-assets/ использовать нельзя.");
+    return false;
+  }
+  return setEntrySlotValue(entry, slotId, String(externalUrl).trim());
 }
 
 async function openAssetPicker(entry, slotId) {
   const modal = createAssetModal("Библиотека изображений", `<div class="asset-status">Загружаю библиотеку…</div>`);
   const body = modal.querySelector(".asset-dialog-body");
   try {
-    const response = await fetch("/api/assets");
+    const [response, storageStatus] = await Promise.all([
+      fetch("/api/assets"),
+      loadAssetStorageStatus(),
+    ]);
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
-    const items = (data.items || []).filter((item) => String(item.mimeType || "").startsWith("image/") && preferredAssetUrl(item));
+    const items = (data.items || []).filter((item) => (
+      String(item.mimeType || "").startsWith("image/") && assetPreviewUrl(item)
+    ));
     if (!items.length) {
       body.innerHTML = `<div class="asset-status">В библиотеке пока нет изображений. Используй «Загрузить» рядом с полем.</div>`;
       return;
     }
-    body.innerHTML = `<div class="asset-grid">${items.map((item) => `<button class="asset-card" type="button" data-asset-id="${escapeHtml(item.id)}">
-      <img src="${escapeHtml(preferredAssetUrl(item))}" alt="${escapeHtml(item.alt || item.label || "")}" loading="lazy" />
-      <span>${escapeHtml(item.label || item.fileName || item.id)}</span>
+    const storageWarning = storageStatus?.publicUrls ? "" : `<div class="asset-status asset-status-warning">
+      Локальные файлы можно смотреть в Studio, но в письмо они попадут только после указания публичного HTTPS-адреса.
+    </div>`;
+    body.innerHTML = `${storageWarning}<div class="asset-grid">${items.map((item) => `<button class="asset-card" type="button" data-asset-id="${escapeHtml(item.id)}">
+      <img src="${escapeHtml(assetPreviewUrl(item))}" alt="${escapeHtml(item.alt || item.label || "")}" loading="lazy" />
+      <span>${escapeHtml(item.label || item.fileName || item.id)}${preferredAssetUrl(item) ? "" : " · только Studio"}</span>
     </button>`).join("")}</div>`;
-    body.querySelectorAll("[data-asset-id]").forEach((button) => button.addEventListener("click", () => {
+    body.querySelectorAll("[data-asset-id]").forEach((button) => button.addEventListener("click", async () => {
       const item = items.find((candidate) => candidate.id === button.dataset.assetId);
-      const url = preferredAssetUrl(item);
-      if (url) setEntrySlotValue(entry, slotId, url);
-      closeAssetModal();
+      if (await applyAssetItemToSlot(entry, slotId, item, storageStatus)) closeAssetModal();
     }));
   } catch (error) {
     body.innerHTML = `<div class="asset-status">Не удалось открыть библиотеку: ${escapeHtml(error.message)}</div>`;
@@ -1764,10 +2690,15 @@ function uploadAssetForSlot(entry, slotId) {
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
         const item = data.items?.[0];
-        const url = preferredAssetUrl(item);
-        if (!url) throw new Error("Сервер не вернул URL изображения");
-        setEntrySlotValue(entry, slotId, url);
-        closeAssetModal();
+        if (!item) throw new Error("Сервер не вернул загруженное изображение");
+        const applied = await applyAssetItemToSlot(entry, slotId, item);
+        if (applied) {
+          closeAssetModal();
+        } else {
+          modal.querySelector(".asset-dialog-body").innerHTML = `<div class="asset-status">
+            Файл сохранён в библиотеке, но не применён к письму: укажи для него публичный HTTPS-адрес.
+          </div>`;
+        }
       } catch (error) {
         modal.querySelector(".asset-dialog-body").innerHTML = `<div class="asset-status">Ошибка загрузки: ${escapeHtml(error.message)}</div>`;
       }
@@ -1814,10 +2745,14 @@ function openImageGenerator(entry, slotId, block) {
       });
       const data = await response.json();
       if (!response.ok || !data.ok) throw new Error(data.error || `HTTP ${response.status}`);
-      const url = preferredAssetUrl(data.item);
-      if (!url) throw new Error("Генератор не вернул URL изображения");
-      setEntrySlotValue(entry, slotId, url);
-      closeAssetModal();
+      if (!data.item) throw new Error("Генератор не вернул изображение");
+      const applied = await applyAssetItemToSlot(entry, slotId, data.item);
+      if (applied) {
+        closeAssetModal();
+      } else {
+        status.textContent = "Изображение сохранено в библиотеке, но не применено: нужен публичный HTTPS-адрес.";
+        button.disabled = false;
+      }
     } catch (error) {
       status.textContent = `Не получилось: ${error.message}`;
       button.disabled = false;
@@ -1826,7 +2761,35 @@ function openImageGenerator(entry, slotId, block) {
 }
 
 // Канва → массив для сборки. Для parsed-блоков передаём полный def (их нет в canonical).
-function canvasToBlocks() {
+function localCanvasAssetReferences() {
+  const findings = [];
+  for (const entry of state.canvas) {
+    for (const [slotId, value] of Object.entries(entry.slots || {})) {
+      if (!isLocalStudioAssetUrl(value)) continue;
+      findings.push({
+        uid: entry.uid,
+        blockId: entry.blockId || entry.id,
+        slotId,
+        value: String(value),
+      });
+    }
+  }
+  return findings;
+}
+
+function assertCanvasAssetsPublic() {
+  const localAssets = localCanvasAssetReferences();
+  if (!localAssets.length) return;
+  const first = localAssets[0];
+  throw new Error(
+    `Нельзя собрать письмо: ${first.blockId}.${first.slotId} содержит локальный /studio-assets URL. `
+    + "Открой свойства блока и укажи публичный HTTPS-адрес изображения.",
+  );
+}
+
+function canvasToBlocks(options) {
+  const allowLocalAssets = options?.allowLocalAssets === true;
+  if (!allowLocalAssets) assertCanvasAssetsPublic();
   return state.canvas.map((c) => {
     const b = blockForEntry(c);
     const out = {
@@ -1931,7 +2894,7 @@ async function runLivePreview() {
   overlay?.classList.remove("hidden");
   setLiveStatus("сборка…");
   try {
-    const blocks = canvasToBlocks();
+    const blocks = canvasToBlocks({ allowLocalAssets: true });
     const previewMailName = livePreviewRequestMailName($("mailName").value, token);
     const res = await fetch("/api/compose-preview", {
       method: "POST",
@@ -2037,6 +3000,9 @@ function indexIframeBlocks() {
       lastEl: prevElementBefore(e.node),
     });
   });
+  // Превью пересобралось — значит фактические стили могли поменяться.
+  refreshAppliedStyles();
+  refreshInspectorAppliedNotes();
 }
 
 function nextElementAfter(commentNode) {
@@ -2071,6 +3037,7 @@ function wireIframeInteractions() {
   // Listeners are attached to the fresh document on every load, so the flag is
   // per-document; reset by reload. We attach idempotently.
   doc.addEventListener("click", onIframeClick, true);
+  doc.addEventListener("contextmenu", onIframeContextMenu, true);
   doc.addEventListener("dragstart", onIframeBlockDragStart, true);
   doc.addEventListener("dragend", onIframeBlockDragEnd, true);
   doc.addEventListener("dragover", onIframeDragOver);
@@ -2105,6 +3072,24 @@ function onIframeClick(e) {
   e.preventDefault();
   const uid = entryByUid(r.uid)?.uid ?? r.uid;
   if (uid != null) selectCanvas(uid);
+}
+
+/**
+ * ПКМ по блоку прямо в письме. Человек смотрит на превью и кликает по тому,
+ * что видит, а не по строке в дереве — меню обязано открываться и здесь.
+ * Координаты пересчитываем из системы координат iframe в систему окна,
+ * иначе меню уедет на высоту шапки и на величину прокрутки.
+ */
+function onIframeContextMenu(e) {
+  const r = rangeForTarget(e.target);
+  if (!r) return;
+  e.preventDefault();
+  const uid = entryByUid(r.uid)?.uid ?? r.uid;
+  if (uid == null) return;
+  if (!sameUid(state.selectedUid, uid)) selectCanvas(uid);
+  const frame = $("liveFrame");
+  const box = frame ? frame.getBoundingClientRect() : { left: 0, top: 0 };
+  openCanvasContextMenu(box.left + e.clientX, box.top + e.clientY, uid);
 }
 
 function onIframeBlockDragStart(e) {
@@ -2336,7 +3321,7 @@ async function preview() {
   $("previewModal").classList.remove("hidden");
   $("previewFrame").srcdoc = "<p style='padding:32px;font-family:sans-serif'>Building…</p>";
   try {
-    const blocks = canvasToBlocks();
+    const blocks = canvasToBlocks({ allowLocalAssets: true });
     const res = await fetch("/api/compose-preview", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -2363,7 +3348,13 @@ async function save() {
     alert("Введи корректное имя письма (буквы, цифры, дефис, подчёркивание).");
     return;
   }
-  const blocks = canvasToBlocks();
+  let blocks;
+  try {
+    blocks = canvasToBlocks();
+  } catch (error) {
+    alert(error.message);
+    return;
+  }
   const brand = await chooseSaveTarget();
   if (!brand) return;
 
@@ -2860,6 +3851,84 @@ document.querySelectorAll(".cat-tab").forEach((tab) => {
   });
 });
 
+$("openGalleryBtn")?.addEventListener("click", openBlockGallery);
+
+/* ─── Оператор студии в конструкторе ────────────────────────────────────────
+ * Та же сущность, что и в коде письма: общий эндпоинт, общий набор
+ * инструментов, общая история. Конструктор лишь рассказывает о себе —
+ * какое дерево блоков собрано прямо сейчас.
+ */
+/**
+ * Применить правки канваса, которые агент накопил через update_canvas_block.
+ * Сервер их только передаёт: канвас существует лишь в браузере.
+ * Одна отмена на весь пакет — человек говорил одну фразу, откатывать он
+ * тоже захочет одним Ctrl+Z, а не по слоту.
+ */
+function applyAgentCanvasOps(ops) {
+  if (!Array.isArray(ops) || !ops.length) return;
+  const applied = [];
+  const missed = [];
+  pushCanvasUndo();
+  for (const op of ops) {
+    const entry = entryByUid(op?.uid);
+    if (!entry) { missed.push(op?.uid); continue; }
+    if (op.slots && typeof op.slots === "object") {
+      entry.slots = { ...(entry.slots || {}), ...op.slots };
+    }
+    if (op.appearance && typeof op.appearance === "object") {
+      entry.appearance = { ...(entry.appearance || {}), ...op.appearance };
+    }
+    applied.push(entry.uid);
+  }
+  if (!applied.length) {
+    _canvasUndo.pop();
+    flashCanvasHint(`Оператор не нашёл блок на канвасе${missed.length ? ` (uid ${missed.join(", ")})` : ""}`);
+    return;
+  }
+  if (applied.length) state.selectedUid = applied[0];
+  finishCanvasMutation(state.selectedUid);
+  flashCanvasHint(applied.length === 1
+    ? "Оператор изменил блок — Ctrl+Z отменит"
+    : `Оператор изменил ${applied.length} блока — Ctrl+Z отменит`);
+}
+
+let _studioChat = null;
+function ensureStudioChat() {
+  if (_studioChat) return _studioChat;
+  if (typeof StudioChat === "undefined") return null;
+  _studioChat = new StudioChat({
+    surface: "constructor",
+    title: "Оператор — конструктор",
+    buildContext: () => ({
+      // Дерево отдаём как есть: сервер не хранит несохранённый канвас,
+      // а агент должен видеть именно текущее состояние сборки.
+      canvas: state.canvas.map((e) => ({
+        uid: e.uid, blockId: e.blockId || e.id, blockSource: e.blockSource || e.source,
+        parentUid: e.parentUid, slotId: e.slotId, slots: e.slots || {},
+      })),
+      html: _lastLiveHtml || "",
+    }),
+    onResult: (payload) => {
+      applyAgentCanvasOps(payload?.canvasOps);
+      // Агент собрал письмо своим инструментом — предлагаем открыть результат,
+      // но не подменяем канвас молча: человек мог не этого хотеть.
+      if (payload?.composed?.brand && payload.composed.mailName) {
+        const { brand, mailName } = payload.composed;
+        if (confirm(`Оператор собрал письмо ${brand}/${mailName}. Открыть его в конструкторе?`)) {
+          loadParsedEmail(brand, `mail-${String(mailName).replace(/^mail-/, "")}`);
+        }
+      }
+    },
+  });
+  return _studioChat;
+}
+$("openChatBtn")?.addEventListener("click", () => ensureStudioChat()?.toggle());
+document.addEventListener("keydown", (e) => {
+  // Esc закрывает чат, но только если не открыто что-то поверх него.
+  if (e.key !== "Escape") return;
+  if (document.getElementById("blockGallery") || document.querySelector(".canvas-ctx-menu")) return;
+  _studioChat?.close();
+});
 $("paletteBlocksMode")?.addEventListener("click", () => setRailMode("blocks"));
 $("paletteOutlineMode")?.addEventListener("click", () => setRailMode("outline"));
 $("paletteAutoBtn")?.addEventListener("click", () => {

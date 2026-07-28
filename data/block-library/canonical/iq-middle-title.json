@@ -4,11 +4,10 @@
   "description": "p.middle-title 32px тёмный, pb32.",
   "placement": "inner",
   "category": "text",
-  "version": 2,
-  "source": "canonical",
+  "version": 3,
   "outlookSafe": true,
-  "pug": "p.middle-title.pb32.iq-middle-title(style=\"text-align:{{ align }}\") {{ text }}",
-  "styl": ".middle-title\n  font-family: Helvetica !important\n  font-weight: 700\n  font-size: 32px\n  line-height: 42px\n  color: #393A44\n  vertical-align: middle\n  @media screen and (max-width: 600px)\n    font-size 28px !important\n    line-height 34px !important",
+  "pug": "p.iq-middle-title--middle-title.iq-middle-title--pb32.iq-middle-title--iq-middle-title(style=\"text-align:{{ align }}\") {{ text }}",
+  "styl": ".iq-middle-title--middle-title\n  font-family: Helvetica !important\n  font-weight: 700\n  font-size: 32px\n  line-height: 42px\n  color: #393A44\n  vertical-align: middle\n  @media screen and (max-width: 600px)\n    font-size 28px !important\n    line-height 34px !important\n\n/* втянуто из стилей семьи при скоупе — блок больше не зависит от main.styl */\n.iq-middle-title--pb32{padding-bottom:32px}\n.iq-middle-title--iq-middle-title{color:#393a44;font-family:Helvetica, Arial, sans-serif !important;font-size:32px;font-weight:700;line-height:42px;margin:0;padding:0 0 32px;vertical-align:middle}\n@media screen and (max-width: 600px){\n.iq-middle-title--iq-middle-title{font-size:28px !important;line-height:34px !important}\n}",
   "slots": [
     {
       "id": "text",
@@ -29,5 +28,6 @@
       ],
       "uiGroup": "appearance"
     }
-  ]
+  ],
+  "scoped": true
 }

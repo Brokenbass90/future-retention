@@ -44,9 +44,16 @@ import { callOpenAiWithRetry, extractResponseText } from "./src/ai-client.js";
 import { placeholderizeHtml, fixLocaleTxt, translateLocaleTxt } from "./src/locale-ai.js";
 import { placeholderizePugSource } from "./src/pug-placeholderize.js";
 import { runAgent } from "./src/ai-agent.js";
+import {
+  isRequestBodyTooLarge,
+  readJsonRequestBody,
+  requestBodyResponseStatus,
+} from "./src/request-body.js";
 import os from "node:os";
 import * as fsLink from "node:fs";
 import { composeEmailFromBlocks, listCanonicalBlocks, userBlockPath } from "./src/compose-email.js";
+import { attachPreviews, resolvePreviewFile } from "./src/block-previews.js";
+import { putAsset, assetStorageStatus } from "./src/asset-storage.js";
 import { BlockLibrarySchemaError, normalizeBlockLibrarySavePayload } from "./src/block-library-schema.js";
 import {
   assertPortableBlockSource,
@@ -1070,6 +1077,8 @@ function normalizeAssetRegistryEntry(entry) {
     notes: cleanText(entry?.notes),
     placement: cleanText(entry?.placement) || "auto",
     key: cleanText(entry?.key),
+    storageDriver: cleanText(entry?.storageDriver) || "local",
+    storageKey: cleanText(entry?.storageKey),
     mimeType: cleanText(entry?.mimeType),
     size: Number(entry?.size) || 0,
     createdAt: cleanText(entry?.createdAt),
@@ -1554,15 +1563,21 @@ async function registerUploadedAssets(files) {
     const extension = getExtensionForAssetUpload(mimeType, name);
     const stem = getSafeUploadStem(name, kind === "design" ? "design" : "asset");
     const unique = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${stem}${extension}`;
-    const targetPath = path.join(assetStorageDir, unique);
-    await writeFile(targetPath, buffer);
+    // Через адаптер хранилища: локально — на диск, на хостинге — в S3.
+    // Если хранилище отдаёт публичный адрес, он и становится ссылкой для
+    // письма: относительный /studio-assets/… работает только внутри студии,
+    // а почтовый клиент открывается снаружи.
+    const stored = await putAsset(buffer, { fileName: unique, contentType: mimeType });
 
     const entry = normalizeAssetRegistryEntry({
       id: `asset-${Date.now()}-${index + 1}-${Math.random().toString(36).slice(2, 7)}`,
       kind,
       label: name,
       fileName: unique,
-      externalUrl: cleanText(file?.externalUrl),
+      storageDriver: stored.driver,
+      storageKey: stored.key,
+      // Публичный адрес из хранилища сильнее вручную вписанного: он точно живой.
+      externalUrl: stored.publicUrl ? stored.url : cleanText(file?.externalUrl),
       alt: cleanText(file?.alt) || getSafeUploadStem(name, "asset"),
       notes: cleanText(file?.notes),
       placement: cleanText(file?.placement) || (kind === "design" ? "reference" : "auto"),
@@ -6603,9 +6618,12 @@ async function createEmailBaseMailFromDraft(payload, rawDraft) {
 }
 
 function sendJson(response, statusCode, payload, extraHeaders = {}) {
-  response.writeHead(statusCode, {
+  const requestTooLarge = isRequestBodyTooLarge(response?.req);
+  const effectiveStatusCode = requestBodyResponseStatus(response?.req, statusCode);
+  response.writeHead(effectiveStatusCode, {
     "Content-Type": "application/json; charset=utf-8",
     "Cache-Control": "no-store",
+    ...(requestTooLarge ? { Connection: "close" } : {}),
     ...extraHeaders
   });
   response.end(JSON.stringify(payload));
@@ -6621,17 +6639,7 @@ function sendText(response, statusCode, body, contentType = "text/plain; charset
 }
 
 async function readRequestBody(request) {
-  const chunks = [];
-  for await (const chunk of request) {
-    chunks.push(chunk);
-  }
-
-  if (chunks.length === 0) {
-    return {};
-  }
-
-  const raw = Buffer.concat(chunks).toString("utf8");
-  return JSON.parse(raw);
+  return readJsonRequestBody(request);
 }
 
 // cleanText → imported from src/utils.js
@@ -16671,6 +16679,121 @@ function rejectUnauthorizedRequest(response) {
   response.end(JSON.stringify({ error: "Authentication required" }));
 }
 
+/**
+ * Единый агент студии. Конструктор и код письма — две поверхности одного и
+ * того же оператора: один системный промпт, один набор инструментов, одна
+ * история. Отличается только контекст, который мы кладём в ctx.
+ *
+ * Поверхность "constructor" даёт агенту дерево блоков (studio-model), поверхность
+ * "workbench" — открытый HTML и локали. Инструменты общие: поиск блока по виду
+ * работает в обеих, чтение локалей осмысленно только во второй, и агент сам
+ * выбирает подходящие по контексту.
+ */
+async function handleStudioAgent(response, body) {
+  if (!openAiApiKey) { sendJson(response, 503, { error: "OPENAI_API_KEY is not configured" }); return; }
+  const userMessage = String(body?.message || body?.text || "").trim();
+  if (!userMessage) { sendJson(response, 400, { error: "message required" }); return; }
+
+  const surface = body?.surface === "constructor" ? "constructor" : "workbench";
+
+  const namespaces = Array.isArray(body?.namespaces) ? body.namespaces.map((n) => ({
+    ...n,
+    name: cleanText(n.namespace) || cleanText(n.name) || "",
+    namespace: cleanText(n.namespace) || cleanText(n.name) || "",
+  })) : [];
+  const activeName = cleanText(body?.activeNamespaceName || "");
+  const activeNamespace = activeName
+    ? (namespaces.find((n) => n.name === activeName) || null)
+    : (namespaces[0] || null);
+
+  const ctx = {
+    surface,
+    html: String(body?.baseEmailHtml || body?.html || "").trim(),
+    namespaces,
+    activeNamespace,
+    activeLocale: cleanText(body?.activeLocale || ""),
+  };
+
+  if (surface === "constructor") {
+    // Дерево конструктора приходит от клиента как есть: сервер не хранит
+    // незаписанное состояние канваса, а агенту нужно видеть именно то,
+    // что человек собрал прямо сейчас.
+    const canvas = Array.isArray(body?.canvas) ? body.canvas : [];
+    ctx.canvas = canvas.slice(0, 400);
+    ctx.canvasSummary = canvas.map((entry, index) => ({
+      index,
+      uid: entry?.uid ?? null,
+      blockId: entry?.blockId || entry?.id || null,
+      source: entry?.blockSource || entry?.source || null,
+      parentUid: entry?.parentUid ?? null,
+      slotId: entry?.slotId ?? null,
+      slots: entry?.slots && typeof entry.slots === "object"
+        ? Object.fromEntries(Object.entries(entry.slots).slice(0, 12)
+          .map(([k, v]) => [k, String(v ?? "").slice(0, 120)]))
+        : {},
+    }));
+  }
+
+  response.writeHead(200, {
+    "Content-Type": "application/x-ndjson; charset=utf-8",
+    "Cache-Control": "no-store",
+    Connection: "keep-alive",
+  });
+  const send = (frame) => {
+    try { response.write(JSON.stringify(frame) + "\n"); } catch { /* соединение закрыли */ }
+  };
+  send({ kind: "start", ctxSummary: {
+    surface,
+    htmlLength: ctx.html.length,
+    namespaces: namespaces.length,
+    activeNamespace: activeNamespace ? activeNamespace.name : null,
+    activeLocale: ctx.activeLocale,
+    canvasBlocks: ctx.canvasSummary ? ctx.canvasSummary.length : 0,
+    images: Array.isArray(body?.images) ? body.images.length : 0,
+  }});
+
+  try {
+    const result = await runAgent({
+      userMessage: surface === "constructor"
+        ? `${userMessage}\n\n[Поверхность: конструктор писем. Текущее дерево блоков:\n${JSON.stringify(ctx.canvasSummary || [], null, 1).slice(0, 6000)}\n]`
+        : userMessage,
+      history: Array.isArray(body?.messages) ? body.messages : [],
+      images: Array.isArray(body?.images) ? body.images : [],
+      ctx,
+      apiKey: openAiApiKey,
+      model: "gpt-4.1-mini",
+      onFrame: send,
+    });
+    try {
+      await appendStudioJournalEntry({
+        area: "ai-agent",
+        title: `Agent (${surface}): ${userMessage.slice(0, 60)}`,
+        message: `${result.steps.length} step(s); ${result.localeUpdates?.length || 0} locale update(s); ${result.modifiedHtml ? "modified HTML" : "no HTML change"}`,
+        meta: {
+          surface,
+          userMessage: userMessage.slice(0, 200),
+          summary: result.summary,
+          steps: result.steps.map((s) => ({ kind: s.kind, name: s.name || null })),
+        },
+      });
+    } catch { /* журнал не должен ронять ответ */ }
+    send({ kind: "final", payload: {
+      summary: result.summary,
+      modifiedHtml: result.modifiedHtml || "",
+      localeUpdates: result.localeUpdates || [],
+      localeDeletes: result.localeDeletes || [],
+      composed: result.composed || null,
+      // Канвас живёт в браузере: сервер лишь передаёт накопленные агентом
+      // правки, применяет их клиент.
+      canvasOps: Array.isArray(ctx.canvasOps) ? ctx.canvasOps : [],
+    }});
+  } catch (err) {
+    send({ kind: "error", message: String(err && err.message ? err.message : err) });
+  } finally {
+    response.end();
+  }
+}
+
 const server = http.createServer(async (request, response) => {
   try {
     if (request.method === "GET" && request.url === "/healthz") {
@@ -16990,7 +17113,10 @@ const server = http.createServer(async (request, response) => {
     // ── Block library (hand-crafted canonical blocks + user-saved) ──
     if (request.method === "GET" && request.url === "/api/blocks-library") {
       try {
-        const blocks = listCanonicalBlocks();
+        // Превью прикручиваются здесь, а не на клиенте: карточке каталога нужен
+        // готовый URL картинки, а AI-инструментам — та же сигнатура из одного
+        // источника. Индекс кэшируется по mtime, чтения с диска на запрос нет.
+        const blocks = attachPreviews(listCanonicalBlocks());
         sendJson(response, 200, { count: blocks.length, blocks });
       } catch (err) {
         sendJson(response, 500, { error: String(err && err.message ? err.message : err) });
@@ -17335,6 +17461,16 @@ const server = http.createServer(async (request, response) => {
           });
           return;
         }
+        // Run the shared compose-core validation before the transaction moves
+        // an existing source/dist tree to backup. This rejects local/private
+        // asset URLs without performing any destructive filesystem operation.
+        composeEmailFromBlocks({
+          brand,
+          mailName: rawName,
+          blocks,
+          destRoot: path.join(__dirname, "email-base"),
+          validateOnly: true,
+        });
         // Compose into email-base directly.
         const _skB = String(body?.sourceBrand||"").replace(/[^a-zA-Z0-9_]/g,""); const _skM = String(body?.sourceMail||"").replace(/[^a-zA-Z0-9_-]/g,"");
         const _skP = (_skB && _skM && existsSync(path.join(__dirname,"email-base",_skB,_skM))) ? path.join(__dirname,"email-base",_skB,_skM) : undefined;
@@ -17447,6 +17583,13 @@ const server = http.createServer(async (request, response) => {
         message: `Catalog now contains ${catalog.summary?.itemCount || catalog.items.length} block(s).`
       });
       sendJson(response, 200, catalog);
+      return;
+    }
+
+    // Где лежат картинки и получают ли они публичный адрес. UI по этому
+    // статусу честно предупреждает: локальные ссылки в рассылке не работают.
+    if (request.method === "GET" && request.url === "/api/assets/status") {
+      sendJson(response, 200, assetStorageStatus());
       return;
     }
 
@@ -18781,7 +18924,28 @@ const server = http.createServer(async (request, response) => {
     // ── AI Agent: real tool-use loop (read_open_html, analyze, placeholderize,
     //              fix_locale, translate, finish) — the model decides what to call.
     //              Streams NDJSON frames so the UI can render each tool call live.
+    // Единая точка входа оператора для обеих поверхностей студии.
+    if (request.method === "POST" && request.url === "/api/studio/agent") {
+      try {
+        await handleStudioAgent(response, await readRequestBody(request));
+      } catch (e) {
+        try { sendJson(response, 500, { error: e.message }); } catch { response.end(); }
+      }
+      return;
+    }
+
+    // Исторический адрес workbench-чата. Оставлен рабочим, чтобы не ломать
+    // открытые вкладки и закладки; внутри — тот же самый оператор.
     if (request.method === "POST" && request.url === "/api/wb/ai/agent") {
+      try {
+        await handleStudioAgent(response, await readRequestBody(request));
+      } catch (e) {
+        try { sendJson(response, 500, { error: e.message }); } catch { response.end(); }
+      }
+      return;
+    }
+
+    if (request.method === "POST" && request.url === "/api/wb/ai/agent-legacy") {
       try {
         const body = await readRequestBody(request);
         if (!openAiApiKey) { sendJson(response, 503, { error: "OPENAI_API_KEY is not configured" }); return; }
@@ -19305,6 +19469,10 @@ const server = http.createServer(async (request, response) => {
       try {
         await mkdir(trashDir, { recursive: true });
         await rename(target, trashDest);
+        // Собранный dist оставался после удаления исходника и продолжал
+        // отдаваться в превью — письмо выглядело как «вернувшееся».
+        const distLeftover = path.join(__dirname, "email-base", "dist", sBrand, sMail);
+        await rm(distLeftover, { recursive: true, force: true }).catch(() => {});
         sendJson(response, 200, { ok: true, note: "moved to _trash/" + sBrand });
       } catch(e) { sendJson(response, 500, { error: e.message }); }
       return;
@@ -19497,6 +19665,32 @@ const server = http.createServer(async (request, response) => {
       const cPath = path.join(publicDir, "constructor.html");
       const data = await readFile(cPath);
       response.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" });
+      response.end(data);
+      return;
+    }
+
+    // Браузер всегда просит /favicon.ico, а в public лежит favicon.svg —
+    // отдаём его, чтобы в консоли не висела красная 404 на каждой загрузке.
+    if (request.method === "GET" && request.url.split("?")[0] === "/favicon.ico") {
+      try {
+        const data = await readFile(path.join(publicDir, "favicon.svg"));
+        response.writeHead(200, { "Content-Type": "image/svg+xml", "Cache-Control": "public, max-age=86400" });
+        response.end(data);
+      } catch { sendText(response, 404, "Not found"); }
+      return;
+    }
+
+    // ── Пререндеренные превью блоков (data/block-previews/**). Лежат вне
+    //    public/, поэтому раздаются отдельным маршрутом с проверкой корня.
+    //    Иммутабельны: имя файла меняется вместе с содержимым блока.
+    if (request.method === "GET" && request.url.startsWith("/block-previews/")) {
+      const filePath = resolvePreviewFile(request.url);
+      if (!filePath) { sendText(response, 404, "Not found"); return; }
+      const data = await readFile(filePath);
+      response.writeHead(200, {
+        "Content-Type": "image/png",
+        "Cache-Control": "public, max-age=300",
+      });
       response.end(data);
       return;
     }

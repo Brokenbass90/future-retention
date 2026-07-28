@@ -1,0 +1,89 @@
+{
+  "id": "iq-combo-card-cta",
+  "label": "Комбо: Карта с рамкой (заголовок + текст + кнопка)",
+  "description": "Белая карта с оранжевой рамкой: центрированный заголовок, абзац и кнопка CTA на 280px. Раскладывается на отдельные редактируемые блоки. Типовой финальный экран письма.",
+  "placement": "section",
+  "category": "cta",
+  "version": 1,
+  "source": "canonical",
+  "outlookSafe": true,
+  "combo": true,
+  "scoped": true,
+  "tags": ["cta", "card", "combo", "iq"],
+  "children": [
+    {
+      "id": "iq-section-card-border",
+      "role": "container",
+      "slots": {
+        "border": "4px solid #FF7700"
+      }
+    },
+    {
+      "id": "iq-middle-title",
+      "slotId": "content",
+      "role": "title",
+      "slots": {
+        "text": "Title text",
+        "align": "center"
+      }
+    },
+    {
+      "id": "iq-text-plain",
+      "slotId": "content",
+      "role": "body",
+      "slots": {
+        "text": "Body text",
+        "align": "center"
+      }
+    },
+    {
+      "id": "iq-cta-w280",
+      "slotId": "content",
+      "role": "cta",
+      "slots": {
+        "label": "Button text",
+        "align": "center"
+      }
+    }
+  ],
+  "pug": "table.row.brad-full.white-bg.iq-combo-card-cta(role=\"presentation\" style=\"border:{{ border }}\")\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.iq-combo-card-cta--middle-title.center.pb32 {{ title }}\n                        p.iq-combo-card-cta--text.center.pb40 {{ body }}\n                        table.w280(align=\"center\" style=\"border-collapse: initial;\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"{{ href }}\" universal=\"true\" target=\"_blank\") {{ label }}",
+  "styl": ".iq-combo-card-cta\n  border-collapse separate !important\n.iq-combo-card-cta--middle-title\n  font-family: Helvetica, Arial, sans-serif !important\n  font-size 32px\n  font-weight 700\n  line-height 42px\n  color #393A44\n  margin 0\n  @media screen and (max-width: 600px)\n    font-size 28px !important\n    line-height 34px !important\n.iq-combo-card-cta--text\n  font-family: Helvetica, Arial, sans-serif !important\n  font-size 18px\n  font-weight 400\n  line-height 26px\n  color #393A44\n  margin 0",
+  "slots": [
+    {
+      "id": "title",
+      "kind": "text",
+      "label": "Заголовок",
+      "default": "Title text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "body",
+      "kind": "richText",
+      "label": "Текст",
+      "default": "Body text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "label",
+      "kind": "text",
+      "label": "Текст кнопки",
+      "default": "Button text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "href",
+      "kind": "text",
+      "label": "Ссылка кнопки",
+      "default": "#",
+      "allowSystemPlaceholder": true,
+      "uiGroup": "content"
+    },
+    {
+      "id": "border",
+      "kind": "text",
+      "label": "Рамка карты",
+      "default": "4px solid #FF7700",
+      "uiGroup": "appearance"
+    }
+  ]
+}

@@ -4,8 +4,7 @@
   "description": "Комбо (рецепт) 234: прозрачный ряд pt68 — серая сноска, сноска со ссылкой на Policy, кнопки App Store / Google Play. После сторов — секция соцсетей со встроенными ссылками по локалям. Раскладывается на отдельные блоки.",
   "placement": "section",
   "category": "footer",
-  "version": 2,
-  "source": "canonical",
+  "version": 3,
   "combo": true,
   "tags": [
     "combo",
@@ -13,8 +12,8 @@
     "iq"
   ],
   "outlookSafe": true,
-  "pug": "table.row.iq-combo-store-footer(role=\"presentation\")\n    tr\n        td.wrapper.last.pt68.offset-by-one\n            table.ten.columns(role=\"presentation\")\n                tr\n                    td.pb0.text-pad-small\n                        p.promo-text-foot.center.pb10 {{ note }}\n                        p.promo-text-foot.center.pb40 {{ note_link_text }}&nbsp;\n                            a.link(href=\"{{ link_href }}\" target=\"_blank\") {{ link_label }}\n                            | {{ tail }}\n                        .stor.center\n                            a(href=\"{{ app_href }}\" target=\"_blank\")\n                                img.a-app(src=\"https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjqg/app.png\" alt=\"App Store\")\n                            a(href=\"{{ google_href }}\" target=\"_blank\")\n                                img.a-google(src=\"https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjr0/play.png\" alt=\"Google Play\")",
-  "styl": ".promo-text-foot\n  font-family: Helvetica !important\n  font-style: normal\n  font-weight: 400\n  font-size: 18px\n  line-height: 26px\n  color: #71717D\n.link\n  color #4882FF !important\n.stor\n  width 100% !important\n  max-width: 450px\n  margin 0 auto\n  @media screen and (max-width: 600px)\n    width 100% !important\n.a-app\n  display inline-block\n  padding 0 15px 15px 15px\n  max-width 120px\n  height 40px !important\n  float: none\n  @media screen and (max-width: 600px)\n    display block !important\n    float none !important\n    margin 0 auto !important\n.a-google\n  display inline-block\n  max-width 135px\n  height 40px !important\n  float: none\n  padding 0 15px 15px 15px\n  @media screen and (max-width: 600px)\n    display block !important\n    float none !important\n    margin 0 auto !important\n.text-pad-small\n  @media screen and (max-width: 600px)\n    padding-left: 20px !important\n    padding-right: 20px !important",
+  "pug": "table.row.iq-combo-store-footer(role=\"presentation\")\n    tr\n        td.wrapper.last.iq-combo-store-footer--pt68.offset-by-one\n            table.ten.columns(role=\"presentation\")\n                tr\n                    td.pb0.text-pad-small.iq-combo-store-footer--text-pad-small\n                        p.iq-combo-store-footer--promo-text-foot.center.pb10 {{ note }}\n                        p.iq-combo-store-footer--promo-text-foot.center.pb40 {{ note_link_text }}&nbsp;\n                            a.iq-combo-store-footer--link(href=\"{{ link_href }}\" target=\"_blank\") {{ link_label }}\n                            | {{ tail }}\n                        .iq-combo-store-footer--stor.center\n                            a(href=\"{{ app_href }}\" target=\"_blank\")\n                                img.iq-combo-store-footer--a-app(src=\"https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjqg/app.png\" alt=\"App Store\")\n                            a(href=\"{{ google_href }}\" target=\"_blank\")\n                                img.iq-combo-store-footer--a-google(src=\"https://fsms.iqoption.com/storage/public/cn/td/oo285cee2vclvjr0/play.png\" alt=\"Google Play\")",
+  "styl": ".iq-combo-store-footer--promo-text-foot\n  font-family: Helvetica !important\n  font-style: normal\n  font-weight: 400\n  font-size: 18px\n  line-height: 26px\n  color: #71717D\n.iq-combo-store-footer--link\n  color #4882FF !important\n.iq-combo-store-footer--stor\n  width 100% !important\n  max-width: 450px\n  margin 0 auto\n  @media screen and (max-width: 600px)\n    width 100% !important\n.iq-combo-store-footer--a-app\n  display inline-block\n  padding 0 15px 15px 15px\n  max-width 120px\n  height 40px !important\n  float: none\n  @media screen and (max-width: 600px)\n    display block !important\n    float none !important\n    margin 0 auto !important\n.iq-combo-store-footer--a-google\n  display inline-block\n  max-width 135px\n  height 40px !important\n  float: none\n  padding 0 15px 15px 15px\n  @media screen and (max-width: 600px)\n    display block !important\n    float none !important\n    margin 0 auto !important\n.iq-combo-store-footer--text-pad-small\n  @media screen and (max-width: 600px)\n    padding-left: 20px !important\n    padding-right: 20px !important\n\n/* втянуто из стилей семьи при скоупе — блок больше не зависит от main.styl */\n.iq-combo-store-footer--pt68{padding-top:68px}",
   "slots": [
     {
       "id": "note",
@@ -102,5 +101,6 @@
       "role": "socials",
       "slots": {}
     }
-  ]
+  ],
+  "scoped": true
 }

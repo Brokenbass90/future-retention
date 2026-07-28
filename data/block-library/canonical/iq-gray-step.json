@@ -4,11 +4,10 @@
   "description": "Средний блок: .gray-block с номером в квадрате и текстом шага.",
   "placement": "inner",
   "category": "feature-list",
-  "version": 1,
-  "source": "canonical",
+  "version": 2,
   "outlookSafe": true,
-  "pug": ".gray-block.iq-gray-step\n    table.w100(role=\"presentation\")\n        tr\n            td.m-w.pb0\n                p.number {{ number }}\n            td.w-a.pb0\n                p.text {{ text }}",
-  "styl": ".gray-block\n  padding: 24px\n  background: #F9F9F9\n  border-radius: 12px\n.number\n  background #ECECED\n  width: 54px\n  max-height: 54px\n  border-radius: 16px\n  font-family: Helvetica !important\n  color: #393A44\n  font-weight: 700\n  font-size: 24px\n  line-height: 24px\n  padding 15px 0\n  text-align: center\n.w100\n  width 100%\n.w-a\n  width auto !important\n  vertical-align: middle\ntable[class=body] table.column td, table[class=body] table.columns td.m-w\n  min-width: 78px !important\n  width 78px !important\n  vertical-align: middle\n.text\n  font-family: Helvetica !important\n  font-size: 18px\n  color: #393A44\n  letter-spacing: 0\n  line-height: 26px\n  font-weight 400",
+  "pug": ".iq-gray-step--gray-block.iq-gray-step\n    table.iq-gray-step--w100(role=\"presentation\")\n        tr\n            td.iq-gray-step--m-w.pb0\n                p.iq-gray-step--number {{ number }}\n            td.iq-gray-step--w-a.pb0\n                p.iq-gray-step--text {{ text }}",
+  "styl": ".iq-gray-step--gray-block\n  padding: 24px\n  background: #F9F9F9\n  border-radius: 12px\n.iq-gray-step--number\n  background #ECECED\n  width: 54px\n  max-height: 54px\n  border-radius: 16px\n  font-family: Helvetica !important\n  color: #393A44\n  font-weight: 700\n  font-size: 24px\n  line-height: 24px\n  padding 15px 0\n  text-align: center\n.iq-gray-step--w100\n  width 100%\n.iq-gray-step--w-a\n  width auto !important\n  vertical-align: middle\ntable[class=body] table.column td, table[class=body] table.columns td.iq-gray-step--m-w\n  min-width: 78px !important\n  width 78px !important\n  vertical-align: middle\n.iq-gray-step--text\n  font-family: Helvetica !important\n  font-size: 18px\n  color: #393A44\n  letter-spacing: 0\n  line-height: 26px\n  font-weight 400\n\n/* втянуто из стилей семьи при скоупе — блок больше не зависит от main.styl */\n.iq-gray-step--m-w{min-width:78px !important;width:78px !important;vertical-align:middle}",
   "slots": [
     {
       "id": "number",
@@ -24,5 +23,6 @@
       "default": "Step text",
       "uiGroup": "content"
     }
-  ]
+  ],
+  "scoped": true
 }

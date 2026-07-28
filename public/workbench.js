@@ -6046,6 +6046,10 @@ function renderSrcFileTabs() {
   closeBtn.addEventListener('click', () => {
     if (!confirmDiscardHtmlDraft()) return;
     persistNamespaceScope(ctx.brand, ctx.mail, state.namespaces);
+    // Письмо открывается по ?brand=&mail= в адресе. Если их не убрать, то
+    // после закрытия вкладки перезагрузка страницы открывает письмо заново —
+    // выглядит так, будто удаление откатилось.
+    forgetDirectMailHandoff();
     state.srcCtx = null;
     replaceNamespacesForScope();
     state.activeLocale = 'original';
@@ -9980,6 +9984,17 @@ function loadFromLocalStorage() {
       state.activeBrandId= parsed.activeBrandId|| null;
     }
   } catch(e) { console.warn('localStorage load failed:', e); }
+}
+
+/** Убрать brand/mail из адреса, не перезагружая страницу. */
+function forgetDirectMailHandoff() {
+  try {
+    const url = new URL(location.href);
+    if (!url.searchParams.has('brand') && !url.searchParams.has('mail')) return;
+    url.searchParams.delete('brand');
+    url.searchParams.delete('mail');
+    history.replaceState(null, '', url.pathname + (url.search || '') + url.hash);
+  } catch { /* старый браузер — не критично */ }
 }
 
 function getDirectMailHandoff() {

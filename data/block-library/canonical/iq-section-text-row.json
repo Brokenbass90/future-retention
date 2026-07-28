@@ -4,8 +4,7 @@
   "description": "Обёртка: прозрачный ряд, ten.columns c offset, pt50. Для юридических текстов и сносок.",
   "placement": "section",
   "category": "layout",
-  "version": 2,
-  "source": "canonical",
+  "version": 3,
   "outlookSafe": true,
   "tags": [
     "section",
@@ -23,8 +22,8 @@
       ]
     }
   ],
-  "pug": "table.row.iq-section-text-row(role=\"presentation\")\n    tr\n        td.wrapper.last.offset-by-one(class=\"{{ pt }}\")\n            table.ten.columns(role=\"presentation\")\n                tr\n                    td.pb0.text-pad-small\n                        //- {{ INNER_BLOCKS }}",
-  "styl": ".text-pad-small\n  @media screen and (max-width: 600px)\n    padding-left: 20px !important\n    padding-right: 20px !important",
+  "pug": "table.row.iq-section-text-row(role=\"presentation\")\n    tr\n        td.wrapper.last.offset-by-one(class=\"{{ pt }}\")\n            table.ten.columns(role=\"presentation\")\n                tr\n                    td.pb0.text-pad-small.iq-section-text-row--text-pad-small\n                        //- {{ INNER_BLOCKS }}",
+  "styl": ".iq-section-text-row--text-pad-small\n  @media screen and (max-width: 600px)\n    padding-left: 20px !important\n    padding-right: 20px !important",
   "slots": [
     {
       "id": "pt",
@@ -39,5 +38,6 @@
         "pt68"
       ]
     }
-  ]
+  ],
+  "scoped": true
 }

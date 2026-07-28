@@ -4,11 +4,10 @@
   "description": "p.text с жирным текстом внутри (b).",
   "placement": "inner",
   "category": "text",
-  "version": 2,
-  "source": "canonical",
+  "version": 3,
   "outlookSafe": true,
-  "pug": "p.text.pt24.pb5.iq-lead-bold(style=\"text-align:{{ align }}\")\n    b {{ text }}",
-  "styl": ".text\n  font-family: Helvetica !important\n  font-size: 18px\n  color: #393A44\n  letter-spacing: 0\n  line-height: 26px\n  font-weight 400",
+  "pug": "p.iq-lead-bold--text.iq-lead-bold--pt24.iq-lead-bold--pb5.iq-lead-bold(style=\"text-align:{{ align }}\")\n    b {{ text }}",
+  "styl": ".iq-lead-bold--text\n  font-family: Helvetica !important\n  font-size: 18px\n  color: #393A44\n  letter-spacing: 0\n  line-height: 26px\n  font-weight 400\n\n/* втянуто из стилей семьи при скоупе — блок больше не зависит от main.styl */\n.iq-lead-bold--pt24{padding-top:24px}\n.iq-lead-bold--pb5{padding-bottom:5px}",
   "slots": [
     {
       "id": "text",
@@ -29,5 +28,6 @@
       ],
       "uiGroup": "appearance"
     }
-  ]
+  ],
+  "scoped": true
 }

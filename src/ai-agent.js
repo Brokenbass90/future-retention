@@ -26,6 +26,12 @@ import { callOpenAiWithRetry, extractResponseText } from "./ai-client.js";
 const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
 const DEFAULT_MAX_STEPS = 12;
 
+function composedResult(ctx) {
+  const brand = String(ctx?.composedBrand || "").trim();
+  const mailName = String(ctx?.composedMailName || "").trim();
+  return brand && mailName ? { brand, mailName } : null;
+}
+
 const SYSTEM_PROMPT = [
   "You are the retention-team-in-a-box of this email studio: copywriter, localizer,",
   "and email developer in one autonomous agent. The studio is used by three kinds of",
@@ -37,6 +43,10 @@ const SYSTEM_PROMPT = [
   "  • the email HTML open in the editor (read_open_html / find_in_html)",
   "  • every locale namespace + its translation blocks (list_namespaces / get_namespace_blocks)",
   "  • the canonical block library for building new emails (list_canonical_blocks)",
+  "  • how every block LOOKS: each one has a rendered preview and a visual signature —",
+  "    size, palette, whether it has images / buttons / lists / columns, how much text,",
+  "    whether it reflows on mobile (find_blocks_by_look). Blocks that look identical are",
+  "    grouped, so a search returns variety instead of forty near-identical text blocks.",
   "  • screenshots the user attaches in chat — use them to understand the desired layout,",
   "    spot which block/section they mean, and verify the email matches the design.",
   "",
@@ -51,6 +61,8 @@ const SYSTEM_PROMPT = [
   "  • normalize_locale_conventions                                — deterministic conventions repair (offline)",
   "  • replace_in_html                                             — surgical HTML edit (bold a phrase, swap a logo URL, fix a link)",
   "  • list_email_sections, insert_block, remove_block            — add / remove a block in the OPEN email (anchor-based, safe)",
+  "  • find_blocks_by_look                                         — find a block by HOW IT LOOKS: attached screenshot, colour, structure (offline, fast)",
+  "  • update_canvas_block                                         — change slots/appearance of a block ON THE CONSTRUCTOR CANVAS (the only way to edit the email being assembled)",
   "  • compose_email_from_blocks                                   — build a NEW email from canonical blocks",
   "  • finish                                                      — wrap up with a user-facing summary",
   "",
@@ -65,6 +77,26 @@ const SYSTEM_PROMPT = [
   "     – a new locale → create_locale (it translates from the reference);",
   "     – 'сверь/сравни все локали' → compare_locales (then summarise the drift per locale);",
   "     – a whole new email → compose_email_from_blocks ONLY — never write raw HTML/Pug from scratch.",
+  "       If that tool reports an existing mail, NEVER retry with force unless the user",
+  "       explicitly asked to overwrite it or confirmed replacement.",
+  "     – 'найди похожий блок' / a screenshot of a section → LOOK at the image, describe it to",
+  "       yourself (background colour, is there a picture, a button, a list, how many columns,",
+  "       roughly how tall), then call find_blocks_by_look with those structural filters.",
+  "       Do NOT call list_canonical_blocks and eyeball names — names do not describe looks.",
+  "",
+  "You work on TWO surfaces of the same studio and you are the SAME operator on both:",
+  "  • CONSTRUCTOR — the visual builder. ctx.surface === 'constructor' and the user message",
+  "    carries the current block tree with every uid and its slot values.",
+  "    To CHANGE something already on the canvas ('move the button left', 'make the title",
+  "    red', 'fix this text') call update_canvas_block with that uid — it is the ONLY tool",
+  "    that touches the email being assembled.",
+  "    NEVER use edit_locale_block or save_user_block for a constructor request:",
+  "    the first edits translation files, the second edits the shared block library, and",
+  "    neither changes the email in front of the user. Doing that is a silent no-op and",
+  "    corrupts other emails that use the same block.",
+  "    Use find_blocks_by_look to search, compose_email_from_blocks to assemble from scratch.",
+  "  • CODE (workbench) — the open email HTML plus its locales. Everything above applies.",
+  "Never tell the user to 'switch to the other screen' to do something you can do here.",
   "  4. VERIFY after every mutation — this is mandatory, not optional:",
   "     – after edit_locale_block / fix / translate → re-read the blocks (get_namespace_blocks) or run analyze_email;",
   "     – after replace_in_html → find_in_html to confirm the new text is in place (and the old one is gone);",
@@ -102,7 +134,7 @@ const SYSTEM_PROMPT = [
  * @param {number} [opts.maxSteps]       Default 8.
  * @param {Function} [opts.onFrame]      Streaming callback invoked per agent step:
  *                                       { kind: 'tool_call'|'tool_result'|'text'|'finish'|'error', ... }
- * @returns {Promise<{ summary, modifiedHtml, localeUpdates, steps }>}
+ * @returns {Promise<{ summary, modifiedHtml, localeUpdates, localeDeletes, composed, steps }>}
  */
 export async function runAgent({ userMessage, history = [], images = [], ctx, apiKey, model = "gpt-4.1-mini", maxSteps = DEFAULT_MAX_STEPS, onFrame }) {
   if (!apiKey) throw new Error("OPENAI_API_KEY is not configured");
@@ -222,6 +254,7 @@ export async function runAgent({ userMessage, history = [], images = [], ctx, ap
               ? ctx.pendingLocaleUpdates
               : (Array.isArray(args.localeUpdates) ? args.localeUpdates : []),
             localeDeletes: ctx.pendingLocaleDeletes,
+            composed: composedResult(ctx),
           };
           emit({ kind: "finish", payload: finalResult });
           break;
@@ -240,6 +273,7 @@ export async function runAgent({ userMessage, history = [], images = [], ctx, ap
         modifiedHtml: ctx.modifiedHtml || "",
         localeUpdates: ctx.pendingLocaleUpdates,
         localeDeletes: ctx.pendingLocaleDeletes,
+        composed: composedResult(ctx),
       };
       break;
     }
@@ -252,6 +286,7 @@ export async function runAgent({ userMessage, history = [], images = [], ctx, ap
       modifiedHtml: ctx.modifiedHtml || "",
       localeUpdates: ctx.pendingLocaleUpdates,
       localeDeletes: ctx.pendingLocaleDeletes,
+      composed: composedResult(ctx),
     };
   }
 

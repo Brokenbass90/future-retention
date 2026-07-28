@@ -32,7 +32,16 @@ import { analyzeLocaleAgainstHtml } from "./locale-analyze.js";
 import { compareLocales } from "./locale-cross-check.js";
 import { listHtmlSections, insertHtml, removeHtml } from "./html-blocks.js";
 import { validateHtml } from "./html-validate.js";
-import { composeEmailFromBlocks, listCanonicalBlocks, loadCanonicalBlock, userBlockPath } from "./compose-email.js";
+import path from "node:path";
+import {
+  composeEmailFromBlocks,
+  listCanonicalBlocks,
+  loadCanonicalBlock,
+  resolveComposeEmailTarget,
+  userBlockPath,
+} from "./compose-email.js";
+import { withComposeSaveTransaction } from "./compose-save-transaction.js";
+import { previewForBlock } from "./block-previews.js";
 import { saveUserBlockWithLifecycle } from "./block-library-review.js";
 import { rmSync as _rmSyncBlocks, existsSync as _existsSyncBlocks } from "node:fs";
 
@@ -400,6 +409,41 @@ export const TOOL_DEFINITIONS = [
   },
   {
     type: "function",
+    name: "find_blocks_by_look",
+    description:
+      "Search the block library by HOW A BLOCK LOOKS, not by its name. Every block has a " +
+      "pre-rendered preview and a visual signature (size, palette, whether it has images / " +
+      "buttons / list items / columns, how much text, responsive or fixed). " +
+      "USE THIS when the user attaches a screenshot or describes a block visually " +
+      "('find a hero with a big background image and a button', 'a two-column card row', " +
+      "'the orange promo panel'). Look at the attached image yourself, then translate what " +
+      "you see into the structural filters below. " +
+      "Blocks that look identical are grouped: by default only one representative per group " +
+      "is returned, so you get variety instead of 40 near-identical text blocks.",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        query: { type: "string", description: "Free text matched against label, id, description, tags and category." },
+        placement: { type: "string", enum: ["outer", "section", "inner", "inline", "both", "any"], description: "Where the block goes. Default any." },
+        category: { type: "string", description: "hero / cta / text / image / feature-list / footer / utility / header / section" },
+        hasImage: { type: "boolean", description: "Block contains at least one image." },
+        hasButton: { type: "boolean", description: "Block contains a button-like element." },
+        hasList: { type: "boolean", description: "Block contains list items." },
+        minColumns: { type: "number", description: "At least this many columns in a row (2 = two-column layout)." },
+        minHeight: { type: "number", description: "Rendered height at 600px width, in px." },
+        maxHeight: { type: "number" },
+        backgroundLike: { type: "string", description: "Hex colour the block background should be close to, e.g. #FF7700." },
+        responsive: { type: "boolean", description: "Only blocks that reflow on mobile." },
+        includeDuplicates: { type: "boolean", description: "Return every look-alike instead of one per group. Default false." },
+        includeLegacy: { type: "boolean", description: "Include imported legacy slices. Default true — say false for release-safe blocks only." },
+        limit: { type: "number", description: "Max results, default 12, hard cap 40." },
+      },
+      required: [],
+    },
+  },
+  {
+    type: "function",
     name: "get_block_source",
     description:
       "Read the FULL source of one block from the library (canonical, imported or user): " +
@@ -469,6 +513,45 @@ export const TOOL_DEFINITIONS = [
   },
   {
     type: "function",
+    name: "update_canvas_block",
+    description:
+      "Change a block that is ALREADY placed on the constructor canvas: slot values " +
+      "(text, colours, alignment, image URLs) and/or surface appearance " +
+      "(background_color, border, radius, padding). " +
+      "THIS IS THE ONLY WAY to fulfil requests like 'move the button to the left', " +
+      "'make the title red', 'change the promo text' when the user is in the constructor. " +
+      "Do NOT use edit_locale_block or save_user_block for this — those touch translation " +
+      "files and the block library, not the email being assembled. " +
+      "The current tree with every uid and its slot values is in the user message. " +
+      "Call get_block_source first if you are unsure which slot id controls what.",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        uid: { type: ["string", "number"], description: "uid of the block on the canvas (from the tree in the user message)." },
+        slots: {
+          type: "object",
+          additionalProperties: true,
+          description: 'Slot values to set, e.g. { "align": "left", "title": "Новый заголовок" }. Only the listed slots change.',
+        },
+        appearance: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            background_color: { type: "string" },
+            border: { type: "string" },
+            radius: { type: "string" },
+            padding: { type: "string" },
+          },
+          description: "Surface overrides for this instance.",
+        },
+        reason: { type: "string", description: "One short sentence for the user: what changed and why." },
+      },
+      required: ["uid"],
+    },
+  },
+  {
+    type: "function",
     name: "compose_email_from_blocks",
     description:
       "Scaffold a new email source from release-safe canonical blocks. Each block is a " +
@@ -485,6 +568,11 @@ export const TOOL_DEFINITIONS = [
       properties: {
         brand: { type: "string", description: "Brand folder, e.g. 'X_assembled' (default)." },
         mailName: { type: "string", description: "Mail name without 'mail-' prefix. Letters/digits/_/- only." },
+        force: {
+          type: "boolean",
+          description:
+            "Overwrite an existing source/dist mail. Set true ONLY after the user explicitly asks to overwrite or confirms replacement. Default false.",
+        },
         blocks: {
           type: "array",
           minItems: 1,
@@ -556,6 +644,33 @@ export const TOOL_DEFINITIONS = [
  * On failure, return { error: string } — the model can recover or call
  * another tool.
  */
+/** Евклидово расстояние между двумя hex-цветами; null, если цвет не разобрать. */
+function colourDistance(a, b) {
+  const parse = (v) => {
+    const m = /^#?([0-9a-f]{6})$/i.exec(String(v || "").trim());
+    if (!m) return null;
+    const n = parseInt(m[1], 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  };
+  const x = parse(a), y = parse(b);
+  if (!x || !y) return null;
+  return Math.sqrt((x[0] - y[0]) ** 2 + (x[1] - y[1]) ** 2 + (x[2] - y[2]) ** 2);
+}
+
+/** Компактная визуальная сигнатура блока из пререндеренного превью. */
+function describeAppearance(block) {
+  const preview = previewForBlock(block);
+  if (!preview || preview.status !== "ok" || !preview.signature) return null;
+  const s = preview.signature;
+  return {
+    width: s.width, height: s.height, mobileHeight: s.mobileHeight,
+    background: s.background, palette: s.palette,
+    images: s.images, buttons: s.buttons, links: s.links,
+    listItems: s.listItems, columns: s.columns, textChars: s.textChars,
+    responsive: s.responsive, tags: s.tags,
+  };
+}
+
 export const TOOL_HANDLERS = {
   async read_open_html(_args, ctx) {
     const html = String(ctx.modifiedHtml || ctx.html || "");
@@ -980,6 +1095,10 @@ export const TOOL_HANDLERS = {
         combo: b.combo === true,
         hasMobileStyles: /@media/i.test(b.styl || ""),
         stylBytes: (b.styl || "").length,
+        // Как блок ВЫГЛЯДИТ: размер, палитра, есть ли картинка/кнопка/список/
+        // колонки. До этого модель выбирала блок вслепую — по категории и
+        // описанию, из-за чего hero-подобные секции путались между собой.
+        appearance: describeAppearance(b),
         childSlots: (b.childSlots || []).map((slot) => ({
           id: slot.id,
           accepts: Array.isArray(slot.accepts) ? slot.accepts : [],
@@ -989,6 +1108,126 @@ export const TOOL_HANDLERS = {
           default: s.default, max: s.max, min: s.min, options: s.options,
         })),
       })),
+    };
+  },
+
+  /**
+   * Поиск блока по ВНЕШНЕМУ ВИДУ. До появления пререндера и сигнатур модель
+   * выбирала блок вслепую — по категории и авто-описанию «Импортирован из
+   * X_IQ (1 писем)», из-за чего hero-подобные секции путались между собой.
+   * Здесь она фильтрует по тому, что реально видно на превью.
+   */
+  async find_blocks_by_look(args, _ctx) {
+    const limit = Math.min(Math.max(1, Number(args?.limit) || 12), 40);
+    const wantPlacement = String(args?.placement || "any").toLowerCase();
+    const includeLegacy = args?.includeLegacy !== false;
+    const includeDuplicates = args?.includeDuplicates === true;
+    const query = String(args?.query || "").trim().toLowerCase();
+
+    let blocks = listCanonicalBlocks().filter((b) => b.retired !== true);
+    if (!includeLegacy) blocks = blocks.filter((b) => b.source !== "imported");
+
+    const scored = [];
+    for (const block of blocks) {
+      const preview = previewForBlock(block);
+      const sig = preview?.status === "ok" ? preview.signature : null;
+
+      if (wantPlacement !== "any") {
+        const p = block.placement === "inline" ? "inner" : block.placement;
+        const want = wantPlacement === "inline" ? "inner" : wantPlacement;
+        if (p !== want && !(want === "inner" && p === "both")) continue;
+      }
+      if (args?.category && String(block.category || "") !== String(args.category)) continue;
+
+      // Структурные фильтры работают только там, где есть сигнатура: без неё
+      // мы не знаем, как блок выглядит, и молча выдавать его за подходящий нельзя.
+      const needsSignature = ["hasImage", "hasButton", "hasList", "minColumns", "minHeight", "maxHeight", "backgroundLike", "responsive"]
+        .some((k) => args?.[k] !== undefined && args[k] !== null);
+      if (needsSignature && !sig) continue;
+
+      if (args?.hasImage === true && !(sig.images > 0)) continue;
+      if (args?.hasImage === false && sig.images > 0) continue;
+      if (args?.hasButton === true && !(sig.buttons > 0)) continue;
+      if (args?.hasButton === false && sig.buttons > 0) continue;
+      if (args?.hasList === true && !(sig.listItems > 0)) continue;
+      if (args?.hasList === false && sig.listItems > 0) continue;
+      if (args?.minColumns != null && !(sig.columns >= Number(args.minColumns))) continue;
+      if (args?.minHeight != null && !(sig.height >= Number(args.minHeight))) continue;
+      if (args?.maxHeight != null && !(sig.height <= Number(args.maxHeight))) continue;
+      if (args?.responsive === true && !sig.responsive) continue;
+      if (args?.responsive === false && sig.responsive) continue;
+
+      let colourScore = 0;
+      if (args?.backgroundLike) {
+        const distance = colourDistance(args.backgroundLike, sig?.background);
+        // Больше 120 по расстоянию — это уже другой цвет, а не оттенок.
+        if (distance == null || distance > 120) continue;
+        colourScore = 1 - distance / 120;
+      }
+
+      let textScore = 0;
+      if (query) {
+        const haystack = [block.label, block.id, block.description, block.category, ...(block.tags || [])]
+          .filter(Boolean).join(" ").toLowerCase();
+        if (!haystack.includes(query)) {
+          // Мягкое совпадение по отдельным словам — запрос обычно фраза.
+          const words = query.split(/\s+/).filter((w) => w.length > 2);
+          const hits = words.filter((w) => haystack.includes(w)).length;
+          if (!hits) continue;
+          textScore = hits / Math.max(1, words.length);
+        } else {
+          textScore = 1;
+        }
+      }
+
+      scored.push({
+        block, sig, preview,
+        score: textScore * 2 + colourScore + (block.source === "canonical" ? 0.5 : 0)
+          + Math.min(0.5, (block.usageCount || 0) / 20),
+      });
+    }
+
+    scored.sort((a, b) => b.score - a.score);
+
+    // Схлопывание одинаковых на вид: иначе выдача из 12 позиций может целиком
+    // состоять из одного и того же текстового блока в 12 обёртках.
+    const seenGroups = new Set();
+    const out = [];
+    for (const item of scored) {
+      const groupId = item.preview?.group?.id;
+      if (!includeDuplicates && groupId) {
+        if (seenGroups.has(groupId)) continue;
+        seenGroups.add(groupId);
+      }
+      out.push({
+        id: item.block.id,
+        source: item.block.source,
+        label: item.block.label,
+        placement: item.block.placement,
+        category: item.block.category,
+        description: String(item.block.description || "").slice(0, 200),
+        slots: (item.block.slots || []).map((s) => s.id),
+        appearance: item.sig ? {
+          width: item.sig.width, height: item.sig.height,
+          background: item.sig.background, palette: item.sig.palette,
+          images: item.sig.images, buttons: item.sig.buttons,
+          listItems: item.sig.listItems, columns: item.sig.columns,
+          textChars: item.sig.textChars, responsive: item.sig.responsive,
+          tags: item.sig.tags,
+        } : null,
+        previewUrl: item.preview?.desktop?.url || null,
+        looksTheSameAs: item.preview?.group?.size > 1 ? item.preview.group.size - 1 : 0,
+      });
+      if (out.length >= limit) break;
+    }
+
+    return {
+      count: out.length,
+      scanned: scored.length,
+      blocks: out,
+      hint: out.length
+        ? "previewUrl is a rendered PNG of the block. Pass ids to compose_email_from_blocks or insert_block."
+        : "Nothing matched. Loosen the structural filters — start with placement + one of hasImage/hasButton/minColumns.",
     };
   },
 
@@ -1122,11 +1361,36 @@ export const TOOL_HANDLERS = {
           hint: "Call list_canonical_blocks and choose from that result.",
         };
       }
-      const result = composeEmailFromBlocks({
+      const target = resolveComposeEmailTarget({
         brand: args.brand || "X_assembled",
         mailName: args.mailName,
-        blocks: requested,
       });
+      const distDestination = path.join(
+        target.destRoot,
+        "dist",
+        target.brand,
+        `mail-${target.mailName}`,
+      );
+      // Validate the exact shared compose model before the save transaction
+      // moves an existing mail/dist tree aside. AI cannot bypass the same
+      // public-asset gate used by the constructor/API.
+      composeEmailFromBlocks({
+        brand: target.brand,
+        mailName: target.mailName,
+        blocks: requested,
+        destRoot: target.destRoot,
+        validateOnly: true,
+      });
+      const result = await withComposeSaveTransaction({
+        destination: target.destDir,
+        distDestination,
+        force: args.force === true,
+      }, async () => composeEmailFromBlocks({
+        brand: target.brand,
+        mailName: target.mailName,
+        blocks: requested,
+        destRoot: target.destRoot,
+      }));
       // Stash where the mail landed so `finish` can mention it.
       ctx.composedMailPath = result.destDir;
       ctx.composedBrand = result.brand;
@@ -1141,8 +1405,69 @@ export const TOOL_HANDLERS = {
         nextStep: `Run build-mail.js --category ${result.brand} --mail ${result.mailName} to produce the dist HTML.`,
       };
     } catch (err) {
+      if (err?.code === "COMPOSE_SAVE_TARGET_EXISTS") {
+        return {
+          error: "mail already exists; refusing to overwrite source or dist without explicit force",
+          code: err.code,
+          hint: "Choose a different mailName, or ask the user to confirm replacement and retry with force: true.",
+        };
+      }
       return { error: String(err && err.message ? err.message : err) };
     }
+  },
+
+  /**
+   * Правка блока, уже стоящего на канвасе конструктора.
+   *
+   * Канвас живёт в браузере и на сервере не хранится, поэтому инструмент не
+   * меняет ничего сам, а записывает намерение в ctx. Сервер отдаёт накопленные
+   * операции клиенту в финальном кадре, клиент их применяет и перерисовывает
+   * превью. Без этого агент на просьбу «сдвинь кнопку влево» брался за
+   * edit_locale_block и save_user_block — то есть за файлы переводов и за
+   * библиотеку блоков, а само письмо оставалось нетронутым.
+   */
+  async update_canvas_block(args, ctx) {
+    const uid = args?.uid;
+    if (uid === undefined || uid === null || uid === "") {
+      return { error: "uid is required — take it from the canvas tree in the user message" };
+    }
+    const tree = Array.isArray(ctx?.canvasSummary) ? ctx.canvasSummary : [];
+    const target = tree.find((entry) => String(entry.uid) === String(uid));
+    if (tree.length && !target) {
+      return {
+        error: `no block with uid ${uid} on the canvas`,
+        availableUids: tree.map((e) => ({ uid: e.uid, blockId: e.blockId })).slice(0, 40),
+      };
+    }
+
+    const slots = args?.slots && typeof args.slots === "object" && !Array.isArray(args.slots)
+      ? args.slots : null;
+    const appearance = args?.appearance && typeof args.appearance === "object" && !Array.isArray(args.appearance)
+      ? args.appearance : null;
+    if (!slots && !appearance) {
+      return { error: "nothing to change — pass slots and/or appearance" };
+    }
+
+    ctx.canvasOps = ctx.canvasOps || [];
+    ctx.canvasOps.push({
+      uid,
+      ...(slots ? { slots: JSON.parse(JSON.stringify(slots)) } : {}),
+      ...(appearance ? { appearance: JSON.parse(JSON.stringify(appearance)) } : {}),
+      reason: String(args?.reason || "").slice(0, 200),
+    });
+
+    // Локально обновляем сводку дерева, чтобы следующий шаг агента видел
+    // уже изменённое состояние, а не спорил сам с собой.
+    if (target && slots) target.slots = { ...(target.slots || {}), ...slots };
+
+    return {
+      ok: true,
+      uid,
+      blockId: target?.blockId || null,
+      changedSlots: slots ? Object.keys(slots) : [],
+      changedAppearance: appearance ? Object.keys(appearance) : [],
+      note: "Изменение применится к канвасу конструктора, когда ты завершишь работу (finish).",
+    };
   },
 
   async finish(args, _ctx) {

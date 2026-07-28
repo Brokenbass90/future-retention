@@ -4,8 +4,7 @@
   "description": "Обёртка: белая карта, скругление 32px, eleven.columns, pt44 сверху, pb44 снизу.",
   "placement": "section",
   "category": "layout",
-  "version": 1,
-  "source": "canonical",
+  "version": 2,
   "outlookSafe": true,
   "tags": [
     "section",
@@ -23,7 +22,8 @@
       ]
     }
   ],
-  "pug": "table.row.brad-full.white-bg.iq-section-card(role=\"presentation\")\n    tr\n        td.wrapper.last.offset-by-one.pt44\n            table.eleven.columns(role=\"presentation\")\n                tr\n                    td.text-pad-small.pb44\n                        //- {{ INNER_BLOCKS }}",
-  "styl": ".white-bg\n  background-color: #ffffff\n.brad-full\n  border-radius 32px !important\n.text-pad-small\n  @media screen and (max-width: 600px)\n    padding-left: 20px !important\n    padding-right: 20px !important",
-  "slots": []
+  "pug": "table.row.iq-section-card--brad-full.iq-section-card--white-bg.iq-section-card(role=\"presentation\")\n    tr\n        td.wrapper.last.offset-by-one.iq-section-card--pt44\n            table.eleven.columns(role=\"presentation\")\n                tr\n                    td.text-pad-small.iq-section-card--text-pad-small.iq-section-card--pb44\n                        //- {{ INNER_BLOCKS }}",
+  "styl": ".iq-section-card--white-bg\n  background-color: #ffffff\n.iq-section-card--brad-full\n  border-radius 32px !important\n.iq-section-card--text-pad-small\n  @media screen and (max-width: 600px)\n    padding-left: 20px !important\n    padding-right: 20px !important\n\n/* втянуто из стилей семьи при скоупе — блок больше не зависит от main.styl */\n.iq-section-card--pt44{padding-top:44px}\n.iq-section-card--pb44{padding-bottom:44px}",
+  "slots": [],
+  "scoped": true
 }

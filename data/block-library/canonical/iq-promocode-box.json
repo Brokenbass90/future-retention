@@ -4,11 +4,10 @@
   "description": "p.promocode — оранжевый код в пунктирной рамке.",
   "placement": "inner",
   "category": "cta",
-  "version": 1,
-  "source": "canonical",
+  "version": 2,
   "outlookSafe": true,
-  "pug": "p.promocode.iq-promocode-box {{ code }}",
-  "styl": ".promocode\n  background: #ffefe0\n  border: 2px dashed #f70\n  border-radius: 16px\n  color: #f70\n  font-family: Helvetica !important\n  font-size: 24px\n  font-style: normal\n  font-weight: 700\n  line-height: 31px\n  padding: 16px 22px",
+  "pug": "p.iq-promocode-box--promocode.iq-promocode-box {{ code }}",
+  "styl": ".iq-promocode-box--promocode\n  background: #ffefe0\n  border: 2px dashed #f70\n  border-radius: 16px\n  color: #f70\n  font-family: Helvetica !important\n  font-size: 24px\n  font-style: normal\n  font-weight: 700\n  line-height: 31px\n  padding: 16px 22px",
   "slots": [
     {
       "id": "code",
@@ -17,5 +16,6 @@
       "default": "PROMOCODE",
       "uiGroup": "content"
     }
-  ]
+  ],
+  "scoped": true
 }

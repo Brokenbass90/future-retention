@@ -4,10 +4,9 @@
   "description": "Универсальная секция-контейнер с типизированной content-зоной. Фон, ширина, выравнивание, обводка, скругление и отступы настраиваются слотами; email-safe табличный каркас остаётся неизменным.",
   "placement": "section",
   "category": "layout",
-  "version": 2,
-  "source": "canonical",
-  "pug": "table.row.iq-section(class=\"{{ bg }}\" role=\"presentation\" style=\"background-color:{{ background_color }};border:{{ border }};border-radius:{{ radius }}\")\n    tr\n        td.wrapper.last(class=\"{{ offset }}\")\n            table.columns(class=\"{{ cols }}\" role=\"presentation\")\n                tr\n                    td.text-pad-small(class=\"{{ pt }} {{ pb }}\" style=\"padding-top:{{ padding_top }};padding-right:{{ padding_right }};padding-bottom:{{ padding_bottom }};padding-left:{{ padding_left }};text-align:{{ align }}\")\n                        //- {{ INNER_BLOCKS }}",
-  "styl": ".iq-section{border-collapse:separate!important;border-radius:{{ radius }}!important}\n.white-bg{background-color:#fff}\n.bgr-image{background-image:url({{ bg_image }});background-position:{{ background_position }};background-repeat:no-repeat;background-size:cover}\n@media screen and (max-width:600px){.text-pad-small{padding-left:20px!important}.text-pad-small,.text-pad-small-right{padding-right:20px!important}}",
+  "version": 3,
+  "pug": "table.row.iq-section--iq-section(class=\"{{ bg }}\" role=\"presentation\" style=\"background-color:{{ background_color }};border:{{ border }};border-radius:{{ radius }}\")\n    tr\n        td.wrapper.last(class=\"{{ offset }}\")\n            table.columns(class=\"{{ cols }}\" role=\"presentation\")\n                tr\n                    td.text-pad-small.iq-section--text-pad-small(class=\"{{ pt }} {{ pb }}\" style=\"padding-top:{{ padding_top }};padding-right:{{ padding_right }};padding-bottom:{{ padding_bottom }};padding-left:{{ padding_left }};text-align:{{ align }}\")\n                        //- {{ INNER_BLOCKS }}",
+  "styl": ".iq-section--iq-section{border-collapse:separate!important;border-radius:{{ radius }}!important}\n.iq-section--white-bg{background-color:#fff}\n.iq-section--bgr-image{background-image:url({{ bg_image }});background-position:{{ background_position }};background-repeat:no-repeat;background-size:cover}\n@media screen and (max-width:600px){.iq-section--text-pad-small{padding-left:20px!important}.iq-section--text-pad-small,.iq-section--text-pad-small-right{padding-right:20px!important}}",
   "slots": [
     {
       "id": "bg",
@@ -40,7 +39,12 @@
       "kind": "select",
       "label": "Позиция фоновой картинки",
       "default": "center top",
-      "options": ["center top", "center center", "left top", "right top"],
+      "options": [
+        "center top",
+        "center center",
+        "left top",
+        "right top"
+      ],
       "uiGroup": "appearance"
     },
     {
@@ -55,7 +59,13 @@
       "kind": "select",
       "label": "Скругление",
       "default": "32px",
-      "options": ["0", "8px", "16px", "24px", "32px"],
+      "options": [
+        "0",
+        "8px",
+        "16px",
+        "24px",
+        "32px"
+      ],
       "uiGroup": "appearance"
     },
     {
@@ -144,12 +154,24 @@
       "kind": "select",
       "label": "Выравнивание контента",
       "default": "left",
-      "options": ["left", "center", "right"],
+      "options": [
+        "left",
+        "center",
+        "right"
+      ],
       "uiGroup": "appearance"
     }
   ],
   "childSlots": [
-    { "id": "content", "marker": "INNER_BLOCKS", "accepts": ["inner", "inline", "both"] }
+    {
+      "id": "content",
+      "marker": "INNER_BLOCKS",
+      "accepts": [
+        "inner",
+        "inline",
+        "both"
+      ]
+    }
   ],
   "outlookSafe": true,
   "tags": [
@@ -157,5 +179,6 @@
     "layout",
     "container",
     "iq"
-  ]
+  ],
+  "scoped": true
 }

@@ -70,6 +70,8 @@
           Открыто legacy-письмо без модели конструктора. Секции, картинки и стили сохранены в исходном порядке как цельный код; отдельные поля внутри них не распознаны.
         </div>
         <div class="cat-count" id="catCount"></div>
+        <button class="btn chat-open-btn" id="openChatBtn" title="Спросить оператора: найти блок по картинке, проверить письмо, собрать с нуля">💬 Спросить ИИ</button>
+        <button class="btn gallery-open-btn" id="openGalleryBtn" title="Открыть каталог во весь экран: плитки превью, поиск, одинаковые блоки схлопнуты">⊞ Каталог плиткой</button>
         <button class="btn author-new-btn" id="newBlockBtn" title="Создать новый блок с нуля (pug + stylus + слоты)">➕ Создать блок</button>
         <div class="cat-list" id="catalogList">
           <div class="cat-empty">Загрузка…</div>
@@ -126,7 +128,7 @@
       <span class="preview-stats" id="previewStats"></span>
       <button class="btn preview-close" id="previewClose" title="Закрыть полноэкранное превью">✕</button>
     </div>
-    <iframe class="preview-frame" id="previewFrame" sandbox="allow-same-origin"></iframe>
+    <iframe class="preview-frame" id="previewFrame" sandbox="allow-same-origin" srcdoc="&lt;!doctype html&gt;&lt;title&gt;&lt;/title&gt;"></iframe>
   </div>
 
   <!-- BLOCK AUTHOR MODAL -->
@@ -181,7 +183,7 @@
             <span>Живое превью</span>
             <span id="abStatus" class="preview-pane-status">пусто</span>
           </div>
-          <iframe id="abFrame" sandbox="allow-same-origin"></iframe>
+          <iframe id="abFrame" sandbox="allow-same-origin" srcdoc="&lt;!doctype html&gt;&lt;title&gt;&lt;/title&gt;"></iframe>
         </div>
       </div>
       <div class="author-footer">
@@ -214,6 +216,7 @@
     </div>
   </div>
 
+  <script src="/studio-chat.js"></script>
   <script src="/constructor.js"></script>
 </body>
 </html>

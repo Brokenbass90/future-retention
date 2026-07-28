@@ -4,10 +4,9 @@
   "description": "Самостоятельная текстовая часть hero: крупный заголовок и абзац. Контент, цвета, размеры, выравнивание и отступы редактируются отдельно. Текст в gmail-blend обёртке: защита от инверсии цвета в тёмной теме Gmail.",
   "placement": "inner",
   "category": "hero",
-  "version": 2,
-  "source": "canonical",
-  "pug": "table.iq-hero-copy(role=\"presentation\" width=\"100%\")\n    tr\n        td(style=\"padding:{{ padding }};text-align:{{ align }}\")\n            div.gmail-blend-screen\n                div.gmail-blend-diff\n                    p.iq-hero-title {{ title }}\n                    p.iq-hero-body {{ body }}",
-  "styl": ".iq-hero-copy{width:100%}\n.iq-hero-title{color:{{ title_color }};font-family:Helvetica,Arial,sans-serif!important;font-size:{{ title_size }}px;font-weight:700;line-height:{{ title_line_height }}px;margin:0;padding:{{ title_padding }};word-break:break-word}\n.iq-hero-body{color:{{ body_color }};font-family:Helvetica,Arial,sans-serif!important;font-size:{{ body_size }}px;font-style:normal;font-weight:400;line-height:{{ body_line_height }}px;margin:0;padding:0}\n@media screen and (max-width:600px){.iq-hero-title{font-size:26px!important;line-height:32px!important}.iq-hero-body{padding-right:0!important}}",
+  "version": 3,
+  "pug": "table.iq-hero-copy--iq-hero-copy(role=\"presentation\" width=\"100%\")\n    tr\n        td(style=\"padding:{{ padding }};text-align:{{ align }}\")\n            div.gmail-blend-screen\n                div.gmail-blend-diff\n                    p.iq-hero-copy--iq-hero-title {{ title }}\n                    p.iq-hero-copy--iq-hero-body {{ body }}",
+  "styl": ".iq-hero-copy--iq-hero-copy{width:100%}\n.iq-hero-copy--iq-hero-title{color:{{ title_color }};font-family:Helvetica,Arial,sans-serif!important;font-size:{{ title_size }}px;font-weight:700;line-height:{{ title_line_height }}px;margin:0;padding:{{ title_padding }};word-break:break-word}\n.iq-hero-copy--iq-hero-body{color:{{ body_color }};font-family:Helvetica,Arial,sans-serif!important;font-size:{{ body_size }}px;font-style:normal;font-weight:400;line-height:{{ body_line_height }}px;margin:0;padding:0}\n@media screen and (max-width:600px){.iq-hero-copy--iq-hero-title{font-size:26px!important;line-height:32px!important}.iq-hero-copy--iq-hero-body{padding-right:0!important}}",
   "slots": [
     {
       "id": "title",
@@ -108,5 +107,6 @@
     "text",
     "inner",
     "iq"
-  ]
+  ],
+  "scoped": true
 }

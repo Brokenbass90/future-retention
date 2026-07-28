@@ -4,11 +4,10 @@
   "description": "p.date на оранжевой подложке-картинке. В gmail-blend обёртке против инверсии.",
   "placement": "inner",
   "category": "hero",
-  "version": 2,
-  "source": "canonical",
+  "version": 3,
   "outlookSafe": true,
-  "pug": "div.gmail-blend-screen\n    div.gmail-blend-diff(style=\"text-align:{{ align }}\")\n        p.date {{ text }}",
-  "styl": ".date\n  border-radius: 10px\n  color: #ff8516\n  display: inline-block\n  font-family: Helvetica !important\n  font-size: 24px\n  font-style: normal\n  font-weight: 700\n  line-height: 36px\n  padding: 4px 12px\n  background: url('https://fsms.quadcode.com/storage/public/d8/0t/39261bdc700vi72g/bg-orange.png') center no-repeat\n  background-size: cover",
+  "pug": "div.gmail-blend-screen\n    div.gmail-blend-diff(style=\"text-align:{{ align }}\")\n        p.iq-date-badge--date {{ text }}",
+  "styl": ".iq-date-badge--date\n  border-radius: 10px\n  color: #ff8516\n  display: inline-block\n  font-family: Helvetica !important\n  font-size: 24px\n  font-style: normal\n  font-weight: 700\n  line-height: 36px\n  padding: 4px 12px\n  background: url('https://fsms.quadcode.com/storage/public/d8/0t/39261bdc700vi72g/bg-orange.png') center no-repeat\n  background-size: cover",
   "slots": [
     {
       "id": "text",
@@ -29,5 +28,6 @@
       ],
       "uiGroup": "appearance"
     }
-  ]
+  ],
+  "scoped": true
 }

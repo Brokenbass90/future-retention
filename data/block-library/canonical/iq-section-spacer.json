@@ -4,14 +4,44 @@
   "description": "Наружный отступ между секциями и комбо. По умолчанию прозрачный; можно задать цвет фона письма или соседней секции.",
   "placement": "section",
   "category": "utility",
-  "version": 2,
-  "source": "canonical",
-  "pug": "table.row.iq-section-spacer(role=\"presentation\" width=\"100%\" style=\"background-color:{{ background_color }}\")\n    tr\n        td.iq-section-spacer-cell(height=\"{{ height }}\" style=\"height:{{ height }}px;font-size:1px;line-height:1px;background-color:{{ background_color }}\") &nbsp;",
-  "styl": ".iq-section-spacer{width:100%;border-collapse:collapse}.iq-section-spacer-cell{padding:0!important}",
+  "version": 3,
+  "pug": "table.row.iq-section-spacer--iq-section-spacer(role=\"presentation\" width=\"100%\" style=\"background-color:{{ background_color }}\")\n    tr\n        td.iq-section-spacer--iq-section-spacer-cell(height=\"{{ height }}\" style=\"height:{{ height }}px;font-size:1px;line-height:1px;background-color:{{ background_color }}\") &nbsp;",
+  "styl": ".iq-section-spacer--iq-section-spacer{width:100%;border-collapse:collapse}.iq-section-spacer--iq-section-spacer-cell{padding:0!important}",
   "slots": [
-    { "id": "background_color", "kind": "color", "label": "Цвет промежутка", "default": "transparent", "uiGroup": "appearance" },
-    { "id": "height", "kind": "select", "label": "Расстояние между секциями, px", "default": "20", "options": ["8", "12", "16", "20", "24", "28", "32", "40", "48", "60"], "uiGroup": "appearance" }
+    {
+      "id": "background_color",
+      "kind": "color",
+      "label": "Цвет промежутка",
+      "default": "transparent",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "height",
+      "kind": "select",
+      "label": "Расстояние между секциями, px",
+      "default": "20",
+      "options": [
+        "8",
+        "12",
+        "16",
+        "20",
+        "24",
+        "28",
+        "32",
+        "40",
+        "48",
+        "60"
+      ],
+      "uiGroup": "appearance"
+    }
   ],
   "outlookSafe": true,
-  "tags": ["spacer", "divider", "utility", "outer-divider", "combo-divider"]
+  "tags": [
+    "spacer",
+    "divider",
+    "utility",
+    "outer-divider",
+    "combo-divider"
+  ],
+  "scoped": true
 }

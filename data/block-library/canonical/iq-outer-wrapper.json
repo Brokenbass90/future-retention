@@ -4,10 +4,9 @@
   "description": "Наружная часть письма: голова со стилями проекта, preheader, контейнер 580px, footer, gmail-fix. Внутрь (include blocks/header) стекаются section-блоки.",
   "placement": "outer",
   "category": "wrapper",
-  "version": 2,
-  "source": "canonical",
-  "pug": "doctype PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"\nhtml(xmlns=\"http://www.w3.org/1999/xhtml\")\n\n    include ../../../../vendor/helpers/mixins\n    include ../../../../vendor/helpers/head\n    <u></u>\n    body.body(style=\"background-color:{{ background_color }}\")\n        include helpers/preheader\n        table.body(style=\"background-color:{{ background_color }}\")\n            tr\n                td(align=\"center\", valign=\"top\" style=\"background-color:{{ background_color }}\").center.bg-col\n                    center\n                        table.container\n                            tr\n                                td.pt0.plr10a\n                                    //- {{ SECTION_BLOCKS }}\n                                    include blocks/header\n                                    include helpers/footer\n\n        //Gmail App Fix\n        include ../../../../vendor/helpers/gmail-fix\n",
-  "styl": "",
+  "version": 3,
+  "pug": "doctype PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"\nhtml(xmlns=\"http://www.w3.org/1999/xhtml\")\n\n    include ../../../../vendor/helpers/mixins\n    include ../../../../vendor/helpers/head\n    <u></u>\n    body.body(style=\"background-color:{{ background_color }}\")\n        include helpers/preheader\n        table.body(style=\"background-color:{{ background_color }}\")\n            tr\n                td(align=\"center\", valign=\"top\" style=\"background-color:{{ background_color }}\").center.bg-col\n                    center\n                        table.container\n                            tr\n                                td.pt0.iq-outer-wrapper--plr10a\n                                    //- {{ SECTION_BLOCKS }}\n                                    include blocks/header\n                                    include helpers/footer\n\n        //Gmail App Fix\n        include ../../../../vendor/helpers/gmail-fix\n",
+  "styl": "/* втянуто из стилей семьи при скоупе — блок больше не зависит от main.styl */\n.iq-outer-wrapper--plr10a{padding-right:10px;padding-left:10px}\n@media screen and (max-width: 600px){\n.iq-outer-wrapper--plr10a{padding-right:0 !important;padding-left:0 !important}\n}",
   "slots": [
     {
       "id": "background_color",
@@ -40,5 +39,6 @@
     "outer",
     "iq"
   ],
-  "note": "Голова (стили проекта) подключается через include vendor/helpers/head. Контентные section-блоки идут в include blocks/header."
+  "note": "Голова (стили проекта) подключается через include vendor/helpers/head. Контентные section-блоки идут в include blocks/header.",
+  "scoped": true
 }

@@ -4,11 +4,10 @@
   "description": "p.white-title 42px, для тёмного фона. В gmail-blend обёртке.",
   "placement": "inner",
   "category": "text",
-  "version": 3,
-  "source": "canonical",
+  "version": 4,
   "outlookSafe": true,
-  "pug": "div.gmail-blend-screen\n    div.gmail-blend-diff\n        p.white-title.pb16.pt16(style=\"text-align:{{ align }};font-size:{{ font_size }};line-height:{{ line_height }}\") {{ text }}",
-  "styl": ".white-title\n  font-family: Helvetica !important\n  font-weight: 700\n  font-size: 42px\n  line-height: 52px\n  color: #F9F9F9\n  word-break: break-word\n  padding-right 30px\n  @media screen and (max-width: 600px)\n    font-size: 26px !important\n    line-height: 32px !important",
+  "pug": "div.gmail-blend-screen\n    div.gmail-blend-diff\n        p.iq-white-title--white-title.iq-white-title--pb16.iq-white-title--pt16(style=\"text-align:{{ align }};font-size:{{ font_size }};line-height:{{ line_height }}\") {{ text }}",
+  "styl": ".iq-white-title--white-title\n  font-family: Helvetica !important\n  font-weight: 700\n  font-size: 42px\n  line-height: 52px\n  color: #F9F9F9\n  word-break: break-word\n  padding-right 30px\n  @media screen and (max-width: 600px)\n    font-size: 26px !important\n    line-height: 32px !important\n\n/* втянуто из стилей семьи при скоупе — блок больше не зависит от main.styl */\n.iq-white-title--pb16{padding-bottom:16px}\n.iq-white-title--pt16{padding-top:16px}",
   "slots": [
     {
       "id": "text",
@@ -43,5 +42,6 @@
       "default": "52px",
       "uiGroup": "appearance"
     }
-  ]
+  ],
+  "scoped": true
 }

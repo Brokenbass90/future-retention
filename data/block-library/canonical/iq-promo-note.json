@@ -4,11 +4,10 @@
   "description": "p.promo-text-foot — серый мелкий текст сносок под контентом (юридика, пояснения).",
   "placement": "inner",
   "category": "text",
-  "version": 1,
-  "source": "canonical",
+  "version": 2,
   "outlookSafe": true,
-  "pug": "p.promo-text-foot.center.pb10.iq-promo-note {{ text }}",
-  "styl": ".promo-text-foot\n  font-family: Helvetica !important\n  font-style: normal\n  font-weight: 400\n  font-size: 18px\n  line-height: 26px\n  color: #71717D",
+  "pug": "p.iq-promo-note--promo-text-foot.center.pb10.iq-promo-note {{ text }}",
+  "styl": ".iq-promo-note--promo-text-foot\n  font-family: Helvetica !important\n  font-style: normal\n  font-weight: 400\n  font-size: 18px\n  line-height: 26px\n  color: #71717D",
   "slots": [
     {
       "id": "text",
@@ -17,5 +16,6 @@
       "default": "Small note text",
       "uiGroup": "content"
     }
-  ]
+  ],
+  "scoped": true
 }

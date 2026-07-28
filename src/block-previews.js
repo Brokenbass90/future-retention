@@ -1,0 +1,106 @@
+/**
+ * src/block-previews.js — доступ к пререндеренным превью блоков.
+ *
+ * Картинки и сигнатуры делает `scripts/render-block-previews.mjs`, здесь только
+ * чтение: индекс кэшируется в памяти и перечитывается по mtime файла, чтобы
+ * прогон рендера подхватывался без перезапуска сервера.
+ *
+ * Сигнатура — это то, чем блок описывается для AI: размер, палитра, есть ли
+ * картинка/кнопка/список/колонки, адаптивный ли. До неё модель выбирала блок
+ * только по категории и авто-описанию вида «Импортирован из X_IQ (1 писем)».
+ */
+import { existsSync, readFileSync, statSync } from "node:fs";
+import path from "node:path";
+import url from "node:url";
+
+const here = path.dirname(url.fileURLToPath(import.meta.url));
+const repoRoot = path.resolve(here, "..");
+export const PREVIEW_ROOT = path.join(repoRoot, "data", "block-previews");
+const INDEX_PATH = path.join(PREVIEW_ROOT, "index.json");
+
+let cache = { mtimeMs: -1, index: { blocks: {} } };
+
+export function loadPreviewIndex() {
+  try {
+    const stat = statSync(INDEX_PATH);
+    if (stat.mtimeMs !== cache.mtimeMs) {
+      cache = { mtimeMs: stat.mtimeMs, index: JSON.parse(readFileSync(INDEX_PATH, "utf8")) };
+    }
+  } catch {
+    cache = { mtimeMs: -1, index: { blocks: {} } };
+  }
+  return cache.index;
+}
+
+export function invalidatePreviewIndex() { cache = { mtimeMs: -1, index: { blocks: {} } }; }
+
+/** Превью одного блока в форме, пригодной для UI и для AI. */
+export function previewForBlock(block) {
+  if (!block || !block.id) return null;
+  const index = loadPreviewIndex();
+  const entry = index.blocks?.[`${block.source || "canonical"}:${block.id}`]
+    // Блок мог переехать между директориями — ищем по id как запасной вариант.
+    || Object.values(index.blocks || {}).find((b) => b.id === block.id);
+  if (!entry) return null;
+  if (entry.error) return { status: "failed", error: entry.error };
+  // Группа одинаковых на вид блоков (scripts/group-block-duplicates.mjs):
+  // каталог показывает одну плитку за группу, остальные прячет под бейдж.
+  const group = entry.groupId && index.groups?.[entry.groupId]
+    ? {
+      id: entry.groupId,
+      size: entry.groupSize || index.groups[entry.groupId].size || 1,
+      primary: Boolean(entry.groupPrimary),
+      members: index.groups[entry.groupId].members || [],
+    }
+    : null;
+  return {
+    status: "ok",
+    desktop: entry.shots?.desktop ? toUrl(entry.shots.desktop) : null,
+    mobile: entry.shots?.mobile ? toUrl(entry.shots.mobile) : null,
+    signature: entry.signature || null,
+    group,
+  };
+}
+
+function toUrl(shot) {
+  // data/block-previews/canonical/x.desktop.png → /block-previews/canonical/x.desktop.png
+  const rel = String(shot.file || "").split(path.sep).join("/").replace(/^data\//, "");
+  return { url: `/${rel}`, width: shot.width, height: shot.height };
+}
+
+export function attachPreviews(blocks) {
+  return (blocks || []).map((b) => ({ ...b, preview: previewForBlock(b) }));
+}
+
+/**
+ * Резолв пути картинки для статической раздачи. Возвращает абсолютный путь
+ * внутри PREVIEW_ROOT или null — выход за корень не допускается.
+ */
+export function resolvePreviewFile(requestPath) {
+  const rel = decodeURIComponent(String(requestPath || ""))
+    .replace(/^\/+block-previews\/+/, "")
+    .split("?")[0];
+  if (!rel || rel.includes("\0")) return null;
+  const abs = path.resolve(PREVIEW_ROOT, rel);
+  if (abs !== PREVIEW_ROOT && !abs.startsWith(PREVIEW_ROOT + path.sep)) return null;
+  if (!abs.endsWith(".png")) return null;
+  return existsSync(abs) ? abs : null;
+}
+
+/** Компактная сводка для промпта AI: одна строка на блок. */
+export function describeBlockForAi(block) {
+  const p = previewForBlock(block);
+  if (!p || p.status !== "ok" || !p.signature) return null;
+  const s = p.signature;
+  const parts = [
+    `${s.width}×${s.height}px`,
+    s.background ? `фон ${s.background}` : null,
+    s.images ? `картинок ${s.images}` : null,
+    s.buttons ? `кнопок ${s.buttons}` : null,
+    s.listItems ? `пунктов списка ${s.listItems}` : null,
+    s.columns >= 2 ? `${s.columns} колонки` : null,
+    s.textChars ? `текста ${s.textChars} симв.` : null,
+    s.responsive ? "адаптивный" : "фиксированной ширины",
+  ].filter(Boolean);
+  return parts.join(", ");
+}

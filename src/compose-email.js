@@ -120,6 +120,79 @@ function failSlot(block, slot, message) {
   throw error;
 }
 
+function privateEmailAssetHostname(hostname) {
+  const host = String(hostname || "").trim().toLowerCase().replace(/^\[|\]$/g, "").replace(/\.$/, "");
+  if (!host) return false;
+  if (host === "localhost" || host.endsWith(".localhost") || host.endsWith(".local")) return true;
+
+  const ipv4 = host.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (ipv4) {
+    const octets = ipv4.slice(1).map(Number);
+    if (octets.some((part) => part > 255)) return true;
+    const [a, b] = octets;
+    return a === 0
+      || a === 10
+      || a === 127
+      || (a === 169 && b === 254)
+      || (a === 172 && b >= 16 && b <= 31)
+      || (a === 192 && b === 168)
+      || (a === 100 && b >= 64 && b <= 127);
+  }
+
+  if (host.includes(":")) {
+    return host === "::"
+      || host === "::1"
+      || host === "0:0:0:0:0:0:0:1"
+      || /^f[cd][0-9a-f]*:/i.test(host)
+      || /^fe[89ab][0-9a-f]*:/i.test(host)
+      || host.startsWith("::ffff:");
+  }
+  return false;
+}
+
+/**
+ * Returns a human-readable rejection reason for URLs that only work inside
+ * the Studio/runtime network. Empty, placeholder and ordinary relative values
+ * remain governed by their existing slot contracts.
+ */
+export function unsafeEmailAssetUrlReason(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+  if (/^\/studio-assets(?:\/|$)/i.test(raw)) return "uses the local /studio-assets path";
+
+  const candidate = raw.startsWith("//") ? `https:${raw}` : raw;
+  let parsed;
+  try { parsed = new URL(candidate); }
+  catch { return ""; }
+  if (/^\/studio-assets(?:\/|$)/i.test(parsed.pathname)) {
+    return "uses the local /studio-assets path";
+  }
+  if (["http:", "https:"].includes(parsed.protocol) && privateEmailAssetHostname(parsed.hostname)) {
+    return `uses a local/private host (${parsed.hostname})`;
+  }
+  return "";
+}
+
+function unsafeAssetError(label, reason) {
+  const error = new Error(`${label} cannot use a non-public asset URL: ${reason}`);
+  error.code = "UNSAFE_ASSET_URL";
+  error.statusCode = 422;
+  return error;
+}
+
+/** Reject hard-coded local/private asset URLs in the fully rendered source. */
+export function assertEmailAssetSourcePublic(source, label = "composed email source") {
+  const text = String(source || "");
+  if (/\/studio-assets(?:\/|$|[?#])/i.test(text)) {
+    throw unsafeAssetError(label, "uses the local /studio-assets path");
+  }
+  const urls = text.match(/(?:https?:)?\/\/(?:\[[^\]]+\]|[a-z0-9.-]+)(?::\d+)?(?:\/[^\s"'<>)]*)?/gi) || [];
+  for (const assetUrl of urls) {
+    const reason = unsafeEmailAssetUrlReason(assetUrl);
+    if (reason) throw unsafeAssetError(label, reason);
+  }
+}
+
 /**
  * Slot values are data, never Pug/Stylus source. Attribute values are escaped
  * later; this contract additionally prevents a value from creating a new line,
@@ -169,6 +242,12 @@ function normalizeTypedSlotValue(block, slot, raw) {
   if (["url", "image", "localizedurl"].includes(kind)
       && /^\s*(?:javascript|vbscript|data\s*:\s*text\/html)/i.test(value)) {
     failSlot(block, slot, "uses a forbidden URL scheme");
+  }
+  if (["url", "image", "localizedurl"].includes(kind)) {
+    const unsafeAssetReason = unsafeEmailAssetUrlReason(value);
+    if (unsafeAssetReason) {
+      throw unsafeAssetError(`block ${block?.id || "unknown"}: slot "${slot?.id || "unknown"}"`, unsafeAssetReason);
+    }
   }
 
   if (cssContext) {
@@ -379,6 +458,74 @@ export function applyOuterWrapperBackgroundToPug(pug, rawColor) {
     }
     return line;
   }).join("\n");
+}
+
+/* ─── Ручной слой стилей письма ─────────────────────────────────── */
+
+/** Заголовок файла: объясняет правила игры тому, кто откроет его в workbench. */
+const CUSTOM_STYL_HEADER = [
+  "// custom.styl — ручные стили ЭТОГО письма.",
+  "//",
+  "// Конструктор сюда не пишет и этот файл не перезаписывает: всё, что здесь,",
+  "// переживает пересохранение письма из конструктора.",
+  "//",
+  "// Каскад: фреймворк (ink/vendor) → стили блоков (blocks/main.styl) →",
+  "// ЭТОТ ФАЙЛ → inline-стили в разметке блоков.",
+  "// То есть отсюда можно переопределить дефолты любого блока, но inline-стиль,",
+  "// заданный слотом в конструкторе, останется сильнее.",
+  "",
+].join("\n");
+
+/**
+ * Создаёт `app/styles/custom.styl` и гарантирует, что он импортируется
+ * ПОСЛЕДНИМ в common.styl. Обе операции идемпотентны и никогда не затирают
+ * существующее содержимое.
+ *
+ * Файл лежит вне `blocks/`, потому что common.styl подтягивает `blocks/**\/*`
+ * глобом в алфавитном порядке — там custom.styl оказался бы ПЕРЕД main.styl
+ * и проиграл бы ему в каскаде.
+ */
+/** Путь ручного слоя стилей письма. */
+export function customStylePath(destDir) {
+  return path.join(destDir, "app", "styles", "custom.styl");
+}
+
+/** Содержимое custom.styl до пересборки письма (null, если файла не было). */
+function readPreservedCustomStyl(destDir) {
+  const file = customStylePath(destDir);
+  if (!existsSync(file)) return null;
+  try { return readFileSync(file, "utf8"); } catch { return null; }
+}
+
+/** Вернуть ручной слой на место после раскладки скелета. */
+function restorePreservedCustomStyl(destDir, content) {
+  if (content == null) return;
+  const file = customStylePath(destDir);
+  mkdirSync(path.dirname(file), { recursive: true });
+  writeFileSync(file, content, "utf8");
+}
+
+export function ensureCustomStyleLayer(destDir) {
+  const stylesDir = path.join(destDir, "app", "styles");
+  const customPath = path.join(stylesDir, "custom.styl");
+  mkdirSync(stylesDir, { recursive: true });
+  if (!existsSync(customPath)) writeFileSync(customPath, CUSTOM_STYL_HEADER, "utf8");
+
+  // Точка входа сборки: inline.styl, если есть, иначе common.styl (build-mail.js).
+  const entryPath = existsSync(path.join(stylesDir, "inline.styl"))
+    ? path.join(stylesDir, "inline.styl")
+    : path.join(stylesDir, "common.styl");
+  if (!existsSync(entryPath)) return { customPath, entryPath: null, imported: false };
+
+  const entry = readFileSync(entryPath, "utf8");
+  if (/^\s*@import\s+['"]custom['"]\s*$/m.test(entry)) {
+    return { customPath, entryPath, imported: false };
+  }
+  const updated = entry.replace(/\s*$/, "")
+    + "\n\n// Ручные стили письма — всегда последними, чтобы бить дефолты блоков.\n"
+    + "@import 'custom'\n";
+  writeFileSync(entryPath, updated, "utf8");
+  return { customPath, entryPath, imported: true };
 }
 
 /* ─── Block loading + validation ────────────────────────────────── */
@@ -648,12 +795,40 @@ function copyTreeSkippingDist(src, dst) {
 /* ─── Main API ──────────────────────────────────────────────────── */
 
 /**
+ * Resolve and validate the source destination without writing anything.
+ * Callers that need to guard the destructive compose step (for example with
+ * `withComposeSaveTransaction`) can use this exact path calculation instead
+ * of duplicating the compose path-safety rules.
+ */
+export function resolveComposeEmailTarget({
+  brand = "X_assembled",
+  mailName,
+  destRoot = EMAIL_BASE,
+} = {}) {
+  const safeBrand = assertSafePathSegment(brand, "brand");
+  const safeMailName = assertSafePathSegment(mailName, "mailName");
+  const resolvedDestRoot = path.resolve(String(destRoot || ""));
+  const destDir = assertContainedPath(
+    resolvedDestRoot,
+    path.resolve(resolvedDestRoot, safeBrand, `mail-${safeMailName}`),
+    "compose destination",
+  );
+  return Object.freeze({
+    brand: safeBrand,
+    mailName: safeMailName,
+    destRoot: resolvedDestRoot,
+    destDir,
+  });
+}
+
+/**
  * @param {object} args
  * @param {string} args.brand        — destination brand folder ("X_assembled" default)
  * @param {string} args.mailName     — without "mail-" prefix
  * @param {Array}  args.blocks       — [{ id: string, slots: {...} }]
  * @param {string} [args.skeleton]   — abs path to a template mail to use as wrapper
  * @param {string} [args.destRoot]   — override destination root (default email-base)
+ * @param {boolean} [args.validateOnly] — render and validate in memory without filesystem writes
  * @returns {{ destDir, brand, mailName, totalBlocks, blocksUsed, warnings }}
  */
 export function composeEmailFromBlocks({
@@ -665,16 +840,13 @@ export function composeEmailFromBlocks({
   trustedSkeletonRoots = [],
   markBlocks = false,
   preserveSkeletonPreheader = false,
+  validateOnly = false,
 }) {
-  const safeBrand = assertSafePathSegment(brand, "brand");
-  const safeMailName = assertSafePathSegment(mailName, "mailName");
-  const resolvedDestRoot = path.resolve(String(destRoot || ""));
+  const target = resolveComposeEmailTarget({ brand, mailName, destRoot });
+  const safeBrand = target.brand;
+  const safeMailName = target.mailName;
+  const destDir = target.destDir;
   const resolvedSkeleton = resolveTrustedSkeleton(skeleton, trustedSkeletonRoots);
-  const destDir = assertContainedPath(
-    resolvedDestRoot,
-    path.resolve(resolvedDestRoot, safeBrand, `mail-${safeMailName}`),
-    "compose destination",
-  );
   if (destDir === resolvedSkeleton) {
     throw new Error("skeleton and destination are the same directory; stage a trusted snapshot before composing");
   }
@@ -974,11 +1146,36 @@ export function composeEmailFromBlocks({
   });
   const composedStyl = stylParts.join("\n");
 
+  // Final in-memory gate before the first destructive filesystem operation.
+  // Slot validation catches constructor/API values; this second pass also
+  // catches a hard-coded URL in canonical, imported or ad-hoc Pug/Stylus.
+  // Keep it above readPreservedCustomStyl/rmSync/copyTreeSkippingDist so an
+  // invalid API or AI compose request cannot touch an existing destination.
+  assertEmailAssetSourcePublic(composedPug, "composed Pug");
+  assertEmailAssetSourcePublic(composedStyl, "composed Stylus");
+  if (validateOnly) {
+    return {
+      destDir,
+      brand: safeBrand,
+      mailName: safeMailName,
+      totalBlocks: blocks.length,
+      blocksUsed: emitted.length,
+      warnings,
+      validated: true,
+    };
+  }
+
   // 3) Scaffold the destination mail folder.
+  //    Папка сносится и раскладывается из скелета заново, поэтому ручной слой
+  //    стилей письма надо спасти ДО сноса и вернуть ПОСЛЕ — иначе обещание
+  //    «custom.styl переживает пересохранение из конструктора» держаться не
+  //    будет ни секунды.
+  const preservedCustomStyl = readPreservedCustomStyl(destDir);
   if (existsSync(destDir)) {
     try { rmSync(destDir, { recursive: true, force: true }); } catch { /* ignore */ }
   }
   copyTreeSkippingDist(resolvedSkeleton, destDir);
+  restorePreservedCustomStyl(destDir, preservedCustomStyl);
 
   // The outer block is a constructor context node and is not emitted into
   // blocks/header.pug. Its one meaningful visual setting belongs on the real
@@ -1060,6 +1257,13 @@ export function composeEmailFromBlocks({
     ? skeletonStyl.replace(/\s+$/, "") + "\n\n/* ── RetKit constructor blocks ── */\n" + composedStyl
     : composedStyl;
   writeFileSync(mainStyl, mergedStyl, "utf8");
+
+  // Слой ручных стилей письма. main.styl принадлежит конструктору и
+  // перезаписывается на каждое сохранение — всё, что там правили руками,
+  // терялось. custom.styl конструктор создаёт один раз и больше НИКОГДА
+  // не трогает; в каскаде он идёт последним и бьёт и скелет, и блоки
+  // (слабее только inline-стили самих блоков).
+  ensureCustomStyleLayer(destDir);
 
   // Durable constructor source of truth. Pug/Styl are compilation products;
   // this JSON lets the studio reopen the exact tree (including recipe IDs and

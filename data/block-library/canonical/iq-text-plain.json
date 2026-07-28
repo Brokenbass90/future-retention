@@ -4,11 +4,10 @@
   "description": "p.text 18px тёмно-серый.",
   "placement": "inner",
   "category": "text",
-  "version": 2,
-  "source": "canonical",
+  "version": 3,
   "outlookSafe": true,
-  "pug": "p.text.iq-text-plain(style=\"text-align:{{ align }}\") {{ text }}",
-  "styl": ".text\n  font-family: Helvetica !important\n  font-size: 18px\n  color: #393A44\n  letter-spacing: 0\n  line-height: 26px\n  font-weight 400",
+  "pug": "p.iq-text-plain--text.iq-text-plain(style=\"text-align:{{ align }}\") {{ text }}",
+  "styl": ".iq-text-plain--text\n  font-family: Helvetica !important\n  font-size: 18px\n  color: #393A44\n  letter-spacing: 0\n  line-height: 26px\n  font-weight 400",
   "slots": [
     {
       "id": "text",
@@ -29,5 +28,6 @@
       ],
       "uiGroup": "appearance"
     }
-  ]
+  ],
+  "scoped": true
 }

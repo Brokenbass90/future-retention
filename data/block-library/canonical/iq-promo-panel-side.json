@@ -1,0 +1,89 @@
+{
+  "id": "iq-promo-panel-side",
+  "label": "Промо-панель: текст + картинка справа",
+  "description": "Панель со скруглением 24px и фоновой картинкой: жирный текст слева, картинка справа. На мобильном складывается в столбик и центрируется. Отличается от «Оранжевой панели» тем, что здесь только текст, без списка.",
+  "placement": "inner",
+  "category": "feature-list",
+  "version": 2,
+  "source": "canonical",
+  "outlookSafe": true,
+  "scoped": true,
+  "tags": [
+    "promo",
+    "panel",
+    "image",
+    "iq"
+  ],
+  "pug": ".iq-promo-panel-side--panel(style=\"background-color:{{ background_color }};border-radius:{{ radius }}\")\n    table.iq-promo-panel-side--grid(role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\")\n        tr\n            td.iq-promo-panel-side--copy(class=\"{{ size }}\")\n                p.iq-promo-panel-side--big-text(style=\"color:{{ text_color }}\") {{ text }}\n            td.iq-promo-panel-side--media\n                a(href=\"{{ image_href }}\" universal=\"true\" target=\"_blank\")\n                    img.iq-promo-panel-side--right-img(src=\"{{ image }}\" alt=\"{{ image_alt }}\")",
+  "styl": ".iq-promo-panel-side--panel\n  background url('{{ background_image }}') left top no-repeat\n  background-size cover\n  background-color {{ background_color }}\n  border-radius: {{ radius }}\n.iq-promo-panel-side--grid\n  border-collapse collapse\n.iq-promo-panel-side--copy\n  vertical-align: middle\n  text-align: left\n  padding 30px 0 30px 32px\n  @media screen and (max-width: 600px)\n    display block !important\n    width auto !important\n    text-align: center !important\n    padding 32px 20px 16px 20px !important\n.iq-promo-panel-side--copy-wide\n  padding 44px 0 44px 32px\n  @media screen and (max-width: 600px)\n    padding 32px 20px 16px 20px !important\n.iq-promo-panel-side--media\n  vertical-align: middle\n  text-align: right\n  width 192px\n  padding 0 16px 0 0\n  @media screen and (max-width: 600px)\n    display block !important\n    width auto !important\n    text-align: center !important\n    padding 0 20px 28px 20px !important\n.iq-promo-panel-side--big-text\n  font-family: Helvetica !important\n  font-style: normal\n  font-weight: 700\n  font-size: 20px\n  line-height: 26px\n  margin 0\n  @media screen and (max-width: 600px)\n    text-align: center !important\n.iq-promo-panel-side--right-img\n  float: none\n  width 160px !important\n  display: inline-block\n  vertical-align: middle\n  @media screen and (max-width: 600px)\n    margin 0 auto !important\n    display block !important",
+  "slots": [
+    {
+      "id": "text",
+      "kind": "text",
+      "label": "Текст панели",
+      "default": "Bold panel text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "image",
+      "kind": "image",
+      "label": "Картинка справа",
+      "default": "https://fsms.quadcode.com/storage/public/d6/o2/ua3ursrq72d917s0/bcg.png",
+      "uiGroup": "assets"
+    },
+    {
+      "id": "image_alt",
+      "kind": "text",
+      "label": "Alt картинки",
+      "default": "",
+      "uiGroup": "assets"
+    },
+    {
+      "id": "image_href",
+      "kind": "text",
+      "label": "Ссылка с картинки",
+      "default": "#",
+      "allowSystemPlaceholder": true,
+      "uiGroup": "content"
+    },
+    {
+      "id": "background_image",
+      "kind": "image",
+      "label": "Фоновая картинка панели",
+      "default": "https://fsms.quadcode.com/storage/public/d3/su/vrqnkfh5fd10g5n0/orange-bg-1.png",
+      "uiGroup": "assets"
+    },
+    {
+      "id": "background_color",
+      "kind": "color",
+      "label": "Цвет подложки",
+      "default": "#FAE4D4",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "text_color",
+      "kind": "color",
+      "label": "Цвет текста",
+      "default": "#393A44",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "radius",
+      "kind": "text",
+      "label": "Скругление",
+      "default": "24px",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "size",
+      "kind": "select",
+      "label": "Ширина текстовой колонки",
+      "default": "",
+      "options": [
+        "",
+        "iq-promo-panel-side--copy-wide"
+      ],
+      "uiGroup": "appearance"
+    }
+  ]
+}

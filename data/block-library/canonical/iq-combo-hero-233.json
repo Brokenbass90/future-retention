@@ -4,8 +4,7 @@
   "description": "УСТАРЕЛ: будет заменён новыми комбо из нарезки писем. Скрыт из каталога, оставлен для совместимости старых писем и design-compose. Рецепт готовой шапки: hero-секция с именованными media/content-зонами, отдельный логотип, картинка-хедер, дата-плашка и текстовый блок. После вставки каждый элемент редактируется самостоятельно.",
   "placement": "section",
   "category": "hero",
-  "version": 2,
-  "source": "canonical",
+  "version": 3,
   "combo": true,
   "children": [
     {
@@ -68,8 +67,8 @@
       }
     }
   ],
-  "pug": "table.row.brad-full.bgr-image\n    tr\n        td.wrapper.last.pt0\n            table.twelve.columns\n                tr\n                    td.pb20\n                        a(href=\"{{ logo_link }}\" universal=\"true\" target=\"_blank\")\n                            img.logo.center(src=\"{{ logo_img }}\")\n                        a(href=\"{{ head_link }}\" universal=\"true\" target=\"_blank\")\n                            img.center(src=\"{{ head_img }}\")\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb50.pt0\n                        div.gmail-blend-screen\n                            div.gmail-blend-diff\n                                p.date {{ date }}\n                                p.white-title.pb16.pt16 {{ title }}\n                                p.white-text {{ body }}",
-  "styl": ".brad-full,.brad-full-32{border-radius:32px!important}\n.bgr{background-position:top center;background-repeat:no-repeat;min-height:auto;border-radius:10px;background-size:cover}\n.bgr-image{background:url({{ bg_image }}) center top no-repeat;background-color:#000;background-size:cover}\n.logo{float:none;max-width:138px;padding-top:32px;padding-bottom:0}\n@media screen and (max-width:600px){.logo{margin:0 auto!important}}\n.date{background-size:cover;border-radius:10px;color:#ff8516;display:inline-block;font-family:Helvetica!important;font-size:24px;font-style:normal;font-weight:700;line-height:36px;padding:4px 12px;background:url(https://fsms.quadcode.com/storage/public/d8/0t/39261bdc700vi72g/bg-orange.png) center no-repeat}\n.white-title{font-family:Helvetica!important;font-weight:700;font-size:42px;line-height:52px;color:#f9f9f9;word-break:break-word;padding-right:30px}\n@media screen and (max-width:600px){.white-title{font-size:26px!important;line-height:32px!important}}\n.white-text{font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#fff;padding-right:20px}\n@media screen and (max-width:600px){.white-text{padding-right:0!important}}",
+  "pug": "table.row.iq-combo-hero-233--brad-full.iq-combo-hero-233--bgr-image\n    tr\n        td.wrapper.last.pt0\n            table.twelve.columns\n                tr\n                    td.pb20\n                        a(href=\"{{ logo_link }}\" universal=\"true\" target=\"_blank\")\n                            img.logo.iq-combo-hero-233--logo.center(src=\"{{ logo_img }}\")\n                        a(href=\"{{ head_link }}\" universal=\"true\" target=\"_blank\")\n                            img.center(src=\"{{ head_img }}\")\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb50.pt0\n                        div.gmail-blend-screen\n                            div.gmail-blend-diff\n                                p.iq-combo-hero-233--date {{ date }}\n                                p.iq-combo-hero-233--white-title.iq-combo-hero-233--pb16.iq-combo-hero-233--pt16 {{ title }}\n                                p.iq-combo-hero-233--white-text {{ body }}",
+  "styl": ".iq-combo-hero-233--brad-full,.iq-combo-hero-233--brad-full-32{border-radius:32px!important}\n.iq-combo-hero-233--bgr{background-position:top center;background-repeat:no-repeat;min-height:auto;border-radius:10px;background-size:cover}\n.iq-combo-hero-233--bgr-image{background:url({{ bg_image }}) center top no-repeat;background-color:#000;background-size:cover}\n.iq-combo-hero-233--logo{float:none;max-width:138px;padding-top:32px;padding-bottom:0}\n@media screen and (max-width:600px){.iq-combo-hero-233--logo{margin:0 auto!important}}\n.iq-combo-hero-233--date{background-size:cover;border-radius:10px;color:#ff8516;display:inline-block;font-family:Helvetica!important;font-size:24px;font-style:normal;font-weight:700;line-height:36px;padding:4px 12px;background:url(https://fsms.quadcode.com/storage/public/d8/0t/39261bdc700vi72g/bg-orange.png) center no-repeat}\n.iq-combo-hero-233--white-title{font-family:Helvetica!important;font-weight:700;font-size:42px;line-height:52px;color:#f9f9f9;word-break:break-word;padding-right:30px}\n@media screen and (max-width:600px){.iq-combo-hero-233--white-title{font-size:26px!important;line-height:32px!important}}\n.iq-combo-hero-233--white-text{font-family:Helvetica!important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#fff;padding-right:20px}\n@media screen and (max-width:600px){.iq-combo-hero-233--white-text{padding-right:0!important}}\n\n/* втянуто из стилей семьи при скоупе — блок больше не зависит от main.styl */\n.iq-combo-hero-233--pb16{padding-bottom:16px}\n.iq-combo-hero-233--pt16{padding-top:16px}",
   "slots": [
     {
       "id": "logo_img",
@@ -134,5 +133,6 @@
     "combo",
     "iq"
   ],
-  "retired": true
+  "retired": true,
+  "scoped": true
 }

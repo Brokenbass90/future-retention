@@ -7,6 +7,7 @@ import {
   mkdtempSync,
   readFileSync,
   rmSync,
+  writeFileSync,
 } from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -33,6 +34,21 @@ function adHocEntry({ id = "safe-section", pug = "table.row.safe\n  tr\n    td {
       ],
     },
     slots,
+  };
+}
+
+function adHocImageEntry({ id, imageUrl, pug = "table.row.safe\n  tr\n    td\n      img(src='{{ image }}')", styl = "" }) {
+  return {
+    id,
+    def: {
+      id,
+      label: id,
+      placement: "section",
+      pug,
+      styl,
+      slots: [{ id: "image", kind: "image", default: "https://cdn.example.com/safe.png" }],
+    },
+    slots: { image: imageUrl },
   };
 }
 
@@ -131,6 +147,55 @@ try {
     },
     /Stylus|quotes|import/i,
   );
+
+  // Core/API/AI guard: composeEmailFromBlocks is the shared write path. An
+  // unsafe request must fail before it removes or rewrites an existing mail.
+  const sentinelMailName = "asset-sentinel";
+  const sentinelPath = path.join(temp, "X_safe", `mail-${sentinelMailName}`, "app", "templates", "blocks", "header.pug");
+  mkdirSync(path.dirname(sentinelPath), { recursive: true });
+  writeFileSync(sentinelPath, "p EXISTING-ASSET-SENTINEL\n", "utf8");
+  for (const [label, assetUrl] of [
+    ["relative Studio asset", "/studio-assets/private.png"],
+    ["absolute Studio asset", "https://studio.example/studio-assets/private.png"],
+    ["localhost asset", "http://localhost/private.png"],
+    ["IPv4 loopback asset", "http://127.0.0.1/private.png"],
+    ["RFC1918 10/8 asset", "http://10.2.3.4/private.png"],
+    ["RFC1918 172.16/12 asset", "http://172.20.3.4/private.png"],
+    ["RFC1918 192.168/16 asset", "http://192.168.1.4/private.png"],
+    ["IPv6 loopback asset", "http://[::1]/private.png"],
+  ]) {
+    expectComposeFailure(
+      `${label} is rejected by direct/API-equivalent compose`,
+      {
+        ...baseArgs,
+        mailName: sentinelMailName,
+        blocks: [adHocImageEntry({
+          id: `unsafe-asset-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+          imageUrl: assetUrl,
+        })],
+      },
+      /non-public asset URL|local \/studio-assets|local\/private host/i,
+    );
+    assert.equal(
+      readFileSync(sentinelPath, "utf8"),
+      "p EXISTING-ASSET-SENTINEL\n",
+      `${label} failed before destructive compose write`,
+    );
+  }
+
+  expectComposeFailure(
+    "hard-coded local asset in resultant Pug is rejected before write",
+    {
+      ...baseArgs,
+      mailName: sentinelMailName,
+      blocks: [adHocEntry({
+        id: "hardcoded-local-asset",
+        pug: "table.row.safe\n  tr\n    td\n      img(src='/studio-assets/hardcoded.png')",
+      })],
+    },
+    /composed Pug.*non-public asset URL/i,
+  );
+  assert.equal(readFileSync(sentinelPath, "utf8"), "p EXISTING-ASSET-SENTINEL\n");
 
   const preservedSource = readFileSync(path.join(defaultSkeleton, "app", "templates", "helpers", "preheader.pug"), "utf8");
   const preserved = composeEmailFromBlocks({

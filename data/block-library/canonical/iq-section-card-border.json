@@ -4,8 +4,7 @@
   "description": "Обёртка: белая карта, скругление 32px, рамка (по умолчанию оранжевая 4px), ten.columns, отступы 44px сверху/снизу. Наполняется внутренними блоками.",
   "placement": "section",
   "category": "layout",
-  "version": 1,
-  "source": "canonical",
+  "version": 2,
   "outlookSafe": true,
   "tags": [
     "section",
@@ -23,8 +22,8 @@
       ]
     }
   ],
-  "pug": "table.row.brad-full.white-bg.iq-section-card-border(role=\"presentation\" style=\"border:{{ border }}\")\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns(role=\"presentation\")\n                tr\n                    td.text-pad-small.pb44.pt44\n                        //- {{ INNER_BLOCKS }}",
-  "styl": ".white-bg\n  background-color: #ffffff\n.brad-full\n  border-radius 32px !important\n.text-pad-small\n  @media screen and (max-width: 600px)\n    padding-left: 20px !important\n    padding-right: 20px !important",
+  "pug": "table.row.iq-section-card-border--brad-full.iq-section-card-border--white-bg.iq-section-card-border(role=\"presentation\" style=\"border:{{ border }}\")\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns(role=\"presentation\")\n                tr\n                    td.text-pad-small.iq-section-card-border--text-pad-small.iq-section-card-border--pb44.iq-section-card-border--pt44\n                        //- {{ INNER_BLOCKS }}",
+  "styl": ".iq-section-card-border--white-bg\n  background-color: #ffffff\n.iq-section-card-border--brad-full\n  border-radius 32px !important\n.iq-section-card-border--text-pad-small\n  @media screen and (max-width: 600px)\n    padding-left: 20px !important\n    padding-right: 20px !important\n\n/* втянуто из стилей семьи при скоупе — блок больше не зависит от main.styl */\n.iq-section-card-border--pb44{padding-bottom:44px}\n.iq-section-card-border--pt44{padding-top:44px}",
   "slots": [
     {
       "id": "border",
@@ -33,5 +32,6 @@
       "default": "4px solid #FF7700",
       "uiGroup": "appearance"
     }
-  ]
+  ],
+  "scoped": true
 }
