@@ -34,7 +34,11 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync, rmSync, readdirSync
 import path from "node:path";
 import url from "node:url";
 import { buildStudioModelSourceSignatures } from "./studio-model-signatures.js";
-import { assertPortableBlockSource } from "./block-library-review.js";
+import {
+  assertBlockReleaseApproved,
+  assertPortableBlockSource,
+  blockReviewStatus,
+} from "./block-library-review.js";
 
 const here = path.dirname(url.fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(here, "..");
@@ -589,7 +593,16 @@ export function listCanonicalBlocks() {
   // Returns canonical first, user-saved second. Same shape.
   const canonical = _readBlocksFromDir(CANONICAL_DIR, "canonical");
   const imported  = _readBlocksFromDir(IMPORTED_DIR, "imported");
-  const user      = _readBlocksFromDir(USER_BLOCK_DIR, "user");
+  const user      = _readBlocksFromDir(USER_BLOCK_DIR, "user").map((block) => ({
+    ...block,
+    review: {
+      ...(block.review && typeof block.review === "object" ? block.review : {}),
+      // A hand-edited/stale JSON cannot remain approved merely because the
+      // persisted label still says so. The catalog receives the effective
+      // fail-closed lifecycle status.
+      status: blockReviewStatus(block),
+    },
+  }));
   return [...canonical, ...imported, ...user];
 }
 
@@ -829,6 +842,8 @@ export function resolveComposeEmailTarget({
  * @param {string} [args.skeleton]   — abs path to a template mail to use as wrapper
  * @param {string} [args.destRoot]   — override destination root (default email-base)
  * @param {boolean} [args.validateOnly] — render and validate in memory without filesystem writes
+ * @param {boolean} [args.requireApprovedBlocks] — release path: canonical or currently approved user blocks only
+ * @param {boolean} [args.allowTrustedParsedBlocks] — internal round-trip escape hatch after caller verifies source skeleton provenance
  * @returns {{ destDir, brand, mailName, totalBlocks, blocksUsed, warnings }}
  */
 export function composeEmailFromBlocks({
@@ -841,6 +856,8 @@ export function composeEmailFromBlocks({
   markBlocks = false,
   preserveSkeletonPreheader = false,
   validateOnly = false,
+  requireApprovedBlocks = false,
+  allowTrustedParsedBlocks = false,
 }) {
   const target = resolveComposeEmailTarget({ brand, mailName, destRoot });
   const safeBrand = target.brand;
@@ -882,7 +899,7 @@ export function composeEmailFromBlocks({
         childSlots: Array.isArray(entry.def.childSlots) ? entry.def.childSlots : [],
         appearance: entry.def.appearance && typeof entry.def.appearance === "object" ? entry.def.appearance : {},
       };
-      origin = "ad-hoc";
+      origin = entry.source === "parsed" ? "parsed" : "ad-hoc";
     } else {
       try {
         const record = loadBlockRecord(blockId);
@@ -896,6 +913,9 @@ export function composeEmailFromBlocks({
     }
     if (origin !== "canonical") {
       assertPortableBlockSource(block, { label: `${origin} block "${blockId}"` });
+    }
+    if (requireApprovedBlocks && !(origin === "parsed" && allowTrustedParsedBlocks)) {
+      assertBlockReleaseApproved(block, origin);
     }
     const slotValues = resolveBlockSlotValues(block, entry.slots || {});
     resolved.push({ entry, block, origin, slotValues, inputIndex });

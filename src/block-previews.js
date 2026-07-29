@@ -10,6 +10,7 @@
  * только по категории и авто-описанию вида «Импортирован из X_IQ (1 писем)».
  */
 import { existsSync, readFileSync, statSync } from "node:fs";
+import { createHash } from "node:crypto";
 import path from "node:path";
 import url from "node:url";
 
@@ -19,6 +20,24 @@ export const PREVIEW_ROOT = path.join(repoRoot, "data", "block-previews");
 const INDEX_PATH = path.join(PREVIEW_ROOT, "index.json");
 
 let cache = { mtimeMs: -1, index: { blocks: {} } };
+
+/** Exact source identity used by both the renderer and the release gate. */
+export function blockPreviewSourceHash(block) {
+  const identity = [
+    block?.pug || "",
+    block?.styl || "",
+    block?.slots || [],
+    block?.childSlots || [],
+    block?.version || 0,
+    block?.appearance || {},
+  ];
+  // Preserve existing hashes for atomic blocks while making recipe previews
+  // correctly stale when their embedded composition changes.
+  if (block?.combo === true || (Array.isArray(block?.children) && block.children.length)) {
+    identity.push(Boolean(block?.combo), block?.children || []);
+  }
+  return createHash("sha1").update(JSON.stringify(identity)).digest("hex").slice(0, 16);
+}
 
 export function loadPreviewIndex() {
   try {

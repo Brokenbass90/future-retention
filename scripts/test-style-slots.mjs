@@ -16,6 +16,20 @@ import { applyBlockAppearanceToPug, composeEmailFromBlocks } from "../src/compos
 const REPO = path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), "..");
 let pass = 0, fail = 0;
 const check = (name, cond) => { if (cond) { pass++; console.log("✓", name); } else { fail++; console.log("✗ FAIL", name); } };
+const canonical = (id) => JSON.parse(readFileSync(path.join(REPO, "data", "block-library", "canonical", `${id}.json`), "utf8"));
+
+function htmlTagWithClass(html, tagName, className, index = 0) {
+  const tags = String(html || "").match(new RegExp(`<${tagName}\\b[^>]*>`, "gi")) || [];
+  return tags.filter((tag) => {
+    const classes = tag.match(/\bclass=(?:"([^"]*)"|'([^']*)')/i);
+    return String(classes?.[1] || classes?.[2] || "").split(/\s+/).includes(className);
+  })[index] || "";
+}
+
+function htmlAttr(tag, name) {
+  const match = String(tag || "").match(new RegExp(`\\b${name}=(?:"([^"]*)"|'([^']*)')`, "i"));
+  return match?.[1] || match?.[2] || "";
+}
 
 const tmp = path.join(os.tmpdir(), "retkit-style-slots-test");
 mkdirSync(tmp, { recursive: true });
@@ -153,6 +167,94 @@ check("generic background reaches built HTML", /background-color:\s*#345678/i.te
 check("generic border reaches built HTML", /border:\s*2px solid #456789/i.test(generic.html));
 check("generic radius reaches built HTML", /border-radius:\s*13px/i.test(generic.html));
 check("generic padding reaches built HTML", /padding:\s*7px 11px/i.test(generic.html));
+
+// 6) Canonical CTA and asset rows keep their email-safe layout contract.
+// Legacy `.butt` added vertical padding to the TD while the scoped link added
+// another 16px, producing a double-height button in composed combo blocks.
+const ctaSources = [
+  "iq-cta-w280",
+  "iq-combo-card-cta",
+  "iq-combo-hero-bgr",
+  "iq-combo-promo-steps",
+  "iq-combo-steps-promocode",
+].map(canonical);
+check("canonical CTA sources no longer attach the legacy .butt/.butt-link classes",
+  ctaSources.every((block) => !/\btd\.butt\b|\ba\.butt-link\b/.test(block.pug)));
+check("canonical CTA sources explicitly zero cell padding",
+  ctaSources.every((block) => /--butt(?:\([^)]*)?|--butt[^\\n]*style="padding:0"/.test(block.pug)
+    && /--butt(?:\n|[^\\n{]*\{)[\s\S]*?padding(?::|\s)+0\s*!important/i.test(block.styl)));
+
+const assetChip = canonical("iq-asset-chip");
+const assetCombo = canonical("iq-combo-assets-orange");
+check("asset chip expands its spacing slot into the scoped desktop-gap class",
+  /class="iq-asset-chip--\{\{\s*spacing\s*\}\}"/.test(assetChip.pug));
+check("asset icon and copy cells have HTML valign fallbacks",
+  (assetChip.pug.match(/valign="middle"/g) || []).length === 2
+    && (assetCombo.pug.match(/valign="middle"/g) || []).length === 8);
+check("asset icon and copy CSS both use middle alignment",
+  /\.iq-asset-chip--m-w-2[\s\S]*?vertical-align:\s*middle[\s\S]*?\.iq-asset-chip--w-a[\s\S]*?vertical-align:\s*middle/i.test(assetChip.styl));
+check("asset desktop gap uses an Outlook table gutter and restores mobile centering",
+  /table\.iq-asset-chip--asset-block/.test(assetChip.pug)
+    && /align="left"/.test(assetChip.pug)
+    && /\.iq-asset-chip--mr16[\s\S]*?margin-right\s+14px[\s\S]*?mso-table-rspace\s+10\.5pt[\s\S]*?@media screen and \(max-width:\s*600px\)[\s\S]*?margin-right\s+auto\s*!important[\s\S]*?mso-table-rspace\s+0pt\s*!important/i.test(assetChip.styl));
+
+const layout = await buildOnce("style-layout-regressions", tree("iq-section", {}, [
+  { blockId: "iq-cta-w280", slotId: "content", slots: { label: "LAYOUT CTA" } },
+  { blockId: "iq-asset-chip", slotId: "content", slots: { name: "US500", spacing: "mr16" } },
+  { blockId: "iq-asset-chip", slotId: "content", slots: { name: "Bitcoin", spacing: "no-gap" } },
+]));
+check("CTA and asset layout build succeeds", layout.code === 0);
+
+const ctaCell = htmlTagWithClass(layout.html, "td", "iq-cta-w280--butt");
+const ctaLink = htmlTagWithClass(layout.html, "a", "iq-cta-w280--butt-link");
+check("built CTA cell has zero padding and no legacy class",
+  /(?:^|;)\s*padding:\s*0(?:\s*!important)?(?:;|$)/i.test(htmlAttr(ctaCell, "style"))
+    && !htmlAttr(ctaCell, "class").split(/\s+/).includes("butt"));
+check("built CTA has one 16px vertical padding layer on the link",
+  /(?:^|;)\s*padding:\s*16px 0(?:;|$)/i.test(htmlAttr(ctaLink, "style"))
+    && (htmlAttr(ctaLink, "style").match(/\bpadding\s*:/gi) || []).length === 1);
+
+const assetIconCell = htmlTagWithClass(layout.html, "td", "iq-asset-chip--m-w-2");
+const assetCopyCell = htmlTagWithClass(layout.html, "td", "iq-asset-chip--w-a");
+check("built asset icon cell stays vertically centered",
+  htmlAttr(assetIconCell, "valign").toLowerCase() === "middle"
+    && /vertical-align:\s*middle/i.test(htmlAttr(assetIconCell, "style")));
+check("built asset copy cell stays vertically centered",
+  htmlAttr(assetCopyCell, "valign").toLowerCase() === "middle"
+    && /vertical-align:\s*middle/i.test(htmlAttr(assetCopyCell, "style")));
+
+const desktopGapCard = htmlTagWithClass(layout.html, "table", "iq-asset-chip--mr16");
+check("built first asset card receives the desktop right gap including Outlook",
+  htmlAttr(desktopGapCard, "align").toLowerCase() === "left"
+    && /margin-right:\s*14px/i.test(htmlAttr(desktopGapCard, "style"))
+    && /mso-table-rspace:\s*10\.5pt/i.test(htmlAttr(desktopGapCard, "style")));
+const builtHead = layout.html.match(/<head\b[\s\S]*?<\/head>/i)?.[0] || "";
+check("mobile asset rule remains in head and restores centered auto margin",
+  /@media[^{]*max-width:\s*600px[\s\S]*?\.iq-asset-chip--mr16\s*\{[^}]*margin-right:\s*auto\s*!important[^}]*mso-table-rspace:\s*0(?:pt)?\s*!important/i.test(builtHead));
+
+const comboCtaLayout = await buildOnce("style-combo-cta-layout", tree("iq-combo-steps-promocode", {}, []));
+const comboCtaCell = htmlTagWithClass(comboCtaLayout.html, "td", "iq-combo-steps-promocode--butt");
+const comboCtaLink = htmlTagWithClass(comboCtaLayout.html, "a", "iq-combo-steps-promocode--butt-link");
+check("static CTA combo build succeeds", comboCtaLayout.code === 0);
+check("static CTA combo also keeps one vertical padding layer",
+  /padding:\s*0(?:\s*!important)?/i.test(htmlAttr(comboCtaCell, "style"))
+    && !htmlAttr(comboCtaCell, "class").split(/\s+/).includes("butt")
+    && /padding:\s*16px 0/i.test(htmlAttr(comboCtaLink, "style")));
+
+const comboAssetLayout = await buildOnce("style-combo-asset-layout", tree("iq-combo-assets-orange", {}, []));
+const comboAssetIconCell = htmlTagWithClass(comboAssetLayout.html, "td", "iq-combo-assets-orange--m-w-2");
+const comboAssetCopyCell = htmlTagWithClass(comboAssetLayout.html, "td", "iq-combo-assets-orange--w-a");
+const comboAssetGap = htmlTagWithClass(comboAssetLayout.html, "div", "iq-combo-assets-orange--mr16");
+const comboAssetHead = comboAssetLayout.html.match(/<head\b[\s\S]*?<\/head>/i)?.[0] || "";
+check("static asset combo build succeeds", comboAssetLayout.code === 0);
+check("static asset combo centers both icon and copy cells",
+  htmlAttr(comboAssetIconCell, "valign").toLowerCase() === "middle"
+    && htmlAttr(comboAssetCopyCell, "valign").toLowerCase() === "middle"
+    && /vertical-align:\s*middle/i.test(htmlAttr(comboAssetIconCell, "style"))
+    && /vertical-align:\s*middle/i.test(htmlAttr(comboAssetCopyCell, "style")));
+check("static asset combo keeps desktop gap plus centered mobile reset",
+  /margin-right:\s*14px/i.test(htmlAttr(comboAssetGap, "style"))
+    && /@media[^{]*max-width:\s*600px[\s\S]*?\.iq-combo-assets-orange--mr16\s*\{[^}]*margin-right:\s*auto\s*!important/i.test(comboAssetHead));
 
 console.log("\n" + (fail === 0 ? `✓ ALL PASS (${pass})` : `✗ ${fail} FAILED, ${pass} passed`));
 process.exit(fail === 0 ? 0 : 1);

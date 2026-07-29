@@ -61,6 +61,7 @@ import {
   transitionUserBlockReviewWithLifecycle,
 } from "./src/block-library-review.js";
 import { classifyConstructorTopLevelLine } from "./src/constructor-legacy-parse.js";
+import { assertTrustedParsedBlockProvenance } from "./src/constructor-parsed-provenance.js";
 import { stageComposeSkeletonIfDestination } from "./src/compose-skeleton-stage.js";
 import { withComposeSaveTransaction } from "./src/compose-save-transaction.js";
 import { constructorBuildMailArgs } from "./src/constructor-build-policy.js";
@@ -108,7 +109,14 @@ import {
 import { syncWorkbenchLocaleNamespaces } from "./src/workbench-localization.js";
 import { compareStudioModelSourceSignatures } from "./src/studio-model-signatures.js";
 import { acquireKeyedOperationLock } from "./src/keyed-operation-lock.js";
+import { acquireWorkbenchMailOperationLock } from "./src/workbench-mail-operation-lock.js";
 import { resolveWorkbenchBuildLocalePolicy } from "./src/workbench-build-locales.js";
+import {
+  auditWorkbenchReleaseHtml,
+  EMAIL_CLIP_LIMIT_BYTES,
+  EMAIL_CLIP_LIMIT_KIB,
+  EMAIL_WEIGHT_LIMIT_EXCEEDED,
+} from "./src/workbench-release-preflight.js";
 import {
   createPreviewBuildCoordinator,
   createPreviewBuildKey,
@@ -122,6 +130,10 @@ import {
   resolveWorkbenchSourcePath,
   validateWorkbenchSourceContent,
 } from "./src/mail-source-security.js";
+import {
+  saveWorkbenchSourceFilesAtomically,
+  workbenchSourceContentHash,
+} from "./src/workbench-source-transaction.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17461,6 +17473,20 @@ const server = http.createServer(async (request, response) => {
           });
           return;
         }
+        // Parsed definitions may bypass the reusable-block approval lifecycle
+        // only for a real, server-resolved source mail. This preserves the
+        // parse-email round-trip without turning arbitrary ad-hoc definitions
+        // into approved library blocks.
+        const _skB = String(body?.sourceBrand || "").replace(/[^a-zA-Z0-9_]/g, "");
+        const _skM = String(body?.sourceMail || "").replace(/[^a-zA-Z0-9_-]/g, "");
+        const _skP = (_skB && _skM && existsSync(path.join(__dirname, "email-base", _skB, _skM)))
+          ? path.join(__dirname, "email-base", _skB, _skM)
+          : undefined;
+        const parsedProvenance = assertTrustedParsedBlockProvenance({
+          blocks,
+          sourceMailRoot: _skP,
+          sourceMail: _skM,
+        });
         // Run the shared compose-core validation before the transaction moves
         // an existing source/dist tree to backup. This rejects local/private
         // asset URLs without performing any destructive filesystem operation.
@@ -17470,10 +17496,10 @@ const server = http.createServer(async (request, response) => {
           blocks,
           destRoot: path.join(__dirname, "email-base"),
           validateOnly: true,
+          requireApprovedBlocks: true,
+          allowTrustedParsedBlocks: parsedProvenance.verified,
         });
         // Compose into email-base directly.
-        const _skB = String(body?.sourceBrand||"").replace(/[^a-zA-Z0-9_]/g,""); const _skM = String(body?.sourceMail||"").replace(/[^a-zA-Z0-9_-]/g,"");
-        const _skP = (_skB && _skM && existsSync(path.join(__dirname,"email-base",_skB,_skM))) ? path.join(__dirname,"email-base",_skB,_skM) : undefined;
         const stagedSkeleton = await stageComposeSkeletonIfDestination(_skP, destFolder);
         let transactionResult;
         try {
@@ -17485,6 +17511,8 @@ const server = http.createServer(async (request, response) => {
             const composed = composeEmailFromBlocks({
               brand, mailName: rawName, blocks,
               destRoot: path.join(__dirname, "email-base"),
+              requireApprovedBlocks: true,
+              allowTrustedParsedBlocks: parsedProvenance.verified,
               preserveSkeletonPreheader: Boolean(_skP),
               trustedSkeletonRoots: stagedSkeleton.staged ? [stagedSkeleton.skeleton] : [],
               ...(stagedSkeleton.skeleton ? { skeleton: stagedSkeleton.skeleton } : {}),
@@ -17542,7 +17570,11 @@ const server = http.createServer(async (request, response) => {
           warnings: composed.warnings,
         });
       } catch (err) {
-        sendJson(response, 500, { error: String(err && err.message ? err.message : err) });
+        sendJson(response, Number(err?.statusCode) || 500, {
+          error: String(err && err.message ? err.message : err),
+          ...(err?.code ? { code: err.code } : {}),
+          ...(err?.validation ? { validation: err.validation } : {}),
+        });
       } finally {
         releaseComposeSaveLock?.();
       }
@@ -19230,24 +19262,67 @@ const server = http.createServer(async (request, response) => {
 
     if (request.method === "POST" && request.url === "/api/wb/code-html") {
       const { brand = "", mail = "", locale = "base", content = "" } = await readRequestBody(request);
+      let releaseHtmlLock = null;
       try {
-        const result = await saveCodeHtmlOverride({ emailBaseRoot, brand, mail, locale, html: content });
-        const workspace = await listCodeWorkspace({ emailBaseRoot, brand, mail });
-        sendJson(response, 200, { ok: true, brand, mail, ...result, locales: workspace.locales });
+        const locked = await acquireWorkbenchMailOperationLock({ emailBaseRoot, brand, mail });
+        const { resolved } = locked;
+        releaseHtmlLock = locked.release;
+        const result = await saveCodeHtmlOverride({
+          emailBaseRoot,
+          brand: resolved.brand,
+          mail: resolved.mail,
+          locale,
+          html: content,
+        });
+        const workspace = await listCodeWorkspace({
+          emailBaseRoot,
+          brand: resolved.brand,
+          mail: resolved.mail,
+        });
+        sendJson(response, 200, {
+          ok: true,
+          brand: resolved.brand,
+          mail: resolved.mail,
+          ...result,
+          locales: workspace.locales,
+        });
       } catch (error) {
         sendJson(response, 400, { ok: false, error: error.message });
+      } finally {
+        releaseHtmlLock?.();
       }
       return;
     }
 
     if (request.method === "POST" && request.url === "/api/wb/code-html/reset") {
       const { brand = "", mail = "", locale = "base" } = await readRequestBody(request);
+      let releaseHtmlLock = null;
       try {
-        const result = await resetCodeHtmlOverride({ emailBaseRoot, brand, mail, locale });
-        const workspace = await listCodeWorkspace({ emailBaseRoot, brand, mail });
-        sendJson(response, 200, { ok: true, brand, mail, ...result, locales: workspace.locales });
+        const locked = await acquireWorkbenchMailOperationLock({ emailBaseRoot, brand, mail });
+        const { resolved } = locked;
+        releaseHtmlLock = locked.release;
+        const result = await resetCodeHtmlOverride({
+          emailBaseRoot,
+          brand: resolved.brand,
+          mail: resolved.mail,
+          locale,
+        });
+        const workspace = await listCodeWorkspace({
+          emailBaseRoot,
+          brand: resolved.brand,
+          mail: resolved.mail,
+        });
+        sendJson(response, 200, {
+          ok: true,
+          brand: resolved.brand,
+          mail: resolved.mail,
+          ...result,
+          locales: workspace.locales,
+        });
       } catch (error) {
         sendJson(response, 400, { ok: false, error: error.message });
+      } finally {
+        releaseHtmlLock?.();
       }
       return;
     }
@@ -19286,6 +19361,36 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
+    // ── Workbench: atomically save an AI Pug/Stylus source proposal ─────────
+    if (request.method === "POST" && request.url === "/api/wb/email-files") {
+      const { brand = "", mail = "", files = [] } = await readRequestBody(request);
+      if (!brand || !mail || !Array.isArray(files) || !files.length) {
+        sendJson(response, 400, { ok: false, error: "brand, mail and files required" });
+        return;
+      }
+      let releaseSourceLock = null;
+      try {
+        const resolved = resolveWorkbenchMailRoot({ emailBaseRoot, brand, mail });
+        releaseSourceLock = await acquireKeyedOperationLock(`mail:${resolved.brand}/${resolved.mail}`);
+        const result = await saveWorkbenchSourceFilesAtomically({
+          emailBaseRoot,
+          brand: resolved.brand,
+          mail: resolved.mail,
+          files,
+        });
+        sendJson(response, 200, result);
+      } catch (error) {
+        sendJson(response, Number(error?.statusCode) || 422, {
+          ok: false,
+          code: error?.code || "ATOMIC_SOURCE_SAVE_FAILED",
+          error: error?.message || "Atomic source save failed",
+        });
+      } finally {
+        releaseSourceLock?.();
+      }
+      return;
+    }
+
     // ── Workbench: read a source file ────────────────────────────────────────
     if (request.method === "GET" && request.url.startsWith("/api/wb/email-file?")) {
       const params = new URL(request.url, "http://localhost").searchParams;
@@ -19299,6 +19404,7 @@ const server = http.createServer(async (request, response) => {
         sendJson(response, 200, {
           ok: true,
           content,
+          sourceHash: workbenchSourceContentHash(content),
           brand: resolved.brand,
           mail: resolved.mail,
           file: resolved.file,
@@ -19348,7 +19454,9 @@ const server = http.createServer(async (request, response) => {
 
     // ── Workbench: rebuild an email from source (Pug+Stylus → HTML) ────────
     if (request.method === "POST" && request.url === "/api/wb/build-email") {
-      const { brand = "", mail = "", namespaces = null } = await readRequestBody(request);
+      const body = await readRequestBody(request);
+      const { brand = "", mail = "", namespaces = null } = body;
+      const releasePreflightRequested = body?.releasePreflight === true;
       if (!brand || !mail) { sendJson(response, 400, { error: "brand and mail required" }); return; }
       const emailBaseDir = path.join(__dirname, "email-base");
       const t0 = Date.now();
@@ -19364,7 +19472,13 @@ const server = http.createServer(async (request, response) => {
         const mailFolder = resolved.mail;
         // build-mail.js convention: --mail <name> where name has no "mail-" prefix.
         const mailArg = mailFolder.replace(/^mail-/, "");
-        releaseBuildLock = await acquireKeyedOperationLock(`mail:${safeBrand}/${mailFolder}`);
+        releaseBuildLock = (
+          await acquireWorkbenchMailOperationLock({
+            emailBaseRoot,
+            brand: safeBrand,
+            mail: mailFolder,
+          })
+        ).release;
         auditMailSourceBeforeBuild({ emailBaseRoot, brand: safeBrand, mail: mailFolder });
         const localeSync = namespaces == null
           ? { written: 0, unchanged: 0, fileCount: 0, namespaceCount: 0, namespaces: [], locales: [], skippedBuiltins: [] }
@@ -19385,6 +19499,10 @@ const server = http.createServer(async (request, response) => {
         } else if (localePolicy.mode === "skip") {
           buildArgs.push("--skip-locales");
         }
+        // Autosave and preview builds intentionally remain warning-only.
+        // A user-triggered release preflight is the strict production gate and
+        // checks the compact Pug output before any export can continue.
+        if (releasePreflightRequested) buildArgs.push("--failOnWeight");
         const buildResult = await new Promise((resolve, reject) => {
           const child = spawn(
             process.execPath,
@@ -19399,7 +19517,11 @@ const server = http.createServer(async (request, response) => {
           child.stderr.on("data", d => { errOut += d.toString(); });
           child.on("close", code => {
             if (code === 0) resolve({ stderr: errOut });
-            else reject(new Error(errOut.trim().split("\n").pop() || `Exit ${code}`));
+            else {
+              const buildError = new Error(errOut.trim().split("\n").pop() || `Exit ${code}`);
+              buildError.buildStderr = errOut;
+              reject(buildError);
+            }
           });
           child.on("error", reject);
         });
@@ -19407,15 +19529,46 @@ const server = http.createServer(async (request, response) => {
           .split("\n")
           .map(line => line.trim())
           .filter(line => /WARN|unresolved placeholder|no JSON found/i.test(line));
+        // build-mail covers every freshly compiled locale. The effective
+        // Workbench workspace may additionally contain detached/manual HTML,
+        // so audit those overrides after localization as part of the same
+        // release request.
+        const releasePreflight = releasePreflightRequested
+          ? await auditWorkbenchReleaseHtml({
+              emailBaseRoot,
+              brand: safeBrand,
+              mail: mailFolder,
+            })
+          : null;
         sendJson(response, 200, {
           ok: true,
           duration: Date.now() - t0,
           localeSync,
           localePolicy,
           buildWarnings,
+          ...(releasePreflight ? { releasePreflight } : {}),
         });
       } catch(err) {
-        sendJson(response, 422, { ok: false, error: err.message });
+        const buildErrorText = `${err?.message || ""}\n${err?.buildStderr || ""}`;
+        const strictWeightFailure = releasePreflightRequested && (
+          err?.code === EMAIL_WEIGHT_LIMIT_EXCEEDED
+          || /Email weight limit exceeded/i.test(buildErrorText)
+        );
+        const releasePreflight = err?.releasePreflight || (strictWeightFailure ? {
+          ok: false,
+          thresholdBytes: EMAIL_CLIP_LIMIT_BYTES,
+          thresholdKib: EMAIL_CLIP_LIMIT_KIB,
+          checked: 0,
+          samples: [],
+          overweight: [],
+          largest: null,
+        } : null);
+        sendJson(response, Number(err?.statusCode) || 422, {
+          ok: false,
+          error: err?.message || "Release build failed",
+          ...(strictWeightFailure ? { code: EMAIL_WEIGHT_LIMIT_EXCEEDED } : {}),
+          ...(releasePreflight ? { releasePreflight } : {}),
+        });
       } finally {
         releaseBuildLock?.();
       }

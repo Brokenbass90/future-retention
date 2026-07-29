@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-27T13:28:22.565Z",
+  "generatedAt": "2026-07-29T08:52:55.936Z",
   "blocks": {
     "canonical:iq-hero-image": {
       "id": "iq-hero-image",
@@ -57,29 +57,29 @@
       "label": "Ассет-чипс (иконка + название)",
       "placement": "inner",
       "category": "feature-list",
-      "hash": "2385959886af5353",
+      "hash": "102c4de4fa4c5e53",
       "shots": {
         "desktop": {
           "file": "data/block-previews/canonical/iq-asset-chip.desktop.png",
-          "width": 224,
-          "height": 79
+          "width": 222,
+          "height": 49
         },
         "mobile": {
           "file": "data/block-previews/canonical/iq-asset-chip.mobile.png",
-          "width": 224,
+          "width": 222,
           "height": 79
         }
       },
       "signature": {
-        "width": 224,
-        "height": 79,
+        "width": 222,
+        "height": 49,
         "mobileHeight": 79,
-        "background": "#fdfdfd",
+        "background": "#fbfcfd",
         "palette": [
-          "#fdfdfd",
+          "#fbfcfd",
           "#393a44",
-          "#6a6b73",
-          "#4b4b55"
+          "#494a53",
+          "#cccdd0"
         ],
         "images": 1,
         "links": 1,
@@ -97,10 +97,10 @@
           "responsive"
         ]
       },
-      "dhash": "800181a989010180",
-      "previewContrast": 19.4,
+      "dhash": "8049696901010180",
+      "previewContrast": 28.1,
       "groupId": "g-canonical-iq-asset-chip",
-      "groupSize": 2,
+      "groupSize": 1,
       "groupPrimary": true
     },
     "canonical:iq-combo-assets-orange": {
@@ -109,7 +109,7 @@
       "label": "Комбо: Оранжевая панель + ассет-чипсы",
       "placement": "section",
       "category": "feature-list",
-      "hash": "4a6b0362ba9797f5",
+      "hash": "432df91829c1e678",
       "shots": {
         "desktop": {
           "file": "data/block-previews/canonical/iq-combo-assets-orange.desktop.png",
@@ -126,12 +126,12 @@
         "width": 580,
         "height": 616,
         "mobileHeight": 931,
-        "background": "#f9fafc",
+        "background": "#f9fafb",
         "palette": [
-          "#f9fafc",
+          "#f9fafb",
           "#a8b1c1",
           "#393a44",
-          "#686971"
+          "#ced1d8"
         ],
         "images": 6,
         "links": 5,
@@ -152,7 +152,7 @@
         ]
       },
       "dhash": "81a0e1e4a8d8c829",
-      "previewContrast": 11.9,
+      "previewContrast": 12.2,
       "groupId": "g-canonical-iq-combo-assets-orange",
       "groupSize": 1,
       "groupPrimary": true
@@ -163,7 +163,7 @@
       "label": "[устарел] Комбо: Hero (лого + картинка + заголовок)",
       "placement": "section",
       "category": "hero",
-      "hash": "f7b2aaa2432f23ca",
+      "hash": "e0755ebfbe16a83d",
       "shots": {
         "desktop": {
           "file": "data/block-previews/canonical/iq-combo-hero-233.desktop.png",
@@ -203,7 +203,7 @@
           "responsive"
         ]
       },
-      "dhash": "b25b2769658d7758",
+      "dhash": "b25b2769658d734c",
       "previewContrast": 7.3,
       "groupId": "g-canonical-iq-combo-hero-233",
       "groupSize": 1,
@@ -215,7 +215,7 @@
       "label": "Комбо: Хеддер на тёмном фоне (лого + картинка + дата + CTA)",
       "placement": "section",
       "category": "hero",
-      "hash": "8b9a4d880ef93e90",
+      "hash": "64d1ffdc4d47e732",
       "shots": {
         "desktop": {
           "file": "data/block-previews/canonical/iq-combo-hero-bgr.desktop.png",
@@ -267,7 +267,7 @@
       "label": "Комбо: Хеддер с фоном-сценой (лого + панель с аватаром)",
       "placement": "section",
       "category": "hero",
-      "hash": "0892ef8485fb575d",
+      "hash": "2a1bd5f0708bbc61",
       "shots": {
         "desktop": {
           "file": "data/block-previews/canonical/iq-combo-hero-space.desktop.png",
@@ -320,7 +320,7 @@
       "label": "[устарел] Комбо: Промо-инструкция (шаги + промокод + CTA)",
       "placement": "section",
       "category": "cta",
-      "hash": "8b6b7c7f6cb67b47",
+      "hash": "88e6630b993dab8f",
       "shots": {
         "desktop": {
           "file": "data/block-previews/canonical/iq-combo-promo-steps.desktop.png",
@@ -342,7 +342,7 @@
           "#fcfbfa",
           "#ff7700",
           "#393a44",
-          "#cfd0d2"
+          "#898b90"
         ],
         "images": 0,
         "links": 1,
@@ -360,8 +360,8 @@
           "responsive"
         ]
       },
-      "dhash": "d1a1b5e585c46169",
-      "previewContrast": 11,
+      "dhash": "d181b5e585c47169",
+      "previewContrast": 11.1,
       "groupId": "g-canonical-iq-combo-promo-steps",
       "groupSize": 1,
       "groupPrimary": true
@@ -372,7 +372,7 @@
       "label": "[устарел] Комбо: Соцсети (ряд, по центру)",
       "placement": "section",
       "category": "footer",
-      "hash": "a9578f4227f65dd9",
+      "hash": "e7f42d478d8cfc35",
       "shots": {
         "desktop": {
           "file": "data/block-previews/canonical/iq-combo-socials-row.desktop.png",
@@ -422,7 +422,7 @@
       "label": "Комбо: Шаги с промокодом (белая карта, оранжевая рамка)",
       "placement": "section",
       "category": "cta",
-      "hash": "a7a99b086b3de643",
+      "hash": "92eaa6d093f99fb4",
       "shots": {
         "desktop": {
           "file": "data/block-previews/canonical/iq-combo-steps-promocode.desktop.png",
@@ -444,7 +444,7 @@
           "#fcfbfa",
           "#ff7700",
           "#393a44",
-          "#d0d0d2"
+          "#8a8b90"
         ],
         "images": 0,
         "links": 1,
@@ -462,8 +462,8 @@
           "responsive"
         ]
       },
-      "dhash": "8101a1a1c4c66169",
-      "previewContrast": 11,
+      "dhash": "8101e1a1c4c66169",
+      "previewContrast": 11.1,
       "groupId": "g-canonical-iq-combo-steps-promocode",
       "groupSize": 1,
       "groupPrimary": true
@@ -474,7 +474,7 @@
       "label": "Комбо: Сноски + сторы + соцсети",
       "placement": "section",
       "category": "footer",
-      "hash": "4971f6d059e0719a",
+      "hash": "dcb2008a96229ae4",
       "shots": {
         "desktop": {
           "file": "data/block-previews/canonical/iq-combo-store-footer.desktop.png",
@@ -494,9 +494,9 @@
         "background": "#f8f8f9",
         "palette": [
           "#f8f8f9",
-          "#aeb6c4",
-          "#d0d1d5",
-          "#71717d"
+          "#71717d",
+          "#b1b8c4",
+          "#4a83ff"
         ],
         "images": 2,
         "links": 3,
@@ -514,7 +514,7 @@
         ]
       },
       "dhash": "0000303030002828",
-      "previewContrast": 3.7,
+      "previewContrast": 4.2,
       "groupId": "g-canonical-iq-combo-store-footer",
       "groupSize": 1,
       "groupPrimary": true
@@ -525,7 +525,7 @@
       "label": "CTA-кнопка (оранжевая, 280px)",
       "placement": "inner",
       "category": "cta",
-      "hash": "7313f9282c18529f",
+      "hash": "0c4111a1fe8db5d2",
       "shots": {
         "desktop": {
           "file": "data/block-previews/canonical/iq-cta-button.desktop.png",
@@ -545,9 +545,9 @@
         "background": "#ff7700",
         "palette": [
           "#ff7700",
-          "#fbfaf9",
-          "#fcc290",
-          "#ff8418"
+          "#fcfafa",
+          "#fae7d7",
+          "#fe8f2e"
         ],
         "images": 0,
         "links": 1,
@@ -563,8 +563,8 @@
           "responsive"
         ]
       },
-      "dhash": "8080801616808080",
-      "previewContrast": 11.2,
+      "dhash": "8080801616178080",
+      "previewContrast": 14,
       "groupId": "g-canonical-iq-cta-w280",
       "groupSize": 2,
       "groupPrimary": false
@@ -575,7 +575,7 @@
       "label": "Кнопка CTA (w280, оранжевая)",
       "placement": "inner",
       "category": "cta",
-      "hash": "f01c83e3c882eead",
+      "hash": "940ba626d17e6316",
       "shots": {
         "desktop": {
           "file": "data/block-previews/canonical/iq-cta-w280.desktop.png",
@@ -595,9 +595,9 @@
         "background": "#ff7700",
         "palette": [
           "#ff7700",
-          "#fbfaf9",
-          "#fdb06f",
-          "#fe8f2e"
+          "#fcfbfb",
+          "#ff8e2b",
+          "#fae4d1"
         ],
         "images": 0,
         "links": 1,
@@ -613,8 +613,8 @@
           "responsive"
         ]
       },
-      "dhash": "8080801616808080",
-      "previewContrast": 12.1,
+      "dhash": "8080801616178080",
+      "previewContrast": 14.6,
       "groupId": "g-canonical-iq-cta-w280",
       "groupSize": 2,
       "groupPrimary": true
@@ -675,7 +675,7 @@
       "label": "Футер (адрес, риск, условия/отписка)",
       "placement": "section",
       "category": "footer",
-      "hash": "e21874e063113550",
+      "hash": "43f26210bfd67aea",
       "shots": {
         "desktop": {
           "file": "data/block-previews/canonical/iq-footer.desktop.png",
@@ -695,9 +695,9 @@
         "background": "#f9f9f9",
         "palette": [
           "#f9f9f9",
-          "#4d5056",
-          "#cccdce",
-          "#696c71"
+          "#4a4d53",
+          "#cecfd0",
+          "#adaeb1"
         ],
         "images": 0,
         "links": 2,
@@ -713,8 +713,8 @@
           "responsive"
         ]
       },
-      "dhash": "0060003038c20000",
-      "previewContrast": 6.6,
+      "dhash": "0060003028c20000",
+      "previewContrast": 8.2,
       "groupId": "g-canonical-iq-footer",
       "groupSize": 1,
       "groupPrimary": true
@@ -7642,9 +7642,9 @@
       },
       "dhash": "8001819999010180",
       "previewContrast": 14,
-      "groupId": "g-canonical-iq-asset-chip",
-      "groupSize": 2,
-      "groupPrimary": false
+      "groupId": "g-imported-iq-feature-list-49",
+      "groupSize": 1,
+      "groupPrimary": true
     },
     "imported:iq-feature-list-50": {
       "id": "iq-feature-list-50",
@@ -24795,7 +24795,7 @@
       "label": "Комбо: Карта с рамкой (заголовок + текст + кнопка)",
       "placement": "section",
       "category": "cta",
-      "hash": "39964193a68fcad9",
+      "hash": "9880b0e7aa52af75",
       "shots": {
         "desktop": {
           "file": "data/block-previews/canonical/iq-combo-card-cta.desktop.png",
@@ -24815,9 +24815,9 @@
         "background": "#f9f9f9",
         "palette": [
           "#f9f9f9",
-          "#ff5500",
           "#ff7700",
-          "#393a44"
+          "#393a44",
+          "#6b6c73"
         ],
         "images": 0,
         "links": 1,
@@ -24834,7 +24834,7 @@
         ]
       },
       "dhash": "0131311101696901",
-      "previewContrast": 25.7,
+      "previewContrast": 21.5,
       "groupId": "g-canonical-iq-combo-card-cta",
       "groupSize": 1,
       "groupPrimary": true
@@ -25160,10 +25160,9 @@
     },
     "g-canonical-iq-asset-chip": {
       "primary": "canonical:iq-asset-chip",
-      "size": 2,
+      "size": 1,
       "members": [
-        "canonical:iq-asset-chip",
-        "imported:iq-feature-list-49"
+        "canonical:iq-asset-chip"
       ]
     },
     "g-canonical-iq-combo-assets-orange": {
@@ -25754,6 +25753,13 @@
       "size": 1,
       "members": [
         "imported:iq-feature-list-48"
+      ]
+    },
+    "g-imported-iq-feature-list-49": {
+      "primary": "imported:iq-feature-list-49",
+      "size": 1,
+      "members": [
+        "imported:iq-feature-list-49"
       ]
     },
     "g-imported-iq-feature-list-50": {
@@ -27420,5 +27426,5 @@
       ]
     }
   },
-  "groupedAt": "2026-07-27T13:28:24.803Z"
+  "groupedAt": "2026-07-29T08:53:19.486Z"
 }

@@ -13,7 +13,11 @@ export function constructorBuildMailArgs({ brand, mailName, preview = false }) {
     // the expensive part without changing either temporary consumer.
     args.push("--locales", "en");
   } else {
-    args.push("--pretty");
+    // A persistent Constructor save is a release action. Keep the readable
+    // companion file, but refuse a compact payload at/above the client
+    // clipping threshold. Temporary previews and the Workbench draft loop
+    // remain warning-only so editing is never interrupted.
+    args.push("--pretty", "--failOnWeight");
   }
   return args;
 }

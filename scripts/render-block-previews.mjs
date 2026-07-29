@@ -38,7 +38,6 @@ import {
   existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync, rmSync, symlinkSync,
 } from "node:fs";
 import { spawnSync } from "node:child_process";
-import { createHash } from "node:crypto";
 import path from "node:path";
 import os from "node:os";
 import url from "node:url";
@@ -46,6 +45,7 @@ import { chromium } from "playwright-core";
 import { PNG } from "pngjs";
 
 import { composeEmailFromBlocks } from "../src/compose-email.js";
+import { blockPreviewSourceHash } from "../src/block-previews.js";
 
 /* ─── Песочница/CI без root: локальные стабы системных библиотек ─────────── */
 if (process.platform === "linux") {
@@ -75,6 +75,12 @@ const ONLY = opt("only", null);
 const LIMIT = Number(opt("limit", 0)) || Infinity;
 const SHEET_SIZE = Math.max(1, Number(opt("sheet", 8)) || 8);
 const FORCE = flag("force");
+const SYSTEM_CHROME_CANDIDATES = process.platform === "darwin"
+  ? [
+      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+      "/Applications/Chromium.app/Contents/MacOS/Chromium",
+    ]
+  : [];
 /**
  * Ширины окна для съёмки.
  *
@@ -154,10 +160,7 @@ function loadLibrary() {
 
 /* ─── Хеш содержимого блока ──────────────────────────────────────────────── */
 function blockHash(b) {
-  return createHash("sha1").update(JSON.stringify([
-    b.pug || "", b.styl || "", b.slots || [], b.childSlots || [],
-    b.version || 0, b.appearance || {},
-  ])).digest("hex").slice(0, 16);
+  return blockPreviewSourceHash(b);
 }
 
 /* ─── Сборка одного контактного листа ────────────────────────────────────── */
@@ -416,8 +419,16 @@ async function main() {
   const contexts = {};
 
   async function openBrowser() {
+    // `playwright-core` does not download a browser on npm install. Local
+    // Studio machines already have Chrome, so use it as an explicit fallback
+    // instead of making preview refresh depend on a separate 200MB download.
+    const bundledExecutable = chromium.executablePath();
+    const executablePath = existsSync(bundledExecutable)
+      ? bundledExecutable
+      : SYSTEM_CHROME_CANDIDATES.find((candidate) => existsSync(candidate));
     browser = await chromium.launch({
       headless: true,
+      ...(executablePath ? { executablePath } : {}),
       args: ["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"],
     });
     for (const w of WIDTHS) {

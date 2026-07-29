@@ -426,7 +426,8 @@ function blockReviewLabel(block) {
 }
 
 function blockCatalogUsable(block) {
-  return block?.source !== "user" || blockReviewStatus(block) !== "draft";
+  return block?.source === "canonical"
+    || (block?.source === "user" && blockReviewStatus(block) === "approved");
 }
 
 function catalogSourceAllowed(block, scope = "curated") {
@@ -503,8 +504,8 @@ function renderCatalog() {
   if (sourceWarning) {
     sourceWarning.classList.toggle("hidden", state.sourceScope === "curated");
     sourceWarning.textContent = state.sourceScope === "user"
-      ? "Draft не прошёл детерминированную проверку и не вставляется в письмо. Candidate уже компилируется, но попадёт в «Проверенные» только после ручного одобрения. AI-review можно добавить позже как совет, не как пропуск."
-      : "Legacy-блоки вырезаны из старых писем: их стили и картинки относятся к конкретным кампаниям и могут плохо сочетаться между собой.";
+      ? "Draft не прошёл release-проверку. Candidate можно изучить и одобрить, но вставлять в письмо можно только approved-блоки. AI-review остаётся советом, не пропуском."
+      : "Legacy-блоки вырезаны из старых писем и находятся в карантине: их можно изучить, но нельзя вставить в выпускаемое письмо.";
   }
   if (!filtered.length) {
     list.innerHTML = `<div class="cat-empty">Ничего не найдено. Сбрось фильтры или поменяй запрос.</div>`;
@@ -523,7 +524,9 @@ function renderCatalog() {
     el.dataset.placement = b.placement || "";
     el.title = usable
       ? "Перетащи на канвас (или клик чтобы добавить в конец)"
-      : "Draft нельзя вставить: открой код и исправь ошибки проверки";
+      : b.source === "imported"
+        ? "Legacy-блок в карантине: скопируй его в «Мои блоки», проверь и одобри перед использованием"
+        : "Вставлять можно только approved-блок: исправь release-проверки и нажми ✓";
     const slotCount = (b.slots || []).length;
     const isUser = b.source === "user";
     el.innerHTML = `
@@ -2019,13 +2022,61 @@ function appliedStyleNote(uid, key) {
     </div>`;
 }
 
-/** rgb(255, 119, 0) → #ff7700; всё остальное отдаём как есть. */
+/** rgb(255, 119, 0) → #FF7700; всё остальное отдаём как есть. */
 function rgbToHex(value) {
   const m = /^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)$/.exec(String(value).trim());
   if (!m) return null;
   if (m[4] !== undefined && Number(m[4]) === 0) return "прозрачный";
-  const hex = "#" + [m[1], m[2], m[3]].map((n) => Number(n).toString(16).padStart(2, "0")).join("");
+  const hex = "#" + [m[1], m[2], m[3]].map((n) => Number(n).toString(16).padStart(2, "0")).join("").toUpperCase();
   return m[4] !== undefined && Number(m[4]) < 1 ? `${hex} (${Math.round(Number(m[4]) * 100)}%)` : hex;
+}
+
+const EMAIL_HEX_PALETTE = Object.freeze([
+  "#000000", "#222222", "#393A44", "#6B7280",
+  "#FFFFFF", "#F9F9F9", "#ECECED", "#FF7700",
+  "#F59E0B", "#E02424", "#2563EB", "#16A34A",
+]);
+
+/**
+ * Email-safe colour accepted by the constructor.
+ *
+ * We intentionally do not accept rgb()/rgba(), alpha HEX or named colours:
+ * the authored Pug/Stylus and the compiled inline CSS stay explicit #RRGGBB.
+ * `transparent` and `inherit` remain available for nested backgrounds.
+ */
+function parseEmailColor(value, options) {
+  const allowEmpty = Boolean(options?.allowEmpty);
+  const raw = String(value ?? "").trim();
+  if (!raw) return allowEmpty ? "" : null;
+  const keyword = raw.toLowerCase();
+  if (keyword === "transparent" || keyword === "inherit") return keyword;
+  const short = /^#([0-9a-f]{3})$/i.exec(raw);
+  if (short) {
+    return "#" + short[1].split("").map((char) => char + char).join("").toUpperCase();
+  }
+  const full = /^#([0-9a-f]{6})$/i.exec(raw);
+  return full ? `#${full[1].toUpperCase()}` : null;
+}
+
+function renderEmailColorControl({ target, id, value, placeholder }) {
+  const normalized = parseEmailColor(value, { allowEmpty: true });
+  const shown = normalized === null ? String(value ?? "") : normalized;
+  const swatch = /^#[0-9A-F]{6}$/.test(normalized || "") ? normalized : "#000000";
+  const transparent = !/^#[0-9A-F]{6}$/.test(normalized || "");
+  const key = `${target}:${id}`;
+  const dataId = target === "slot"
+    ? `data-slot-id="${escapeHtml(id)}"`
+    : `data-appearance-id="${escapeHtml(id)}"`;
+  const presets = EMAIL_HEX_PALETTE.map((color) =>
+    `<button type="button" class="email-color-preset" data-email-color-value="${color}" style="--email-swatch:${color}" title="${color}" aria-label="${color}"></button>`
+  ).join("");
+  return `<button type="button" class="email-color-swatch${transparent ? " is-transparent" : ""}" data-email-color-open="${escapeHtml(key)}" style="--email-swatch:${escapeHtml(swatch)}" title="Открыть HEX-палитру"><span class="email-color-swatch-chip"></span><span>HEX</span></button>
+    <input type="text" class="email-hex-input" data-email-color="${escapeHtml(target)}" ${dataId} value="${escapeHtml(shown)}" placeholder="${escapeHtml(placeholder)}" maxlength="11" inputmode="text" autocomplete="off" spellcheck="false" aria-label="Цвет в формате HEX" />
+    <div class="email-color-popover" data-email-color-popover="${escapeHtml(key)}" hidden>
+      <div class="email-color-popover-title">HEX-палитра</div>
+      <div class="email-color-presets">${presets}</div>
+      <div class="email-color-popover-hint">Любой цвет можно ввести как <code>#RRGGBB</code></div>
+    </div>`;
 }
 
 // ─── Inspector ──────────────────────────────────────────────────────────
@@ -2056,8 +2107,13 @@ function renderFallbackAppearanceControl(binding, entry, block) {
   const label = `<label>${escapeHtml(binding.label)} <span class="slot-kind">общий</span></label>`;
   const reset = `<button type="button" class="slot-value-btn" data-reset-appearance="${id}" title="Убрать переопределение и вернуть оформление блока">↺</button>`;
   if (binding.kind === "color") {
-    const swatch = /^#[0-9a-f]{6}$/i.test(String(value)) ? String(value) : "#000000";
-    return `<div class="insp-slot insp-style-slot style-background">${label}<div class="insp-value-row insp-color-row"><input type="color" data-appearance-id="${id}" value="${escapeHtml(swatch)}" /><input type="text" data-appearance-id="${id}" value="${escapeHtml(value)}" placeholder="как в блоке / #RRGGBB" /><button type="button" class="slot-value-btn transparent" data-transparent-appearance="${id}" title="Прозрачный: будет виден фон родительского блока">Как родитель</button>${reset}</div></div>`;
+    const colorControl = renderEmailColorControl({
+      target: "appearance",
+      id: binding.key,
+      value,
+      placeholder: "как в блоке / #RRGGBB",
+    });
+    return `<div class="insp-slot insp-style-slot style-background">${label}<div class="insp-value-row insp-color-row">${colorControl}<button type="button" class="slot-value-btn transparent" data-transparent-appearance="${id}" title="Прозрачный: будет виден фон родительского блока">Как родитель</button>${reset}</div></div>`;
   }
   const placeholder = binding.key === "border" ? "как в блоке / 1px solid #ECECED"
     : binding.key === "radius" ? "как в блоке / 16px"
@@ -2099,6 +2155,137 @@ function renderCommonAppearance(block, entry, bindings) {
       return `<div class="insp-surface-field" data-applied-for="${escapeHtml(binding.key)}">${control}${appliedStyleNote(entry?.uid, binding.key)}</div>`;
     }).join("")}
   </section>`;
+}
+
+function bindEmailColorControls(body, entry, block) {
+  const closePalettes = (exceptKey = "") => {
+    body.querySelectorAll("[data-email-color-popover]").forEach((popover) => {
+      if (popover.dataset.emailColorPopover !== exceptKey) popover.hidden = true;
+    });
+    body.querySelectorAll("[data-email-color-open]").forEach((button) => {
+      button.setAttribute("aria-expanded", button.dataset.emailColorOpen === exceptKey ? "true" : "false");
+    });
+  };
+
+  const syncVisual = (input, normalized) => {
+    const target = input.dataset.emailColor;
+    const id = target === "slot" ? input.dataset.slotId : input.dataset.appearanceId;
+    const key = `${target}:${id}`;
+    const swatch = body.querySelector(`[data-email-color-open="${CSS.escape(key)}"]`);
+    if (!swatch) return;
+    const isHex = /^#[0-9A-F]{6}$/.test(normalized || "");
+    swatch.classList.toggle("is-transparent", !isHex);
+    if (isHex) swatch.style.setProperty("--email-swatch", normalized);
+  };
+
+  const commit = (input, { captureUndo = true, report = true } = {}) => {
+    const target = input.dataset.emailColor;
+    const id = target === "slot" ? input.dataset.slotId : input.dataset.appearanceId;
+    const allowEmpty = target === "appearance";
+    const normalized = parseEmailColor(input.value, { allowEmpty });
+    if (normalized === null) {
+      input.setCustomValidity("Используй #RGB, #RRGGBB, transparent или inherit. RGB/RGBA для email не сохраняются.");
+      input.setAttribute("aria-invalid", "true");
+      if (report) input.reportValidity();
+      return false;
+    }
+    input.setCustomValidity("");
+    input.removeAttribute("aria-invalid");
+    input.value = normalized;
+    syncVisual(input, normalized);
+
+    let changed = false;
+    if (target === "slot") {
+      const current = String(entry.slots[id] ?? "");
+      if (current !== normalized) {
+        if (captureUndo && input.dataset.undoCaptured !== "1") pushCanvasUndo();
+        entry.slots[id] = normalized;
+        markEntrySlotExplicit(entry, id);
+        changed = true;
+      }
+    } else {
+      if (!entry.appearance || typeof entry.appearance !== "object") entry.appearance = {};
+      const hasCurrent = Object.prototype.hasOwnProperty.call(entry.appearance, id);
+      const current = hasCurrent ? String(entry.appearance[id] ?? "") : "";
+      if (normalized === "") {
+        if (hasCurrent) {
+          if (captureUndo && input.dataset.undoCaptured !== "1") pushCanvasUndo();
+          delete entry.appearance[id];
+          changed = true;
+        }
+      } else if (!hasCurrent || current !== normalized) {
+        if (captureUndo && input.dataset.undoCaptured !== "1") pushCanvasUndo();
+        entry.appearance[id] = normalized;
+        changed = true;
+      }
+    }
+    if (changed) scheduleLivePreview();
+    return true;
+  };
+
+  body.querySelectorAll("[data-email-color]").forEach((input) => {
+    const initial = parseEmailColor(input.value, { allowEmpty: input.dataset.emailColor === "appearance" });
+    if (initial !== null) {
+      input.value = initial;
+      syncVisual(input, initial);
+    }
+    input.addEventListener("focus", () => {
+      if (input.dataset.undoCaptured !== "1") {
+        pushCanvasUndo();
+        input.dataset.undoCaptured = "1";
+      }
+    });
+    input.addEventListener("input", () => {
+      const parsed = parseEmailColor(input.value, { allowEmpty: input.dataset.emailColor === "appearance" });
+      input.setCustomValidity("");
+      input.removeAttribute("aria-invalid");
+      if (parsed !== null) syncVisual(input, parsed);
+    });
+    input.addEventListener("change", () => commit(input, { captureUndo: false }));
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        if (commit(input, { captureUndo: false })) input.blur();
+      } else if (event.key === "Escape") {
+        closePalettes();
+        input.blur();
+      }
+    });
+    input.addEventListener("blur", () => { delete input.dataset.undoCaptured; });
+  });
+
+  body.querySelectorAll("[data-email-color-open]").forEach((button) => {
+    button.setAttribute("aria-expanded", "false");
+    button.addEventListener("click", () => {
+      const key = button.dataset.emailColorOpen;
+      const popover = body.querySelector(`[data-email-color-popover="${CSS.escape(key)}"]`);
+      if (!popover) return;
+      const opening = popover.hidden;
+      closePalettes(opening ? key : "");
+      popover.hidden = !opening;
+      button.setAttribute("aria-expanded", opening ? "true" : "false");
+    });
+  });
+
+  body.querySelectorAll("[data-email-color-value]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const popover = button.closest("[data-email-color-popover]");
+      const key = popover?.dataset.emailColorPopover || "";
+      const [target, ...idParts] = key.split(":");
+      const id = idParts.join(":");
+      const selector = target === "slot"
+        ? `[data-email-color="slot"][data-slot-id="${CSS.escape(id)}"]`
+        : `[data-email-color="appearance"][data-appearance-id="${CSS.escape(id)}"]`;
+      const input = body.querySelector(selector);
+      if (!input) return;
+      pushCanvasUndo();
+      input.dataset.undoCaptured = "1";
+      input.value = button.dataset.emailColorValue;
+      commit(input, { captureUndo: false });
+      closePalettes();
+      input.focus();
+    });
+  });
 }
 
 function renderInspector() {
@@ -2167,7 +2354,7 @@ function renderInspector() {
   `;
   body.innerHTML = html;
   // Wire up change handlers.
-  body.querySelectorAll("[data-slot-id]").forEach((el) => {
+  body.querySelectorAll("[data-slot-id]:not([data-email-color])").forEach((el) => {
     el.addEventListener("focus", () => {
       if (el.dataset.undoCaptured === "1") return;
       pushCanvasUndo();
@@ -2206,16 +2393,10 @@ function renderInspector() {
       el.setCustomValidity("");
       entry.slots[id] = v;
       markEntrySlotExplicit(entry, id);
-      // Keep the paired color text/swatch inputs in sync.
-      if (el.type === "color" || (el.type === "text" && el.previousElementSibling?.type === "color")) {
-        body.querySelectorAll(`[data-slot-id="${CSS.escape(id)}"]`).forEach((other) => {
-          if (other !== el && other.value !== v) other.value = v;
-        });
-      }
       scheduleLivePreview();
     });
   });
-  body.querySelectorAll("[data-appearance-id]").forEach((el) => {
+  body.querySelectorAll("[data-appearance-id]:not([data-email-color])").forEach((el) => {
     el.addEventListener("focus", () => {
       if (el.dataset.undoCaptured === "1") return;
       pushCanvasUndo();
@@ -2228,12 +2409,10 @@ function renderInspector() {
       if (!entry.appearance || typeof entry.appearance !== "object") entry.appearance = {};
       if (String(value).trim()) entry.appearance[id] = value;
       else delete entry.appearance[id];
-      body.querySelectorAll(`[data-appearance-id="${CSS.escape(id)}"]`).forEach((other) => {
-        if (other !== el && other.value !== value) other.value = value;
-      });
       scheduleLivePreview();
     });
   });
+  bindEmailColorControls(body, entry, block);
   body.querySelectorAll("[data-reset-slot]").forEach((button) => {
     button.addEventListener("click", () => {
       const id = button.dataset.resetSlot;
@@ -2471,11 +2650,16 @@ function renderSlotControl(slot, current, block) {
       </div></div>`;
   }
   if (kind === "color") {
-    const swatch = /^#[0-9a-f]{6}$/i.test(String(v)) ? String(v) : "#000000";
     const transparentButton = appearanceRole === "background"
       ? `<button type="button" class="slot-value-btn transparent" data-transparent-slot="${escapeHtml(id)}" title="Прозрачный: показывать фон родительского блока">Как родитель</button>`
       : "";
-    return `<div class="${wrapClass}">${label}<div class="insp-value-row insp-color-row"><input type="color" data-slot-id="${escapeHtml(id)}" value="${escapeHtml(swatch)}" /><input type="text" data-slot-id="${escapeHtml(id)}" value="${escapeHtml(v)}" placeholder="#RRGGBB или transparent" />${transparentButton}${resetButton}</div></div>`;
+    const colorControl = renderEmailColorControl({
+      target: "slot",
+      id,
+      value: v,
+      placeholder: "#RRGGBB или transparent",
+    });
+    return `<div class="${wrapClass}">${label}<div class="insp-value-row insp-color-row">${colorControl}${transparentButton}${resetButton}</div></div>`;
   }
   // default: text
   const stylePlaceholder = appearanceRole === "border" ? "none или 1px solid #ECECED"
@@ -2805,7 +2989,11 @@ function canvasToBlocks(options) {
     if (c.appearance && typeof c.appearance === "object" && Object.keys(c.appearance).length) {
       out.appearance = { ...c.appearance };
     }
-    if (b && b.source !== "canonical") {
+    // Saved user blocks are release artifacts: send only their id/source so
+    // compose reloads the current on-disk record and verifies its approval.
+    // Inline definitions are reserved for server-verifiable parsed mail
+    // fragments (and unsaved authoring previews, which release-save rejects).
+    if (b && !["canonical", "user"].includes(b.source)) {
       out.def = {
         id: b.id,
         label: b.label,

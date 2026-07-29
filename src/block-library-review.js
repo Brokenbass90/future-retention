@@ -8,10 +8,27 @@ import { existsSync, readFileSync } from "node:fs";
 import { mkdir, rename, rm, writeFile } from "node:fs/promises";
 import { normalizeBlockLibrarySavePayload } from "./block-library-schema.js";
 import { withKeyedOperationLock } from "./keyed-operation-lock.js";
+import { validateHtml } from "./html-validate.js";
+import { applyLocaleDirectionToHtml } from "./rtl.js";
 
 export const BLOCK_REVIEW_STATUSES = Object.freeze(["draft", "candidate", "approved"]);
-export const BLOCK_REVIEW_VALIDATOR_VERSION = 2;
+export const BLOCK_REVIEW_VALIDATOR_VERSION = 3;
+export const BLOCK_REVIEW_REQUIRED_CHECKS = Object.freeze([
+  "schema",
+  "tokenContract",
+  "security",
+  "pugCompile",
+  "stylusCompile",
+  "emailSafe",
+  "desktop",
+  "mobile",
+  "rtl",
+  "dependencies",
+]);
 const EXECUTABLE_HTML_TAGS = new Set(["script", "iframe", "object", "embed", "base"]);
+const EMAIL_UNSAFE_TAG_RE = /<(?:form|input|button|video|audio|canvas|svg|math|frameset|frame)\b/i;
+const EMAIL_UNSAFE_CSS_RE = /\b(?:display\s*:\s*(?:flex|inline-flex|grid|inline-grid)|position\s*:\s*(?:fixed|sticky)|behavior\s*:|-moz-binding\s*:|expression\s*\()/i;
+const LOCAL_ASSET_RE = /(?:^|[("'=\s])(?:\/studio-assets(?:\/|$)|https?:\/\/(?:localhost|127(?:\.\d{1,3}){3}|10(?:\.\d{1,3}){3}|192\.168(?:\.\d{1,3}){2}|172\.(?:1[6-9]|2\d|3[01])(?:\.\d{1,3}){2}|\[?::1\]?)(?::\d+)?(?:\/|$))/i;
 
 const hasOwn = (value, key) => Object.prototype.hasOwnProperty.call(value, key);
 
@@ -245,6 +262,200 @@ function compileStylus(source) {
   });
 }
 
+function checkResult(errors = [], warnings = []) {
+  return { passed: errors.length === 0, errors, warnings };
+}
+
+function numericAttributeValues(html, attribute) {
+  const out = [];
+  const pattern = new RegExp(`\\b${attribute}\\s*=\\s*(["']?)(\\d+(?:\\.\\d+)?)\\s*(?:px)?\\1`, "gi");
+  let match;
+  while ((match = pattern.exec(String(html || "")))) out.push(Number(match[2]));
+  return out;
+}
+
+function cssPixelValues(source, property) {
+  const out = [];
+  const pattern = new RegExp(`(?:^|[;{\\s])${property}\\s*:\\s*(\\d+(?:\\.\\d+)?)px\\b`, "gi");
+  let match;
+  while ((match = pattern.exec(String(source || "")))) out.push(Number(match[1]));
+  return out;
+}
+
+function imageSources(html) {
+  return [...String(html || "").matchAll(/<img\b[^>]*\bsrc\s*=\s*(["'])(.*?)\1/gi)]
+    .map((match) => match[2]);
+}
+
+function styleBodies(html) {
+  return [...String(html || "").matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)]
+    .map((match) => match[1]);
+}
+
+function inspectEmailSafeOutput(block, { html, css }) {
+  const errors = [];
+  const warnings = [];
+  const structural = validateHtml(html);
+  if (!structural.ok) {
+    errors.push(...structural.issues.slice(0, 5).map((issue) => `HTML: ${issue.message}`));
+  }
+  if (EMAIL_UNSAFE_TAG_RE.test(html)) {
+    errors.push("HTML contains a form, interactive or vector element that is not portable across email clients");
+  }
+  if (EMAIL_UNSAFE_CSS_RE.test(`${css}\n${html}`)) {
+    errors.push("CSS uses flex/grid, fixed/sticky positioning or another non-portable email feature");
+  }
+  if (/\b(?:href|src)\s*=\s*(["'])\s*data:/i.test(html)) {
+    errors.push("embedded data: assets are not portable email asset URLs");
+  }
+  if (LOCAL_ASSET_RE.test(`${html}\n${css}`)
+      || /https?:\/\/[^\s"'<>)]*\/studio-assets(?:\/|$)/i.test(`${html}\n${css}`)) {
+    errors.push("local/private Studio assets cannot be released in an email block");
+  }
+  if (/<table\b/i.test(html)
+      && /<table\b(?![^>]*\brole\s*=\s*(["'])presentation\1)[^>]*>/i.test(html)) {
+    warnings.push("presentation tables should declare role=\"presentation\"");
+  }
+  if (/<img\b(?![^>]*\balt\s*=)[^>]*>/i.test(html)) {
+    warnings.push("images should include alt text (empty alt is valid for decoration)");
+  }
+  if (block?.placement === "outer" && !/<table\b/i.test(html)) {
+    errors.push("outer blocks must use a table-based email shell");
+  }
+  return checkResult(errors, warnings);
+}
+
+function inspectDesktopProfile({ html, css }) {
+  const errors = [];
+  const warnings = [];
+  if (!String(html || "").trim()) errors.push("desktop render is empty");
+  const tooWideAttributes = numericAttributeValues(html, "width").filter((value) => value > 600);
+  const tooWideCss = cssPixelValues(`${css}\n${html}`, "width").filter((value) => value > 600);
+  const tooWideMin = cssPixelValues(`${css}\n${html}`, "min-width").filter((value) => value > 600);
+  if (tooWideAttributes.length || tooWideCss.length || tooWideMin.length) {
+    errors.push("desktop layout contains a fixed width above the 600px email canvas");
+  }
+  if (/\boverflow-x\s*:\s*(?:scroll|auto)\b/i.test(`${css}\n${html}`)) {
+    warnings.push("horizontal scrolling is unreliable in desktop email clients");
+  }
+  return checkResult(errors, warnings);
+}
+
+function inspectMobileProfile({ html, css }) {
+  const errors = [];
+  const warnings = [];
+  const combined = `${css}\n${html}`;
+  const mobileMinWidths = cssPixelValues(combined, "min-width").filter((value) => value > 375);
+  if (mobileMinWidths.length) {
+    errors.push("mobile layout has min-width above the 375px validation viewport");
+  }
+  if (/\bwhite-space\s*:\s*nowrap\b/i.test(combined) && /<(?:p|h[1-6]|td)\b/i.test(html)) {
+    errors.push("nowrap text can force horizontal overflow on mobile");
+  }
+  for (const image of String(html || "").matchAll(/<img\b([^>]*)>/gi)) {
+    const attrs = image[1] || "";
+    const width = /\bwidth\s*=\s*(["']?)(\d+(?:\.\d+)?)\1/i.exec(attrs);
+    if (!width || Number(width[2]) <= 375) continue;
+    const responsive = /\b(?:max-)?width\s*:\s*100%/i.test(attrs)
+      || /\b(?:max-)?width\s*:\s*100%/i.test(css);
+    if (!responsive) {
+      errors.push("an image wider than 375px has no width/max-width:100% mobile fallback");
+      break;
+    }
+  }
+  const hasMultiCellRow = /<tr\b[^>]*>(?:(?!<\/tr>)[\s\S])*?<td\b(?:(?!<\/tr>)[\s\S])*?<td\b(?:(?!<\/tr>)[\s\S])*?<\/tr>/i.test(html);
+  if (hasMultiCellRow && !/@media[^{]*max-width\s*:\s*(?:[1-5]\d{2}|600)px/i.test(css)) {
+    warnings.push("multi-column row has no explicit max-width mobile media rule; verify its stacked/compact layout visually");
+  }
+  return checkResult(errors, warnings);
+}
+
+function inspectRtlProfile({ html, css }) {
+  const errors = [];
+  const warnings = [];
+  const source = `<!doctype html><html lang="en"><head><style>${css}</style></head><body>${html}</body></html>`;
+  if (/\bdir\s*=\s*(["']?)ltr\1/i.test(html) || /\bdirection\s*:\s*ltr\b/i.test(`${css}\n${html}`)) {
+    errors.push("hard-coded LTR direction prevents the shared RTL transformer from owning direction");
+    return checkResult(errors, warnings);
+  }
+  try {
+    const beforeImages = imageSources(source);
+    const beforeStyles = styleBodies(source);
+    const rtl = applyLocaleDirectionToHtml(source, "ar", undefined, { mode: "text" });
+    const twice = applyLocaleDirectionToHtml(rtl, "ar", undefined, { mode: "text" });
+    if (!/<!--\s*retkit-rtl:v2:text\s*-->/i.test(rtl)) {
+      errors.push("RTL transform did not mark the rendered document");
+    }
+    if (twice !== rtl) errors.push("RTL transform is not idempotent for this block");
+    if (JSON.stringify(imageSources(rtl)) !== JSON.stringify(beforeImages)) {
+      errors.push("RTL transform changes image sources or their order");
+    }
+    if (JSON.stringify(styleBodies(rtl)) !== JSON.stringify(beforeStyles)) {
+      errors.push("RTL text mode changes authored head CSS");
+    }
+  } catch (error) {
+    errors.push(`RTL: ${String(error?.message || error).split("\n")[0]}`);
+  }
+  return checkResult(errors, warnings);
+}
+
+function childDependencyIds(children, out = []) {
+  for (const child of Array.isArray(children) ? children : []) {
+    const id = String(child?.id || "").trim();
+    if (id) out.push(id);
+    childDependencyIds(child?.children, out);
+  }
+  return out;
+}
+
+function inspectReleaseDependencies(block, resolveDependency) {
+  const errors = [];
+  const warnings = [];
+  const ids = [...new Set(childDependencyIds(block?.children))];
+  if (!ids.length) return checkResult(errors, warnings);
+  if (typeof resolveDependency !== "function") {
+    errors.push("combo dependencies were not resolved by the release validator");
+    return checkResult(errors, warnings);
+  }
+  for (const id of ids) {
+    let record;
+    try { record = resolveDependency(id); }
+    catch (error) {
+      errors.push(`dependency "${id}" cannot be loaded: ${String(error?.message || error)}`);
+      continue;
+    }
+    const origin = String(record?.origin || record?.source || record?.block?.source || "");
+    const dependency = record?.block && typeof record.block === "object" ? record.block : record;
+    if (origin === "canonical") continue;
+    if (origin === "imported") {
+      errors.push(`dependency "${id}" is quarantined legacy/imported content`);
+      continue;
+    }
+    if (origin !== "user" || blockReviewStatus(dependency) !== "approved") {
+      errors.push(`dependency "${id}" is not an approved user/canonical block`);
+    }
+  }
+  return checkResult(errors, warnings);
+}
+
+function releaseValidationShape({
+  checkedAt,
+  sourceHash,
+  checks,
+  errors,
+  warnings,
+}) {
+  return {
+    passed: BLOCK_REVIEW_REQUIRED_CHECKS.every((key) => checks[key] === true),
+    validatorVersion: BLOCK_REVIEW_VALIDATOR_VERSION,
+    sourceHash,
+    checkedAt,
+    checks,
+    errors,
+    warnings,
+  };
+}
+
 /**
  * Deterministic, offline gate for hand-authored blocks.
  *
@@ -254,41 +465,63 @@ function compileStylus(source) {
  * valid Stylus after slot-default substitution. AI review may add advice, but
  * it never replaces this gate.
  */
-export async function validateUserBlockDeterministically(block, { checkedAt = new Date().toISOString() } = {}) {
+export async function validateUserBlockDeterministically(block, {
+  checkedAt = new Date().toISOString(),
+  resolveDependency,
+} = {}) {
   const errors = [];
   const warnings = [];
-  const pugSource = String(block?.pug || "");
-  const stylSource = String(block?.styl || "");
-  const declared = new Set((block?.slots || []).map((slot) => String(slot.id || "")));
+  let normalized = block;
+  let schemaPassed = false;
+  try {
+    normalized = normalizeBlockLibrarySavePayload(block, {
+      createdAt: block?.createdAt || checkedAt,
+    });
+    schemaPassed = true;
+  } catch (error) {
+    errors.push(`Schema: ${String(error?.message || error)}`);
+  }
+
+  const pugSource = String(normalized?.pug || "");
+  const stylSource = String(normalized?.styl || "");
+  const declared = new Set((normalized?.slots || []).map((slot) => String(slot.id || "")));
   const used = new Set();
   const tokenRe = /\{\{\s*([a-z][a-z0-9_]*)\s*\}\}/gi;
   let match;
   while ((match = tokenRe.exec(`${pugSource}\n${stylSource}`))) used.add(match[1]);
 
+  const tokenErrors = [];
   for (const token of used) {
-    if (!declared.has(token)) errors.push(`token "${token}" has no slot definition`);
+    if (!declared.has(token)) tokenErrors.push(`token "${token}" has no slot definition`);
   }
   for (const slotId of declared) {
     if (slotId && !used.has(slotId)) warnings.push(`slot "${slotId}" is declared but not used in Pug/Stylus`);
   }
+  errors.push(...tokenErrors);
 
-  const portable = inspectPortableBlockSource(block);
+  const portable = inspectPortableBlockSource(normalized);
   errors.push(...portable.errors);
-  errors.push(...inspectPortableSlotDefaults(block));
+  const defaultErrors = inspectPortableSlotDefaults(normalized);
+  errors.push(...defaultErrors);
   if (/\$\{\{\s*[a-z0-9_.-]+\s*\}\}\$/i.test(`${pugSource}\n${stylSource}`)
-      && String(block?.category || "").toLowerCase() !== "footer") {
+      && String(normalized?.category || "").toLowerCase() !== "footer") {
     warnings.push("campaign placeholders make this reusable block depend on one namespace");
   }
 
-  const values = tokenDefaults(block);
+  const values = tokenDefaults(normalized);
   const resolvedPug = substituteValidationTokens(pugSource, values);
   const resolvedStyl = substituteValidationTokens(stylSource, values);
   let pugPassed = false;
   let stylusPassed = false;
+  let renderedHtml = "";
+  let renderedCss = "";
 
   if (!errors.length) {
     try {
-      pug.compile(resolvedPug, { filename: `${block?.id || "user-block"}.pug`, compileDebug: false });
+      renderedHtml = pug.render(resolvedPug, {
+        filename: `${normalized?.id || "user-block"}.pug`,
+        compileDebug: false,
+      });
       pugPassed = true;
     } catch (error) {
       errors.push(`Pug: ${String(error?.message || error).split("\n")[0]}`);
@@ -297,27 +530,55 @@ export async function validateUserBlockDeterministically(block, { checkedAt = ne
 
   if (!errors.length) {
     try {
-      await compileStylus(resolvedStyl);
+      renderedCss = await compileStylus(resolvedStyl);
       stylusPassed = true;
     } catch (error) {
       errors.push(`Stylus: ${String(error?.message || error).split("\n")[0]}`);
     }
   }
 
-  return {
-    passed: errors.length === 0 && pugPassed && stylusPassed,
-    validatorVersion: BLOCK_REVIEW_VALIDATOR_VERSION,
-    sourceHash: userBlockSourceHash(block),
+  const emailSafe = pugPassed && stylusPassed
+    ? inspectEmailSafeOutput(normalized, { html: renderedHtml, css: renderedCss })
+    : checkResult(["email-safe render was not available"]);
+  const desktop = pugPassed && stylusPassed
+    ? inspectDesktopProfile({ html: renderedHtml, css: renderedCss })
+    : checkResult(["desktop render was not available"]);
+  const mobile = pugPassed && stylusPassed
+    ? inspectMobileProfile({ html: renderedHtml, css: renderedCss })
+    : checkResult(["mobile render was not available"]);
+  const rtl = pugPassed && stylusPassed
+    ? inspectRtlProfile({ html: renderedHtml, css: renderedCss })
+    : checkResult(["RTL render was not available"]);
+  const dependencies = schemaPassed
+    ? inspectReleaseDependencies(normalized, resolveDependency)
+    : checkResult(["dependencies cannot be checked before schema validation"]);
+  for (const result of [emailSafe, desktop, mobile, rtl, dependencies]) {
+    errors.push(...result.errors);
+    warnings.push(...result.warnings);
+  }
+
+  const securityPassed = portable.passed && defaultErrors.length === 0;
+  const checks = {
+    schema: schemaPassed,
+    tokenContract: tokenErrors.length === 0,
+    security: securityPassed,
+    // Backward-compatible diagnostic name retained for existing clients.
+    portablePug: securityPassed,
+    pugCompile: pugPassed,
+    stylusCompile: stylusPassed,
+    emailSafe: emailSafe.passed,
+    desktop: desktop.passed,
+    mobile: mobile.passed,
+    rtl: rtl.passed,
+    dependencies: dependencies.passed,
+  };
+  return releaseValidationShape({
     checkedAt,
-    checks: {
-      tokenContract: !errors.some((item) => item.startsWith("token ")),
-      portablePug: portable.passed,
-      pugCompile: pugPassed,
-      stylusCompile: stylusPassed,
-    },
+    sourceHash: userBlockSourceHash(normalized),
+    checks,
     errors,
     warnings,
-  };
+  });
 }
 
 export function buildUserBlockReview({ validation, requestedStatus = "candidate", previousReview = null } = {}) {
@@ -348,10 +609,40 @@ export function buildUserBlockReview({ validation, requestedStatus = "candidate"
   };
 }
 
+export function userBlockReviewIsCurrent(block) {
+  const review = block?.review;
+  const deterministic = review?.deterministic;
+  if (!review || !deterministic || review.sourceHash !== userBlockSourceHash(block)) return false;
+  if (deterministic.sourceHash !== review.sourceHash) return false;
+  if (deterministic.validatorVersion !== BLOCK_REVIEW_VALIDATOR_VERSION || deterministic.passed !== true) return false;
+  return BLOCK_REVIEW_REQUIRED_CHECKS.every((key) => deterministic.checks?.[key] === true);
+}
+
 export function blockReviewStatus(block) {
   if (block?.source === "canonical") return "approved";
   const status = block?.review?.status;
-  return BLOCK_REVIEW_STATUSES.includes(status) ? status : "draft";
+  if (!BLOCK_REVIEW_STATUSES.includes(status) || status === "draft") return "draft";
+  return userBlockReviewIsCurrent(block) ? status : "draft";
+}
+
+export function isBlockReleaseApproved(block, origin = block?.source) {
+  if (origin === "canonical") return true;
+  return origin === "user" && blockReviewStatus({ ...block, source: "user" }) === "approved";
+}
+
+export function assertBlockReleaseApproved(block, origin = block?.source) {
+  if (isBlockReleaseApproved(block, origin)) return true;
+  const error = new UserBlockLifecycleError(
+    origin === "imported"
+      ? `imported block "${block?.id || "unknown"}" is quarantined and cannot be released`
+      : `${origin || "ad-hoc"} block "${block?.id || "unknown"}" is not release-approved`,
+    {
+      statusCode: 422,
+      code: origin === "imported" ? "IMPORTED_BLOCK_QUARANTINED" : "BLOCK_NOT_APPROVED",
+      validation: block?.review?.deterministic || null,
+    },
+  );
+  throw error;
 }
 
 export class UserBlockLifecycleError extends Error {
@@ -374,6 +665,24 @@ async function writeJsonAtomically(target, value) {
   } finally {
     await rm(temporary, { force: true }).catch(() => {});
   }
+}
+
+function dependencyResolverForUserTarget(target) {
+  const userDir = path.dirname(path.resolve(target));
+  const libraryRoot = path.basename(userDir) === "user" ? path.dirname(userDir) : userDir;
+  return (id) => {
+    if (!/^[a-z0-9][a-z0-9_-]{0,63}$/i.test(String(id || ""))) {
+      throw new Error("invalid dependency id");
+    }
+    for (const origin of ["canonical", "user", "imported"]) {
+      const base = path.join(libraryRoot, origin);
+      const candidate = path.resolve(base, `${id}.json`);
+      if (!candidate.startsWith(`${path.resolve(base)}${path.sep}`) || !existsSync(candidate)) continue;
+      const dependency = JSON.parse(readFileSync(candidate, "utf8"));
+      return { block: { ...dependency, source: origin }, origin };
+    }
+    throw new Error("not found");
+  };
 }
 
 /** One deterministic, locked and atomic save path for HTTP and AI callers. */
@@ -399,7 +708,10 @@ export async function saveUserBlockWithLifecycle({
     const normalized = normalizeBlockLibrarySavePayload(payload, {
       createdAt: createdAt || previous?.createdAt || new Date().toISOString(),
     });
-    const validation = await validateUserBlockDeterministically(normalized, checkedAt ? { checkedAt } : {});
+    const validation = await validateUserBlockDeterministically(normalized, {
+      ...(checkedAt ? { checkedAt } : {}),
+      resolveDependency: dependencyResolverForUserTarget(target),
+    });
     normalized.review = buildUserBlockReview({
       validation,
       requestedStatus: "candidate",
@@ -424,7 +736,10 @@ export async function transitionUserBlockReviewWithLifecycle({ target, requested
     const normalized = normalizeBlockLibrarySavePayload(previous, {
       createdAt: previous.createdAt || new Date().toISOString(),
     });
-    const validation = await validateUserBlockDeterministically(normalized, checkedAt ? { checkedAt } : {});
+    const validation = await validateUserBlockDeterministically(normalized, {
+      ...(checkedAt ? { checkedAt } : {}),
+      resolveDependency: dependencyResolverForUserTarget(target),
+    });
     if (requestedStatus === "approved" && !validation.passed) {
       throw new UserBlockLifecycleError("deterministic block validation failed", {
         statusCode: 422,
