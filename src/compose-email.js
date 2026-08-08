@@ -39,6 +39,11 @@ import {
   assertPortableBlockSource,
   blockReviewStatus,
 } from "./block-library-review.js";
+import { getBrand, themeAsStylus, THEME_TOKENS } from "./brands.js";
+import { applyCampaign, normalizeCampaign } from "./campaign-links.js";
+import "../public/canvas-slot-values.js";
+
+const CANVAS_SLOT_VALUES = globalThis.RetkitCanvasSlots;
 
 const here = path.dirname(url.fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(here, "..");
@@ -203,18 +208,15 @@ export function assertEmailAssetSourcePublic(source, label = "composed email sou
  * interpolation expression or CSS declaration in either language.
  */
 function normalizeTypedSlotValue(block, slot, raw) {
-  if (raw == null) return "";
-  if (!["string", "number", "boolean"].includes(typeof raw)) {
-    failSlot(block, slot, "must be a string, number or boolean");
-  }
   const kind = String(slot?.kind || "text").toLowerCase();
-  let value = String(raw);
   const inPugStyle = slotUsedInPugStyle(block?.pug, slot.id);
   const inStyl = slotUsedInStyl(block?.styl, slot.id);
   const cssContext = inPugStyle || inStyl;
-  if (/\r|\n|\u0000|\u2028|\u2029/.test(value)) {
-    failSlot(block, slot, "cannot contain line breaks or control separators");
-  }
+  const normalized = CANVAS_SLOT_VALUES.normalizeSlotValue(slot, raw, {
+    allowRichTextMultiline: !cssContext,
+  });
+  if (!normalized.ok) failSlot(block, slot, normalized.reason || normalized.error);
+  let value = normalized.value;
   if (/[#!]\{/.test(value)) {
     failSlot(block, slot, "cannot contain Pug interpolation (#{...}/!{...})");
   }
@@ -637,6 +639,26 @@ export function resolveBlockSlotValues(block, userSlots = {}) {
   return out;
 }
 
+/**
+ * Переменные темы бренда для блоков письма.
+ *
+ * Бренда может не быть в реестре (папка заведена руками, письмо собирается в
+ * X_preview) — тогда берутся значения по умолчанию из THEME_TOKENS: блок,
+ * написанный «по-брендовому», обязан компилироваться в любом случае, иначе
+ * сборка падала бы там, где раньше работала.
+ */
+export function brandThemeStylusHeader(brandId) {
+  let brand = null;
+  try { brand = getBrand(brandId); } catch { /* реестр недоступен — дефолты */ }
+  const source = brand || { theme: Object.fromEntries(THEME_TOKENS.map((t) => [t.id, t.fallback])) };
+  // Комментарий строкой `//`, а не `/* */`: блочный Stylus выводит в CSS, и
+  // подпись весила бы 28 лишних байт в head КАЖДОГО письма. Замерено тестом.
+  const note = brand
+    ? `// тема бренда ${brand.label} (${brand.id})`
+    : "// тема бренда: значения по умолчанию — бренда нет в реестре";
+  return `${note}\n${themeAsStylus(source)}\n`;
+}
+
 /* ─── Constructor tree helpers ─────────────────────────────────────── */
 
 const hasOwn = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
@@ -856,6 +878,7 @@ export function composeEmailFromBlocks({
   markBlocks = false,
   preserveSkeletonPreheader = false,
   validateOnly = false,
+  campaign = "",
   requireApprovedBlocks = false,
   allowTrustedParsedBlocks = false,
 }) {
@@ -1158,13 +1181,25 @@ export function composeEmailFromBlocks({
   if (!emitted.length) {
     throw new Error(`no renderable content blocks (warnings: ${warnings.join("; ")})`);
   }
-  const composedPug = flow.join("\n");
+  // Метка кампании письма переписывает afftrack/retrack во ВСЕХ ссылках.
+  // Блок может прийти из чужого письма со своей меткой — в готовом письме
+  // метка должна быть одна и та, которую назвали, без правки кода руками.
+  const campaignLabel = normalizeCampaign(campaign);
+  const composedPug = campaignLabel
+    ? applyCampaign(flow.join("\n"), campaignLabel).text
+    : flow.join("\n");
 
   const stylParts = emitted.map(({ block, slotValues }) => {
     const sub = substituteSlotsInString(block.styl || "", slotValues, { attrEscape: false });
     return `/* ${block.id} */\n${sub.trim()}\n`;
   });
-  const composedStyl = stylParts.join("\n");
+  // Тема бренда — переменными ПЕРЕД стилями блоков: блок, написавший
+  // `background: $brand_primary`, перекрашивается вместе с брендом, а письмо
+  // не зависит от того, какой цвет кто-то однажды вписал руками.
+  //
+  // На письма, где $brand_* не используется, это не влияет никак:
+  // неиспользованная переменная Stylus не даёт ни байта CSS.
+  const composedStyl = brandThemeStylusHeader(safeBrand) + stylParts.join("\n");
 
   // Final in-memory gate before the first destructive filesystem operation.
   // Slot validation catches constructor/API values; this second pass also
@@ -1267,10 +1302,22 @@ export function composeEmailFromBlocks({
 
   const mainStyl = path.join(destDir, "app", "styles", "blocks", "main.styl");
   mkdirSync(path.dirname(mainStyl), { recursive: true });
-  // Скелет (copyTreeSkippingDist выше) принёс родной blocks/main.styl семьи —
-  // с pt/pb-хелперами, h-*, center, m-w и мобильными media. Раньше мы его
-  // затирали и композиции теряли отступы/адаптив. Теперь стили блоков
-  // ДОПОЛНЯЮТ скелетные: при конфликте классов последние (блочные) побеждают.
+
+  // Скелет принёс родной blocks/main.styl семьи — pt/pb-шкала, h-*, center,
+  // m-w и мобильные media. Стили блоков ДОПОЛНЯЮТ его: при конфликте классов
+  // побеждают блочные (идут позже).
+  //
+  // ПРОВЕРЕНО 2026-07-27, отбрасывать скелет НЕЛЬЗЯ. Замер на письме из
+  // четырёх блоков:
+  //   со скелетом:  main.styl 18 359 Б → письмо 9 089 Б (head CSS 1 551 Б)
+  //   без скелета:  main.styl  1 765 Б → письмо 8 718 Б (head CSS 1 429 Б)
+  // То есть в отправляемом письме разница 371 байт (4%): `trimCss` на сборке
+  // и так выбрасывает неиспользованные правила, и 16 КБ «лишнего» существуют
+  // только в исходнике, а не в почте.
+  // При этом отбрасывание ломает вёрстку: у 39 из 50 canonical-блоков
+  // изменилась ГЕОМЕТРИЯ — разметка скелета и сами блоки продолжают опираться
+  // на классы семьи (отступы, высоты), которые автоскоуп намеренно оставил
+  // глобальными. Цена — сломанные письма, выгода — 4% размера.
   let skeletonStyl = "";
   try { if (existsSync(mainStyl)) skeletonStyl = readFileSync(mainStyl, "utf8"); } catch { /* ignore */ }
   const mergedStyl = skeletonStyl.trim()
@@ -1291,6 +1338,9 @@ export function composeEmailFromBlocks({
   const studioModelPath = path.join(destDir, "studio-model.json");
   const studioModel = {
     schemaVersion: 1,
+    // Метку кампании храним рядом с деревом: письмо открывают заново, и она
+    // должна вернуться в поле, а не потеряться до следующего сохранения.
+    ...(campaignLabel ? { campaign: campaignLabel } : {}),
     entries: studioJsonValue(blocks) || [],
     sourceSignatures: buildStudioModelSourceSignatures(destDir),
   };

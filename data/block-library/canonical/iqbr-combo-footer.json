@@ -1,0 +1,43 @@
+{
+  "id": "iqbr-combo-footer",
+  "label": "Комбо: Подвал письма (сторы + соцсети + футер)",
+  "description": "Конец письма целиком: кнопки магазинов, иконки соцсетей и футер с адресом, предупреждением о рисках и отпиской.",
+  "placement": "section",
+  "category": "footer",
+  "version": 1,
+  "pug": "table.row\n    tr\n        td.wrapper.last.iqbr-stores--pt68.offset-by-one\n            table.ten.columns\n                tr\n                    td.iqbr-stores--pb32.text-pad-small.iqbr-stores--text-pad-small\n                        .iqbr-stores--stor.center.iqbr-stores--center\n                            a(href=\"https://apps.apple.com/tn/app/iqbroker-trade-with-focus/id6752568298\" target=\"_blank\")\n                                img.iqbr-stores--a-app(src=\"https://fsms.quadcode.com/storage/public/d5/tk/bqfvhhgea139uk40/app-iqbr-1.png\" alt=\"App Store\")\n                            a(href=\"https://play.google.com/store/apps/details?id=iq.broker\" target=\"_blank\")\n                                img.iqbr-stores--a-google(src=\"https://fsms.quadcode.com/storage/public/d5/tj/q6nvhhgea139uk30/glg-str-1.png\" alt=\"Google Play\")\n\ntable.row\n    tr\n        td.wrapper.last.pt0.iqbr-socials--pt0\n            table.twelve.columns\n                tr\n                    td.pb0.iqbr-socials--pb0.center.iqbr-socials--center(align=\"center\")\n                        .iqbr-socials--socials.center.iqbr-socials--center\n                            a(href=\"https://www.facebook.com/iqbroker.global/\" target=\"_blank\")\n                                img.iqbr-socials--soc-icon.iqbr-socials--fb(src=\"https://fsms.quadcode.com/storage/public/d5/su/7b8ggnfnh4cs7730/fb.png\" alt=\"Facebook\")\n                            a(href=\"https://www.instagram.com/iq_broker_official/\" target=\"_blank\")\n                                img.iqbr-socials--soc-icon.iqbr-socials--twitter(src=\"https://fsms.quadcode.com/storage/public/d5/su/7b8ggnfnh4cs772g/ig.png\" alt=\"Instagram\")\n                            a(href=\"https://www.youtube.com/@iqbroker\" target=\"_blank\")\n                                img.iqbr-socials--soc-icon.iqbr-socials--you(src=\"https://fsms.quadcode.com/storage/public/d5/su/7bfvhhgea139ujqg/yt.png\" alt=\"YouTube\")\n                            a(href=\"https://x.com/iqbroker_off\" target=\"_blank\")\n                                img.iqbr-socials--soc-icon.iqbr-socials--ig(src=\"https://fsms.quadcode.com/storage/public/d5/su/7bfvhhgea139ujr0/tw.png\" alt=\"X\")\n\ntable.row.footer.iqbr-footer--footer.iqbr-footer--bg-col(style=\"background-color:#01080D\")\n    tr\n        td.pb30.iqbr-footer--pb30\n            table.twelve.columns\n                tr\n                    td\n                        .mobile-paddding.iqbr-footer--mobile-paddding\n                            p.address-text.iqbr-footer--address-text {{embedded.company_address}}\n                            p.iqbr-footer--warning.pt20.iqbr-footer--pt20 {{embedded.risk_warning}}\n                            p.subscribe.iqbr-footer--subscribe\n                                a.left.iqbr-footer--left(href=\"{{embedded.company_terms_link}}\") ${{ footer.footer.conditions }}$\n                                a.iqbr-footer--right(href=\"{{embedded.unsubscribe_link}}\") ${{ footer.footer.unsubscribe }}$",
+  "styl": "@media screen and (max-width: 600px){.iqbr-stores--text-pad-small{padding-left:20px !important;padding-right:20px !important}}\n.iqbr-stores--center{text-align:center;margin:0 auto}\n.iqbr-stores--pb32{padding-bottom:32px}\n.iqbr-stores--pt68{padding-top:68px}\n.iqbr-stores--stor{width:100% !important;max-width:450px;margin:0 auto}\n@media screen and (max-width: 600px){.iqbr-stores--stor{width:100% !important}}\n.iqbr-stores--a-app{display:inline-block;padding:0 15px;max-width:140px;float:none}\n@media screen and (max-width: 600px){.iqbr-stores--a-app{display:block !important;float:none !important;margin:0 auto !important;padding-bottom:15px !important}}\n.iqbr-stores--a-google{display:inline-block;max-width:168px;padding:0 15px;float:none}\n@media screen and (max-width: 600px){.iqbr-stores--a-google{display:block !important;float:none !important;margin:0 auto !important}}\n.iqbr-socials--center{text-align:center;margin:0 auto}\n.iqbr-socials--pb0{padding-bottom:0 !important}\n.iqbr-socials--pt0{padding-top:0}\n.iqbr-socials--ig{max-width:20px;margin-left:6px}\n@media screen and (max-width: 600px){.iqbr-socials--ig{width:20px !important}}\n.iqbr-socials--you{max-width:24px;margin:0 6px}\n@media screen and (max-width: 600px){.iqbr-socials--you{width:24px !important}}\n.iqbr-socials--twitter{max-width:24px;margin:0 6px}\n@media screen and (max-width: 600px){.iqbr-socials--twitter{width:24px !important}}\n.iqbr-socials--fb{max-width:24px;margin-right:6px}\n@media screen and (max-width: 600px){.iqbr-socials--fb{width:24px !important}}\n.iqbr-socials--socials{display:inline-block;font-size:0;margin:0 auto}\n@media screen and (max-width: 600px){.iqbr-socials--socials{width:100% !important}}\n.iqbr-socials--socials a{display:inline-block;vertical-align:middle;margin:0 10px}\n@media screen and (max-width: 600px){.iqbr-socials--socials a{margin-bottom:10px !important}}\n.iqbr-socials--soc-icon{float:none !important;max-width:24px}\n.iqbr-footer--bg-col{background-color:#01080d}\n.iqbr-footer--footer{background:#f9f9f9;padding-bottom:0;padding-top:0}\n.iqbr-footer--warning{font-family:Helvetica !important;font-size:14px;color:#ddd;letter-spacing:0;text-align:center;line-height:22px}\n.iqbr-footer--subscribe{text-align:left !important;padding-top:20px;margin:0 auto}\na.iqbr-footer--left{color:#ddd;font-weight:400;display:inline-block;text-align:left;word-break:break-word}\n@media screen and (max-width: 600px){a.iqbr-footer--left{display:block !important;text-align:center !important;padding-bottom:10px !important}}\na.iqbr-footer--right{color:#ddd;font-weight:400;display:inline-block;text-align:right;float:right}\n@media screen and (max-width: 600px){a.iqbr-footer--right{display:block !important;text-align:center !important;float:none !important}}\n.iqbr-footer--pb30{padding-bottom:30px}\n.iqbr-footer--pt20{padding-top:20px}\n.iqbr-footer--mobile-paddding{padding:32px 50px 0}\n.iqbr-footer--address-text{font-family:Helvetica !important;font-size:14px;color:#ddd !important;letter-spacing:0;line-height:22px}",
+  "slots": [],
+  "combo": true,
+  "children": [
+    {
+      "id": "iqbr-stores",
+      "role": "container",
+      "slots": {}
+    },
+    {
+      "id": "iqbr-socials",
+      "role": "socials",
+      "slots": {}
+    },
+    {
+      "id": "iqbr-footer",
+      "role": "footer",
+      "slots": {
+        "company_address": "{{embedded.company_address}}",
+        "risk_warning": "{{embedded.risk_warning}}",
+        "terms_href": "{{embedded.company_terms_link}}",
+        "conditions": "${{ footer.footer.conditions }}$",
+        "unsubscribe_href": "{{embedded.unsubscribe_link}}",
+        "unsubscribe": "${{ footer.footer.unsubscribe }}$"
+      }
+    }
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "iqbroker",
+    "combo",
+    "footer"
+  ],
+  "note": "Рецепт: ставит готовый набор блоков IQ Broker. Разбирается и правится как обычные блоки. Собственная разметка нужна для превью и для вставки одним блоком."
+}

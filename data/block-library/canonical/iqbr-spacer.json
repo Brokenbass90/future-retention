@@ -1,0 +1,36 @@
+{
+  "id": "iqbr-spacer",
+  "label": "Отбивка (IQ Broker)",
+  "description": "Пустая полоса заданной высоты. Работает и между секциями, и внутри карточки.",
+  "placement": "both",
+  "category": "helper",
+  "version": 1,
+  "pug": "div(style=\"font-size:8px;line-height:{{ height }};height:{{ height }}\") &nbsp;",
+  "styl": "",
+  "slots": [
+    {
+      "id": "height",
+      "kind": "select",
+      "label": "Высота",
+      "default": "12px",
+      "options": [
+        "8px",
+        "12px",
+        "16px",
+        "20px",
+        "24px",
+        "28px",
+        "32px",
+        "40px"
+      ],
+      "uiGroup": "appearance"
+    }
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "iqbroker",
+    "helper"
+  ],
+  "note": "Нарезано из email-base/X_IQBroker/mail-strategies. Семейные стили втянуты в блок и заскоуплены; ink-классы (.row/.columns/.wrapper) оставлены глобальными.",
+  "scoped": true
+}

@@ -44,6 +44,9 @@ import { withComposeSaveTransaction } from "./compose-save-transaction.js";
 import { previewForBlock } from "./block-previews.js";
 import { saveUserBlockWithLifecycle } from "./block-library-review.js";
 import { rmSync as _rmSyncBlocks, existsSync as _existsSyncBlocks } from "node:fs";
+import "../public/canvas-slot-values.js";
+
+const CANVAS_SLOT_VALUES = globalThis.RetkitCanvasSlots;
 
 function serializeBlocks(blocks) {
   return Array.isArray(blocks) && blocks.length
@@ -522,6 +525,8 @@ export const TOOL_DEFINITIONS = [
       "'make the title red', 'change the promo text' when the user is in the constructor. " +
       "Do NOT use edit_locale_block or save_user_block for this — those touch translation " +
       "files and the block library, not the email being assembled. " +
+      "Text, URL, image, colour, number and select slots are single-line; " +
+      "put intentional paragraphs only in a richText slot. " +
       "The current tree with every uid and its slot values is in the user message. " +
       "Call get_block_source first if you are unsure which slot id controls what.",
     parameters: {
@@ -1159,7 +1164,13 @@ export const TOOL_HANDLERS = {
 
       let colourScore = 0;
       if (args?.backgroundLike) {
-        const distance = colourDistance(args.backgroundLike, sig?.background);
+        // Сравниваем со ВСЕЙ палитрой, а не только с доминирующим цветом.
+        // У блока-кнопки доминирует белое поле вокруг неё, и поиск «оранжевая
+        // кнопка» по одному лишь фону не находил ни одной оранжевой кнопки.
+        const palette = [sig?.background, ...(sig?.palette || [])].filter(Boolean);
+        const distances = palette.map((c) => colourDistance(args.backgroundLike, c))
+          .filter((d) => d != null);
+        const distance = distances.length ? Math.min(...distances) : null;
         // Больше 120 по расстоянию — это уже другой цвет, а не оттенок.
         if (distance == null || distance > 120) continue;
         colourScore = 1 - distance / 120;
@@ -1448,23 +1459,42 @@ export const TOOL_HANDLERS = {
       return { error: "nothing to change — pass slots and/or appearance" };
     }
 
+    const checkedSlots = slots
+      ? CANVAS_SLOT_VALUES.normalizeSlotPatch(target?.slotSchema, slots)
+      : null;
+    if (checkedSlots && !checkedSlots.ok) {
+      return {
+        error: `canvas slot update rejected: ${checkedSlots.errors.map((item) => item.error).join("; ")}`,
+        code: "INVALID_CANVAS_SLOT_VALUE",
+        uid,
+        invalidSlots: checkedSlots.errors.map((item) => ({
+          id: item.id || null,
+          code: item.code,
+          message: item.error,
+        })),
+        hint: "Use one line for text, URL, image, colour, number and select slots. Use a richText slot for intentional paragraphs.",
+      };
+    }
+    const safeSlots = checkedSlots?.values || null;
+
     ctx.canvasOps = ctx.canvasOps || [];
     ctx.canvasOps.push({
       uid,
-      ...(slots ? { slots: JSON.parse(JSON.stringify(slots)) } : {}),
+      ...(safeSlots ? { slots: JSON.parse(JSON.stringify(safeSlots)) } : {}),
       ...(appearance ? { appearance: JSON.parse(JSON.stringify(appearance)) } : {}),
       reason: String(args?.reason || "").slice(0, 200),
     });
 
     // Локально обновляем сводку дерева, чтобы следующий шаг агента видел
     // уже изменённое состояние, а не спорил сам с собой.
-    if (target && slots) target.slots = { ...(target.slots || {}), ...slots };
+    if (target && safeSlots) target.slots = { ...(target.slots || {}), ...safeSlots };
 
     return {
       ok: true,
       uid,
       blockId: target?.blockId || null,
-      changedSlots: slots ? Object.keys(slots) : [],
+      changedSlots: safeSlots ? Object.keys(safeSlots) : [],
+      normalizedRichTextSlots: checkedSlots?.normalizedSlots || [],
       changedAppearance: appearance ? Object.keys(appearance) : [],
       note: "Изменение применится к канвасу конструктора, когда ты завершишь работу (finish).",
     };

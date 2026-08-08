@@ -1,0 +1,33 @@
+{
+  "id": "iqbr-text-gray",
+  "label": "Серый абзац (IQ Broker)",
+  "description": "Второстепенный текст внутри карточки, 18/27.",
+  "placement": "inner",
+  "category": "text",
+  "version": 1,
+  "pug": "p.iqbr-text-gray--gray-text.iqbr-text-gray--pb32(style=\"color:{{ color }}\") {{ text }}",
+  "styl": ".iqbr-text-gray--pb32{padding-bottom:32px}\n.iqbr-text-gray--gray-text{font-family:Helvetica !important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#a6a6ab}",
+  "slots": [
+    {
+      "id": "text",
+      "kind": "richText",
+      "label": "Текст",
+      "default": "Пояснение под заголовком.",
+      "uiGroup": "content"
+    },
+    {
+      "id": "color",
+      "kind": "color",
+      "label": "Цвет",
+      "default": "#A6A6AB",
+      "uiGroup": "appearance"
+    }
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "iqbroker",
+    "text"
+  ],
+  "note": "Нарезано из email-base/X_IQBroker/mail-strategies. Семейные стили втянуты в блок и заскоуплены; ink-классы (.row/.columns/.wrapper) оставлены глобальными.",
+  "scoped": true
+}

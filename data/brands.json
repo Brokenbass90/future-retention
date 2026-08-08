@@ -1,0 +1,105 @@
+{
+  "updatedAt": "2026-08-03T08:37:09.162Z",
+  "brands": [
+    {
+      "id": "X_IQ",
+      "label": "IQ Option",
+      "active": true,
+      "service": false,
+      "blockTag": "iq",
+      "order": 1,
+      "theme": {
+        "primary": "#FF7700",
+        "primary_text": "#FFFFFF",
+        "text": "#393A44",
+        "muted": "#6B7280",
+        "background": "#F9F9F9",
+        "surface": "#FFFFFF",
+        "border": "#ECECED",
+        "link": "#FF7700"
+      },
+      "createdAt": "2026-08-02T19:10:24.788Z",
+      "updatedAt": "2026-08-03T07:40:50.712Z"
+    },
+    {
+      "id": "X_IQBroker",
+      "label": "IQ Broker",
+      "active": true,
+      "service": false,
+      "blockTag": "iqbroker",
+      "order": 2,
+      "theme": {
+        "primary": "#FF5500",
+        "primary_text": "#F9F9F9",
+        "text": "#ECECED",
+        "muted": "#A6A6AB",
+        "background": "#01080D",
+        "surface": "#101314",
+        "border": "#3A3F40",
+        "link": "#FF5500"
+      },
+      "createdAt": "2026-08-02T19:10:24.788Z",
+      "updatedAt": "2026-08-03T07:40:50.715Z"
+    },
+    {
+      "id": "X_assembled",
+      "label": "assembled",
+      "active": true,
+      "service": true,
+      "blockTag": "assembled",
+      "order": 100,
+      "theme": {
+        "primary": "#FF7700",
+        "primary_text": "#FFFFFF",
+        "text": "#393A44",
+        "muted": "#6B7280",
+        "background": "#F9F9F9",
+        "surface": "#FFFFFF",
+        "border": "#ECECED",
+        "link": "#2563EB"
+      },
+      "createdAt": "2026-08-02T19:10:24.788Z",
+      "updatedAt": "2026-08-03T08:23:27.901Z"
+    },
+    {
+      "id": "X_preview",
+      "label": "preview",
+      "active": true,
+      "service": true,
+      "blockTag": "preview",
+      "order": 100,
+      "theme": {
+        "primary": "#FF7700",
+        "primary_text": "#FFFFFF",
+        "text": "#393A44",
+        "muted": "#6B7280",
+        "background": "#F9F9F9",
+        "surface": "#FFFFFF",
+        "border": "#ECECED",
+        "link": "#2563EB"
+      },
+      "createdAt": "2026-08-02T19:10:24.788Z",
+      "updatedAt": "2026-08-02T19:10:24.788Z"
+    },
+    {
+      "id": "X_System",
+      "label": "System",
+      "active": false,
+      "service": true,
+      "blockTag": "system",
+      "order": 100,
+      "theme": {
+        "primary": "#FF7700",
+        "primary_text": "#FFFFFF",
+        "text": "#393A44",
+        "muted": "#6B7280",
+        "background": "#F9F9F9",
+        "surface": "#FFFFFF",
+        "border": "#ECECED",
+        "link": "#2563EB"
+      },
+      "createdAt": "2026-08-02T19:10:24.788Z",
+      "updatedAt": "2026-08-03T08:23:27.898Z"
+    }
+  ]
+}

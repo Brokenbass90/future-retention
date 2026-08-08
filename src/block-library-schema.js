@@ -241,6 +241,10 @@ export function normalizeBlockLibrarySavePayload(body, { createdAt = new Date().
 
   if (hasOwn(body, "childSlots")) normalized.childSlots = childSlots;
   if (hasOwn(body, "combo")) normalized.combo = normalizeBoolean(body.combo, "combo");
+  // Признак «классы блока в собственном скоупе». Нужен и людям (видно, что
+  // блок не столкнётся с чужими стилями), и инструментам: по нему отличают
+  // мигрированную библиотеку от legacy-нарезки.
+  if (hasOwn(body, "scoped")) normalized.scoped = normalizeBoolean(body.scoped, "scoped");
   if (hasOwn(body, "children")) normalized.children = normalizeChildren(body.children, childSlots);
   if (hasOwn(body, "appearance")) normalized.appearance = normalizeAppearance(body.appearance);
   if (hasOwn(body, "outlookSafe")) {

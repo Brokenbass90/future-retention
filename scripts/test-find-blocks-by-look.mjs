@@ -78,13 +78,19 @@ const find = (args) => TOOL_HANDLERS.find_blocks_by_look(args, {});
     const n = parseInt(String(hex).replace("#", ""), 16);
     return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
   };
+  // Цвет ищется по ВСЕЙ палитре блока, а не только по доминирующему фону:
+  // у кнопки доминирует белое поле вокруг неё, и по одному фону ни одна
+  // оранжевая кнопка не нашлась бы. Значит и проверять надо палитру.
   const far = orange.blocks.filter((b) => {
-    if (!b.appearance?.background) return false;
-    const [r, g, bl] = parse(b.appearance.background);
-    return Math.sqrt((r - 255) ** 2 + (g - 119) ** 2 + bl ** 2) > 120;
+    const palette = [b.appearance?.background, ...(b.appearance?.palette || [])].filter(Boolean);
+    if (!palette.length) return false;
+    return palette.every((hex) => {
+      const [r, g, bl] = parse(hex);
+      return Math.sqrt((r - 255) ** 2 + (g - 119) ** 2 + bl ** 2) > 120;
+    });
   });
-  check("далёкие от запроса цвета отсеяны", far.length === 0,
-    JSON.stringify(far.slice(0, 3).map((b) => [b.id, b.appearance.background])));
+  check("блоки без близкого к запросу цвета отсеяны", far.length === 0,
+    JSON.stringify(far.slice(0, 3).map((b) => [b.id, b.appearance.palette])));
 }
 
 /* ─── Схлопывание дублей в выдаче ────────────────────────────────────────── */

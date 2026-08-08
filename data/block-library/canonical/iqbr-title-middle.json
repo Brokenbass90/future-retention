@@ -1,0 +1,33 @@
+{
+  "id": "iqbr-title-middle",
+  "label": "Заголовок карточки (IQ Broker)",
+  "description": "Крупный светлый заголовок внутри карточки, 32/42, на мобильном 26/32.",
+  "placement": "inner",
+  "category": "text",
+  "version": 1,
+  "pug": "p.iqbr-title-middle--middle-title.iqbr-title-middle--pb12(style=\"color:{{ color }}\") {{ text }}",
+  "styl": ".iqbr-title-middle--middle-title{font-family:Helvetica !important;font-style:normal;font-weight:700;font-size:32px;line-height:42px;color:#ececed}\n@media screen and (max-width: 600px){.iqbr-title-middle--middle-title{font-size:26px !important;line-height:32px !important}}\n.iqbr-title-middle--pb12{padding-bottom:12px !important}",
+  "slots": [
+    {
+      "id": "text",
+      "kind": "text",
+      "label": "Текст",
+      "default": "Заголовок",
+      "uiGroup": "content"
+    },
+    {
+      "id": "color",
+      "kind": "color",
+      "label": "Цвет",
+      "default": "#ECECED",
+      "uiGroup": "appearance"
+    }
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "iqbroker",
+    "text"
+  ],
+  "note": "Нарезано из email-base/X_IQBroker/mail-strategies. Семейные стили втянуты в блок и заскоуплены; ink-классы (.row/.columns/.wrapper) оставлены глобальными.",
+  "scoped": true
+}

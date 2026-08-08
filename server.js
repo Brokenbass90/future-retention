@@ -54,6 +54,7 @@ import * as fsLink from "node:fs";
 import { composeEmailFromBlocks, listCanonicalBlocks, userBlockPath } from "./src/compose-email.js";
 import { attachPreviews, resolvePreviewFile } from "./src/block-previews.js";
 import { putAsset, assetStorageStatus } from "./src/asset-storage.js";
+import { loadBrands, createBrand, updateBrand, getBrand, THEME_TOKENS, BrandError } from "./src/brands.js";
 import { BlockLibrarySchemaError, normalizeBlockLibrarySavePayload } from "./src/block-library-schema.js";
 import {
   assertPortableBlockSource,
@@ -16743,6 +16744,16 @@ async function handleStudioAgent(response, body) {
         ? Object.fromEntries(Object.entries(entry.slots).slice(0, 12)
           .map(([k, v]) => [k, String(v ?? "").slice(0, 120)]))
         : {},
+      slotSchema: Array.isArray(entry?.slotSchema)
+        ? entry.slotSchema.slice(0, 40).map((slot) => ({
+          id: String(slot?.id || "").slice(0, 128),
+          kind: String(slot?.kind || "text").slice(0, 32),
+          label: String(slot?.label || slot?.id || "").slice(0, 160),
+          ...(Array.isArray(slot?.options)
+            ? { options: slot.options.slice(0, 50).map((value) => String(value).slice(0, 160)) }
+            : {}),
+        })).filter((slot) => slot.id)
+        : undefined,
     }));
   }
 
@@ -17490,10 +17501,12 @@ const server = http.createServer(async (request, response) => {
         // Run the shared compose-core validation before the transaction moves
         // an existing source/dist tree to backup. This rejects local/private
         // asset URLs without performing any destructive filesystem operation.
+        const campaign = String(body?.campaign || "").trim();
         composeEmailFromBlocks({
           brand,
           mailName: rawName,
           blocks,
+          campaign,
           destRoot: path.join(__dirname, "email-base"),
           validateOnly: true,
           requireApprovedBlocks: true,
@@ -17509,7 +17522,7 @@ const server = http.createServer(async (request, response) => {
             force,
           }, async () => {
             const composed = composeEmailFromBlocks({
-              brand, mailName: rawName, blocks,
+              brand, mailName: rawName, blocks, campaign,
               destRoot: path.join(__dirname, "email-base"),
               requireApprovedBlocks: true,
               allowTrustedParsedBlocks: parsedProvenance.verified,
@@ -17615,6 +17628,49 @@ const server = http.createServer(async (request, response) => {
         message: `Catalog now contains ${catalog.summary?.itemCount || catalog.items.length} block(s).`
       });
       sendJson(response, 200, catalog);
+      return;
+    }
+
+    // ── Бренды: список, создание, правка темы ───────────────────────────────
+    if (request.method === "GET" && request.url === "/api/brands") {
+      try {
+        sendJson(response, 200, { ok: true, brands: loadBrands(), tokens: THEME_TOKENS });
+      } catch (err) {
+        sendJson(response, 500, { error: String(err?.message || err) });
+      }
+      return;
+    }
+
+    if (request.method === "POST" && request.url === "/api/brands") {
+      try {
+        const body = await readRequestBody(request);
+        const brand = createBrand({
+          label: body?.label, id: body?.id, theme: body?.theme,
+          blockTag: body?.blockTag, order: body?.order,
+        });
+        try {
+          await appendStudioJournalEntry({
+            area: "brands",
+            title: `Бренд создан: ${brand.label}`,
+            message: `папка ${brand.id}`,
+            meta: { id: brand.id },
+          });
+        } catch { /* журнал не должен ронять ответ */ }
+        sendJson(response, 200, { ok: true, brand });
+      } catch (err) {
+        sendJson(response, Number(err?.statusCode) || 400, { error: String(err?.message || err) });
+      }
+      return;
+    }
+
+    if (request.method === "PATCH" && request.url.startsWith("/api/brands/")) {
+      try {
+        const id = decodeURIComponent(request.url.slice("/api/brands/".length).split("?")[0]);
+        const body = await readRequestBody(request);
+        sendJson(response, 200, { ok: true, brand: updateBrand(id, body || {}) });
+      } catch (err) {
+        sendJson(response, Number(err?.statusCode) || 400, { error: String(err?.message || err) });
+      }
       return;
     }
 

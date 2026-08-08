@@ -7,6 +7,7 @@ import path from "node:path";
 import { existsSync, readFileSync } from "node:fs";
 import { mkdir, rename, rm, writeFile } from "node:fs/promises";
 import { normalizeBlockLibrarySavePayload } from "./block-library-schema.js";
+import { scopeBlockStyles, classifyBlockClasses } from "./scope-block-styles.js";
 import { withKeyedOperationLock } from "./keyed-operation-lock.js";
 import { validateHtml } from "./html-validate.js";
 import { applyLocaleDirectionToHtml } from "./rtl.js";
@@ -499,6 +500,21 @@ export async function validateUserBlockDeterministically(block, {
   }
   errors.push(...tokenErrors);
 
+  // Класс в разметке, за которым нет CSS ни у блока, ни во фреймворке, ни в
+  // семье — почти всегда опечатка (в базе так жил `.centet` вместо `.center`
+  // в полусотне блоков). Молча пропускать нельзя: вёрстка выглядит рабочей,
+  // а стиля нет.
+  try {
+    const buckets = classifyBlockClasses(normalized);
+    if (buckets.missing.length) {
+      warnings.push(
+        `классы без CSS: ${buckets.missing.slice(0, 8).join(", ")}`
+        + `${buckets.missing.length > 8 ? ` и ещё ${buckets.missing.length - 8}` : ""}`
+        + " — опиши их в styl блока или убери из разметки",
+      );
+    }
+  } catch { /* реестра может не быть — это не повод валить сохранение */ }
+
   const portable = inspectPortableBlockSource(normalized);
   errors.push(...portable.errors);
   const defaultErrors = inspectPortableSlotDefaults(normalized);
@@ -705,9 +721,25 @@ export async function saveUserBlockWithLifecycle({
     if (existsSync(target)) {
       try { previous = JSON.parse(readFileSync(target, "utf8")); } catch {}
     }
-    const normalized = normalizeBlockLibrarySavePayload(payload, {
+    let normalized = normalizeBlockLibrarySavePayload(payload, {
       createdAt: createdAt || previous?.createdAt || new Date().toISOString(),
     });
+
+    // Скоупим классы созданного руками блока так же, как canonical-библиотеку:
+    // иначе новый блок с классом `.title` перебьёт чужой `.title` в том же
+    // письме. Операция идемпотентна — повторное сохранение не даёт `--x--x`.
+    // Если реестра стилей нет, сохраняем как есть: лучше блок без скоупа,
+    // чем отказ сохранить работу человека.
+    try {
+      const scoped = scopeBlockStyles({ ...normalized, source: "user" });
+      if (scoped?.block) {
+        const { source: _ignored, ...clean } = scoped.block;
+        normalized = normalizeBlockLibrarySavePayload(clean, {
+          createdAt: normalized.createdAt,
+        });
+      }
+    } catch { /* без скоупа, но сохраняем */ }
+
     const validation = await validateUserBlockDeterministically(normalized, {
       ...(checkedAt ? { checkedAt } : {}),
       resolveDependency: dependencyResolverForUserTarget(target),

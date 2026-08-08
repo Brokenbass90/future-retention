@@ -1,0 +1,68 @@
+{
+  "id": "iqbr-footer",
+  "label": "Футер (IQ Broker)",
+  "description": "Тёмный футер: адрес компании, предупреждение о рисках, ссылки на условия и отписку.",
+  "placement": "section",
+  "category": "footer",
+  "version": 1,
+  "pug": "table.row.footer.iqbr-footer--footer.iqbr-footer--bg-col(style=\"background-color:{{ background_color }}\")\n    tr\n        td.pb30.iqbr-footer--pb30\n            table.twelve.columns\n                tr\n                    td\n                        .mobile-paddding.iqbr-footer--mobile-paddding\n                            p.address-text.iqbr-footer--address-text {{ company_address }}\n                            p.iqbr-footer--warning.pt20.iqbr-footer--pt20 {{ risk_warning }}\n                            p.subscribe.iqbr-footer--subscribe\n                                a.left.iqbr-footer--left(href=\"{{ terms_href }}\") {{ conditions }}\n                                a.iqbr-footer--right(href=\"{{ unsubscribe_href }}\") {{ unsubscribe }}",
+  "styl": ".iqbr-footer--bg-col{background-color:#01080d}\n.iqbr-footer--footer{background:#f9f9f9;padding-bottom:0;padding-top:0}\n.iqbr-footer--warning{font-family:Helvetica !important;font-size:14px;color:#ddd;letter-spacing:0;text-align:center;line-height:22px}\n.iqbr-footer--subscribe{text-align:left !important;padding-top:20px;margin:0 auto}\na.iqbr-footer--left{color:#ddd;font-weight:400;display:inline-block;text-align:left;word-break:break-word}\n@media screen and (max-width: 600px){a.iqbr-footer--left{display:block !important;text-align:center !important;padding-bottom:10px !important}}\na.iqbr-footer--right{color:#ddd;font-weight:400;display:inline-block;text-align:right;float:right}\n@media screen and (max-width: 600px){a.iqbr-footer--right{display:block !important;text-align:center !important;float:none !important}}\n.iqbr-footer--pb30{padding-bottom:30px}\n.iqbr-footer--pt20{padding-top:20px}\n.iqbr-footer--mobile-paddding{padding:32px 50px 0}\n.iqbr-footer--address-text{font-family:Helvetica !important;font-size:14px;color:#ddd !important;letter-spacing:0;line-height:22px}",
+  "slots": [
+    {
+      "id": "company_address",
+      "kind": "text",
+      "label": "Адрес компании",
+      "default": "{{embedded.company_address}}",
+      "uiGroup": "content"
+    },
+    {
+      "id": "risk_warning",
+      "kind": "richText",
+      "label": "Предупреждение о рисках",
+      "default": "{{embedded.risk_warning}}",
+      "uiGroup": "content"
+    },
+    {
+      "id": "terms_href",
+      "kind": "url",
+      "label": "Ссылка на условия",
+      "default": "{{embedded.company_terms_link}}",
+      "uiGroup": "content"
+    },
+    {
+      "id": "conditions",
+      "kind": "text",
+      "label": "Текст ссылки на условия",
+      "default": "${{ footer.footer.conditions }}$",
+      "uiGroup": "content"
+    },
+    {
+      "id": "unsubscribe_href",
+      "kind": "url",
+      "label": "Ссылка отписки",
+      "default": "{{embedded.unsubscribe_link}}",
+      "uiGroup": "content"
+    },
+    {
+      "id": "unsubscribe",
+      "kind": "text",
+      "label": "Текст отписки",
+      "default": "${{ footer.footer.unsubscribe }}$",
+      "uiGroup": "content"
+    },
+    {
+      "id": "background_color",
+      "kind": "color",
+      "label": "Фон футера",
+      "default": "#01080D",
+      "uiGroup": "appearance"
+    }
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "iqbroker",
+    "footer"
+  ],
+  "note": "Нарезано из email-base/X_IQBroker/mail-strategies. Семейные стили втянуты в блок и заскоуплены; ink-классы (.row/.columns/.wrapper) оставлены глобальными.",
+  "scoped": true
+}

@@ -1,0 +1,86 @@
+{
+  "id": "iqbr-combo-card-list",
+  "label": "Комбо: Карточка со списком и кнопкой",
+  "description": "Карточка с обводкой: заголовок, текст, подзаголовок, картинка, список из двух пунктов и кнопка.",
+  "placement": "section",
+  "category": "layout",
+  "version": 1,
+  "pug": "table.row.iqbr-section-bordered--brad-full(style=\"border:4px solid #1A1D1E;background-color:#01080D\")\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.iqbr-section-bordered--text-pad-small.iqbr-section-bordered--pb44.iqbr-section-bordered--pt44\n                        p.iqbr-title-middle--middle-title.iqbr-title-middle--pb12(style=\"color:#ECECED\") Заголовок карточки\n                        p.iqbr-text-gray--gray-text.iqbr-text-gray--pb32(style=\"color:#A6A6AB\") Пояснение под заголовком — одна-две строки.\n                        p.iqbr-block-title--block-title(style=\"color:#ECECED;padding-bottom:12px\") Подзаголовок\n                        a(href=\"#\" universal=\"true\" target=\"_blank\")\n                            img.center.iqbr-image--center(src=\"https://fsms.quadcode.com/storage/public/d5/th/ojvvhhgea139uk1g/strategies-4.png\" alt=\"\" style=\"padding-bottom:32px\")\n                        ul(style=\"margin: 0; padding: 0 0 0 20px;\")\n                            li.iqbr-list-2--block-text\n                                p.iqbr-list-2--block-text Первый пункт\n                            li.iqbr-list-2--block-text\n                                p.iqbr-list-2--block-text Второй пункт\n                        div(style=\"font-size:8px;line-height:40px;height:40px\") &nbsp;\n                        table.iqbr-button--w280(align=\"center\" style=\"width: 100%;\")\n                            tr\n                                td.butt.iqbr-button--butt.pb0.iqbr-button--pb0(style=\"background-color:#FF5500;border-radius:12px\")\n                                    a.iqbr-button--butt-link(href=\"https://api.trade.iqbroker.com/v1/multi-links/open-asset?aff=7\" universal=\"true\" target=\"_blank\" style=\"color:#F9F9F9\") Перейти",
+  "styl": ".iqbr-section-bordered--brad-full{border-radius:32px !important}\n@media screen and (max-width: 600px){.iqbr-section-bordered--text-pad-small{padding-left:20px !important;padding-right:20px !important}}\n.iqbr-section-bordered--pb44{padding-bottom:44px}\n.iqbr-section-bordered--pt44{padding-top:44px}\n.iqbr-title-middle--middle-title{font-family:Helvetica !important;font-style:normal;font-weight:700;font-size:32px;line-height:42px;color:#ececed}\n@media screen and (max-width: 600px){.iqbr-title-middle--middle-title{font-size:26px !important;line-height:32px !important}}\n.iqbr-title-middle--pb12{padding-bottom:12px !important}\n.iqbr-text-gray--pb32{padding-bottom:32px}\n.iqbr-text-gray--gray-text{font-family:Helvetica !important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#a6a6ab}\n.iqbr-block-title--block-title{font-family:Helvetica !important;font-style:normal;font-weight:700;font-size:24px;line-height:31px;color:#ececed}\n.iqbr-image--center{text-align:center;margin:0 auto}\n.iqbr-list-2--block-text{font-family:Helvetica !important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#ececed}\n.iqbr-button--w280{width:100%;max-width:280px}\n@media screen and (max-width: 600px){.iqbr-button--w280{max-width:100% !important}}\n.iqbr-button--butt{background-size:cover;background-color:#f50;font-size:18px !important;font-weight:700 !important;border-radius:12px !important;text-transform:none;font-family:Helvetica !important;height:auto}\n.iqbr-button--butt-link{font-size:18px;line-height:27px;font-weight:700;text-transform:none;text-decoration:none;color:#f9f9f9;display:block;padding:16px 0 16px;text-align:center;letter-spacing:0px}\n.iqbr-button--pb0{padding-bottom:0 !important}",
+  "slots": [],
+  "combo": true,
+  "children": [
+    {
+      "id": "iqbr-section-bordered",
+      "role": "container",
+      "slots": {}
+    },
+    {
+      "id": "iqbr-title-middle",
+      "slotId": "content",
+      "role": "title",
+      "slots": {
+        "text": "Заголовок карточки"
+      }
+    },
+    {
+      "id": "iqbr-text-gray",
+      "slotId": "content",
+      "role": "body",
+      "slots": {
+        "text": "Пояснение под заголовком — одна-две строки."
+      }
+    },
+    {
+      "id": "iqbr-block-title",
+      "slotId": "content",
+      "role": "subtitle",
+      "slots": {
+        "text": "Подзаголовок",
+        "padding_bottom": "12px"
+      }
+    },
+    {
+      "id": "iqbr-image",
+      "slotId": "content",
+      "role": "image",
+      "slots": {
+        "image": "https://fsms.quadcode.com/storage/public/d5/th/ojvvhhgea139uk1g/strategies-4.png",
+        "padding_bottom": "32px"
+      }
+    },
+    {
+      "id": "iqbr-list-2",
+      "slotId": "content",
+      "role": "list",
+      "slots": {
+        "item_1": "Первый пункт",
+        "item_2": "Второй пункт"
+      }
+    },
+    {
+      "id": "iqbr-spacer",
+      "slotId": "content",
+      "role": "gap",
+      "slots": {
+        "height": "40px"
+      }
+    },
+    {
+      "id": "iqbr-button",
+      "slotId": "content",
+      "role": "cta",
+      "slots": {
+        "label": "Перейти",
+        "align": "center"
+      }
+    }
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "iqbroker",
+    "combo",
+    "layout"
+  ],
+  "note": "Рецепт: ставит готовый набор блоков IQ Broker. Разбирается и правится как обычные блоки. Собственная разметка нужна для превью и для вставки одним блоком."
+}

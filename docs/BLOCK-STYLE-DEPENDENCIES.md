@@ -1,6 +1,6 @@
 # Зависимости стилей блоков — что придётся втянуть при автоскоупе
 
-Сгенерировано: 2026-07-27T12:48:33.419Z · `node scripts/audit-block-styles.mjs`
+Сгенерировано: 2026-08-08T05:29:41.430Z · `node scripts/audit-block-styles.mjs`
 
 Отчёт отвечает на вопрос «что сломается, если оторвать блоки от `main.styl` семьи».
 Каждый класс из разметки блока разложен на: свой (в `styl` блока), фреймворковый
@@ -11,12 +11,12 @@
 
 | | блоков |
 |---|---|
-| всего в библиотеке | 492 |
-| **уже самодостаточны** (только свои + фреймворк) | **256** |
-| опираются на классы семьи | 236 |
-| используют классы, которых нет нигде | 187 |
-| используют фреймворковые классы, переопределённые семьёй | 278 |
-| требуют решения руками (многозначный класс) | 61 |
+| всего в библиотеке | 522 |
+| **уже самодостаточны** (только свои + фреймворк) | **282** |
+| опираются на классы семьи | 240 |
+| используют классы, которых нет нигде | 190 |
+| используют фреймворковые классы, переопределённые семьёй | 296 |
+| требуют решения руками (многозначный класс) | 62 |
 
 Реестр: 675 классов, 56634 правил, 96 писем.
 
@@ -28,6 +28,11 @@
 | `.w100` | 9 | 1 | ✅ переносится автоматом |
 | `.bgr-image` | 2 | 30 | ⚠️ решать руками |
 | `.link` | 2 | 1 | ✅ переносится автоматом |
+| `.brad-full` | 1 | 1 | ✅ переносится автоматом |
+| `.white-bg` | 1 | 2 | ⚠️ решать руками |
+| `.pb44` | 1 | 1 | ✅ переносится автоматом |
+| `.pt44` | 1 | 1 | ✅ переносится автоматом |
+| `.pb32` | 1 | 1 | ✅ переносится автоматом |
 | `.first-td` | 1 | 1 | ✅ переносится автоматом |
 | `.last-td` | 1 | 1 | ✅ переносится автоматом |
 | `.h-12` | 1 | 3 | ⚠️ решать руками |
@@ -45,6 +50,8 @@
 | `.first-link` | 11 |
 | `.last-link` | 11 |
 | `.pt` | 2 |
+| `.iqbr-footer--left` | 2 |
+| `.iqbr-footer--right` | 2 |
 | `.pt8` | 2 |
 | `.button-wrapper_left` | 2 |
 | `.code` | 2 |
@@ -69,14 +76,13 @@
 | `.iq-hold-spacer` | 1 |
 | `.iq-image-link` | 1 |
 | `.iq-lead-bold` | 1 |
-| `.iq-logo-link` | 1 |
-| `.iq-note-gray` | 1 |
 
 ## Блоки, которые нельзя мигрировать автоматом
 
 | блок | источник | многозначных классов | какие |
 |---|---|---|---|
 | `iq-combo-promo-steps` | canonical | 2 | `.h-12`(3), `.h-40`(4) |
+| `iq-combo-card-cta` | canonical | 1 | `.white-bg`(2) |
 | `iq-feature-list-06` | imported | 1 | `.m-w`(10) |
 | `iq-feature-list-10` | imported | 1 | `.m-w`(10) |
 | `iq-combo-hero-space` | canonical | 1 | `.bgr-image`(30) |
@@ -105,14 +111,13 @@
 | `iq-feature-list-23` | imported | 1 | `.m-w`(10) |
 | `iq-feature-list-24` | imported | 1 | `.m-w`(10) |
 | `iq-feature-list-25` | imported | 1 | `.m-w`(10) |
-| `iq-feature-list-26` | imported | 1 | `.m-w`(10) |
 
 ## Блоки, готовые к скоупу прямо сейчас
 
-256 шт. — все их классы либо свои, либо фреймворковые.
+282 шт. — все их классы либо свои, либо фреймворковые.
 
-`iq-combo-hero-233`, `iq-cta-button`, `iq-date-badge`, `iq-footer`, `iq-hero-copy`, `iq-hero-date`, `iq-hero-image`, `iq-hero-logo`, `iq-middle-title`, `iq-outer-wrapper`, `iq-promocode`, `iq-section-spacer`, `iq-socials`, `iq-step-card`, `iq-text-title`, `iq-white-text`, `iq-white-title`, `iq-cta-01`, `iq-cta-12`, `iq-cta-14`, `iq-cta-17`, `iq-cta-18`, `iq-cta-19`, `iq-cta-24`, `iq-cta-25`, `iq-cta-26`, `iq-cta-27`, `iq-cta-29`, `iq-cta-30`, `iq-cta-31`, `iq-cta-33`, `iq-cta-34`, `iq-cta-35`, `iq-cta-36`, `iq-cta-38`, `iq-cta-39`, `iq-cta-40`, `iq-cta-41`, `iq-cta-42`, `iq-cta-43`, `iq-cta-44`, `iq-cta-45`, `iq-cta-46`, `iq-cta-47`, `iq-cta-48`, `iq-cta-49`, `iq-cta-50`, `iq-cta-52`, `iq-cta-53`, `iq-cta-54`, `iq-feature-list-02`, `iq-feature-list-03`, `iq-feature-list-04`, `iq-feature-list-05`, `iq-feature-list-14`, `iq-feature-list-15`, `iq-feature-list-16`, `iq-feature-list-18`, `iq-feature-list-19`, `iq-feature-list-29`, `iq-feature-list-30`, `iq-feature-list-31`, `iq-feature-list-32`, `iq-feature-list-33`, `iq-feature-list-39`, `iq-feature-list-40`, `iq-feature-list-50`, `iq-feature-list-51`, `iq-feature-list-52`, `iq-feature-list-53`, `iq-feature-list-54`, `iq-feature-list-70`, `iq-feature-list-71`, `iq-footer-01`, `iq-footer-02`, `iq-footer-05`, `iq-footer-06`, `iq-footer-07`, `iq-footer-08`, `iq-footer-11` … и ещё 176
+`iq-combo-hero-233`, `iq-cta-button`, `iq-date-badge`, `iq-footer`, `iq-hero-copy`, `iq-hero-date`, `iq-hero-image`, `iq-hero-logo`, `iq-middle-title`, `iq-outer-wrapper`, `iq-promocode`, `iq-section-spacer`, `iq-socials`, `iq-step-card`, `iq-text-title`, `iq-white-text`, `iq-white-title`, `iqbr-block-note`, `iqbr-block-title`, `iqbr-button`, `iqbr-combo-card-columns`, `iqbr-combo-card-compare`, `iqbr-combo-card-list`, `iqbr-combo-header-hero`, `iqbr-combo-intro-card`, `iqbr-combo-two-columns-compare`, `iqbr-combo-two-columns-list`, `iqbr-image`, `iqbr-list-2`, `iqbr-list-3`, `iqbr-logo`, `iqbr-outer-wrapper`, `iqbr-section-bordered`, `iqbr-section-dark`, `iqbr-section-header`, `iqbr-socials`, `iqbr-spacer`, `iqbr-stores`, `iqbr-text-gray`, `iqbr-text-white`, `iqbr-title-middle`, `iqbr-title-white`, `iqbr-two-columns`, `iq-cta-01`, `iq-cta-12`, `iq-cta-14`, `iq-cta-17`, `iq-cta-18`, `iq-cta-19`, `iq-cta-24`, `iq-cta-25`, `iq-cta-26`, `iq-cta-27`, `iq-cta-29`, `iq-cta-30`, `iq-cta-31`, `iq-cta-33`, `iq-cta-34`, `iq-cta-35`, `iq-cta-36`, `iq-cta-38`, `iq-cta-39`, `iq-cta-40`, `iq-cta-41`, `iq-cta-42`, `iq-cta-43`, `iq-cta-44`, `iq-cta-45`, `iq-cta-46`, `iq-cta-47`, `iq-cta-48`, `iq-cta-49`, `iq-cta-50`, `iq-cta-52`, `iq-cta-53`, `iq-cta-54`, `iq-feature-list-02`, `iq-feature-list-03`, `iq-feature-list-04`, `iq-feature-list-05` … и ещё 202
 
 ## Попутно
 
-- Блоков с мёртвым собственным CSS (класс определён в `styl`, но в разметке блока не используется): **302**.
+- Блоков с мёртвым собственным CSS (класс определён в `styl`, но в разметке блока не используется): **303**.
