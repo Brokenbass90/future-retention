@@ -26,10 +26,73 @@ const { html: beautify } = require('js-beautify');
 
 const DEFAULT_LANG_DIR = path.join('vendor', 'data');
 const LOCALE_DIR_RE = /^[A-Za-z]{2}([_-][A-Za-z]{2})?$/;
+// Gmail is known to clip large HTML messages at roughly 102 KiB. Keep the
+// default build non-blocking, but surface the risk early and offer an explicit
+// strict gate for release/CI builds.
+const DEFAULT_HTML_WARN_KIB = 80;
+const DEFAULT_HTML_CLIP_KIB = 102;
+const DEFAULT_HEAD_CSS_WARN_KIB = 20;
 
 function die(msg, code = 1) {
   console.error(`\n[build] ${msg}\n`);
   process.exit(code);
+}
+
+function parsePositiveKibOption(value, fallback, label, { allowZero = false } = {}) {
+  if (value == null || value === '') return fallback;
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed < 0 || (!allowZero && parsed === 0)) {
+    die(`${label} must be ${allowZero ? 'zero or ' : ''}a positive number of KiB`);
+  }
+  return parsed;
+}
+
+function collectHeadStyleBytes(html) {
+  const source = String(html || '');
+  const head = source.match(/<head\b[^>]*>([\s\S]*?)<\/head>/i)?.[1] || '';
+  let bytes = 0;
+  for (const match of head.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)) {
+    bytes += Buffer.byteLength(match[1] || '', 'utf8');
+  }
+  return bytes;
+}
+
+function collectInlineStyleBytes(html) {
+  const source = String(html || '');
+  let bytes = 0;
+  for (const match of source.matchAll(/\sstyle\s*=\s*(["'])([\s\S]*?)\1/gi)) {
+    bytes += Buffer.byteLength(match[2] || '', 'utf8');
+  }
+  return bytes;
+}
+
+/**
+ * Some downstream delivery tooling treats adjacent CSS braces as template
+ * delimiters. Separate them only inside <style> elements in <head>: content
+ * placeholders such as {{embedded.company_address}} and ${{ namespace.key }}$
+ * must remain byte-for-byte intact.
+ */
+function separateAdjacentCssBracesInStyleTags(html) {
+  return String(html || '').replace(
+    /(<head\b[^>]*>)([\s\S]*?)(<\/head>)/i,
+    (headMatch, openHead, headContent, closeHead) => `${openHead}${headContent.replace(
+      /(<style\b[^>]*>)([\s\S]*?)(<\/style>)/gi,
+      (styleMatch, openStyle, css, closeStyle) => `${openStyle}${css.replace(/\}\}/g, '} }').replace(/\{\{/g, '{ {')}${closeStyle}`,
+    )}${closeHead}`,
+  );
+}
+
+function analyzeEmailWeight(label, html) {
+  return {
+    label,
+    htmlBytes: Buffer.byteLength(String(html || ''), 'utf8'),
+    headCssBytes: collectHeadStyleBytes(html),
+    inlineStyleBytes: collectInlineStyleBytes(html),
+  };
+}
+
+function formatKib(bytes) {
+  return `${(Number(bytes || 0) / 1024).toFixed(1)} KiB`;
 }
 
 const generatedPugAliases = [];
@@ -144,6 +207,27 @@ function compileStylus(stylPathAbs, includePathsAbs = [], autoImportsAbs = []) {
   });
 }
 
+/**
+ * Правила для элементов, которых в разметке письма нет: их подставляет сам
+ * почтовый клиент. Дописываются в head ПОСЛЕ вычистки CSS — иначе она их
+ * удалит, не найдя в HTML.
+ *
+ * Сейчас здесь один случай — эмодзи в Gmail. Клиент заменяет символ на
+ * картинку, а та наследует из базовых стилей `float:left` и `display:block`
+ * и уезжает на отдельную строку. Замерено в Chromium: без этих правил
+ * `display/float` у такой картинки — `block/left`, с ними — `inline/none`.
+ *
+ * Старый Gmail ставил атрибут `goomoji`, нынешний — класс `an1` и адрес
+ * `fonts.gstatic.com/s/e/notoemoji/…`. Ловим оба, иначе правило промахивается.
+ */
+const CLIENT_FIXES_CSS = `
+img[goomoji],img[data-goomoji],img[src*="goomoji"],
+img.an1,img[class~="an1"],img[src*="notoemoji"],img[src*="gstatic.com/s/e/"]{
+display:inline !important;float:none !important;clear:none !important;
+width:1em !important;height:1em !important;max-width:none !important;
+vertical-align:middle !important;margin:0 .05em !important}
+`.trim();
+
 function splitCss(cssText, { minifyHead = false } = {}) {
   // PostCSS split: keep media/supports/font-face/keyframes in <head>, rest for inlining
   const root = postcss.parse(cssText, { parser: safeParser });
@@ -176,6 +260,9 @@ function splitCss(cssText, { minifyHead = false } = {}) {
       // keep original if minify fails
     }
   }
+
+  if (headCss.trim()) headCss += `\n${CLIENT_FIXES_CSS}\n`;
+  else headCss = `${CLIENT_FIXES_CSS}\n`;
 
   return { headCss, inlineCss: inlineCssText };
 }
@@ -409,12 +496,13 @@ async function inlineHtml(html, inlineCssText) {
 
 async function main() {
   const argv = minimist(process.argv.slice(2), {
-    boolean: ['minifyCss', 'base', 'failOnMissing', 'pretty', 'trimCss', 'minifyHtml', 'minifyAll', 'skip-locales'],
-    string: ['rtl-mode'],
+    boolean: ['minifyCss', 'base', 'failOnMissing', 'failOnWeight', 'pretty', 'trimCss', 'minifyHtml', 'minifyAll', 'skip-locales'],
+    string: ['rtl-mode', 'warnHtmlKb', 'clipHtmlKb', 'warnHeadCssKb', 'maxHtmlKb'],
     default: {
       minifyCss: true,
       base: true,
       failOnMissing: false,
+      failOnWeight: false,
       dist: 'dist',
       langDir: DEFAULT_LANG_DIR,
       pretty: false,
@@ -453,6 +541,38 @@ async function writeHtmlPair(dirAbs, htmlCompact, htmlPretty, { emitPretty = fal
   const mail = argv.mail;
   if (!category || !mail) {
     die('Required flags: --category <CAT> --mail <NAME>. Example: --category X_IQ --mail roll-300126');
+  }
+  const warnHtmlBytes = parsePositiveKibOption(
+    argv.warnHtmlKb,
+    DEFAULT_HTML_WARN_KIB,
+    '--warnHtmlKb',
+  ) * 1024;
+  const clipHtmlBytes = parsePositiveKibOption(
+    argv.clipHtmlKb,
+    DEFAULT_HTML_CLIP_KIB,
+    '--clipHtmlKb',
+  ) * 1024;
+  const warnHeadCssBytes = parsePositiveKibOption(
+    argv.warnHeadCssKb,
+    DEFAULT_HEAD_CSS_WARN_KIB,
+    '--warnHeadCssKb',
+  ) * 1024;
+  const explicitMaxHtmlBytes = parsePositiveKibOption(
+    argv.maxHtmlKb,
+    0,
+    '--maxHtmlKb',
+    { allowZero: true },
+  ) * 1024;
+  const maxHtmlBytes = explicitMaxHtmlBytes || (argv.failOnWeight ? clipHtmlBytes : 0);
+  if (warnHtmlBytes > clipHtmlBytes) {
+    die('--warnHtmlKb cannot be greater than --clipHtmlKb');
+  }
+  const weightSamples = [];
+
+  function registerEmailWeight(label, html) {
+    const sample = analyzeEmailWeight(label, html);
+    weightSamples.push(sample);
+    return sample;
   }
 
   const projectRoot = process.cwd();
@@ -683,6 +803,8 @@ async function writeHtmlPair(dirAbs, htmlCompact, htmlPretty, { emitPretty = fal
       html = minifyHtmlText(html);
     }
 
+    html = separateAdjacentCssBracesInStyleTags(html);
+
     return { html, headCssFinal, inlineCssFinal };
   }
 
@@ -702,6 +824,7 @@ async function writeHtmlPair(dirAbs, htmlCompact, htmlPretty, { emitPretty = fal
       prettyHtml: false,
     });
     baseCompact = compactVariant.html;
+    registerEmailWeight('Original', baseCompact);
     if (argv.pretty) {
       const prettyVariant = await buildHtmlVariant({
         minifyHead: false,
@@ -778,7 +901,52 @@ async function writeHtmlPair(dirAbs, htmlCompact, htmlPretty, { emitPretty = fal
         try { localizedPretty = applyRtlToHtml(localizedPretty, { mode: rtlMode }); } catch {}
       }
     }
+    registerEmailWeight(locale, localized);
     await writeHtmlPair(localeDir, localized, localizedPretty, { emitPretty: argv.pretty });
+  }
+
+  if (weightSamples.length) {
+    const largest = weightSamples.reduce((max, sample) => (
+      sample.htmlBytes > max.htmlBytes ? sample : max
+    ));
+    const largestHead = weightSamples.reduce((max, sample) => (
+      sample.headCssBytes > max.headCssBytes ? sample : max
+    ));
+    const largestInline = weightSamples.reduce((max, sample) => (
+      sample.inlineStyleBytes > max.inlineStyleBytes ? sample : max
+    ));
+    console.log(
+      `[build] Weight: largest HTML=${formatKib(largest.htmlBytes)} (${largest.label}); ` +
+      `head CSS=${formatKib(largestHead.headCssBytes)}; inline style values=${formatKib(largestInline.inlineStyleBytes)}`,
+    );
+    if (largest.htmlBytes >= clipHtmlBytes) {
+      console.warn(
+        `[build] WARN weight: ${largest.label} HTML is ${formatKib(largest.htmlBytes)}, at/above the ` +
+        `${formatKib(clipHtmlBytes)} client-clipping risk threshold. Gmail may clip the message.`,
+      );
+    } else if (largest.htmlBytes >= warnHtmlBytes) {
+      console.warn(
+        `[build] WARN weight: ${largest.label} HTML is ${formatKib(largest.htmlBytes)} and is approaching ` +
+        `the ${formatKib(clipHtmlBytes)} client-clipping risk threshold.`,
+      );
+    }
+    if (largestHead.headCssBytes >= warnHeadCssBytes) {
+      console.warn(
+        `[build] WARN head CSS: ${largestHead.label} keeps ${formatKib(largestHead.headCssBytes)} in <head>. ` +
+        `Review media/supports/font rules and explicit head-only/head-extra client hacks.`,
+      );
+    }
+    if (maxHtmlBytes > 0) {
+      const violations = weightSamples.filter((sample) => sample.htmlBytes >= maxHtmlBytes);
+      if (violations.length) {
+        die(
+          `Email weight limit exceeded for ${violations
+            .map((sample) => `${sample.label}: ${formatKib(sample.htmlBytes)}`)
+            .join(", ")} (limit ${formatKib(maxHtmlBytes)}). ` +
+          "Use compact content/styles or raise --maxHtmlKb explicitly.",
+        );
+      }
+    }
   }
 
   console.log(`[build] OK: ${category}/mail-${mail}`);

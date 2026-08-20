@@ -4,9 +4,9 @@
   "description": "Самостоятельная email-safe CTA-кнопка. Текст, ссылка, ширина, фон, цвет текста, обводка, скругление и внутренние отступы редактируются.",
   "placement": "inner",
   "category": "cta",
-  "version": 3,
-  "pug": "table.iq-cta-button--iq-cta-button(align=\"{{ align }}\" role=\"presentation\")\n    tr\n        td.iq-cta-button--iq-cta-cell.pb0(style=\"background-color:{{ background_color }};border:{{ border }};border-radius:{{ radius }}\")\n            a.iq-cta-button--iq-cta-link(href=\"{{ href }}\" universal=\"true\" target=\"_blank\" style=\"color:{{ text_color }};padding:{{ padding }}\") {{ label }}",
-  "styl": ".iq-cta-button--iq-cta-button{max-width:{{ max_width }}px;width:100%}\n@media screen and (max-width:600px){.iq-cta-button--iq-cta-button{max-width:100%!important}}\n.iq-cta-button--iq-cta-cell{background-color:{{ background_color }};background-size:cover;border:{{ border }};border-radius:{{ radius }}!important;font-family:Helvetica,Arial,sans-serif!important;font-size:18px!important;font-weight:700!important;height:auto}\n.iq-cta-button--iq-cta-link{color:{{ text_color }};display:block;font-size:18px;font-weight:700;letter-spacing:0;line-height:27px;padding:{{ padding }};text-align:center;text-decoration:none;text-transform:none}",
+  "version": 4,
+  "pug": "table.iq-cta-button--iq-cta-button(align=\"{{ align }}\" role=\"presentation\")\n    tr\n        td.iq-cta-button--iq-cta-cell(style=\"background-color:{{ background_color }};border:{{ border }};border-radius:{{ radius }};padding:0\")\n            a.iq-cta-button--iq-cta-link(href=\"{{ href }}\" universal=\"true\" target=\"_blank\" style=\"color:{{ text_color }};padding:{{ padding }}\") {{ label }}",
+  "styl": ".iq-cta-button--iq-cta-button{max-width:{{ max_width }}px;width:100%}\n@media screen and (max-width:600px){.iq-cta-button--iq-cta-button{max-width:100%!important}}\n.iq-cta-button--iq-cta-cell{background-color:{{ background_color }};background-size:cover;border:{{ border }};border-radius:{{ radius }}!important;font-family:Helvetica,Arial,sans-serif!important;font-size:18px!important;font-weight:700!important;height:auto;padding:0!important}\n.iq-cta-button--iq-cta-link{color:{{ text_color }};display:block;font-size:18px;font-weight:700;letter-spacing:0;line-height:27px;padding:{{ padding }};text-align:center;text-decoration:none;text-transform:none}",
   "slots": [
     {
       "id": "label",

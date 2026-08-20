@@ -18,11 +18,26 @@
       <button class="btn" id="clearCanvasBtn" title="Очистить всё письмо">🗑 Очистить</button>
       <button class="btn" id="undoBtn" title="Отменить последнее действие (Ctrl+Z)" disabled>↩ Отменить</button>
       <input class="mail-name" id="mailName" placeholder="welcome-promo" value="welcome-demo" spellcheck="false" />
+      <input class="mail-name campaign-name" id="campaignName" placeholder="метка кампании" spellcheck="false"
+             title="Своё имя кампании. При сборке им переписываются afftrack и retrack во ВСЕХ ссылках письма — в блоках могут лежать чужие метки, в готовом письме будет эта." />
+      <button class="btn" id="linksBtn" title="Все ссылки письма в одном списке: заменить по одной или все разом">🔗 Ссылки</button>
       <button class="btn" id="previewBtn" title="Собрать письмо и показать превью">▶ Preview</button>
       <button class="btn" id="toCodeBtn" title="Перенести собранное письмо в окно кода (workbench)">→ В код</button>
       <button class="btn btn-primary" id="saveBtn" title="Сохранить в email-base/X_assembled/">💾 Save mail</button>
     </div>
   </header>
+
+  <!--
+    Полоса брендов: активный бренд — рабочий контекст (куда сохраняем письмо,
+    какие цвета считаются фирменными). Фильтр каталога ниже — отдельная вещь:
+    он про источник блока, а не про реестр брендов.
+  -->
+  <div class="brandbar" id="brandBar">
+    <span class="brandbar-label">Бренд</span>
+    <div class="brandbar-tabs" id="brandTabs"><span class="brandbar-empty">Загрузка…</span></div>
+    <button class="brandbar-action" id="brandThemeBtn" type="button" title="Фирменные цвета активного бренда: колесо и HEX">🎨 Цвета</button>
+    <button class="brandbar-action" id="brandAddBtn" type="button" title="Завести новый бренд — создаст папку в базе писем">＋ Бренд</button>
+  </div>
 
   <main class="workspace">
     <!-- LEFT: one contextual rail for both library and structure -->
@@ -216,7 +231,9 @@
     </div>
   </div>
 
+  <script src="/canvas-slot-values.js"></script>
   <script src="/studio-chat.js"></script>
+  <script src="/brand-bar.js"></script>
   <script src="/constructor.js"></script>
 </body>
 </html>

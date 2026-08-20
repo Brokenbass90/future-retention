@@ -41,6 +41,8 @@ import {
 } from "./src/assembler.js";
 import { parseFigmaUrl, flattenFigmaLayers, fetchFigmaNodeData, inspectFigmaUrl, exportFigmaImages, browseFigmaFile, downloadImageBuffer, buildFigmaImportFromUrl } from "./src/figma.js";
 import { callOpenAiWithRetry, extractResponseText } from "./src/ai-client.js";
+import { callOllamaChat } from "./src/ollama-client.js";
+import { resolveStudioRuntimeFlags } from "./src/runtime-flags.js";
 import { placeholderizeHtml, fixLocaleTxt, translateLocaleTxt } from "./src/locale-ai.js";
 import { placeholderizePugSource } from "./src/pug-placeholderize.js";
 import { runAgent } from "./src/ai-agent.js";
@@ -54,6 +56,7 @@ import * as fsLink from "node:fs";
 import { composeEmailFromBlocks, listCanonicalBlocks, userBlockPath } from "./src/compose-email.js";
 import { attachPreviews, resolvePreviewFile } from "./src/block-previews.js";
 import { putAsset, assetStorageStatus } from "./src/asset-storage.js";
+import { loadBrands, createBrand, updateBrand, getBrand, THEME_TOKENS, BrandError } from "./src/brands.js";
 import { BlockLibrarySchemaError, normalizeBlockLibrarySavePayload } from "./src/block-library-schema.js";
 import {
   assertPortableBlockSource,
@@ -61,6 +64,7 @@ import {
   transitionUserBlockReviewWithLifecycle,
 } from "./src/block-library-review.js";
 import { classifyConstructorTopLevelLine } from "./src/constructor-legacy-parse.js";
+import { assertTrustedParsedBlockProvenance } from "./src/constructor-parsed-provenance.js";
 import { stageComposeSkeletonIfDestination } from "./src/compose-skeleton-stage.js";
 import { withComposeSaveTransaction } from "./src/compose-save-transaction.js";
 import { constructorBuildMailArgs } from "./src/constructor-build-policy.js";
@@ -108,7 +112,14 @@ import {
 import { syncWorkbenchLocaleNamespaces } from "./src/workbench-localization.js";
 import { compareStudioModelSourceSignatures } from "./src/studio-model-signatures.js";
 import { acquireKeyedOperationLock } from "./src/keyed-operation-lock.js";
+import { acquireWorkbenchMailOperationLock } from "./src/workbench-mail-operation-lock.js";
 import { resolveWorkbenchBuildLocalePolicy } from "./src/workbench-build-locales.js";
+import {
+  auditWorkbenchReleaseHtml,
+  EMAIL_CLIP_LIMIT_BYTES,
+  EMAIL_CLIP_LIMIT_KIB,
+  EMAIL_WEIGHT_LIMIT_EXCEEDED,
+} from "./src/workbench-release-preflight.js";
 import {
   createPreviewBuildCoordinator,
   createPreviewBuildKey,
@@ -122,6 +133,10 @@ import {
   resolveWorkbenchSourcePath,
   validateWorkbenchSourceContent,
 } from "./src/mail-source-security.js";
+import {
+  saveWorkbenchSourceFilesAtomically,
+  workbenchSourceContentHash,
+} from "./src/workbench-source-transaction.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -143,16 +158,25 @@ const scenarioFixturesDir = path.join(studioDataDir, "scenarios");
 const legacyToolkitSnapshotPath = path.join(studioDataDir, "imports", "legacy-retention-tool-kit.snapshot.json");
 
 const port = Number(process.env.PORT || 3000);
-const openAiApiKey = process.env.OPENAI_API_KEY || "";
+const studioRuntimeFlags = resolveStudioRuntimeFlags(process.env);
+const configuredOpenAiApiKey = process.env.OPENAI_API_KEY || "";
+// Treat a disabled AI runtime exactly like an absent key throughout the old
+// OpenAI call sites. This gives public demo deployments a hard, central
+// no-spend switch rather than relying on every endpoint to remember a guard.
+const openAiApiKey = studioRuntimeFlags.aiEnabled ? configuredOpenAiApiKey : "";
 const openAiModel = process.env.OPENAI_MODEL || "gpt-4.1-mini";
 const openAiImageModel = process.env.OPENAI_IMAGE_MODEL || "gpt-image-2";
-const deepLApiKey = process.env.DEEPL_API_KEY || "";
+const ollamaBaseUrl = process.env.OLLAMA_BASE_URL || "http://127.0.0.1:11434";
+const ollamaModel = process.env.OLLAMA_MODEL || "";
+const ollamaConfigured = studioRuntimeFlags.aiEnabled && Boolean(ollamaModel);
+const configuredDeepLApiKey = process.env.DEEPL_API_KEY || "";
+const deepLApiKey = studioRuntimeFlags.aiEnabled ? configuredDeepLApiKey : "";
 const deepLApiUrl = process.env.DEEPL_API_URL || "https://api-free.deepl.com";
 const figmaApiToken = process.env.FIGMA_API_TOKEN || "";
 const figmaImportSecret = process.env.FIGMA_IMPORT_SECRET || "";
 const appAuthUser = process.env.APP_AUTH_USER || "";
 const appAuthPassword = process.env.APP_AUTH_PASSWORD || "";
-const appAuthEnabled = Boolean(appAuthUser && appAuthPassword);
+const appAuthEnabled = studioRuntimeFlags.authEnabled;
 // Build subprocesses compile author-provided Pug/Stylus. The portable-source
 // gate is the primary boundary; a minimal environment is defense in depth so
 // a compiler regression cannot expose server/API credentials.
@@ -1705,16 +1729,22 @@ function getProviderCatalog() {
       id: "openai",
       label: "OpenAI",
       available: Boolean(openAiApiKey),
-      status: openAiApiKey
-        ? `Configured: default ${modelRouting.default}, design ${modelRouting.designAnalysis}, draft ${modelRouting.draft}`
-        : "Needs OPENAI_API_KEY",
+      status: !studioRuntimeFlags.aiEnabled
+        ? "Disabled by STUDIO_AI_ENABLED/STUDIO_PUBLIC_DEMO"
+        : openAiApiKey
+          ? `Configured: default ${modelRouting.default}, design ${modelRouting.designAnalysis}, draft ${modelRouting.draft}`
+          : "Needs OPENAI_API_KEY",
       capabilities: ["chat", "vision", "structured output", "design ingest"]
     },
     {
       id: "deepl",
       label: "DeepL (translations only)",
       available: Boolean(deepLApiKey),
-      status: deepLApiKey ? `Configured: ${deepLApiUrl}` : "Needs DEEPL_API_KEY",
+      status: !studioRuntimeFlags.aiEnabled
+        ? "Disabled by STUDIO_AI_ENABLED/STUDIO_PUBLIC_DEMO"
+        : deepLApiKey
+          ? `Configured: ${deepLApiUrl}`
+          : "Needs DEEPL_API_KEY",
       capabilities: ["translations"]
     },
     {
@@ -1723,6 +1753,17 @@ function getProviderCatalog() {
       available: true,
       status: "Always available",
       capabilities: ["chat", "preview", "fallback"]
+    },
+    {
+      id: "ollama",
+      label: "Ollama (local)",
+      available: Boolean(ollamaConfigured),
+      status: !studioRuntimeFlags.aiEnabled
+        ? "Disabled by STUDIO_AI_ENABLED/STUDIO_PUBLIC_DEMO"
+        : ollamaModel
+          ? `Configured: ${ollamaModel} at ${ollamaBaseUrl}`
+          : "Needs OLLAMA_MODEL (OLLAMA_BASE_URL defaults to localhost)",
+      capabilities: ["chat", "structured draft", "translations", "local", "no API token cost"]
     },
     {
       id: "anthropic",
@@ -1738,13 +1779,6 @@ function getProviderCatalog() {
       status: "Planned adapter",
       capabilities: ["chat", "vision"]
     },
-    {
-      id: "local",
-      label: "Local model",
-      available: false,
-      status: "Planned adapter",
-      capabilities: ["classification", "cheap helpers"]
-    }
   ];
 }
 
@@ -1753,10 +1787,17 @@ function summarizeRuntimeConfig() {
     envFilePath: toStudioRelative(envFilePath),
     envFileLoaded: Boolean(envRuntime.loaded),
     envKeys: Array.isArray(envRuntime.keys) ? envRuntime.keys : [],
+    publicDemo: studioRuntimeFlags.publicDemo,
+    aiEnabled: studioRuntimeFlags.aiEnabled,
     openAiConfigured: Boolean(openAiApiKey),
+    openAiKeyPresent: Boolean(configuredOpenAiApiKey),
     openAiModel,
     openAiModelRouting: summarizeOpenAiModelRouting(),
+    ollamaConfigured,
+    ollamaModel,
+    ollamaBaseUrl,
     deepLConfigured: Boolean(deepLApiKey),
+    deepLKeyPresent: Boolean(configuredDeepLApiKey),
     deepLApiUrl,
     appAuthEnabled,
     persistenceMode: process.env.DYNO ? "ephemeral-heroku-filesystem" : "local-filesystem"
@@ -9956,11 +9997,12 @@ function resolveEffectiveProviderId(settings = {}) {
   const requested = cleanText(settings?.providerId);
 
   if (!requested) {
-    return openAiApiKey ? "openai" : "mock";
+    return openAiApiKey ? "openai" : ollamaConfigured ? "ollama" : "mock";
   }
 
-  if (requested === "mock" && openAiApiKey && !shouldForceMockProvider(settings)) {
-    return "openai";
+  if (requested === "mock" && !shouldForceMockProvider(settings)) {
+    if (openAiApiKey) return "openai";
+    if (ollamaConfigured) return "ollama";
   }
 
   return requested;
@@ -14423,6 +14465,55 @@ async function createOpenAiDiscussion(payload) {
   return { assistantReply: extractResponseText(data) || "Обсуждение готово." };
 }
 
+async function _ollamaCall({ input, format, label, timeoutMs }) {
+  const result = await callOllamaChat({
+    baseUrl: ollamaBaseUrl,
+    model: ollamaModel,
+    input,
+    format,
+    label,
+    timeoutMs,
+  });
+  _trackUsage(result.usage);
+  return result.text;
+}
+
+/**
+ * Local text-first draft path. It deliberately does not auto-run design
+ * vision: Ollama models vary widely in image support, while text prompts and
+ * an already prepared designAnalysis are deterministic inputs.
+ */
+async function createOllamaDraft(payload) {
+  const draftTask = resolveDraftTaskForPayload(payload);
+  const effectivePayload = hydratePayloadTemplateSelection(payload);
+  const schema = draftTask === "cloneEdit" ? cloneEditResponseSchema : responseSchema;
+  const rawText = await _ollamaCall({
+    input: await buildInputMessages(effectivePayload),
+    format: schema,
+    label: draftTask === "cloneEdit" ? "ollama-clone-edit" : "ollama-create-draft",
+    timeoutMs: draftTask === "cloneEdit" ? 300_000 : 180_000,
+  });
+  const parsed = extractStructuredJsonFromModelText(rawText);
+  if (parsed) {
+    return { ...parsed, design_analysis: effectivePayload.designAnalysis || null };
+  }
+  if (draftTask === "cloneEdit") {
+    const recovered = buildCloneEditResponseFromRawHtml(rawText, effectivePayload);
+    if (recovered) return { ...recovered, design_analysis: effectivePayload.designAnalysis || null };
+  }
+  throw new Error("Ollama draft response was not valid structured JSON");
+}
+
+async function createOllamaDiscussion(payload) {
+  const effectivePayload = hydratePayloadTemplateSelection(payload);
+  const assistantReply = await _ollamaCall({
+    input: await buildDiscussionMessages(effectivePayload),
+    label: "ollama-discussion",
+    timeoutMs: 180_000,
+  });
+  return { assistantReply: assistantReply || "Локальное обсуждение готово." };
+}
+
 async function createOpenAiDesignAnalysis(payload) {
   const effectivePayload = hydratePayloadTemplateSelection(payload);
   const inputMessages = await buildDesignAnalysisMessages(effectivePayload);
@@ -14634,6 +14725,23 @@ async function createOpenAiTranslations(payload, mail, sourceEntry, targetLocale
     translations: Array.isArray(parsed.translations)
       ? parsed.translations.map((entry) => normalizeTranslationEntry(entry, mail))
       : []
+  };
+}
+
+async function createOllamaTranslations(payload, mail, sourceEntry, targetLocales) {
+  const rawText = await _ollamaCall({
+    input: buildTranslationMessages(payload, sourceEntry, targetLocales),
+    format: translationResponseSchema,
+    label: "ollama-translations",
+    timeoutMs: 240_000,
+  });
+  const parsed = extractStructuredJsonFromModelText(rawText);
+  if (!parsed) throw new Error("Ollama translation response was not valid structured JSON");
+  return {
+    assistant_reply: cleanText(parsed.assistant_reply) || `Сгенерировал ${targetLocales.length} locale(s) локально.`,
+    translations: Array.isArray(parsed.translations)
+      ? parsed.translations.map((entry) => normalizeTranslationEntry(entry, mail))
+      : [],
   };
 }
 
@@ -15360,6 +15468,37 @@ async function resolveDiscussionResponse(payload) {
     }
   }
 
+  if (providerId === "ollama" && ollamaConfigured) {
+    try {
+      const discussion = await createOllamaDiscussion(payload);
+      return {
+        assistantReply: discussion.assistantReply,
+        mode: "ollama-discuss",
+        ...buildFigmaResponseMetadata(payload),
+        providerRuntime: createProviderRuntime({
+          providerId,
+          mode: "ollama-discuss",
+          liveAttempted: true,
+          liveUsed: true
+        })
+      };
+    } catch (error) {
+      const fallback = createMockDiscussion(payload, error.message);
+      return {
+        assistantReply: fallback.assistantReply,
+        mode: "mock-discuss",
+        ...buildFigmaResponseMetadata(payload),
+        providerRuntime: createProviderRuntime({
+          providerId,
+          mode: "mock-discuss",
+          liveAttempted: true,
+          fallback: true,
+          errorMessage: error.message
+        })
+      };
+    }
+  }
+
   if (providerId === "mock") {
     const discussion = createMockDiscussion(payload, "Mock provider selected in settings");
     return {
@@ -15384,6 +15523,21 @@ async function resolveDiscussionResponse(payload) {
         mode: "mock-discuss",
         fallback: true,
         errorMessage: "OPENAI_API_KEY is not configured on the server"
+      })
+    };
+  }
+
+  if (providerId === "ollama") {
+    const discussion = createMockDiscussion(payload, "OLLAMA_MODEL is not configured or Studio AI is disabled");
+    return {
+      assistantReply: discussion.assistantReply,
+      mode: "mock-discuss",
+      ...buildFigmaResponseMetadata(payload),
+      providerRuntime: createProviderRuntime({
+        providerId,
+        mode: "mock-discuss",
+        fallback: true,
+        errorMessage: "OLLAMA_MODEL is not configured or Studio AI is disabled"
       })
     };
   }
@@ -15457,6 +15611,31 @@ async function resolveDraftResponse(payload) {
         errorMessage: error.message
       });
     }
+  } else if (providerId === "ollama" && ollamaConfigured) {
+    try {
+      generated = await createOllamaDraft(payload);
+      effectivePayload = hydratePayloadTemplateSelection({
+        ...payload,
+        designAnalysis: normalizeDesignAnalysis(generated.design_analysis)
+      });
+      mode = "ollama";
+      providerRuntime = createProviderRuntime({
+        providerId,
+        mode,
+        liveAttempted: true,
+        liveUsed: true
+      });
+    } catch (error) {
+      generated = await createProjectAwareMockDraft(payload, error.message);
+      mode = "mock";
+      providerRuntime = createProviderRuntime({
+        providerId,
+        mode,
+        liveAttempted: true,
+        fallback: true,
+        errorMessage: error.message
+      });
+    }
   } else if (providerId === "mock") {
     generated = await createProjectAwareMockDraft(payload, "Mock provider selected in settings");
     mode = "mock";
@@ -15472,6 +15651,15 @@ async function resolveDraftResponse(payload) {
       mode,
       fallback: true,
       errorMessage: "OPENAI_API_KEY is not configured on the server"
+    });
+  } else if (providerId === "ollama") {
+    generated = await createProjectAwareMockDraft(payload, "OLLAMA_MODEL is not configured or Studio AI is disabled");
+    mode = "mock";
+    providerRuntime = createProviderRuntime({
+      providerId,
+      mode,
+      fallback: true,
+      errorMessage: "OLLAMA_MODEL is not configured or Studio AI is disabled"
     });
   } else {
     generated = await createProjectAwareMockDraft(payload, `${providerId} adapter is planned but not wired yet`);
@@ -16549,6 +16737,16 @@ async function generateMissingLocales(payload, existingDraft = null) {
         errorMessage: error.message
       });
     }
+  } else if (providerId === "ollama" && ollamaConfigured) {
+    try {
+      generated = await createOllamaTranslations(payload, baseMail, sourceEntry, targetLocales);
+      mode = "ollama-translations";
+      providerRuntime = createProviderRuntime({ providerId, mode, liveAttempted: true, liveUsed: true });
+    } catch (error) {
+      generated = createMockTranslations(payload, baseMail, sourceEntry, targetLocales, error.message);
+      mode = "mock-translations";
+      providerRuntime = createProviderRuntime({ providerId, mode, liveAttempted: true, fallback: true, errorMessage: error.message });
+    }
   } else if (providerId === "mock") {
     generated = createMockTranslations(payload, baseMail, sourceEntry, targetLocales, "Mock translation mode selected.");
     mode = "mock-translations";
@@ -16564,6 +16762,16 @@ async function generateMissingLocales(payload, existingDraft = null) {
       mode,
       fallback: true,
       errorMessage: "OPENAI_API_KEY is not configured on the server."
+    });
+  } else if (providerId === "ollama") {
+    const errorMessage = "OLLAMA_MODEL is not configured or Studio AI is disabled.";
+    generated = createMockTranslations(payload, baseMail, sourceEntry, targetLocales, errorMessage);
+    mode = "mock-translations";
+    providerRuntime = createProviderRuntime({
+      providerId,
+      mode,
+      fallback: true,
+      errorMessage
     });
   } else {
     generated = createMockTranslations(payload, baseMail, sourceEntry, targetLocales, `${providerId} adapter is planned but not wired yet.`);
@@ -16731,6 +16939,16 @@ async function handleStudioAgent(response, body) {
         ? Object.fromEntries(Object.entries(entry.slots).slice(0, 12)
           .map(([k, v]) => [k, String(v ?? "").slice(0, 120)]))
         : {},
+      slotSchema: Array.isArray(entry?.slotSchema)
+        ? entry.slotSchema.slice(0, 40).map((slot) => ({
+          id: String(slot?.id || "").slice(0, 128),
+          kind: String(slot?.kind || "text").slice(0, 32),
+          label: String(slot?.label || slot?.id || "").slice(0, 160),
+          ...(Array.isArray(slot?.options)
+            ? { options: slot.options.slice(0, 50).map((value) => String(value).slice(0, 160)) }
+            : {}),
+        })).filter((slot) => slot.id)
+        : undefined,
     }));
   }
 
@@ -16801,7 +17019,9 @@ const server = http.createServer(async (request, response) => {
         ok: true,
         service: "retention-future",
         node: process.version,
-        authEnabled: appAuthEnabled
+        authEnabled: appAuthEnabled,
+        aiEnabled: studioRuntimeFlags.aiEnabled,
+        publicDemo: studioRuntimeFlags.publicDemo
       });
       return;
     }
@@ -17461,19 +17681,35 @@ const server = http.createServer(async (request, response) => {
           });
           return;
         }
+        // Parsed definitions may bypass the reusable-block approval lifecycle
+        // only for a real, server-resolved source mail. This preserves the
+        // parse-email round-trip without turning arbitrary ad-hoc definitions
+        // into approved library blocks.
+        const _skB = String(body?.sourceBrand || "").replace(/[^a-zA-Z0-9_]/g, "");
+        const _skM = String(body?.sourceMail || "").replace(/[^a-zA-Z0-9_-]/g, "");
+        const _skP = (_skB && _skM && existsSync(path.join(__dirname, "email-base", _skB, _skM)))
+          ? path.join(__dirname, "email-base", _skB, _skM)
+          : undefined;
+        const parsedProvenance = assertTrustedParsedBlockProvenance({
+          blocks,
+          sourceMailRoot: _skP,
+          sourceMail: _skM,
+        });
         // Run the shared compose-core validation before the transaction moves
         // an existing source/dist tree to backup. This rejects local/private
         // asset URLs without performing any destructive filesystem operation.
+        const campaign = String(body?.campaign || "").trim();
         composeEmailFromBlocks({
           brand,
           mailName: rawName,
           blocks,
+          campaign,
           destRoot: path.join(__dirname, "email-base"),
           validateOnly: true,
+          requireApprovedBlocks: true,
+          allowTrustedParsedBlocks: parsedProvenance.verified,
         });
         // Compose into email-base directly.
-        const _skB = String(body?.sourceBrand||"").replace(/[^a-zA-Z0-9_]/g,""); const _skM = String(body?.sourceMail||"").replace(/[^a-zA-Z0-9_-]/g,"");
-        const _skP = (_skB && _skM && existsSync(path.join(__dirname,"email-base",_skB,_skM))) ? path.join(__dirname,"email-base",_skB,_skM) : undefined;
         const stagedSkeleton = await stageComposeSkeletonIfDestination(_skP, destFolder);
         let transactionResult;
         try {
@@ -17483,8 +17719,10 @@ const server = http.createServer(async (request, response) => {
             force,
           }, async () => {
             const composed = composeEmailFromBlocks({
-              brand, mailName: rawName, blocks,
+              brand, mailName: rawName, blocks, campaign,
               destRoot: path.join(__dirname, "email-base"),
+              requireApprovedBlocks: true,
+              allowTrustedParsedBlocks: parsedProvenance.verified,
               preserveSkeletonPreheader: Boolean(_skP),
               trustedSkeletonRoots: stagedSkeleton.staged ? [stagedSkeleton.skeleton] : [],
               ...(stagedSkeleton.skeleton ? { skeleton: stagedSkeleton.skeleton } : {}),
@@ -17542,7 +17780,11 @@ const server = http.createServer(async (request, response) => {
           warnings: composed.warnings,
         });
       } catch (err) {
-        sendJson(response, 500, { error: String(err && err.message ? err.message : err) });
+        sendJson(response, Number(err?.statusCode) || 500, {
+          error: String(err && err.message ? err.message : err),
+          ...(err?.code ? { code: err.code } : {}),
+          ...(err?.validation ? { validation: err.validation } : {}),
+        });
       } finally {
         releaseComposeSaveLock?.();
       }
@@ -17583,6 +17825,49 @@ const server = http.createServer(async (request, response) => {
         message: `Catalog now contains ${catalog.summary?.itemCount || catalog.items.length} block(s).`
       });
       sendJson(response, 200, catalog);
+      return;
+    }
+
+    // ── Бренды: список, создание, правка темы ───────────────────────────────
+    if (request.method === "GET" && request.url === "/api/brands") {
+      try {
+        sendJson(response, 200, { ok: true, brands: loadBrands(), tokens: THEME_TOKENS });
+      } catch (err) {
+        sendJson(response, 500, { error: String(err?.message || err) });
+      }
+      return;
+    }
+
+    if (request.method === "POST" && request.url === "/api/brands") {
+      try {
+        const body = await readRequestBody(request);
+        const brand = createBrand({
+          label: body?.label, id: body?.id, theme: body?.theme,
+          blockTag: body?.blockTag, order: body?.order,
+        });
+        try {
+          await appendStudioJournalEntry({
+            area: "brands",
+            title: `Бренд создан: ${brand.label}`,
+            message: `папка ${brand.id}`,
+            meta: { id: brand.id },
+          });
+        } catch { /* журнал не должен ронять ответ */ }
+        sendJson(response, 200, { ok: true, brand });
+      } catch (err) {
+        sendJson(response, Number(err?.statusCode) || 400, { error: String(err?.message || err) });
+      }
+      return;
+    }
+
+    if (request.method === "PATCH" && request.url.startsWith("/api/brands/")) {
+      try {
+        const id = decodeURIComponent(request.url.slice("/api/brands/".length).split("?")[0]);
+        const body = await readRequestBody(request);
+        sendJson(response, 200, { ok: true, brand: updateBrand(id, body || {}) });
+      } catch (err) {
+        sendJson(response, Number(err?.statusCode) || 400, { error: String(err?.message || err) });
+      }
       return;
     }
 
@@ -18748,6 +19033,12 @@ const server = http.createServer(async (request, response) => {
     }
 
     if (request.method === "POST" && request.url === "/api/batch/queue") {
+      if (!studioRuntimeFlags.aiEnabled || !openAiApiKey) {
+        sendJson(response, 503, {
+          error: "Batch draft generation is disabled: Studio AI or OPENAI_API_KEY is unavailable"
+        });
+        return;
+      }
       const body = await readRequestBody(request);
       const tasks = Array.isArray(body?.tasks) ? body.tasks : (body ? [body] : []);
 
@@ -19230,24 +19521,67 @@ const server = http.createServer(async (request, response) => {
 
     if (request.method === "POST" && request.url === "/api/wb/code-html") {
       const { brand = "", mail = "", locale = "base", content = "" } = await readRequestBody(request);
+      let releaseHtmlLock = null;
       try {
-        const result = await saveCodeHtmlOverride({ emailBaseRoot, brand, mail, locale, html: content });
-        const workspace = await listCodeWorkspace({ emailBaseRoot, brand, mail });
-        sendJson(response, 200, { ok: true, brand, mail, ...result, locales: workspace.locales });
+        const locked = await acquireWorkbenchMailOperationLock({ emailBaseRoot, brand, mail });
+        const { resolved } = locked;
+        releaseHtmlLock = locked.release;
+        const result = await saveCodeHtmlOverride({
+          emailBaseRoot,
+          brand: resolved.brand,
+          mail: resolved.mail,
+          locale,
+          html: content,
+        });
+        const workspace = await listCodeWorkspace({
+          emailBaseRoot,
+          brand: resolved.brand,
+          mail: resolved.mail,
+        });
+        sendJson(response, 200, {
+          ok: true,
+          brand: resolved.brand,
+          mail: resolved.mail,
+          ...result,
+          locales: workspace.locales,
+        });
       } catch (error) {
         sendJson(response, 400, { ok: false, error: error.message });
+      } finally {
+        releaseHtmlLock?.();
       }
       return;
     }
 
     if (request.method === "POST" && request.url === "/api/wb/code-html/reset") {
       const { brand = "", mail = "", locale = "base" } = await readRequestBody(request);
+      let releaseHtmlLock = null;
       try {
-        const result = await resetCodeHtmlOverride({ emailBaseRoot, brand, mail, locale });
-        const workspace = await listCodeWorkspace({ emailBaseRoot, brand, mail });
-        sendJson(response, 200, { ok: true, brand, mail, ...result, locales: workspace.locales });
+        const locked = await acquireWorkbenchMailOperationLock({ emailBaseRoot, brand, mail });
+        const { resolved } = locked;
+        releaseHtmlLock = locked.release;
+        const result = await resetCodeHtmlOverride({
+          emailBaseRoot,
+          brand: resolved.brand,
+          mail: resolved.mail,
+          locale,
+        });
+        const workspace = await listCodeWorkspace({
+          emailBaseRoot,
+          brand: resolved.brand,
+          mail: resolved.mail,
+        });
+        sendJson(response, 200, {
+          ok: true,
+          brand: resolved.brand,
+          mail: resolved.mail,
+          ...result,
+          locales: workspace.locales,
+        });
       } catch (error) {
         sendJson(response, 400, { ok: false, error: error.message });
+      } finally {
+        releaseHtmlLock?.();
       }
       return;
     }
@@ -19286,6 +19620,36 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
+    // ── Workbench: atomically save an AI Pug/Stylus source proposal ─────────
+    if (request.method === "POST" && request.url === "/api/wb/email-files") {
+      const { brand = "", mail = "", files = [] } = await readRequestBody(request);
+      if (!brand || !mail || !Array.isArray(files) || !files.length) {
+        sendJson(response, 400, { ok: false, error: "brand, mail and files required" });
+        return;
+      }
+      let releaseSourceLock = null;
+      try {
+        const resolved = resolveWorkbenchMailRoot({ emailBaseRoot, brand, mail });
+        releaseSourceLock = await acquireKeyedOperationLock(`mail:${resolved.brand}/${resolved.mail}`);
+        const result = await saveWorkbenchSourceFilesAtomically({
+          emailBaseRoot,
+          brand: resolved.brand,
+          mail: resolved.mail,
+          files,
+        });
+        sendJson(response, 200, result);
+      } catch (error) {
+        sendJson(response, Number(error?.statusCode) || 422, {
+          ok: false,
+          code: error?.code || "ATOMIC_SOURCE_SAVE_FAILED",
+          error: error?.message || "Atomic source save failed",
+        });
+      } finally {
+        releaseSourceLock?.();
+      }
+      return;
+    }
+
     // ── Workbench: read a source file ────────────────────────────────────────
     if (request.method === "GET" && request.url.startsWith("/api/wb/email-file?")) {
       const params = new URL(request.url, "http://localhost").searchParams;
@@ -19299,6 +19663,7 @@ const server = http.createServer(async (request, response) => {
         sendJson(response, 200, {
           ok: true,
           content,
+          sourceHash: workbenchSourceContentHash(content),
           brand: resolved.brand,
           mail: resolved.mail,
           file: resolved.file,
@@ -19348,7 +19713,9 @@ const server = http.createServer(async (request, response) => {
 
     // ── Workbench: rebuild an email from source (Pug+Stylus → HTML) ────────
     if (request.method === "POST" && request.url === "/api/wb/build-email") {
-      const { brand = "", mail = "", namespaces = null } = await readRequestBody(request);
+      const body = await readRequestBody(request);
+      const { brand = "", mail = "", namespaces = null } = body;
+      const releasePreflightRequested = body?.releasePreflight === true;
       if (!brand || !mail) { sendJson(response, 400, { error: "brand and mail required" }); return; }
       const emailBaseDir = path.join(__dirname, "email-base");
       const t0 = Date.now();
@@ -19364,7 +19731,13 @@ const server = http.createServer(async (request, response) => {
         const mailFolder = resolved.mail;
         // build-mail.js convention: --mail <name> where name has no "mail-" prefix.
         const mailArg = mailFolder.replace(/^mail-/, "");
-        releaseBuildLock = await acquireKeyedOperationLock(`mail:${safeBrand}/${mailFolder}`);
+        releaseBuildLock = (
+          await acquireWorkbenchMailOperationLock({
+            emailBaseRoot,
+            brand: safeBrand,
+            mail: mailFolder,
+          })
+        ).release;
         auditMailSourceBeforeBuild({ emailBaseRoot, brand: safeBrand, mail: mailFolder });
         const localeSync = namespaces == null
           ? { written: 0, unchanged: 0, fileCount: 0, namespaceCount: 0, namespaces: [], locales: [], skippedBuiltins: [] }
@@ -19385,6 +19758,10 @@ const server = http.createServer(async (request, response) => {
         } else if (localePolicy.mode === "skip") {
           buildArgs.push("--skip-locales");
         }
+        // Autosave and preview builds intentionally remain warning-only.
+        // A user-triggered release preflight is the strict production gate and
+        // checks the compact Pug output before any export can continue.
+        if (releasePreflightRequested) buildArgs.push("--failOnWeight");
         const buildResult = await new Promise((resolve, reject) => {
           const child = spawn(
             process.execPath,
@@ -19399,7 +19776,11 @@ const server = http.createServer(async (request, response) => {
           child.stderr.on("data", d => { errOut += d.toString(); });
           child.on("close", code => {
             if (code === 0) resolve({ stderr: errOut });
-            else reject(new Error(errOut.trim().split("\n").pop() || `Exit ${code}`));
+            else {
+              const buildError = new Error(errOut.trim().split("\n").pop() || `Exit ${code}`);
+              buildError.buildStderr = errOut;
+              reject(buildError);
+            }
           });
           child.on("error", reject);
         });
@@ -19407,15 +19788,46 @@ const server = http.createServer(async (request, response) => {
           .split("\n")
           .map(line => line.trim())
           .filter(line => /WARN|unresolved placeholder|no JSON found/i.test(line));
+        // build-mail covers every freshly compiled locale. The effective
+        // Workbench workspace may additionally contain detached/manual HTML,
+        // so audit those overrides after localization as part of the same
+        // release request.
+        const releasePreflight = releasePreflightRequested
+          ? await auditWorkbenchReleaseHtml({
+              emailBaseRoot,
+              brand: safeBrand,
+              mail: mailFolder,
+            })
+          : null;
         sendJson(response, 200, {
           ok: true,
           duration: Date.now() - t0,
           localeSync,
           localePolicy,
           buildWarnings,
+          ...(releasePreflight ? { releasePreflight } : {}),
         });
       } catch(err) {
-        sendJson(response, 422, { ok: false, error: err.message });
+        const buildErrorText = `${err?.message || ""}\n${err?.buildStderr || ""}`;
+        const strictWeightFailure = releasePreflightRequested && (
+          err?.code === EMAIL_WEIGHT_LIMIT_EXCEEDED
+          || /Email weight limit exceeded/i.test(buildErrorText)
+        );
+        const releasePreflight = err?.releasePreflight || (strictWeightFailure ? {
+          ok: false,
+          thresholdBytes: EMAIL_CLIP_LIMIT_BYTES,
+          thresholdKib: EMAIL_CLIP_LIMIT_KIB,
+          checked: 0,
+          samples: [],
+          overweight: [],
+          largest: null,
+        } : null);
+        sendJson(response, Number(err?.statusCode) || 422, {
+          ok: false,
+          error: err?.message || "Release build failed",
+          ...(strictWeightFailure ? { code: EMAIL_WEIGHT_LIMIT_EXCEEDED } : {}),
+          ...(releasePreflight ? { releasePreflight } : {}),
+        });
       } finally {
         releaseBuildLock?.();
       }
@@ -19737,32 +20149,43 @@ try {
 }
 
 // ─── Startup: batch worker ───────────────────────────────────────────────────
-startWorker(async (job) => {
-  const { type, brief, locale, category, mailId } = job.payload;
+// The current batch implementation is OpenAI-specific. Do not let a public
+// demo or an AI-disabled runtime consume queued paid jobs in the background.
+if (studioRuntimeFlags.aiEnabled && openAiApiKey) {
+  startWorker(async (job) => {
+    const { type, brief, locale, category, mailId } = job.payload;
 
-  if (type === "generate-draft") {
-    // Build a minimal payload that createOpenAiDraft understands
-    const payload = {
-      brief: { ...brief, locale: locale || brief?.locale || "en", category, mailId },
-      currentDraft: null,
-      attachedImages: []
-    };
-    const result = await createOpenAiDraft(payload);
-    await appendStudioJournalEntry({
-      area: "batch",
-      title: `Batch job done: ${job.id}`,
-      message: `Generated draft for ${category}/${mailId || "new"}`
-    });
-    return result;
-  }
+    if (type === "generate-draft") {
+      // Build a minimal payload that createOpenAiDraft understands
+      const payload = {
+        brief: { ...brief, locale: locale || brief?.locale || "en", category, mailId },
+        currentDraft: null,
+        attachedImages: []
+      };
+      const result = await createOpenAiDraft(payload);
+      await appendStudioJournalEntry({
+        area: "batch",
+        title: `Batch job done: ${job.id}`,
+        message: `Generated draft for ${category}/${mailId || "new"}`
+      });
+      return result;
+    }
 
-  throw new Error(`Unknown batch job type: ${type}`);
-}, { pollMs: 800 });
+    throw new Error(`Unknown batch job type: ${type}`);
+  }, { pollMs: 800 });
+  console.log("[batch] OpenAI worker started");
+} else {
+  console.log("[batch] OpenAI worker disabled (AI disabled or OPENAI_API_KEY absent)");
+}
 
-console.log("[batch] Worker started");
-
-if ((appAuthUser || appAuthPassword) && !appAuthEnabled) {
+if ((appAuthUser || appAuthPassword) && !studioRuntimeFlags.hasAuthCredentials && studioRuntimeFlags.authAllowed) {
   console.warn("[security] APP_AUTH_USER and APP_AUTH_PASSWORD must both be set; application auth is disabled.");
+}
+
+if (studioRuntimeFlags.publicDemo) {
+  console.warn("[runtime] Public demo mode: Basic Auth and all AI providers are disabled.");
+} else if (!studioRuntimeFlags.aiEnabled) {
+  console.warn("[runtime] Studio AI is disabled by STUDIO_AI_ENABLED.");
 }
 
 server.listen(port, () => {

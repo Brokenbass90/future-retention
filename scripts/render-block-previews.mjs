@@ -38,7 +38,6 @@ import {
   existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync, rmSync, symlinkSync,
 } from "node:fs";
 import { spawnSync } from "node:child_process";
-import { createHash } from "node:crypto";
 import path from "node:path";
 import os from "node:os";
 import url from "node:url";
@@ -46,6 +45,8 @@ import { chromium } from "playwright-core";
 import { PNG } from "pngjs";
 
 import { composeEmailFromBlocks } from "../src/compose-email.js";
+import { blockPreviewSourceHash, previewBackdropForBlock } from "../src/block-previews.js";
+import { contentSamplingRect, previewKeysToPrune } from "../src/block-preview-renderer-policy.js";
 
 /* ─── Песочница/CI без root: локальные стабы системных библиотек ─────────── */
 if (process.platform === "linux") {
@@ -75,6 +76,12 @@ const ONLY = opt("only", null);
 const LIMIT = Number(opt("limit", 0)) || Infinity;
 const SHEET_SIZE = Math.max(1, Number(opt("sheet", 8)) || 8);
 const FORCE = flag("force");
+const SYSTEM_CHROME_CANDIDATES = process.platform === "darwin"
+  ? [
+      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+      "/Applications/Chromium.app/Contents/MacOS/Chromium",
+    ]
+  : [];
 /**
  * Ширины окна для съёмки.
  *
@@ -154,10 +161,7 @@ function loadLibrary() {
 
 /* ─── Хеш содержимого блока ──────────────────────────────────────────────── */
 function blockHash(b) {
-  return createHash("sha1").update(JSON.stringify([
-    b.pug || "", b.styl || "", b.slots || [], b.childSlots || [],
-    b.version || 0, b.appearance || {},
-  ])).digest("hex").slice(0, 16);
+  return blockPreviewSourceHash(b);
 }
 
 /* ─── Сборка одного контактного листа ────────────────────────────────────── */
@@ -190,7 +194,11 @@ function buildSheetTree(blocks) {
     } else {
       // inner / inline / helper — кладём в стандартную секцию-обёртку.
       const wrapUid = nextUid("wrap");
-      entries.push({ uid: wrapUid, blockId: DEFAULT_SECTION, parentUid: rootUid, slotId: "sections", slots: {} });
+      const previewBackdrop = previewBackdropForBlock(b);
+      const wrapperSlots = previewBackdrop
+        ? { bg: "", background_color: previewBackdrop, border: "none", radius: "0" }
+        : {};
+      entries.push({ uid: wrapUid, blockId: DEFAULT_SECTION, parentUid: rootUid, slotId: "sections", slots: wrapperSlots });
       ownUid = nextUid("blk");
       entries.push({ uid: ownUid, blockId: b.id, source: b.source, parentUid: wrapUid, slotId: "content", slots: {} });
     }
@@ -247,6 +255,7 @@ function buildSheet(sandbox, mailName, entries) {
  * вернуть суммарный bounding box + структурные признаки содержимого.
  */
 const MEASURE = /* js */ `(uids) => {
+  const contentSamplingRect = ${contentSamplingRect.toString()};
   const walker = document.createNodeIterator(document.documentElement, NodeFilter.SHOW_COMMENT);
   const starts = new Map(), ends = new Map();
   let c;
@@ -255,6 +264,21 @@ const MEASURE = /* js */ `(uids) => {
     if (!m) continue;
     (m[1] === "start" ? starts : ends).set(m[2], c);
   }
+  // Горизонтальные границы колонки письма. Клип по ним, а не по bbox блока:
+  // ширина таблицы внутри листа зависит от соседей (браузер согласовывает
+  // ширины ячеек), и один и тот же блок в разных листах давал 560 или 580 px.
+  // Из-за этого превью нельзя было сравнивать между прогонами — а сравнение
+  // «до/после» это главный способ проверять миграции библиотеки.
+  // Колонка письма в этом фреймворке всегда 600px и центрируется. Берём её
+  // геометрию из ширины окна, а не измеряем в DOM: измеренная ширина зависит
+  // от того, какие блоки попали в тот же лист, и один блок в разных прогонах
+  // давал 560/580/600. Фиксированное окно делает превью сравнимыми.
+  const EMAIL_COLUMN = 600;
+  const viewport = document.documentElement.clientWidth;
+  const column = viewport >= EMAIL_COLUMN
+    ? { x: Math.floor((viewport - EMAIL_COLUMN) / 2), width: EMAIL_COLUMN }
+    : { x: 0, width: viewport };
+
   const out = {};
   for (const uid of uids) {
     const s = starts.get(uid), e = ends.get(uid);
@@ -295,8 +319,9 @@ const MEASURE = /* js */ `(uids) => {
     }
     if (!isFinite(top) || bottom <= top) { out[uid] = { error: "block rendered with zero size" }; continue; }
     out[uid] = {
-      box: { x: Math.max(0, Math.floor(left)), y: Math.max(0, Math.floor(top)),
-             width: Math.ceil(right - left), height: Math.ceil(bottom - top) },
+      box: { x: column.x, y: Math.max(0, Math.floor(top)),
+             width: column.width, height: Math.ceil(bottom - top) },
+      content: contentSamplingRect(left, right, column),
       dom: {
         textChars: text.replace(/\\s+/g, " ").trim().length,
         images, links, listItems, buttons,
@@ -308,15 +333,24 @@ const MEASURE = /* js */ `(uids) => {
   return out;
 }`;
 
-/** Доминирующие цвета по PNG: квантизация до сетки 32 и топ-4. */
-function dominantColors(pngBuffer) {
+/**
+ * Доминирующие цвета по PNG: квантизация до сетки 32 и топ-4.
+ *
+ * `content` ограничивает выборку реальными границами блока. Снимок берётся по
+ * всей колонке письма (чтобы превью были сравнимы между прогонами), и без
+ * этого ограничения доминирующим цветом узкой кнопки становится белое поле
+ * вокруг неё — поиск «оранжевая кнопка» переставал находить оранжевые кнопки.
+ */
+function dominantColors(pngBuffer, content = null) {
   let img;
   try { img = PNG.sync.read(pngBuffer); } catch { return []; }
   const counts = new Map();
   const { data, width, height } = img;
-  const step = Math.max(1, Math.floor(Math.sqrt((width * height) / 20000))); // ≤20k проб
+  const x0 = content ? Math.max(0, Math.min(content.dx, width - 1)) : 0;
+  const x1 = content ? Math.min(width, x0 + content.width) : width;
+  const step = Math.max(1, Math.floor(Math.sqrt(((x1 - x0) * height) / 20000)));
   for (let y = 0; y < height; y += step) {
-    for (let x = 0; x < width; x += step) {
+    for (let x = x0; x < x1; x += step) {
       const i = (width * y + x) << 2;
       if (data[i + 3] < 128) continue;
       const key = `${data[i] >> 5},${data[i + 1] >> 5},${data[i + 2] >> 5}`;
@@ -390,6 +424,25 @@ async function main() {
     : { generatedAt: null, blocks: {} };
   index.blocks ||= {};
 
+  // Блок удалили из библиотеки — запись и картинки должны уйти следом.
+  // Иначе каталог показывает превью несуществующего блока, а релизный тест
+  // (test-canonical-preview-release) справедливо падает на «сироте».
+  // При выборочном прогоне (--only) не чистим: библиотека здесь урезана
+  // фильтром, и всё остальное выглядело бы удалённым. При --source чистим
+  // только выбранный namespace: canonical-прогон не владеет imported/user.
+  let pruned = 0;
+  if (!ONLY) {
+    for (const key of previewKeysToPrune(index, library, { source: SOURCE, only: ONLY })) {
+      const entry = index.blocks[key];
+      for (const shot of Object.values(entry?.shots || {})) {
+        try { if (shot?.file) rmSync(path.join(repoRoot, shot.file), { force: true }); } catch { /* нет файла — и ладно */ }
+      }
+      delete index.blocks[key];
+      pruned += 1;
+      console.log(`  удалена запись превью: ${key} (блока больше нет)`);
+    }
+  }
+
   const todo = [];
   for (const b of library) {
     const hash = blockHash(b);
@@ -403,7 +456,18 @@ async function main() {
   }
 
   console.log(`библиотека: ${library.length} блоков · к перерисовке: ${todo.length}`);
-  if (!todo.length) { console.log("всё актуально"); return; }
+  if (!todo.length) {
+    // Перерисовывать нечего, но чистку записей всё равно надо сохранить —
+    // иначе удалённый блок остаётся в индексе до следующего рендера.
+    if (pruned) {
+      index.total = Object.keys(index.blocks).length;
+      index.failed = Object.values(index.blocks).filter((b) => b.error).length;
+      writeFileSync(indexPath, JSON.stringify(index, null, 2) + "\n");
+      console.log(`индекс обновлён: убрано ${pruned} записей`);
+    }
+    console.log("всё актуально");
+    return;
+  }
 
   const sheets = [];
   for (let i = 0; i < todo.length; i += SHEET_SIZE) sheets.push(todo.slice(i, i + SHEET_SIZE));
@@ -416,8 +480,16 @@ async function main() {
   const contexts = {};
 
   async function openBrowser() {
+    // `playwright-core` does not download a browser on npm install. Local
+    // Studio machines already have Chrome, so use it as an explicit fallback
+    // instead of making preview refresh depend on a separate 200MB download.
+    const bundledExecutable = chromium.executablePath();
+    const executablePath = existsSync(bundledExecutable)
+      ? bundledExecutable
+      : SYSTEM_CHROME_CANDIDATES.find((candidate) => existsSync(candidate));
     browser = await chromium.launch({
       headless: true,
+      ...(executablePath ? { executablePath } : {}),
       args: ["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"],
     });
     for (const w of WIDTHS) {
@@ -531,7 +603,7 @@ async function main() {
         shots[w.name] = {
           file: path.relative(repoRoot, file), width: clip.width, height: clip.height,
         };
-        colorsByWidth[w.name] = dominantColors(buf);
+        colorsByWidth[w.name] = dominantColors(buf, m.content);
       }
 
       if (!shots.desktop) {

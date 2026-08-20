@@ -1,0 +1,54 @@
+{
+  "id": "iqbr-image",
+  "label": "Картинка со ссылкой (IQ Broker)",
+  "description": "Картинка по центру, ширина по контейнеру, отступ снизу слотом.",
+  "placement": "inner",
+  "category": "media",
+  "version": 1,
+  "pug": "a(href=\"{{ href }}\" universal=\"true\" target=\"_blank\")\n    img.center.iqbr-image--center(src=\"{{ image }}\" alt=\"{{ alt }}\" style=\"padding-bottom:{{ padding_bottom }}\")",
+  "styl": ".iqbr-image--center{text-align:center;margin:0 auto}",
+  "slots": [
+    {
+      "id": "image",
+      "kind": "image",
+      "label": "Картинка",
+      "default": "https://fsms.quadcode.com/storage/public/d5/th/oj8ggnfnh4cs77a0/strategies-1.png",
+      "uiGroup": "assets"
+    },
+    {
+      "id": "href",
+      "kind": "url",
+      "label": "Ссылка",
+      "default": "#",
+      "uiGroup": "content"
+    },
+    {
+      "id": "alt",
+      "kind": "text",
+      "label": "Alt",
+      "default": "",
+      "uiGroup": "content"
+    },
+    {
+      "id": "padding_bottom",
+      "kind": "select",
+      "label": "Отступ снизу",
+      "default": "20px",
+      "options": [
+        "0",
+        "8px",
+        "16px",
+        "20px",
+        "32px"
+      ],
+      "uiGroup": "appearance"
+    }
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "iqbroker",
+    "media"
+  ],
+  "note": "Нарезано из email-base/X_IQBroker/mail-strategies. Семейные стили втянуты в блок и заскоуплены; ink-классы (.row/.columns/.wrapper) оставлены глобальными.",
+  "scoped": true
+}

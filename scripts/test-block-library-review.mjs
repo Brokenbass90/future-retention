@@ -5,10 +5,12 @@ import { mkdtempSync, readdirSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import {
+  assertBlockReleaseApproved,
   blockReviewStatus,
   buildUserBlockReview,
   inspectPortableBlockSource,
   saveUserBlockWithLifecycle,
+  userBlockReviewIsCurrent,
   validateUserBlockDeterministically,
 } from "../src/block-library-review.js";
 
@@ -30,10 +32,17 @@ const valid = await validateUserBlockDeterministically(validBlock, { checkedAt: 
 assert.equal(valid.passed, true, `valid hand-authored Pug/Stylus passes: ${valid.errors.join("; ")}`);
 assert.deepEqual(valid.errors, [], "valid block has no deterministic errors");
 assert.deepEqual(valid.checks, {
+  schema: true,
   tokenContract: true,
+  security: true,
   portablePug: true,
   pugCompile: true,
   stylusCompile: true,
+  emailSafe: true,
+  desktop: true,
+  mobile: true,
+  rtl: true,
+  dependencies: true,
 });
 
 const candidate = buildUserBlockReview({ validation: valid, requestedStatus: "candidate" });
@@ -44,6 +53,57 @@ assert.equal(blockReviewStatus({ ...validBlock, review: candidate }), "candidate
 const approved = buildUserBlockReview({ validation: valid, requestedStatus: "approved", previousReview: candidate });
 assert.equal(approved.status, "approved", "manual approval can release a deterministically valid candidate");
 assert.equal(blockReviewStatus({ source: "canonical" }), "approved", "canonical blocks remain release-approved");
+assert.equal(userBlockReviewIsCurrent({ ...validBlock, review: approved }), true, "approved review is tied to the exact current source and validator");
+assert.doesNotThrow(() => assertBlockReleaseApproved({ ...validBlock, review: approved }, "user"), "current approved user block passes release enforcement");
+assert.equal(
+  blockReviewStatus({ ...validBlock, pug: `${validBlock.pug}\n// hand-edited`, review: approved }),
+  "draft",
+  "editing JSON/source behind the lifecycle fails closed instead of retaining approved",
+);
+
+for (const [label, patch, failedCheck, expected] of [
+  [
+    "interactive form markup",
+    { pug: "form\n  p Unsafe", styl: "", slots: [] },
+    "emailSafe",
+    /not portable across email clients/i,
+  ],
+  [
+    "desktop width above the email canvas",
+    { pug: "table(role='presentation' width='640')\n  tr\n    td Too wide", styl: "", slots: [] },
+    "desktop",
+    /above the 600px email canvas/i,
+  ],
+  [
+    "mobile min-width overflow",
+    { pug: "table.mobile-test(role='presentation')\n  tr\n    td Mobile", styl: ".mobile-test\n  min-width 500px", slots: [] },
+    "mobile",
+    /375px validation viewport/i,
+  ],
+  [
+    "hard-coded LTR direction",
+    { pug: "p(dir='ltr') Direction", styl: "", slots: [] },
+    "rtl",
+    /hard-coded LTR/i,
+  ],
+]) {
+  const result = await validateUserBlockDeterministically({ ...validBlock, id: `bad-${failedCheck}`, ...patch });
+  assert.equal(result.passed, false, `${label} cannot become a candidate`);
+  assert.equal(result.checks[failedCheck], false, `${label} fails the ${failedCheck} release check`);
+  assert.match(result.errors.join("\n"), expected, `${label} has an actionable diagnostic`);
+}
+
+const quarantinedCombo = await validateUserBlockDeterministically({
+  ...validBlock,
+  id: "combo-with-imported-child",
+  combo: true,
+  children: [{ id: "legacy-child", slots: {} }],
+}, {
+  resolveDependency: () => ({ origin: "imported", block: { id: "legacy-child", source: "imported" } }),
+});
+assert.equal(quarantinedCombo.passed, false, "a combo cannot promote quarantined imported content");
+assert.equal(quarantinedCombo.checks.dependencies, false, "combo dependency gate fails closed");
+assert.match(quarantinedCombo.errors.join("\n"), /quarantined legacy\/imported/i);
 
 const missingSlot = await validateUserBlockDeterministically({
   ...validBlock,

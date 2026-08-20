@@ -171,10 +171,16 @@ assert.equal(
 const performBuild = functionSource("performSourceEmailBuild");
 assert.match(performBuild, /namespaces: buildNamespacesForContext\(ctx\)/,
   "build must receive only namespaces scoped to the current email");
+assert.match(performBuild, /releasePreflight: false/,
+  "background Pug/Stylus rebuilds must remain warning-only");
 assert.match(performBuild, /wasViewingHtml && !ctx\.htmlEditMode/,
   "background build must not replace an HTML override draft in the editor");
 assert.match(performBuild, /ctx\.htmlEditMode \|\| ctx\.htmlOperation/,
   "background build must not race an override save or reset request");
+assert.match(performBuild, /ctx\.lastBuildWarnings = Array\.isArray\(data\.buildWarnings\)/,
+  "server build warnings must remain visible in the Workbench context");
+assert.match(performBuild, /Сборка завершена с \$\{ctx\.lastBuildWarnings\.length\} предупрежд\./,
+  "build warnings must be surfaced immediately instead of being dropped");
 assert.match(functionSource("rebuildSourceEmail"), /while \(_sourceBuildRequested\)/,
   "edits received during a build must queue another serialized build");
 assert.match(functionSource("showCompiledHtml"), /canShowLastSuccessful/,
@@ -243,6 +249,110 @@ assert.match(css, /\.compiled-view-edit-html\s*\{[\s\S]*background:/,
 
 assert.match(source, /unresolvedCount/);
 assert.match(html, /id="compiledLocalizationStatus"/);
+assert.match(html, /id="compiledPreflightBtn"/,
+  "the compiled workspace must expose an explicit all-locales preflight");
+assert.match(html, /id="compiledPreflightStatus"/,
+  "all-locales preflight results must remain visible after the check");
+assert.match(html, /Проверить к выпуску/,
+  "the strict action must be described as a release check, not ordinary preview");
+assert.match(css, /\.compiled-preflight-status\[data-state="error"\]/,
+  "preflight failures must have a visible error state");
+
+const allLocalesPreflight = functionSource("runAllLocalePreflight");
+assert.match(allLocalesPreflight, /requestReleasePreflightBuild\(ctx\)/,
+  "the explicit all-locales check must run the strict backend build");
+assert.match(allLocalesPreflight, /refreshCodeWorkspace\(ctx\)/,
+  "preflight must start from the current built locale workspace");
+assert.match(allLocalesPreflight, /\/api\/wb\/code-html\?brand=/,
+  "preflight must inspect every effective HTML locale");
+assert.match(allLocalesPreflight, /localization\.unresolvedCount/,
+  "preflight must fail unresolved localized placeholders");
+assert.match(allLocalesPreflight, /Promise\.all\(Array\.from/,
+  "locale inspection should use a bounded worker pool instead of a slow serial loop");
+assert.match(functionSource("requestReleasePreflightBuild"), /releasePreflight: true/,
+  "release preflight must opt in to --failOnWeight on the backend");
+assert.match(functionSource("ensureHtmlReleaseReady"), /runAllLocalePreflight\(ctx\)/,
+  "final source-context export must await the all-locale release report");
+assert.match(source, /downloadHtmlBtn\.addEventListener\('click', async \(\) => \{[\s\S]*?await ensureHtmlReleaseReady\(ctx\)/,
+  "the main HTML download must be blocked until release preflight passes");
+
+const aiToolApply = functionSource("applyAiToolResult");
+assert.match(aiToolApply, /offerSourceFileEditsApply/,
+  "AI source tool results must remain proposals until source diff review");
+assert.match(aiToolApply, /offerModifiedHtmlApply/,
+  "AI HTML tool results must use the shared ownership/diff gate");
+assert.match(aiToolApply, /offerLocaleEditsApply/,
+  "AI locale tool results must use locale diff review");
+assert.doesNotMatch(aiToolApply, /cm\.(?:setValue|replaceRange)|setLocaleRawContent/,
+  "an AI tool completion must never mutate source, HTML, or locales immediately");
+
+const agentChat = functionSource("runAgentChat");
+assert.match(agentChat, /offerModifiedHtmlApply\(timeline, finalPayload\.modifiedHtml\)/,
+  "agent HTML output must use the same guarded proposal flow");
+assert.match(agentChat, /offerLocaleEditsApply\(timeline, localeEdits\)/,
+  "agent locale output must require diff review");
+assert.doesNotMatch(agentChat, /cm\.setValue\(finalPayload\.modifiedHtml\)/,
+  "agent completion must not overwrite the editor");
+
+const htmlProposal = functionSource("offerHtmlApply");
+assert.match(htmlProposal, /if \(isHtml\) return offerModifiedHtmlApply\(bubble, candidate\)/,
+  "HTML fenced inside a Pug source context must become a detached-HTML proposal");
+assert.doesNotMatch(htmlProposal, /cm\.setValue/,
+  "generic AI fenced code routing must not bypass review");
+
+const modifiedHtmlProposal = functionSource("offerModifiedHtmlApply");
+assert.ok(
+  modifiedHtmlProposal.indexOf("showAiCodeDiffPreview") < modifiedHtmlProposal.indexOf("fetch('/api/wb/code-html'"),
+  "source-context AI HTML must be reviewed before a detached override is written",
+);
+assert.match(modifiedHtmlProposal, /currentHtmlForAiGuard\(\) !== baseline/,
+  "a stale HTML proposal must be rejected if the document changes during review");
+
+const sourceProposal = functionSource("offerSourceFileEditsApply");
+assert.ok(
+  sourceProposal.indexOf("showAiCodeDiffPreview") < sourceProposal.indexOf("saveAiSourceFilesAtomically"),
+  "Pug/Stylus changes must be reviewed before source writes",
+);
+assert.doesNotMatch(sourceProposal, /saveAuxiliarySourceFile/,
+  "one accepted AI proposal must not be persisted as independent per-file requests");
+assert.match(sourceProposal, /aiSourceReviewIsCurrent/,
+  "a stale Pug/Stylus proposal must be rejected after review");
+
+const preflightSummarySandbox = { result: null };
+vm.runInNewContext(`
+${functionSource("summarizeAllLocalePreflight")}
+const ready = summarizeAllLocalePreflight([
+  { locale: 'base', unresolvedCount: 0 },
+  { locale: 'en', unresolvedCount: 0 },
+]);
+const warning = summarizeAllLocalePreflight([
+  { locale: 'en', unresolvedCount: 0, detached: true, hasCompiled: true },
+]);
+const error = summarizeAllLocalePreflight([
+  { locale: 'ar', unresolvedCount: 2 },
+  { locale: 'ur', error: 'HTML missing' },
+]);
+const overweight = summarizeAllLocalePreflight([
+  { locale: 'base', unresolvedCount: 0 },
+  { locale: 'en', unresolvedCount: 0 },
+], [], {
+  ok: false,
+  thresholdKib: 102,
+  overweight: [{ locale: 'en', htmlKib: 102 }],
+});
+result = {
+  ready: { state: ready.state, ready: ready.ready, issues: ready.issues.length },
+  warning: { state: warning.state, detached: warning.detached },
+  error: { state: error.state, unresolved: error.unresolved, failed: error.failed },
+  overweight: { state: overweight.state, overweight: overweight.overweight },
+};
+`, preflightSummarySandbox);
+assert.deepEqual(JSON.parse(JSON.stringify(preflightSummarySandbox.result)), {
+  ready: { state: "ready", ready: 2, issues: 0 },
+  warning: { state: "warning", detached: 1 },
+  error: { state: "error", unresolved: 1, failed: 1 },
+  overweight: { state: "error", overweight: 1 },
+});
 
 // Executable regression: revision/value must both match before an async save
 // response is allowed to clear dirty or replace the editor buffer.

@@ -60,7 +60,8 @@ body {
 .workspace {
   display: grid;
   grid-template-columns: minmax(250px, 290px) minmax(480px, 1fr) minmax(290px, 340px);
-  height: calc(100% - 48px);
+  /* Полоса брендов — второй фиксированный ряд над рабочей областью. */
+  height: calc(100% - var(--topbar-h, 48px) - var(--brandbar-h, 38px));
   overflow: hidden;
 }
 .catalog, .canvas-pane, .inspector {
@@ -336,19 +337,6 @@ body {
   font-family: ui-monospace, Menlo, monospace;
 }
 .insp-slot textarea { min-height: 70px; resize: vertical; }
-.insp-slot input[type="color"] {
-  width: 36px;
-  height: 28px;
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 0;
-  cursor: pointer;
-}
-.insp-slot input[type="color"] + input[type="text"] {
-  margin-top: 4px;
-  font-family: ui-monospace, Menlo, monospace;
-}
 .insp-group[data-group="appearance"] {
   margin: 0 0 16px;
   padding: 10px;
@@ -397,16 +385,112 @@ body {
   gap: 6px;
   min-width: 0;
 }
-.insp-value-row > input:not([type="color"]),
+.insp-value-row > input,
 .insp-value-row > select {
   flex: 1 1 auto;
   min-width: 0;
 }
-.insp-color-row input[type="color"] { flex: 0 0 36px; }
-.insp-color-row input[type="color"] + input[type="text"] {
+.insp-color-row {
+  position: relative;
+}
+.insp-color-row .email-hex-input {
   margin-top: 0;
   flex: 1 1 auto;
   min-width: 0;
+  text-transform: uppercase;
+}
+.insp-color-row .email-hex-input[aria-invalid="true"] {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, .28);
+}
+.email-color-swatch {
+  flex: 0 0 52px;
+  width: 52px;
+  height: 29px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 5px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-2);
+  color: var(--text-2);
+  cursor: pointer;
+  font: 700 8px/1 ui-monospace, Menlo, monospace;
+  letter-spacing: .04em;
+}
+.email-color-swatch:hover,
+.email-color-swatch[aria-expanded="true"] {
+  border-color: var(--accent);
+  color: var(--text);
+}
+.email-color-swatch-chip {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  border: 1px solid rgba(255,255,255,.3);
+  border-radius: 4px;
+  background: var(--email-swatch);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.16);
+}
+.email-color-swatch.is-transparent .email-color-swatch-chip {
+  background-color: #202633;
+  background-image:
+    linear-gradient(45deg, rgba(255,255,255,.22) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(255,255,255,.22) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(255,255,255,.22) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(255,255,255,.22) 75%);
+  background-size: 8px 8px;
+  background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+}
+.email-color-popover {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 6px);
+  left: 0;
+  width: min(214px, 100%);
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--bg-1);
+  box-shadow: 0 14px 34px rgba(0,0,0,.42);
+}
+.email-color-popover[hidden] { display: none; }
+.email-color-popover-title {
+  margin-bottom: 7px;
+  color: var(--text);
+  font-size: 10px;
+  font-weight: 700;
+}
+.email-color-presets {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 5px;
+}
+.email-color-preset {
+  aspect-ratio: 1;
+  min-width: 0;
+  padding: 0;
+  border: 1px solid rgba(255,255,255,.28);
+  border-radius: 5px;
+  background: var(--email-swatch);
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.18);
+}
+.email-color-preset:hover,
+.email-color-preset:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.email-color-popover-hint {
+  margin-top: 7px;
+  color: var(--text-2);
+  font-size: 9px;
+  line-height: 1.35;
+}
+.email-color-popover-hint code {
+  color: var(--text);
+  font: 600 9px ui-monospace, Menlo, monospace;
 }
 .slot-value-btn {
   flex: 0 0 29px;
@@ -1366,3 +1450,217 @@ body.dragging-from-catalog .child-dropzone {
   align-items: start;
 }
 .gallery-tile { height: auto; }
+
+/* ─── Крупный просмотр блока ────────────────────────────────────────────── */
+.block-view-preview { margin: 10px 0 4px; }
+.block-view-tabs { display: flex; gap: 6px; margin-bottom: 8px; }
+.block-view-tab {
+  padding: 5px 11px;
+  border-radius: 7px;
+  border: 1px solid #2c3550;
+  background: #151c2a;
+  color: #a9b4c9;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.block-view-tab:hover { border-color: #5b8cff; }
+.block-view-tab.active { background: #24406e; color: #eaf1ff; border-color: #5b8cff; }
+/* Блок показываем в натуральную величину колонки письма: мелкая картинка
+   не отвечает на вопрос «что это за блок». Длинный блок прокручивается. */
+.block-view-stage {
+  max-height: 52vh;
+  overflow: auto;
+  border: 1px solid #2c3550;
+  border-radius: 8px;
+  background: #fff;
+  display: flex;
+  justify-content: center;
+}
+.block-view-stage img { display: block; max-width: 100%; height: auto; }
+.block-view-preview-failed {
+  margin: 10px 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #40202a;
+  color: #ffc4c4;
+  font-size: 13px;
+}
+/* Курсор подсказывает, что по превью можно кликнуть. */
+.cat-item-thumb { cursor: zoom-in; }
+
+/* ── Полоса брендов ───────────────────────────────────────
+   Активный бренд — рабочий контекст: цель сохранения, фирменные цвета,
+   подсветка в базе писем. Высота вынесена в переменную, потому что
+   .workspace считает свою высоту вычитанием и молча ломается от правки. */
+:root { --topbar-h: 48px; --brandbar-h: 38px; }
+.brandbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: var(--brandbar-h);
+  padding: 0 16px;
+  background: var(--bg-0);
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+}
+.brandbar-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text-2);
+  flex: none;
+}
+.brandbar-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.brandbar-tabs::-webkit-scrollbar { height: 4px; }
+.brandbar-tabs::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 2px; }
+.brandbar-empty { font-size: 12px; color: var(--text-2); }
+.brandbar-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  padding: 4px 10px 4px 4px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--bg-2);
+  color: var(--text-2);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.brandbar-tab:hover { background: var(--bg-3); color: var(--text); }
+.brandbar-tab.active {
+  background: var(--bg-3);
+  border-color: var(--border);
+  color: var(--text);
+  font-weight: 600;
+}
+/* Архивный бренд видно, но он не притворяется рабочим. */
+.brandbar-tab.dim { opacity: .5; }
+.brandbar-swatch {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  flex: none;
+}
+.brandbar-name { white-space: nowrap; }
+.brandbar-action {
+  flex: none;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-2);
+  color: var(--text-2);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.brandbar-action:hover { background: var(--bg-3); color: var(--text); }
+
+/* ── Диалоги бренда ─────────────────────────────────────── */
+.brandbar-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.55);
+  z-index: 10000;
+  display: flex; align-items: center; justify-content: center;
+}
+.brandbar-dialog {
+  width: min(480px, 92vw);
+  max-height: 88vh;
+  overflow: auto;
+  background: var(--bg-1);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex; flex-direction: column; gap: 12px;
+  box-shadow: 0 10px 40px rgba(0,0,0,.5);
+}
+.brandbar-dialog-title { font-size: 14px; font-weight: 600; }
+.brandbar-hint { font-size: 12px; color: var(--text-2); line-height: 1.5; }
+.brandbar-hint code { background: var(--bg-2); padding: 1px 4px; border-radius: 4px; }
+.brandbar-field { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 13px; }
+.brandbar-field > span:first-child { display: flex; flex-direction: column; }
+.brandbar-field small { color: var(--text-2); font-size: 11px; font-family: ui-monospace, Menlo, monospace; }
+.brandbar-field input[type="text"] {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 6px 9px;
+  font: 13px ui-monospace, Menlo, monospace;
+  width: 108px;
+}
+.brandbar-field > input[type="text"] { flex: 1; width: auto; }
+.brandbar-field input[type="text"].bad { border-color: var(--red); }
+.brandbar-colorpair { display: inline-flex; align-items: center; gap: 8px; }
+/* Нативное колесо цвета: системная пипетка и палитра бесплатно. */
+.brandbar-colorpair input[type="color"] {
+  width: 34px; height: 30px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-2);
+  cursor: pointer;
+}
+.brandbar-tokens { display: flex; flex-direction: column; gap: 8px; }
+.brandbar-error {
+  font-size: 12px;
+  color: #ffc4c4;
+  background: #40202a;
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+.brandbar-error.hidden { display: none; }
+.brandbar-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.brandbar-btn {
+  border: 1px solid var(--border);
+  background: var(--bg-2);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 7px 14px;
+  font: inherit; font-size: 13px;
+  cursor: pointer;
+}
+.brandbar-btn:hover { background: var(--bg-3); }
+.brandbar-btn.primary { background: #2c3a5a; color: #cfe0ff; border-color: #3a4a70; }
+
+/* Метка кампании: то же поле, что имя письма, но уже и приглушённее —
+   заполняется не всегда. */
+.campaign-name { width: 150px; opacity: .85; }
+.campaign-name:focus { opacity: 1; }
+
+/* ── Ссылки письма ──────────────────────────────────────── */
+.links-row {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+.links-where { font-size: 11px; color: var(--text-2); overflow: hidden; text-overflow: ellipsis; }
+.links-row input {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 6px 9px;
+  font: 12px ui-monospace, Menlo, monospace;
+  width: 100%;
+}
+.links-bulk { display: flex; gap: 8px; align-items: center; }
+.links-bulk input { flex: 1; }

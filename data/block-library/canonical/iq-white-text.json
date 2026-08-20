@@ -29,5 +29,8 @@
       "uiGroup": "appearance"
     }
   ],
-  "scoped": true
+  "scoped": true,
+  "tags": [
+    "iq"
+  ]
 }

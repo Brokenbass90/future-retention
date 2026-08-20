@@ -838,7 +838,9 @@ async function loadApiStatus() {
     }
 
     if (!state.settings.providerId || state.settings.providerId === "mock") {
-      state.settings.providerId = (payload.openAiConfigured || payload?.config?.openAiConfigured) ? "openai" : "mock";
+      const availableAiProvider = (Array.isArray(payload.providers) ? payload.providers : [])
+        .find((provider) => ["openai", "ollama"].includes(provider?.id) && provider?.available);
+      state.settings.providerId = availableAiProvider?.id || "mock";
     }
 
     if (!state.brief.category && payload.emailBase?.currentMail?.category) {
@@ -6011,11 +6013,12 @@ function renderMessages() {
 }
 
 function renderStatus() {
-  const providerLabel = getSelectedProvider()?.label || state.settings.providerId;
+  const provider = getSelectedProvider();
+  const providerLabel = provider?.label || state.settings.providerId;
   const providerRuntime = getActiveProviderRuntime();
   const hasProviderIssue = Boolean(providerRuntime?.fallback && providerRuntime?.issueCode);
-  const isLive = state.settings.providerId === "openai"
-    && isOpenAiConfigured()
+  const isLive = ["openai", "ollama"].includes(state.settings.providerId)
+    && Boolean(provider?.available)
     && !hasProviderIssue;
   let statusText = "Генерирую...";
   if (!state.busy) {
@@ -6023,10 +6026,12 @@ function renderStatus() {
       statusText = `${providerLabel}: ${formatProviderIssue(providerRuntime)}`;
     } else if (state.settings.providerId === "openai" && !isOpenAiConfigured()) {
       statusText = `${providerLabel}: нет OPENAI_API_KEY, работает mock mode`;
+    } else if (state.settings.providerId === "ollama" && !provider?.available) {
+      statusText = `${providerLabel}: задай OLLAMA_MODEL или включи Studio AI, работает mock mode`;
     } else if (state.settings.providerId === "mock") {
       statusText = "Mock mode: без vision-разбора и без реального AI ответа";
     } else {
-      statusText = `${providerLabel}: ${isOpenAiConfigured() ? (state.api.model || state.api?.config?.openAiModel || "configured") : "demo mode"}`;
+      statusText = `${providerLabel}: ${provider?.status || "configured"}`;
     }
   }
 
@@ -7591,9 +7596,15 @@ function renderSettingsInfo() {
     : "Провайдер пока не определен.";
 
   refs.runtimeConfigInfo.textContent = config
-    ? config.openAiConfigured
-      ? `Runtime: ${config.openAiModel} active. .env: ${config.envFileLoaded ? config.envFilePath : "not found"}.${providerRuntime?.fallback ? ` Last provider issue: ${formatProviderIssue(providerRuntime)}.` : ""}${config.deepLConfigured ? " DeepL: ✓" : ""}`
-      : `Runtime: OpenAI key not loaded. Создай ${config.envFilePath} с OPENAI_API_KEY=... и перезапусти сервер.`
+    ? config.publicDemo
+      ? "Runtime: публичное демо — авторизация и AI-вызовы отключены, доступен Mock."
+      : !config.aiEnabled
+        ? "Runtime: AI-вызовы отключены через STUDIO_AI_ENABLED=0."
+        : config.openAiConfigured
+          ? `Runtime: ${config.openAiModel} active. .env: ${config.envFileLoaded ? config.envFilePath : "not found"}.${providerRuntime?.fallback ? ` Last provider issue: ${formatProviderIssue(providerRuntime)}.` : ""}${config.deepLConfigured ? " DeepL: ✓" : ""}`
+          : config.ollamaConfigured
+            ? `Runtime: Ollama ${config.ollamaModel} at ${config.ollamaBaseUrl}.${providerRuntime?.fallback ? ` Last provider issue: ${formatProviderIssue(providerRuntime)}.` : ""}`
+            : `Runtime: AI backend не настроен. Добавь OPENAI_API_KEY или OLLAMA_MODEL в ${config.envFilePath} и перезапусти сервер.`
     : "Runtime config недоступен.";
 
   // Show DeepL auto-translate button only when key is configured

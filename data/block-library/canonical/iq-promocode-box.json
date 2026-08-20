@@ -17,5 +17,8 @@
       "uiGroup": "content"
     }
   ],
-  "scoped": true
+  "scoped": true,
+  "tags": [
+    "iq"
+  ]
 }

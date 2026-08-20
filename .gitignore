@@ -30,3 +30,6 @@ mail-review-*.html
 # visual gate artifacts (baseline IS committed)
 tests/visual-current/
 tests/visual-report/
+
+# Сборки писем: продукт компиляции, в репозитории им делать нечего.
+email-base/dist/

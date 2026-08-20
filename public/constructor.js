@@ -208,15 +208,26 @@ function latestSectionEntry(childBlock = null) {
   )) || null;
 }
 
+/**
+ * Блок, который студия подставляет сама: обёртка при первом добавлении и
+ * секция-хозяин для внутреннего блока, положенного в пустой канвас.
+ *
+ * Сначала ищем среди блоков АКТИВНОГО бренда: подставлять письму IQ Broker
+ * секцию IQ Option — значит незаметно смешать две семьи. Замечено на комбо
+ * с двойным блоком: в канвас приезжал чужой `iq-section`.
+ */
 function findDefaultBlock(placement) {
+  const fits = (b) => placementOf(b) === placement && b.source !== "parsed";
+  const ownBrand = state.library.filter((b) => fits(b) && !blockBelongsToOtherBrand(b));
+
   const preferred = placement === "outer"
-    ? ["iq-outer-wrapper"]
-    : ["iq-section", "iq-content-section"];
+    ? ["iqbr-outer-wrapper", "iq-outer-wrapper"]
+    : ["iqbr-section-bordered", "iq-section", "iq-content-section"];
   for (const id of preferred) {
-    const block = state.library.find((b) => b.id === id && placementOf(b) === placement);
+    const block = ownBrand.find((b) => b.id === id);
     if (block) return block;
   }
-  return state.library.find((b) => placementOf(b) === placement && b.source !== "parsed") || null;
+  return ownBrand[0] || state.library.find(fits) || null;
 }
 
 function markEntrySlotExplicit(entry, slotId) {
@@ -406,6 +417,34 @@ async function loadLibrary() {
 
 // brand = who the block belongs to: canonical / user, or the source
 // category prefix for imported ones (iq, exnova, system, …).
+/**
+ * Блок принадлежит ДРУГОМУ бренду, чем открытая вкладка?
+ *
+ * Семья блока помечена тегом (`iq`, `iqbroker`) — он совпадает с blockTag
+ * бренда в реестре. Правила ровно два, и оба нужны:
+ *   – блок без тега семьи виден всегда (общие, импортированные, свои);
+ *   – если тег активного бренда в библиотеке не встречается (X_assembled,
+ *     X_preview), фильтр не применяется — иначе каталог опустел бы целиком.
+ */
+function knownBrandTags() {
+  const tags = (window.RetkitBrands?.all?.() || [])
+    .map((b) => String(b.blockTag || "").toLowerCase())
+    .filter(Boolean);
+  return new Set(tags);
+}
+
+function blockBelongsToOtherBrand(block) {
+  const active = String(window.RetkitBrands?.active?.()?.blockTag || "").toLowerCase();
+  if (!active) return false;
+  const known = knownBrandTags();
+  const tags = (block.tags || []).map((t) => String(t).toLowerCase());
+  const owners = tags.filter((t) => known.has(t));
+  if (!owners.length) return false;
+  // Тег активного бренда ни на одном блоке — фильтровать нечем и незачем.
+  if (!state.library.some((b) => (b.tags || []).some((t) => String(t).toLowerCase() === active))) return false;
+  return !owners.includes(active);
+}
+
 function brandOf(b) {
   if (b.source === "canonical" || b.source === "user") return b.source;
   return String(b.id || "").split("-")[0] || "imported";
@@ -426,7 +465,8 @@ function blockReviewLabel(block) {
 }
 
 function blockCatalogUsable(block) {
-  return block?.source !== "user" || blockReviewStatus(block) !== "draft";
+  return block?.source === "canonical"
+    || (block?.source === "user" && blockReviewStatus(block) === "approved");
 }
 
 function catalogSourceAllowed(block, scope = "curated") {
@@ -452,6 +492,7 @@ function applyCatalogFilters() {
       if (b.placement !== f && b.placement !== "both" && !(f === "inner" && b.placement === "inline")) return false;
     }
     if (state.brand !== "all" && brandOf(b) !== state.brand) return false;
+    if (blockBelongsToOtherBrand(b)) return false;
     if (state.cat !== "all" && (b.category || "") !== state.cat) return false;
     if (state.mobileOnly && !hasMobile(b)) return false;
     if (q) {
@@ -496,15 +537,18 @@ function renderCatalog() {
   const sourceTotal = state.library.filter((block) => catalogSourceAllowed(block, state.sourceScope)).length;
   if (counter) {
     const hidden = unfiltered.length - filtered.length;
+    const brandLabel = window.RetkitBrands?.active?.()?.label || "";
+    const otherBrand = state.library.filter((b) => catalogSourceAllowed(b, state.sourceScope) && blockBelongsToOtherBrand(b)).length;
     counter.textContent = `${filtered.length} из ${sourceTotal} блоков`
-      + (hidden > 0 ? ` · ${hidden} одинаковых скрыто` : "");
+      + (hidden > 0 ? ` · ${hidden} одинаковых скрыто` : "")
+      + (otherBrand > 0 ? ` · ${otherBrand} чужих брендов скрыто (бренд: ${brandLabel})` : "");
   }
   const sourceWarning = $("catLegacyWarning");
   if (sourceWarning) {
     sourceWarning.classList.toggle("hidden", state.sourceScope === "curated");
     sourceWarning.textContent = state.sourceScope === "user"
-      ? "Draft не прошёл детерминированную проверку и не вставляется в письмо. Candidate уже компилируется, но попадёт в «Проверенные» только после ручного одобрения. AI-review можно добавить позже как совет, не как пропуск."
-      : "Legacy-блоки вырезаны из старых писем: их стили и картинки относятся к конкретным кампаниям и могут плохо сочетаться между собой.";
+      ? "Draft не прошёл release-проверку. Candidate можно изучить и одобрить, но вставлять в письмо можно только approved-блоки. AI-review остаётся советом, не пропуском."
+      : "Legacy-блоки вырезаны из старых писем и находятся в карантине: их можно изучить, но нельзя вставить в выпускаемое письмо.";
   }
   if (!filtered.length) {
     list.innerHTML = `<div class="cat-empty">Ничего не найдено. Сбрось фильтры или поменяй запрос.</div>`;
@@ -523,7 +567,9 @@ function renderCatalog() {
     el.dataset.placement = b.placement || "";
     el.title = usable
       ? "Перетащи на канвас (или клик чтобы добавить в конец)"
-      : "Draft нельзя вставить: открой код и исправь ошибки проверки";
+      : b.source === "imported"
+        ? "Legacy-блок в карантине: скопируй его в «Мои блоки», проверь и одобри перед использованием"
+        : "Вставлять можно только approved-блок: исправь release-проверки и нажми ✓";
     const slotCount = (b.slots || []).length;
     const isUser = b.source === "user";
     el.innerHTML = `
@@ -555,6 +601,13 @@ function renderCatalog() {
       if (delBtn) {
         e.stopPropagation();
         deleteUserBlock(delBtn.dataset.delId);
+        return;
+      }
+      // Клик по самой картинке — это «покажи крупно», а не «добавь в письмо».
+      // Человек первым делом тыкает в превью, чтобы разглядеть блок.
+      if (e.target.closest(".cat-item-thumb")) {
+        e.stopPropagation();
+        openBlockView(b);
         return;
       }
       const viewBtn = e.target.closest(".cat-item-view");
@@ -836,6 +889,7 @@ function openBlockView(b) {
     ? b.slots.map((sl) => `<span class="pill" title="${escapeHtml(sl.kind || "text")}">${escapeHtml(sl.id)}${sl.default != null ? " = " + escapeHtml(String(sl.default).slice(0, 40)) : ""}</span>`).join(" ")
     : "<span class='cat-empty'>нет слотов</span>";
   $("viewModal").classList.remove("hidden");
+  wireBlockViewTabs(b);
 }
 function closeBlockView() { $("viewModal").classList.add("hidden"); _viewBlock = null; }
 function duplicateToUserBlock(b) {
@@ -885,19 +939,46 @@ function signaturePillsMarkup(b) {
   return `<div style="margin-top:6px">${pills} ${swatches}</div>`;
 }
 
-/** Увеличенное превью: desktop + mobile рядом, для окна просмотра блока. */
+/**
+ * Крупный просмотр блока: одна большая картинка и переключатель ширины.
+ *
+ * Две маленькие картинки рядом (как было) не отвечали на вопрос «что это за
+ * блок»: превью высотой в сотню пикселей нечитаемо. Здесь блок показан в
+ * натуральную величину колонки письма, с прокруткой если он длинный.
+ */
 function previewPairMarkup(b) {
   const p = b && b.preview;
-  if (!p || p.status !== "ok") return "";
-  const shot = (s, label) => s
-    ? `<figure style="margin:0;flex:0 1 auto;max-width:${s.width > 400 ? "62%" : "38%"}">
-         <img src="${escapeHtml(s.url)}" alt="${escapeHtml(label)}" style="width:100%;height:auto;border:1px solid #e5e7eb;border-radius:6px;background:#fff">
-         <figcaption style="font-size:11px;color:#6b7280;margin-top:4px">${escapeHtml(label)} · ${s.width}×${s.height}</figcaption>
-       </figure>`
-    : "";
-  return `<div style="display:flex;gap:12px;align-items:flex-start;margin:10px 0">
-      ${shot(p.desktop, "600 px")}${shot(p.mobile, "375 px")}
+  if (p && p.status === "failed") {
+    return `<div class="block-view-preview-failed">Превью не собралось: ${escapeHtml(p.error || "неизвестная причина")}</div>`;
+  }
+  if (!p || p.status !== "ok" || !p.desktop) return "";
+  const has = (s) => Boolean(s && s.url);
+  return `
+    <div class="block-view-preview">
+      <div class="block-view-tabs">
+        <button type="button" class="block-view-tab active" data-shot="desktop">🖥 Десктоп · ${p.desktop.width}×${p.desktop.height}</button>
+        ${has(p.mobile) ? `<button type="button" class="block-view-tab" data-shot="mobile">📱 Мобильный · ${p.mobile.width}×${p.mobile.height}</button>` : ""}
+      </div>
+      <div class="block-view-stage">
+        <img id="blockViewShot" src="${escapeHtml(p.desktop.url)}" alt="Превью блока">
+      </div>
     </div>`;
+}
+
+/** Переключение desktop/mobile в окне просмотра блока. */
+function wireBlockViewTabs(block) {
+  const root = document.getElementById("viewMeta");
+  if (!root) return;
+  const img = root.querySelector("#blockViewShot");
+  if (!img) return;
+  root.querySelectorAll(".block-view-tab").forEach((tab) => {
+    tab.addEventListener("click", () => {
+      const shot = block?.preview?.[tab.dataset.shot];
+      if (!shot?.url) return;
+      img.src = shot.url;
+      root.querySelectorAll(".block-view-tab").forEach((t) => t.classList.toggle("active", t === tab));
+    });
+  });
 }
 
 // ─── Lazy block thumbnails (live mini-render via /api/compose-preview) ──────
@@ -1002,6 +1083,16 @@ function instantiateCombo(block, opts = {}) {
     let parent = null;
     let slot = null;
 
+    // Блок с размещением «both» (отбивка) годится и в секции, и внутрь.
+    // Раньше он всегда шёл по внутреннему пути: если подходящего контейнера
+    // не было, движок создавал ДЕФОЛТНУЮ секцию — из чужого бренда — и прятал
+    // отбивку в неё. Решает не размещение, а есть ли куда положить внутрь.
+    const fitsCurrentContainer = placement === "both"
+      && container
+      && Boolean(chooseChildSlot(blockForEntry(container), def, child.slotId));
+    const asSection = placement === "section"
+      || (placement === "both" && !child.parentRole && !fitsCurrentContainer);
+
     if (placement === "outer") {
       const current = rootOuterEntry();
       if (current) {
@@ -1019,13 +1110,19 @@ function instantiateCombo(block, opts = {}) {
         roleEntries.set(child.role || "outer", current);
         continue;
       }
-    } else if (placement === "section") {
+    } else if (asSection) {
       const requestedParent = opts.parentUid != null ? entryByUid(opts.parentUid) : null;
       parent = placementOf(blockForEntry(requestedParent)) === "outer" ? requestedParent : outer;
       slot = chooseChildSlot(blockForEntry(parent), def, firstSection ? (opts.slotId || child.slotId) : child.slotId);
     } else {
+      // Родителем может быть не только секция, но и inner-контейнер —
+      // например двойной блок с колонками. Раньше такой parentRole молча
+      // отбрасывался (проверялось placement), и рецепт «карточка → две
+      // колонки → содержимое колонок» собрать было нельзя. Важно не
+      // размещение родителя, а наличие у него подходящего слота.
       parent = child.parentRole ? roleEntries.get(child.parentRole) : null;
-      if (!parent || placementOf(blockForEntry(parent)) !== "section") parent = container || latestSectionEntry(def);
+      if (parent && !chooseChildSlot(blockForEntry(parent), def, child.slotId)) parent = null;
+      if (!parent) parent = container || latestSectionEntry(def);
       if (parent && !chooseChildSlot(blockForEntry(parent), def, child.slotId)) parent = latestSectionEntry(def);
       if (!parent) {
         const sectionDef = findDefaultBlock("section");
@@ -1049,14 +1146,16 @@ function instantiateCombo(block, opts = {}) {
       recipeInstanceId,
     });
     const followsLast = last && sameUid(last.parentUid, entry.parentUid) && last.slotId === entry.slotId;
-    const sectionAfter = placement === "section" && lastSection ? lastSection.uid : undefined;
+    const sectionAfter = asSection && lastSection ? lastSection.uid : undefined;
     insertEntryAfterSiblings(
       entry,
       followsLast ? last.uid : sectionAfter ?? (firstSection ? opts.afterUid : undefined),
-      placement === "section" && firstSection ? opts.beforeUid : undefined,
+      asSection && firstSection ? opts.beforeUid : undefined,
     );
-    if (placement === "section") {
-      container = entry;
+    if (asSection) {
+      // Контейнером считаем только настоящую секцию: отбивка ничего в себя
+      // не принимает, и следующий внутренний блок должен идти в карточку.
+      if (placement === "section") container = entry;
       lastSection = entry;
       firstSection = false;
     }
@@ -1490,7 +1589,7 @@ function duplicateBlock(uid) {
 
 /** Короткая подсказка в углу канваса вместо alert'ов на каждое действие. */
 let _canvasHintTimer = null;
-function flashCanvasHint(text) {
+function flashCanvasHint(text, duration = 1800) {
   let el = document.getElementById("canvasHint");
   if (!el) {
     el = document.createElement("div");
@@ -1501,7 +1600,7 @@ function flashCanvasHint(text) {
   el.textContent = text;
   el.classList.add("visible");
   clearTimeout(_canvasHintTimer);
-  _canvasHintTimer = setTimeout(() => el.classList.remove("visible"), 1800);
+  _canvasHintTimer = setTimeout(() => el.classList.remove("visible"), duration);
 }
 
 /** Пункты меню, зависящие от буфера, должны гаснуть, когда он пуст. */
@@ -1668,6 +1767,11 @@ document.addEventListener("keydown", (e) => {
   if (!(e.metaKey || e.ctrlKey) || e.altKey) return;
   // Пока курсор в поле ввода, Ctrl+C/V принадлежат тексту, а не блокам.
   if (isTypingTarget(document.activeElement)) return;
+  // И если человек выделил текст мышью — Ctrl+C должен скопировать текст.
+  // Без этой проверки нельзя было скопировать ответ оператора из чата:
+  // мы перехватывали сочетание и копировали блок канваса.
+  const selection = window.getSelection?.();
+  if (selection && !selection.isCollapsed && String(selection).trim()) return;
   const key = String(e.key || "").toLowerCase();
   const uid = state.selectedUid;
 
@@ -1954,7 +2058,11 @@ const APPLIED_STYLE_READERS = {
   border(cs) {
     const width = parseFloat(cs.borderTopWidth) || 0;
     if (!width) return "нет";
-    return `${cs.borderTopWidth} ${cs.borderTopStyle} ${cs.borderTopColor}`;
+    // Браузер отдаёт цвет как rgb(255, 119, 0). В студии цвета везде HEX —
+    // и в полях, и в сохранённом Pug/Stylus, — поэтому показываем так же,
+    // иначе значение из подсказки нельзя просто скопировать в поле.
+    const colour = rgbToHex(cs.borderTopColor) || cs.borderTopColor;
+    return `${cs.borderTopWidth} ${cs.borderTopStyle} ${colour}`;
   },
   radius(cs) {
     const r = cs.borderTopLeftRadius;
@@ -2019,13 +2127,61 @@ function appliedStyleNote(uid, key) {
     </div>`;
 }
 
-/** rgb(255, 119, 0) → #ff7700; всё остальное отдаём как есть. */
+/** rgb(255, 119, 0) → #FF7700; всё остальное отдаём как есть. */
 function rgbToHex(value) {
   const m = /^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)$/.exec(String(value).trim());
   if (!m) return null;
   if (m[4] !== undefined && Number(m[4]) === 0) return "прозрачный";
-  const hex = "#" + [m[1], m[2], m[3]].map((n) => Number(n).toString(16).padStart(2, "0")).join("");
+  const hex = "#" + [m[1], m[2], m[3]].map((n) => Number(n).toString(16).padStart(2, "0")).join("").toUpperCase();
   return m[4] !== undefined && Number(m[4]) < 1 ? `${hex} (${Math.round(Number(m[4]) * 100)}%)` : hex;
+}
+
+const EMAIL_HEX_PALETTE = Object.freeze([
+  "#000000", "#222222", "#393A44", "#6B7280",
+  "#FFFFFF", "#F9F9F9", "#ECECED", "#FF7700",
+  "#F59E0B", "#E02424", "#2563EB", "#16A34A",
+]);
+
+/**
+ * Email-safe colour accepted by the constructor.
+ *
+ * We intentionally do not accept rgb()/rgba(), alpha HEX or named colours:
+ * the authored Pug/Stylus and the compiled inline CSS stay explicit #RRGGBB.
+ * `transparent` and `inherit` remain available for nested backgrounds.
+ */
+function parseEmailColor(value, options) {
+  const allowEmpty = Boolean(options?.allowEmpty);
+  const raw = String(value ?? "").trim();
+  if (!raw) return allowEmpty ? "" : null;
+  const keyword = raw.toLowerCase();
+  if (keyword === "transparent" || keyword === "inherit") return keyword;
+  const short = /^#([0-9a-f]{3})$/i.exec(raw);
+  if (short) {
+    return "#" + short[1].split("").map((char) => char + char).join("").toUpperCase();
+  }
+  const full = /^#([0-9a-f]{6})$/i.exec(raw);
+  return full ? `#${full[1].toUpperCase()}` : null;
+}
+
+function renderEmailColorControl({ target, id, value, placeholder }) {
+  const normalized = parseEmailColor(value, { allowEmpty: true });
+  const shown = normalized === null ? String(value ?? "") : normalized;
+  const swatch = /^#[0-9A-F]{6}$/.test(normalized || "") ? normalized : "#000000";
+  const transparent = !/^#[0-9A-F]{6}$/.test(normalized || "");
+  const key = `${target}:${id}`;
+  const dataId = target === "slot"
+    ? `data-slot-id="${escapeHtml(id)}"`
+    : `data-appearance-id="${escapeHtml(id)}"`;
+  const presets = EMAIL_HEX_PALETTE.map((color) =>
+    `<button type="button" class="email-color-preset" data-email-color-value="${color}" style="--email-swatch:${color}" title="${color}" aria-label="${color}"></button>`
+  ).join("");
+  return `<button type="button" class="email-color-swatch${transparent ? " is-transparent" : ""}" data-email-color-open="${escapeHtml(key)}" style="--email-swatch:${escapeHtml(swatch)}" title="Открыть HEX-палитру"><span class="email-color-swatch-chip"></span><span>HEX</span></button>
+    <input type="text" class="email-hex-input" data-email-color="${escapeHtml(target)}" ${dataId} value="${escapeHtml(shown)}" placeholder="${escapeHtml(placeholder)}" maxlength="11" inputmode="text" autocomplete="off" spellcheck="false" aria-label="Цвет в формате HEX" />
+    <div class="email-color-popover" data-email-color-popover="${escapeHtml(key)}" hidden>
+      <div class="email-color-popover-title">HEX-палитра</div>
+      <div class="email-color-presets">${presets}</div>
+      <div class="email-color-popover-hint">Любой цвет можно ввести как <code>#RRGGBB</code></div>
+    </div>`;
 }
 
 // ─── Inspector ──────────────────────────────────────────────────────────
@@ -2056,8 +2212,13 @@ function renderFallbackAppearanceControl(binding, entry, block) {
   const label = `<label>${escapeHtml(binding.label)} <span class="slot-kind">общий</span></label>`;
   const reset = `<button type="button" class="slot-value-btn" data-reset-appearance="${id}" title="Убрать переопределение и вернуть оформление блока">↺</button>`;
   if (binding.kind === "color") {
-    const swatch = /^#[0-9a-f]{6}$/i.test(String(value)) ? String(value) : "#000000";
-    return `<div class="insp-slot insp-style-slot style-background">${label}<div class="insp-value-row insp-color-row"><input type="color" data-appearance-id="${id}" value="${escapeHtml(swatch)}" /><input type="text" data-appearance-id="${id}" value="${escapeHtml(value)}" placeholder="как в блоке / #RRGGBB" /><button type="button" class="slot-value-btn transparent" data-transparent-appearance="${id}" title="Прозрачный: будет виден фон родительского блока">Как родитель</button>${reset}</div></div>`;
+    const colorControl = renderEmailColorControl({
+      target: "appearance",
+      id: binding.key,
+      value,
+      placeholder: "как в блоке / #RRGGBB",
+    });
+    return `<div class="insp-slot insp-style-slot style-background">${label}<div class="insp-value-row insp-color-row">${colorControl}<button type="button" class="slot-value-btn transparent" data-transparent-appearance="${id}" title="Прозрачный: будет виден фон родительского блока">Как родитель</button>${reset}</div></div>`;
   }
   const placeholder = binding.key === "border" ? "как в блоке / 1px solid #ECECED"
     : binding.key === "radius" ? "как в блоке / 16px"
@@ -2099,6 +2260,137 @@ function renderCommonAppearance(block, entry, bindings) {
       return `<div class="insp-surface-field" data-applied-for="${escapeHtml(binding.key)}">${control}${appliedStyleNote(entry?.uid, binding.key)}</div>`;
     }).join("")}
   </section>`;
+}
+
+function bindEmailColorControls(body, entry, block) {
+  const closePalettes = (exceptKey = "") => {
+    body.querySelectorAll("[data-email-color-popover]").forEach((popover) => {
+      if (popover.dataset.emailColorPopover !== exceptKey) popover.hidden = true;
+    });
+    body.querySelectorAll("[data-email-color-open]").forEach((button) => {
+      button.setAttribute("aria-expanded", button.dataset.emailColorOpen === exceptKey ? "true" : "false");
+    });
+  };
+
+  const syncVisual = (input, normalized) => {
+    const target = input.dataset.emailColor;
+    const id = target === "slot" ? input.dataset.slotId : input.dataset.appearanceId;
+    const key = `${target}:${id}`;
+    const swatch = body.querySelector(`[data-email-color-open="${CSS.escape(key)}"]`);
+    if (!swatch) return;
+    const isHex = /^#[0-9A-F]{6}$/.test(normalized || "");
+    swatch.classList.toggle("is-transparent", !isHex);
+    if (isHex) swatch.style.setProperty("--email-swatch", normalized);
+  };
+
+  const commit = (input, { captureUndo = true, report = true } = {}) => {
+    const target = input.dataset.emailColor;
+    const id = target === "slot" ? input.dataset.slotId : input.dataset.appearanceId;
+    const allowEmpty = target === "appearance";
+    const normalized = parseEmailColor(input.value, { allowEmpty });
+    if (normalized === null) {
+      input.setCustomValidity("Используй #RGB, #RRGGBB, transparent или inherit. RGB/RGBA для email не сохраняются.");
+      input.setAttribute("aria-invalid", "true");
+      if (report) input.reportValidity();
+      return false;
+    }
+    input.setCustomValidity("");
+    input.removeAttribute("aria-invalid");
+    input.value = normalized;
+    syncVisual(input, normalized);
+
+    let changed = false;
+    if (target === "slot") {
+      const current = String(entry.slots[id] ?? "");
+      if (current !== normalized) {
+        if (captureUndo && input.dataset.undoCaptured !== "1") pushCanvasUndo();
+        entry.slots[id] = normalized;
+        markEntrySlotExplicit(entry, id);
+        changed = true;
+      }
+    } else {
+      if (!entry.appearance || typeof entry.appearance !== "object") entry.appearance = {};
+      const hasCurrent = Object.prototype.hasOwnProperty.call(entry.appearance, id);
+      const current = hasCurrent ? String(entry.appearance[id] ?? "") : "";
+      if (normalized === "") {
+        if (hasCurrent) {
+          if (captureUndo && input.dataset.undoCaptured !== "1") pushCanvasUndo();
+          delete entry.appearance[id];
+          changed = true;
+        }
+      } else if (!hasCurrent || current !== normalized) {
+        if (captureUndo && input.dataset.undoCaptured !== "1") pushCanvasUndo();
+        entry.appearance[id] = normalized;
+        changed = true;
+      }
+    }
+    if (changed) scheduleLivePreview();
+    return true;
+  };
+
+  body.querySelectorAll("[data-email-color]").forEach((input) => {
+    const initial = parseEmailColor(input.value, { allowEmpty: input.dataset.emailColor === "appearance" });
+    if (initial !== null) {
+      input.value = initial;
+      syncVisual(input, initial);
+    }
+    input.addEventListener("focus", () => {
+      if (input.dataset.undoCaptured !== "1") {
+        pushCanvasUndo();
+        input.dataset.undoCaptured = "1";
+      }
+    });
+    input.addEventListener("input", () => {
+      const parsed = parseEmailColor(input.value, { allowEmpty: input.dataset.emailColor === "appearance" });
+      input.setCustomValidity("");
+      input.removeAttribute("aria-invalid");
+      if (parsed !== null) syncVisual(input, parsed);
+    });
+    input.addEventListener("change", () => commit(input, { captureUndo: false }));
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        if (commit(input, { captureUndo: false })) input.blur();
+      } else if (event.key === "Escape") {
+        closePalettes();
+        input.blur();
+      }
+    });
+    input.addEventListener("blur", () => { delete input.dataset.undoCaptured; });
+  });
+
+  body.querySelectorAll("[data-email-color-open]").forEach((button) => {
+    button.setAttribute("aria-expanded", "false");
+    button.addEventListener("click", () => {
+      const key = button.dataset.emailColorOpen;
+      const popover = body.querySelector(`[data-email-color-popover="${CSS.escape(key)}"]`);
+      if (!popover) return;
+      const opening = popover.hidden;
+      closePalettes(opening ? key : "");
+      popover.hidden = !opening;
+      button.setAttribute("aria-expanded", opening ? "true" : "false");
+    });
+  });
+
+  body.querySelectorAll("[data-email-color-value]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const popover = button.closest("[data-email-color-popover]");
+      const key = popover?.dataset.emailColorPopover || "";
+      const [target, ...idParts] = key.split(":");
+      const id = idParts.join(":");
+      const selector = target === "slot"
+        ? `[data-email-color="slot"][data-slot-id="${CSS.escape(id)}"]`
+        : `[data-email-color="appearance"][data-appearance-id="${CSS.escape(id)}"]`;
+      const input = body.querySelector(selector);
+      if (!input) return;
+      pushCanvasUndo();
+      input.dataset.undoCaptured = "1";
+      input.value = button.dataset.emailColorValue;
+      commit(input, { captureUndo: false });
+      closePalettes();
+      input.focus();
+    });
+  });
 }
 
 function renderInspector() {
@@ -2167,7 +2459,7 @@ function renderInspector() {
   `;
   body.innerHTML = html;
   // Wire up change handlers.
-  body.querySelectorAll("[data-slot-id]").forEach((el) => {
+  body.querySelectorAll("[data-slot-id]:not([data-email-color])").forEach((el) => {
     el.addEventListener("focus", () => {
       if (el.dataset.undoCaptured === "1") return;
       pushCanvasUndo();
@@ -2206,16 +2498,10 @@ function renderInspector() {
       el.setCustomValidity("");
       entry.slots[id] = v;
       markEntrySlotExplicit(entry, id);
-      // Keep the paired color text/swatch inputs in sync.
-      if (el.type === "color" || (el.type === "text" && el.previousElementSibling?.type === "color")) {
-        body.querySelectorAll(`[data-slot-id="${CSS.escape(id)}"]`).forEach((other) => {
-          if (other !== el && other.value !== v) other.value = v;
-        });
-      }
       scheduleLivePreview();
     });
   });
-  body.querySelectorAll("[data-appearance-id]").forEach((el) => {
+  body.querySelectorAll("[data-appearance-id]:not([data-email-color])").forEach((el) => {
     el.addEventListener("focus", () => {
       if (el.dataset.undoCaptured === "1") return;
       pushCanvasUndo();
@@ -2228,12 +2514,10 @@ function renderInspector() {
       if (!entry.appearance || typeof entry.appearance !== "object") entry.appearance = {};
       if (String(value).trim()) entry.appearance[id] = value;
       else delete entry.appearance[id];
-      body.querySelectorAll(`[data-appearance-id="${CSS.escape(id)}"]`).forEach((other) => {
-        if (other !== el && other.value !== value) other.value = value;
-      });
       scheduleLivePreview();
     });
   });
+  bindEmailColorControls(body, entry, block);
   body.querySelectorAll("[data-reset-slot]").forEach((button) => {
     button.addEventListener("click", () => {
       const id = button.dataset.resetSlot;
@@ -2471,11 +2755,16 @@ function renderSlotControl(slot, current, block) {
       </div></div>`;
   }
   if (kind === "color") {
-    const swatch = /^#[0-9a-f]{6}$/i.test(String(v)) ? String(v) : "#000000";
     const transparentButton = appearanceRole === "background"
       ? `<button type="button" class="slot-value-btn transparent" data-transparent-slot="${escapeHtml(id)}" title="Прозрачный: показывать фон родительского блока">Как родитель</button>`
       : "";
-    return `<div class="${wrapClass}">${label}<div class="insp-value-row insp-color-row"><input type="color" data-slot-id="${escapeHtml(id)}" value="${escapeHtml(swatch)}" /><input type="text" data-slot-id="${escapeHtml(id)}" value="${escapeHtml(v)}" placeholder="#RRGGBB или transparent" />${transparentButton}${resetButton}</div></div>`;
+    const colorControl = renderEmailColorControl({
+      target: "slot",
+      id,
+      value: v,
+      placeholder: "#RRGGBB или transparent",
+    });
+    return `<div class="${wrapClass}">${label}<div class="insp-value-row insp-color-row">${colorControl}${transparentButton}${resetButton}</div></div>`;
   }
   // default: text
   const stylePlaceholder = appearanceRole === "border" ? "none или 1px solid #ECECED"
@@ -2805,7 +3094,11 @@ function canvasToBlocks(options) {
     if (c.appearance && typeof c.appearance === "object" && Object.keys(c.appearance).length) {
       out.appearance = { ...c.appearance };
     }
-    if (b && b.source !== "canonical") {
+    // Saved user blocks are release artifacts: send only their id/source so
+    // compose reloads the current on-disk record and verifies its approval.
+    // Inline definitions are reserved for server-verifiable parsed mail
+    // fragments (and unsaved authoring previews, which release-save rejects).
+    if (b && !["canonical", "user"].includes(b.source)) {
       out.def = {
         id: b.id,
         label: b.label,
@@ -2821,6 +3114,18 @@ function canvasToBlocks(options) {
     return out;
   });
 }
+/**
+ * Метка кампании письма.
+ *
+ * У блоков в ссылках лежат чужие `afftrack`/`retrack` — блок берут в новое
+ * письмо, и метка едет с ним. При сборке студия переписывает их на эту.
+ * Поле пустое — ничего не трогаем, ссылки остаются как в блоках.
+ */
+function campaignPayload() {
+  const value = ($("campaignName")?.value || "").trim();
+  return value ? { campaign: value } : {};
+}
+
 function sourceSkeletonPayload() {
   const s = state.sourceSkeleton;
   // A studio-model can contain only canonical entries while still depending on
@@ -2899,7 +3204,7 @@ async function runLivePreview() {
     const res = await fetch("/api/compose-preview", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mailName: previewMailName, blocks, ...sourceSkeletonPayload() }),
+      body: JSON.stringify({ mailName: previewMailName, blocks, ...campaignPayload(), ...sourceSkeletonPayload() }),
     });
     const data = await res.json();
     if (token !== _livePreviewToken) return; // a newer build superseded us
@@ -3325,7 +3630,7 @@ async function preview() {
     const res = await fetch("/api/compose-preview", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mailName: $("mailName").value.trim() || "preview", blocks, ...sourceSkeletonPayload() }),
+      body: JSON.stringify({ mailName: $("mailName").value.trim() || "preview", blocks, ...campaignPayload(), ...sourceSkeletonPayload() }),
     });
     const data = await res.json();
     if (!res.ok || !data.ok) {
@@ -3362,7 +3667,7 @@ async function save() {
     const res = await fetch("/api/compose-save", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ brand, mailName, blocks, force: !!force, ...sourceSkeletonPayload() }),
+      body: JSON.stringify({ brand, mailName, blocks, force: !!force, ...campaignPayload(), ...sourceSkeletonPayload() }),
     });
     return { status: res.status, data: await res.json() };
   };
@@ -3866,24 +4171,53 @@ $("openGalleryBtn")?.addEventListener("click", openBlockGallery);
  */
 function applyAgentCanvasOps(ops) {
   if (!Array.isArray(ops) || !ops.length) return;
-  const applied = [];
+  const slotValues = globalThis.RetkitCanvasSlots;
+  const prepared = [];
   const missed = [];
-  pushCanvasUndo();
+  const rejected = [];
+
   for (const op of ops) {
     const entry = entryByUid(op?.uid);
     if (!entry) { missed.push(op?.uid); continue; }
+    let slots = null;
     if (op.slots && typeof op.slots === "object") {
-      entry.slots = { ...(entry.slots || {}), ...op.slots };
+      if (!slotValues?.normalizeSlotPatch) {
+        rejected.push("проверка типов слотов недоступна");
+        continue;
+      }
+      const checked = slotValues.normalizeSlotPatch(blockForEntry(entry)?.slots, op.slots);
+      if (!checked.ok) {
+        rejected.push(...checked.errors.map((item) => item.error));
+        continue;
+      }
+      slots = checked.values;
     }
-    if (op.appearance && typeof op.appearance === "object") {
-      entry.appearance = { ...(entry.appearance || {}), ...op.appearance };
-    }
-    applied.push(entry.uid);
+    prepared.push({ entry, slots, appearance: op.appearance });
   }
-  if (!applied.length) {
-    _canvasUndo.pop();
+
+  // The package is one operator action and therefore atomic: one invalid
+  // single-line slot must not leave half of the requested edits on canvas.
+  if (rejected.length) {
+    console.warn("[constructor] rejected agent canvas operation", rejected);
+    flashCanvasHint(`Оператор не применил правку: ${rejected[0]}`, 6000);
+    return;
+  }
+  if (!prepared.length) {
     flashCanvasHint(`Оператор не нашёл блок на канвасе${missed.length ? ` (uid ${missed.join(", ")})` : ""}`);
     return;
+  }
+
+  const applied = [];
+  pushCanvasUndo();
+  for (const { entry, slots, appearance } of prepared) {
+    if (slots) {
+      entry.slots = { ...(entry.slots || {}), ...slots };
+      Object.keys(slots).forEach((slotId) => markEntrySlotExplicit(entry, slotId));
+    }
+    if (appearance && typeof appearance === "object") {
+      entry.appearance = { ...(entry.appearance || {}), ...appearance };
+    }
+    applied.push(entry.uid);
   }
   if (applied.length) state.selectedUid = applied[0];
   finishCanvasMutation(state.selectedUid);
@@ -3902,10 +4236,19 @@ function ensureStudioChat() {
     buildContext: () => ({
       // Дерево отдаём как есть: сервер не хранит несохранённый канвас,
       // а агент должен видеть именно текущее состояние сборки.
-      canvas: state.canvas.map((e) => ({
-        uid: e.uid, blockId: e.blockId || e.id, blockSource: e.blockSource || e.source,
-        parentUid: e.parentUid, slotId: e.slotId, slots: e.slots || {},
-      })),
+      canvas: state.canvas.map((e) => {
+        const block = blockForEntry(e);
+        return {
+          uid: e.uid, blockId: e.blockId || e.id, blockSource: e.blockSource || e.source,
+          parentUid: e.parentUid, slotId: e.slotId, slots: e.slots || {},
+          slotSchema: (block?.slots || []).map((slot) => ({
+            id: slot.id,
+            kind: slot.kind || "text",
+            label: slot.label || slot.id,
+            ...(Array.isArray(slot.options) ? { options: slot.options } : {}),
+          })),
+        };
+      }),
       html: _lastLiveHtml || "",
     }),
     onResult: (payload) => {
@@ -4029,6 +4372,13 @@ async function loadConstructorDeepLink(search = window.location.search) {
 }
 loadLibrary().then(() => loadConstructorDeepLink());
 
+// Переключили вкладку бренда — каталог перерисовывается: часть блоков
+// принадлежит другой семье и в чужом бренде только мешает.
+window.RetkitBrands?.onChange?.(() => {
+  state.renderCap = 60;
+  if (state.library.length) renderCatalog();
+});
+
 
 // ─── Undo wiring ─────────────────────────────────────────────────────────
 document.getElementById("undoBtn")?.addEventListener("click", undoCanvas);
@@ -4094,6 +4444,7 @@ const RETKIT_CONSTRUCTOR_BUILD = '2026-07-13-style-surface';
         <button id="baseClose" style="background:#2c313c;border:none;color:#e6e6e6;border-radius:8px;padding:7px 11px;cursor:pointer;">✕</button>
       </div>
       <div style="display:flex;flex:1;min-height:0;">
+        <div id="baseBrands" style="width:186px;flex:none;overflow:auto;padding:8px 6px;border-right:1px solid #2c313c;background:#171b22;"></div>
         <div id="baseList" style="flex:1;overflow:auto;padding:8px;border-right:1px solid #2c313c;"></div>
         <div style="width:344px;flex:none;display:flex;flex-direction:column;background:#12151b;min-height:0;">
           <div id="basePreviewLabel" style="padding:8px 12px;font-size:11px;color:#8b93a3;border-bottom:1px solid #2c313c;flex:none;">Наведи на письмо — предпросмотр</div>
@@ -4185,6 +4536,9 @@ const RETKIT_CONSTRUCTOR_BUILD = '2026-07-13-style-surface';
     async function refreshList() {
       try {
         listData = await fetchList();
+        // Счётчики в папках берутся из listData — без пересчёта после
+        // удаления письма папка показывала бы старое число.
+        drawBrandFolders();
         draw(searchEl.value);
       } catch (e) { alert("Не удалось обновить базу: " + e.message); }
     }
@@ -4241,12 +4595,60 @@ const RETKIT_CONSTRUCTOR_BUILD = '2026-07-13-style-surface';
       setTimeout(() => document.addEventListener("mousedown", dismiss, true), 0);
     }
 
+    /* ── Папки брендов слева ──
+       Бренд здесь берётся из реестра (/api/brands), а не из имён папок: у
+       бренда есть название и фирменный цвет, и в списке должен быть виден
+       даже тот, в котором писем ещё нет — иначе непонятно, куда сохранять. */
+    let selectedBrand = window.RetkitBrands?.activeId?.() || "all";
+    function drawBrandFolders() {
+      const host = box.querySelector("#baseBrands");
+      if (!host) return;
+      const counts = new Map();
+      for (const e of listData) counts.set(e.brand, (counts.get(e.brand) || 0) + 1);
+      const registry = (window.RetkitBrands?.all?.() || []);
+      const known = new Map(registry.map((b) => [b.id, b]));
+      const ids = [...new Set([...registry.map((b) => b.id), ...counts.keys()])]
+        .sort((a, b) => (counts.get(b) || 0) - (counts.get(a) || 0) || a.localeCompare(b));
+      if (selectedBrand !== "all" && !ids.includes(selectedBrand)) selectedBrand = "all";
+
+      const row = (id, label, count, color) => {
+        const on = selectedBrand === id;
+        const dot = color
+          ? `<span style="width:9px;height:9px;border-radius:50%;background:${color};flex:none;"></span>`
+          : `<span style="width:9px;flex:none;"></span>`;
+        return `<button class="base-brand" data-brand="${escapeHtml(id)}" title="${escapeHtml(label)} · ${count} писем"
+          style="display:flex;align-items:center;gap:7px;width:100%;text-align:left;border:none;cursor:pointer;font:inherit;font-size:12px;padding:6px 8px;border-radius:7px;margin-bottom:2px;background:${on ? "#2c3a5a" : "transparent"};color:${on ? "#cfe0ff" : "#c3cad6"};">
+          ${dot}
+          <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(label)}</span>
+          <span style="color:#6d7787;font-size:11px;">${count}</span>
+        </button>`;
+      };
+
+      host.innerHTML = row("all", "Все письма", listData.length, "")
+        + `<div style="height:1px;background:#2c313c;margin:6px 2px;"></div>`
+        + ids.map((id) => {
+            const brand = known.get(id);
+            return row(id, brand?.label || id.replace(/^X_/, ""), counts.get(id) || 0, brand?.theme?.primary || "#5b6472");
+          }).join("");
+
+      host.querySelectorAll(".base-brand").forEach((el) => {
+        el.addEventListener("click", () => {
+          selectedBrand = el.dataset.brand;
+          drawBrandFolders();
+          draw(searchEl.value);
+        });
+      });
+    }
+
     /* ── Список ── */
     let hoverTimer = null;
     const draw = (q) => {
       const ql = (q || "").trim().toLowerCase();
-      const rows = listData.filter((e) => !ql || (e.brand + " " + e.name).toLowerCase().includes(ql));
-      box.querySelector("#baseCount").textContent = `${rows.length} из ${listData.length} писем`;
+      const rows = listData
+        .filter((e) => selectedBrand === "all" || e.brand === selectedBrand)
+        .filter((e) => !ql || (e.brand + " " + e.name).toLowerCase().includes(ql));
+      const scopeNote = selectedBrand === "all" ? "" : ` · папка ${selectedBrand}`;
+      box.querySelector("#baseCount").textContent = `${rows.length} из ${listData.length} писем${scopeNote}`;
       listEl.innerHTML = rows.slice(0, 500).map((e) => `
         <div class="base-row" data-brand="${e.brand}" data-mail="${e.name}" style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:8px;cursor:default;">
           <div class="base-thumb" data-brand="${e.brand}" data-mail="${e.name}"
@@ -4288,6 +4690,7 @@ const RETKIT_CONSTRUCTOR_BUILD = '2026-07-13-style-surface';
         });
       });
     };
+    drawBrandFolders();
     draw("");
     searchEl.addEventListener("input", (e) => draw(e.target.value));
     box.querySelector("#baseClose").addEventListener("click", close);
@@ -4459,6 +4862,10 @@ async function loadParsedEmail(brand, mail) {
     state.selectedUid = null;
     const nameInput = document.getElementById("mailName");
     if (nameInput) nameInput.value = mail.replace(/^mail-/, "");
+    // Метку кампании письмо хранит рядом с деревом — возвращаем её в поле,
+    // иначе при пересохранении ссылки уехали бы обратно к меткам блоков.
+    const campaignInput = document.getElementById("campaignName");
+    if (campaignInput) campaignInput.value = String(d.model?.campaign || "");
     populateCatalogFilters();
     renderCanvas(); renderInspector(); syncPaletteToSelection(); scheduleLivePreview();
     return true;
@@ -4606,7 +5013,19 @@ async function chooseSaveTarget({ allowTemp = false } = {}) {
     const data = await r.json();
     brands = (data.emails || []).map((g) => g.brand).filter((b) => b && b !== "X_preview");
   } catch { /* сеть упала — останется ручной ввод нового бренда */ }
+  // Бренд из реестра может быть заведён только что и ещё не иметь писем —
+  // по одному лишь /api/wb/emails он бы не появился в списке, и сохранить
+  // в него было бы некуда.
+  for (const brand of (window.RetkitBrands?.all?.() || [])) {
+    if (brand.id && !brands.includes(brand.id)) brands.push(brand.id);
+  }
   if (!brands.includes("X_assembled")) brands.push("X_assembled");
+  // Предвыбор — активная вкладка бренда: обычно сохраняют туда, где работают.
+  const activeBrandId = window.RetkitBrands?.activeId?.() || "";
+  const brandLabel = (id) => {
+    const found = (window.RetkitBrands?.all?.() || []).find((b) => b.id === id);
+    return found && found.label !== id.replace(/^X_/, "") ? `${found.label} (${id})` : id;
+  };
 
   return new Promise((resolve) => {
     const row = "display:flex;gap:8px;align-items:center;padding:8px 10px;border-radius:8px;cursor:pointer;background:#12151b;";
@@ -4614,7 +5033,12 @@ async function chooseSaveTarget({ allowTemp = false } = {}) {
     overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;";
     const options = [
       ...(allowTemp ? [`<label style="${row}"><input type="radio" name="saveTarget" value="__temp__" checked /> ⏱ Временно (X_preview) — только доработать сейчас</label>`] : []),
-      ...brands.map((b, i) => `<label style="${row}"><input type="radio" name="saveTarget" value="${escapeHtml(b)}" ${!allowTemp && i === 0 ? "checked" : ""} /> 📁 ${escapeHtml(b)}</label>`),
+      ...brands.map((b, i) => {
+        const preselect = allowTemp
+          ? false
+          : (activeBrandId ? b === activeBrandId : i === 0);
+        return `<label style="${row}"><input type="radio" name="saveTarget" value="${escapeHtml(b)}" ${preselect ? "checked" : ""} /> 📁 ${escapeHtml(brandLabel(b))}</label>`;
+      }),
       `<label style="${row}"><input type="radio" name="saveTarget" value="__new__" /> ➕ Новый бренд: <input id="newBrandName" type="text" placeholder="X_MyBrand" style="flex:1;background:#0d1015;border:1px solid #2c313c;color:#e6e6e6;border-radius:6px;padding:5px 8px;" /></label>`,
     ].join("");
     overlay.innerHTML = `
@@ -4666,7 +5090,7 @@ async function transferToCode() {
     const send = async (force) => {
       const response = await fetch("/api/compose-save", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ brand, mailName: rawName, blocks: canvasToBlocks(), force, ...sourceSkeletonPayload() }),
+        body: JSON.stringify({ brand, mailName: rawName, blocks: canvasToBlocks(), force, ...campaignPayload(), ...sourceSkeletonPayload() }),
       });
       return { response, data: await response.json() };
     };
@@ -4692,3 +5116,92 @@ async function transferToCode() {
 document.getElementById("toCodeBtn")?.addEventListener("click", transferToCode);
 
 document.getElementById("clearCanvasBtn")?.addEventListener("click", clearCanvas);
+
+/* ─── Ссылки письма в одном списке ───────────────────────────────────────────
+   Ссылки разбросаны по слотам десятка блоков, и найти их все, кликая по
+   каждому блоку, невозможно. Здесь они собраны в одно окно: видно, где какая
+   стоит, любую можно заменить, а можно заменить все разом — например, поменяв
+   заглушки на боевые адреса перед выпуском. */
+function collectCanvasLinks() {
+  const out = [];
+  for (const entry of state.canvas) {
+    const def = blockForEntry(entry);
+    for (const slot of (def?.slots || [])) {
+      if (slot.kind !== "url" && slot.kind !== "link") continue;
+      const value = Object.prototype.hasOwnProperty.call(entry.slots || {}, slot.id)
+        ? entry.slots[slot.id]
+        : slot.default;
+      out.push({
+        uid: entry.uid,
+        slotId: slot.id,
+        where: `${def.label || def.id} · ${slot.label || slot.id}`,
+        value: String(value ?? ""),
+      });
+    }
+  }
+  return out;
+}
+
+function openLinksDialog() {
+  const links = collectCanvasLinks();
+  const overlay = document.createElement("div");
+  overlay.className = "brandbar-overlay";
+  const rows = links.map((link, index) => `
+    <div class="links-row">
+      <span class="links-where" title="${escapeHtml(link.where)}">${escapeHtml(link.where)}</span>
+      <input type="text" data-link="${index}" value="${escapeHtml(link.value)}" spellcheck="false" />
+    </div>`).join("");
+
+  overlay.innerHTML = `
+    <div class="brandbar-dialog" style="width:min(760px,94vw)">
+      <div class="brandbar-dialog-title">Ссылки письма — ${links.length}</div>
+      <div class="brandbar-hint">
+        Метка кампании (<code>afftrack</code>, <code>retrack</code>) переписывается при сборке
+        отдельно — полем в шапке. Здесь сами адреса.
+      </div>
+      ${links.length ? `<div class="links-bulk">
+        <input type="text" id="linksBulkValue" placeholder="https://… — поставить во все ссылки" spellcheck="false" />
+        <button type="button" class="brandbar-btn" id="linksBulkApply">Во все</button>
+      </div>` : `<div class="brandbar-hint">В письме пока нет блоков со ссылками.</div>`}
+      <div style="max-height:52vh;overflow:auto;">${rows}</div>
+      <div class="brandbar-actions">
+        <button type="button" class="brandbar-btn" id="linksCancel">Отмена</button>
+        <button type="button" class="brandbar-btn primary" id="linksSave">Применить</button>
+      </div>
+    </div>`;
+
+  const close = () => { overlay.remove(); document.removeEventListener("keydown", onKey); };
+  const onKey = (e) => { if (e.key === "Escape") close(); };
+  document.addEventListener("keydown", onKey);
+  overlay.addEventListener("mousedown", (e) => { if (e.target === overlay) close(); });
+  document.body.appendChild(overlay);
+
+  overlay.querySelector("#linksBulkApply")?.addEventListener("click", () => {
+    const value = overlay.querySelector("#linksBulkValue").value.trim();
+    if (!value) return;
+    overlay.querySelectorAll("[data-link]").forEach((input) => { input.value = value; });
+  });
+  overlay.querySelector("#linksCancel").addEventListener("click", close);
+  overlay.querySelector("#linksSave").addEventListener("click", () => {
+    pushCanvasUndo();
+    let changed = 0;
+    overlay.querySelectorAll("[data-link]").forEach((input) => {
+      const link = links[Number(input.dataset.link)];
+      const next = input.value.trim();
+      if (!link || next === link.value) return;
+      const entry = entryByUid(link.uid);
+      if (!entry) return;
+      entry.slots = entry.slots || {};
+      entry.slots[link.slotId] = next;
+      markEntrySlotExplicit(entry, link.slotId);
+      changed += 1;
+    });
+    close();
+    if (changed) {
+      renderCanvas(); renderInspector(); scheduleLivePreview();
+      flashCanvasHint(`Заменено ссылок: ${changed}`);
+    }
+  });
+}
+
+document.getElementById("linksBtn")?.addEventListener("click", openLinksDialog);
