@@ -21,6 +21,48 @@ const INDEX_PATH = path.join(PREVIEW_ROOT, "index.json");
 
 let cache = { mtimeMs: -1, index: { blocks: {} } };
 
+function parseHexColor(value) {
+  const match = String(value || "").trim().match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+  if (!match) return null;
+  const full = match[1].length === 3
+    ? match[1].split("").map((char) => char + char).join("")
+    : match[1];
+  const number = Number.parseInt(full, 16);
+  return [(number >> 16) & 255, (number >> 8) & 255, number & 255];
+}
+
+function relativeLuminance(rgb) {
+  if (!rgb) return null;
+  const linear = rgb.map((channel) => {
+    const value = channel / 255;
+    return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+  });
+  return (0.2126 * linear[0]) + (0.7152 * linear[1]) + (0.0722 * linear[2]);
+}
+
+/**
+ * Transparent light-text atoms are nearly invisible on the renderer's white
+ * technical section. Give only their screenshot wrapper a dark backdrop;
+ * this metadata never enters the real email or the constructor slot values.
+ */
+export function previewBackdropForBlock(block) {
+  const slots = Array.isArray(block?.slots) ? block.slots : [];
+  const hasOwnSurface = slots.some((slot) =>
+    slot?.kind === "color" && /(?:background|surface|(?:^|_)bg(?:_|$))/i.test(String(slot?.id || ""))
+  );
+  if (hasOwnSurface) return "";
+
+  const textColors = slots
+    .filter((slot) => slot?.kind === "color" && /^(?:color|text_?color|font_?color)$/i.test(String(slot?.id || "")))
+    .map((slot) => relativeLuminance(parseHexColor(slot?.default)))
+    .filter((value) => Number.isFinite(value));
+  // Contrast of white against a foreground with luminance L is
+  // 1.05 / (L + .05). Below 3:1 the thumbnail is not legible.
+  return textColors.some((luminance) => 1.05 / (luminance + 0.05) < 3)
+    ? "#101314"
+    : "";
+}
+
 /** Exact source identity used by both the renderer and the release gate. */
 export function blockPreviewSourceHash(block) {
   const identity = [
@@ -31,6 +73,8 @@ export function blockPreviewSourceHash(block) {
     block?.version || 0,
     block?.appearance || {},
   ];
+  const previewBackdrop = previewBackdropForBlock(block);
+  if (previewBackdrop) identity.push({ previewBackdrop });
   // Preserve existing hashes for atomic blocks while making recipe previews
   // correctly stale when their embedded composition changes.
   if (block?.combo === true || (Array.isArray(block?.children) && block.children.length)) {

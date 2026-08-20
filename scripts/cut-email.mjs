@@ -21,11 +21,12 @@
  *
  * СОСТОЯНИЕ: разбор и сверка с библиотекой работают, `--apply` пока НЕ проходит
  * пиксельную проверку (см. scripts/verify-cut.mjs, он откатывает созданное).
- * Осталось одно расхождение на `mail-tools` (тёмная панель +36px, большая
- * карточка −185px): в секции из НЕСКОЛЬКИХ рядов содержимое раскладывается по
- * рядам не в том порядке — замерено поэлементно, порядок узлов в собранном
- * письме отличается от оригинала. Чинить надо нумерацию зон.
- * Пока это не сведено к нулю, пользоваться стоит только сухим прогоном.
+ На `mail-tools` расхождение доведено с 2218px до 78px (0.003%): высоты
+ * совпадают, структура совпадает, остаётся кромка кнопок. Причина известна:
+ * в письме у `.butt` скругление 16px, а блок ставит своё 12px, и слот его не
+ * перебивает — правило блока приходит с `!important`. Лечится поблочно, огулом
+ * вычищать нельзя (пробовал: ломается уже проверенная нарезка strategies).
+ * Пока не сведено к нулю, пользоваться стоит только сухим прогоном.
  */
 import { readFileSync, writeFileSync, existsSync, readdirSync, rmSync } from "node:fs";
 import path from "node:path";
@@ -258,8 +259,12 @@ export function splitShellAndContent(sectionPug) {
       && (STRUCTURAL.has(kids[0].tag) || (kids[0].tag === "div" && kids[0].children.length));
     if (chain) { walk(kids[0]); return; }
     if (kids.every((k) => STRUCTURAL.has(k.tag)) && kids.length > 1) {
-      // Несколько рядов каркаса (два `tr` у тёмной панели) — у каждого своя зона.
-      for (const kid of kids) walk(kid);
+      // Несколько РЯДОВ (`tr`) — у каждого своя зона: так устроена тёмная
+      // панель, где картинка сверху и текст снизу лежат в разных рядах.
+      if (kids.every((k) => k.tag === "tr")) { for (const kid of kids) walk(kid); return; }
+      // Несколько ЯЧЕЕК в одном ряду — это одна вёрстка в две колонки
+      // (номер шага и текст рядом с ним), и рвать её на зоны нельзя: куски
+      // расползались по рядам, письмо съезжало на 310px.
       return;
     }
     zones.push({ node, children: kids });
@@ -316,8 +321,12 @@ export function extractValues(pug) {
   for (const line of pug.split("\n")) {
     const body = line.trim();
     if (!body || body.startsWith("//")) continue;
-    const text = body.replace(/^[^\s(]+(\([\s\S]*?\))?\s*/, "").trim();
-    if (text) texts.push(text);
+    // Пробелы после тега сохраняем: в письме местами стоит два пробела перед
+    // текстом, и схлопывание сдвигало центрированную надпись на кнопке —
+    // 78 различающихся пикселей по краям букв.
+    const head = body.match(/^[^\s(]+(\([\s\S]*?\))?/)?.[0] || "";
+    const text = body.slice(head.length).replace(/^ /, "");
+    if (text.trim()) texts.push(text);
   }
   return { images, links, texts };
 }
@@ -342,8 +351,8 @@ export function pugWithSlots(pug) {
     const body = line.trim();
     if (!body || body.startsWith("//")) return line;
     const head = body.match(/^[^\s(]+(\([\s\S]*?\))?/)?.[0] || "";
-    const text = body.slice(head.length).trim();
-    if (!text) return line;
+    const text = body.slice(head.length).replace(/^ /, "");
+    if (!text.trim()) return line;
     const id = name("text", textAt++);
     slots.push({ id, kind: "richText", label: "Текст", default: text, uiGroup: "content" });
     return `${line.match(/^\s*/)[0]}${head} {{ ${id} }}`;
@@ -358,7 +367,41 @@ export function pugWithSlots(pug) {
  * ссылки к ссылкам, тексты к текстам. Если чего-то не хватает, слот остаётся
  * со своим значением по умолчанию — а расхождение поймает пиксельная сверка.
  */
-export function slotValuesFor(block, pug) {
+/**
+ * Слоты, значение которых лежит не в разметке, а в CSS письма.
+ *
+ * Скругление кнопки, цвет фона, цвет текста — блок отдаёт их слотами, но в
+ * письме они заданы классом. Без переноса блок вставал со своим значением по
+ * умолчанию: у кнопки было 12px вместо 16px, и по нижней кромке набегало
+ * 78 различающихся пикселей.
+ */
+const CSS_SLOTS = Object.freeze({
+  radius: "border-radius",
+  background_color: "background-color",
+  color: "color",
+  border: "border",
+});
+
+/** Значение свойства из CSS письма для классов куска (побеждает последнее). */
+function cssValueForPiece(pug, property, byClass) {
+  if (!byClass) return null;
+  const classes = [...pug.matchAll(/^\s*[^\s(]*?\.([a-zA-Z][\w-]*)/gm)].map((m) => m[1]);
+  let best = null;
+  for (const cls of new Set(classes)) {
+    for (const rule of byClass.get(cls) || []) {
+      if (rule.media) continue; // мобильное переопределение — не базовое значение
+      for (const decl of rule.decls.split(";")) {
+        const [prop, ...rest] = decl.split(":");
+        if (prop.trim() !== property) continue;
+        const value = rest.join(":").replace(/!important/g, "").trim();
+        if (!best || rule.order > best.order) best = { order: rule.order, value };
+      }
+    }
+  }
+  return best?.value || null;
+}
+
+export function slotValuesFor(block, pug, byClass = null) {
   const { images, links, texts } = extractValues(pug);
   const values = {};
 
@@ -378,6 +421,26 @@ export function slotValuesFor(block, pug) {
     const height = /^h-(\d{1,3})$/.exec(cls);
     if (height && has("height") && values.height === undefined) values.height = `${height[1]}px`;
   }
+  // Отступ, заданный инлайном, тоже считается.
+  for (const [, prop, value] of pug.matchAll(/padding-(top|bottom|left|right)\s*:\s*([^;"')]+)/g)) {
+    const id = `padding_${prop}`;
+    if (has(id) && values[id] === undefined) values[id] = value.trim();
+  }
+  // Отступа в письме НЕТ — значит он нулевой, а не «как в блоке по умолчанию».
+  // Блок несёт своё значение (например 16px у заголовка), и без этого шага
+  // оно подставлялось туда, где в оригинале отступа не было: первый абзац
+  // головы получал лишние 16px, картинка — лишние 20px.
+  for (const slot of block.slotDefs || []) {
+    if (!/^padding_(top|bottom|left|right)$/.test(slot.id)) continue;
+    if (values[slot.id] === undefined) values[slot.id] = "0";
+  }
+  // Значения, заданные в CSS письма (скругление, цвета).
+  for (const [slotId, property] of Object.entries(CSS_SLOTS)) {
+    if (!has(slotId) || values[slotId] !== undefined) continue;
+    const value = cssValueForPiece(pug, property, byClass);
+    if (value) values[slotId] = value;
+  }
+
   // Выравнивание кнопки: в письме атрибутом, в блоке слотом.
   const align = pug.match(/\balign\s*=\s*(["\'])(left|center|right)\1/);
   if (align && has("align")) values.align = align[2];
@@ -454,6 +517,18 @@ function matchParts(parts, byHash, depth = 0) {
   return out;
 }
 
+/** Разобрать куски по рядам секции, сохранив порядок рядов и порядок внутри. */
+function matchByZone(parts, byHash) {
+  const zones = [...new Set(parts.map((p) => p.zone || 1))].sort((a, b) => a - b);
+  const out = [];
+  for (const zone of zones) {
+    for (const node of matchParts(parts.filter((p) => (p.zone || 1) === zone), byHash)) {
+      out.push({ ...node, zone });
+    }
+  }
+  return out;
+}
+
 /** План разбора письма: что берём готовым, что заводим заново. */
 export function planCut(brand, mail) {
   const { file, source } = readMailTemplate(brand, mail);
@@ -477,7 +552,12 @@ export function planCut(brand, mail) {
       head: describe(section),
       block: shellHit || null,
       pug: parts.length ? shell : section,
-      children: parts.length ? matchParts(parts, byHash) : [],
+      // Сопоставляем ПО ЗОНАМ, а не по общему списку. Группировка соседей
+      // (два `.left-block`/`.right-block` = один двойной блок) иначе склеивает
+      // куски из РАЗНЫХ рядов секции, и содержимое расползается по рядам не
+      // туда. Замерено поэлементно: в собранном письме узлы шли в другом
+      // порядке, отсюда были +36px у тёмной панели и −185px у карточки.
+      children: parts.length ? matchByZone(parts, byHash) : [],
     };
   });
 
@@ -514,6 +594,35 @@ const INK_LAYOUT = new Set(["row", "columns", "column", "wrapper", "last", "cont
  * строка — обычно каркас (`table.w100`), а класс-утилита выброшен, и имя
  * получалось вроде `iqbr-w100`, по которому потом ничего не найти.
  */
+/** Убрать общий отступ куска: блок должен начинаться с нулевого уровня. */
+export function dedent(pug) {
+  const lines = String(pug || "").split("\n");
+  const indents = lines.filter((l) => l.trim()).map((l) => l.match(/^\s*/)[0].length);
+  const shift = indents.length ? Math.min(...indents) : 0;
+  return lines.map((l) => (l.trim() ? l.slice(shift) : "")).join("\n").replace(/\n{3,}/g, "\n\n");
+}
+
+/**
+ * Убрать блоки, заведённые прошлым прогоном для ЭТОГО письма.
+ *
+ * Иначе новый прогон находит их в библиотеке, считает готовыми и ничего не
+ * создаёт: план выглядит пустым, а в письмо идут блоки старой версии. Чистить
+ * надо ДО разбора, иначе разбор успевает на них сослаться.
+ */
+export function forgetPreviousCut(brand, mail) {
+  let removed = 0;
+  for (const file of readdirSync(CANONICAL).filter((f) => f.endsWith(".json"))) {
+    let block = null;
+    try { block = JSON.parse(readFileSync(path.join(CANONICAL, file), "utf8")); } catch { continue; }
+    const note = String(block?.note || "");
+    if (note.includes(`${brand}/${mail}`) && (block.tags || []).includes("auto")) {
+      rmSync(path.join(CANONICAL, file), { force: true });
+      removed += 1;
+    }
+  }
+  return removed;
+}
+
 function slugFor(pug, taken) {
   const classes = [...pug.matchAll(/^\s*[^\s(]*?\.([a-zA-Z][\w-]*)/gm)].map((m) => m[1]);
   const meaningful = classes.find((c) => !UTILITY_CLASS.test(c) && !INK_LAYOUT.has(c));
@@ -553,7 +662,11 @@ function applyCut(plan, { brandTag = "iqbroker" } = {}) {
       return;
     }
     const isContainer = (node.children || []).length > 0;
-    const { pug, slots } = pugWithSlots(node.pug);
+    // Кусок вырезан из середины письма и несёт его отступ. Если оставить,
+    // при вставке в контейнер отступы складываются, и Pug считает вложенное
+    // ТЕКСТОМ, а не разметкой: шаги просто не попадали в письмо, хотя в
+    // исходнике блока были на месте. Поэтому выравниваем к нулю.
+    const { pug, slots } = pugWithSlots(dedent(node.pug));
     const id = slugFor(node.pug, taken);
     // Маркеры зон уже стоят в оболочке — по одному на ряд. Если их нет
     // (содержимое было одним куском), добавляем один в конец.
@@ -603,7 +716,7 @@ function applyCut(plan, { brandTag = "iqbroker" } = {}) {
     const id = `u${++uid}`;
     const values = node.createdSlots
       ? Object.fromEntries(node.createdSlots.map((sl) => [sl.id, sl.default]))
-      : slotValuesFor(node.block, node.pug);
+      : slotValuesFor(node.block, node.pug, byClass);
     blocks.push({ uid: id, blockId: node.block.id, parentUid, slotId, slots: values });
     const slots = node.block.childSlots || [];
     for (const child of node.children || []) {
@@ -628,6 +741,10 @@ function main() {
   const mail = opt("mail");
   if (!mail) { console.error("нужен --mail <имя>"); process.exit(1); }
 
+  if (flag("apply")) {
+    const forgotten = forgetPreviousCut(brand, mail);
+    if (forgotten) console.log(`убраны блоки прошлого прогона: ${forgotten}\n`);
+  }
   const plan = planCut(brand, mail);
   if (flag("json")) { console.log(JSON.stringify(plan, (k, v) => (k === "shape" ? undefined : v), 2)); return; }
   printPlan(plan);

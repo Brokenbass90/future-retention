@@ -12,7 +12,7 @@
  *   node scripts/cut-email.mjs --brand X_IQBroker --mail tools --apply
  *   node scripts/verify-cut.mjs --brand X_IQBroker --mail tools
  */
-import { readFileSync, existsSync, rmSync } from "node:fs";
+import { readFileSync, readdirSync, existsSync, rmSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import url from "node:url";
@@ -44,13 +44,27 @@ function build(category, name) {
   return r.status === 0;
 }
 
+/**
+ * Откат: убрать блоки, заведённые нарезкой ЭТОГО письма.
+ *
+ * Список из плана недостаточен. Повторный прогон `--apply` находит блоки
+ * прошлой (неудачной) попытки уже в библиотеке и ничего не создаёт — список
+ * пуст, а мусор остаётся. Поэтому смотрим ещё и на пометку в самом блоке.
+ */
 function rollback(why) {
   console.error(`\n✗ ${why}`);
-  for (const id of plan.created || []) {
-    const file = path.join(repoRoot, "data", "block-library", "canonical", `${id}.json`);
-    try { rmSync(file, { force: true }); } catch { /* уже нет */ }
+  const canonical = path.join(repoRoot, "data", "block-library", "canonical");
+  const doomed = new Set(plan.created || []);
+  for (const file of readdirSync(canonical).filter((f) => f.endsWith(".json"))) {
+    let block = null;
+    try { block = JSON.parse(readFileSync(path.join(canonical, file), "utf8")); } catch { continue; }
+    const note = String(block?.note || "");
+    if (note.includes(`${brand}/${mail}`) && (block.tags || []).includes("auto")) doomed.add(block.id);
   }
-  console.error(`откачено блоков: ${(plan.created || []).length}`);
+  for (const id of doomed) {
+    try { rmSync(path.join(canonical, `${id}.json`), { force: true }); } catch { /* уже нет */ }
+  }
+  console.error(`откачено блоков: ${doomed.size}${doomed.size ? ` (${[...doomed].join(", ")})` : ""}`);
   process.exit(1);
 }
 

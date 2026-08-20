@@ -58,8 +58,8 @@ spacer(outer);
 /* Карточка 1: две колонки со списками */
 {
   const card = add("iqbr-section-bordered", outer, "sections", { border: "4px solid #1A1D1E", background_color: "" });
-  add("iqbr-title-middle", card, "content", { text: T(5), color: "#ECECED" });
-  add("iqbr-text-gray", card, "content", { text: T(6), color: "#A6A6AB" });
+  add("iqbr-title-middle", card, "content", { text: T(5), color: "#ECECED", padding_bottom: "12px" });
+  add("iqbr-text-gray", card, "content", { text: T(6), color: "#A6A6AB", padding_bottom: "32px" });
   add("iqbr-image", card, "content", { image: IMG("oj8ggnfnh4cs77a0/strategies-1.png"), href: "#", alt: "", padding_bottom: "20px" });
 
   const cols = add("iqbr-two-columns", card, "content", {});
@@ -78,8 +78,8 @@ spacer(outer);
 /* Карточка 2: список из двух пунктов */
 {
   const card = add("iqbr-section-bordered", outer, "sections", { border: "4px solid #1A1D1E", background_color: "" });
-  add("iqbr-title-middle", card, "content", { text: T(16), color: "#ECECED" });
-  add("iqbr-text-gray", card, "content", { text: T(17), color: "#A6A6AB" });
+  add("iqbr-title-middle", card, "content", { text: T(16), color: "#ECECED", padding_bottom: "12px" });
+  add("iqbr-text-gray", card, "content", { text: T(17), color: "#A6A6AB", padding_bottom: "32px" });
   add("iqbr-block-title", card, "content", { text: T(18), color: "#ECECED", padding_bottom: "12px" });
   add("iqbr-image", card, "content", { image: IMG("ojvvhhgea139uk1g/strategies-4.png"), href: "#", alt: "", padding_bottom: "32px" });
   add("iqbr-list-2", card, "content", { item_1: T(19), item_2: T(20) });
@@ -91,8 +91,8 @@ spacer(outer);
 /* Карточка 3: сравнение двух сценариев */
 {
   const card = add("iqbr-section-bordered", outer, "sections", { border: "4px solid #1A1D1E", background_color: "" });
-  add("iqbr-title-middle", card, "content", { text: T(22), color: "#ECECED" });
-  add("iqbr-text-gray", card, "content", { text: T(23), color: "#A6A6AB" });
+  add("iqbr-title-middle", card, "content", { text: T(22), color: "#ECECED", padding_bottom: "12px" });
+  add("iqbr-text-gray", card, "content", { text: T(23), color: "#A6A6AB", padding_bottom: "32px" });
 
   const cols = add("iqbr-two-columns", card, "content", {});
   add("iqbr-block-title", cols, "left", { text: T(24), color: "#ECECED", padding_bottom: "16px" });

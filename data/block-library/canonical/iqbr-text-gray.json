@@ -5,8 +5,8 @@
   "placement": "inner",
   "category": "text",
   "version": 1,
-  "pug": "p.iqbr-text-gray--gray-text.iqbr-text-gray--pb32(style=\"color:{{ color }}\") {{ text }}",
-  "styl": ".iqbr-text-gray--pb32{padding-bottom:32px}\n.iqbr-text-gray--gray-text{font-family:Helvetica !important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#a6a6ab}",
+  "pug": "p.iqbr-text-gray--gray-text(style=\"color:{{ color }};padding-bottom:{{ padding_bottom }}\") {{ text }}",
+  "styl": ".iqbr-text-gray--gray-text{font-family:Helvetica !important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#a6a6ab}",
   "slots": [
     {
       "id": "text",
@@ -20,6 +20,20 @@
       "kind": "color",
       "label": "Цвет",
       "default": "#A6A6AB",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "padding_bottom",
+      "kind": "select",
+      "label": "Отступ снизу",
+      "default": "32px",
+      "options": [
+        "0",
+        "8px",
+        "16px",
+        "24px",
+        "32px"
+      ],
       "uiGroup": "appearance"
     }
   ],

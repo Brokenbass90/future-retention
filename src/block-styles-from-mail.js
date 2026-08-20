@@ -80,6 +80,54 @@ function rulesFor(byClass, blockId, cls, allowed) {
 }
 
 /**
+ * Свойства, которыми управляют слоты блока.
+ *
+ * Если такое свойство осталось ещё и в CSS блока, слот бессилен: правило из
+ * семьи приходит с `!important` и бьёт инлайновый стиль. Видно на кнопке:
+ * скругление слота 16px не применяется, в письме остаётся 12px из CSS.
+ *
+ * ПОКА НЕ ПРИМЕНЯЕТСЯ — две попытки, оба замера здесь.
+ *
+ * 1. Вычистка скругления и фона: `mail-strategies` сломалась с 0 до 58/52px.
+ * 2. Вычистка одного скругления: та же поломка, 58/52px. Причина понятна из
+ *    сборки — у скелета письма своё `.butt{border-radius:16px !important}`,
+ *    и стоит блоку перестать нести своё значение, побеждает чужое.
+ *
+ * Инлайновый `!important` в разметке блока тоже не помогает: инлайнер стилей
+ * (juice) отдаёт приоритет `!important` из таблицы стилей, а не из атрибута.
+ * Рабочий путь, судя по всему, другой — не тащить в блок глобальный класс
+ * `.butt` вовсе, оставив только скоуп. Но это меняет базу от ink, поэтому
+ * делать надо с отдельной пиксельной проверкой, а не походя.
+ */
+export const SLOT_GOVERNED = Object.freeze({
+  radius: "border-radius",
+});
+// Список намеренно короткий. Отступы и фон сюда НЕ входят: пробовал — у части
+// блоков отступ живёт классом, а фон приходит из семьи, и вычистка ломала уже
+// проверенную нарезку strategies (0 → 58px). Осталось только скругление,
+// которое блок всегда задаёт сам и инлайном.
+
+/** Выбросить из CSS объявления, которыми распоряжается слот. */
+export function dropSlotGovernedDeclarations(css, slotIds = []) {
+  const properties = new Set(slotIds.map((id) => SLOT_GOVERNED[id]).filter(Boolean));
+  if (!properties.size) return css;
+  return String(css || "").split("\n").map((line) => {
+    const at = line.indexOf("{");
+    if (at < 0) return line;
+    const head = line.slice(0, at + 1);
+    const tail = line.slice(at + 1);
+    const close = tail.lastIndexOf("}");
+    const body = close >= 0 ? tail.slice(0, close) : tail;
+    const rest = close >= 0 ? tail.slice(close) : "";
+    const kept = body.split(";").filter((decl) => {
+      const prop = decl.split(":")[0]?.trim();
+      return prop && !properties.has(prop);
+    });
+    return kept.length ? `${head}${kept.join(";")}${rest}` : "";
+  }).filter(Boolean).join("\n");
+}
+
+/**
  * Заскоупить разметку блока и собрать его CSS.
  * @returns {{pug: string, styl: string, keptGlobal: string[], missing: string[]}}
  */

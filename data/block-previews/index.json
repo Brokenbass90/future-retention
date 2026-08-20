@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-08T05:33:21.686Z",
+  "generatedAt": "2026-08-20T07:11:17.236Z",
   "blocks": {
     "canonical:iq-hero-image": {
       "id": "iq-hero-image",
@@ -22417,7 +22417,7 @@
       "label": "Подзаголовок блока (IQ Broker)",
       "placement": "inner",
       "category": "text",
-      "hash": "d5dcfca850114902",
+      "hash": "388c552c549257d3",
       "shots": {
         "desktop": {
           "file": "data/block-previews/canonical/iqbr-block-title.desktop.png",
@@ -22434,9 +22434,12 @@
         "width": 600,
         "height": 47,
         "mobileHeight": 47,
-        "background": "#fefefe",
+        "background": "#101314",
         "palette": [
-          "#fefefe"
+          "#101314",
+          "#ebebec",
+          "#d0d1d2",
+          "#292c2d"
         ],
         "images": 0,
         "links": 0,
@@ -22895,7 +22898,7 @@
       "label": "Серый абзац (IQ Broker)",
       "placement": "inner",
       "category": "text",
-      "hash": "632987001f76f4a9",
+      "hash": "020fab3819dbe2db",
       "shots": {
         "desktop": {
           "file": "data/block-previews/canonical/iqbr-text-gray.desktop.png",
@@ -22912,12 +22915,12 @@
         "width": 600,
         "height": 59,
         "mobileHeight": 59,
-        "background": "#ffffff",
+        "background": "#101314",
         "palette": [
-          "#ffffff",
-          "#aaaaaf",
-          "#cfcfd2",
-          "#bebec2"
+          "#101314",
+          "#a5a5aa",
+          "#8f9094",
+          "#2d2f31"
         ],
         "images": 0,
         "links": 0,
@@ -22939,7 +22942,7 @@
       "label": "Заголовок карточки (IQ Broker)",
       "placement": "inner",
       "category": "text",
-      "hash": "01513963fe72597f",
+      "hash": "e2c7c3a731274390",
       "shots": {
         "desktop": {
           "file": "data/block-previews/canonical/iqbr-title-middle.desktop.png",
@@ -22956,9 +22959,12 @@
         "width": 600,
         "height": 54,
         "mobileHeight": 44,
-        "background": "#fefefe",
+        "background": "#101314",
         "palette": [
-          "#fefefe"
+          "#101314",
+          "#ebeced",
+          "#d2d2d3",
+          "#b0b1b2"
         ],
         "images": 0,
         "links": 0,
@@ -23025,7 +23031,7 @@
       "label": "Комбо: Карточка с двумя колонками и кнопкой",
       "placement": "section",
       "category": "layout",
-      "hash": "fb8092600b40f790",
+      "hash": "b7c69c1d067b170c",
       "shots": {
         "desktop": {
           "file": "data/block-previews/canonical/iqbr-combo-card-columns.desktop.png",
@@ -23073,7 +23079,7 @@
       "label": "Комбо: Карточка «плюс и минус» с кнопкой",
       "placement": "section",
       "category": "layout",
-      "hash": "288484b025975b2f",
+      "hash": "ec46f20e0a8e0532",
       "shots": {
         "desktop": {
           "file": "data/block-previews/canonical/iqbr-combo-card-compare.desktop.png",
@@ -23120,7 +23126,7 @@
       "label": "Комбо: Карточка со списком и кнопкой",
       "placement": "section",
       "category": "layout",
-      "hash": "0d712e6963aef427",
+      "hash": "fa94c94d4d617dcd",
       "shots": {
         "desktop": {
           "file": "data/block-previews/canonical/iqbr-combo-card-list.desktop.png",
@@ -23262,7 +23268,7 @@
       "label": "Комбо: Карточка с обводкой (заголовок + текст)",
       "placement": "section",
       "category": "layout",
-      "hash": "f38549d128f8718c",
+      "hash": "8b1827ee33d9a800",
       "shots": {
         "desktop": {
           "file": "data/block-previews/canonical/iqbr-combo-intro-card.desktop.png",
@@ -23282,9 +23288,9 @@
         "background": "#02090e",
         "palette": [
           "#02090e",
-          "#efefef",
-          "#a6a7ab",
-          "#8e8f93"
+          "#efeff0",
+          "#a7a8ac",
+          "#8d8e92"
         ],
         "images": 0,
         "links": 0,
@@ -23448,7 +23454,7 @@
       "label": "Белый абзац (IQ Broker)",
       "placement": "inner",
       "category": "text",
-      "hash": "d43693cd582e0778",
+      "hash": "ed698aadfd05dde4",
       "shots": {
         "desktop": {
           "file": "data/block-previews/canonical/iqbr-text-white.desktop.png",
@@ -23465,9 +23471,12 @@
         "width": 600,
         "height": 27,
         "mobileHeight": 27,
-        "background": "#ffffff",
+        "background": "#101314",
         "palette": [
-          "#ffffff"
+          "#101314",
+          "#fafafa",
+          "#a7a8a8",
+          "#d1d2d2"
         ],
         "images": 0,
         "links": 0,
@@ -23489,7 +23498,7 @@
       "label": "Крупный белый заголовок (IQ Broker)",
       "placement": "inner",
       "category": "text",
-      "hash": "c74a7e1dcd2d8183",
+      "hash": "978fee1d5d40cbcb",
       "shots": {
         "desktop": {
           "file": "data/block-previews/canonical/iqbr-title-white.desktop.png",
@@ -23506,9 +23515,12 @@
         "width": 600,
         "height": 132,
         "mobileHeight": 80,
-        "background": "#fefefe",
+        "background": "#101314",
         "palette": [
-          "#fefefe"
+          "#101314",
+          "#f8f8f8",
+          "#333536",
+          "#d0d0d0"
         ],
         "images": 0,
         "links": 0,

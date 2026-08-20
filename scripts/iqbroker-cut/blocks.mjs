@@ -260,10 +260,11 @@ html(xmlns="http://www.w3.org/1999/xhtml")
     description: "Крупный светлый заголовок внутри карточки, 32/42, на мобильном 26/32.",
     placement: "inner",
     category: "text",
-    pug: `p.middle-title.pb12(style="color:{{ color }}") {{ text }}`,
+    pug: `p.middle-title(style="color:{{ color }};padding-bottom:{{ padding_bottom }}") {{ text }}`,
     slots: [
       { id: "text", kind: "text", label: "Текст", default: "Заголовок", uiGroup: "content" },
       { id: "color", kind: "color", label: "Цвет", default: "#ECECED", uiGroup: "appearance" },
+      { id: "padding_bottom", kind: "select", label: "Отступ снизу", default: "12px", options: ["0", "8px", "12px", "16px", "24px", "32px"], uiGroup: "appearance" },
     ],
   },
   {
@@ -272,10 +273,11 @@ html(xmlns="http://www.w3.org/1999/xhtml")
     description: "Второстепенный текст внутри карточки, 18/27.",
     placement: "inner",
     category: "text",
-    pug: `p.gray-text.pb32(style="color:{{ color }}") {{ text }}`,
+    pug: `p.gray-text(style="color:{{ color }};padding-bottom:{{ padding_bottom }}") {{ text }}`,
     slots: [
       { id: "text", kind: "richText", label: "Текст", default: "Пояснение под заголовком.", uiGroup: "content" },
       { id: "color", kind: "color", label: "Цвет", default: "#A6A6AB", uiGroup: "appearance" },
+      { id: "padding_bottom", kind: "select", label: "Отступ снизу", default: "32px", options: ["0", "8px", "16px", "24px", "32px"], uiGroup: "appearance" },
     ],
   },
   {

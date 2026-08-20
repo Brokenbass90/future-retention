@@ -5,8 +5,8 @@
   "placement": "inner",
   "category": "text",
   "version": 1,
-  "pug": "p.iqbr-title-middle--middle-title.iqbr-title-middle--pb12(style=\"color:{{ color }}\") {{ text }}",
-  "styl": ".iqbr-title-middle--middle-title{font-family:Helvetica !important;font-style:normal;font-weight:700;font-size:32px;line-height:42px;color:#ececed}\n@media screen and (max-width: 600px){.iqbr-title-middle--middle-title{font-size:26px !important;line-height:32px !important}}\n.iqbr-title-middle--pb12{padding-bottom:12px !important}",
+  "pug": "p.iqbr-title-middle--middle-title(style=\"color:{{ color }};padding-bottom:{{ padding_bottom }}\") {{ text }}",
+  "styl": ".iqbr-title-middle--middle-title{font-family:Helvetica !important;font-style:normal;font-weight:700;font-size:32px;line-height:42px;color:#ececed}\n@media screen and (max-width: 600px){.iqbr-title-middle--middle-title{font-size:26px !important;line-height:32px !important}}",
   "slots": [
     {
       "id": "text",
@@ -20,6 +20,21 @@
       "kind": "color",
       "label": "Цвет",
       "default": "#ECECED",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "padding_bottom",
+      "kind": "select",
+      "label": "Отступ снизу",
+      "default": "12px",
+      "options": [
+        "0",
+        "8px",
+        "12px",
+        "16px",
+        "24px",
+        "32px"
+      ],
       "uiGroup": "appearance"
     }
   ],

@@ -66,6 +66,22 @@ function collectInlineStyleBytes(html) {
   return bytes;
 }
 
+/**
+ * Some downstream delivery tooling treats adjacent CSS braces as template
+ * delimiters. Separate them only inside <style> elements in <head>: content
+ * placeholders such as {{embedded.company_address}} and ${{ namespace.key }}$
+ * must remain byte-for-byte intact.
+ */
+function separateAdjacentCssBracesInStyleTags(html) {
+  return String(html || '').replace(
+    /(<head\b[^>]*>)([\s\S]*?)(<\/head>)/i,
+    (headMatch, openHead, headContent, closeHead) => `${openHead}${headContent.replace(
+      /(<style\b[^>]*>)([\s\S]*?)(<\/style>)/gi,
+      (styleMatch, openStyle, css, closeStyle) => `${openStyle}${css.replace(/\}\}/g, '} }').replace(/\{\{/g, '{ {')}${closeStyle}`,
+    )}${closeHead}`,
+  );
+}
+
 function analyzeEmailWeight(label, html) {
   return {
     label,
@@ -191,6 +207,27 @@ function compileStylus(stylPathAbs, includePathsAbs = [], autoImportsAbs = []) {
   });
 }
 
+/**
+ * Правила для элементов, которых в разметке письма нет: их подставляет сам
+ * почтовый клиент. Дописываются в head ПОСЛЕ вычистки CSS — иначе она их
+ * удалит, не найдя в HTML.
+ *
+ * Сейчас здесь один случай — эмодзи в Gmail. Клиент заменяет символ на
+ * картинку, а та наследует из базовых стилей `float:left` и `display:block`
+ * и уезжает на отдельную строку. Замерено в Chromium: без этих правил
+ * `display/float` у такой картинки — `block/left`, с ними — `inline/none`.
+ *
+ * Старый Gmail ставил атрибут `goomoji`, нынешний — класс `an1` и адрес
+ * `fonts.gstatic.com/s/e/notoemoji/…`. Ловим оба, иначе правило промахивается.
+ */
+const CLIENT_FIXES_CSS = `
+img[goomoji],img[data-goomoji],img[src*="goomoji"],
+img.an1,img[class~="an1"],img[src*="notoemoji"],img[src*="gstatic.com/s/e/"]{
+display:inline !important;float:none !important;clear:none !important;
+width:1em !important;height:1em !important;max-width:none !important;
+vertical-align:middle !important;margin:0 .05em !important}
+`.trim();
+
 function splitCss(cssText, { minifyHead = false } = {}) {
   // PostCSS split: keep media/supports/font-face/keyframes in <head>, rest for inlining
   const root = postcss.parse(cssText, { parser: safeParser });
@@ -223,6 +260,9 @@ function splitCss(cssText, { minifyHead = false } = {}) {
       // keep original if minify fails
     }
   }
+
+  if (headCss.trim()) headCss += `\n${CLIENT_FIXES_CSS}\n`;
+  else headCss = `${CLIENT_FIXES_CSS}\n`;
 
   return { headCss, inlineCss: inlineCssText };
 }
@@ -762,6 +802,8 @@ async function writeHtmlPair(dirAbs, htmlCompact, htmlPretty, { emitPretty = fal
     if (minifyHtml) {
       html = minifyHtmlText(html);
     }
+
+    html = separateAdjacentCssBracesInStyleTags(html);
 
     return { html, headCssFinal, inlineCssFinal };
   }

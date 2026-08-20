@@ -5,6 +5,7 @@ import {
   contentSamplingRect,
   previewKeysToPrune,
 } from "../src/block-preview-renderer-policy.js";
+import { previewBackdropForBlock } from "../src/block-previews.js";
 
 // A narrow block is sampled inside the fixed 600px screenshot, not across
 // the surrounding white column.
@@ -63,5 +64,18 @@ assert.deepEqual(
   [],
   "a partial --only render never owns enough context to prune",
 );
+
+assert.equal(previewBackdropForBlock({
+  slots: [{ id: "color", kind: "color", default: "#ECECED" }],
+}), "#101314", "transparent light text gets a contrast backdrop in screenshots");
+assert.equal(previewBackdropForBlock({
+  slots: [{ id: "color", kind: "color", default: "#393A44" }],
+}), "", "dark text remains on the normal light preview surface");
+assert.equal(previewBackdropForBlock({
+  slots: [
+    { id: "text_color", kind: "color", default: "#FFFFFF" },
+    { id: "background_color", kind: "color", default: "#FF5500" },
+  ],
+}), "", "a block with its own surface does not receive a wrapper override");
 
 console.log("block preview renderer policy: content bounds and source-safe pruning ok");

@@ -132,7 +132,8 @@
       "slotId": "content",
       "slots": {
         "text": "${{ strategies-iqbroker.block_05 }}$",
-        "color": "#ECECED"
+        "color": "#ECECED",
+        "padding_bottom": "12px"
       }
     },
     {
@@ -142,7 +143,8 @@
       "slotId": "content",
       "slots": {
         "text": "${{ strategies-iqbroker.block_06 }}$",
-        "color": "#A6A6AB"
+        "color": "#A6A6AB",
+        "padding_bottom": "32px"
       }
     },
     {
@@ -281,7 +283,8 @@
       "slotId": "content",
       "slots": {
         "text": "${{ strategies-iqbroker.block_16 }}$",
-        "color": "#ECECED"
+        "color": "#ECECED",
+        "padding_bottom": "12px"
       }
     },
     {
@@ -291,7 +294,8 @@
       "slotId": "content",
       "slots": {
         "text": "${{ strategies-iqbroker.block_17 }}$",
-        "color": "#A6A6AB"
+        "color": "#A6A6AB",
+        "padding_bottom": "32px"
       }
     },
     {
@@ -376,7 +380,8 @@
       "slotId": "content",
       "slots": {
         "text": "${{ strategies-iqbroker.block_22 }}$",
-        "color": "#ECECED"
+        "color": "#ECECED",
+        "padding_bottom": "12px"
       }
     },
     {
@@ -386,7 +391,8 @@
       "slotId": "content",
       "slots": {
         "text": "${{ strategies-iqbroker.block_23 }}$",
-        "color": "#A6A6AB"
+        "color": "#A6A6AB",
+        "padding_bottom": "32px"
       }
     },
     {
@@ -528,14 +534,14 @@
       "header": {
         "path": "app/templates/blocks/header.pug",
         "exists": true,
-        "bytes": 19271,
-        "sha256": "459d224ad55a62c424959f580713b55e8f5d26a998361c54f3987050a0b8cdf0"
+        "bytes": 19256,
+        "sha256": "afea0365b20d3036f6dc9be7709fd5df9e2175f1fd84498d50a6e5c6f6a10016"
       },
       "mainStyl": {
         "path": "app/styles/blocks/main.styl",
         "exists": true,
-        "bytes": 31303,
-        "sha256": "a3e49557ad9c7cd3dca83cf244853a409dc488df192124e52d977873d7576bff"
+        "bytes": 31003,
+        "sha256": "f8a8673bdabcc45965515e1f2f27dff8d4f943c1042af9104ec744e9e4b86979"
       },
       "footer": {
         "path": "app/templates/helpers/footer.pug",

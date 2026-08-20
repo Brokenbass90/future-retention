@@ -41,6 +41,8 @@ import {
 } from "./src/assembler.js";
 import { parseFigmaUrl, flattenFigmaLayers, fetchFigmaNodeData, inspectFigmaUrl, exportFigmaImages, browseFigmaFile, downloadImageBuffer, buildFigmaImportFromUrl } from "./src/figma.js";
 import { callOpenAiWithRetry, extractResponseText } from "./src/ai-client.js";
+import { callOllamaChat } from "./src/ollama-client.js";
+import { resolveStudioRuntimeFlags } from "./src/runtime-flags.js";
 import { placeholderizeHtml, fixLocaleTxt, translateLocaleTxt } from "./src/locale-ai.js";
 import { placeholderizePugSource } from "./src/pug-placeholderize.js";
 import { runAgent } from "./src/ai-agent.js";
@@ -156,16 +158,25 @@ const scenarioFixturesDir = path.join(studioDataDir, "scenarios");
 const legacyToolkitSnapshotPath = path.join(studioDataDir, "imports", "legacy-retention-tool-kit.snapshot.json");
 
 const port = Number(process.env.PORT || 3000);
-const openAiApiKey = process.env.OPENAI_API_KEY || "";
+const studioRuntimeFlags = resolveStudioRuntimeFlags(process.env);
+const configuredOpenAiApiKey = process.env.OPENAI_API_KEY || "";
+// Treat a disabled AI runtime exactly like an absent key throughout the old
+// OpenAI call sites. This gives public demo deployments a hard, central
+// no-spend switch rather than relying on every endpoint to remember a guard.
+const openAiApiKey = studioRuntimeFlags.aiEnabled ? configuredOpenAiApiKey : "";
 const openAiModel = process.env.OPENAI_MODEL || "gpt-4.1-mini";
 const openAiImageModel = process.env.OPENAI_IMAGE_MODEL || "gpt-image-2";
-const deepLApiKey = process.env.DEEPL_API_KEY || "";
+const ollamaBaseUrl = process.env.OLLAMA_BASE_URL || "http://127.0.0.1:11434";
+const ollamaModel = process.env.OLLAMA_MODEL || "";
+const ollamaConfigured = studioRuntimeFlags.aiEnabled && Boolean(ollamaModel);
+const configuredDeepLApiKey = process.env.DEEPL_API_KEY || "";
+const deepLApiKey = studioRuntimeFlags.aiEnabled ? configuredDeepLApiKey : "";
 const deepLApiUrl = process.env.DEEPL_API_URL || "https://api-free.deepl.com";
 const figmaApiToken = process.env.FIGMA_API_TOKEN || "";
 const figmaImportSecret = process.env.FIGMA_IMPORT_SECRET || "";
 const appAuthUser = process.env.APP_AUTH_USER || "";
 const appAuthPassword = process.env.APP_AUTH_PASSWORD || "";
-const appAuthEnabled = Boolean(appAuthUser && appAuthPassword);
+const appAuthEnabled = studioRuntimeFlags.authEnabled;
 // Build subprocesses compile author-provided Pug/Stylus. The portable-source
 // gate is the primary boundary; a minimal environment is defense in depth so
 // a compiler regression cannot expose server/API credentials.
@@ -1718,16 +1729,22 @@ function getProviderCatalog() {
       id: "openai",
       label: "OpenAI",
       available: Boolean(openAiApiKey),
-      status: openAiApiKey
-        ? `Configured: default ${modelRouting.default}, design ${modelRouting.designAnalysis}, draft ${modelRouting.draft}`
-        : "Needs OPENAI_API_KEY",
+      status: !studioRuntimeFlags.aiEnabled
+        ? "Disabled by STUDIO_AI_ENABLED/STUDIO_PUBLIC_DEMO"
+        : openAiApiKey
+          ? `Configured: default ${modelRouting.default}, design ${modelRouting.designAnalysis}, draft ${modelRouting.draft}`
+          : "Needs OPENAI_API_KEY",
       capabilities: ["chat", "vision", "structured output", "design ingest"]
     },
     {
       id: "deepl",
       label: "DeepL (translations only)",
       available: Boolean(deepLApiKey),
-      status: deepLApiKey ? `Configured: ${deepLApiUrl}` : "Needs DEEPL_API_KEY",
+      status: !studioRuntimeFlags.aiEnabled
+        ? "Disabled by STUDIO_AI_ENABLED/STUDIO_PUBLIC_DEMO"
+        : deepLApiKey
+          ? `Configured: ${deepLApiUrl}`
+          : "Needs DEEPL_API_KEY",
       capabilities: ["translations"]
     },
     {
@@ -1736,6 +1753,17 @@ function getProviderCatalog() {
       available: true,
       status: "Always available",
       capabilities: ["chat", "preview", "fallback"]
+    },
+    {
+      id: "ollama",
+      label: "Ollama (local)",
+      available: Boolean(ollamaConfigured),
+      status: !studioRuntimeFlags.aiEnabled
+        ? "Disabled by STUDIO_AI_ENABLED/STUDIO_PUBLIC_DEMO"
+        : ollamaModel
+          ? `Configured: ${ollamaModel} at ${ollamaBaseUrl}`
+          : "Needs OLLAMA_MODEL (OLLAMA_BASE_URL defaults to localhost)",
+      capabilities: ["chat", "structured draft", "translations", "local", "no API token cost"]
     },
     {
       id: "anthropic",
@@ -1751,13 +1779,6 @@ function getProviderCatalog() {
       status: "Planned adapter",
       capabilities: ["chat", "vision"]
     },
-    {
-      id: "local",
-      label: "Local model",
-      available: false,
-      status: "Planned adapter",
-      capabilities: ["classification", "cheap helpers"]
-    }
   ];
 }
 
@@ -1766,10 +1787,17 @@ function summarizeRuntimeConfig() {
     envFilePath: toStudioRelative(envFilePath),
     envFileLoaded: Boolean(envRuntime.loaded),
     envKeys: Array.isArray(envRuntime.keys) ? envRuntime.keys : [],
+    publicDemo: studioRuntimeFlags.publicDemo,
+    aiEnabled: studioRuntimeFlags.aiEnabled,
     openAiConfigured: Boolean(openAiApiKey),
+    openAiKeyPresent: Boolean(configuredOpenAiApiKey),
     openAiModel,
     openAiModelRouting: summarizeOpenAiModelRouting(),
+    ollamaConfigured,
+    ollamaModel,
+    ollamaBaseUrl,
     deepLConfigured: Boolean(deepLApiKey),
+    deepLKeyPresent: Boolean(configuredDeepLApiKey),
     deepLApiUrl,
     appAuthEnabled,
     persistenceMode: process.env.DYNO ? "ephemeral-heroku-filesystem" : "local-filesystem"
@@ -9969,11 +9997,12 @@ function resolveEffectiveProviderId(settings = {}) {
   const requested = cleanText(settings?.providerId);
 
   if (!requested) {
-    return openAiApiKey ? "openai" : "mock";
+    return openAiApiKey ? "openai" : ollamaConfigured ? "ollama" : "mock";
   }
 
-  if (requested === "mock" && openAiApiKey && !shouldForceMockProvider(settings)) {
-    return "openai";
+  if (requested === "mock" && !shouldForceMockProvider(settings)) {
+    if (openAiApiKey) return "openai";
+    if (ollamaConfigured) return "ollama";
   }
 
   return requested;
@@ -14436,6 +14465,55 @@ async function createOpenAiDiscussion(payload) {
   return { assistantReply: extractResponseText(data) || "Обсуждение готово." };
 }
 
+async function _ollamaCall({ input, format, label, timeoutMs }) {
+  const result = await callOllamaChat({
+    baseUrl: ollamaBaseUrl,
+    model: ollamaModel,
+    input,
+    format,
+    label,
+    timeoutMs,
+  });
+  _trackUsage(result.usage);
+  return result.text;
+}
+
+/**
+ * Local text-first draft path. It deliberately does not auto-run design
+ * vision: Ollama models vary widely in image support, while text prompts and
+ * an already prepared designAnalysis are deterministic inputs.
+ */
+async function createOllamaDraft(payload) {
+  const draftTask = resolveDraftTaskForPayload(payload);
+  const effectivePayload = hydratePayloadTemplateSelection(payload);
+  const schema = draftTask === "cloneEdit" ? cloneEditResponseSchema : responseSchema;
+  const rawText = await _ollamaCall({
+    input: await buildInputMessages(effectivePayload),
+    format: schema,
+    label: draftTask === "cloneEdit" ? "ollama-clone-edit" : "ollama-create-draft",
+    timeoutMs: draftTask === "cloneEdit" ? 300_000 : 180_000,
+  });
+  const parsed = extractStructuredJsonFromModelText(rawText);
+  if (parsed) {
+    return { ...parsed, design_analysis: effectivePayload.designAnalysis || null };
+  }
+  if (draftTask === "cloneEdit") {
+    const recovered = buildCloneEditResponseFromRawHtml(rawText, effectivePayload);
+    if (recovered) return { ...recovered, design_analysis: effectivePayload.designAnalysis || null };
+  }
+  throw new Error("Ollama draft response was not valid structured JSON");
+}
+
+async function createOllamaDiscussion(payload) {
+  const effectivePayload = hydratePayloadTemplateSelection(payload);
+  const assistantReply = await _ollamaCall({
+    input: await buildDiscussionMessages(effectivePayload),
+    label: "ollama-discussion",
+    timeoutMs: 180_000,
+  });
+  return { assistantReply: assistantReply || "Локальное обсуждение готово." };
+}
+
 async function createOpenAiDesignAnalysis(payload) {
   const effectivePayload = hydratePayloadTemplateSelection(payload);
   const inputMessages = await buildDesignAnalysisMessages(effectivePayload);
@@ -14647,6 +14725,23 @@ async function createOpenAiTranslations(payload, mail, sourceEntry, targetLocale
     translations: Array.isArray(parsed.translations)
       ? parsed.translations.map((entry) => normalizeTranslationEntry(entry, mail))
       : []
+  };
+}
+
+async function createOllamaTranslations(payload, mail, sourceEntry, targetLocales) {
+  const rawText = await _ollamaCall({
+    input: buildTranslationMessages(payload, sourceEntry, targetLocales),
+    format: translationResponseSchema,
+    label: "ollama-translations",
+    timeoutMs: 240_000,
+  });
+  const parsed = extractStructuredJsonFromModelText(rawText);
+  if (!parsed) throw new Error("Ollama translation response was not valid structured JSON");
+  return {
+    assistant_reply: cleanText(parsed.assistant_reply) || `Сгенерировал ${targetLocales.length} locale(s) локально.`,
+    translations: Array.isArray(parsed.translations)
+      ? parsed.translations.map((entry) => normalizeTranslationEntry(entry, mail))
+      : [],
   };
 }
 
@@ -15373,6 +15468,37 @@ async function resolveDiscussionResponse(payload) {
     }
   }
 
+  if (providerId === "ollama" && ollamaConfigured) {
+    try {
+      const discussion = await createOllamaDiscussion(payload);
+      return {
+        assistantReply: discussion.assistantReply,
+        mode: "ollama-discuss",
+        ...buildFigmaResponseMetadata(payload),
+        providerRuntime: createProviderRuntime({
+          providerId,
+          mode: "ollama-discuss",
+          liveAttempted: true,
+          liveUsed: true
+        })
+      };
+    } catch (error) {
+      const fallback = createMockDiscussion(payload, error.message);
+      return {
+        assistantReply: fallback.assistantReply,
+        mode: "mock-discuss",
+        ...buildFigmaResponseMetadata(payload),
+        providerRuntime: createProviderRuntime({
+          providerId,
+          mode: "mock-discuss",
+          liveAttempted: true,
+          fallback: true,
+          errorMessage: error.message
+        })
+      };
+    }
+  }
+
   if (providerId === "mock") {
     const discussion = createMockDiscussion(payload, "Mock provider selected in settings");
     return {
@@ -15397,6 +15523,21 @@ async function resolveDiscussionResponse(payload) {
         mode: "mock-discuss",
         fallback: true,
         errorMessage: "OPENAI_API_KEY is not configured on the server"
+      })
+    };
+  }
+
+  if (providerId === "ollama") {
+    const discussion = createMockDiscussion(payload, "OLLAMA_MODEL is not configured or Studio AI is disabled");
+    return {
+      assistantReply: discussion.assistantReply,
+      mode: "mock-discuss",
+      ...buildFigmaResponseMetadata(payload),
+      providerRuntime: createProviderRuntime({
+        providerId,
+        mode: "mock-discuss",
+        fallback: true,
+        errorMessage: "OLLAMA_MODEL is not configured or Studio AI is disabled"
       })
     };
   }
@@ -15470,6 +15611,31 @@ async function resolveDraftResponse(payload) {
         errorMessage: error.message
       });
     }
+  } else if (providerId === "ollama" && ollamaConfigured) {
+    try {
+      generated = await createOllamaDraft(payload);
+      effectivePayload = hydratePayloadTemplateSelection({
+        ...payload,
+        designAnalysis: normalizeDesignAnalysis(generated.design_analysis)
+      });
+      mode = "ollama";
+      providerRuntime = createProviderRuntime({
+        providerId,
+        mode,
+        liveAttempted: true,
+        liveUsed: true
+      });
+    } catch (error) {
+      generated = await createProjectAwareMockDraft(payload, error.message);
+      mode = "mock";
+      providerRuntime = createProviderRuntime({
+        providerId,
+        mode,
+        liveAttempted: true,
+        fallback: true,
+        errorMessage: error.message
+      });
+    }
   } else if (providerId === "mock") {
     generated = await createProjectAwareMockDraft(payload, "Mock provider selected in settings");
     mode = "mock";
@@ -15485,6 +15651,15 @@ async function resolveDraftResponse(payload) {
       mode,
       fallback: true,
       errorMessage: "OPENAI_API_KEY is not configured on the server"
+    });
+  } else if (providerId === "ollama") {
+    generated = await createProjectAwareMockDraft(payload, "OLLAMA_MODEL is not configured or Studio AI is disabled");
+    mode = "mock";
+    providerRuntime = createProviderRuntime({
+      providerId,
+      mode,
+      fallback: true,
+      errorMessage: "OLLAMA_MODEL is not configured or Studio AI is disabled"
     });
   } else {
     generated = await createProjectAwareMockDraft(payload, `${providerId} adapter is planned but not wired yet`);
@@ -16562,6 +16737,16 @@ async function generateMissingLocales(payload, existingDraft = null) {
         errorMessage: error.message
       });
     }
+  } else if (providerId === "ollama" && ollamaConfigured) {
+    try {
+      generated = await createOllamaTranslations(payload, baseMail, sourceEntry, targetLocales);
+      mode = "ollama-translations";
+      providerRuntime = createProviderRuntime({ providerId, mode, liveAttempted: true, liveUsed: true });
+    } catch (error) {
+      generated = createMockTranslations(payload, baseMail, sourceEntry, targetLocales, error.message);
+      mode = "mock-translations";
+      providerRuntime = createProviderRuntime({ providerId, mode, liveAttempted: true, fallback: true, errorMessage: error.message });
+    }
   } else if (providerId === "mock") {
     generated = createMockTranslations(payload, baseMail, sourceEntry, targetLocales, "Mock translation mode selected.");
     mode = "mock-translations";
@@ -16577,6 +16762,16 @@ async function generateMissingLocales(payload, existingDraft = null) {
       mode,
       fallback: true,
       errorMessage: "OPENAI_API_KEY is not configured on the server."
+    });
+  } else if (providerId === "ollama") {
+    const errorMessage = "OLLAMA_MODEL is not configured or Studio AI is disabled.";
+    generated = createMockTranslations(payload, baseMail, sourceEntry, targetLocales, errorMessage);
+    mode = "mock-translations";
+    providerRuntime = createProviderRuntime({
+      providerId,
+      mode,
+      fallback: true,
+      errorMessage
     });
   } else {
     generated = createMockTranslations(payload, baseMail, sourceEntry, targetLocales, `${providerId} adapter is planned but not wired yet.`);
@@ -16824,7 +17019,9 @@ const server = http.createServer(async (request, response) => {
         ok: true,
         service: "retention-future",
         node: process.version,
-        authEnabled: appAuthEnabled
+        authEnabled: appAuthEnabled,
+        aiEnabled: studioRuntimeFlags.aiEnabled,
+        publicDemo: studioRuntimeFlags.publicDemo
       });
       return;
     }
@@ -18836,6 +19033,12 @@ const server = http.createServer(async (request, response) => {
     }
 
     if (request.method === "POST" && request.url === "/api/batch/queue") {
+      if (!studioRuntimeFlags.aiEnabled || !openAiApiKey) {
+        sendJson(response, 503, {
+          error: "Batch draft generation is disabled: Studio AI or OPENAI_API_KEY is unavailable"
+        });
+        return;
+      }
       const body = await readRequestBody(request);
       const tasks = Array.isArray(body?.tasks) ? body.tasks : (body ? [body] : []);
 
@@ -19946,32 +20149,43 @@ try {
 }
 
 // ─── Startup: batch worker ───────────────────────────────────────────────────
-startWorker(async (job) => {
-  const { type, brief, locale, category, mailId } = job.payload;
+// The current batch implementation is OpenAI-specific. Do not let a public
+// demo or an AI-disabled runtime consume queued paid jobs in the background.
+if (studioRuntimeFlags.aiEnabled && openAiApiKey) {
+  startWorker(async (job) => {
+    const { type, brief, locale, category, mailId } = job.payload;
 
-  if (type === "generate-draft") {
-    // Build a minimal payload that createOpenAiDraft understands
-    const payload = {
-      brief: { ...brief, locale: locale || brief?.locale || "en", category, mailId },
-      currentDraft: null,
-      attachedImages: []
-    };
-    const result = await createOpenAiDraft(payload);
-    await appendStudioJournalEntry({
-      area: "batch",
-      title: `Batch job done: ${job.id}`,
-      message: `Generated draft for ${category}/${mailId || "new"}`
-    });
-    return result;
-  }
+    if (type === "generate-draft") {
+      // Build a minimal payload that createOpenAiDraft understands
+      const payload = {
+        brief: { ...brief, locale: locale || brief?.locale || "en", category, mailId },
+        currentDraft: null,
+        attachedImages: []
+      };
+      const result = await createOpenAiDraft(payload);
+      await appendStudioJournalEntry({
+        area: "batch",
+        title: `Batch job done: ${job.id}`,
+        message: `Generated draft for ${category}/${mailId || "new"}`
+      });
+      return result;
+    }
 
-  throw new Error(`Unknown batch job type: ${type}`);
-}, { pollMs: 800 });
+    throw new Error(`Unknown batch job type: ${type}`);
+  }, { pollMs: 800 });
+  console.log("[batch] OpenAI worker started");
+} else {
+  console.log("[batch] OpenAI worker disabled (AI disabled or OPENAI_API_KEY absent)");
+}
 
-console.log("[batch] Worker started");
-
-if ((appAuthUser || appAuthPassword) && !appAuthEnabled) {
+if ((appAuthUser || appAuthPassword) && !studioRuntimeFlags.hasAuthCredentials && studioRuntimeFlags.authAllowed) {
   console.warn("[security] APP_AUTH_USER and APP_AUTH_PASSWORD must both be set; application auth is disabled.");
+}
+
+if (studioRuntimeFlags.publicDemo) {
+  console.warn("[runtime] Public demo mode: Basic Auth and all AI providers are disabled.");
+} else if (!studioRuntimeFlags.aiEnabled) {
+  console.warn("[runtime] Studio AI is disabled by STUDIO_AI_ENABLED.");
 }
 
 server.listen(port, () => {

@@ -45,7 +45,7 @@ import { chromium } from "playwright-core";
 import { PNG } from "pngjs";
 
 import { composeEmailFromBlocks } from "../src/compose-email.js";
-import { blockPreviewSourceHash } from "../src/block-previews.js";
+import { blockPreviewSourceHash, previewBackdropForBlock } from "../src/block-previews.js";
 import { contentSamplingRect, previewKeysToPrune } from "../src/block-preview-renderer-policy.js";
 
 /* ─── Песочница/CI без root: локальные стабы системных библиотек ─────────── */
@@ -194,7 +194,11 @@ function buildSheetTree(blocks) {
     } else {
       // inner / inline / helper — кладём в стандартную секцию-обёртку.
       const wrapUid = nextUid("wrap");
-      entries.push({ uid: wrapUid, blockId: DEFAULT_SECTION, parentUid: rootUid, slotId: "sections", slots: {} });
+      const previewBackdrop = previewBackdropForBlock(b);
+      const wrapperSlots = previewBackdrop
+        ? { bg: "", background_color: previewBackdrop, border: "none", radius: "0" }
+        : {};
+      entries.push({ uid: wrapUid, blockId: DEFAULT_SECTION, parentUid: rootUid, slotId: "sections", slots: wrapperSlots });
       ownUid = nextUid("blk");
       entries.push({ uid: ownUid, blockId: b.id, source: b.source, parentUid: wrapUid, slotId: "content", slots: {} });
     }

@@ -28,6 +28,8 @@ try {
     "    table.card(role='presentation')",
     "      tr",
     "        td.card__cell Pipeline check",
+    "    p.system-placeholder {{embedded.company_address}}",
+    "    p.locale-placeholder ${{ untouched.namespace }}$",
   ].join("\n"));
 
   await put("X_Test/mail-css/app/styles/common.styl", [
@@ -79,6 +81,10 @@ try {
   assert.match(html, /<td[^>]+class="card__cell"[^>]+style="[^"]*padding:\s*12px 24px/i);
   assert.match(html, /<td[^>]+class="card__cell"[^>]+style="[^"]*letter-spacing:\s*1px/i);
   assert.match(head, /@media only screen and \(max-width:\s*600px\)/i);
+  // Правила для эмодзи Gmail дописываются после вычистки CSS: в разметке
+  // письма таких картинок нет, и вычистка удалила бы их как неиспользуемые.
+  assert.match(head, /img\[goomoji\]/i);
+  assert.match(head, /img\[src\*="notoemoji"\]/i);
   assert.match(head, /@media[\s\S]*\.card[\s\S]*width:\s*100%\s*!important/i);
   assert.match(head, /@supports\s*\(display:\s*grid\)/i);
   assert.match(head, /@font-face/i);
@@ -88,6 +94,32 @@ try {
   assert.doesNotMatch(head, /\.card\s*\{\s*background-color:\s*#e5e7eb/i);
   assert.match(regularBuild.stdout, /\[build\] CSS split: head=/);
   assert.match(regularBuild.stdout, /\[build\] Weight: largest HTML=/);
+  assert.match(html, /\{\{embedded\.company_address\}\}/,
+    "content placeholders outside <style> must remain untouched");
+  assert.match(html, /\$\{\{ untouched\.namespace \}\}\$/,
+    "localization placeholders outside <style> must remain untouched");
+
+  // Production uses minified head CSS. Nested at-rules normally end in `}}`,
+  // which must be separated for the downstream template pipeline without
+  // rewriting braces in the email body.
+  await execFileAsync(process.execPath, [
+    buildMailPath,
+    "--category", "X_Test",
+    "--mail", "css",
+    "--skip-locales",
+  ], { cwd: root, maxBuffer: 2 * 1024 * 1024 });
+  const compactHtml = await readFile(path.join(root, "dist/X_Test/mail-css/index.html"), "utf8");
+  const compactStyles = [...compactHtml.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)]
+    .map((match) => match[1]);
+  assert.ok(compactStyles.length > 0, "production build must retain head styles");
+  assert.ok(compactStyles.some((css) => css.includes("} }")),
+    "adjacent closing CSS braces must be separated inside <style>");
+  assert.ok(compactStyles.every((css) => !/[{}]{2}/.test(css)),
+    "no adjacent opening or closing braces may remain inside <style>");
+  assert.match(compactHtml, /\{\{embedded\.company_address\}\}/,
+    "post-build CSS normalization must not rewrite system placeholders");
+  assert.match(compactHtml, /\$\{\{ untouched\.namespace \}\}\$/,
+    "post-build CSS normalization must not rewrite localization placeholders");
 
   await put("X_Test/mail-heavy/app/templates/index.pug", [
     "doctype html",
