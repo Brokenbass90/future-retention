@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-20T07:11:17.236Z",
+  "generatedAt": "2026-09-08T18:30:53.421Z",
   "blocks": {
     "canonical:iq-hero-image": {
       "id": "iq-hero-image",
@@ -23624,9 +23624,801 @@
           "responsive"
         ]
       }
+    },
+    "canonical:sys-outer": {
+      "id": "sys-outer",
+      "source": "canonical",
+      "label": "Обёртка системного письма",
+      "placement": "outer",
+      "category": "wrapper",
+      "hash": "b97bbeba4750937f",
+      "shots": {
+        "desktop": {
+          "file": "data/block-previews/canonical/sys-outer.desktop.png",
+          "width": 700,
+          "height": 900
+        },
+        "mobile": {
+          "file": "data/block-previews/canonical/sys-outer.mobile.png",
+          "width": 375,
+          "height": 900
+        }
+      },
+      "signature": {
+        "width": 700,
+        "height": 900,
+        "mobileHeight": 900,
+        "background": "#fafafa",
+        "palette": [
+          "#fafafa",
+          "#393a44",
+          "#aeafb3",
+          "#73747b"
+        ],
+        "images": 0,
+        "links": 0,
+        "buttons": 0,
+        "listItems": 0,
+        "columns": 0,
+        "textChars": 0,
+        "responsive": true,
+        "ownMediaQueries": true,
+        "tags": [
+          "tall",
+          "responsive"
+        ]
+      }
+    },
+    "canonical:sys-button": {
+      "id": "sys-button",
+      "source": "canonical",
+      "label": "Кнопка",
+      "placement": "inner",
+      "category": "cta",
+      "hash": "d6b66fc7862eb19c",
+      "shots": {
+        "desktop": {
+          "file": "data/block-previews/canonical/sys-button.desktop.png",
+          "width": 600,
+          "height": 68
+        },
+        "mobile": {
+          "file": "data/block-previews/canonical/sys-button.mobile.png",
+          "width": 375,
+          "height": 68
+        }
+      },
+      "signature": {
+        "width": 600,
+        "height": 68,
+        "mobileHeight": 68,
+        "background": "#ff7700",
+        "palette": [
+          "#ff7700",
+          "#fffdfc",
+          "#ffb473",
+          "#ffc695"
+        ],
+        "images": 0,
+        "links": 1,
+        "buttons": 0,
+        "listItems": 0,
+        "columns": 1,
+        "textChars": 7,
+        "responsive": true,
+        "ownMediaQueries": true,
+        "tags": [
+          "link",
+          "short-text",
+          "responsive"
+        ]
+      }
+    },
+    "canonical:sys-callout": {
+      "id": "sys-callout",
+      "source": "canonical",
+      "label": "Подсвеченный блок",
+      "placement": "inner",
+      "category": "highlight",
+      "hash": "4b0d5333e7664033",
+      "shots": {
+        "desktop": {
+          "file": "data/block-previews/canonical/sys-callout.desktop.png",
+          "width": 600,
+          "height": 80
+        },
+        "mobile": {
+          "file": "data/block-previews/canonical/sys-callout.mobile.png",
+          "width": 375,
+          "height": 80
+        }
+      },
+      "signature": {
+        "width": 600,
+        "height": 80,
+        "mobileHeight": 80,
+        "background": "#e7f6ea",
+        "palette": [
+          "#e7f6ea",
+          "#393a44",
+          "#6a6f73",
+          "#3fb950"
+        ],
+        "images": 0,
+        "links": 0,
+        "buttons": 0,
+        "listItems": 0,
+        "columns": 1,
+        "textChars": 55,
+        "responsive": false,
+        "ownMediaQueries": false,
+        "tags": [
+          "short-text",
+          "fixed-width"
+        ]
+      }
+    },
+    "canonical:sys-divider": {
+      "id": "sys-divider",
+      "source": "canonical",
+      "label": "Разделительная линия",
+      "placement": "inner",
+      "category": "utility",
+      "hash": "5c7eb6fa76442a0c",
+      "shots": {
+        "desktop": {
+          "file": "data/block-previews/canonical/sys-divider.desktop.png",
+          "width": 600,
+          "height": 11
+        },
+        "mobile": {
+          "file": "data/block-previews/canonical/sys-divider.mobile.png",
+          "width": 375,
+          "height": 19
+        }
+      },
+      "signature": {
+        "width": 600,
+        "height": 11,
+        "mobileHeight": 19,
+        "background": "#ececed",
+        "palette": [
+          "#ececed"
+        ],
+        "images": 0,
+        "links": 0,
+        "buttons": 0,
+        "listItems": 0,
+        "columns": 1,
+        "textChars": 0,
+        "responsive": true,
+        "ownMediaQueries": false,
+        "tags": [
+          "responsive"
+        ]
+      }
+    },
+    "canonical:sys-footer": {
+      "id": "sys-footer",
+      "source": "canonical",
+      "label": "Футер: адрес, риск, условия, отписка",
+      "placement": "section",
+      "category": "footer",
+      "hash": "31a4eb5435cc98a0",
+      "shots": {
+        "desktop": {
+          "file": "data/block-previews/canonical/sys-footer.desktop.png",
+          "width": 600,
+          "height": 148
+        },
+        "mobile": {
+          "file": "data/block-previews/canonical/sys-footer.mobile.png",
+          "width": 375,
+          "height": 136
+        }
+      },
+      "signature": {
+        "width": 600,
+        "height": 148,
+        "mobileHeight": 136,
+        "background": "#f9f9f9",
+        "palette": [
+          "#f9f9f9",
+          "#6d7482",
+          "#cfd1d6",
+          "#acafb7"
+        ],
+        "images": 0,
+        "links": 2,
+        "buttons": 0,
+        "listItems": 0,
+        "columns": 1,
+        "textChars": 89,
+        "responsive": true,
+        "ownMediaQueries": true,
+        "tags": [
+          "link",
+          "short-text",
+          "responsive"
+        ]
+      }
+    },
+    "canonical:sys-image": {
+      "id": "sys-image",
+      "source": "canonical",
+      "label": "Картинка",
+      "placement": "inner",
+      "category": "media",
+      "hash": "f3567c55c4ceb930",
+      "shots": {
+        "desktop": {
+          "file": "data/block-previews/canonical/sys-image.desktop.png",
+          "width": 600,
+          "height": 320
+        },
+        "mobile": {
+          "file": "data/block-previews/canonical/sys-image.mobile.png",
+          "width": 375,
+          "height": 211
+        }
+      },
+      "signature": {
+        "width": 600,
+        "height": 320,
+        "mobileHeight": 211,
+        "background": "#e5e8ef",
+        "palette": [
+          "#e5e8ef",
+          "#a7b0c0",
+          "#c7ced9",
+          "#d3d8e3"
+        ],
+        "images": 1,
+        "links": 1,
+        "buttons": 0,
+        "listItems": 0,
+        "columns": 1,
+        "textChars": 0,
+        "responsive": true,
+        "ownMediaQueries": false,
+        "tags": [
+          "image",
+          "link",
+          "responsive"
+        ]
+      }
+    },
+    "canonical:sys-logo": {
+      "id": "sys-logo",
+      "source": "canonical",
+      "label": "Логотип",
+      "placement": "inner",
+      "category": "header",
+      "hash": "252e1a2d000d4d6c",
+      "shots": {
+        "desktop": {
+          "file": "data/block-previews/canonical/sys-logo.desktop.png",
+          "width": 600,
+          "height": 92
+        },
+        "mobile": {
+          "file": "data/block-previews/canonical/sys-logo.mobile.png",
+          "width": 375,
+          "height": 92
+        }
+      },
+      "signature": {
+        "width": 600,
+        "height": 92,
+        "mobileHeight": 92,
+        "background": "#f8f9fb",
+        "palette": [
+          "#f8f9fb",
+          "#a9b1c1",
+          "#d7dce5",
+          "#c7cdd9"
+        ],
+        "images": 1,
+        "links": 1,
+        "buttons": 0,
+        "listItems": 0,
+        "columns": 1,
+        "textChars": 0,
+        "responsive": false,
+        "ownMediaQueries": false,
+        "tags": [
+          "image",
+          "link",
+          "fixed-width"
+        ]
+      }
+    },
+    "canonical:sys-note": {
+      "id": "sys-note",
+      "source": "canonical",
+      "label": "Мелкий текст / дисклеймер",
+      "placement": "inner",
+      "category": "text",
+      "hash": "eee9e2f1f3ce1050",
+      "shots": {
+        "desktop": {
+          "file": "data/block-previews/canonical/sys-note.desktop.png",
+          "width": 600,
+          "height": 20
+        },
+        "mobile": {
+          "file": "data/block-previews/canonical/sys-note.mobile.png",
+          "width": 375,
+          "height": 40
+        }
+      },
+      "signature": {
+        "width": 600,
+        "height": 20,
+        "mobileHeight": 40,
+        "background": "#fefefe",
+        "palette": [
+          "#fefefe",
+          "#6d7482",
+          "#cdd0d5",
+          "#898e9a"
+        ],
+        "images": 0,
+        "links": 0,
+        "buttons": 0,
+        "listItems": 0,
+        "columns": 1,
+        "textChars": 63,
+        "responsive": true,
+        "ownMediaQueries": false,
+        "tags": [
+          "short-text",
+          "responsive"
+        ]
+      }
+    },
+    "canonical:sys-row": {
+      "id": "sys-row",
+      "source": "canonical",
+      "label": "Строка «поле — значение»",
+      "placement": "inner",
+      "category": "text",
+      "hash": "b8ae5b31a719fddf",
+      "shots": {
+        "desktop": {
+          "file": "data/block-previews/canonical/sys-row.desktop.png",
+          "width": 600,
+          "height": 22
+        },
+        "mobile": {
+          "file": "data/block-previews/canonical/sys-row.mobile.png",
+          "width": 375,
+          "height": 66
+        }
+      },
+      "signature": {
+        "width": 600,
+        "height": 22,
+        "mobileHeight": 66,
+        "background": "#ffffff",
+        "palette": [
+          "#ffffff",
+          "#393a44",
+          "#707683",
+          "#cecfd3"
+        ],
+        "images": 0,
+        "links": 0,
+        "buttons": 0,
+        "listItems": 0,
+        "columns": 2,
+        "textChars": 15,
+        "responsive": true,
+        "ownMediaQueries": false,
+        "tags": [
+          "2-col",
+          "short-text",
+          "responsive"
+        ]
+      }
+    },
+    "canonical:sys-section": {
+      "id": "sys-section",
+      "source": "canonical",
+      "label": "Секция письма",
+      "placement": "section",
+      "category": "layout",
+      "hash": "b2ddd25ed0e3fe73",
+      "shots": {
+        "desktop": {
+          "file": "data/block-previews/canonical/sys-section.desktop.png",
+          "width": 600,
+          "height": 200
+        },
+        "mobile": {
+          "file": "data/block-previews/canonical/sys-section.mobile.png",
+          "width": 375,
+          "height": 202
+        }
+      },
+      "signature": {
+        "width": 600,
+        "height": 200,
+        "mobileHeight": 202,
+        "background": "#ffffff",
+        "palette": [
+          "#ffffff",
+          "#393a44",
+          "#4a4b54",
+          "#b1b2b6"
+        ],
+        "images": 0,
+        "links": 0,
+        "buttons": 0,
+        "listItems": 0,
+        "columns": 1,
+        "textChars": 52,
+        "responsive": true,
+        "ownMediaQueries": true,
+        "tags": [
+          "short-text",
+          "responsive"
+        ]
+      }
+    },
+    "canonical:sys-section-bordered": {
+      "id": "sys-section-bordered",
+      "source": "canonical",
+      "label": "Секция с обводкой",
+      "placement": "section",
+      "category": "layout",
+      "hash": "a30818f2319814b4",
+      "shots": {
+        "desktop": {
+          "file": "data/block-previews/canonical/sys-section-bordered.desktop.png",
+          "width": 600,
+          "height": 204
+        },
+        "mobile": {
+          "file": "data/block-previews/canonical/sys-section-bordered.mobile.png",
+          "width": 375,
+          "height": 206
+        }
+      },
+      "signature": {
+        "width": 600,
+        "height": 204,
+        "mobileHeight": 206,
+        "background": "#ffffff",
+        "palette": [
+          "#ffffff",
+          "#3fb950",
+          "#393a44",
+          "#4a4b54"
+        ],
+        "images": 0,
+        "links": 0,
+        "buttons": 0,
+        "listItems": 0,
+        "columns": 1,
+        "textChars": 52,
+        "responsive": true,
+        "ownMediaQueries": true,
+        "tags": [
+          "short-text",
+          "responsive"
+        ]
+      }
+    },
+    "canonical:sys-space": {
+      "id": "sys-space",
+      "source": "canonical",
+      "label": "Отбивка (пустое место)",
+      "placement": "inner",
+      "category": "utility",
+      "hash": "0c96340e81967f44",
+      "shots": {
+        "desktop": {
+          "file": "data/block-previews/canonical/sys-space.desktop.png",
+          "width": 600,
+          "height": 34
+        },
+        "mobile": {
+          "file": "data/block-previews/canonical/sys-space.mobile.png",
+          "width": 375,
+          "height": 34
+        }
+      },
+      "signature": {
+        "width": 600,
+        "height": 34,
+        "mobileHeight": 34,
+        "background": "#ffffff",
+        "palette": [
+          "#ffffff"
+        ],
+        "images": 0,
+        "links": 0,
+        "buttons": 0,
+        "listItems": 0,
+        "columns": 1,
+        "textChars": 0,
+        "responsive": false,
+        "ownMediaQueries": false,
+        "tags": [
+          "fixed-width"
+        ]
+      }
+    },
+    "canonical:sys-starter": {
+      "id": "sys-starter",
+      "source": "canonical",
+      "label": "Комбо: скелет системного письма",
+      "placement": "section",
+      "category": "layout",
+      "hash": "b71d2d13944ed79e",
+      "shots": {
+        "desktop": {
+          "file": "data/block-previews/canonical/sys-starter.desktop.png",
+          "width": 600,
+          "height": 174
+        },
+        "mobile": {
+          "file": "data/block-previews/canonical/sys-starter.mobile.png",
+          "width": 375,
+          "height": 198
+        }
+      },
+      "signature": {
+        "width": 600,
+        "height": 174,
+        "mobileHeight": 198,
+        "background": "#ffffff",
+        "palette": [
+          "#ffffff",
+          "#393a44",
+          "#d0d0d2",
+          "#aeafb3"
+        ],
+        "images": 0,
+        "links": 0,
+        "buttons": 0,
+        "listItems": 0,
+        "columns": 1,
+        "textChars": 75,
+        "responsive": true,
+        "ownMediaQueries": false,
+        "tags": [
+          "short-text",
+          "responsive"
+        ]
+      }
+    },
+    "canonical:sys-subtitle": {
+      "id": "sys-subtitle",
+      "source": "canonical",
+      "label": "Приветствие / мини-заголовок",
+      "placement": "inner",
+      "category": "text",
+      "hash": "febd1aa8d0d57ac1",
+      "shots": {
+        "desktop": {
+          "file": "data/block-previews/canonical/sys-subtitle.desktop.png",
+          "width": 600,
+          "height": 26
+        },
+        "mobile": {
+          "file": "data/block-previews/canonical/sys-subtitle.mobile.png",
+          "width": 375,
+          "height": 26
+        }
+      },
+      "signature": {
+        "width": 600,
+        "height": 26,
+        "mobileHeight": 26,
+        "background": "#ffffff",
+        "palette": [
+          "#ffffff",
+          "#393a44",
+          "#cccdcf",
+          "#adadb1"
+        ],
+        "images": 0,
+        "links": 0,
+        "buttons": 0,
+        "listItems": 0,
+        "columns": 1,
+        "textChars": 13,
+        "responsive": false,
+        "ownMediaQueries": false,
+        "tags": [
+          "short-text",
+          "fixed-width"
+        ]
+      }
+    },
+    "canonical:sys-text": {
+      "id": "sys-text",
+      "source": "canonical",
+      "label": "Абзац текста",
+      "placement": "inner",
+      "category": "text",
+      "hash": "c62a421bf3d34217",
+      "shots": {
+        "desktop": {
+          "file": "data/block-previews/canonical/sys-text.desktop.png",
+          "width": 600,
+          "height": 24
+        },
+        "mobile": {
+          "file": "data/block-previews/canonical/sys-text.mobile.png",
+          "width": 375,
+          "height": 48
+        }
+      },
+      "signature": {
+        "width": 600,
+        "height": 24,
+        "mobileHeight": 48,
+        "background": "#ffffff",
+        "palette": [
+          "#ffffff",
+          "#393a44",
+          "#cecfd1",
+          "#6d6d75"
+        ],
+        "images": 0,
+        "links": 0,
+        "buttons": 0,
+        "listItems": 0,
+        "columns": 1,
+        "textChars": 44,
+        "responsive": true,
+        "ownMediaQueries": false,
+        "tags": [
+          "short-text",
+          "responsive"
+        ]
+      }
+    },
+    "canonical:sys-title": {
+      "id": "sys-title",
+      "source": "canonical",
+      "label": "Заголовок",
+      "placement": "inner",
+      "category": "text",
+      "hash": "9d924642161f65ef",
+      "shots": {
+        "desktop": {
+          "file": "data/block-previews/canonical/sys-title.desktop.png",
+          "width": 600,
+          "height": 36
+        },
+        "mobile": {
+          "file": "data/block-previews/canonical/sys-title.mobile.png",
+          "width": 375,
+          "height": 30
+        }
+      },
+      "signature": {
+        "width": 600,
+        "height": 36,
+        "mobileHeight": 30,
+        "background": "#ffffff",
+        "palette": [
+          "#ffffff",
+          "#393a44",
+          "#d0d0d2",
+          "#aeaeb2"
+        ],
+        "images": 0,
+        "links": 0,
+        "buttons": 0,
+        "listItems": 0,
+        "columns": 1,
+        "textChars": 16,
+        "responsive": true,
+        "ownMediaQueries": true,
+        "tags": [
+          "short-text",
+          "responsive"
+        ]
+      }
+    },
+    "canonical:sys-two-buttons": {
+      "id": "sys-two-buttons",
+      "source": "canonical",
+      "label": "Две кнопки в ряд",
+      "placement": "inner",
+      "category": "cta",
+      "hash": "9184c1c7371c2a5f",
+      "shots": {
+        "desktop": {
+          "file": "data/block-previews/canonical/sys-two-buttons.desktop.png",
+          "width": 600,
+          "height": 64
+        },
+        "mobile": {
+          "file": "data/block-previews/canonical/sys-two-buttons.mobile.png",
+          "width": 375,
+          "height": 150
+        }
+      },
+      "signature": {
+        "width": 600,
+        "height": 64,
+        "mobileHeight": 150,
+        "background": "#fefefe",
+        "palette": [
+          "#fefefe",
+          "#ff7700",
+          "#393a44",
+          "#4a4b54"
+        ],
+        "images": 0,
+        "links": 2,
+        "buttons": 0,
+        "listItems": 0,
+        "columns": 2,
+        "textChars": 17,
+        "responsive": true,
+        "ownMediaQueries": true,
+        "tags": [
+          "2-col",
+          "link",
+          "short-text",
+          "responsive"
+        ]
+      }
+    },
+    "canonical:sys-two-columns": {
+      "id": "sys-two-columns",
+      "source": "canonical",
+      "label": "Две колонки текста",
+      "placement": "inner",
+      "category": "layout",
+      "hash": "463670070092a017",
+      "shots": {
+        "desktop": {
+          "file": "data/block-previews/canonical/sys-two-columns.desktop.png",
+          "width": 600,
+          "height": 72
+        },
+        "mobile": {
+          "file": "data/block-previews/canonical/sys-two-columns.mobile.png",
+          "width": 375,
+          "height": 132
+        }
+      },
+      "signature": {
+        "width": 600,
+        "height": 72,
+        "mobileHeight": 132,
+        "background": "#ffffff",
+        "palette": [
+          "#ffffff",
+          "#393a44",
+          "#cdced0",
+          "#8d8e93"
+        ],
+        "images": 0,
+        "links": 0,
+        "buttons": 0,
+        "listItems": 0,
+        "columns": 2,
+        "textChars": 74,
+        "responsive": true,
+        "ownMediaQueries": true,
+        "tags": [
+          "2-col",
+          "short-text",
+          "responsive"
+        ]
+      }
     }
   },
-  "total": 522,
+  "total": 540,
   "failed": 0,
   "groups": {
     "g-imported-iq-text-10": {

@@ -241,9 +241,17 @@ function normalizeTypedSlotValue(block, slot, raw) {
     value = String(number);
   }
   if (kind === "select" && !cssContext && Array.isArray(slot.options) && slot.options.length) {
-    const option = slot.options.find((candidate) => String(candidate) === value);
-    if (option === undefined) failSlot(block, slot, `must be one of: ${slot.options.map(String).join(", ")}`);
-    value = String(option);
+    // Вариант списка — либо строка, либо {value,label}: подпись нужна там, где
+    // само значение человеку ничего не говорит (URL картинки, например).
+    // В письмо идёт только value; label существует ради интерфейса.
+    const optionValue = (candidate) => (
+      candidate && typeof candidate === "object" && !Array.isArray(candidate)
+        ? String(candidate.value ?? "")
+        : String(candidate)
+    );
+    const option = slot.options.find((candidate) => optionValue(candidate) === value);
+    if (option === undefined) failSlot(block, slot, `must be one of: ${slot.options.map(optionValue).join(", ")}`);
+    value = optionValue(option);
   }
   if (["url", "image", "localizedurl"].includes(kind)
       && /^\s*(?:javascript|vbscript|data\s*:\s*text\/html)/i.test(value)) {
@@ -975,6 +983,45 @@ export function composeEmailFromBlocks({
     return `${sourceStart}\n${domStart}\n${innerPug.trimEnd()}\n${domEnd}\n${sourceEnd}`;
   };
 
+  /**
+   * Автоотступ между соседями.
+   *
+   * Отступ здесь — свойство раскладки, а не отдельный блок в дереве. Так было
+   * решено осознанно: авто-вставка узла-разделителя означала бы узел, который
+   * надо таскать и удалять, который встаёт между целями drag&drop, остаётся
+   * висеть после удаления соседа и делает одно действие двумя шагами undo.
+   *
+   * Правило простое и совпадает с тем, что видит человек: отступ появляется
+   * МЕЖДУ соседями и не появляется после последнего. Поставил заголовок один —
+   * отступа нет; положил под него текст — отступ возник сам, потому что
+   * заголовок перестал быть последним.
+   *
+   * Включается только слотом `gap` у родителя. У существующих блоков такого
+   * слота нет, поэтому геометрия ранее собранных писем не меняется ни на
+   * пиксель — это опт-ин, а не глобальная правка вёрстки.
+   */
+  const gapSize = (item, slotId) => {
+    const declared = (item?.block?.slots || []).some((slot) => slot?.id === slotId);
+    if (!declared) return 0;
+    const value = Number(item?.slotValues?.[slotId]);
+    return Number.isFinite(value) && value > 0 ? Math.round(value) : 0;
+  };
+
+  const gapPug = (px) => `table.rk-gap(role="presentation" width="100%")\n`
+    + `    tr\n`
+    + `        td(height="${px}" style="height:${px}px;font-size:1px;line-height:1px") &nbsp;`;
+
+  /** [a, b, c] → [a, gap, b, gap, c]; после последнего отступа нет. */
+  const withGaps = (parts, px) => {
+    if (!px || parts.length < 2) return parts;
+    const out = [];
+    parts.forEach((part, index) => {
+      if (index > 0) out.push(gapPug(px));
+      out.push(part);
+    });
+    return out;
+  };
+
   /** Render a node and place only compatible direct children into real markers. */
   const renderItem = (item, directChildren, renderChild, skipChild) => {
     recordEmitted(item);
@@ -1017,7 +1064,7 @@ export function composeEmailFromBlocks({
         }
         continue;
       }
-      const renderedChildren = assigned.map(renderChild).filter(Boolean);
+      const renderedChildren = withGaps(assigned.map(renderChild).filter(Boolean), gapSize(item, "gap"));
       pug = fillChildMarker(pug, slot, renderedChildren).pug;
     }
     return wrapMarkers(item, pug);
@@ -1123,7 +1170,11 @@ export function composeEmailFromBlocks({
           const rendered = renderTreeNode(child);
           if (rendered) units.push(rendered);
         }
-        return units;
+        // Между секциями — тот же автоотступ. Плюс отступ НАД первой секцией:
+        // без него письмо притирается к верхнему краю окна почтовика.
+        const spaced = withGaps(units, gapSize(item, "gap"));
+        const top = gapSize(item, "space_top");
+        return top && spaced.length ? [gapPug(top), ...spaced] : spaced;
       }
       if (["section", "both", "helper"].includes(item.block.placement)) {
         const rendered = renderTreeNode(item);

@@ -1502,7 +1502,10 @@ body.dragging-from-catalog .child-dropzone {
   padding: 0 16px;
   background: var(--bg-0);
   border-bottom: 1px solid var(--border);
-  overflow: hidden;
+  /* Не overflow:hidden: список брендов выпадает НИЖЕ полосы и был бы срезан
+     по её 38px. Полоса поднята над рабочей областью своим z-index. */
+  position: relative;
+  z-index: 40;
 }
 .brandbar-label {
   font-size: 11px;
@@ -1511,41 +1514,101 @@ body.dragging-from-catalog .child-dropzone {
   color: var(--text-2);
   flex: none;
 }
-.brandbar-tabs {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex: 1;
-  min-width: 0;
-  overflow-x: auto;
-  scrollbar-width: thin;
+.brandbar-picker {
+  position: relative;
+  flex: none;
 }
-.brandbar-tabs::-webkit-scrollbar { height: 4px; }
-.brandbar-tabs::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 2px; }
 .brandbar-empty { font-size: 12px; color: var(--text-2); }
-.brandbar-tab {
+
+/* ── Триггер и выпадающий список брендов ────────────────── */
+.brandbar-trigger {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  flex: none;
-  padding: 4px 10px 4px 4px;
-  border: 1px solid transparent;
+  min-width: 150px;
+  padding: 4px 8px 4px 4px;
+  border: 1px solid var(--border);
   border-radius: 999px;
   background: var(--bg-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.brandbar-trigger:hover { background: var(--bg-3); }
+.brandbar-caret { margin-left: auto; color: var(--text-2); font-size: 10px; }
+.brandbar-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px;
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0,0,0,.45);
+  z-index: 50;
+}
+.brandbar-menu.hidden { display: none; }
+.brandbar-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px 6px 6px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-2);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+}
+.brandbar-option:hover { background: var(--bg-2); color: var(--text); }
+.brandbar-option.active { background: var(--bg-3); color: var(--text); font-weight: 600; }
+/* Архивный бренд видно, но он не притворяется рабочим. */
+.brandbar-option-note {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--text-2);
+  opacity: .8;
+}
+
+/* ── Набор блоков: promo / system ───────────────────────── */
+/* Ось, независимая от бренда, поэтому и выглядит иначе: не плашка бренда,
+   а сегментированный переключатель. */
+.kit-switch {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  padding: 2px;
+  gap: 2px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-2);
+}
+.kit-option {
+  padding: 3px 12px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
   color: var(--text-2);
   font: inherit;
   font-size: 12px;
   cursor: pointer;
 }
-.brandbar-tab:hover { background: var(--bg-3); color: var(--text); }
-.brandbar-tab.active {
-  background: var(--bg-3);
-  border-color: var(--border);
-  color: var(--text);
+.kit-option:hover { color: var(--text); }
+.kit-option.active {
+  background: var(--accent);
+  color: #fff;
   font-weight: 600;
 }
-/* Архивный бренд видно, но он не притворяется рабочим. */
-.brandbar-tab.dim { opacity: .5; }
+.brandbar-spacer { flex: 1; min-width: 0; }
 .brandbar-swatch {
   width: 18px; height: 18px;
   border-radius: 50%;
@@ -1664,3 +1727,27 @@ body.dragging-from-catalog .child-dropzone {
 }
 .links-bulk { display: flex; gap: 8px; align-items: center; }
 .links-bulk input { flex: 1; }
+
+/* ── Колесо выбора цвета в палитре письма ─────────────────
+   Палитра закрывает частые цвета; колесо — всё остальное,
+   чтобы не заставлять набирать HEX руками. */
+.email-color-wheel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-2);
+  cursor: pointer;
+}
+.email-color-wheel input[type="color"] {
+  width: 28px; height: 22px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: none;
+  cursor: pointer;
+}
+.email-color-wheel:hover { color: var(--text); }

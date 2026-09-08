@@ -28,13 +28,26 @@
   </header>
 
   <!--
-    Полоса брендов: активный бренд — рабочий контекст (куда сохраняем письмо,
-    какие цвета считаются фирменными). Фильтр каталога ниже — отдельная вещь:
-    он про источник блока, а не про реестр брендов.
+    Полоса контекста письма. Здесь две независимые оси, и их нельзя сливать:
+
+      • Бренд   — чьё письмо: тема (цвета) и папка сохранения.
+      • Набор   — какое письмо: promo (весь каталог) или system (короткий
+                  список простых блоков для сервисных писем).
+
+    «IQ Broker × system» обязано существовать, поэтому набор не пункт в списке
+    брендов, а отдельный переключатель. Фильтр каталога ниже — третья вещь: он
+    про источник блока (curated/user/legacy), а не про бренд и не про набор.
   -->
   <div class="brandbar" id="brandBar">
     <span class="brandbar-label">Бренд</span>
-    <div class="brandbar-tabs" id="brandTabs"><span class="brandbar-empty">Загрузка…</span></div>
+    <div class="brandbar-picker" id="brandTabs"><span class="brandbar-empty">Загрузка…</span></div>
+    <div class="kit-switch" id="kitSwitch" role="radiogroup" aria-label="Набор блоков">
+      <button type="button" class="kit-option active" data-kit="promo" role="radio" aria-checked="true"
+              title="Промо: весь каталог — комбо, герои, соцсети, сторы">Promo</button>
+      <button type="button" class="kit-option" data-kit="system" role="radio" aria-checked="false" tabindex="-1"
+              title="System: короткий набор простых блоков для сервисных писем">System</button>
+    </div>
+    <span class="brandbar-spacer"></span>
     <button class="brandbar-action" id="brandThemeBtn" type="button" title="Фирменные цвета активного бренда: колесо и HEX">🎨 Цвета</button>
     <button class="brandbar-action" id="brandAddBtn" type="button" title="Завести новый бренд — создаст папку в базе писем">＋ Бренд</button>
   </div>
@@ -234,6 +247,7 @@
   <script src="/canvas-slot-values.js"></script>
   <script src="/studio-chat.js"></script>
   <script src="/brand-bar.js"></script>
+  <script src="/kit-switch.js"></script>
   <script src="/constructor.js"></script>
 </body>
 </html>

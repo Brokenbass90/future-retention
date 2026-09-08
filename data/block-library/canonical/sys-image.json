@@ -1,0 +1,87 @@
+{
+  "id": "sys-image",
+  "label": "Картинка",
+  "description": "Картинка во всю ширину секции, при желании — со ссылкой.",
+  "placement": "inner",
+  "category": "media",
+  "version": 1,
+  "pug": "table.sys-image--box(role=\"presentation\" width=\"100%\")\n    tr\n        td(align=\"{{ align }}\" style=\"padding:{{ padding }};text-align:{{ align }}\")\n            a(href=\"{{ href }}\" universal=\"true\" target=\"_blank\")\n                img.sys-image--img(src=\"{{ image }}\" alt=\"{{ alt }}\" width=\"{{ width }}\" style=\"border:0;border-radius:{{ radius }};display:block;height:auto;max-width:100%\")",
+  "styl": ".sys-image--box{width:100%;border-collapse:collapse}\n.sys-image--img{display:block;height:auto;max-width:100%}",
+  "slots": [
+    {
+      "id": "image",
+      "kind": "image",
+      "label": "Картинка",
+      "default": "https://fsms.quadcode.com/storage/public/da/2l/fbnq9ctc700fgllg/nigeria-welcome-chain-trust-email3-3.png",
+      "uiGroup": "assets"
+    },
+    {
+      "id": "href",
+      "kind": "url",
+      "label": "Ссылка",
+      "default": "#",
+      "uiGroup": "content"
+    },
+    {
+      "id": "alt",
+      "kind": "text",
+      "label": "Alt-текст",
+      "default": "Иллюстрация",
+      "uiGroup": "content"
+    },
+    {
+      "id": "width",
+      "kind": "number",
+      "label": "Ширина, px",
+      "default": 500,
+      "uiGroup": "appearance",
+      "min": 40,
+      "max": 600
+    },
+    {
+      "id": "radius",
+      "kind": "select",
+      "label": "Скругление",
+      "default": "12px",
+      "uiGroup": "appearance",
+      "options": [
+        "0",
+        "4px",
+        "8px",
+        "12px",
+        "16px",
+        "24px"
+      ]
+    },
+    {
+      "id": "align",
+      "kind": "select",
+      "label": "Выравнивание",
+      "default": "center",
+      "uiGroup": "appearance",
+      "options": [
+        "left",
+        "center",
+        "right"
+      ]
+    },
+    {
+      "id": "padding",
+      "kind": "text",
+      "label": "Внутренние отступы",
+      "default": "0",
+      "uiGroup": "appearance"
+    }
+  ],
+  "kits": [
+    "system",
+    "promo"
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "media",
+    "image"
+  ],
+  "note": "Системный набор: блок написан с нуля под простые сервисные письма. Базовые цвета берутся из темы бренда ($brand_*), поэтому один и тот же блок читается и на светлом IQ Option, и на тёмном IQ Broker. Пустое значение цветового слота = «по бренду».",
+  "scoped": true
+}

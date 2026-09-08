@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { cp, mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 
 // New modular imports
@@ -109,6 +109,7 @@ import {
   saveCodeHtmlOverride,
   writeFileAtomically,
 } from "./src/code-workspace.js";
+import { textEditsBetween, applyTextEditsToPug } from "./src/original-text-sync.js";
 import { syncWorkbenchLocaleNamespaces } from "./src/workbench-localization.js";
 import { compareStudioModelSourceSignatures } from "./src/studio-model-signatures.js";
 import { acquireKeyedOperationLock } from "./src/keyed-operation-lock.js";
@@ -19549,6 +19550,52 @@ const server = http.createServer(async (request, response) => {
         sendJson(response, 400, { ok: false, error: error.message });
       } finally {
         releaseHtmlLock?.();
+      }
+      return;
+    }
+
+    /**
+     * Правка текстов в Original уезжает в Pug, а не в HTML-override.
+     *
+     * Локализация здесь односторонняя: Pug — источник, локаль — его сборка с
+     * подстановкой `${{ ns.block_NN }}$`. Поэтому плейсхолдер, поставленный
+     * один раз в Original, обязан подтянуть перевод во ВСЕ локали — а этого
+     * не будет, если правку сохранить как HTML отдельной локали.
+     *
+     * Переносим только текст (см. src/original-text-sync.js), затем письмо
+     * пересобирается обычным путём.
+     */
+    if (request.method === "POST" && request.url === "/api/wb/sync-original-text") {
+      const { brand = "", mail = "", before = "", after = "" } = await readRequestBody(request);
+      let releaseSyncLock = null;
+      try {
+        const locked = await acquireWorkbenchMailOperationLock({ emailBaseRoot, brand, mail });
+        const { resolved } = locked;
+        releaseSyncLock = locked.release;
+        const edits = textEditsBetween(before, after);
+        if (!edits.length) {
+          sendJson(response, 200, { ok: true, applied: [], skipped: [], changed: false });
+          return;
+        }
+        const mailDir = path.join(emailBaseRoot, resolved.brand, resolved.mail);
+        const pugPath = ["app/templates/blocks/header.pug", "app/templates/blocks/header.jade"]
+          .map((rel) => path.join(mailDir, rel))
+          .find((candidate) => existsSync(candidate));
+        if (!pugPath) throw new Error("В письме нет app/templates/blocks/header.pug");
+        const source = readFileSync(pugPath, "utf8");
+        const { pug, applied, skipped } = applyTextEditsToPug(source, edits);
+        if (applied.length) writeFileSync(pugPath, pug, "utf8");
+        sendJson(response, 200, {
+          ok: true,
+          applied,
+          skipped,
+          changed: applied.length > 0,
+          pugPath: path.relative(mailDir, pugPath),
+        });
+      } catch (error) {
+        sendJson(response, 400, { ok: false, error: error.message });
+      } finally {
+        releaseSyncLock?.();
       }
       return;
     }

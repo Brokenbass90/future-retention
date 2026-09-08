@@ -120,10 +120,44 @@ function isInnerBlock(block) {
   return p === "inner" || p === "both";
 }
 
+/**
+ * `slotPresets`: выбор варианта в одном слоте подставляет значения в другие.
+ * Правило обязано совпадать с серверным (src/block-library-schema.js).
+ * Смысл — человек выбирает «успех», а не подбирает HEX, и при этом видит в
+ * инспекторе конкретный цвет, который стоит, и может его переопределить.
+ */
+function slotPresetAssignments(block, slotId, value) {
+  const branch = block?.slotPresets?.[String(slotId)];
+  if (!branch || typeof branch !== "object") return null;
+  const assignments = branch[String(value)];
+  return assignments && typeof assignments === "object" ? assignments : null;
+}
+
 function defaultSlotsFor(block, overrides) {
   const slots = {};
   for (const slot of block?.slots || []) {
     if (Object.prototype.hasOwnProperty.call(slot, "default")) slots[slot.id] = slot.default;
+  }
+  // Фон письма вокруг секций — единственный цвет обёртки, который доезжает до
+  // собранного письма: pug и styl outer-блока не эмитятся, compose переносит
+  // только непустое background_color в index.pug скелета. Поэтому «пусто =
+  // по бренду» здесь нельзя оставить пустым — иначе останется фон скелета
+  // (тёмный IQ Broker) даже в светлом письме. Подставляем тему бренда.
+  // Пресеты дефолтного варианта — чтобы поля цвета были заполнены сразу после
+  // вставки блока, а не пустовали до первого переключения тона.
+  for (const driverId of Object.keys(block?.slotPresets || {})) {
+    const assignments = slotPresetAssignments(block, driverId, slots[driverId]);
+    if (!assignments) continue;
+    for (const [targetId, value] of Object.entries(assignments)) {
+      if (!overrides || !Object.prototype.hasOwnProperty.call(overrides, targetId)) slots[targetId] = value;
+    }
+  }
+
+  const outerBgOverridden = overrides && Object.prototype.hasOwnProperty.call(overrides, "background_color");
+  if (placementOf(block) === "outer" && !outerBgOverridden
+      && Object.prototype.hasOwnProperty.call(slots, "background_color")) {
+    const themed = window.RetkitBrands?.active?.()?.theme?.background;
+    if (themed) slots.background_color = themed;
   }
   return Object.assign(slots, overrides || {});
 }
@@ -220,14 +254,23 @@ function findDefaultBlock(placement) {
   const fits = (b) => placementOf(b) === placement && b.source !== "parsed";
   const ownBrand = state.library.filter((b) => fits(b) && !blockBelongsToOtherBrand(b));
 
-  const preferred = placement === "outer"
-    ? ["iqbr-outer-wrapper", "iq-outer-wrapper"]
-    : ["iqbr-section-bordered", "iq-section", "iq-content-section"];
+  // Каркас, который движок достраивает сам (обёртка под первую секцию, секция
+  // под первый inner-блок), обязан быть из текущего набора. Иначе первый же
+  // блок в режиме system молча притаскивает в письмо промо-каркас, которого в
+  // каталоге этого режима нет — и человек не понимает, откуда он взялся.
+  const inKit = ownBrand.filter((b) => blockAllowedInKit(b));
+  const pool = inKit.length ? inKit : ownBrand;
+
+  const preferred = activeKit() === "system"
+    ? (placement === "outer" ? ["sys-outer"] : ["sys-section"])
+    : (placement === "outer"
+      ? ["iqbr-outer-wrapper", "iq-outer-wrapper"]
+      : ["iqbr-section-bordered", "iq-section", "iq-content-section"]);
   for (const id of preferred) {
-    const block = ownBrand.find((b) => b.id === id);
+    const block = pool.find((b) => b.id === id);
     if (block) return block;
   }
-  return ownBrand[0] || state.library.find(fits) || null;
+  return pool[0] || ownBrand[0] || state.library.find(fits) || null;
 }
 
 function markEntrySlotExplicit(entry, slotId) {
@@ -451,6 +494,26 @@ function brandOf(b) {
 }
 function hasMobile(b) { return /@media/i.test(b.styl || ""); }
 
+/**
+ * Набор (kit) — третья ось каталога, независимая от источника и от бренда.
+ * Правило обязано совпадать с серверным (src/block-library-schema.js), иначе
+ * человек увидит в каталоге блок, который сервер в этом наборе не признаёт;
+ * совпадение проверяет scripts/test-kit-switch.mjs.
+ *
+ * promo — fail-open, system — whitelist. Почему именно так — см. комментарий
+ * у BLOCK_KITS в схеме.
+ */
+function activeKit() {
+  return window.RetkitKit?.current?.() || "promo";
+}
+
+function blockAllowedInKit(block, kit = activeKit()) {
+  const kits = Array.isArray(block?.kits) ? block.kits : [];
+  const target = String(kit).toLowerCase();
+  if (target === "system") return kits.includes("system");
+  return !kits.length || kits.includes(target);
+}
+
 function blockReviewStatus(block) {
   if (block?.source === "canonical") return "approved";
   const status = block?.review?.status;
@@ -484,6 +547,7 @@ function applyCatalogFilters() {
   const q = state.q.trim().toLowerCase();
   return state.library.filter((b) => {
     if (!catalogSourceAllowed(b, state.sourceScope)) return false;
+    if (!blockAllowedInKit(b)) return false;
     const isCombo = isComboBlock(b);
     const isComboDivider = b.placement === "section" && (b.tags || []).includes("combo-divider");
     if (f === "combo") { if (!isCombo && !isComboDivider) return false; }
@@ -539,9 +603,20 @@ function renderCatalog() {
     const hidden = unfiltered.length - filtered.length;
     const brandLabel = window.RetkitBrands?.active?.()?.label || "";
     const otherBrand = state.library.filter((b) => catalogSourceAllowed(b, state.sourceScope) && blockBelongsToOtherBrand(b)).length;
+    const otherKit = state.library.filter((b) => catalogSourceAllowed(b, state.sourceScope) && !blockAllowedInKit(b)).length;
+    // Переключение набора не трогает канвас (см. kit-switch.js), поэтому в
+    // письме законно могут лежать блоки другого набора. Молчать об этом —
+    // значит оставить человека гадать, почему блок в письме есть, а в
+    // каталоге его нет.
+    const foreignInCanvas = state.canvas.filter((entry) => {
+      const block = blockForEntry(entry);
+      return block && !blockAllowedInKit(block);
+    }).length;
     counter.textContent = `${filtered.length} из ${sourceTotal} блоков`
       + (hidden > 0 ? ` · ${hidden} одинаковых скрыто` : "")
-      + (otherBrand > 0 ? ` · ${otherBrand} чужих брендов скрыто (бренд: ${brandLabel})` : "");
+      + (otherKit > 0 ? ` · ${otherKit} из другого набора скрыто` : "")
+      + (otherBrand > 0 ? ` · ${otherBrand} чужих брендов скрыто (бренд: ${brandLabel})` : "")
+      + (foreignInCanvas > 0 ? ` · в письме ${foreignInCanvas} блок(ов) другого набора` : "");
   }
   const sourceWarning = $("catLegacyWarning");
   if (sourceWarning) {
@@ -2136,10 +2211,18 @@ function rgbToHex(value) {
   return m[4] !== undefined && Number(m[4]) < 1 ? `${hex} (${Math.round(Number(m[4]) * 100)}%)` : hex;
 }
 
+/**
+ * Палитра письма: то, что реально нужно под рукой.
+ *
+ * Первые две строки — текст, фоны и рамки; третья — акценты статусов и их
+ * бледные подложки (успех / внимание / ошибка), из которых собираются
+ * подсвеченные плашки. Всё остальное набирается в HEX или колесом.
+ */
 const EMAIL_HEX_PALETTE = Object.freeze([
   "#000000", "#222222", "#393A44", "#6B7280",
   "#FFFFFF", "#F9F9F9", "#ECECED", "#FF7700",
-  "#F59E0B", "#E02424", "#2563EB", "#16A34A",
+  "#3FB950", "#E3A008", "#F85149", "#2563EB",
+  "#E7F6EA", "#FCF4E3", "#FEEAE9", "#EEF2FF",
 ]);
 
 /**
@@ -2178,9 +2261,13 @@ function renderEmailColorControl({ target, id, value, placeholder }) {
   return `<button type="button" class="email-color-swatch${transparent ? " is-transparent" : ""}" data-email-color-open="${escapeHtml(key)}" style="--email-swatch:${escapeHtml(swatch)}" title="Открыть HEX-палитру"><span class="email-color-swatch-chip"></span><span>HEX</span></button>
     <input type="text" class="email-hex-input" data-email-color="${escapeHtml(target)}" ${dataId} value="${escapeHtml(shown)}" placeholder="${escapeHtml(placeholder)}" maxlength="11" inputmode="text" autocomplete="off" spellcheck="false" aria-label="Цвет в формате HEX" />
     <div class="email-color-popover" data-email-color-popover="${escapeHtml(key)}" hidden>
-      <div class="email-color-popover-title">HEX-палитра</div>
+      <div class="email-color-popover-title">Цвета письма</div>
       <div class="email-color-presets">${presets}</div>
-      <div class="email-color-popover-hint">Любой цвет можно ввести как <code>#RRGGBB</code></div>
+      <label class="email-color-wheel">
+        <input type="color" data-email-color-wheel="${escapeHtml(key)}" value="${escapeHtml(swatch)}" />
+        <span>Другой цвет…</span>
+      </label>
+      <div class="email-color-popover-hint">Или введи <code>#RRGGBB</code> в поле рядом</div>
     </div>`;
 }
 
@@ -2391,6 +2478,29 @@ function bindEmailColorControls(body, entry, block) {
       input.focus();
     });
   });
+
+  // Колесо выбора цвета: для всего, чего нет в палитре письма. Пишем в то же
+  // поле, поэтому HEX-нормализация и валидация остаются одни на всех.
+  body.querySelectorAll("[data-email-color-wheel]").forEach((wheel) => {
+    wheel.addEventListener("input", () => {
+      const key = wheel.dataset.emailColorWheel || "";
+      const [target, ...idParts] = key.split(":");
+      const id = idParts.join(":");
+      const selector = target === "slot"
+        ? `[data-email-color="slot"][data-slot-id="${CSS.escape(id)}"]`
+        : `[data-email-color="appearance"][data-appearance-id="${CSS.escape(id)}"]`;
+      const input = body.querySelector(selector);
+      if (!input) return;
+      if (wheel.dataset.undoCaptured !== "1") {
+        pushCanvasUndo();
+        wheel.dataset.undoCaptured = "1";
+      }
+      input.dataset.undoCaptured = "1";
+      input.value = String(wheel.value || "").toUpperCase();
+      commit(input, { captureUndo: false });
+    });
+    wheel.addEventListener("change", () => { delete wheel.dataset.undoCaptured; });
+  });
 }
 
 function renderInspector() {
@@ -2498,6 +2608,17 @@ function renderInspector() {
       el.setCustomValidity("");
       entry.slots[id] = v;
       markEntrySlotExplicit(entry, id);
+      // Инспектор писал слот напрямую, мимо setEntrySlotValue — и связанные
+      // слоты (ширина кнопки в CSS, прижатие) не обновлялись НИКОГДА. Снаружи
+      // это выглядело как «выбор в выпадашке ничего не делает».
+      const linked = slotPresetAssignments(block, id, v);
+      if (linked) {
+        for (const [targetId, targetValue] of Object.entries(linked)) {
+          entry.slots[targetId] = targetValue;
+          markEntrySlotExplicit(entry, targetId);
+        }
+        renderInspector();
+      }
       scheduleLivePreview();
     });
   });
@@ -2737,7 +2858,15 @@ function renderSlotControl(slot, current, block) {
     return `<div class="${wrapClass}">${label}<textarea data-slot-id="${escapeHtml(id)}" maxlength="${slot.max || 1000}">${escapeHtml(v)}</textarea>${placeholderButton}</div>`;
   }
   if (kind === "select") {
-    const options = (slot.options || []).map((o) => `<option value="${escapeHtml(o)}" ${o === v ? "selected" : ""}>${escapeHtml(o)}</option>`).join("");
+    // Вариант — строка или {value,label}. Подпись нужна там, где значение
+    // нечитаемо: в выпадашке логотипа человек должен видеть «Тёмное», а не
+    // ссылку на CDN. В письмо уходит только value.
+    const options = (slot.options || []).map((o) => {
+      const isPair = o && typeof o === "object" && !Array.isArray(o);
+      const value = isPair ? String(o.value ?? "") : String(o);
+      const text = isPair ? String(o.label ?? o.value ?? "") : String(o);
+      return `<option value="${escapeHtml(value)}" ${value === v ? "selected" : ""}>${escapeHtml(text)}</option>`;
+    }).join("");
     return `<div class="${wrapClass}">${label}<div class="insp-value-row"><select data-slot-id="${escapeHtml(id)}">${options}</select>${resetButton}</div></div>`;
   }
   if (kind === "number") {
@@ -2784,6 +2913,15 @@ function setEntrySlotValue(entry, slotId, value) {
   pushCanvasUndo();
   entry.slots[slotId] = value;
   markEntrySlotExplicit(entry, slotId);
+  // Тон плашки переключает фон и полосу разом. Значения ставим явными: человек
+  // видит их в полях и может переопределить, а следующий выбор тона перепишет.
+  const assignments = slotPresetAssignments(blockForEntry(entry), slotId, value);
+  if (assignments) {
+    for (const [targetId, targetValue] of Object.entries(assignments)) {
+      entry.slots[targetId] = targetValue;
+      markEntrySlotExplicit(entry, targetId);
+    }
+  }
   renderInspector();
   scheduleLivePreview(100);
   return true;
@@ -3430,6 +3568,24 @@ function siblingBeforeUidAtPointer(parentUid, slotId, anchorUid, clientY) {
   return siblings[index + 1]?.uid ?? null;
 }
 
+/**
+ * Куда встать среди детей контейнера, если указатель НЕ над конкретным блоком.
+ *
+ * Такое место в письме теперь есть у каждой секции: между блоками стоят
+ * автоотступы, и они не принадлежат ни одному блоку. Раньше указатель над
+ * отступом означал «блок-цель не найден», beforeUid оставался пустым, и линия
+ * вставки уезжала в самый низ секции — со стороны это выглядит как «подсветка
+ * не появляется там, куда тащу».
+ */
+function childBeforeUidAtPointer(parentUid, slotId, clientY) {
+  for (const child of childrenOf(parentUid, slotId)) {
+    if (sameUid(child.uid, _draggingCanvasUid)) continue;
+    const midpoint = renderedRangeMidpoint(child.uid);
+    if (midpoint != null && clientY <= midpoint) return child.uid;
+  }
+  return null;
+}
+
 function iframeDropContextFor(target, clientY) {
   const movingEntry = entryByUid(_draggingCanvasUid);
   const block = movingEntry ? blockForEntry(movingEntry) : blockById(_draggingBlockId, _draggingBlockSource);
@@ -3474,6 +3630,11 @@ function iframeDropContextFor(target, clientY) {
   let beforeUid = null;
   if (placementOf(targetBlock) === "section") {
     parent = targetEntry;
+    const sectionSlot = chooseChildSlot(targetBlock, block);
+    if (sectionSlot) {
+      preferredSlot = sectionSlot.id;
+      beforeUid = childBeforeUidAtPointer(targetEntry.uid, sectionSlot.id, clientY);
+    }
   } else if (targetEntry && isInnerBlock(targetBlock)) {
     parent = entryByUid(targetEntry.parentUid);
     preferredSlot = targetEntry.slotId;
@@ -4081,6 +4242,10 @@ async function saveAuthorBlock() {
   } else if (placement === "inner" && /spacer|divider|разделител|utility/i.test(dividerHint)) {
     structuralTags.push("inner-divider");
   }
+  // Набор system — whitelist: блок, созданный в этом режиме и не объявивший
+  // себя системным, исчез бы из каталога сразу после сохранения. Поэтому
+  // авторство наследует активный набор, а не молча роняет блок в промо.
+  const kits = activeKit() === "system" ? ["system", "promo"] : [];
   const payload = {
     id,
     label: $("abLabel").value.trim() || id,
@@ -4091,6 +4256,7 @@ async function saveAuthorBlock() {
     styl: $("abStyl").value,
     slots: buildAuthorSlots(),
     tags: structuralTags,
+    ...(kits.length ? { kits } : {}),
     force: !!authorState.editingId,
   };
   if (childSlots.length) payload.childSlots = childSlots;
@@ -4372,9 +4538,18 @@ async function loadConstructorDeepLink(search = window.location.search) {
 }
 loadLibrary().then(() => loadConstructorDeepLink());
 
-// Переключили вкладку бренда — каталог перерисовывается: часть блоков
-// принадлежит другой семье и в чужом бренде только мешает.
+// Переключили бренд — каталог перерисовывается: часть блоков принадлежит
+// другой семье и в чужом бренде только мешает.
 window.RetkitBrands?.onChange?.(() => {
+  state.renderCap = 60;
+  if (state.library.length) renderCatalog();
+});
+
+// Переключили набор — то же самое, и намеренно только это. Канвас не трогаем:
+// человек мог собрать половину письма, и выкинуть его блоки молча значило бы
+// потерять чужую работу. Что в письме остались блоки другого набора, честно
+// написано в счётчике каталога.
+window.RetkitKit?.onChange?.(() => {
   state.renderCap = 60;
   if (state.library.length) renderCatalog();
 });

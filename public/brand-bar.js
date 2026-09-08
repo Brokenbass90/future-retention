@@ -1,5 +1,5 @@
 /**
- * public/brand-bar.js — полоса брендов над рабочей областью конструктора.
+ * public/brand-bar.js — выбор бренда над рабочей областью конструктора.
  *
  * Бренд перестал быть именем папки (см. src/brands.js), и здесь он становится
  * видимым: активный бренд — это рабочий контекст, а не фильтр каталога.
@@ -26,6 +26,7 @@
     tokens: [],
     activeId: "",
     listeners: [],
+    open: false,      // раскрыт ли список брендов
   };
 
   const $ = (id) => document.getElementById(id);
@@ -67,8 +68,9 @@
     const next = state.brands.find((b) => b.id === id);
     if (!next) return;
     state.activeId = next.id;
+    state.open = false;
     try { localStorage.setItem(STORAGE_KEY, next.id); } catch { /* приватный режим */ }
-    renderTabs();
+    renderPicker();
     if (!silent) notify();
   }
 
@@ -92,27 +94,55 @@
     return state.brands;
   }
 
-  /* ─── Полоса вкладок ───────────────────────────────────────────────────── */
+  /* ─── Выпадающий список брендов ───────────────────────────────────────── */
 
-  function renderTabs() {
+  /**
+   * Раньше здесь была полоса вкладок: каждый бренд — отдельная кнопка. Пока
+   * брендов два, это читалось, но полоса растёт линейно и уже на пятом бренде
+   * начинает горизонтально скроллиться, отбирая место у переключателя набора.
+   *
+   * Нативный <select> не подошёл: в списке нужна цветная плашка бренда, а
+   * <option> её не покажет. Поэтому кнопка + всплывающий список — но с ролями
+   * listbox/option, чтобы клавиатура и скринридер видели обычный выбор.
+   */
+  function renderPicker() {
     const host = $("brandTabs");
     if (!host) return;
     if (!state.brands.length) {
       host.innerHTML = '<span class="brandbar-empty">Брендов нет — заведи первый</span>';
       return;
     }
-    host.innerHTML = state.brands.map((brand) => {
-      const primary = normalizeHex(brand.theme?.primary) || "#6B7280";
-      const activeCls = brand.id === state.activeId ? " active" : "";
-      const dimCls = brand.active ? "" : " dim";
-      const title = brand.active
-        ? `${brand.label} · папка ${brand.id}`
-        : `${brand.label} · папка ${brand.id} · архивный, в базе писем скрыт`;
-      return `<button type="button" class="brandbar-tab${activeCls}${dimCls}" data-brand="${esc(brand.id)}" title="${esc(title)}">
-        <span class="brandbar-swatch" style="background:${esc(primary)};color:${readableOn(primary)}">${esc(brand.label.slice(0, 1).toUpperCase())}</span>
+    const current = activeBrand() || state.brands[0];
+    const primary = normalizeHex(current.theme?.primary) || "#6B7280";
+    const options = state.brands.map((brand) => {
+      const hex = normalizeHex(brand.theme?.primary) || "#6B7280";
+      const selected = brand.id === state.activeId;
+      const archived = brand.active ? "" : '<span class="brandbar-option-note">архивный</span>';
+      return `<button type="button" role="option" aria-selected="${selected}"
+        class="brandbar-option${selected ? " active" : ""}" data-brand="${esc(brand.id)}"
+        title="${esc(brand.label)} · папка ${esc(brand.id)}">
+        <span class="brandbar-swatch" style="background:${esc(hex)};color:${readableOn(hex)}">${esc(brand.label.slice(0, 1).toUpperCase())}</span>
         <span class="brandbar-name">${esc(brand.label)}</span>
+        ${archived}
       </button>`;
     }).join("");
+
+    host.innerHTML = `
+      <button type="button" class="brandbar-trigger" id="brandTrigger"
+              aria-haspopup="listbox" aria-expanded="${state.open}"
+              title="Активный бренд: тема письма и папка сохранения">
+        <span class="brandbar-swatch" style="background:${esc(primary)};color:${readableOn(primary)}">${esc(current.label.slice(0, 1).toUpperCase())}</span>
+        <span class="brandbar-name">${esc(current.label)}</span>
+        <span class="brandbar-caret" aria-hidden="true">▾</span>
+      </button>
+      <div class="brandbar-menu${state.open ? "" : " hidden"}" id="brandMenu" role="listbox"
+           aria-label="Бренд">${options}</div>`;
+  }
+
+  function setOpen(open) {
+    state.open = Boolean(open);
+    renderPicker();
+    if (state.open) $("brandMenu")?.querySelector(".brandbar-option.active")?.focus();
   }
 
   /* ─── Диалог: общая обвязка ────────────────────────────────────────────── */
@@ -335,7 +365,7 @@
           const data = await response.json();
           if (!response.ok || !data?.ok) throw new Error(data?.error || `HTTP ${response.status}`);
           await loadBrands();
-          renderTabs();
+          renderPicker();
           notify();
           close();
         } catch (error) {
@@ -348,9 +378,21 @@
   /* ─── Подключение ──────────────────────────────────────────────────────── */
 
   function wire() {
-    $("brandTabs")?.addEventListener("click", (event) => {
-      const tab = event.target.closest?.("[data-brand]");
-      if (tab) setActive(tab.dataset.brand);
+    // Один слушатель на document, а не два (по полосе + «клик мимо»): выбор и
+    // закрытие принимают решение до перерисовки. С двумя слушателями второй
+    // получал бы event.target, уже вырезанный из DOM первым renderPicker(),
+    // closest() возвращал null — и список схлопывался сразу после открытия.
+    document.addEventListener("click", (event) => {
+      const inside = event.target.closest?.("#brandTabs");
+      if (event.target.closest?.("#brandTrigger")) { setOpen(!state.open); return; }
+      const option = inside ? event.target.closest?.("[data-brand]") : null;
+      if (option) { setActive(option.dataset.brand); setOpen(false); return; }
+      // Список висит над каталогом: не закрывать по клику мимо — значит
+      // оставить рабочую область перекрытой.
+      if (state.open && !inside) setOpen(false);
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && state.open) { setOpen(false); $("brandTrigger")?.focus(); }
     });
     $("brandAddBtn")?.addEventListener("click", openCreateDialog);
     $("brandThemeBtn")?.addEventListener("click", openThemeDialog);
@@ -360,7 +402,7 @@
     wire();
     try {
       await loadBrands();
-      renderTabs();
+      renderPicker();
       notify();
     } catch (error) {
       const host = $("brandTabs");
@@ -375,7 +417,7 @@
     active: activeBrand,
     activeId: () => state.activeId,
     setActive,
-    reload: async () => { await loadBrands(); renderTabs(); notify(); },
+    reload: async () => { await loadBrands(); renderPicker(); notify(); },
     onChange: (fn) => { if (typeof fn === "function") state.listeners.push(fn); },
     normalizeHex,
   };

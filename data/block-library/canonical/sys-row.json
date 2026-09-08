@@ -1,0 +1,51 @@
+{
+  "id": "sys-row",
+  "label": "Строка «поле — значение»",
+  "description": "Одна строка данных: слева подпись, справа значение. Для писем о платеже, документах, сроках — добавляй столько строк, сколько нужно.",
+  "placement": "inner",
+  "category": "text",
+  "version": 1,
+  "pug": "table.sys-row--box(role=\"presentation\" width=\"100%\")\n    tr\n        td.sys-row--key(style=\"padding:{{ padding }}\") {{ key }}\n        td.sys-row--val(style=\"padding:{{ padding }};color:{{ text_color }}\") {{ value }}",
+  "styl": ".sys-row--box{width:100%;border-collapse:collapse}\n.sys-row--key{color:$brand_muted;font-family:Helvetica,Arial,sans-serif !important;font-size:15px;line-height:22px;text-align:left;width:50%}\n.sys-row--val{color:$brand_text;font-family:Helvetica,Arial,sans-serif !important;font-size:15px;font-weight:700;line-height:22px;text-align:right}",
+  "slots": [
+    {
+      "id": "key",
+      "kind": "text",
+      "label": "Подпись",
+      "default": "Сумма",
+      "uiGroup": "content"
+    },
+    {
+      "id": "value",
+      "kind": "text",
+      "label": "Значение",
+      "default": "1 000 USD",
+      "uiGroup": "content"
+    },
+    {
+      "id": "text_color",
+      "kind": "color",
+      "label": "Цвет значения — пусто значит «по теме бренда»",
+      "default": "",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "padding",
+      "kind": "text",
+      "label": "Внутренние отступы",
+      "default": "0",
+      "uiGroup": "appearance"
+    }
+  ],
+  "kits": [
+    "system",
+    "promo"
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "text",
+    "data"
+  ],
+  "note": "Системный набор: блок написан с нуля под простые сервисные письма. Базовые цвета берутся из темы бренда ($brand_*), поэтому один и тот же блок читается и на светлом IQ Option, и на тёмном IQ Broker. Пустое значение цветового слота = «по бренду».",
+  "scoped": true
+}

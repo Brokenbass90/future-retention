@@ -203,7 +203,7 @@
     <!-- Pug → localized HTML workspace -->
     <div class="compiled-view-banner hidden" id="compiledViewBanner">
       <span class="compiled-view-icon">⚡</span>
-      <span class="compiled-view-label">HTML собран из Pug.</span>
+      <span class="compiled-view-label">HTML письма</span>
       <label class="compiled-locale-picker" title="Выбрать готовую HTML-локаль">
         <span>Локаль</span>
         <select id="compiledLocaleSelect" aria-label="HTML-локаль"></select>
@@ -212,11 +212,11 @@
       <span class="compiled-localization-status hidden" id="compiledLocalizationStatus"></span>
       <button class="compiled-preflight-btn" id="compiledPreflightBtn" type="button" title="Строго пересобрать и проверить все локали: плейсхолдеры и compact HTML меньше 102 KiB">Проверить к выпуску</button>
       <span class="compiled-preflight-status" id="compiledPreflightStatus" data-state="idle">Не проверено</span>
-      <button class="compiled-view-back" id="compiledViewBackBtn">← Вернуться к Pug</button>
+      <button class="compiled-view-back" id="compiledViewBackBtn" title="Открыть вёрстку письма: pug + stylus">&lt;/&gt; Pug</button>
       <button class="compiled-view-edit-html" id="compiledViewEditHtmlBtn" title="Создать независимую ручную версию только для выбранной локали">✏️ Править HTML</button>
-      <button class="compiled-view-save-html hidden" id="compiledViewSaveHtmlBtn">Сохранить локаль</button>
+      <button class="compiled-view-save-html hidden" id="compiledViewSaveHtmlBtn">Сохранить</button>
       <button class="compiled-view-cancel-html hidden" id="compiledViewCancelHtmlBtn">Отменить</button>
-      <button class="compiled-view-reset-html hidden" id="compiledViewResetHtmlBtn" title="Удалить ручную HTML-версию и снова связать локаль с Pug-сборкой">↺ Удалить override · вернуть Pug</button>
+      <button class="compiled-view-reset-html hidden" id="compiledViewResetHtmlBtn" title="Выбросить правки этой локали и собрать её заново из Pug">↺ Собрать заново из Pug</button>
     </div>
 
     <!-- Blocks shelf — drag & drop email block constructor -->
@@ -340,7 +340,9 @@
       <button class="pencil-toggle" id="previewMaxBtn" title="Развернуть письмо на весь экран (скрыть код)" aria-pressed="false">⛶</button>
       <button class="pencil-toggle" id="previewRtlBtn" title="Сделать письмо RTL (право-центрировать). Идемпотентно — можно жать повторно.">⇄ RTL</button>
       <button class="pencil-toggle hidden" id="blocksPaletteToggle" title="Блоки — перетащи в письмо" aria-pressed="false">🧩 Блоки</button>
-      <button class="pencil-toggle" id="backToConstructorBtn" title="Увести письмо обратно в DnD-конструктор и доделать там">🎨 В конструктор</button>
+      <!-- Кнопка «В конструктор» убрана из панели превью: она дублировала
+           ссылку «🎨 Конструктор» в шапке и налезала на соседние иконки.
+           Обработчик оставлен — он ищет кнопку по id и просто её не находит. -->
       <div style="flex:1"></div>
       <div class="preview-ns-label hidden" id="previewNsLabel"></div>
     </div>

@@ -967,6 +967,83 @@ function markDetachedHtmlBuffer(ctx, value) {
     bumpEditorRevision(ctx, 'htmlRevision');
   }
   ctx.htmlDirty = next !== _compiledHtmlSnapshot;
+  scheduleHtmlAutosave(ctx);
+}
+
+/**
+ * Автосохранение правок HTML.
+ *
+ * Без него набранный текст жил только в буфере CodeMirror, и любое действие
+ * (переключение локали, уход в Pug, пересборка) показывало «Есть несохранённые
+ * изменения HTML. Отменить их?» — то есть предлагало выбросить работу. Человек
+ * жмёт ОК, потому что хочет продолжить, и теряет правки. Никакой кнопки
+ * «сохранить и продолжить» не было.
+ *
+ * Сохраняем сами, с паузой после последнего нажатия клавиши. Ручная кнопка
+ * «Сохранить» остаётся — она просто почти всегда уже не нужна.
+ */
+const HTML_AUTOSAVE_DELAY_MS = 800;
+let _htmlAutosaveTimer = null;
+
+/**
+ * Пустой (или почти пустой) буфер сохранять НЕЛЬЗЯ: сервер отвергает такой
+ * HTML с «HTML is empty» (src/code-workspace.js:267). Пока проверки не было,
+ * выделение всего кода и Delete запускало автосейв → 400 → красный тост →
+ * и так на каждое нажатие. Человек не мог ни переключить локаль, ни закрыть
+ * письмо.
+ */
+function htmlBufferIsSavable() {
+  return Boolean(stripPreviewArtifacts(cm?.getValue() || '').trim());
+}
+
+/**
+ * Есть ли в буфере НАСТОЯЩИЕ правки — то, ради чего стоит отвязывать локаль.
+ *
+ * Просто открыть локаль недостаточно: редактор показывает отформатированный
+ * (prettyHtml) вариант того же документа, поэтому посимвольно буфер почти
+ * всегда «не равен» скомпилированному HTML. С автосохранением это означало
+ * катастрофу: локаль отвязывалась от Pug в момент, когда человек её просто
+ * ОТКРЫЛ. Дальше она навсегда переставала пересобираться, и подставленные в
+ * Pug плейсхолдеры в неё уже не попадали — снаружи «ничего не тянется».
+ *
+ * Сравниваем по смыслу: без разницы в пробелах между тегами.
+ */
+function normalizeHtmlForCompare(value) {
+  return String(value || '')
+    .replace(/>\s+</g, '><')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/** Original — это вид на источник, а не самостоятельная локаль. */
+function isOriginalHtmlLocale(ctx = state.srcCtx) {
+  const locale = ctx?.activeHtmlLocale || HTML_BASE_LOCALE;
+  return locale === HTML_BASE_LOCALE || locale === 'original';
+}
+
+function htmlBufferHasRealEdits(ctx = state.srcCtx) {
+  if (!ctx?.htmlEditMode || !cm) return false;
+  const buffer = normalizeHtmlForCompare(stripPreviewArtifacts(cm.getValue()));
+  if (!buffer) return false;
+  const compiled = normalizeHtmlForCompare(ctx.compiledHtml || '');
+  return Boolean(compiled) && buffer !== compiled;
+}
+
+function scheduleHtmlAutosave(ctx) {
+  clearTimeout(_htmlAutosaveTimer);
+  if (!ctx?.viewingCompiledHtml || !ctx.htmlEditMode || !ctx.htmlDirty) return;
+  if (!htmlBufferIsSavable() || !htmlBufferHasRealEdits(ctx)) return;
+  _htmlAutosaveTimer = setTimeout(() => {
+    // Пока ждали паузу, могли открыть другое письмо или выйти из режима —
+    // тогда сохранять уже нечего и некуда.
+    if (state.srcCtx !== ctx || !ctx.htmlEditMode || !ctx.htmlDirty) return;
+    if (!htmlBufferIsSavable() || !htmlBufferHasRealEdits(ctx)) return;
+    if (isOriginalHtmlLocale(ctx)) {
+      syncOriginalTextToPug(ctx).catch(() => { /* тост покажет сама */ });
+      return;
+    }
+    saveDetachedHtmlRevisions(ctx, { keepEditing: true }).catch(() => { /* тост покажет сама */ });
+  }, HTML_AUTOSAVE_DELAY_MS);
 }
 
 async function refreshCodeWorkspace(ctx = state.srcCtx) {
@@ -985,10 +1062,39 @@ async function refreshCodeWorkspace(ctx = state.srcCtx) {
   return data;
 }
 
+/**
+ * Раньше здесь стоял confirm «отменить изменения и продолжить?» — то есть
+ * единственным способом уйти было выбросить работу. Теперь правки досохраняются
+ * (автосейв мог не успеть за последним нажатием клавиши), а действие человек
+ * повторяет через секунду. Данные не теряются никогда.
+ */
 function confirmDiscardHtmlDraft() {
   const ctx = state.srcCtx;
   if (!ctx?.viewingCompiledHtml || !ctx.htmlEditMode || !ctx.htmlDirty) return true;
-  return confirm('Есть несохранённые изменения HTML. Отменить их и продолжить?');
+  clearTimeout(_htmlAutosaveTimer);
+
+  // Сохранить пустой буфер невозможно. Раньше мы в этом случае возвращали
+  // false и НЕ ПУСКАЛИ никуда: ни сменить локаль, ни закрыть вкладку. Так
+  // делать нельзя ни при каких обстоятельствах — говорим правду и пропускаем.
+  if (!htmlBufferIsSavable()) {
+    ctx.htmlDirty = false;
+    toast('Пустой HTML не сохраняется — правки этой локали отброшены', 'warning', 3500);
+    return true;
+  }
+
+  // Ничего не меняли — уходим молча. Отвязывать локаль от Pug только потому,
+  // что её открыли и закрыли, нельзя ни в коем случае.
+  if (!htmlBufferHasRealEdits(ctx)) {
+    ctx.htmlDirty = false;
+    return true;
+  }
+
+  // Локаль и содержимое захватываются синхронно, до первого await, поэтому
+  // сохранение уедет в ПРАВИЛЬНУЮ локаль, даже если человек уже переключился.
+  // Значит блокировать переход незачем.
+  if (isOriginalHtmlLocale(ctx)) syncOriginalTextToPug(ctx).catch(() => {});
+  else saveDetachedHtmlRevisions(ctx, { keepEditing: true }).catch(() => {});
+  return true;
 }
 
 function updateCompiledLocalizationStatus(ctx = state.srcCtx, options = {}) {
@@ -1132,7 +1238,10 @@ function renderLocalePreflightControls(ctx = state.srcCtx) {
     const warnings = Number(report.detached || 0) + (report.buildWarnings?.length || 0);
     r.compiledPreflightStatus.textContent = `⚠ Проверено ${report.checked}/${report.total}${warnings ? ` · ${warnings} предупрежд.` : ''}`;
   } else if (status === 'stale') {
-    r.compiledPreflightStatus.textContent = 'Нужно проверить заново';
+    // Раньше здесь висело «Нужно проверить заново» — требование без повода:
+    // проверка к выпуску нужна перед выпуском, а не после каждой правки.
+    // Оставляем нейтральную подпись у самой кнопки.
+    r.compiledPreflightStatus.textContent = '';
   } else {
     r.compiledPreflightStatus.textContent = 'Не проверено';
   }
@@ -1436,35 +1545,46 @@ function renderCompiledLocaleControls() {
     const unresolvedCount = Number(ctx.localization?.unresolvedCount ?? meta.localization?.unresolvedCount ?? 0);
     const unresolved = !detached && (meta.ready === false || unresolvedCount > 0);
     r.compiledLocaleStatus.dataset.state = editing ? 'editing' : (detached ? 'detached' : (unresolved ? 'unresolved' : 'linked'));
+    // Слова «отвязать / привязать» человеку ничего не объясняют: он пришёл
+    // править текст. Показываем состояние делом — правится эта локаль или
+    // собирается из Pug.
     r.compiledLocaleStatus.textContent = editing
-      ? (detached ? 'Правка ручной версии' : 'После сохранения отвяжется')
+      ? (ctx.htmlDirty ? 'Сохраняю…' : 'Сохранено')
       : (detached
-        ? 'Отвязана от Pug'
-        : (unresolved ? `Не готова${unresolvedCount ? ` · ${unresolvedCount} без текста` : ''}` : 'Связана с Pug'));
+        ? 'Своя версия'
+        : (unresolved ? `Не готова${unresolvedCount ? ` · ${unresolvedCount} без текста` : ''}` : 'Из Pug'));
   }
 
   const label = r.compiledViewBanner?.querySelector('.compiled-view-label');
   if (label) {
     const shown = meta.label || locale;
     const baseLabel = editing
-      ? `HTML · ${shown} · ручное редактирование`
-      : (meta.detached ? `HTML · ${shown} · сохранённая ручная версия` : `HTML · ${shown} · результат Pug-сборки`);
+      ? `HTML · ${shown} · правится`
+      : (meta.detached ? `HTML · ${shown} · своя версия` : `HTML · ${shown} · собран из Pug`);
     const refreshing = !editing && (ctx.buildState === 'queued' || ctx.buildState === 'building');
     label.textContent = baseLabel + (refreshing ? ' · обновляется…' : '');
   }
 
-  r.compiledViewEditHtmlBtn?.classList.toggle('hidden', editing);
-  if (r.compiledViewEditHtmlBtn) {
-    const canEdit = Boolean(ctx.viewingCompiledHtml && ctx.compiledHtml);
-    r.compiledViewEditHtmlBtn.disabled = !canEdit;
-    r.compiledViewEditHtmlBtn.textContent = meta.detached ? '✏️ Править ручную версию' : '✏️ Отвязать и править HTML';
-    r.compiledViewEditHtmlBtn.title = canEdit
-      ? 'Создать независимую HTML-версию только для выбранной локали'
-      : 'Сначала откройте собранный HTML';
-  }
-  r.compiledViewSaveHtmlBtn?.classList.toggle('hidden', !editing);
-  r.compiledViewCancelHtmlBtn?.classList.toggle('hidden', !editing);
-  r.compiledViewResetHtmlBtn?.classList.toggle('hidden', editing || !meta.detached);
+  // Панель над кодом сведена к минимуму: статус правки и одна кнопка «</> Pug».
+  //
+  // Всё остальное было перегрузом ради перегруза:
+  //   • выпадашка «Локаль» дублировала полосу локалей Original/EN/AR сверху;
+  //   • «Проверить к выпуску» и его статус — операция перед выпуском, а не
+  //     то, что нужно видеть на каждой правке текста;
+  //   • «Сохранить» и «Отменить» потеряли смысл, когда появился автосейв;
+  //   • отдельная кнопка «разрешить правку» исчезла ещё раньше — HTML и так правится.
+  // Элементы остались в разметке (скрытыми), поэтому вернуть любой из них —
+  // одна строка, и обработчики не осиротели.
+  r.compiledViewEditHtmlBtn?.classList.add('hidden');
+  if (r.compiledViewEditHtmlBtn) r.compiledViewEditHtmlBtn.disabled = true;
+  r.compiledViewSaveHtmlBtn?.classList.add('hidden');
+  r.compiledViewCancelHtmlBtn?.classList.add('hidden');
+  r.compiledLocaleSelect?.closest('.compiled-locale-picker')?.classList.add('hidden');
+  r.compiledPreflightBtn?.classList.add('hidden');
+  r.compiledPreflightStatus?.classList.add('hidden');
+  // Показываем всегда, когда локаль отвязана: это единственный способ
+  // вернуть её под Pug, а режим правки теперь включён постоянно.
+  r.compiledViewResetHtmlBtn?.classList.toggle('hidden', !meta.detached);
   if (r.compiledViewSaveHtmlBtn) r.compiledViewSaveHtmlBtn.disabled = !ctx.htmlDirty;
   if (r.compiledViewResetHtmlBtn) {
     r.compiledViewResetHtmlBtn.disabled = meta.detached && meta.hasCompiled === false;
@@ -1473,6 +1593,11 @@ function renderCompiledLocaleControls() {
       : 'Удалить ручную версию и снова взять эту локаль из Pug-сборки';
   }
   if (r.minifyBtn) r.minifyBtn.disabled = editing;
+  // Открыли локаль — она сразу редактируемая. Иначе человек снова упирается в
+  // read-only без единого сообщения, ради чего всё это и переделывалось.
+  if (!editing && ctx.viewingCompiledHtml && ctx.compiledHtml && !ctx.htmlOperation) {
+    setTimeout(() => enterHtmlEditMode(ctx, { confirmDetach: false, silent: true }), 0);
+  }
   updateCompiledLocalizationStatus(ctx);
   renderLocalePreflightControls(ctx);
 }
@@ -1563,9 +1688,45 @@ async function showCompiledHtml(minified = false, locale = null, options = {}) {
     ctx.activeHtmlLocale = requestedLocale;
     renderCompiledLocaleControls();
     const requestId = ++_compiledHtmlRequest;
+    // Метаданные локалей уже знают, у какой есть собранный HTML. Спрашивать
+    // сервер о заведомо отсутствующей локали — значит гарантированно получить
+    // 404 красной строкой в консоли ещё до того, как мы её соберём.
+    const knownMeta = (ctx.htmlLocales || []).find(item => item.code === requestedLocale);
+    if (knownMeta && knownMeta.hasCompiled === false && !knownMeta.detached && !options.retriedAfterBuild) {
+      const label = requestedLocale === HTML_BASE_LOCALE ? 'Original' : requestedLocale.toUpperCase();
+      toast(`Локаль ${label} ещё не собрана — собираю…`, 'info', 2500);
+      const built = await rebuildSourceEmail({ keepSourceView: true, background: true });
+      if (state.srcCtx !== ctx) return;
+      if (built) {
+        await showCompiledHtml(minified, requestedLocale, { ...options, retriedAfterBuild: true });
+        return;
+      }
+      toast(`Локаль ${label} пока не собрана: добавьте для неё тексты и нажмите пересборку`, 'warning', 4500);
+      return;
+    }
     const res = await fetch(`/api/wb/code-html?brand=${encodeURIComponent(ctx.brand)}&mail=${encodeURIComponent(ctx.mail)}&locale=${encodeURIComponent(requestedLocale)}`);
     const data = await res.json();
-    if (!res.ok || !data.ok) throw new Error(data.error || 'HTML-локаль не найдена');
+    if (!res.ok || !data.ok) {
+      // Локаль ещё не собиралась — это нормальное состояние нового письма, а
+      // не поломка. Раньше отсюда прилетало красное «Compiled locale not
+      // found», человек видел ошибку на пустом месте и терял нить.
+      const notBuilt = res.status === 404 || /not found|не найден/i.test(String(data?.error || ''));
+      const label = requestedLocale === HTML_BASE_LOCALE ? 'Original' : requestedLocale.toUpperCase();
+      if (notBuilt && !options.retriedAfterBuild) {
+        toast(`Локаль ${label} ещё не собрана — собираю…`, 'info', 2500);
+        const built = await rebuildSourceEmail({ keepSourceView: true, background: true });
+        if (state.srcCtx !== ctx) return;
+        if (built) {
+          await showCompiledHtml(minified, requestedLocale, { ...options, retriedAfterBuild: true });
+          return;
+        }
+      }
+      if (notBuilt) {
+        toast(`Локаль ${label} пока не собрана: добавьте для неё тексты и нажмите пересборку`, 'warning', 4500);
+        return;
+      }
+      throw new Error(data.error || 'HTML-локаль не найдена');
+    }
     if (requestId !== _compiledHtmlRequest || state.srcCtx !== ctx) return;
     applyCompiledHtmlToEditor(ctx, data, minified);
   } catch (error) {
@@ -1620,21 +1781,28 @@ r.compiledViewBackBtn?.addEventListener('click', () => {
 
 // Editing HTML creates an explicit, per-locale override. Pug remains the source
 // of truth for every linked locale and can restore an override at any time.
-r.compiledViewEditHtmlBtn?.addEventListener('click', () => {
-  const ctx = state.srcCtx;
-  if (!ctx?.viewingCompiledHtml || !ctx.compiledHtml) {
-    toast('Сначала откройте HTML нужной локали', 'warning');
-    return;
-  }
+/**
+ * Включить правку скомпилированного HTML.
+ *
+ * Вынесено из обработчика кнопки, потому что тем же путём теперь идёт переход
+ * из конструктора: менеджер приходит править ТЕКСТЫ, и HTML должен открываться
+ * сразу редактируемым. Раньше вкладка открывалась read-only без единого
+ * сообщения — со стороны это выглядело как «ничего не работает, не меняется».
+ *
+ * @param {boolean} confirmDetach — спрашивать ли про отвязку локали от Pug.
+ *   Кнопка спрашивает (человек мог зайти посмотреть), автопереход — нет.
+ */
+function enterHtmlEditMode(ctx = state.srcCtx, { confirmDetach = true, silent = false } = {}) {
+  if (!ctx?.viewingCompiledHtml || !ctx.compiledHtml) return false;
   const meta = getActiveHtmlLocaleMeta(ctx);
   const locale = ctx.activeHtmlLocale || HTML_BASE_LOCALE;
   const localeLabel = locale === HTML_BASE_LOCALE ? 'Original' : locale.toUpperCase();
-  if (!meta?.detached && !confirm(
+  if (confirmDetach && !meta?.detached && !confirm(
     `${localeLabel} сейчас связана с Pug.\n\n` +
     'После сохранения появится отдельный HTML override только для этой локали. ' +
     'Следующие изменения Pug её не перезапишут, пока вы не нажмёте «Удалить override · вернуть Pug».\n\n' +
     'Отвязать и начать редактирование HTML?'
-  )) return;
+  )) return false;
   _compiledHtmlSnapshot = cm?.getValue() || ctx.compiledHtml || '';
   ctx.htmlEditMode = true;
   ctx.htmlDirty = false;
@@ -1643,11 +1811,87 @@ r.compiledViewEditHtmlBtn?.addEventListener('click', () => {
   try { cm?.refresh(); } catch {}
   renderCompiledLocaleControls();
   cm?.focus();
-  toast('Правки сохранятся только для этой HTML-локали', 'info', 2400);
+  if (!silent) toast('Правки сохранятся только для этой HTML-локали', 'info', 2400);
+  return true;
+}
+
+r.compiledViewEditHtmlBtn?.addEventListener('click', () => {
+  const ctx = state.srcCtx;
+  if (!ctx?.viewingCompiledHtml || !ctx.compiledHtml) {
+    toast('Сначала откройте HTML нужной локали', 'warning');
+    return;
+  }
+  enterHtmlEditMode(ctx, { confirmDetach: true });
 });
 
-async function saveDetachedHtmlRevisions(ctx = state.srcCtx) {
+/**
+ * @param {boolean} [options.keepEditing] — сохранить, НЕ трогая редактор.
+ *   Ручное сохранение может позволить себе перезалить буфер отформатированным
+ *   ответом сервера. Автосохранение — нет: оно срабатывает через 800 мс после
+ *   нажатия клавиши, и подмена содержимого выбросила бы курсор в начало файла
+ *   прямо посреди набора текста. Поэтому автосейв только фиксирует, что буфер
+ *   и сохранённая версия совпали.
+ */
+/**
+ * Правка Original — это правка ИСТОЧНИКА, а не одной локали.
+ *
+ * Поставил плейсхолдер в Original → он уезжает в Pug → пересборка → каждая
+ * локаль подтянула СВОЙ перевод. Именно так работает локализация проекта, и
+ * именно этого ждёт человек. Сохранять Original как HTML-override нельзя: тогда
+ * правка запирается внутри одной локали, а остальные собираются из нетронутого
+ * Pug — «приходится в каждой локали подставлять руками».
+ *
+ * Переносится только текст; разметку и стили правят в Pug/Stylus.
+ */
+async function syncOriginalTextToPug(ctx = state.srcCtx) {
+  if (!ctx || !cm) return false;
+  const after = stripPreviewArtifacts(cm.getValue());
+  const before = ctx.compiledHtml || '';
+  if (!after.trim() || !before.trim()) return false;
+  try {
+    const res = await fetch('/api/wb/sync-original-text', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ brand: ctx.brand, mail: ctx.mail, before, after }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(data.error || 'Не удалось перенести текст в Pug');
+
+    if (data.skipped?.length) {
+      const first = data.skipped[0];
+      toast(`Не перенёс «${String(first.from).slice(0, 40)}»: ${first.reason}`, 'warning', 6000);
+    }
+    if (!data.changed) {
+      if (!data.skipped?.length) toast('В Original нечего переносить — текст не менялся', 'info', 2500);
+      return false;
+    }
+
+    ctx.htmlDirty = false;
+    toast(`Перенёс в Pug: ${data.applied.length} · пересобираю все локали…`, 'info', 3000);
+    await rebuildSourceEmail({ keepSourceView: true, background: true });
+    if (state.srcCtx !== ctx) return true;
+    await refreshCodeWorkspace(ctx);
+    await showCompiledHtml(false, ctx.activeHtmlLocale || HTML_BASE_LOCALE, { force: true });
+    toast('Готово: текст в Pug, локали пересобраны', 'success', 3000);
+    return true;
+  } catch (error) {
+    toast('Перенос текста в Pug: ' + error.message, 'error');
+    return false;
+  }
+}
+
+async function saveDetachedHtmlRevisions(ctx = state.srcCtx, options = {}) {
   if (!ctx?.htmlEditMode || !ctx.htmlDirty || !cm) return null;
+  if (!htmlBufferIsSavable()) {
+    toast('Пустой HTML не сохраняется. Верните код или нажмите «Собрать заново из Pug»', 'warning', 4000);
+    return null;
+  }
+  // Последний рубеж: не создавать override для локали, в которой ничего не
+  // меняли. Отвязанная локаль перестаёт пересобираться из Pug навсегда.
+  if (!options.force && !htmlBufferHasRealEdits(ctx)) {
+    ctx.htmlDirty = false;
+    return null;
+  }
   ctx.htmlSaveRequested = true;
   if (ctx.htmlSavePromise) return ctx.htmlSavePromise;
 
@@ -1656,7 +1900,8 @@ async function saveDetachedHtmlRevisions(ctx = state.srcCtx) {
     while (ctx.htmlSaveRequested && ctx.htmlEditMode) {
       ctx.htmlSaveRequested = false;
       const locale = ctx.activeHtmlLocale || HTML_BASE_LOCALE;
-      const content = stripPreviewArtifacts(cm.getValue());
+      const rawBuffer = cm.getValue();
+      const content = stripPreviewArtifacts(rawBuffer);
       const snapshot = captureEditorRevision(ctx, 'htmlRevision', content);
       ++_compiledHtmlRequest;
       ctx.htmlOperation = 'save';
@@ -1694,8 +1939,18 @@ async function saveDetachedHtmlRevisions(ctx = state.srcCtx) {
         }
 
         ctx.htmlPersistedRevision = snapshot.revision;
-        applyCompiledHtmlToEditor(ctx, data, false);
-        toast(`HTML ${data.locale === HTML_BASE_LOCALE ? 'Original' : data.locale.toUpperCase()} сохранён отдельно от Pug`, 'success', 3000);
+        if (options.keepEditing) {
+          // Буфер не трогаем: человек продолжает печатать. Просто помечаем,
+          // что сохранённое и набранное совпали.
+          rememberCompiledHtml(ctx, data);
+          _compiledHtmlSnapshot = rawBuffer;
+          ctx.htmlRevisionValue = rawBuffer;
+          ctx.htmlDirty = cm.getValue() !== rawBuffer;
+          if (state.srcCtx === ctx) renderCompiledLocaleControls();
+        } else {
+          applyCompiledHtmlToEditor(ctx, data, false);
+          toast(`HTML ${data.locale === HTML_BASE_LOCALE ? 'Original' : data.locale.toUpperCase()} сохранён`, 'success', 3000);
+        }
       } catch (error) {
         ctx.htmlDirty = true;
         ctx.htmlSaveRequested = false;
@@ -6429,6 +6684,12 @@ async function openSourceContext(brand, mail, options = {}) {
         updatePreview();
       } else {
         applyCompiledHtmlToEditor(ctx, htmlData, false);
+        // Открыли HTML для правки по явной просьбе (переход из конструктора):
+        // спрашивать про отвязку локали здесь нечего — человек за этим и шёл.
+        if (options.editHtml) {
+          enterHtmlEditMode(ctx, { confirmDetach: false, silent: true });
+          toast('HTML открыт для правки. Вёрстка — кнопкой «← Вернуться к Pug»', 'info', 3200);
+        }
       }
     } catch (err) {
       console.warn('[compile-on-open] failed:', err && err.message);
@@ -10997,9 +11258,14 @@ document.addEventListener('DOMContentLoaded', init);
 document.addEventListener('DOMContentLoaded', () => {
   const handoff = getDirectMailHandoff();
   if (!handoff || typeof loadEmailFromBase !== 'function') return;
-  // `init` is registered first, so CodeMirror is ready here. Start immediately
-  // and explicitly force header.pug; saved HTML-view state is ignored above.
-  loadEmailFromBase(handoff.brand, handoff.mail, null, { initialView: 'pug' }).catch(() => {});
+  // `init` is registered first, so CodeMirror is ready here.
+  //
+  // Из конструктора приходит менеджер, а не верстальщик: ему нужно поправить
+  // тексты и плейсхолдеры в готовом письме. Поэтому открываем скомпилированный
+  // HTML и сразу разрешаем правку — вкладка Pug остаётся рядом и открывается
+  // кнопкой «← Вернуться к Pug» для тех, кому нужна вёрстка.
+  loadEmailFromBase(handoff.brand, handoff.mail, null, { initialView: 'html', editHtml: true })
+    .catch(() => {});
 });
 
 
