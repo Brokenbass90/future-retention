@@ -4745,3 +4745,17 @@ body:has(.ph-sidebar:not(.collapsed):not(.hidden)) .workspace {
 .structure-item-acts button { border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 5px; width: 24px; height: 24px; cursor: pointer; font-size: 11px; }
 .structure-item-acts button:hover:not(:disabled) { border-color: var(--accent); }
 .structure-item-acts button:disabled { opacity: .35; cursor: default; }
+
+/* Кнопка «подключить своего агента» в шапке ИИ-панели. Видна всегда: дверь к
+   своему Клоду не должна зависеть от того, настроена ли у студии своя модель. */
+.ai-agent-btn {
+  border: 1px solid var(--border-2);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-2);
+  font: 500 11px/1 var(--font);
+  padding: 5px 9px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.ai-agent-btn:hover { color: var(--text); border-color: var(--accent); }

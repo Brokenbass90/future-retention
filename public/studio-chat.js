@@ -81,14 +81,56 @@
     get_namespace_blocks: "читаю блоки локали",
     find_in_html: "ищу в вёрстке",
     replace_in_html: "правлю вёрстку",
-    insert_block: "вставляю блок",
-    remove_block: "удаляю блок",
+    insert_block: "вставляю блок в вёрстку",
+    remove_block: "убираю блок из вёрстки",
+    update_canvas_block: "правлю блок в письме",
+    add_canvas_block: "ставлю блок в письмо",
+    remove_canvas_block: "убираю блок из письма",
+    move_canvas_block: "переставляю блок",
+    clear_canvas: "очищаю письмо",
+    check_canvas_ready: "проверяю, дособрано ли письмо",
+    see_email: "смотрю на письмо",
+    see_block: "смотрю на блок",
+    open_draft: "беру письмо в черновик",
+    publish_draft: "публикую черновик",
+    list_mail_files: "смотрю исходники письма",
+    read_mail_file: "читаю исходник письма",
+    write_mail_file: "правлю исходник письма",
     align_locales_to_reference: "выравниваю локали по эталону",
     placeholderize_html: "расставляю плейсхолдеры",
     translate_locale_txt: "перевожу",
     fix_locale_txt: "чиню локаль",
     finish: "подвожу итог",
   };
+
+  /**
+   * Перевод отказа модели на человеческий.
+   *
+   * «429», «insufficient_quota», «rate limit» — это не поломка студии, и
+   * чинить человеку нечего: у модели кончились токены или она занята. Показать
+   * ему сырой код значит отправить его искать баг там, где бага нет; показать
+   * «ошибка» — значит скрыть, что надо просто подождать.
+   */
+  function describeFailure(message) {
+    var text = String(message || "");
+    if (/insufficient_quota|exceeded your current quota|billing/i.test(text)) {
+      return "⏳ У модели кончились токены — счёт исчерпан. Работа не потеряна: допишите " +
+        "квоту у провайдера модели или подключите своего агента (значок в шапке этого окна), " +
+        "и продолжим с этого же места.";
+    }
+    if (/\b429\b|rate[ _-]?limit|too many requests/i.test(text)) {
+      return "⏳ Модель сейчас занята — слишком много запросов подряд. Подождите полминуты " +
+        "и повторите: студия ничего не потеряла.";
+    }
+    if (/\b(408|504)\b|timeout|timed out/i.test(text)) {
+      return "⏳ Модель не ответила вовремя. Повторите — обычно со второго раза проходит.";
+    }
+    if (/OPENAI_API_KEY is not configured/i.test(text)) {
+      return "Своей модели у студии нет — это нормально. Подключите своего агента: " +
+        "значок состояния в шапке этого окна.";
+    }
+    return text;
+  }
 
   class StudioChat {
     /**
@@ -102,6 +144,10 @@
       this.surface = options.surface;
       this.buildContext = options.buildContext || (() => ({}));
       this.onResult = options.onResult || (() => {});
+      // Поверхность хочет знать, открыто ли окно: круглая кнопка внизу справа
+      // подсвечивается, пока идёт разговор. Раньше она об этом не узнавала,
+      // если окно открыли правой кнопкой по блоку, и выглядела погашенной.
+      this.onOpenChange = options.onOpenChange || (() => {});
       this.title = options.title || "Оператор студии";
       this.messages = [];
       this.images = [];
@@ -117,6 +163,8 @@
       root.innerHTML = `
         <header class="chat-head">
           <span class="chat-title">🤖 ${escapeHtml(this.title)}</span>
+          <button class="chat-agent-state" type="button" data-state="unknown"
+                  title="Состояние подключения своего агента">·&nbsp;проверяю подключение</button>
           <button class="chat-clear" type="button" title="Очистить переписку">Очистить</button>
           <button class="chat-close" type="button" title="Свернуть (Esc)">✕</button>
         </header>
@@ -141,6 +189,12 @@
       root.querySelector(".chat-form").addEventListener("submit", (e) => { e.preventDefault(); this.send(); });
       root.querySelector(".chat-close").addEventListener("click", () => this.close());
       root.querySelector(".chat-clear").addEventListener("click", () => { this.messages = []; this.log.innerHTML = ""; this.hello(); });
+      // Мастер подключения нужен по нажатию, а не только когда у студии нет
+      // своей модели. Раньше он показывался сам и только в этом случае —
+      // поэтому у тех, у кого модель настроена, двери к своему агенту просто
+      // не было.
+      root.querySelector(".chat-agent-state").addEventListener("click", () => this.showAgentWizard());
+      this.refreshAgentState();
       root.querySelector(".chat-attach input").addEventListener("change", (e) => {
         this.addImages([...e.target.files]);
         e.target.value = "";
@@ -193,10 +247,45 @@
         return p;
       };
 
+      /**
+       * Размер запоминается вместе с положением.
+       *
+       * Растянуть окно можно было и раньше (CSS resize), но на следующем
+       * открытии оно снова становилось узким — и человек тянул его заново
+       * каждый раз. Разговор о письме идёт длинный, и ширина тут не каприз.
+       */
+      const saveBox = () => {
+        const rect = this.root.getBoundingClientRect();
+        try {
+          localStorage.setItem(key, JSON.stringify({
+            left: rect.left, top: rect.top,
+            width: Math.round(rect.width), height: Math.round(rect.height),
+          }));
+        } catch { /* не критично */ }
+      };
+
       try {
         const saved = JSON.parse(localStorage.getItem(key) || "null");
         if (saved && Number.isFinite(saved.left) && Number.isFinite(saved.top)) place(saved.left, saved.top);
+        if (saved && Number.isFinite(saved.width) && Number.isFinite(saved.height)) {
+          // Окно не должно оказаться больше экрана: вчера человек работал на
+          // большом мониторе, сегодня открыл студию на ноутбуке.
+          this.root.style.width = `${Math.min(saved.width, window.innerWidth - 24)}px`;
+          this.root.style.height = `${Math.min(saved.height, window.innerHeight - 24)}px`;
+        }
       } catch { /* ничего не запомнили — откроемся на месте по умолчанию */ }
+
+      // Растягивание идёт мимо всех обработчиков (это делает сам браузер),
+      // поэтому размер ловим наблюдателем, а не событием мыши.
+      if (typeof ResizeObserver === "function") {
+        let first = true;
+        const observer = new ResizeObserver(() => {
+          if (first) { first = false; return; } // первая отрисовка — не правка размера
+          clearTimeout(this._resizeSaveTimer);
+          this._resizeSaveTimer = setTimeout(saveBox, 400);
+        });
+        observer.observe(this.root);
+      }
 
       handle.addEventListener("pointerdown", (e) => {
         // Кнопки в заголовке остаются кнопками, а не ручкой перетаскивания.
@@ -213,8 +302,8 @@
           handle.removeEventListener("pointermove", move);
           handle.removeEventListener("pointerup", up);
           this.root.classList.remove("dragging");
-          const p = place(ev.clientX - dx, ev.clientY - dy);
-          try { localStorage.setItem(key, JSON.stringify(p)); } catch { /* не критично */ }
+          place(ev.clientX - dx, ev.clientY - dy);
+          saveBox();
         };
         handle.addEventListener("pointermove", move);
         handle.addEventListener("pointerup", up);
@@ -236,9 +325,79 @@
         : "Помогу с вёрсткой и локалями открытого письма. Опиши задачу словами или приложи скрин.");
     }
 
-    open() { this.root?.classList.add("open"); setTimeout(() => this.input?.focus(), 40); }
-    close() { this.root?.classList.remove("open"); }
+    /**
+     * Подключён ли свой агент — одной строкой в шапке окна.
+     *
+     * Раньше на этом месте был всплывающий мастер, и показывался он только
+     * тем, у кого не настроена своя модель студии, — то есть ровно тем, кому
+     * подключение было не нужно, а остальным не показывался вовсе: человек с
+     * настроенной моделью не видел двери к своему агенту. Состояние честнее
+     * кнопки: оно читается с диска и отвечает на вопрос «работает ли».
+     */
+    async refreshAgentState() {
+      const badge = this.root?.querySelector(".chat-agent-state");
+      if (!badge || !window.RetkitMcpConnect?.status) return;
+      const dots = { on: "●", off: "○", wrong: "⚠", remote: "○", unknown: "·" };
+      const state = await window.RetkitMcpConnect.status();
+      badge.dataset.state = state.state;
+      badge.textContent = `${dots[state.state] || "·"} ${state.label}`;
+      badge.title = `${state.title}\n\nНажмите, чтобы открыть подключение — или попросите об этом словами в разговоре.`;
+    }
+
+    /** Показать мастер подключения по явной просьбе — своей или человека. */
+    showAgentWizard() {
+      if (!window.RetkitMcpConnect) return;
+      const host = el("div", "chat-msg mcp");
+      this.log?.appendChild(host);
+      window.RetkitMcpConnect.render(host);
+      this.log.scrollTop = this.log.scrollHeight;
+      // Мастер меняет состояние на диске, но индикатор об этом не узнает сам.
+      // Дёшево и честно: перечитать, когда человек закончил с мастером.
+      setTimeout(() => { window.RetkitMcpConnect.forget?.(); this.refreshAgentState(); }, 4000);
+    }
+
+    open() {
+      this.root?.classList.add("open");
+      this.onOpenChange(true);
+      setTimeout(() => this.input?.focus(), 40);
+    }
+
+    close() {
+      this.root?.classList.remove("open");
+      this.onOpenChange(false);
+    }
+
     toggle() { if (!this.root) this.mount(); else this.root.classList.contains("open") ? this.close() : this.open(); }
+
+    /**
+     * Открыть разговор о конкретном предмете — блоке в письме или карточке
+     * каталога. Вопрос за человека не задаём: подставляем в поле ссылку на
+     * предмет, чтобы он дописал своё и отправил.
+     *
+     * Набранный текст не затираем — дописываем ссылку перед ним. Раньше при
+     * непустом поле подстановка молча пропускалась: человек нажимал «обсудить
+     * с ИИ» по блоку, окно открывалось, а о каком блоке речь — нигде не
+     * говорилось, и оператор отвечал невпопад.
+     *
+     * @param {{text:string}} subject — как назвать предмет разговора
+     * @returns {boolean} попала ли ссылка в поле
+     */
+    discuss(subject) {
+      this.mount();
+      this.open();
+      const text = String(subject?.text || "").trim();
+      if (!text || !this.input) return false;
+      const current = String(this.input.value || "");
+      if (current.includes(text)) {
+        this.input.focus();
+        return true;
+      }
+      const draft = `${text} `;
+      this.input.value = `${draft}${current}`;
+      this.input.focus();
+      try { this.input.setSelectionRange(draft.length, draft.length); } catch {}
+      return true;
+    }
 
     attachmentError(message) {
       if (!message) return;
@@ -346,6 +505,29 @@
       if (this.busy) return;
       const text = this.input.value.trim();
       if (!text && !this.images.length) return;
+      // Мастер вызывается словами, а не кнопкой: «подключи ещё одного агента»,
+      // «переподключи Клода». Проверяем до отправки — оператору студии этот
+      // вопрос задавать бессмысленно, он про свои настройки ничего не знает и
+      // начнёт выдумывать.
+      // «вставлю макет», «есть дизайн в фигме» — открываем ту же дверь, что и
+      // кнопка в конструкторе. Второго такого окна не заводим.
+      if (!this.images.length && window.RetkitFigmaPaste?.wantsFigma?.(text)) {
+        this.append("user", text);
+        this.input.value = "";
+        this.append("assistant", "Открыл окно вставки макета: ⌘C на фрейме в Figma (или ⌘L на выделении) — и Ctrl+V туда.");
+        window.RetkitFigmaPaste.open();
+        return;
+      }
+
+      if (!this.images.length && window.RetkitMcpConnect?.wantsSetup?.(text)) {
+        this.append("user", text);
+        this.input.value = "";
+        this.append("assistant", "Подключение своего агента — ниже. Скилл студии поставится вместе с ним.");
+        window.RetkitMcpConnect.forget?.();
+        this.showAgentWizard();
+        return;
+      }
+
       const attachmentValidationError = validateImageAttachments(this.images);
       if (attachmentValidationError) {
         this.attachmentError(attachmentValidationError);
@@ -397,7 +579,7 @@
             let frame;
             try { frame = JSON.parse(line); } catch { continue; }
             if (frame.kind === "final") { final = frame.payload; continue; }
-            if (frame.kind === "error") { this.append("error", frame.message); continue; }
+            if (frame.kind === "error") { this.append("error", describeFailure(frame.message)); continue; }
             this.appendStep(frame);
           }
         }
@@ -416,7 +598,7 @@
         }
       } catch (err) {
         thinking.remove();
-        this.append("error", String(err.message || err));
+        this.append("error", describeFailure(String(err.message || err)));
       } finally {
         this.busy = false;
         this.root.classList.remove("busy");

@@ -14,7 +14,7 @@
  *
  * Zero-AI, без сети. Exit 0 = pass.
  */
-import { existsSync, readFileSync, writeFileSync, rmSync, rmdirSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, rmSync, rmdirSync, renameSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import url from "node:url";
 import {
@@ -42,7 +42,22 @@ function cleanup() {
     else if (existsSync(BRANDS_PATH)) rmSync(BRANDS_PATH);
     else saveBrands(brands);
   } catch { /* восстановление не должно ронять отчёт */ }
-  try { rmdirSync(path.join(repoRoot, "email-base", TEST_ID)); } catch { /* уже нет */ }
+  // Папку тестового бренда надо именно убрать из email-base: бренды читаются
+  // с диска, и оставшаяся папка будет видна следующему прогону как живой
+  // бренд. Если удаление запрещено (смонтированная ФС), отодвигаем её в
+  // _trash переименованием — оно разрешено всегда.
+  const fixtureDir = path.join(repoRoot, "email-base", TEST_ID);
+  if (existsSync(fixtureDir)) {
+    try {
+      rmdirSync(fixtureDir);
+    } catch {
+      try {
+        const aside = path.join(repoRoot, "email-base", "_trash", `${TEST_ID}__${Date.now()}`);
+        mkdirSync(path.dirname(aside), { recursive: true });
+        renameSync(fixtureDir, aside);
+      } catch { /* дальше тест сам скажет, что бренд остался */ }
+    }
+  }
 }
 
 try {

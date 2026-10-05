@@ -68,6 +68,7 @@ const r = {
   aiHandleLabel:       $('aiHandleLabel'),
   aiTokenCounter:      $('aiTokenCounter'),
   aiDrawerToggle:      $('aiDrawerToggle'),
+  aiAgentBtn:          $('aiAgentBtn'),
   aiMessages:          $('aiMessages'),
   aiInput:             $('aiInput'),
   aiSendBtn:           $('aiSendBtn'),
@@ -619,14 +620,20 @@ r.themeToggleBtn.addEventListener('click', () => setTheme(state.theme === 'dark'
 // ═══════════════════════════════════════════════════════════════
 
 function buildHtmlPhOverlay() {
+  // Виды плейсхолдеров описаны в src/placeholders.js; здесь их браузерная
+  // подсветка. Правила держим в том же порядке: сначала узкие шаблоны.
   return {
     token(stream) {
-      // ${{ ns.block_N }}$
+      // ${{ ns.block_N }}$ — перевод, подставляет сборка
       if (stream.peek() === '$') {
         if (stream.match(/\$\{\{[^}]*?\}\}\$/)) return 'ph-translate';
       }
       if (stream.peek() === '{') {
         if (stream.match(/\{%[^%]*?%\}/)) return 'ph-style';
+        // {{ContentBlock['key']}} — блок контента MoEngage. Точки внутри нет,
+        // поэтому правило для {{embedded.x}} его не ловило, и в редакторе он
+        // выглядел обычным текстом: человек правил его как текст и ломал.
+        if (stream.match(/\{\{\s*ContentBlock\s*\[\s*(['"])[^'"\]]+\1\s*\]\s*\}\}/)) return 'ph-embedded';
         if (stream.match(/\{\{[a-zA-Z0-9_]+\.[^}]+?\}\}/)) return 'ph-embedded';
         stream.next(); return null;
       }
@@ -6582,7 +6589,38 @@ function setupBlocksDragDrop() {
   // No-op: document-level listeners are added/removed per drag
 }
 
+// Что делать, когда письмо занято: копию открываем сразу, перехват молча
+// не оставляем — человек должен видеть, что письмо теперь его.
+window.RetkitLease?.configure({
+  onCopy: ({ brand, mail }) => {
+    openSourceContext(brand, mail).catch(error => toast('Копия не открылась: ' + error.message, 'error'));
+  },
+  onTaken: () => toast('Письмо перехвачено — теперь оно ваше', 'success'),
+});
+
+window.RetkitDrafts?.configure({
+  onOpenDraft: ({ brand, mail }) => {
+    openSourceContext(brand, mail).catch(error => toast('Черновик не открылся: ' + error.message, 'error'));
+  },
+  onPublished: ({ brand, mail }) => {
+    toast('Черновик опубликован в базу', 'success');
+    openSourceContext(brand, mail).catch(() => { /* письмо откроется вручную */ });
+  },
+  onDiscarded: ({ brand, mail }) => {
+    toast('Черновик отложен, база не изменилась', 'info');
+    openSourceContext(brand, mail).catch(() => { /* письмо откроется вручную */ });
+  },
+});
+
 async function openSourceContext(brand, mail, options = {}) {
+  // Письмо занимается сразу при открытии: узнать, что оно чужое, лучше до
+  // часа работы, чем при сохранении. Отказ не мешает открыть и посмотреть —
+  // сервер всё равно не даст записать поверх чужой работы.
+  window.RetkitLease?.hold(brand, mail).catch(() => { /* замок не должен мешать работе */ });
+  // И сразу говорим, с чем человек работает: это черновик или оригинал, по
+  // которому черновик уже есть. Молчание здесь стоит дорого — можно неделю
+  // править копию, думая, что правишь письмо базы.
+  window.RetkitDrafts?.reflect(brand, mail);
   state.activeFileId = null;
   r.fileTabs?.querySelectorAll('.file-tab').forEach(t => t.classList.remove('active'));
   r.fileTabs?.querySelector('[data-file-id="__empty__"]')?.remove();
@@ -9086,13 +9124,73 @@ function toggleAiDrawer() {
   r.aiDrawer.dataset.state = open ? 'collapsed' : 'expanded';
   // When opening, clear explicit height set by drag-resize so CSS transition can run
   if (open) { r.aiDrawer.style.height = ''; }
-  if (!open) setTimeout(() => r.aiInput.focus(), 290);
+  if (!open) { setTimeout(() => r.aiInput.focus(), 290); offerAgentIfNeeded(); }
+}
+
+/**
+ * Своей модели у студии может не быть вовсе — и тогда честнее не молчать
+ * «нет ключа», а показать мастер подключения прямо в том окне, где человек
+ * начал разговор с ИИ. Модель он приносит свою: его Claude, его подписка.
+ *
+ * Проверяем один раз за жизнь вкладки: чат чистится кнопкой, а сервер
+ * дёргать на каждую очистку незачем.
+ */
+let _agentOfferChecked = false;
+async function offerAgentIfNeeded(host) {
+  if (!window.RetkitMcpConnect) return;
+  if (!host) {
+    if (_agentOfferChecked) return;
+    _agentOfferChecked = true;
+  }
+  let configured = false;
+  try {
+    const res = await fetch('/api/status', { signal: AbortSignal.timeout(5000) });
+    const data = await res.json();
+    configured = Boolean(data?.openAiConfigured);
+  } catch {
+    // Статус не пришёл — молчим: мастер важен, но не важнее рабочего чата.
+    return;
+  }
+  if (configured && !host) return;
+  const target = host || (() => {
+    r.aiMessages.querySelector('.ai-welcome')?.remove();
+    const box = document.createElement('div');
+    box.className = 'ai-message assistant ai-mcp-offer';
+    r.aiMessages.appendChild(box);
+    return box;
+  })();
+  window.RetkitMcpConnect.render(target);
+  if (!host) r.aiMessages.scrollTop = r.aiMessages.scrollHeight;
 }
 
 r.aiDrawerHandle.addEventListener('click', e => {
   if (e.target.closest('.ai-drawer-toggle') || e.target.closest('.ai-send-btn')) return;
   toggleAiDrawer();
 });
+
+/**
+ * Перевод отказа модели на человеческий — тот же, что и в окне конструктора.
+ *
+ * «429» и «insufficient_quota» — это не поломка студии: у модели кончились
+ * токены или она занята, и человеку надо подождать, а не искать баг.
+ */
+function describeAiFailure(message) {
+  const text = String(message || '');
+  if (/insufficient_quota|exceeded your current quota|billing/i.test(text)) {
+    return '⏳ У модели кончились токены — счёт исчерпан. Работа не потеряна: допишите квоту '
+      + 'или подключите своего агента, и продолжим с этого же места.';
+  }
+  if (/\b429\b|rate[ _-]?limit|too many requests/i.test(text)) {
+    return '⏳ Модель занята — слишком много запросов подряд. Подождите полминуты и повторите.';
+  }
+  if (/\b(408|504)\b|timeout|timed out/i.test(text)) {
+    return '⏳ Модель не ответила вовремя. Повторите — обычно со второго раза проходит.';
+  }
+  if (/OPENAI_API_KEY is not configured/i.test(text)) {
+    return 'Своей модели у студии нет — это нормально. Подключите своего агента.';
+  }
+  return '⚠ ' + text;
+}
 
 // ─── AI drawer drag-to-resize ────────────────────────────────────
 if (r.aiResizeHandle) {
@@ -9128,6 +9226,19 @@ if (r.aiResizeHandle) {
   });
 }
 r.aiDrawerToggle.addEventListener('click', e => { e.stopPropagation(); toggleAiDrawer(); });
+
+// Мастер подключения по нажатию: раньше он показывался сам и только при
+// отсутствии своей модели — у тех, у кого модель настроена, двери не было.
+r.aiAgentBtn?.addEventListener('click', e => {
+  e.stopPropagation();
+  if (r.aiDrawer.dataset.state !== 'expanded') r.aiDrawer.dataset.state = 'expanded';
+  r.aiMessages.querySelector('.ai-welcome')?.remove();
+  const box = document.createElement('div');
+  box.className = 'ai-message assistant ai-mcp-offer';
+  r.aiMessages.appendChild(box);
+  offerAgentIfNeeded(box);
+  r.aiMessages.scrollTop = r.aiMessages.scrollHeight;
+});
 
 r.aiSendBtn.addEventListener('click', sendAiMessage);
 r.aiInput.addEventListener('keydown', e => {
@@ -9189,6 +9300,10 @@ async function runAgentChat(text, images = []) {
         message: text,
         messages: state.chatHistory.slice(-6),
         baseEmailHtml: currentHtml,
+        // Какое письмо открыто: без этого оператор видит готовый HTML, но не
+        // знает, из каких исходников тот собран, и стили тронуть не может.
+        brand: ctx.brand,
+        mail: ctx.mail,
         namespaces: state.namespaces.map(ns => ({
           id: ns.id,
           name: ns.name,
@@ -9250,7 +9365,7 @@ async function runAgentChat(text, images = []) {
         } else if (frame.kind === 'final') {
           finalPayload = frame.payload;
         } else if (frame.kind === 'error') {
-          timeline.appendChild(stepEl('error', '⚠ ' + frame.message));
+          timeline.appendChild(stepEl('error', describeAiFailure(frame.message)));
         }
         r.aiMessages.scrollTop = r.aiMessages.scrollHeight;
       }
@@ -10703,6 +10818,10 @@ r.aiSettingsBtn.addEventListener('click', () => {
   r.aiSettingsModal.classList.remove('hidden');
   r.aiSettingsBackdrop.classList.remove('hidden');
   refreshAiStatus();
+  // В настройках мастер показываем всегда: сюда приходят именно за тем,
+  // чтобы разобраться с подключением модели.
+  const host = document.getElementById('aiSettingsConnect');
+  if (host) offerAgentIfNeeded(host);
 });
 r.closeAiSettingsBtn.addEventListener('click', () => {
   r.aiSettingsModal.classList.add('hidden'); r.aiSettingsBackdrop.classList.add('hidden');

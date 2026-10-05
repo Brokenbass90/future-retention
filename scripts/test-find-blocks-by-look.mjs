@@ -132,7 +132,12 @@ const find = (args) => TOOL_HANDLERS.find_blocks_by_look(args, {});
 {
   const none = await find({ hasImage: true, hasButton: true, hasList: true, minColumns: 9, minHeight: 9000 });
   check("невозможный запрос даёт пустую выдачу", none.count === 0);
-  check("подсказка объясняет, что делать", /Loosen|loosen/.test(none.hint || ""), none.hint);
+  // Подсказка сменилась осознанно: «ослабьте фильтры» оператор читал как
+  // «такого блока нет» и говорил это человеку. Теперь она прямо запрещает
+  // такой вывод и называет, чем искать дальше.
+  check("подсказка объясняет, что делать", /list_canonical_blocks/.test(none.hint || ""), none.hint);
+  check("и не даёт сделать вывод «блока нет»",
+    /does NOT mean the block is missing/.test(none.hint || ""), none.hint);
 }
 
 /* ─── Лимит соблюдается и ограничен сверху ───────────────────────────────── */
@@ -141,6 +146,30 @@ const find = (args) => TOOL_HANDLERS.find_blocks_by_look(args, {});
   check("лимит соблюдается", three.count <= 3);
   const huge = await find({ limit: 5000 });
   check("лимит ограничен сверху", huge.count <= 40, `count=${huge.count}`);
+}
+
+/* ─── Пустая выдача не значит «блока нет» ────────────────────────────────── */
+{
+  // Настоящий случай из работы: оператор трижды получил ноль от визуального
+  // поиска и сказал человеку, что в библиотеке нет блока с кнопкой — предложив
+  // нарисовать её руками. sys-button при этом лежал в каталоге. Пустой ответ
+  // обязан давать кандидатов и прямо запрещать такой вывод.
+  const empty = await TOOL_HANDLERS.find_blocks_by_look(
+    { query: "zzz-такого-запроса-нет-qqq", placement: "inner" }, {},
+  );
+  check("визуальный поиск ничего не нашёл", empty.count === 0, String(empty.count));
+  check("но кандидаты предложены", Array.isArray(empty.candidates) && empty.candidates.length > 0,
+    String(empty.candidates?.length));
+  check("среди кандидатов есть кнопка",
+    empty.candidates.some((entry) => /button|cta/.test(entry.id)),
+    empty.candidates.slice(0, 8).map((entry) => entry.id).join(", "));
+  check("подсказка запрещает вывод «блока нет»", /NEVER tell the user a block does not exist/.test(empty.hint),
+    empty.hint);
+  check("подсказка называет запасной инструмент", /list_canonical_blocks/.test(empty.hint));
+
+  const found = await TOOL_HANDLERS.find_blocks_by_look({ query: "кнопка" }, {});
+  check("когда нашлось — кандидаты не мешаются", found.count > 0 && !found.candidates,
+    `${found.count}/${found.candidates ? found.candidates.length : 0}`);
 }
 
 console.log(`\nfind-blocks-by-look: ${pass} ok, ${fail} fail`);

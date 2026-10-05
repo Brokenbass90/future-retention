@@ -19,9 +19,13 @@ export function resolveStudioRuntimeFlags(env = process.env) {
   const aiEnabled = !publicDemo && parseBooleanEnv(env.STUDIO_AI_ENABLED, true);
   const authAllowed = !publicDemo && parseBooleanEnv(env.APP_AUTH_ENABLED, true);
   const hasAuthCredentials = Boolean(env.APP_AUTH_USER && env.APP_AUTH_PASSWORD);
+  // Витрина ничего не пишет на диск: на Heroku записанное всё равно исчезает
+  // при рестарте дино, и молчаливая потеря правок хуже честного «только чтение».
+  const readOnly = parseBooleanEnv(env.STUDIO_READONLY, publicDemo);
 
   return Object.freeze({
     publicDemo,
+    readOnly,
     aiEnabled,
     authEnabled: authAllowed && hasAuthCredentials,
     authAllowed,

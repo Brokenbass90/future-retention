@@ -8,6 +8,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css" />
   <link rel="stylesheet" href="/workbench.css" />
+  <link rel="stylesheet" href="/mcp-connect.css" />
+  <link rel="stylesheet" href="/actor-badge.css" />
+  <link rel="stylesheet" href="/mail-lease.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/dialog/dialog.min.css" />
 </head>
 <body>
@@ -33,6 +36,7 @@
     <input type="file" id="fileInput" accept=".html,.htm" hidden multiple />
   </div>
   <div class="topbar-right">
+    <div class="actor-badge" id="actorBadge"></div>
     <a class="icon-btn" href="/constructor" title="Открыть DnD-конструктор" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;padding:0 10px;width:auto;font-size:13px;">🎨 Конструктор</a>
     <button class="icon-btn" id="themeToggleBtn" title="Тема">
       <svg id="themeIconDark" width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -281,6 +285,10 @@
         </div>
         <div class="ai-handle-right">
           <span class="ai-token-counter" id="aiTokenCounter" hidden>🪙 0</span>
+          <!-- Дверь к своему агенту должна быть видна всегда, а не только когда
+               у студии нет своей модели: подключать Клода приходят осознанно. -->
+          <button class="ai-agent-btn" id="aiAgentBtn" type="button"
+                  title="Подключить своего Клода по MCP: он будет работать в студии вашими инструментами">⚡ Свой агент</button>
           <button class="ai-drawer-toggle" id="aiDrawerToggle" title="Открыть или свернуть AI-помощник">
             <svg width="14" height="14" viewBox="0 0 14 14" id="aiToggleIcon">
               <path d="M2 4.5l5-3 5 3M2 9.5l5 3 5-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -572,6 +580,7 @@
     <div class="settings-row"><label>API Key</label><div class="settings-status" id="aiKeyStatus">—</div></div>
     <div class="settings-row"><label>Модель</label><div class="settings-status" id="aiModelStatus">—</div></div>
     <div class="settings-row"><label>Токены</label><div class="settings-status" id="aiTokenStatus">0</div></div>
+    <div class="settings-connect" id="aiSettingsConnect"></div>
   </div>
 </div>
 
@@ -841,6 +850,10 @@
   </div>
 </div>
 <script src="/outline-parse.js"></script>
+  <script src="/actor-badge.js"></script>
+  <script src="/mail-lease.js"></script>
+  <script src="/mail-drafts.js"></script>
+  <script src="/mcp-connect.js"></script>
   <script src="/workbench.js"></script>
   <script src="/outline-mode.js"></script>
 <script src="/monaco-pilot.js"></script>

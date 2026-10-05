@@ -1,0 +1,59 @@
+{
+  "id": "probe-update",
+  "label": "Проба правки",
+  "description": "",
+  "placement": "inner",
+  "category": "text",
+  "version": 1,
+  "source": "user",
+  "pug": "table.probe-upd--box(role=\"presentation\" width=\"100%\")\n    tr\n        td(style=\"padding:{{ padding }}\")\n            p.probe-update--probe-upd--text {{ text }}\n",
+  "styl": ".probe-update--probe-upd--text\n    margin 0\n    font-size 15px",
+  "slots": [
+    {
+      "id": "text",
+      "kind": "text",
+      "label": "Текст",
+      "default": "Проба"
+    },
+    {
+      "id": "padding",
+      "kind": "text",
+      "label": "Отступы",
+      "default": "0"
+    }
+  ],
+  "tags": [],
+  "createdAt": "2026-09-14T17:39:54.976Z",
+  "scoped": true,
+  "review": {
+    "status": "candidate",
+    "sourceHash": "4ab214cb44c2a2eabbaa8c2b0bcd66e93c993ac320a3978093f2bf3ce2b2374a",
+    "deterministic": {
+      "passed": true,
+      "validatorVersion": 3,
+      "sourceHash": "4ab214cb44c2a2eabbaa8c2b0bcd66e93c993ac320a3978093f2bf3ce2b2374a",
+      "checkedAt": "2026-09-14T17:39:55.403Z",
+      "checks": {
+        "schema": true,
+        "tokenContract": true,
+        "security": true,
+        "portablePug": true,
+        "pugCompile": true,
+        "stylusCompile": true,
+        "emailSafe": true,
+        "desktop": true,
+        "mobile": true,
+        "rtl": true,
+        "dependencies": true
+      },
+      "errors": [],
+      "warnings": [
+        "классы без CSS: probe-upd--box — опиши их в styl блока или убери из разметки"
+      ]
+    },
+    "ai": {
+      "status": "not-requested",
+      "note": "Source changed; stale optional AI advisory was cleared. Deterministic validation remains the release gate."
+    }
+  }
+}

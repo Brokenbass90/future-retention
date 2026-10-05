@@ -24,7 +24,8 @@ const state = {
   library: [],
   canvas: [],
   selectedUid: null,
-  filter: "outer",
+  // Начинают с готовых кусков, а не с обёртки: её студия ставит сама.
+  filter: "combo",
   q: "",
   brand: "all",
   cat: "all",
@@ -414,10 +415,14 @@ function selectionPath(entry) {
 function syncPaletteToSelection() {
   const selected = entryByUid(state.selectedUid);
   const block = blockForEntry(selected);
-  let hint = "Начни с обёртки или готового комбо";
+  // Обёртку студия добавляет сама (ensureOuterForMutation) при первой же
+  // секции — человеку её выбирать не нужно. Подсказка раньше говорила
+  // обратное («начни с обёртки»), и он шёл во вкладку «Обёртки» искать то,
+  // что произойдёт без него.
+  let hint = "Добавь секцию или готовое комбо — обёртку студия поставит сама";
 
   if (!state.canvas.length) {
-    hint = "Начни с обёртки, секции или готового комбо";
+    hint = "Начни с секции или готового комбо. Обёртку письма студия добавит сама";
   } else if (!selected) {
     hint = rootOuterEntry() ? "Добавь следующую секцию или комбо" : hint;
   } else if (placementOf(block) === "outer") {
@@ -492,7 +497,26 @@ function brandOf(b) {
   if (b.source === "canonical" || b.source === "user") return b.source;
   return String(b.id || "").split("-")[0] || "imported";
 }
-function hasMobile(b) { return /@media/i.test(b.styl || ""); }
+/**
+ * Есть ли у блока мобильная вёрстка.
+ *
+ * У комбо своих стилей почти нет: это сборка из других блоков, и медиазапросы
+ * живут у детей. Считать «мобильность» только по собственному styl значит
+ * спрятать все комбо разом, стоит человеку поставить галочку «мобильные» —
+ * именно так из каталога пропал sys-starter, единственное комбо системного
+ * набора, и вкладка «Комбо» показала ноль из девяноста трёх.
+ */
+function hasMobile(b) {
+  if (/@media/i.test(b?.styl || "")) return true;
+  const children = Array.isArray(b?.children) ? b.children : [];
+  if (!children.length) return false;
+  return children.some((child) => {
+    const id = String(child?.id || "");
+    if (!id) return false;
+    const source = state.library.find((candidate) => candidate.id === id);
+    return /@media/i.test(source?.styl || "");
+  });
+}
 
 /**
  * Набор (kit) — третья ось каталога, независимая от источника и от бренда.
@@ -1151,7 +1175,7 @@ function instantiateCombo(block, opts = {}) {
   let firstSection = true;
   const roleEntries = new Map();
 
-  for (const child of block.children || []) {
+  for (const [childIndex, child] of (block.children || []).entries()) {
     const def = blockById(child.id, child.source);
     if (!def) continue;
     const placement = placementOf(def);
@@ -1183,6 +1207,7 @@ function instantiateCombo(block, opts = {}) {
         current.recipeInstanceId = recipeInstanceId;
         last = current;
         roleEntries.set(child.role || "outer", current);
+        opts.onChild?.(childIndex, current);
         continue;
       }
     } else if (asSection) {
@@ -1235,6 +1260,7 @@ function instantiateCombo(block, opts = {}) {
       firstSection = false;
     }
     if (child.role) roleEntries.set(child.role, entry);
+    opts.onChild?.(childIndex, entry);
     last = entry;
   }
   return last || container || outer;
@@ -1247,6 +1273,7 @@ function addToCanvas(block, options = {}) {
 
   if (Array.isArray(block.children) && block.children.length) {
     const selected = instantiateCombo(block, opts);
+    if (selected) opts.onEntry?.(selected);
     finishCanvasMutation(selected?.uid, block, opts.origin);
     return;
   }
@@ -1264,11 +1291,13 @@ function addToCanvas(block, options = {}) {
         delete existing.explicitSlots;
       }
       existing.slotId = "root";
+      opts.onEntry?.(existing);
       finishCanvasMutation(existing.uid, block, opts.origin);
       return;
     }
     const entry = createEntry(block, { parentUid: null, slotId: "root", slots: opts.slots, explicitSlots: opts.explicitSlots });
     state.canvas.unshift(entry);
+    opts.onEntry?.(entry);
     finishCanvasMutation(entry.uid, block, opts.origin);
     return;
   }
@@ -1276,7 +1305,7 @@ function addToCanvas(block, options = {}) {
   const outer = ensureOuterForMutation();
   if (!outer) {
     _canvasUndo.pop();
-    alert("В библиотеке нет блока-обёртки. Сначала добавь outer-блок.");
+    if (!opts.quiet) alert("В библиотеке нет блока-обёртки. Сначала добавь outer-блок.");
     return;
   }
 
@@ -1307,7 +1336,7 @@ function addToCanvas(block, options = {}) {
 
   if (!parent || !slot) {
     _canvasUndo.pop();
-    alert(`Блок «${block.label || block.id}» нельзя вставить в выбранный контейнер.`);
+    if (!opts.quiet) alert(`Блок «${block.label || block.id}» нельзя вставить в выбранный контейнер.`);
     return;
   }
 
@@ -1319,6 +1348,7 @@ function addToCanvas(block, options = {}) {
     recipeInstanceId: opts.recipeInstanceId,
   });
   insertEntryAfterSiblings(entry, opts.afterUid, opts.beforeUid);
+  opts.onEntry?.(entry);
   finishCanvasMutation(entry.uid, block, opts.origin);
 }
 
@@ -1817,17 +1847,10 @@ function openCatalogContextMenu(x, y, block) {
  */
 function discussBlockWithAi(block, entry) {
   const chat = ensureStudioChat();
-  if (!chat) { alert("Панель оператора не загрузилась — обнови страницу"); return; }
-  chat.mount();
-  chat.open();
+  if (!chat) { flashCanvasHint("Панель оператора не загрузилась — обнови страницу"); return; }
   const name = block?.label || block?.id || "блок";
-  const where = entry ? " в этом письме" : "";
-  const draft = `Блок «${name}» (id: ${block?.id})${where}. `;
-  if (chat.input && !chat.input.value.trim()) {
-    chat.input.value = draft;
-    chat.input.focus();
-    chat.input.setSelectionRange(draft.length, draft.length);
-  }
+  const where = entry ? " в этом письме" : " из каталога";
+  chat.discuss({ text: `Блок «${name}» (id: ${block?.id})${where}.` });
 }
 
 /* ─── Горячие клавиши буфера ─────────────────────────────────────────────── */
@@ -4330,66 +4353,159 @@ $("openGalleryBtn")?.addEventListener("click", openBlockGallery);
  * какое дерево блоков собрано прямо сейчас.
  */
 /**
- * Применить правки канваса, которые агент накопил через update_canvas_block.
+ * Применить правки канваса, которые агент накопил своими инструментами.
  * Сервер их только передаёт: канвас существует лишь в браузере.
- * Одна отмена на весь пакет — человек говорил одну фразу, откатывать он
- * тоже захочет одним Ctrl+Z, а не по слоту.
+ *
+ * Пакет — это одна фраза человека («удали всё и собери заново»), поэтому он
+ * атомарен в обе стороны: одна отмена на весь пакет, а на первой же неудачной
+ * операции канвас возвращается к состоянию до пакета. Половина выполненной
+ * просьбы хуже невыполненной: человек не видит, где сборка оборвалась.
+ *
+ * Виды операций (kind):
+ *   update — слоты и оформление уже стоящего блока (исторически без kind)
+ *   remove — блок вместе со всем вложенным
+ *   clear  — весь канвас
+ *   add    — блок из библиотеки; op.tempUid связывает его с uid, который
+ *            агент уже использовал в последующих update в этом же пакете
+ *   move   — на позицию вверх/вниз среди соседей
  */
 function applyAgentCanvasOps(ops) {
   if (!Array.isArray(ops) || !ops.length) return;
   const slotValues = globalThis.RetkitCanvasSlots;
-  const prepared = [];
-  const missed = [];
-  const rejected = [];
+  let before;
+  try { before = JSON.stringify(state.canvas); } catch { before = null; }
+  const undoDepth = _canvasUndo.length;
+
+  // Блоки, созданные этим же пакетом: агент ссылается на них временным uid,
+  // настоящий появляется только здесь.
+  const tempUids = new Map();
+  const realUid = (uid) => (uid != null && tempUids.has(String(uid)) ? tempUids.get(String(uid)) : uid);
+
+  const problems = [];
+  const counts = { update: 0, remove: 0, clear: 0, add: 0, move: 0 };
+  let touched = null;
+
+  const need = (uid, what) => {
+    const entry = entryByUid(realUid(uid));
+    if (!entry) problems.push(`${what}: блока uid ${uid} на канвасе нет`);
+    return entry;
+  };
 
   for (const op of ops) {
-    const entry = entryByUid(op?.uid);
-    if (!entry) { missed.push(op?.uid); continue; }
+    const kind = String(op?.kind || "update");
+
+    if (kind === "clear") {
+      state.canvas = [];
+      state.selectedUid = null;
+      state.sourceSkeleton = null;
+      touched = null;
+      counts.clear += 1;
+      continue;
+    }
+
+    if (kind === "remove") {
+      const entry = need(op?.uid, "удаление");
+      if (!entry) break;
+      const parentUid = entry.parentUid ?? null;
+      removeFromCanvas(entry.uid);
+      touched = parentUid;
+      counts.remove += 1;
+      continue;
+    }
+
+    if (kind === "move") {
+      const entry = need(op?.uid, "перестановка");
+      if (!entry) break;
+      if (entry.parentUid == null) {
+        problems.push("перестановка: обёртку письма переставлять некуда");
+        break;
+      }
+      const siblings = childrenOf(entry.parentUid, entry.slotId);
+      const index = siblings.findIndex((candidate) => sameUid(candidate.uid, entry.uid));
+      const delta = op?.direction === "up" ? -1 : 1;
+      if (index < 0 || index + delta < 0 || index + delta >= siblings.length) {
+        problems.push(`перестановка: блок уже ${delta < 0 ? "первый" : "последний"} среди соседей`);
+        break;
+      }
+      moveInCanvas(entry.uid, delta);
+      touched = entry.uid;
+      counts.move += 1;
+      continue;
+    }
+
+    if (kind === "add") {
+      const block = blockById(op?.blockId, op?.blockSource);
+      if (!block) { problems.push(`добавление: блока «${op?.blockId}» нет в каталоге этого режима`); break; }
+      let created = null;
+      addToCanvas(block, {
+        quiet: true,
+        parentUid: realUid(op?.parentUid),
+        slotId: op?.slotId || undefined,
+        afterUid: realUid(op?.afterUid),
+        slots: op?.slots && typeof op.slots === "object" ? op.slots : undefined,
+        explicitSlots: Object.keys(op?.slots && typeof op.slots === "object" ? op.slots : {}),
+        onEntry: (entry) => { created = entry; },
+        // Комбо разворачивается в несколько блоков: агент заранее выдал
+        // каждому свой временный uid — связываем их по порядку детей рецепта.
+        onChild: (index, entry) => {
+          const temp = Array.isArray(op?.childTempUids) ? op.childTempUids[index] : null;
+          if (temp != null) tempUids.set(String(temp), entry.uid);
+        },
+      });
+      if (!created) { problems.push(`добавление: блок «${block.label || block.id}» некуда поставить`); break; }
+      if (op?.tempUid != null) tempUids.set(String(op.tempUid), created.uid);
+      touched = created.uid;
+      counts.add += 1;
+      continue;
+    }
+
+    const entry = need(op?.uid, "правка");
+    if (!entry) break;
     let slots = null;
     if (op.slots && typeof op.slots === "object") {
-      if (!slotValues?.normalizeSlotPatch) {
-        rejected.push("проверка типов слотов недоступна");
-        continue;
-      }
+      if (!slotValues?.normalizeSlotPatch) { problems.push("проверка типов слотов недоступна"); break; }
       const checked = slotValues.normalizeSlotPatch(blockForEntry(entry)?.slots, op.slots);
-      if (!checked.ok) {
-        rejected.push(...checked.errors.map((item) => item.error));
-        continue;
-      }
+      if (!checked.ok) { problems.push(checked.errors[0]?.error || "слот не принял значение"); break; }
       slots = checked.values;
     }
-    prepared.push({ entry, slots, appearance: op.appearance });
-  }
-
-  // The package is one operator action and therefore atomic: one invalid
-  // single-line slot must not leave half of the requested edits on canvas.
-  if (rejected.length) {
-    console.warn("[constructor] rejected agent canvas operation", rejected);
-    flashCanvasHint(`Оператор не применил правку: ${rejected[0]}`, 6000);
-    return;
-  }
-  if (!prepared.length) {
-    flashCanvasHint(`Оператор не нашёл блок на канвасе${missed.length ? ` (uid ${missed.join(", ")})` : ""}`);
-    return;
-  }
-
-  const applied = [];
-  pushCanvasUndo();
-  for (const { entry, slots, appearance } of prepared) {
     if (slots) {
       entry.slots = { ...(entry.slots || {}), ...slots };
       Object.keys(slots).forEach((slotId) => markEntrySlotExplicit(entry, slotId));
     }
-    if (appearance && typeof appearance === "object") {
-      entry.appearance = { ...(entry.appearance || {}), ...appearance };
+    if (op.appearance && typeof op.appearance === "object") {
+      entry.appearance = { ...(entry.appearance || {}), ...op.appearance };
     }
-    applied.push(entry.uid);
+    touched = entry.uid;
+    counts.update += 1;
   }
-  if (applied.length) state.selectedUid = applied[0];
-  finishCanvasMutation(state.selectedUid);
-  flashCanvasHint(applied.length === 1
-    ? "Оператор изменил блок — Ctrl+Z отменит"
-    : `Оператор изменил ${applied.length} блока — Ctrl+Z отменит`);
+
+  // Вложенные мутации складывали собственные снимки отмены — пакет
+  // откатывается одной кнопкой, поэтому стек возвращаем к своей отметке.
+  _canvasUndo.length = undoDepth;
+
+  if (problems.length) {
+    if (before != null) { try { state.canvas = JSON.parse(before); } catch { /* снимок не удался */ } }
+    state.selectedUid = null;
+    console.warn("[constructor] rejected agent canvas package", problems);
+    finishCanvasMutation(null);
+    flashCanvasHint(`Оператор не применил правку: ${problems[0]}`, 6000);
+    return;
+  }
+
+  const total = counts.update + counts.remove + counts.clear + counts.add + counts.move;
+  if (!total) return;
+  if (before != null) _canvasUndo.push(before);
+  const undoBtn = document.getElementById("undoBtn");
+  if (undoBtn) undoBtn.disabled = _canvasUndo.length === 0;
+
+  finishCanvasMutation(touched ?? state.selectedUid);
+  const said = [];
+  if (counts.clear) said.push("очистил письмо");
+  if (counts.add) said.push(`добавил ${counts.add}`);
+  if (counts.remove) said.push(`удалил ${counts.remove}`);
+  if (counts.move) said.push(`переставил ${counts.move}`);
+  if (counts.update) said.push(`изменил ${counts.update}`);
+  flashCanvasHint(`Оператор: ${said.join(", ")} — Ctrl+Z отменит всё разом`, 5000);
 }
 
 let _studioChat = null;
@@ -4417,6 +4533,9 @@ function ensureStudioChat() {
       }),
       html: _lastLiveHtml || "",
     }),
+    // Подсветка кнопки живёт там же, где открытие окна: иначе окно, открытое
+    // правой кнопкой по блоку, оставляло кнопку погашенной.
+    onOpenChange: (open) => $("chatFab")?.classList.toggle("active", open),
     onResult: (payload) => {
       applyAgentCanvasOps(payload?.canvasOps);
       // Агент собрал письмо своим инструментом — предлагаем открыть результат,
@@ -4431,7 +4550,87 @@ function ensureStudioChat() {
   });
   return _studioChat;
 }
-$("openChatBtn")?.addEventListener("click", () => ensureStudioChat()?.toggle());
+// Разговор открывается круглой кнопкой внизу справа — рядом со сборкой, а не
+// среди фильтров каталога, где её принимали за фильтр.
+$("chatFab")?.addEventListener("click", () => ensureStudioChat()?.toggle());
+
+/**
+ * Вставка макета из Figma.
+ *
+ * Разобранный макет не превращается в письмо сам: перевод секций в блоки —
+ * это решение, а не пересчёт. Поэтому план уходит оператору вместе с
+ * задачей: у него есть и каталог блоков, и глаза, и правило про фоновые
+ * картинки. Молча собрать письмо «по макету» было бы ровно тем случаем, из-за
+ * которого в письме оставался образцовый текст.
+ */
+$("figmaPasteBtn")?.addEventListener("click", () => {
+  if (!window.RetkitFigmaPaste) { flashCanvasHint("Окно вставки макета не загрузилось — обнови страницу"); return; }
+  window.RetkitFigmaPaste.open({
+    onPlan: (data) => {
+      const chat = ensureStudioChat();
+      if (!chat) return;
+      chat.discuss({
+        text: `Вот разбор макета из Figma (${data.plan.sections.length} секций, ` +
+          `${data.plan.frame.width}px) и подбор блоков под него — подбор структурный, ` +
+          `по числу картинок, колонок и объёму текста, так что проверь его глазами ` +
+          `(see_block) прежде чем брать.\n\n${data.summary}\n\n${data.matchSummary || ""}\n\n` +
+          `Собери письмо, отступы возьми из плана. Секции, для которых блока нет, ` +
+          `собери из мелких или предложи новый блок по образцу соседа.\n\nЗадача:`,
+      });
+    },
+  });
+  // Тексты макета доезжают даже когда до Figma не достучаться. Отдаём их
+  // оператору как содержимое письма — это ровно та работа, которую человек
+  // иначе перепечатывал бы руками.
+  window.RetkitFigmaPaste.onTexts = (text) => {
+    const chat = ensureStudioChat();
+    if (!chat) return;
+    chat.discuss({
+      text: `Вот тексты из макета Figma, по порядку сверху вниз. Разложи их по блокам письма: ` +
+        `заголовок, подзаголовок, абзацы, подсветка, надпись на кнопке — каждое на своё место, ` +
+        `а не абзацами в тело.\n\n${text}\n\nЗадача:`,
+    });
+  };
+  window.RetkitFigmaPaste.onImage = (dataUrl) => {
+    const chat = ensureStudioChat();
+    if (!chat) return;
+    chat.mount();
+    chat.open();
+    chat.addImages([dataUrlToFile(dataUrl, "figma-macket.png")]);
+    chat.discuss({ text: "Вот снимок макета. Найди похожие блоки в библиотеке." });
+  };
+});
+
+/** Снимок из буфера приходит строкой — панели чата нужен файл. */
+function dataUrlToFile(dataUrl, name) {
+  const [head, payload] = String(dataUrl).split(",");
+  const mime = (head.match(/data:([^;]+)/) || [])[1] || "image/png";
+  const binary = atob(payload || "");
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new File([bytes], name, { type: mime });
+}
+
+/**
+ * Кнопка разговора держится за угол области сборки, а не за угол окна.
+ *
+ * Окно шире области сборки на ширину инспектора, и «внизу справа окна» — это
+ * поверх свойств блока. Кнопка считается по реальным границам колонки: ширина
+ * инспектора меняется на разных экранах, и зашивать её числом в CSS значит
+ * промахиваться на каждом втором ноутбуке.
+ */
+function placeChatFab() {
+  const fab = $("chatFab");
+  const pane = document.querySelector(".canvas-pane");
+  if (!fab || !pane) return;
+  const rect = pane.getBoundingClientRect();
+  fab.style.left = `${Math.round(rect.right - 24 - fab.offsetWidth)}px`;
+  fab.style.right = "auto";
+  fab.style.bottom = `${Math.max(16, Math.round(window.innerHeight - rect.bottom + 24))}px`;
+}
+window.addEventListener("resize", placeChatFab);
+document.addEventListener("DOMContentLoaded", placeChatFab);
+placeChatFab();
 document.addEventListener("keydown", (e) => {
   // Esc закрывает чат, но только если не открыто что-то поверх него.
   if (e.key !== "Escape") return;

@@ -13,6 +13,7 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
 import path from "node:path";
 import url from "node:url";
+import { replacePlaceholders, findPlaceholders } from "./placeholders.js";
 
 const here = path.dirname(url.fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..");
@@ -58,9 +59,37 @@ export function previewBackdropForBlock(block) {
     .filter((value) => Number.isFinite(value));
   // Contrast of white against a foreground with luminance L is
   // 1.05 / (L + .05). Below 3:1 the thumbnail is not legible.
-  return textColors.some((luminance) => 1.05 / (luminance + 0.05) < 3)
-    ? "#101314"
-    : "";
+  if (textColors.some((luminance) => 1.05 / (luminance + 0.05) < 3)) return "#101314";
+
+  // И тот же случай, когда белый цвет не в слоте, а зашит в стили блока.
+  // Раньше проверялись только слоты, поэтому блоки с классом white-text давали
+  // в каталоге пустую карточку: белый текст на белой подложке. Человек видел
+  // «блок сломан» там, где блок исправен.
+  return hasLightTextInStyles(block) ? "#101314" : "";
+}
+
+/**
+ * Белый ли текст зашит в стили блока, а не в слот цвета.
+ *
+ * Правило намеренно узкое. Соблазн был широкий — «есть светлый color: в
+ * styl» — но так под тёмную подложку попадают все кнопки: у них белый текст
+ * на своей заливке, и на белой карточке они прекрасно видны. Тёмная подложка
+ * им только мешает и заодно перерисовывает сотню исправных превью.
+ *
+ * Поэтому ловим ровно тот случай, который давал пустую карточку: простой
+ * текстовый блок с классом white-text / white-title, без своей заливки и без
+ * картинки. Всё остальное разбирает проверка пустых превью — она смотрит на
+ * результат, а не на догадку по стилям.
+ */
+export function hasLightTextInStyles(block) {
+  const pug = String(block?.pug || "");
+  const styl = String(block?.styl || "");
+  if (!/\bwhite-(?:text|title|link)\b/.test(pug)) return false;
+  // Своя заливка или картинка — значит блок рисует себе фон сам.
+  if (/background/i.test(styl) || /background/i.test(pug)) return false;
+  if (/\bimg\b|src=/.test(pug)) return false;
+  // Простой текстовый блок, а не составная секция со своим оформлением.
+  return pug.split("\n").filter((line) => line.trim()).length <= 6;
 }
 
 /** Exact source identity used by both the renderer and the release gate. */
@@ -166,4 +195,80 @@ export function describeBlockForAi(block) {
     s.responsive ? "адаптивный" : "фиксированной ширины",
   ].filter(Boolean);
   return parts.join(", ");
+}
+
+/* ─── Плейсхолдеры на превью ──────────────────────────────────────────────── */
+
+/**
+ * Подстановка демо-значений перед скриншотом карточки каталога.
+ *
+ * Тонкий момент, который легко «починить» не в том месте. В собранном письме
+ * `{{embedded.company_address}}` и `${{ NS.block_01 }}$` остаются как есть —
+ * их подставляет платформа рассылки и словарь локали. Это правильно, и трогать
+ * сборку нельзя.
+ *
+ * Но карточка каталога — не письмо. По ней человек ГЛАЗАМИ выбирает блок, и
+ * фигурные скобки вместо адреса превращают выбор в угадывание. Поэтому демо-
+ * значения подставляются здесь, только для картинки, и только в ней.
+ *
+ * Словарь лежит в data/preview-placeholders.json, чтобы его правил кто угодно
+ * без похода в код.
+ */
+const PREVIEW_PLACEHOLDERS_PATH = path.join(repoRoot, "data", "preview-placeholders.json");
+let _previewPlaceholders = null;
+
+export function previewPlaceholderDictionary() {
+  if (_previewPlaceholders) return _previewPlaceholders;
+  try {
+    _previewPlaceholders = JSON.parse(readFileSync(PREVIEW_PLACEHOLDERS_PATH, "utf8"));
+  } catch {
+    _previewPlaceholders = { embedded: {}, translation: "Текст" };
+  }
+  return _previewPlaceholders;
+}
+
+/**
+ * Заменить плейсхолдеры демо-значениями.
+ *
+ * Виды плейсхолдеров описаны в src/placeholders.js — там же живёт формат
+ * MoEngage `{{ContentBlock['…']}}`. Здесь только словарь значений: какой
+ * текст показывать в карточке вместо каждого ключа.
+ *
+ * Незнакомый ключ не оставляем как есть: «{{embedded.что-то_новое}}» в
+ * карточке выглядит поломкой ровно так же, как знакомый. Поэтому для него
+ * подставляется читаемая заглушка из имени ключа.
+ */
+export function substitutePreviewPlaceholders(html, dictionary = previewPlaceholderDictionary()) {
+  const embedded = dictionary?.embedded || {};
+  const contentBlock = dictionary?.contentBlock || {};
+  const translation = dictionary?.translation || "Текст";
+
+  const resolve = (dialect, key) => {
+    if (dialect === "translate") return translation;
+    if (dialect === "style") return null; // служебная разметка остаётся как есть
+    const table = dialect === "contentBlock" ? contentBlock : embedded;
+    return Object.prototype.hasOwnProperty.call(table, key) ? String(table[key]) : humanizeKey(key);
+  };
+
+  return replacePlaceholders(String(html || ""), resolve)
+    // В <style> сборка разводит соседние скобки («{ {»), чтобы платформа
+    // рассылки не приняла CSS за шаблон. На превью это не мешает, но и
+    // подставлять там нечего — трогаем только текст письма.
+    .replace(/\{\s\{\s*embedded\.([A-Za-z0-9_]+)\s*\}\s\}/g, (_, key) => (
+      Object.prototype.hasOwnProperty.call(embedded, key) ? String(embedded[key]) : humanizeKey(key)
+    ));
+}
+
+function humanizeKey(key) {
+  return String(key).replace(/_/g, " ").replace(/^./, (char) => char.toUpperCase());
+}
+
+/** Остались ли в разметке плейсхолдеры — то, что проверяют ворота превью. */
+export function findLeftoverPlaceholders(html) {
+  // Служебную разметку не считаем: она в письме и должна остаться.
+  return [...new Set(
+    findPlaceholders(html)
+      .filter((entry) => entry.dialect !== "style")
+      .map((entry) => entry.text)
+  )];
 }

@@ -20,7 +20,9 @@
  * in what order — no Russian/English regex classifier in the way.
  */
 
-import { TOOL_DEFINITIONS, TOOL_HANDLERS } from "./ai-tools.js";
+import { TOOL_DEFINITIONS, TOOL_HANDLERS, mergeCanvasOps } from "./ai-tools.js";
+import { checkCanvasReady, describeLeftovers } from "./canvas-completeness.js";
+import { listCanonicalBlocks } from "./compose-email.js";
 import { callOpenAiWithRetry, extractResponseText } from "./ai-client.js";
 
 const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
@@ -62,8 +64,15 @@ const SYSTEM_PROMPT = [
   "  • replace_in_html                                             — surgical HTML edit (bold a phrase, swap a logo URL, fix a link)",
   "  • list_email_sections, insert_block, remove_block            — add / remove a block in the OPEN email (anchor-based, safe)",
   "  • find_blocks_by_look                                         — find a block by HOW IT LOOKS: attached screenshot, colour, structure (offline, fast)",
-  "  • update_canvas_block                                         — change slots/appearance of a block ON THE CONSTRUCTOR CANVAS (the only way to edit the email being assembled)",
+  "  • update_canvas_block                                         — change slots/appearance of a block ON THE CONSTRUCTOR CANVAS",
+  "  • add_canvas_block, remove_canvas_block, move_canvas_block    — put a block on the canvas, take one off, reorder",
+  "  • clear_canvas                                                — wipe the canvas when the person says 'удали всё, соберём заново'",
   "  • compose_email_from_blocks                                   — build a NEW email from canonical blocks",
+  "  • see_email, see_block                                        — LOOK at the email / a block as a picture",
+  "  • open_draft, draft_changes, publish_draft, discard_draft     — a PERSONAL COPY of an email; the shared base waits",
+  "  • list_drafts, mail_history                                   — what you hold, and what the email looked like before",
+  "  • list_mail_files, read_mail_file, write_mail_file            — the SOURCE of the open email: stylus styles, pug templates",
+  "  • check_canvas_ready                                          — is the email actually finished, or is sample text still in it",
   "  • finish                                                      — wrap up with a user-facing summary",
   "",
   "Operating principles (this is how the team works):",
@@ -87,9 +96,19 @@ const SYSTEM_PROMPT = [
   "You work on TWO surfaces of the same studio and you are the SAME operator on both:",
   "  • CONSTRUCTOR — the visual builder. ctx.surface === 'constructor' and the user message",
   "    carries the current block tree with every uid and its slot values.",
-  "    To CHANGE something already on the canvas ('move the button left', 'make the title",
-  "    red', 'fix this text') call update_canvas_block with that uid — it is the ONLY tool",
-  "    that touches the email being assembled.",
+  "    You have FULL control of that canvas and never ask the person to do a step by hand:",
+  "      – change what is there ('make the title red', 'fix this text') → update_canvas_block;",
+  "      – take a block off → remove_canvas_block (it also removes everything nested inside);",
+  "      – empty the email ('удали всё', 'соберём заново') → clear_canvas with confirm: true;",
+  "      – put a block in → add_canvas_block; it returns a uid you can fill with",
+  "        update_canvas_block in the SAME run, so a block never stays with sample text;",
+  "      – reorder → move_canvas_block (one step at a time, among its neighbours).",
+  "    NEVER use remove_block / insert_block on the constructor: those are anchor edits of the",
+  "    HTML open in the code workbench, they cannot touch the canvas, and asking the person for",
+  "    'a unique fragment of the block HTML' is you failing at your own job.",
+  "    'Удали всё и собери заново' is one continuous job: clear_canvas, then add_canvas_block",
+  "    for each block of the new email, then fill every one of them. Do not stop halfway to",
+  "    report progress — the studio applies the whole package at once and one Ctrl+Z undoes it.",
   "    NEVER use edit_locale_block or save_user_block for a constructor request:",
   "    the first edits translation files, the second edits the shared block library, and",
   "    neither changes the email in front of the user. Doing that is a silent no-op and",
@@ -114,6 +133,22 @@ const SYSTEM_PROMPT = [
   "     – A 'Subject: ...' line outside blocks is normal (used by the admin panel) — not an error.",
   "     – @@bold@@ in a block mirrors <b>/<strong> in the HTML: when fixing locales you may add @@",
   "       where the markup is bold and the reference block has it.",
+  "  6a2. LOOK before you judge. see_email renders the email as a picture, see_block shows a",
+  "     library block. Never say how something looks, never call an assembly finished, and never",
+  "     discuss design without having looked. Mobile is a separate render — it breaks more often.",
+  "  6a2b. Before changing an email that ALREADY EXISTS in the base — open_draft first. Someone",
+  "     else may be working on it, and a change written straight into the base cannot be undone by",
+  "     them. Work in the copy, show draft_changes to the person, and publish ONLY when they say so.",
+  "     If publish is refused because the base moved, show the difference and ask. Never force.",
+  "  6a3. To change HOW the email renders — spacing, colours, fonts, the way a block is laid out —",
+  "     change its SOURCE: list_mail_files, read_mail_file, write_mail_file. The HTML you read is",
+  "     built from those files; editing the built HTML is a change that dies at the next rebuild.",
+  "  6b. On the CONSTRUCTOR blocks arrive carrying SAMPLE text ('Заголовок письма', 'Перейти',",
+  "     'Короткая подсветка…'). Filling only the body and leaving those is a half-built email:",
+  "     the customer sees the sample text in the sent campaign. When a person hands you copy,",
+  "     its parts map to the blocks — headline, subtitle, body, the highlighted line, the button",
+  "     label. Put them where they belong instead of appending everything as paragraphs.",
+  "     Call check_canvas_ready before finish; the studio checks this anyway and will send you back.",
   "  7. When done, call `finish`: summary in the user's language (Russian if they wrote Russian),",
   "     written for a non-technical person: what changed, in which locales, what they should check.",
   "     Mention the verification you did ('проверил: блок 2 в RU теперь …'). Locale updates and",
@@ -138,6 +173,7 @@ const SYSTEM_PROMPT = [
  */
 export async function runAgent({ userMessage, history = [], images = [], ctx, apiKey, model = "gpt-4.1-mini", maxSteps = DEFAULT_MAX_STEPS, onFrame }) {
   if (!apiKey) throw new Error("OPENAI_API_KEY is not configured");
+  let checkedCanvas = false;
   if (!userMessage || typeof userMessage !== "string") throw new Error("userMessage is required");
 
   ctx.apiKey = apiKey;
@@ -244,6 +280,36 @@ export async function runAgent({ userMessage, history = [], images = [], ctx, ap
         });
 
         if (name === "finish") {
+          // Заслон перед «готово» на канвасе.
+          //
+          // Живой случай: агент разложил присланный английский текст по
+          // блокам и отчитался «собрал письмо». В письме остались зелёная
+          // подсветка с русским образцовым текстом и кнопка «Перейти» — а
+          // последние строки задания как раз и были подсветкой и надписью на
+          // кнопке. Просить модель «быть внимательнее» бесполезно: проверка
+          // детерминированная, и пока образцовый текст в письме, работа не
+          // закончена. Один раз — чтобы не загнать агента в круг.
+          if (!checkedCanvas && String(ctx?.surface || "") === "constructor") {
+            checkedCanvas = true;
+            const canvas = mergeCanvasOps(ctx);
+            const verdict = canvas.length
+              ? checkCanvasReady({ canvas, blocks: listCanonicalBlocks() })
+              : { ready: true, leftovers: [] };
+            if (!verdict.ready) {
+              input.push({
+                type: "function_call_output",
+                call_id: item.call_id,
+                output: JSON.stringify({
+                  ok: false,
+                  error: "Ещё не готово.",
+                  message: describeLeftovers(verdict),
+                  leftovers: verdict.leftovers,
+                }).slice(0, 16000),
+              });
+              emit({ kind: "tool_result", name: "check_canvas_ready", result: { ok: false, leftovers: verdict.leftovers } });
+              continue;
+            }
+          }
           producedFinish = true;
           finalResult = {
             summary: String(args.summary || "").trim(),
@@ -260,6 +326,24 @@ export async function runAgent({ userMessage, history = [], images = [], ctx, ap
           break;
         }
       }
+    }
+
+    // Снимки, сделанные инструментами на этом шаге, показываем модели.
+    //
+    // Результат инструмента — текст: изображение туда положить нельзя. Поэтому
+    // картинка идёт отдельным сообщением от человека, сразу после ответа
+    // инструмента. Без этого see_email возвращал бы «снято» и ничего не
+    // показывал — то есть врал.
+    if (Array.isArray(ctx?.pendingImages) && ctx.pendingImages.length) {
+      const shots = ctx.pendingImages.splice(0, ctx.pendingImages.length);
+      input.push({
+        role: "user",
+        content: [
+          { type: "input_text", text: `Вот ${shots.length === 1 ? "снимок" : "снимки"}: ${shots.map((shot) => shot.note).join("; ")}. Смотрите на них, а не на описание.` },
+          ...shots.map((shot) => ({ type: "input_image", image_url: shot.dataUrl })),
+        ],
+      });
+      emit({ kind: "tool_result", name: "shot", result: { images: shots.map((shot) => shot.note) } });
     }
 
     if (producedFinish) break;

@@ -1409,7 +1409,31 @@ body.dragging-from-catalog .child-dropzone {
 .chat-drag-handle { cursor: grab; user-select: none; }
 .chat-panel.dragging { opacity: .92; }
 .chat-panel.dragging .chat-drag-handle { cursor: grabbing; }
-.chat-panel { resize: both; min-width: 320px; min-height: 280px; }
+/* Окно разговора тянется за правый нижний угол и запоминает размер.
+   Ограничения обязательны: без max окно растягивают за край экрана и уже не
+   могут поймать, без min оно схлопывается в полоску. */
+.chat-panel {
+  resize: both;
+  min-width: 320px;
+  min-height: 280px;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 24px);
+}
+/* Угол растягивания рисует браузер поверх формы ввода — освобождаем ему место,
+   иначе он попадает на кнопку «Отправить» и окно тянется вместо отправки. */
+.chat-panel .chat-form { padding-bottom: 18px; }
+.chat-panel::after {
+  content: "";
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+  border-right: 2px solid rgba(255, 255, 255, .25);
+  border-bottom: 2px solid rgba(255, 255, 255, .25);
+  border-bottom-right-radius: 4px;
+}
 
 /* ─── Превью в карточках: честно показываем, что картинка обрезана ──────── */
 .cat-item-thumb, .gallery-thumb { position: relative; }
@@ -1751,3 +1775,192 @@ body.dragging-from-catalog .child-dropzone {
   cursor: pointer;
 }
 .email-color-wheel:hover { color: var(--text); }
+
+/* ── Круглая кнопка разговора ─────────────────────────────────────────────
+   Стоит внизу справа, поверх сборки письма. Раньше «Спросить ИИ» жила в левом
+   рейле среди фильтров каталога — и читалась как ещё один фильтр, поэтому
+   разговор просто не начинали. */
+.chat-fab {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 60;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 10px 28px rgba(37, 99, 235, .38);
+  transition: transform 140ms ease, background 140ms ease;
+}
+.chat-fab:hover { background: #1d4ed8; transform: translateY(-2px); }
+.chat-fab:active { transform: translateY(0); }
+.chat-fab.active { background: var(--bg-3); color: var(--text); box-shadow: 0 6px 18px rgba(0, 0, 0, .45); }
+
+/* Открытая панель разговора не должна прятаться под кнопкой. */
+.chat-panel.open ~ .chat-fab { opacity: .85; }
+
+@media (max-width: 720px) {
+  .chat-fab { right: 14px; bottom: 14px; width: 46px; height: 46px; }
+}
+
+/* Индикатор своего агента в шапке разговора.
+
+   Главный вопрос человека к этому месту — «работает ли моё подключение», а не
+   «где кнопка». Поэтому здесь состояние, читаемое с диска, а не приглашение:
+   цвет отвечает сразу, нажатие открывает подключение, и ничего не всплывает
+   само. */
+.chat-agent-state {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-2);
+  font: 500 11px/1 inherit;
+  padding: 5px 9px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.chat-agent-state:hover { color: var(--text); border-color: var(--accent); }
+.chat-agent-state[data-state="on"] { color: #2f9e57; border-color: #2f9e5755; }
+.chat-agent-state[data-state="wrong"] { color: #c98a12; border-color: #c98a1255; }
+.chat-agent-state[data-state="off"],
+.chat-agent-state[data-state="remote"] { color: var(--text-2); }
+
+/* Окно вставки макета из Figma.
+
+   Модальное и по центру — нарочно. Первый заход висел панелькой в углу и
+   спорил за место с окном разговора: человек его просто не замечал, а вставку
+   ловило маленькое поле, в которое сначала надо было попасть мышью. Вставка —
+   действие на одну секунду, и место для неё должно быть очевидным. */
+.figma-modal { position: fixed; inset: 0; z-index: 80; display: none; }
+.figma-modal.open { display: block; }
+.fm-backdrop { position: absolute; inset: 0; background: rgba(6, 9, 13, .62); }
+.fm-dialog {
+  position: relative;
+  width: min(680px, calc(100vw - 32px));
+  max-height: min(86vh, 900px);
+  margin: 7vh auto 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel, #12161c);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, .55);
+  overflow: hidden;
+  outline: none;
+}
+.fm-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px; border-bottom: 1px solid var(--border); font-size: 15px;
+}
+.fm-close { background: none; border: none; color: var(--text-2); cursor: pointer; font-size: 15px; }
+.fm-body { padding: 18px; overflow: auto; }
+
+/* Зона вставки — не поле ввода, а мишень: жать в неё не нужно, окно и так
+   слушает Ctrl+V. Крупная нарочно, чтобы было понятно, куда смотреть. */
+.fm-drop {
+  border: 2px dashed var(--border); border-radius: 12px;
+  padding: 30px 18px; text-align: center;
+}
+.fm-drop-big { font-size: 17px; font-weight: 600; }
+.fm-drop-sub { color: var(--text-2); font-size: 12px; margin-top: 6px; }
+
+.fm-or { text-align: center; color: var(--text-2); font-size: 12px; margin: 14px 0 8px; }
+.fm-link { display: flex; gap: 8px; }
+.fm-link input {
+  flex: 1; padding: 9px 12px; border-radius: 8px;
+  border: 1px solid var(--border); background: transparent; color: var(--text);
+  font: 400 13px/1.3 inherit;
+}
+.fm-link input:focus { outline: none; border-color: var(--accent); }
+.fm-go {
+  padding: 9px 16px; border-radius: 8px; border: 1px solid var(--border);
+  background: transparent; color: var(--text); font: 600 13px/1 inherit; cursor: pointer;
+}
+.fm-go:hover { border-color: var(--accent); }
+.fm-hint { color: var(--text-2); font-size: 12px; line-height: 1.55; margin: 12px 0 0; }
+.fm-result { margin-top: 16px; }
+.fm-note { font-size: 13px; line-height: 1.55; margin: 0 0 10px; }
+.fm-err { color: #d76b6b; }
+.fm-shot { display: block; width: 100%; border-radius: 10px; margin: 10px 0; }
+.fm-section { border-top: 1px solid var(--border); padding: 9px 0; font-size: 13px; }
+.fm-section ul { margin: 6px 0 0; padding-left: 18px; color: var(--text-2); font-size: 12px; line-height: 1.6; }
+.fm-dim { color: var(--text-2); font-size: 12px; font-weight: 400; }
+/* Фоновая картинка под текстом — самая частая причина письма, которое в
+   Outlook выглядит пустым прямоугольником. Её видно сразу. */
+.fm-background { color: #c98a12; }
+.fm-warn { margin: 12px 0 0; padding-left: 18px; color: #c98a12; font-size: 12px; line-height: 1.6; }
+
+/* Список фреймов файла: когда из буфера приехал ключ файла, но не фрейм. */
+.fm-frames { display: flex; flex-direction: column; gap: 6px; max-height: 320px; overflow: auto; }
+.fm-frame {
+  text-align: left; padding: 9px 12px; border-radius: 8px;
+  border: 1px solid var(--border); background: transparent; color: var(--text);
+  font: 500 13px/1.3 inherit; cursor: pointer;
+}
+.fm-frame:hover { border-color: var(--accent); }
+
+.fm-primary {
+  margin-top: 14px; width: 100%; padding: 11px 12px; border-radius: 9px;
+  border: 1px solid var(--accent); background: var(--accent); color: #fff;
+  font: 600 14px/1 inherit; cursor: pointer;
+}
+.fm-texts {
+  max-height: 200px; overflow: auto; margin: 0 0 10px;
+  padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border);
+  background: rgba(255, 255, 255, .03); color: var(--text-2);
+  font: 400 12px/1.6 ui-monospace, Menlo, monospace; white-space: pre-wrap;
+}
+
+/* Индикация работы. Неподвижная строчка «разбираю…» читается как «зависло»:
+   поход в Figma занимает несколько секунд, и всё это время окно выглядело
+   мёртвым. */
+.fm-busy { display: flex; align-items: center; gap: 10px; font-size: 13px; margin-bottom: 10px; }
+.fm-spinner {
+  width: 15px; height: 15px; flex: none; border-radius: 50%;
+  border: 2px solid var(--border); border-top-color: var(--accent);
+  animation: fm-spin .7s linear infinite;
+}
+@keyframes fm-spin { to { transform: rotate(360deg); } }
+/* Путь без токена: кнопка-ссылка «поставить плагин» и шаги установки.
+   Для рабочей Figma компании это основной путь, поэтому он живёт в самом
+   окне вставки, а не в README репозитория. */
+.fm-link-btn {
+  padding: 0; border: 0; background: none; cursor: pointer;
+  color: var(--accent); font: inherit; text-decoration: underline;
+}
+.fm-steps {
+  margin: 0 0 12px; padding-left: 20px; font-size: 13px; line-height: 1.7;
+  color: var(--text);
+}
+.fm-steps li { margin-bottom: 4px; }
+/* Копия чужого файла, сделанная ради плагина: напоминание видно, пока она
+   ещё открыта в Figma, — потом о ней никто не вспомнит. */
+.fm-warn-line {
+  padding: 9px 12px; border-radius: 8px;
+  border: 1px solid rgba(201, 138, 18, .45); background: rgba(201, 138, 18, .08);
+  color: #c98a12;
+}
+
+/* Подсказка про ⌘⇧C — путь увидеть макет, когда токена нет. */
+.fm-tip { color: var(--text-2); border-left: 2px solid var(--accent); padding-left: 10px; }
+
+/* Ловушка вставки: настоящее поле, растянутое на всю мишень и прозрачное.
+   Браузер отдаёт событие вставки сфокусированному полю — это единственный
+   надёжный способ поймать ПЕРВЫЙ Ctrl+V. Слушать документ мало: если фокус
+   остался в рамке предпросмотра, вставка уходит туда. */
+.fm-drop { position: relative; display: block; cursor: text; transition: border-color .15s, background .15s; }
+.fm-drop #fmCatch {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  opacity: 0; border: none; resize: none; background: transparent; cursor: text;
+}
+.fm-drop.ready { border-color: var(--accent); background: rgba(99, 130, 255, .06); }
+.fm-drop.ready .fm-drop-sub { color: var(--accent); }
+.fm-match { margin: 6px 0 12px; padding-left: 18px; font-size: 12px; line-height: 1.7; }
+.fm-match code { font-size: 11px; padding: 1px 5px; border-radius: 4px; background: rgba(255,255,255,.06); }
+.fm-match .fm-nomatch { color: #c98a12; }

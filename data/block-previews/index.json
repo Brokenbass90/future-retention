@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-08T18:30:53.421Z",
+  "generatedAt": "2026-09-14T09:47:36.769Z",
   "blocks": {
     "canonical:iq-hero-image": {
       "id": "iq-hero-image",
@@ -2068,7 +2068,7 @@
       "label": "Белый текст",
       "placement": "inner",
       "category": "text",
-      "hash": "9d58e8ae59b14115",
+      "hash": "919f1379c137e9e1",
       "shots": {
         "desktop": {
           "file": "data/block-previews/canonical/iq-white-text.desktop.png",
@@ -2085,9 +2085,12 @@
         "width": 600,
         "height": 27,
         "mobileHeight": 27,
-        "background": "#ffffff",
+        "background": "#101314",
         "palette": [
-          "#ffffff"
+          "#101314",
+          "#f9f9f9",
+          "#d3d3d3",
+          "#4e5051"
         ],
         "images": 0,
         "links": 0,
@@ -2109,7 +2112,7 @@
       "label": "Белый заголовок",
       "placement": "inner",
       "category": "text",
-      "hash": "85b96c26314f5833",
+      "hash": "15c023e9d16fbf55",
       "shots": {
         "desktop": {
           "file": "data/block-previews/canonical/iq-white-title.desktop.png",
@@ -2126,9 +2129,12 @@
         "width": 600,
         "height": 84,
         "mobileHeight": 64,
-        "background": "#ffffff",
+        "background": "#101314",
         "palette": [
-          "#ffffff"
+          "#101314",
+          "#f8f8f8",
+          "#a9aaab",
+          "#cfd0d0"
         ],
         "images": 0,
         "links": 0,
@@ -16896,7 +16902,7 @@
       "label": "Заголовок",
       "placement": "inline",
       "category": "text",
-      "hash": "423ff288aaa0513b",
+      "hash": "c4990062d0b64b22",
       "shots": {
         "desktop": {
           "file": "data/block-previews/imported/iqbroker-text-05.desktop.png",
@@ -16913,9 +16919,12 @@
         "width": 600,
         "height": 74,
         "mobileHeight": 48,
-        "background": "#fefefe",
+        "background": "#101314",
         "palette": [
-          "#fefefe"
+          "#101314",
+          "#f8f8f8",
+          "#303233",
+          "#cfcfd0"
         ],
         "images": 0,
         "links": 0,
@@ -16937,7 +16946,7 @@
       "label": "Текстовый абзац",
       "placement": "inline",
       "category": "text",
-      "hash": "08aa1a6481cb1130",
+      "hash": "5bcbeaf0a50fead3",
       "shots": {
         "desktop": {
           "file": "data/block-previews/imported/iqbroker-text-06.desktop.png",
@@ -16954,9 +16963,12 @@
         "width": 600,
         "height": 27,
         "mobileHeight": 27,
-        "background": "#ffffff",
+        "background": "#101314",
         "palette": [
-          "#ffffff"
+          "#101314",
+          "#f9f9f9",
+          "#adaeae",
+          "#d0d1d1"
         ],
         "images": 0,
         "links": 0,
@@ -17460,7 +17472,7 @@
       "label": "Текстовый абзац",
       "placement": "inline",
       "category": "text",
-      "hash": "424714a9cb182f5d",
+      "hash": "4f3e354eb960a009",
       "shots": {
         "desktop": {
           "file": "data/block-previews/imported/iqbroker-text-18.desktop.png",
@@ -17477,9 +17489,12 @@
         "width": 600,
         "height": 59,
         "mobileHeight": 59,
-        "background": "#ffffff",
+        "background": "#101314",
         "palette": [
-          "#ffffff"
+          "#101314",
+          "#f9f9f9",
+          "#adaeae",
+          "#d0d1d1"
         ],
         "images": 0,
         "links": 0,
@@ -17501,7 +17516,7 @@
       "label": "Заголовок",
       "placement": "inline",
       "category": "text",
-      "hash": "f1c2e08f489cf1aa",
+      "hash": "86bb23aa1ee22297",
       "shots": {
         "desktop": {
           "file": "data/block-previews/imported/iqbroker-text-19.desktop.png",
@@ -17518,9 +17533,12 @@
         "width": 600,
         "height": 58,
         "mobileHeight": 32,
-        "background": "#fefefe",
+        "background": "#101314",
         "palette": [
-          "#fefefe"
+          "#101314",
+          "#f8f8f8",
+          "#303233",
+          "#cfcfd0"
         ],
         "images": 0,
         "links": 0,
@@ -17583,7 +17601,7 @@
       "label": "Текстовый абзац",
       "placement": "inline",
       "category": "text",
-      "hash": "9e915af4bd52cf74",
+      "hash": "2f9af28a5612e73d",
       "shots": {
         "desktop": {
           "file": "data/block-previews/imported/iqbroker-text-21.desktop.png",
@@ -17600,9 +17618,12 @@
         "width": 600,
         "height": 35,
         "mobileHeight": 35,
-        "background": "#ffffff",
+        "background": "#101314",
         "palette": [
-          "#ffffff"
+          "#101314",
+          "#f9f9f9",
+          "#adaeae",
+          "#d0d1d1"
         ],
         "images": 0,
         "links": 0,

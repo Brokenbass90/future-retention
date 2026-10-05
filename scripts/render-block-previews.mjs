@@ -45,7 +45,12 @@ import { chromium } from "playwright-core";
 import { PNG } from "pngjs";
 
 import { composeEmailFromBlocks } from "../src/compose-email.js";
-import { blockPreviewSourceHash, previewBackdropForBlock } from "../src/block-previews.js";
+import {
+  blockPreviewSourceHash,
+  previewBackdropForBlock,
+  substitutePreviewPlaceholders,
+  findLeftoverPlaceholders,
+} from "../src/block-previews.js";
 import { contentSamplingRect, previewKeysToPrune } from "../src/block-preview-renderer-policy.js";
 
 /* ─── Песочница/CI без root: локальные стабы системных библиотек ─────────── */
@@ -246,7 +251,21 @@ function buildSheet(sandbox, mailName, entries) {
   }
   const html = path.join(sandbox, "dist", "X_preview", `mail-${mailName}`, "en", "index.html");
   if (!existsSync(html)) throw new Error("build ok, but dist HTML missing");
-  return html;
+
+  // В письме плейсхолдеры остаются: их подставляет платформа рассылки. В
+  // карточке каталога они не нужны — человек выбирает блок глазами, и
+  // «{{embedded.company_address}}» вместо адреса превращает выбор в
+  // угадывание. Подменяем только копию для скриншота, собранное письмо не
+  // трогаем: снимок с подстановкой — отдельный файл рядом.
+  const shot = path.join(path.dirname(html), "preview.html");
+  const built = readFileSync(html, "utf8");
+  const filled = substitutePreviewPlaceholders(built);
+  writeFileSync(shot, filled, "utf8");
+  const leftover = findLeftoverPlaceholders(filled);
+  if (leftover.length) {
+    console.log(`  ⚠ на листе остались плейсхолдеры: ${leftover.slice(0, 4).join(", ")}`);
+  }
+  return shot;
 }
 
 /* ─── Измерение и вырезание блоков в браузере ────────────────────────────── */
