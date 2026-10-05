@@ -1,3 +1,4 @@
+/* global state, cm, getActiveCm, getNs, syncLocaleRawFromBlocks, flushLocaleEditorToState, loadLocaleIntoLocaleCM, refreshLocaleUiAfterStructureChange, updatePreview, doFindAll, openFindBar, toast -- defined by workbench.js (loaded first) */
 /* Workbench: ⌘F → "Во всех локалях" strip under the find bar.
  * Same behaviour as RetKit for MoEngage: one "Заменить…" field, per-locale
  * counts, click a chip to see where, & == &amp;, image-by-file-name mode,
