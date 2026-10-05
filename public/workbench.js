@@ -2554,7 +2554,7 @@ async function toggleFsSplit() {
     cmFullscreenSplit.on('change', debounce(async () => {
       if (!_fsSplitActiveFile || !state.srcCtx) return;
       try { await saveAuxiliarySourceFile(state.srcCtx, _fsSplitActiveFile, cmFullscreenSplit.getValue()); }
-      catch {}
+      catch (e) { warnSaveFailed('файл', e); }
     }, 1200));
   }
 
@@ -2738,14 +2738,14 @@ async function saveFullscreenLeftFileIfNeeded(nextFilePath = null) {
   const ctx = state.srcCtx;
   if (!ctx || !cmFullscreen || !_fsActiveFile || _fsActiveFile === nextFilePath) return;
   try { await saveAuxiliarySourceFile(ctx, _fsActiveFile, cmFullscreen.getValue()); }
-  catch {}
+  catch (e) { warnSaveFailed('файл', e); }
 }
 
 async function saveFullscreenSplitFileIfNeeded(nextFilePath = null) {
   const ctx = state.srcCtx;
   if (!ctx || !cmFullscreenSplit || !_fsSplitActiveFile || _fsSplitActiveFile === nextFilePath) return;
   try { await saveAuxiliarySourceFile(ctx, _fsSplitActiveFile, cmFullscreenSplit.getValue()); }
-  catch {}
+  catch (e) { warnSaveFailed('файл', e); }
 }
 
 function renderFsPaneFileMenus() {
@@ -3036,7 +3036,7 @@ async function loadFileIntoFsSplit(filePath) {
     cmFullscreenSplit.on('change', debounce(async () => {
       if (!_fsSplitActiveFile || !state.srcCtx) return;
       try { await saveAuxiliarySourceFile(state.srcCtx, _fsSplitActiveFile, cmFullscreenSplit.getValue()); }
-      catch {}
+      catch (e) { warnSaveFailed('файл', e); }
     }, 1200));
   }
 
@@ -6339,7 +6339,7 @@ function insertEmailBlock(block, placement = {}) {
       if (!state.srcCtx?.modified) return;
       try {
         await saveCurrentSourceFile(activeCm.getValue());
-      } catch {}
+      } catch (e) { warnSaveFailed('файл', e); }
     }, 800);
   }
 }
@@ -11046,7 +11046,21 @@ function saveToLocalStorage() {
     } else {
       localStorage.removeItem(LS_SRC_CTX);
     }
-  } catch(e) { console.warn('localStorage save failed:', e); }
+  } catch(e) { console.warn('localStorage save failed:', e); warnSaveFailed('черновик в браузере', e); }
+}
+
+// Surface save failures instead of swallowing them (at most once per 20 s per kind).
+const _saveFailWarnedAt = {};
+function warnSaveFailed(what, err) {
+  try { console.warn('[save failed]', what, err); } catch {}
+  const now = Date.now();
+  if (_saveFailWarnedAt[what] && now - _saveFailWarnedAt[what] < 20000) return;
+  _saveFailWarnedAt[what] = now;
+  const quota = err && (err.name === 'QuotaExceededError' || /quota/i.test(String(err.message || '')));
+  const msg = quota
+    ? `Не сохранилось (${what}): в браузере кончилось место. Скачайте/сохраните письмо в файл.`
+    : `Не сохранилось (${what}): ${String(err && err.message || err || 'ошибка').slice(0, 120)}`;
+  try { toast(msg, 'error', 6000); } catch {}
 }
 
 function loadFromLocalStorage() {
