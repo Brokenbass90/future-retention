@@ -4819,6 +4819,7 @@ document.addEventListener('click',function(e){
   if(link){ e.preventDefault(); e.stopPropagation(); }
   var el=e.target.closest('[data-retkit-ph]');
   if(el){window.parent.postMessage({type:'retkit-ph-click',ph:el.dataset.retkitPh},'*');return;}
+  try{ if(window.parent&&window.parent.__retkitPreviewPick&&window.parent.__retkitPreviewPick(e)) return; }catch(_){}
   var block=e.target.closest('p,h1,h2,h3,h4,h5,h6,li,a')||e.target.closest('span,td,th,div');
   var blockHtml=block?(block.innerHTML||'').trim():'';
   var text='';
@@ -5409,6 +5410,105 @@ function cmHighlight(pos, posEnd, targetCm) {
   }
   activeCm.focus();
 }
+
+// ─── Preview click → exact source element (shared RetKit matcher) ─────────
+// The preview script calls this first. It describes the clicked element (tag,
+// its ordinal, img src, link href, background url, the exact text node) and
+// resolves it with the same matcher RetKit for MoEngage uses. Returns true when
+// it selected something; false lets the legacy text search run as before.
+// Visual feedback is drawn in the parent page, never inside the preview DOM:
+// PDF export and the pencil inspector read the preview DOM / outerHTML, so the
+// preview document must stay byte-identical to what was rendered.
+function markPreviewElement(el) {
+  try {
+    const frame = r.previewFrame;
+    if (!el || !frame || typeof el.getBoundingClientRect !== 'function') return;
+    const box = el.getBoundingClientRect();
+    const frameBox = frame.getBoundingClientRect();
+    let flash = document.getElementById('rkPreviewPickFlash');
+    if (!flash) {
+      flash = document.createElement('div');
+      flash.id = 'rkPreviewPickFlash';
+      flash.style.cssText = 'position:fixed;pointer-events:none;z-index:2147483000;border:2px solid #4f7cff;border-radius:3px;box-shadow:0 0 0 3px rgba(79,124,255,.18);transition:opacity .35s ease;';
+      document.body.appendChild(flash);
+    }
+    Object.assign(flash.style, {
+      left: `${frameBox.left + box.left - 2}px`,
+      top: `${frameBox.top + box.top - 2}px`,
+      width: `${Math.max(4, box.width + 4)}px`,
+      height: `${Math.max(4, box.height + 4)}px`,
+      opacity: '1',
+      display: 'block',
+    });
+    clearTimeout(markPreviewElement.timer);
+    markPreviewElement.timer = setTimeout(() => {
+      flash.style.opacity = '0';
+      setTimeout(() => { flash.style.display = 'none'; }, 380);
+    }, 1100);
+  } catch {}
+}
+
+function resolvePreviewPickInSource(event, doc, code, sourceIsHtml) {
+  const matcher = window.RetKitClickToSource;
+  if (!matcher) return null;
+  if (sourceIsHtml) return matcher.resolveClick(event, doc, code);
+
+  // Pug/Stylus source: element ordinals do not exist, but literal URLs and
+  // copy do. Try img src, link href, then the exact text node occurrence.
+  const target = event.target?.nodeType === 1 ? event.target : event.target?.parentElement;
+  if (!target) return null;
+  const point = matcher.getPointTextFromClick(event, doc);
+  const d = matcher.descriptorFromElement(target, doc, point);
+  const literal = (needle, occurrence) => {
+    if (!needle) return null;
+    let start = matcher.findOccurrenceIndex(code, needle, occurrence || 0);
+    if (start === -1 && occurrence) start = matcher.findOccurrenceIndex(code, needle, 0);
+    return start === -1 ? null : { start, end: start + needle.length };
+  };
+  if (d.tag === 'IMG' && d.src) {
+    const hit = literal(d.src, d.srcOccurrence);
+    if (hit) return { kind: 'src', ...hit, descriptor: d };
+  }
+  const text = String(d.pointText || '').trim();
+  if (text) {
+    const hit = matcher.findTextOccurrenceRange(code, text, d.pointTextGlobalOccurrence || 0)
+      || matcher.findTextOccurrenceRange(code, text, 0);
+    if (hit) return { kind: 'pointText', ...hit, descriptor: d };
+  }
+  if (d.href) {
+    const hit = literal(d.href, d.hrefOccurrence);
+    if (hit) return { kind: 'href', ...hit, descriptor: d };
+  }
+  for (const url of d.backgroundUrls || []) {
+    const hit = literal(url, 0);
+    if (hit) return { kind: 'background', ...hit, descriptor: d };
+  }
+  return null;
+}
+
+window.__retkitPreviewPick = function retkitPreviewPick(event) {
+  try {
+    const doc = event?.target?.ownerDocument || event?.view?.document;
+    const activeCm = getActiveCm() || cm;
+    if (!doc || !activeCm) return false;
+    const code = activeCm.getValue();
+    if (!code) return false;
+    // A text selection in the preview means "find this text": keep legacy flow.
+    const selection = doc.getSelection?.();
+    if (selection && String(selection).trim()) return false;
+    const sourceIsHtml = !(state.srcCtx && !state.srcCtx.viewingCompiledHtml);
+    const result = resolvePreviewPickInSource(event, doc, code, sourceIsHtml);
+    if (!result) return false;
+    const target = event.target?.nodeType === 1 ? event.target : event.target?.parentElement;
+    markPreviewElement(target);
+    cmHighlight(activeCm.posFromIndex(result.start), activeCm.posFromIndex(result.end), activeCm);
+    return true;
+  } catch (error) {
+    console.warn('[RetKit] preview pick failed, falling back to text search', error);
+    return false;
+  }
+};
+// ─── end preview pick ───
 
 window.addEventListener('message', e => {
   if (!e.data || !cm) return;
