@@ -186,8 +186,19 @@
         { locked: item.locked, title: item.locked ? 'Встроенный неймспейс — не меняется' : `блоки ${item.blockIndexes.map((i) => String(i).padStart(2, '0')).join(', ')}` }));
     }
     const any = Boolean(lastPlan.total);
-    strip.classList.toggle('hidden', !any && !lastUndo);
-    if (!any) { $('rkRaDetails').replaceChildren(); updateApply(); return; }
+    // Always visible while searching, so the feature is never "missing".
+    strip.classList.remove('hidden');
+    if (!any) {
+      const empty = document.createElement('span');
+      empty.className = 'ra-note';
+      empty.textContent = RA.looksLikeImage(find) && mode() === 'text'
+        ? 'Точных совпадений нет — включите «та же картинка по имени файла».'
+        : 'Ни в коде, ни в локалях совпадений нет.';
+      chips.appendChild(empty);
+      $('rkRaDetails').replaceChildren();
+      updateApply();
+      return;
+    }
     const keys = [...chips.querySelectorAll('.ra-chip')].map((el) => el.dataset.key);
     if (!keys.includes(detailsKey)) detailsKey = keys[0] || '';
     markActive();
