@@ -2253,8 +2253,22 @@ function extractAssetRecordsFromHtml(html) {
   return [...assetMap.values()];
 }
 
+// Node that runs the build subprocesses. Normally the very binary this studio
+// runs on; if it was removed or replaced while the studio kept running (nvm
+// upgrade/uninstall), spawning it fails with ENOENT and every preview and
+// build breaks — fall back to `node` from PATH instead.
+let warnedMissingNode = false;
+function nodeBinary() {
+  if (existsSync(process.execPath)) return process.execPath;
+  if (!warnedMissingNode) {
+    warnedMissingNode = true;
+    console.warn(`[studio] ${process.execPath} no longer exists (Node was updated or removed). Builds use "node" from PATH; restart the studio to get rid of this warning.`);
+  }
+  return "node";
+}
+
 async function runCommand(command, args, cwd) {
-  if (command === process.execPath
+  if (command === nodeBinary()
       && args?.[0] === "mail"
       && /^build(?:-pretty)?$/.test(String(args?.[1] || ""))) {
     auditMailSourceBeforeBuild({
@@ -3157,7 +3171,7 @@ async function buildEmailBasePreview(category, mailId, locale) {
   const mailRoot = path.join(emailBaseRoot, selectedCategory, `mail-${selectedMail}`);
   const stylesRoot = path.join(mailRoot, "app", "styles");
   const result = await withPreferredTemplateSource(templatesRoot, () => runCommand(
-    process.execPath,
+    nodeBinary(),
     ["mail", "build-pretty", selectedCategory, selectedMail, "--locales", selectedLocale],
     emailBaseRoot
   ));
@@ -6391,7 +6405,7 @@ async function buildReferenceEmailBasePreviewFromDraft(payload, rawDraft) {
 
     for (const locale of localePayloads.keys()) {
       const buildResult = await withPreferredTemplateSource(templatesRoot, () => runCommand(
-        process.execPath,
+        nodeBinary(),
         ["mail", "build-pretty", category, mailId, "--locales", locale],
         emailBaseRoot
       ));
@@ -6556,7 +6570,7 @@ async function buildTemporaryEmailBasePreviewFromDraft(payload, rawDraft) {
 
     for (const locale of localePayloads.keys()) {
       const buildResult = await runCommand(
-        process.execPath,
+        nodeBinary(),
         ["mail", "build-pretty", category, mailId, "--locales", locale],
         emailBaseRoot
       );
@@ -6751,7 +6765,7 @@ async function createEmailBaseMailFromDraft(payload, rawDraft) {
   const localeBuildLogs = {};
   for (const locale of localePayloads.keys()) {
     const buildResult = await runCommand(
-      process.execPath,
+      nodeBinary(),
       ["mail", "build-pretty", category, mailId, "--locales", locale],
       emailBaseRoot
     );
@@ -17725,7 +17739,7 @@ const server = http.createServer(async (request, response) => {
               });
               const built = await new Promise((resolve) => {
                 const args = constructorBuildMailArgs({ brand, mailName: buildMailName, preview: true });
-                const child = spawn(process.execPath, args, {
+                const child = spawn(nodeBinary(), args, {
                   cwd: tmpDir,
                   env: buildSubprocessEnv,
                   stdio: ["ignore", "pipe", "pipe"],
@@ -17879,7 +17893,7 @@ const server = http.createServer(async (request, response) => {
             });
             const built = await new Promise((resolve) => {
               const args = constructorBuildMailArgs({ brand, mailName: rawName, preview: false });
-              const child = spawn(process.execPath, args, {
+              const child = spawn(nodeBinary(), args, {
                 cwd: path.join(__dirname, "email-base"),
                 env: buildSubprocessEnv,
                 stdio: ["ignore", "pipe", "pipe"],
@@ -18306,7 +18320,7 @@ const server = http.createServer(async (request, response) => {
 
       // Rebuild for the new locale to get preview HTML
       const buildResult = await runCommand(
-        process.execPath,
+        nodeBinary(),
         ["mail", "build-pretty", category, mailId, "--locales", locale],
         emailBaseRoot
       );
@@ -18472,7 +18486,7 @@ const server = http.createServer(async (request, response) => {
             const mailTemplatesRoot = path.join(emailBaseRoot, category, `mail-${safeNewMailId}`, "app", "templates");
             const locale = "en";
             await withPreferredTemplateSource(mailTemplatesRoot, () =>
-              runCommand(process.execPath, ["mail", "build-pretty", category, safeNewMailId, "--locales", locale], emailBaseRoot)
+              runCommand(nodeBinary(), ["mail", "build-pretty", category, safeNewMailId, "--locales", locale], emailBaseRoot)
             );
             const distDir = path.join(emailBaseRoot, "dist", category, `mail-${safeNewMailId}`, locale);
             const prettyPath = path.join(distDir, "index.pretty.html");
@@ -18534,7 +18548,7 @@ const server = http.createServer(async (request, response) => {
       try {
         const mailTemplatesRoot = path.join(mailRoot, "app", "templates");
         await withPreferredTemplateSource(mailTemplatesRoot, () =>
-          runCommand(process.execPath, ["mail", "build-pretty", category, mailId, "--locales", locale], emailBaseRoot)
+          runCommand(nodeBinary(), ["mail", "build-pretty", category, mailId, "--locales", locale], emailBaseRoot)
         );
         const distDir    = path.join(emailBaseRoot, "dist", category, `mail-${mailId}`, locale);
         const prettyPath = path.join(distDir, "index.pretty.html");
@@ -19201,7 +19215,7 @@ const server = http.createServer(async (request, response) => {
         if (releasePreflightRequested) buildArgs.push("--failOnWeight");
         const buildResult = await new Promise((resolve, reject) => {
           const child = spawn(
-            process.execPath,
+            nodeBinary(),
             buildArgs,
             {
               cwd: emailBaseDir,
