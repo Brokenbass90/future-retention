@@ -188,7 +188,11 @@
       this.makeDraggable(root.querySelector(".chat-head"));
       root.querySelector(".chat-form").addEventListener("submit", (e) => { e.preventDefault(); this.send(); });
       root.querySelector(".chat-close").addEventListener("click", () => this.close());
-      root.querySelector(".chat-clear").addEventListener("click", () => { this.messages = []; this.log.innerHTML = ""; this.hello(); });
+      root.querySelector(".chat-clear").addEventListener("click", () => {
+        this.messages = []; this.log.innerHTML = ""; this.hello();
+        // Очищаем и общий разговор — иначе в коде он всплывёт снова.
+        fetch("/api/studio/agent/thread/clear", { method: "POST" }).catch(() => {});
+      });
       // Мастер подключения нужен по нажатию, а не только когда у студии нет
       // своей модели. Раньше он показывался сам и только в этом случае —
       // поэтому у тех, у кого модель настроена, двери к своему агенту просто
@@ -215,8 +219,28 @@
         this.addImages([...(e.dataTransfer?.files || [])].filter((f) => f.type.startsWith("image/")));
       });
 
-      this.hello();
+      this.loadThread();
       this.open();
+    }
+
+    /**
+     * Разговор общий для конструктора и кода: подтягиваем его с сервера,
+     * чтобы, перейдя на другую страницу, человек продолжал тот же разговор.
+     */
+    async loadThread() {
+      let messages = [];
+      try {
+        const res = await fetch("/api/studio/agent/thread");
+        const data = res.ok ? await res.json() : null;
+        messages = Array.isArray(data?.messages) ? data.messages.slice(-12) : [];
+      } catch { messages = []; }
+      if (!messages.length) { this.hello(); return; }
+      const where = { constructor: "конструктор", workbench: "код" };
+      for (const m of messages) {
+        const tag = m.surface && m.surface !== this.surface ? `[${where[m.surface] || m.surface}] ` : "";
+        this.append(m.role === "assistant" ? "assistant" : "user", `${tag}${m.content}`);
+      }
+      this.messages = messages.map((m) => ({ role: m.role, content: m.content }));
     }
 
     /**
@@ -540,7 +564,24 @@
       const images = this.images.map((i) => i.dataUrl);
       this.images = [];
       this.renderAttachments();
+      await this.ask(text, images);
+    }
 
+    /**
+     * Проверка собранного: поверхность применила правки агента, пересобрала
+     * превью и отдаёт отчёт. Агент смотрит на настоящий результат (see_email)
+     * и чинит то, что не вышло. Один круг — чтобы не зациклиться.
+     */
+    async verifyBuild(report) {
+      if (this.busy) return;
+      const problems = Array.isArray(report?.problems) ? report.problems : [];
+      this.append("assistant", problems.length
+        ? "Студия не приняла часть правок — исправляю…"
+        : "Смотрю, что получилось…");
+      await this.ask("Проверь собранное письмо.", [], { verify: true, report });
+    }
+
+    async ask(text, images, { verify = false, report = null } = {}) {
       this.busy = true;
       this.root.classList.add("busy");
       const thinking = this.append("assistant", "думаю…");
@@ -554,6 +595,7 @@
             message: text,
             images,
             messages: this.messages.slice(-8),
+            ...(verify ? { verify: true, verifyReport: report || {} } : {}),
             ...this.buildContext(),
           }),
         });
@@ -594,7 +636,9 @@
             this.append("assistant", final.summary);
           }
           if (final.summary) this.messages.push({ role: "assistant", content: final.summary });
-          this.onResult(final);
+          // Результат применяется, а проверка (если поверхность её хочет)
+          // идёт уже после того, как разговор освободился.
+          this._afterTurn = { final, verify };
         }
       } catch (err) {
         thinking.remove();
@@ -603,6 +647,12 @@
         this.busy = false;
         this.root.classList.remove("busy");
         this.input.focus();
+      }
+      const after = this._afterTurn;
+      this._afterTurn = null;
+      if (after) {
+        try { await this.onResult(after.final, { verifyRound: after.verify }); }
+        catch (error) { this.append("error", describeFailure(String(error?.message || error))); }
       }
     }
   }

@@ -12836,3 +12836,23 @@ if (typeof window !== 'undefined') {
     (window.WB._fileChangeListeners || []).forEach((cb) => { try { cb(); } catch (e) { console.error(e); } });
   };
 }
+
+// ─── Общий разговор с оператором (тот же, что в конструкторе) ───────────
+async function loadSharedAgentThread() {
+  if (!r.aiMessages) return;
+  try {
+    const res = await fetch('/api/studio/agent/thread');
+    const data = res.ok ? await res.json() : null;
+    const messages = Array.isArray(data?.messages) ? data.messages.slice(-12) : [];
+    if (!messages.length) return;
+    for (const m of messages) {
+      const role = m.role === 'assistant' ? 'assistant' : 'user';
+      const tag = m.surface === 'constructor' ? '[конструктор] ' : '';
+      const bubble = addMessage(role, `${tag}${m.content}`);
+      if (role === 'assistant') bubble.textContent = `${tag}${m.content}`;
+    }
+    state.chatHistory = messages.map((m) => ({ role: m.role, content: m.content }));
+  } catch { /* без истории чат всё равно работает */ }
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', loadSharedAgentThread);
+else loadSharedAgentThread();

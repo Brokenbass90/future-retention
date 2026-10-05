@@ -3299,6 +3299,24 @@ function sourceSkeletonPayload() {
 let _livePreviewTimer = null;
 let _livePreviewToken = 0;
 let _lastLiveHtml = "";
+// Кто ждёт ближайшую сборку превью (проверка работы агента).
+const _liveWaiters = [];
+function waitForLivePreview(timeoutMs = 25000) {
+  return new Promise((resolve) => {
+    const waiter = (result) => { clearTimeout(timer); resolve(result); };
+    const timer = setTimeout(() => {
+      const index = _liveWaiters.indexOf(waiter);
+      if (index >= 0) _liveWaiters.splice(index, 1);
+      resolve({ ok: false, error: "превью не успело собраться" });
+    }, timeoutMs);
+    _liveWaiters.push(waiter);
+  });
+}
+function settleLiveWaiters(result) {
+  for (const waiter of _liveWaiters.splice(0)) {
+    try { waiter(result); } catch { /* ждущий не должен ронять сборку */ }
+  }
+}
 const _livePreviewSessionNonce = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
 function livePreviewRequestMailName(rawName, token, nonce = _livePreviewSessionNonce) {
@@ -3336,6 +3354,7 @@ function scheduleLivePreview(delay = 650) {
     const placeholder = $("previewPlaceholder");
     if (placeholder) placeholder.innerHTML = "Добавь блоки слева — здесь появится живое превью письма.<br><br>Можно перетаскивать блоки прямо сюда, в письмо, а клик по блоку выделяет его для правки.";
     setLiveStatus("пусто");
+    settleLiveWaiters({ ok: true, empty: true });
     return;
   }
   setLiveStatus("ожидание правок…");
@@ -3355,6 +3374,7 @@ async function runLivePreview() {
     const _ph = $("previewPlaceholder"); if (_ph) _ph.textContent = "Добавь секцию или комбо слева — здесь появится письмо.";
     setLiveStatus("добавь секцию", "");
     overlay?.classList.add("hidden");
+    settleLiveWaiters({ ok: true, empty: true });
     return;
   }
   overlay?.classList.remove("hidden");
@@ -3376,6 +3396,7 @@ async function runLivePreview() {
         `<div style="font:12px/1.5 ui-monospace,Menlo,monospace;color:#b91c1c;white-space:pre-wrap;padding:18px">`
         + `⚠ Ошибка сборки\n\n${escapeHtml(data.error || res.status)}\n\n${escapeHtml((data.stderr || "").slice(0, 700))}</div>`;
       setLiveStatus("ошибка сборки", "err");
+      settleLiveWaiters({ ok: false, error: String(data.error || res.status), stderr: String(data.stderr || "").slice(0, 600) });
       return;
     }
     _lastLiveHtml = sanitizeIframePreviewHtml(data.html);
@@ -3390,9 +3411,16 @@ async function runLivePreview() {
     frame.srcdoc = _lastLiveHtml;
     const warn = (data.warnings && data.warnings.length) ? ` · ⚠${data.warnings.length}` : "";
     setLiveStatus(`${data.blocksUsed}/${data.totalBlocks} блоков · ${(data.htmlLength/1024).toFixed(1)}KB${warn}`, "ok");
+    settleLiveWaiters({
+      ok: true,
+      blocksUsed: data.blocksUsed,
+      totalBlocks: data.totalBlocks,
+      warnings: Array.isArray(data.warnings) ? data.warnings.slice(0, 20).map((w) => String(w?.message || w).slice(0, 200)) : [],
+    });
   } catch (err) {
     if (token !== _livePreviewToken) return;
     setLiveStatus("сеть: " + err.message, "err");
+    settleLiveWaiters({ ok: false, error: err.message });
   } finally {
     if (token === _livePreviewToken) overlay?.classList.add("hidden");
   }
@@ -4370,7 +4398,7 @@ $("openGalleryBtn")?.addEventListener("click", openBlockGallery);
  *   move   — на позицию вверх/вниз среди соседей
  */
 function applyAgentCanvasOps(ops) {
-  if (!Array.isArray(ops) || !ops.length) return;
+  if (!Array.isArray(ops) || !ops.length) return { applied: false, problems: [] };
   const slotValues = globalThis.RetkitCanvasSlots;
   let before;
   try { before = JSON.stringify(state.canvas); } catch { before = null; }
@@ -4489,11 +4517,11 @@ function applyAgentCanvasOps(ops) {
     console.warn("[constructor] rejected agent canvas package", problems);
     finishCanvasMutation(null);
     flashCanvasHint(`Оператор не применил правку: ${problems[0]}`, 6000);
-    return;
+    return { applied: false, problems };
   }
 
   const total = counts.update + counts.remove + counts.clear + counts.add + counts.move;
-  if (!total) return;
+  if (!total) return { applied: false, problems: [] };
   if (before != null) _canvasUndo.push(before);
   const undoBtn = document.getElementById("undoBtn");
   if (undoBtn) undoBtn.disabled = _canvasUndo.length === 0;
@@ -4506,9 +4534,33 @@ function applyAgentCanvasOps(ops) {
   if (counts.move) said.push(`переставил ${counts.move}`);
   if (counts.update) said.push(`изменил ${counts.update}`);
   flashCanvasHint(`Оператор: ${said.join(", ")} — Ctrl+Z отменит всё разом`, 5000);
+  return { applied: true, problems: [], counts };
 }
 
 let _studioChat = null;
+function agentCatalogContext() {
+  const brand = window.RetkitBrands?.active?.() || null;
+  const blocks = state.library.filter((b) => catalogSourceAllowed(b, "curated")
+    && blockAllowedInKit(b) && !blockBelongsToOtherBrand(b));
+  return {
+    brand: brand ? {
+      id: brand.id,
+      label: brand.label || brand.id,
+      blockTag: brand.blockTag || "",
+      theme: brand.theme || {},
+    } : null,
+    kit: activeKit(),
+    blocks: blocks.slice(0, 400).map((b) => ({
+      id: b.id,
+      source: b.source || "",
+      label: String(b.label || "").slice(0, 90),
+      placement: b.placement || "",
+      category: b.category || "",
+      combo: isComboBlock(b),
+    })),
+  };
+}
+
 function ensureStudioChat() {
   if (_studioChat) return _studioChat;
   if (typeof StudioChat === "undefined") return null;
@@ -4532,12 +4584,18 @@ function ensureStudioChat() {
         };
       }),
       html: _lastLiveHtml || "",
+      mailName: $("mailName")?.value?.trim() || "",
+      // Что человек видит в каталоге: бренд, набор и блоки, которые здесь
+      // реально можно поставить. Без этого агент выбирал из всех 540 блоков,
+      // включая чужие бренды и черновые импорты, и пакет правок обрывался на
+      // «блока нет в каталоге этого режима».
+      studio: agentCatalogContext(),
     }),
     // Подсветка кнопки живёт там же, где открытие окна: иначе окно, открытое
     // правой кнопкой по блоку, оставляло кнопку погашенной.
     onOpenChange: (open) => $("chatFab")?.classList.toggle("active", open),
-    onResult: (payload) => {
-      applyAgentCanvasOps(payload?.canvasOps);
+    onResult: async (payload, meta = {}) => {
+      const outcome = applyAgentCanvasOps(payload?.canvasOps);
       // Агент собрал письмо своим инструментом — предлагаем открыть результат,
       // но не подменяем канвас молча: человек мог не этого хотеть.
       if (payload?.composed?.brand && payload.composed.mailName) {
@@ -4546,6 +4604,13 @@ function ensureStudioChat() {
           loadParsedEmail(brand, `mail-${String(mailName).replace(/^mail-/, "")}`);
         }
       }
+      // Агент собирает вслепую: правки применяет браузер уже после его
+      // «готово». Поэтому один раз показываем ему настоящий результат — то,
+      // что студия не приняла, и свежее превью — и даём доделать.
+      if (meta.verifyRound || !outcome) return;
+      if (!outcome.applied && !outcome.problems.length) return;
+      const live = outcome.applied ? await waitForLivePreview() : null;
+      await _studioChat?.verifyBuild({ problems: outcome.problems, live });
     },
   });
   return _studioChat;

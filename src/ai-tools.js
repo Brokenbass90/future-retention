@@ -26,6 +26,7 @@
  *                               a human-readable summary for the user
  */
 
+import { catalogAllows, filterByCatalog, catalogAlternatives } from "./constructor-catalog.js";
 import { placeholderizeHtml, fixLocaleTxt, translateLocaleTxt } from "./locale-ai.js";
 import { normalizeLocaleConventions, parseNormalizedBlocks, alignLocaleToReference, serializeAligned, localePrefix } from "./locale-conventions.js";
 import { analyzeLocaleAgainstHtml } from "./locale-analyze.js";
@@ -1585,11 +1586,15 @@ export const TOOL_HANDLERS = {
     return { namespace: ns.namespace || ns.name, locale: code, index: i, before, after: text };
   },
 
-  async list_canonical_blocks(_args, _ctx) {
+  async list_canonical_blocks(_args, ctx) {
     // Imported blocks are validated as historical source fragments, not as a
     // mutually compatible design system. Feeding all 955 legacy slices to the
     // model wastes context and lets campaign assets/styles leak into new mail.
-    const blocks = listCanonicalBlocks().filter((block) => block.source === "canonical" && block.retired !== true);
+    // In the constructor the person's catalog (brand + kit) is the truth.
+    const catalog = ctx?.constructorCatalog || null;
+    const blocks = catalog
+      ? filterByCatalog(catalog, listCanonicalBlocks().filter((block) => block.retired !== true))
+      : listCanonicalBlocks().filter((block) => block.source === "canonical" && block.retired !== true);
     return {
       count: blocks.length,
       blocks: blocks.map((b) => ({
@@ -1626,7 +1631,7 @@ export const TOOL_HANDLERS = {
    * X_IQ (1 писем)», из-за чего hero-подобные секции путались между собой.
    * Здесь она фильтрует по тому, что реально видно на превью.
    */
-  async find_blocks_by_look(args, _ctx) {
+  async find_blocks_by_look(args, ctx) {
     const limit = Math.min(Math.max(1, Number(args?.limit) || 12), 40);
     const wantPlacement = String(args?.placement || "any").toLowerCase();
     const includeLegacy = args?.includeLegacy !== false;
@@ -1635,6 +1640,8 @@ export const TOOL_HANDLERS = {
 
     let blocks = listCanonicalBlocks().filter((b) => b.retired !== true);
     if (!includeLegacy) blocks = blocks.filter((b) => b.source !== "imported");
+    // Конструктор: ищем только среди того, что человек может поставить.
+    blocks = filterByCatalog(ctx?.constructorCatalog || null, blocks);
 
     const scored = [];
     for (const block of blocks) {
@@ -2186,6 +2193,15 @@ export const TOOL_HANDLERS = {
         code: "UNKNOWN_BLOCK",
         ...(near.length ? { didYouMean: near } : {}),
         hint: "Call list_canonical_blocks or find_blocks_by_look first — block ids are not guessable.",
+      };
+    }
+
+    if (!catalogAllows(ctx?.constructorCatalog || null, block)) {
+      return {
+        error: `block "${blockId}" is not in this constructor catalog (other brand, other kit or not reviewed)`,
+        code: "BLOCK_NOT_IN_CATALOG",
+        alternatives: catalogAlternatives(ctx.constructorCatalog, block),
+        hint: "Pick from the block list in the user message — that is exactly what the person can place here.",
       };
     }
 

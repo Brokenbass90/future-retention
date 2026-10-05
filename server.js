@@ -46,6 +46,9 @@ import { resolveStudioRuntimeFlags } from "./src/runtime-flags.js";
 import { placeholderizeHtml, fixLocaleTxt, translateLocaleTxt } from "./src/locale-ai.js";
 import { placeholderizePugSource } from "./src/pug-placeholderize.js";
 import { runAgent } from "./src/ai-agent.js";
+import { normalizeConstructorCatalog, describeCatalogForAgent } from "./src/constructor-catalog.js";
+import { readThread, appendTurn, noteSurface, historyForModel, describeOtherSurface } from "./src/agent-thread.js";
+import { registerAgentThreadRoutes } from "./src/routes/agent-thread-routes.js";
 import {
   isRequestBodyTooLarge,
   readJsonRequestBody,
@@ -236,6 +239,7 @@ registerMcpRoutes(studioRouter, {
   isAuthEnabled: () => Boolean(studioRuntimeFlags.authEnabled),
 });
 registerShotRoutes(studioRouter, { sendJson, readRequestBody });
+registerAgentThreadRoutes(studioRouter, { repoRoot: __dirname, sendJson });
 registerSourceRoutes(studioRouter, { repoRoot: __dirname, sendJson });
 registerAgentRoutes(studioRouter, {
   repoRoot: __dirname,
@@ -17105,9 +17109,40 @@ function workbenchContextNote(ctx) {
     "Правка показывается человеку как предложение — сделай её, а не объясняй, как сделать. Не спрашивай, конструктор это или код: это код.]";
 }
 
+function constructorVerifyMessage(report) {
+  const problems = Array.isArray(report?.problems) ? report.problems.slice(0, 10).map((p) => String(p).slice(0, 200)) : [];
+  const live = report?.live && typeof report.live === "object" ? report.live : null;
+  const lines = ["[Проверка сборки — это сообщение прислала студия, не человек]"];
+  if (problems.length) {
+    lines.push(
+      "Студия НЕ применила твой пакет правок: он откатан целиком, канвас остался как был. Причины:",
+      ...problems.map((p) => `  – ${p}`),
+      "Собери заново, обойдя эти причины (бери блоки только из списка ниже)."
+    );
+  } else if (live) {
+    if (live.ok === false) {
+      lines.push(`Правки применены, но превью не собралось: ${String(live.error || "ошибка").slice(0, 200)} ${String(live.stderr || "").slice(0, 300)}`);
+    } else {
+      lines.push(`Правки применены, превью пересобрано: в письме ${live.blocksUsed ?? "?"} из ${live.totalBlocks ?? "?"} блоков.`);
+      if (Number(live.blocksUsed) < Number(live.totalBlocks)) {
+        lines.push("Часть блоков в письмо НЕ попала — найди какие и почему, поставь их правильно.");
+      }
+      const warnings = Array.isArray(live.warnings) ? live.warnings.slice(0, 10) : [];
+      if (warnings.length) lines.push("Предупреждения сборки:", ...warnings.map((w) => `  – ${String(w).slice(0, 200)}`));
+    }
+  }
+  lines.push(
+    "Сделай: 1) see_email — посмотри на письмо; 2) сверь с просьбой человека из истории разговора:",
+    "   порядок блоков, логотип, картинка, фон, кнопка, футер; 3) исправь то, что не так, инструментами канваса;",
+    "4) finish коротко: что проверил, что исправил, что человеку осталось прислать (тексты, картинку, ссылки).",
+    "Если всё верно — сразу finish одной-двумя фразами, без пересказа."
+  );
+  return lines.join("\n");
+}
+
 async function handleStudioAgent(response, body, actor = null) {
   if (!openAiApiKey) { sendJson(response, 503, { error: "OPENAI_API_KEY is not configured" }); return; }
-  const userMessage = String(body?.message || body?.text || "").trim();
+  let userMessage = String(body?.message || body?.text || "").trim();
   if (!userMessage) { sendJson(response, 400, { error: "message required" }); return; }
 
   const surface = body?.surface === "constructor" ? "constructor" : "workbench";
@@ -17150,6 +17185,8 @@ async function handleStudioAgent(response, body, actor = null) {
     // что человек собрал прямо сейчас.
     const canvas = Array.isArray(body?.canvas) ? body.canvas : [];
     ctx.canvas = canvas.slice(0, 400);
+    ctx.constructorCatalog = normalizeConstructorCatalog(body?.studio);
+    ctx.constructorMailName = cleanText(body?.mailName || "").slice(0, 80);
     ctx.canvasSummary = canvas.map((entry, index) => ({
       index,
       uid: entry?.uid ?? null,
@@ -17192,12 +17229,43 @@ async function handleStudioAgent(response, body, actor = null) {
     images: Array.isArray(body?.images) ? body.images.length : 0,
   }});
 
+  // Проверка сборки: конструктор применил правки агента, пересобрал превью
+  // и прислал отчёт. Агент смотрит на настоящий результат и доделывает.
+  const isVerify = surface === "constructor" && body?.verify === true;
+  const humanMessage = userMessage;
+  if (isVerify) {
+    userMessage = constructorVerifyMessage(body?.verifyReport || {});
+  }
+
+  // Один разговор на обе поверхности: история — с сервера, а не из вкладки.
+  let thread = null;
+  try {
+    thread = readThread(__dirname, actor);
+    noteSurface(__dirname, actor, surface, surface === "constructor"
+      ? {
+        письмо: ctx.constructorMailName || "без имени",
+        бренд: ctx.constructorCatalog?.brand?.label || "",
+        набор: ctx.constructorCatalog?.kit || "",
+        блоков: Array.isArray(ctx.canvasSummary) ? ctx.canvasSummary.length : 0,
+      }
+      : {
+        письмо: ctx.brand && ctx.mail ? `${ctx.brand}/${ctx.mail}` : (ctx.html ? "вставленный HTML" : "ничего не открыто"),
+        namespace: activeNamespace ? activeNamespace.name : "",
+        локаль: ctx.activeLocale || "",
+      });
+  } catch { thread = null; }
+  const otherSurface = thread ? describeOtherSurface(thread, surface) : "";
+  const sharedHistory = thread && thread.messages.length
+    ? historyForModel(thread)
+    : (Array.isArray(body?.messages) ? body.messages : []);
+
   try {
     const result = await runAgent({
+      maxSteps: surface === "constructor" ? 24 : undefined,
       userMessage: surface === "constructor"
-        ? `${userMessage}\n\n[Поверхность: конструктор писем. Текущее дерево блоков:\n${JSON.stringify(ctx.canvasSummary || [], null, 1).slice(0, 6000)}\n]`
-        : `${userMessage}\n\n${workbenchContextNote(ctx)}`,
-      history: Array.isArray(body?.messages) ? body.messages : [],
+        ? `${userMessage}\n\n[Поверхность: конструктор писем${ctx.constructorMailName ? ` (письмо ${ctx.constructorMailName})` : ""}.\n${describeCatalogForAgent(ctx.constructorCatalog)}\nТекущее дерево блоков:\n${JSON.stringify(ctx.canvasSummary || [], null, 1).slice(0, 6000)}\n]` + (otherSurface ? `\n${otherSurface}` : "")
+        : `${userMessage}\n\n${workbenchContextNote(ctx)}${otherSurface ? `\n${otherSurface}` : ""}`,
+      history: sharedHistory,
       images: Array.isArray(body?.images) ? body.images : [],
       ctx,
       apiKey: openAiApiKey,
@@ -17217,6 +17285,13 @@ async function handleStudioAgent(response, body, actor = null) {
         },
       });
     } catch { /* журнал не должен ронять ответ */ }
+    try {
+      appendTurn(__dirname, actor, {
+        surface,
+        user: isVerify ? "" : humanMessage,
+        assistant: result.summary,
+      });
+    } catch { /* память разговора не должна ронять ответ */ }
     send({ kind: "final", payload: {
       summary: result.summary,
       modifiedHtml: result.modifiedHtml || "",

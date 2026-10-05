@@ -39,3 +39,4 @@ email-base/dist/
 
 # Черновики писем: личная копия рядом с письмом, в репозитории ей не место.
 email-base/**/mail-*__draft-*/
+data/agent-threads/
