@@ -52,6 +52,23 @@
              <p class="mcp-hint">Студия сама пропишет подключение в настройки Claude Desktop.
              Прежний файл сохранится рядом как резервная копия.</p>`;
 
+    // Ещё не стоит ни Claude Desktop, ни Claude Code — ставим под систему.
+    function installBlock() {
+      const ua = String(navigator.userAgentData?.platform || navigator.platform || '').toLowerCase();
+      const win = ua.includes('win');
+      const desktopUrl = win
+        ? 'https://claude.com/download'
+        : 'https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect';
+      const cli = win ? 'irm https://claude.ai/install.ps1 | iex' : 'curl -fsSL https://claude.ai/install.sh | bash';
+      return `<details class="mcp-manual"><summary>Ещё не установлен — поставить</summary>
+        <p class="mcp-hint"><a href="${desktopUrl}" target="_blank" rel="noopener">Скачать Claude Desktop для ${win ? 'Windows' : 'Mac'}</a> — обычная программа, установка как у любого приложения.</p>
+        <p class="mcp-hint">Или Claude Code — ${win ? 'PowerShell (Win+X → «Терминал»)' : 'Терминал (⌘ Пробел → «Терминал»)'}, вставить и Enter:</p>
+        <pre class="mcp-code" id="mcpInstallCli">${esc(cli)}</pre>
+        <button type="button" class="mcp-copy" data-copy="mcpInstallCli">Скопировать команду</button>
+        <p class="mcp-hint">Потом войдите своей подпиской Claude (Pro / Max / Team) и вернитесь сюда.</p>
+      </details>`;
+    }
+
     // Отдельной кнопки для скилла нет: он ставится тем же действием, что и
     // подключение. Шаг остался объяснением, а не работой для человека —
     // подключение без скилла давало агента, который видит ручки, но не
@@ -71,6 +88,7 @@
           <b>Нужен Claude Desktop или Claude Code</b>
           <p class="mcp-hint">Подойдёт любой клиент с поддержкой MCP. Модель — ваша,
           студия ничего за неё не платит и ключей не спрашивает.</p>
+          ${installBlock()}
         </div>
       </div>
 
