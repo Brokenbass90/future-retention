@@ -182,7 +182,8 @@
     button.className = 'editor-action-btn';
     button.id = 'replaceAcrossBtn';
     button.title = 'Найти и заменить во всём письме: код + все локали (⌘⇧H). Выдели URL картинки в коде — он подставится сам.';
-    button.textContent = '⇄ Во всех локалях';
+    button.textContent = '⇄ Локали';
+    button.style.whiteSpace = 'nowrap';
     button.addEventListener('click', open);
     anchor.parentNode.insertBefore(button, anchor);
   }
