@@ -17079,6 +17079,18 @@ function rejectUnauthorizedRequest(response) {
  * работает в обеих, чтение локалей осмысленно только во второй, и агент сам
  * выбирает подходящие по контексту.
  */
+// Tells the operator exactly what is open in the code workbench, so it acts
+// instead of asking "конструктор или код?" or hunting for source files of a
+// pasted email that has none.
+function workbenchContextNote(ctx) {
+  if (ctx.brand && ctx.mail) {
+    return `[Поверхность: редактор кода. Открыто письмо ${ctx.brand}/${ctx.mail} из базы: стили и разметка в исходниках — list_mail_files → read_mail_file → write_mail_file; разовые правки собранного HTML — find_in_html → replace_in_html. Не спрашивай, конструктор это или код: это код.]`;
+  }
+  return "[Поверхность: редактор кода. Открыт вставленный HTML без исходников (pasted): САМ HTML и есть письмо, list_mail_files/read_mail_file здесь не нужны. " +
+    "Стили, цвета, фон меняй прямо в нём: find_in_html, чтобы найти повторяющийся стиль (например background-color у блоков), затем replace_in_html с replaceAll=true. " +
+    "Правка показывается человеку как предложение — сделай её, а не объясняй, как сделать. Не спрашивай, конструктор это или код: это код.]";
+}
+
 async function handleStudioAgent(response, body, actor = null) {
   if (!openAiApiKey) { sendJson(response, 503, { error: "OPENAI_API_KEY is not configured" }); return; }
   const userMessage = String(body?.message || body?.text || "").trim();
@@ -17170,7 +17182,7 @@ async function handleStudioAgent(response, body, actor = null) {
     const result = await runAgent({
       userMessage: surface === "constructor"
         ? `${userMessage}\n\n[Поверхность: конструктор писем. Текущее дерево блоков:\n${JSON.stringify(ctx.canvasSummary || [], null, 1).slice(0, 6000)}\n]`
-        : userMessage,
+        : `${userMessage}\n\n${workbenchContextNote(ctx)}`,
       history: Array.isArray(body?.messages) ? body.messages : [],
       images: Array.isArray(body?.images) ? body.images : [],
       ctx,

@@ -9475,9 +9475,16 @@ async function runAgentChat(text, images = []) {
     }
     setStatus('🤖 Agent готов');
     if (finalPayload) {
-      const sum = stepEl('text', finalPayload.summary || '');
-      sum.classList.add('ai-agent-summary');
-      timeline.appendChild(sum);
+      // The agent streams its answer as a `text` frame and then repeats it in
+      // finish.summary — show it once.
+      const lastText = [...timeline.querySelectorAll('.ai-agent-text')].pop()?.textContent?.trim() || '';
+      if ((finalPayload.summary || '').trim() !== lastText) {
+        const sum = stepEl('text', finalPayload.summary || '');
+        sum.classList.add('ai-agent-summary');
+        timeline.appendChild(sum);
+      } else {
+        [...timeline.querySelectorAll('.ai-agent-text')].pop()?.classList.add('ai-agent-summary');
+      }
       state.chatHistory.push({ role: 'assistant', content: finalPayload.summary || '' });
 
       // Agent output is a proposal. Reuse the same diff/ownership gates as the
