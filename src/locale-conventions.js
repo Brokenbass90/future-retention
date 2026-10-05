@@ -395,6 +395,45 @@ export function buildAnchorUnits(raw, namespace) {
   });
   if (current) units.push(current);
 
+  // Хвост абзаца, вынесенный на свою строку: «{{…contact}}\n{{embedded.email}}\n{{.}}».
+  // Так выгружают локали из MoEngage, и тогда точка и переменная становились
+  // отдельными «юнитами»: точку нельзя найти в вёрстке по смыслу, и весь абзац
+  // оставался без плейсхолдера (orphan). Одиночная пунктуация всегда
+  // продолжает предыдущий абзац; если перед ней стоит одинокая переменная, а
+  // перед той — текст, это один абзац с переменной внутри.
+  const PUNCT_ONLY = /^[.,!?;:…)\]»"'’”]+$/;
+  const merged = [];
+  for (const unit of units) {
+    const onlyPunct = unit.parts.length === 1 && unit.parts[0].kind === "text" && PUNCT_ONLY.test(unit.parts[0].source);
+    if (onlyPunct && merged.length) {
+      let base = merged[merged.length - 1];
+      if (!base.hasText && merged.length > 1 && merged[merged.length - 2].hasText) {
+        const textUnit = merged[merged.length - 2];
+        const join = (u, sep) => {
+          textUnit.blockIndexes.push(...u.blockIndexes);
+          u.parts.forEach((part, k) => {
+            const glue = k === 0 ? sep : part.sep;
+            textUnit.visible.push(glue + (part.kind === "var" ? part.token : part.source));
+            textUnit.repl.push(glue + part.token);
+            textUnit.parts.push({ ...part, sep: glue });
+          });
+        };
+        join(base, " ");
+        merged.pop();
+        base = textUnit;
+      }
+      base.blockIndexes.push(...unit.blockIndexes);
+      const part = unit.parts[0];
+      base.visible.push(part.source);
+      base.repl.push(part.token);
+      base.parts.push({ ...part, sep: "" });
+      continue;
+    }
+    merged.push(unit);
+  }
+  units.length = 0;
+  merged.forEach((u, i) => { u.unitIndex = i; units.push(u); });
+
   return units.map((u) => ({
     unitIndex: u.unitIndex,
     blockIndexes: u.blockIndexes,

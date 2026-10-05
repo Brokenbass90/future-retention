@@ -27,7 +27,7 @@
  */
 
 import { catalogAllows, filterByCatalog, catalogAlternatives } from "./constructor-catalog.js";
-import { placeholderizeHtml, fixLocaleTxt, translateLocaleTxt } from "./locale-ai.js";
+import { placeholderizeHtml, fixLocaleTxt, translateLocaleTxt, parseTxtBlocks } from "./locale-ai.js";
 import { normalizeLocaleConventions, parseNormalizedBlocks, alignLocaleToReference, serializeAligned, localePrefix } from "./locale-conventions.js";
 import { analyzeLocaleAgainstHtml } from "./locale-analyze.js";
 import { compareLocales } from "./locale-cross-check.js";
@@ -179,6 +179,42 @@ function serializeBlocks(blocks) {
   return Array.isArray(blocks) && blocks.length
     ? blocks.map((b) => `{{${b}}}`).join("\n\n") + "\n"
     : "";
+}
+
+/**
+ * Текст локали таким, каким его увидит человек после применения: последние
+ * правки этого же разговора (normalize, create, fix…) важнее того, что
+ * пришло из браузера. Раньше placeholderize брал локаль ДО нормализации —
+ * нумерация блоков в плейсхолдерах расходилась с тем, что применялось.
+ *
+ * И второе: из массива блоков строки не восстановить — «текст {{переменная}}{{.}}»
+ * одной строкой это один абзац, а через serializeBlocks каждый блок вставал
+ * на свою строку, и абзац рассыпался на «сирот». Поэтому, когда сырой TXT из
+ * браузера совпадает с блоками, берём его.
+ */
+function currentLocaleTxt(ctx, ns, code) {
+  if (!ns || !code) return "";
+  const name = ns.namespace || ns.name;
+  const pending = (ctx?.pendingLocaleUpdates || [])
+    .filter((u) => u && u.namespace === name && u.locale === code && typeof u.txt === "string");
+  if (pending.length) return pending[pending.length - 1].txt;
+  if ((ctx?.pendingLocaleDeletes || []).some((d) => d && d.namespace === name && d.locale === code)) return "";
+  const blocks = ns.locales?.[code];
+  const raw = ns.localeRaw?.[code];
+  if (typeof raw === "string" && raw.trim() && Array.isArray(blocks)) {
+    const parsed = parseTxtBlocks(raw);
+    if (parsed.length === blocks.length && parsed.every((b, i) => b === String(blocks[i] ?? "").trim())) return raw;
+  }
+  return serializeBlocks(blocks);
+}
+
+function currentLocaleCodes(ctx, ns) {
+  if (!ns) return [];
+  const name = ns.namespace || ns.name;
+  const codes = new Set(Object.keys(ns.locales || {}));
+  for (const u of ctx?.pendingLocaleUpdates || []) if (u && u.namespace === name && u.locale) codes.add(u.locale);
+  for (const d of ctx?.pendingLocaleDeletes || []) if (d && d.namespace === name) codes.delete(d.locale);
+  return [...codes];
 }
 
 function pickNamespace(ctx, name) {
@@ -1141,9 +1177,13 @@ export const TOOL_HANDLERS = {
   async get_namespace_blocks(args, ctx) {
     const ns = pickNamespace(ctx, args.namespace);
     if (!ns) return { error: `namespace not found: ${args.namespace}` };
-    const blocks = (ns.locales || {})[args.locale];
-    if (!Array.isArray(blocks)) return { error: `locale not found: ${args.namespace}.${args.locale}` };
-    return { namespace: args.namespace, locale: args.locale, blocks };
+    if (!currentLocaleCodes(ctx, ns).includes(args.locale)) {
+      return { error: `locale not found: ${args.namespace}.${args.locale}`, available: currentLocaleCodes(ctx, ns) };
+    }
+    const name = ns.namespace || ns.name;
+    const staged = (ctx?.pendingLocaleUpdates || []).some((u) => u && u.namespace === name && u.locale === args.locale);
+    const blocks = staged ? parseTxtBlocks(currentLocaleTxt(ctx, ns, args.locale)) : ns.locales[args.locale];
+    return { namespace: args.namespace, locale: args.locale, blocks, ...(staged ? { staged: true, note: "Это правка этого разговора: применится после подтверждения." } : {}) };
   },
 
   async analyze_email(args, ctx) {
@@ -1151,15 +1191,13 @@ export const TOOL_HANDLERS = {
     const ns = pickNamespace(ctx, args.namespace);
     if (!ns) return { error: `namespace not found: ${args.namespace}` };
     const refCode = args.refLocale || (ns.locales?.en ? "en" : ns.referenceLocale || Object.keys(ns.locales || {})[0]);
-    const refTxt = serializeBlocks(ns.locales?.[refCode]);
+    const refTxt = currentLocaleTxt(ctx, ns, refCode);
     if (!refTxt) return { error: `no reference blocks in ${args.namespace}.${refCode}` };
     return analyzeLocaleAgainstHtml({
       html: ctx.html,
       refTxt,
       refCode,
-      locales: Object.fromEntries(
-        Object.entries(ns.locales || {}).map(([c, b]) => [c, serializeBlocks(b)])
-      ),
+      locales: Object.fromEntries(currentLocaleCodes(ctx, ns).map((c) => [c, currentLocaleTxt(ctx, ns, c)])),
     });
   },
 
@@ -1235,7 +1273,7 @@ export const TOOL_HANDLERS = {
     const ns = pickNamespace(ctx, args.namespace);
     if (!ns) return { error: `namespace not found: ${args.namespace}` };
     const refCode = args.refLocale || (ns.locales?.en ? "en" : ns.referenceLocale || Object.keys(ns.locales || {})[0]);
-    const refTxt = serializeBlocks(ns.locales?.[refCode]);
+    const refTxt = currentLocaleTxt(ctx, ns, refCode);
     if (!refTxt) return { error: `no reference blocks in ${args.namespace}.${refCode}` };
     const result = await placeholderizeHtml({
       html: ctx.html,

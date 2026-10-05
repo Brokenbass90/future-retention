@@ -10369,6 +10369,17 @@ function htmlBodyStats(html) {
   return { bodyHtml, bodyText, elementCount, length: source.length };
 }
 
+function expandPlaceholdersForGuard(text) {
+  return String(text || '').replace(/\$\{\{\s*([\w-]+)\.block_(\d+)\s*\}\}\$/g, (match, nsName, num) => {
+    const ns = (state.namespaces || []).find((n) => n.name === nsName);
+    const code = ns ? getReferenceLocaleCode(ns) : null;
+    const block = code ? (ns.locales?.[code] || [])[Number(num)] : null;
+    // Неизвестный блок считаем текстом средней длины: страж ловит пропажу
+    // текста, а не ссылки, которые студия пока не может разрешить.
+    return block ? String(block).replace(/@@/g, '') : 'x'.repeat(60);
+  });
+}
+
 function inspectAiHtmlCandidate(candidate, baseline = currentHtmlForAiGuard()) {
   const html = String(candidate || '').trim();
   const base = String(baseline || '').trim();
@@ -10381,6 +10392,11 @@ function inspectAiHtmlCandidate(candidate, baseline = currentHtmlForAiGuard()) {
 
   const next = htmlBodyStats(html);
   const prev = htmlBodyStats(base);
+  // Плейсхолдер ${{ ns.block_NN }}$ — это не удалённый текст, а ссылка на
+  // него в локали. Без этой подстановки любая расстановка плейсхолдеров
+  // выглядела как «AI удалил большую часть текста» и блокировалась.
+  next.bodyText = expandPlaceholdersForGuard(next.bodyText);
+  prev.bodyText = expandPlaceholdersForGuard(prev.bodyText);
   if (!next.bodyHtml || (next.bodyText.length < 10 && next.elementCount < 3)) {
     return { ok: false, reason: 'В новом HTML почти нет содержимого письма.' };
   }
