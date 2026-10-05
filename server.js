@@ -17201,7 +17201,7 @@ async function handleStudioAgent(response, body, actor = null) {
       images: Array.isArray(body?.images) ? body.images : [],
       ctx,
       apiKey: openAiApiKey,
-      model: "gpt-4.1-mini",
+      model: resolveOpenAiModelForTask("agent"),
       onFrame: send,
     });
     try {

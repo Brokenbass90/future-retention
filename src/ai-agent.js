@@ -174,7 +174,9 @@ const SYSTEM_PROMPT = [
  *                                       { kind: 'tool_call'|'tool_result'|'text'|'finish'|'error', ... }
  * @returns {Promise<{ summary, modifiedHtml, localeUpdates, localeDeletes, composed, steps }>}
  */
-export async function runAgent({ userMessage, history = [], images = [], ctx, apiKey, model = "gpt-4.1-mini", maxSteps = DEFAULT_MAX_STEPS, onFrame }) {
+const FALLBACK_AGENT_MODEL = "gpt-4.1-mini";
+
+export async function runAgent({ userMessage, history = [], images = [], ctx, apiKey, model = FALLBACK_AGENT_MODEL, maxSteps = DEFAULT_MAX_STEPS, onFrame }) {
   if (!apiKey) throw new Error("OPENAI_API_KEY is not configured");
   let checkedCanvas = false;
   if (!userMessage || typeof userMessage !== "string") throw new Error("userMessage is required");
@@ -219,7 +221,9 @@ export async function runAgent({ userMessage, history = [], images = [], ctx, ap
   };
 
   for (let step = 0; step < maxSteps; step += 1) {
-    const data = await callOpenAiWithRetry(
+    let data;
+    try {
+      data = await callOpenAiWithRetry(
       async () => ({
         url: OPENAI_RESPONSES_URL,
         body: {
@@ -230,7 +234,19 @@ export async function runAgent({ userMessage, history = [], images = [], ctx, ap
         },
       }),
       { label: `agent-step-${step}`, apiKey }
-    );
+      );
+    } catch (error) {
+      // A configured model the key cannot use must not kill the operator:
+      // fall back once to the always-available default and keep working.
+      const message = String(error?.message || error);
+      if (step === 0 && model !== FALLBACK_AGENT_MODEL && /model|does not exist|not found|access/i.test(message)) {
+        emit({ kind: "text", text: `(модель ${model} недоступна для этого ключа — работаю на ${FALLBACK_AGENT_MODEL})` });
+        model = FALLBACK_AGENT_MODEL;
+        step -= 1;
+        continue;
+      }
+      throw error;
+    }
 
     // Walk the `output` array. Items can be:
     //   - { type: "message", content: [{ type: "output_text", text }, ...] }
@@ -252,6 +268,10 @@ export async function runAgent({ userMessage, history = [], images = [], ctx, ap
         if (item.content?.length) {
           input.push({ role: "assistant", content: item.content });
         }
+      } else if (item.type === "reasoning") {
+        // Reasoning models (gpt-5.x, o-series) require their reasoning item
+        // to accompany the function_call it produced in the next request.
+        input.push(item);
       } else if (item.type === "function_call") {
         producedToolCall = true;
         const name = item.name;
