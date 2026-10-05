@@ -81,6 +81,7 @@ const SYSTEM_PROMPT = [
   "  3. ACT with the most precise tool available:",
   "     – a one-block text fix → edit_locale_block, never a full re-translation;",
   "     – a visual tweak (bold, logo, link) → find_in_html then replace_in_html, never regenerate the document;",
+  "     – the same URL/image/link/text in the code AND locales (\"во всех локалях\", \"везде\") → find_across_locales, then replace_across_locales (mode='filename' for an image uploaded per locale);",
   "     – add a block to the open email → find_in_html to locate the spot, then insert_block (anchor + before/after);",
   "     – remove a block from the open email → find_in_html for its unique markup, then remove_block;",
   "     – a new locale → create_locale (it translates from the reference);",

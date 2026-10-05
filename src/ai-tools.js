@@ -33,6 +33,10 @@ import { compareLocales } from "./locale-cross-check.js";
 import { listHtmlSections, insertHtml, removeHtml } from "./html-blocks.js";
 import { validateHtml } from "./html-validate.js";
 import path from "node:path";
+// Shared smart find/replace (same file the Workbench ⌘F strip and RetKit for
+// MoEngage use): & == &amp;, image-by-file-name mode, built-ins never change.
+import "../public/replace-across.js";
+const ReplaceAcross = globalThis.RetKitReplaceAcross;
 import {
   composeEmailFromBlocks,
   listCanonicalBlocks,
@@ -339,6 +343,47 @@ export const TOOL_DEFINITIONS = [
         toLocale: { type: "string", description: "Target locale code." },
       },
       required: ["namespace", "toLocale"],
+    },
+  },
+  {
+    type: "function",
+    name: "find_across_locales",
+    description:
+      "Find a URL, image src, link or text in the WHOLE email at once: the email code AND every " +
+      "locale of every namespace. Returns per-place counts with kind (image/link/background/text) " +
+      "and context. & and &amp; are treated as the same. For images uploaded per locale under " +
+      "different paths use mode='filename' (matches every URL ending with the same file name). " +
+      "Built-in (locked) namespaces are reported with locked=true and are never changed. " +
+      "Use this BEFORE replace_across_locales.",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        query: { type: "string", description: "What to find: URL, file name, link or text (verbatim)." },
+        mode: { type: "string", enum: ["text", "filename"], description: "text (default) or filename for images." },
+      },
+      required: ["query"],
+    },
+  },
+  {
+    type: "function",
+    name: "replace_across_locales",
+    description:
+      "Replace a URL, image, link or text everywhere in one step: the email code and all locales " +
+      "(or only the listed ones). Same rules as find_across_locales; the replacement keeps the " +
+      "&amp; encoding of what it replaces; locked namespaces are skipped. Changes are staged like " +
+      "replace_in_html and reach the studio after the user confirms. Call find_across_locales first.",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        search: { type: "string", description: "What to replace (as found by find_across_locales)." },
+        replace: { type: "string", description: "Replacement (new URL / text)." },
+        mode: { type: "string", enum: ["text", "filename"], description: "text (default) or filename for images." },
+        includeHtml: { type: "boolean", description: "Also change the email code (default true)." },
+        locales: { type: "array", items: { type: "string" }, description: "Only these: locale codes (en, ar) or 'namespace|locale'. Default: all editable." },
+      },
+      required: ["search", "replace"],
     },
   },
   {
@@ -1268,6 +1313,73 @@ export const TOOL_HANDLERS = {
       from: fromLocale,
       to: args.toLocale,
       blocks: r.blocks.length,
+    };
+  },
+
+  async find_across_locales(args, ctx) {
+    if (!ReplaceAcross) return { error: "replace-across core is not loaded" };
+    const query = String(args.query ?? "");
+    if (!query) return { error: "query is empty" };
+    const mode = args.mode === "filename" ? "filename" : "text";
+    const html = String(ctx.modifiedHtml || ctx.html || "");
+    const namespaces = (Array.isArray(ctx.namespaces) ? ctx.namespaces : []).map((ns) => ({
+      id: ns.namespace || ns.name, name: ns.namespace || ns.name, builtin: Boolean(ns.builtin), locales: ns.locales || {},
+    }));
+    const plan = ReplaceAcross.plan({ code: html, namespaces, find: query, mode });
+    const brief = (hits) => (hits || []).slice(0, 3).map((h) => ({ kind: h.kind, block: h.block, context: `${String(h.before).slice(-30)}[[${h.match}]]${String(h.after).slice(0, 30)}` }));
+    return {
+      query: query.slice(0, 300),
+      mode,
+      total: plan.total,
+      editableTotal: plan.editableTotal,
+      html: { count: plan.code?.count || 0, hits: brief(plan.code?.hits) },
+      locales: plan.locales.map((l) => ({ namespace: l.nsName, locale: l.locale, count: l.count, locked: l.locked, blocks: l.blockIndexes, hits: brief(l.hits) })),
+      imageModeAvailable: ReplaceAcross.looksLikeImage(query),
+      hint: (() => {
+        if (mode !== "text" || !ReplaceAcross.looksLikeImage(query)) return undefined;
+        const byName = ReplaceAcross.plan({ code: html, namespaces, find: query, mode: "filename" }).total;
+        return byName > plan.total ? `mode='filename' finds ${byName} (same image uploaded per locale under other paths)` : undefined;
+      })(),
+    };
+  },
+
+  async replace_across_locales(args, ctx) {
+    if (!ReplaceAcross) return { error: "replace-across core is not loaded" };
+    const search = String(args.search ?? "");
+    const replace = String(args.replace ?? "");
+    if (!search) return { error: "search is empty" };
+    if (replace.length > 4000) return { error: "replace too long (>4000 chars) — surgical edits only" };
+    const mode = args.mode === "filename" ? "filename" : "text";
+    const html = String(ctx.modifiedHtml || ctx.html || "");
+    const source = Array.isArray(ctx.namespaces) ? ctx.namespaces : [];
+    const namespaces = source.map((ns) => ({
+      id: ns.namespace || ns.name, name: ns.namespace || ns.name, builtin: Boolean(ns.builtin), locales: ns.locales || {},
+    }));
+    const plan = ReplaceAcross.plan({ code: html, namespaces, find: search, mode });
+    const only = Array.isArray(args.locales) && args.locales.length ? args.locales.map(String) : null;
+    const keys = plan.locales
+      .filter((l) => !l.locked)
+      .filter((l) => !only || only.includes(l.locale) || only.includes(`${l.nsName}|${l.locale}`))
+      .map((l) => `${l.nsId}|${l.locale}`);
+    const includeHtml = args.includeHtml !== false && Boolean(html);
+    const result = ReplaceAcross.apply({ code: html, namespaces, find: search, replacement: replace, mode, selection: { code: includeHtml, locales: keys } });
+    if (!result.total) return { error: "nothing to replace — call find_across_locales (mind mode='filename' for images)" };
+    if (result.codeCount) {
+      if (result.code.length < html.length * 0.6) return { error: "edit would shrink the document by >40% — refused" };
+      ctx.modifiedHtml = result.code;
+    }
+    ctx.pendingLocaleUpdates = ctx.pendingLocaleUpdates || [];
+    for (const patch of result.patches) {
+      const ns = source.find((n) => (n.namespace || n.name) === patch.nsId);
+      if (ns) ns.locales = { ...(ns.locales || {}), [patch.locale]: patch.blocks };
+      ctx.pendingLocaleUpdates.push({ namespace: patch.nsId, locale: patch.locale, txt: serializeBlocks(patch.blocks) });
+    }
+    return {
+      replaced: result.total,
+      html: result.codeCount,
+      locales: result.patches.map((p) => ({ namespace: p.nsId, locale: p.locale, count: p.count })),
+      skippedLocked: plan.locales.filter((l) => l.locked).map((l) => `${l.nsName}|${l.locale}`),
+      note: "Staged. HTML and locale changes reach the studio after the user confirms (like replace_in_html).",
     };
   },
 

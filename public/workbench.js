@@ -9410,6 +9410,7 @@ async function runAgentChat(text, images = []) {
           id: ns.id,
           name: ns.name,
           namespace: ns.name,
+          builtin: Boolean(ns.builtin),
           referenceLocale: getReferenceLocaleCode(ns),
           locales: ns.locales || {},
           localeRaw: ns.localeRaw || {},
@@ -10194,6 +10195,7 @@ async function sendAiMessage() {
         namespaces: state.namespaces.map(ns => ({
           id: ns.id,
           name: ns.name,
+          builtin: Boolean(ns.builtin),
           referenceLocale: getReferenceLocaleCode(ns),
           locales: ns.locales || {},
           localeRaw: ns.localeRaw || {},
