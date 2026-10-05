@@ -7854,8 +7854,8 @@ async function performSourceEmailBuild(ctx) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        brand: ctx.brand,
-        mail: ctx.mail,
+        brand: ctx.brand || undefined,
+        mail: ctx.mail || undefined,
         namespaces: buildNamespacesForContext(ctx),
         // Fast editor feedback: warn about weight, but never interrupt typing.
         // Strict all-locale enforcement belongs to requestReleasePreflightBuild.
@@ -9392,6 +9392,8 @@ async function runAgentChat(text, images = []) {
 
   try {
     const currentHtml = cm?.getValue() || '';
+    // The open source mail (brand/mail) — empty for raw pasted HTML.
+    const ctx = state.srcCtx || {};
     const res = await fetch('/api/wb/ai/agent', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

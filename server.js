@@ -18426,7 +18426,7 @@ const server = http.createServer(async (request, response) => {
     // Body: { category, templateMail, newMailId, localeContent?, buildAfter? }
     // Response: { mailRoot, namespace, tokenKeys, blockCount, previewHtml? }
     if (request.method === "POST" && request.url === "/api/email-base/scaffold") {
-      const payload = await readJsonBody(request);
+      const payload = await readRequestBody(request);
       const category = cleanText(payload?.category);
       const templateMail = cleanText(payload?.templateMail);
       const newMailId = cleanText(payload?.newMailId);
@@ -18501,7 +18501,7 @@ const server = http.createServer(async (request, response) => {
     // Response: { previewHtml, buildLog }
     // If localeContent provided, tokens are resolved in the resulting HTML for preview.
     if (request.method === "POST" && request.url === "/api/email-base/rebuild") {
-      const payload = await readJsonBody(request);
+      const payload = await readRequestBody(request);
       const category = cleanText(payload?.category);
       const mailId   = cleanText(payload?.mailId);
       const locale   = cleanText(payload?.locale) || "en";
@@ -18544,7 +18544,7 @@ const server = http.createServer(async (request, response) => {
     // Body: { html, mailId?, userMessage? }
     // Response: { pugBlocks, subject, preheader, assistantReply }
     if (request.method === "POST" && request.url === "/api/email-base/html-to-pug") {
-      const body = await readJsonBody(request);
+      const body = await readRequestBody(request);
       const html = cleanText(body?.html);
       if (!html || html.length < 100) {
         sendJson(response, 400, { error: "html is required (min 100 chars)" });
