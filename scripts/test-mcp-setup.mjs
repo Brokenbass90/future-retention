@@ -34,6 +34,7 @@ import {
   claudeCodeCommand,
   mergeIntoConfig,
   writeClaudeDesktopConfig,
+  resolveNodeCommand,
 } from "../src/mcp-setup.js";
 import { mkdtempSync, readFileSync, writeFileSync, existsSync, rmSync } from "node:fs";
 import os from "node:os";
@@ -117,7 +118,7 @@ const ENTRY = mcpServerEntry({ serverPath: "/srv/retkit/mcp/retkit-mcp-server.mj
   const merged = mergeIntoConfig(foreign, ENTRY);
   check("чужой MCP-сервер остался на месте", Boolean(merged.config.mcpServers.filesystem));
   check("чужие ключи верхнего уровня остались", merged.config.globalShortcut === "Alt+Space");
-  check("наш сервер добавлен", merged.config.mcpServers.retkit.command === "node");
+  check("наш сервер добавлен с абсолютным node", merged.config.mcpServers.retkit.command === process.execPath, merged.config.mcpServers.retkit.command);
   check("это добавление, а не замена", merged.replaced === false);
   check("отчёт перечисляет чужие серверы", merged.otherServers.join() === "filesystem", JSON.stringify(merged.otherServers));
 
@@ -386,6 +387,14 @@ const ENTRY = mcpServerEntry({ serverPath: "/srv/retkit/mcp/retkit-mcp-server.mj
     const moved = describeConnection({ repoRoot, home, serverPath: "/другая/копия/mcp/retkit-mcp-server.mjs" });
     check("подключение к другой копии видно", moved.connected === true && moved.pathMatches === false);
 
+    check("рабочий node не помечен пропавшим", after.commandMissing === false && after.configuredCommand === process.execPath, after.configuredCommand);
+    writeClaudeDesktopConfig({
+      configPath: claudeDesktopConfigPath(process.platform, home),
+      entry: mcpServerEntry({ serverPath, studioUrl: "http://127.0.0.1:3000", command: "/nvm/versions/node/v0.0.0/bin/node" }),
+    });
+    const gone = describeConnection({ repoRoot, home, serverPath });
+    check("пропавший node виден (nvm uninstall)", gone.commandMissing === true);
+
     installStudioSkill({ repoRoot, home });
     check("установленный скилл виден", describeConnection({ repoRoot, home, serverPath }).skillInstalled === true);
   } finally {
@@ -395,6 +404,9 @@ const ENTRY = mcpServerEntry({ serverPath: "/srv/retkit/mcp/retkit-mcp-server.mj
   const wizard = read("public", "mcp-connect.js");
   check("мастер показывает «уже подключено»", /Уже подключено/.test(wizard));
   check("мастер предупреждает о чужой копии", /ходит не сюда/.test(wizard));
+  check("мастер предупреждает о пропавшем node", /node, которого больше нет/.test(wizard));
+  check("resolveNodeCommand: абсолютный путь, если он есть", resolveNodeCommand() === process.execPath);
+  check("resolveNodeCommand: запасной вариант — node из PATH", resolveNodeCommand("/нет/такого/node") === "node");
   check("мастер показывает, что скилл уже стоит", /Скилл стоит/.test(wizard));
   check("после установки состояние перечитывается", /_setup = null/.test(wizard));
 

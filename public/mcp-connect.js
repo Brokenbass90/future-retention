@@ -34,7 +34,7 @@
     // нельзя: на Heroku сервер физически не может тронуть конфиг на машине
     // человека, обещать «в один клик» там было бы враньём.
     const connected = Boolean(link.connected);
-    const wrongPath = connected && link.pathMatches === false;
+    const wrongPath = connected && (link.pathMatches === false || link.commandMissing === true);
 
     const connectBlock = !setup.canInstall
       ? `<p class="mcp-hint">Студия открыта не с этого компьютера, поэтому прописать настройки
@@ -45,9 +45,12 @@
            Переподключать нужно, только если студия переехала или сменила порт.</p>
            <button type="button" class="mcp-copy" id="mcpInstallBtn">Переподключить</button>`
         : wrongPath
-          ? `<p class="mcp-hint mcp-warn">⚠ В настройках Claude прописана другая копия студии:
-             <code>${esc(link.configuredServerPath)}</code>. Ваш агент ходит не сюда.</p>
-             <button type="button" class="mcp-primary" id="mcpInstallBtn">Переподключить на эту студию</button>`
+          ? (link.commandMissing
+            ? `<p class="mcp-hint mcp-warn">⚠ В настройках Claude прописан node, которого больше нет:
+               <code>${esc(link.configuredCommand)}</code>. Нажмите — пропишем текущий.</p>`
+            : `<p class="mcp-hint mcp-warn">⚠ В настройках Claude прописана другая копия студии:
+             <code>${esc(link.configuredServerPath)}</code>. Ваш агент ходит не сюда.</p>`) +
+            `<button type="button" class="mcp-primary" id="mcpInstallBtn">Переподключить на эту студию</button>`
           : `<button type="button" class="mcp-primary" id="mcpInstallBtn">Подключить автоматически</button>
              <p class="mcp-hint">Студия сама пропишет подключение в настройки Claude Desktop.
              Прежний файл сохранится рядом как резервная копия.</p>`;
@@ -235,6 +238,13 @@
           state: "remote",
           label: "агент: не отсюда",
           title: "Студия открыта не с этого компьютера — подключение придётся прописать вручную.",
+        };
+      }
+      if (link.connected && link.commandMissing) {
+        return {
+          state: "wrong",
+          label: "агент: нет node",
+          title: `В настройках Claude прописан node, которого больше нет: ${link.configuredCommand || "?"}. Откройте «Свой агент» и нажмите «Переподключить».`,
         };
       }
       if (link.connected && link.pathMatches === false) {

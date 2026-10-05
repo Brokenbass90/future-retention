@@ -49,7 +49,18 @@ export function isLocalStudioRequest({ host = "", remoteAddress = "" } = {}) {
 }
 
 /** Блок конфигурации MCP-сервера студии. */
-export function mcpServerEntry({ serverPath, studioUrl, user = "", password = "", token = "" }) {
+/**
+ * Каким node запускать MCP-сервер из Claude Desktop.
+ *
+ * Claude Desktop, открытый из Dock, не видит PATH терминала: ни nvm, ни
+ * /usr/local/bin там нет, и голое "node" падает с spawn node ENOENT.
+ * Поэтому прописываем абсолютный путь к тому node, которым запущена студия.
+ */
+export function resolveNodeCommand(execPath = process.execPath) {
+  return execPath && path.isAbsolute(execPath) && existsSync(execPath) ? execPath : "node";
+}
+
+export function mcpServerEntry({ serverPath, studioUrl, user = "", password = "", token = "", command = resolveNodeCommand() }) {
   const env = { STUDIO_URL: studioUrl };
   // Метка агента нужна студии, чтобы отличать его от человека: на этом стоят
   // замки на письма и адресация черновиков. Она не секрет и ничего не
@@ -59,7 +70,7 @@ export function mcpServerEntry({ serverPath, studioUrl, user = "", password = ""
     env.STUDIO_USER = user;
     env.STUDIO_PASSWORD = password;
   }
-  return { command: "node", args: [serverPath], env };
+  return { command, args: [serverPath], env };
 }
 
 /** Готовый JSON для ручной вставки — ровно то, что человек копирует. */
@@ -246,6 +257,11 @@ export function describeConnection({ repoRoot, home = os.homedir(), serverPath =
     configuredServerPath: actual,
     configuredStudioUrl: String(configEntry?.env?.STUDIO_URL || ""),
     hasToken: Boolean(configEntry?.env?.RETKIT_TOKEN),
+    configuredCommand: String(configEntry?.command || ""),
+    // Node по прописанному пути могли удалить (nvm uninstall, обновление) —
+    // тогда Claude молча не видит студию. Голое "node" проверить нельзя.
+    commandMissing: Boolean(configEntry) && path.isAbsolute(String(configEntry?.command || "")) &&
+      !existsSync(String(configEntry.command)),
     skillInstalled: existsSync(skillManifest),
     skillPath: userSkillTarget(home),
   };
