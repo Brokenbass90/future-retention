@@ -13,6 +13,10 @@
   let lastUndo = null;
   let lastPlan = null;
   let detailsKey = '';
+  // Own replacement per place for the current query: { code|'nsId|locale': value }.
+  let overrides = {};
+  let overridesQuery = '';
+  const hasOwn = (key) => Object.prototype.hasOwnProperty.call(overrides, key);
   let scanTimer = null;
 
   function findEditor() {
@@ -44,7 +48,8 @@
       #rkRaStrip .ra-chip[data-active="1"] { border-color:var(--accent, #4f7cff); }
       #rkRaStrip .ra-chip span { cursor:pointer; }
       #rkRaStrip .ra-details { display:grid; gap:3px; }
-      #rkRaStrip .ra-hit { display:grid; grid-template-columns:auto 1fr; gap:8px; font-size:11.5px; color:var(--text-2); }
+      #rkRaStrip .ra-hit { display:grid; grid-template-columns:auto 1fr; gap:8px; align-items:center; font-size:11.5px; color:var(--text-2); }
+      #rkRaStrip .ra-hit .find-input { min-width:0; width:100%; }
       #rkRaStrip .ra-hit code { white-space:pre-wrap; word-break:break-all; font:11px var(--mono, ui-monospace, monospace); }
       #rkRaStrip .ra-hit mark { background:#5a4a12; color:#ffe9a6; border-radius:2px; }
       #rkRaStrip .ra-actions { display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
@@ -98,7 +103,7 @@
     box.disabled = off;
     box.addEventListener('change', updateApply);
     const text = document.createElement('span');
-    text.textContent = `${locked ? '🔒 ' : ''}${label} · ${count}`;
+    text.textContent = `${locked ? '🔒 ' : ''}${label} · ${count}${hasOwn(key) ? ' ✎' : ''}`;
     text.addEventListener('click', (event) => { event.preventDefault(); detailsKey = key; renderDetails(); markActive(); });
     wrap.append(box, text);
     return wrap;
@@ -119,6 +124,25 @@
         return item ? { label: `${item.nsName}·${String(item.locale).toUpperCase()}`, hits: item.hits, count: item.count } : null;
       })();
     if (!entry) return;
+    const lockedEntry = detailsKey !== 'code' && lastPlan.locales.find((l) => `${l.nsId}|${l.locale}` === detailsKey)?.locked;
+    if (!lockedEntry) {
+      const own = document.createElement('div');
+      own.className = 'ra-hit';
+      const label = document.createElement('span');
+      label.textContent = `${entry.label}: заменить на`;
+      const input = document.createElement('input');
+      input.className = 'find-input';
+      input.placeholder = 'пусто = как в «Заменить…» выше';
+      input.value = hasOwn(detailsKey) ? overrides[detailsKey] : '';
+      input.addEventListener('input', () => {
+        if (input.value === '') delete overrides[detailsKey];
+        else overrides[detailsKey] = input.value;
+        const chipText = document.querySelector(`#rkRaChips .ra-chip[data-key="${CSS.escape(detailsKey)}"] span`);
+        if (chipText) chipText.textContent = chipText.textContent.replace(/ ✎$/, '') + (input.value !== '' ? ' ✎' : '');
+      });
+      own.append(label, input);
+      host.appendChild(own);
+    }
     for (const hit of entry.hits.slice(0, 6)) {
       const line = document.createElement('div');
       line.className = 'ra-hit';
@@ -151,6 +175,7 @@
     try { if (typeof flushLocaleEditorToState === 'function') flushLocaleEditorToState(); } catch {}
     const target = codeTarget();
     lastPlan = RA.plan({ code: target.editor ? target.editor.getValue() : '', namespaces: state.namespaces || [], find, mode: mode() });
+    if (overridesQuery !== find) { overrides = {}; overridesQuery = find; }
     const chips = $('rkRaChips');
     chips.replaceChildren();
     if (lastPlan.code?.count) {
@@ -211,13 +236,21 @@
   }
 
   // Exposed for models (MCP) and tests: same rules as the UI.
-  function replaceEverywhere({ find, replacement = '', mode: m = 'text', includeCode = true, locales = null } = {}) {
+  function replaceEverywhere({ find, replacement = '', mode: m = 'text', includeCode = true, locales = null, perLocale = null } = {}) {
     try { if (typeof flushLocaleEditorToState === 'function') flushLocaleEditorToState(); } catch {}
     const target = codeTarget();
     const plan = RA.plan({ code: target.editor ? target.editor.getValue() : '', namespaces: state.namespaces || [], find, mode: m });
     const keys = plan.locales.filter((l) => !l.locked).map((l) => `${l.nsId}|${l.locale}`);
     const sel = { code: includeCode && Boolean(target.editor), locales: new Set(locales ? keys.filter((k) => locales.includes(k) || locales.includes(k.split('|')[1])) : keys) };
-    const result = RA.apply({ code: target.editor ? target.editor.getValue() : '', namespaces: state.namespaces || [], find, replacement, mode: m, selection: sel });
+    const own = {};
+    if (perLocale && typeof perLocale === 'object') {
+      for (const key of [...sel.locales]) {
+        const loc = key.split('|')[1];
+        if (Object.prototype.hasOwnProperty.call(perLocale, key)) own[key] = perLocale[key];
+        else if (Object.prototype.hasOwnProperty.call(perLocale, loc)) own[key] = perLocale[loc];
+      }
+    }
+    const result = RA.apply({ code: target.editor ? target.editor.getValue() : '', namespaces: state.namespaces || [], find, replacement, mode: m, selection: sel, replacements: own });
     if (!result.total) return { ok: true, total: 0, plan };
     if (sel.code && result.codeCount) replaceWholeDoc(target.editor, result.code);
     applyPatches(result.patches);
@@ -233,7 +266,7 @@
     const sel = selection();
     const target = codeTarget();
     if (!target.editor) sel.code = false;
-    const result = RA.apply({ code: target.editor ? target.editor.getValue() : '', namespaces: state.namespaces || [], find, replacement, mode: mode(), selection: sel });
+    const result = RA.apply({ code: target.editor ? target.editor.getValue() : '', namespaces: state.namespaces || [], find, replacement, mode: mode(), selection: sel, replacements: overrides });
     if (!result.total) { toast('Нечего заменять', 'warning'); return; }
     if (sel.code && result.codeCount) replaceWholeDoc(target.editor, result.code);
     applyPatches(result.patches);

@@ -37,4 +37,10 @@ const link = await TOOL_HANDLERS.replace_across_locales({ search: 'https://x.com
 assert.equal(link.replaced, 1);
 assert.match(ctx.modifiedHtml, /https:\/\/y\.com\/\?c=1&amp;d=2/);
 assert.equal((await TOOL_HANDLERS.replace_across_locales({ search: 'nope', replace: 'x' }, makeCtx())).error ? 'err' : 'ok', 'err');
+// Own value per locale (localized banner)
+ctx = makeCtx();
+const per = await TOOL_HANDLERS.replace_across_locales({ search: 'icon1.png', replace: 'https://new.cdn/all.png', mode: 'filename', perLocale: { ar: 'https://new.cdn/ar.png' } }, ctx);
+assert.equal(per.replaced, 3);
+assert.match(ctx.pendingLocaleUpdates.find((u) => u.locale === 'ar').txt, /new\.cdn\/ar\.png/);
+assert.match(ctx.pendingLocaleUpdates.find((u) => u.locale === 'en').txt, /new\.cdn\/all\.png/);
 console.log('✓ model tools find/replace across locales: filename mode, &amp;, locked-safe, staged');

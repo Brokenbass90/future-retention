@@ -382,6 +382,7 @@ export const TOOL_DEFINITIONS = [
         mode: { type: "string", enum: ["text", "filename"], description: "text (default) or filename for images." },
         includeHtml: { type: "boolean", description: "Also change the email code (default true)." },
         locales: { type: "array", items: { type: "string" }, description: "Only these: locale codes (en, ar) or 'namespace|locale'. Default: all editable." },
+        perLocale: { type: "object", additionalProperties: { type: "string" }, description: "Optional own replacement per locale, e.g. {\"ar\": \"https://…/banner-ar.png\"} or {\"promo|ar\": …}; others use replace." },
       },
       required: ["search", "replace"],
     },
@@ -1362,7 +1363,15 @@ export const TOOL_HANDLERS = {
       .filter((l) => !only || only.includes(l.locale) || only.includes(`${l.nsName}|${l.locale}`))
       .map((l) => `${l.nsId}|${l.locale}`);
     const includeHtml = args.includeHtml !== false && Boolean(html);
-    const result = ReplaceAcross.apply({ code: html, namespaces, find: search, replacement: replace, mode, selection: { code: includeHtml, locales: keys } });
+    const own = {};
+    if (args.perLocale && typeof args.perLocale === "object") {
+      for (const key of keys) {
+        const loc = key.split("|")[1];
+        if (Object.prototype.hasOwnProperty.call(args.perLocale, key)) own[key] = String(args.perLocale[key]);
+        else if (Object.prototype.hasOwnProperty.call(args.perLocale, loc)) own[key] = String(args.perLocale[loc]);
+      }
+    }
+    const result = ReplaceAcross.apply({ code: html, namespaces, find: search, replacement: replace, mode, selection: { code: includeHtml, locales: keys }, replacements: own });
     if (!result.total) return { error: "nothing to replace — call find_across_locales (mind mode='filename' for images)" };
     if (result.codeCount) {
       if (result.code.length < html.length * 0.6) return { error: "edit would shrink the document by >40% — refused" };
