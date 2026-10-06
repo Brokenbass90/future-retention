@@ -2323,6 +2323,12 @@ async function navigateBackToConstructor(ctx, btn) {
   btn.addEventListener('click', () => { void navigateBackToConstructor(state.srcCtx, btn); });
 })();
 
+function rtlLangForButton() {
+  const code = String(state.activeLocale || '').toLowerCase();
+  const lang = code.split(/[-_]/)[0];
+  return /^(?:ar|ur|fa|he)$/.test(lang) ? lang : 'ar';
+}
+
 (function setupPreviewRtlButton() {
   const btn = document.getElementById('previewRtlBtn');
   if (!btn) return;
@@ -2341,14 +2347,17 @@ async function navigateBackToConstructor(ctx, btn) {
       // Use the SAME server-side transform AR/UR locales use at build (src/rtl.js).
       const res = await fetch('/api/wb/rtl', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ html, locale: 'ar' }),
+        // Полная арабизация: dir/lang на документе, dir="rtl" на блоках,
+        // зеркальные стороны inline и в <style>. Эталон —
+        // email-base/tools/rtl.js, режим document.
+        body: JSON.stringify({ html, locale: rtlLangForButton(), mode: 'document' }),
       });
       const json = await res.json();
       if (!res.ok || !json.ok) throw new Error(json.error || ('HTTP ' + res.status));
       cm.setValue(json.html);
       if (typeof updateEditorStats === 'function') updateEditorStats();
       updatePreview();
-      toast('Письмо приведено к RTL — как на AR/UR. Повторно безопасно.', 'success', 3000);
+      toast('Письмо арабизировано: направление справа налево, стороны отзеркалены. Ctrl+Z — вернуть.', 'success', 3500);
     } catch (e) { toast('RTL: ' + (e.message || e), 'error', 5000); }
     finally { btn.disabled = false; }
   });

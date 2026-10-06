@@ -138,7 +138,9 @@ function normalizeRtlMode(opts) {
   const raw = typeof opts === 'string'
     ? opts
     : (opts && (opts.mode || opts.layout || opts.layoutMode));
-  return /^(?:mirror|full)$/i.test(String(raw || '').trim()) ? 'mirror' : 'text';
+  const value = String(raw || '').trim();
+  if (/^(?:document|arabic|arabize|full-document)$/i.test(value)) return 'document';
+  return /^(?:mirror|full)$/i.test(value) ? 'mirror' : 'text';
 }
 
 /* ─── Style flippers: text-align only, !important preserved ─────── */
@@ -764,8 +766,8 @@ function stripStaleDirRtl(html) {
 
 /* ─── Whole-document idempotency ──────────────────────────────── */
 
-const RTL_FRAGMENT_MARKER_RE = /<!--\s*retkit-rtl:v(?:1|2(?::(?:text|mirror))?)\s*-->/i;
-const RTL_V2_MARKER_RE = /<!--\s*retkit-rtl:v2:(text|mirror)\s*-->/i;
+const RTL_FRAGMENT_MARKER_RE = /<!--\s*retkit-rtl:v(?:1|2(?::(?:text|mirror|document))?)\s*-->/i;
+const RTL_V2_MARKER_RE = /<!--\s*retkit-rtl:v2:(text|mirror|document)\s*-->/i;
 
 function getAppliedRtlMode(html) {
   const marker = RTL_V2_MARKER_RE.exec(String(html || ''));
@@ -834,6 +836,93 @@ function smartMirrorButtonIcons(html) {
 
 /* ─── Public entry point ────────────────────────────────────── */
 
+/* ─── Document mode: the whole email becomes an Arabic email ─────────
+ *
+ * The way the retention team arabizes a finished English email by hand
+ * (reference pair: tests/fixtures/rtl/photo-welcome2.*):
+ *   – <html dir="rtl" lang="ar">, <body dir="rtl" style="direction: rtl; …">;
+ *   – dir="rtl" on every block (table, td, th, div, p, h1–h6, li, ul, ol), so
+ *     columns, cards, icons and store badges flow right-to-left by themselves;
+ *   – every physical side is mirrored, inline AND in <style>: text-align
+ *     left → right, padding/margin/border left ↔ right, float, the 4-value
+ *     margin/padding shorthand, align="left" → "right";
+ *   – nothing else moves: centered blocks stay centered, colours, sizes and
+ *     text are untouched, and no cell order is swapped (dir already does it).
+ * Unlike "mirror", !important declarations are mirrored too: in this mode the
+ * whole email is the RTL version, so an LTR-only !important is not intent.
+ */
+const DOC_BLOCK_TAGS = /^(?:table|td|th|div|p|h[1-6]|li|ul|ol)$/i;
+
+function swapFourValueShorthand(css) {
+  return css.replace(/\b(margin|padding)\s*:\s*([^;}\n]+)/gi, (match, prop, value) => {
+    const important = /\s*!\s*important\s*$/i.test(value) ? ' !important' : '';
+    const parts = value.replace(/\s*!\s*important\s*$/i, '').trim().split(/\s+/);
+    if (parts.length !== 4 || parts[1] === parts[3]) return match;
+    return `${prop}: ${parts[0]} ${parts[3]} ${parts[2]} ${parts[1]}${important}`;
+  });
+}
+
+function mirrorCssForDocument(css) {
+  if (!css) return css;
+  const L = '\x00DL\x00';
+  const R = '\x00DR\x00';
+  let out = css.replace(/\b(text-align\s*:\s*)(left|start)\b/gi, (_m, head) => `${head}right`);
+  out = out.replace(/\bfloat\s*:\s*(left|right)\b/gi, (_m, v) => `float: ${v.toLowerCase() === 'left' ? R : L}`);
+  out = out.replace(/\b(padding|margin|border)-(left|right)(?=\s*:|-(?:width|style|color)\s*:)/gi,
+    (_m, prop, side) => `${prop}-${side.toLowerCase() === 'left' ? R : L}`);
+  out = out.replace(/\b(left|right)(\s*:\s*[^;}\n]+)/gi, (m, side, rest, offset, all) => {
+    // Absolute offsets (left: 10px) — only as a standalone property.
+    const before = all.slice(Math.max(0, offset - 1), offset);
+    if (before && /[\w-]/.test(before)) return m;
+    return `${side.toLowerCase() === 'left' ? R : L}${rest}`;
+  });
+  out = out.replace(new RegExp(L, 'g'), 'left').replace(new RegExp(R, 'g'), 'right');
+  out = swapFourValueShorthand(out);
+  // background-position keywords, reusing the mirror pass logic.
+  out = out.replace(/\bbackground(-position)?\s*:\s*([^;}\n]+)/gi, (match, longhand, value) => {
+    if (!/\b(?:left|right)\b/.test(value.replace(/url\([^)]*\)/g, ''))) return match;
+    const swapped = value.replace(/(url\([^)]*\))|\bleft\b|\bright\b/g,
+      (m, urlPart) => (urlPart ? urlPart : (m === 'left' ? R : L)));
+    return `background${longhand || ''}: ${swapped}`;
+  });
+  return out.replace(new RegExp(L, 'g'), 'left').replace(new RegExp(R, 'g'), 'right');
+}
+
+function setAttr(attrs, name, value, { overwrite = false } = {}) {
+  const re = new RegExp(`\\s${name}\\s*=\\s*(["'])[\\s\\S]*?\\1|\\s${name}\\s*=\\s*[^\\s"'>]+`, 'i');
+  if (re.test(attrs)) return overwrite ? attrs.replace(re, ` ${name}="${value}"`) : attrs;
+  return ` ${name}="${value}"${attrs}`;
+}
+
+function applyDocumentRtl(html, opts = {}) {
+  const lang = String(opts.lang || 'ar').replace(/[^a-zA-Z_-]/g, '').replace('_', '-') || 'ar';
+  let out = html.replace(/(<style\b[^>]*>)([\s\S]*?)(<\/style>)/gi,
+    (_m, open, css, close) => `${open}${mirrorCssForDocument(css)}${close}`);
+  out = out.replace(/<([a-z][\w:-]*)([^>]*)>/gi, (m, tag, attrs) => {
+    if (/^(?:style|script)$/i.test(tag)) return m;
+    let next = attrs;
+    if (/\bstyle\s*=/i.test(next)) {
+      next = next.replace(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i, (_f, q, body) => `style=${q}${mirrorCssForDocument(body)}${q}`);
+    }
+    if (/\balign\s*=/i.test(next)) next = flipAlignAttr(next).replace(/\balign\s*=\s*(["']?)right\1(?![\s\S]*\balign=)/i, 'align="right"');
+    const lower = tag.toLowerCase();
+    if (lower === 'html') {
+      next = setAttr(next, 'lang', lang, { overwrite: true });
+      next = setAttr(next, 'dir', 'rtl', { overwrite: true });
+    } else if (lower === 'body') {
+      next = setAttr(next, 'dir', 'rtl', { overwrite: true });
+      if (/\bstyle\s*=/i.test(next)) {
+        if (!/\bdirection\s*:/i.test(next)) next = next.replace(/\bstyle\s*=\s*(["'])/i, (f) => `${f}direction: rtl; `);
+      } else next = `${next} style="direction: rtl;"`;
+    } else if (DOC_BLOCK_TAGS.test(lower)) {
+      next = setAttr(next, 'dir', 'rtl');
+    }
+    return next === attrs ? m : `<${tag}${next}>`;
+  });
+  // The marker goes after the opening <html> (doctype stays first).
+  return markRtlApplied(out, 'document');
+}
+
 function applyRtl(html, opts = {}) {
   if (!html || typeof html !== 'string') return html;
   const mode = normalizeRtlMode(opts);
@@ -849,6 +938,7 @@ function applyRtl(html, opts = {}) {
     if (mode !== 'mirror') throw createRtlModeConflict('mirror', mode);
     return markRtlApplied(html, 'mirror');
   }
+  if (mode === 'document') return applyDocumentRtl(html, opts);
   let out = html;
 
   // Legacy cleanup is explicit. Unmarked dir="rtl" in a fresh source can be

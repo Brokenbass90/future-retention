@@ -18844,7 +18844,8 @@ const server = http.createServer(async (request, response) => {
         if (!html.trim()) { sendJson(response, 400, { error: "html required" }); return; }
         const locale = cleanText(body?.locale || "ar");
         const mode = cleanText(body?.mode || "text");
-        const out = applyLocaleDirectionToHtml(html, locale, { mode });
+        const lang = String(locale).split(/[-_]/)[0].toLowerCase() || "ar";
+        const out = applyLocaleDirectionToHtml(html, locale, { mode, lang });
         sendJson(response, 200, { ok: true, html: out });
       } catch (err) {
         sendJson(response, 500, { error: String(err && err.message ? err.message : err) });
