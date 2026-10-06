@@ -2354,6 +2354,10 @@ function rtlLangForButton() {
       });
       const json = await res.json();
       if (!res.ok || !json.ok) throw new Error(json.error || ('HTTP ' + res.status));
+      if (json.html === html) {
+        toast('Письмо уже арабизировано — ничего не менял.', 'success', 3500);
+        return;
+      }
       cm.setValue(json.html);
       if (typeof updateEditorStats === 'function') updateEditorStats();
       updatePreview();
@@ -5044,6 +5048,10 @@ function applyRtl(html, opts = {}) {
     return error;
   };
 
+  // Already arabized as a whole (document marker, or dir="rtl" on <html>/<body>):
+  // the preview shows it as is, no second pass and no error.
+  if (/<!--\s*retkit-rtl:v2:document\s*-->/i.test(html)
+    || /<(?:html|body)\b[^>]*\bdir\s*=\s*(["']?)rtl\1/i.test(html)) return html;
   const appliedMode = getAppliedRtlMode(html);
   if (appliedMode) {
     if (appliedMode === mode) return html;

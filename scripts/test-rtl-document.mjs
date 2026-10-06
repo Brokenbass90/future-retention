@@ -98,5 +98,19 @@ check("старые режимы не изменились (text)", !/<html\b[^>
   check("можно отключить (keepIllustrations: false)", !/dir="ltr"/.test(naive));
 }
 
+// Уже арабизированное письмо не трогаем и не падаем — в любом режиме.
+{
+  const done = '<!doctype html><html dir="rtl" lang="ar"><body><p style="padding-left:10px">مرحبا</p></body></html>';
+  let report = null;
+  check("html dir=rtl: document — без изменений", applyRtl(done, { mode: "document", onReport: (r) => { report = r; } }) === done && report?.alreadyRtl === true);
+  check("html dir=rtl: text (авто превью/сборка) — без изменений", applyRtl(done, { mode: "text" }) === done);
+  check("html dir=rtl: mirror — без изменений", applyRtl(done, { mode: "mirror" }) === done);
+  const marked = applyRtl('<html><body><p style="text-align:left">مرحبا</p></body></html>', { mode: "document" });
+  check("маркер document: text не падает и не меняет", applyRtl(marked, { mode: "text" }) === marked);
+  const textMarked = applyRtl('<html><body><p style="text-align:left">مرحبا</p></body></html>', { mode: "text" });
+  check("старый RTL text + кнопка document — не падает, не трогает", applyRtl(textMarked, { mode: "document" }) === textMarked);
+  check("v1 + document — не падает, не трогает", applyRtl('<!--retkit-rtl:v1--><p>x</p>', { mode: "document" }) === '<!--retkit-rtl:v1--><p>x</p>');
+}
+
 console.log(`\nrtl-document: ${ok} ok, ${fail} fail`);
 process.exit(fail ? 1 : 0);
