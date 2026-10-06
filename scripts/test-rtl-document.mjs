@@ -73,5 +73,30 @@ check("CSS: центр остаётся центром", /table\.center,td\.cent
 
 check("старые режимы не изменились (text)", !/<html\b[^>]*dir=/.test(applyRtl(source, { mode: "text" })));
 
+/* Письмо с карточками-иллюстрациями (photo-welcome7): большая картинка на
+ * фоне прижата к краю, текст стоит колонкой с другой стороны. Зеркалить такую
+ * карточку нельзя — текст уедет на картинку. Текст арабизируем, карточку нет. */
+{
+  const w7 = fx("photo-welcome7.source.html");
+  let report = null;
+  const ar = applyRtl(w7, { mode: "document", lang: "ar", onReport: (r) => { report = r; } });
+  check("иллюстрации распознаны (bg1, bg2, bg3)", JSON.stringify(report?.illustrations) === JSON.stringify(["bg1", "bg2", "bg3"]), JSON.stringify(report));
+  for (const c of ["bg1", "bg2", "bg3"]) {
+    const tag = (ar.match(new RegExp(`<div[^>]*class="${c}"[^>]*>`)) || [""])[0];
+    check(`${c}: карточка dir=ltr, картинка осталась справа`, /dir="ltr"/.test(tag) && /\) right (?:bottom|center) no-repeat/.test(tag), tag.slice(0, 160));
+  }
+  const css7 = (ar.match(/<style>([\s\S]*?)<\/style>/i) || [])[1] || "";
+  check("CSS иллюстраций не тронут (и мобильный тоже)", /\.bg3\{background:url\([^)]+\) right top no-repeat!important/.test(css7) && /\.bg1\{background:url\([^)]+\) right bottom no-repeat;background-size:464px\}/.test(css7));
+  const card = ar.slice(ar.indexOf('class="bg1"'), ar.indexOf('class="bg2"'));
+  check("внутри карточки текст справа налево", /<p dir="rtl" class="subtitle pb15"[^>]*text-align: right;/.test(card));
+  check("внутри карточки колонка не сдвинута (нет dir у обёрток)", !/<div dir="rtl" class="(?:padd|w230)"/.test(card));
+  check("иконки слева (bg4–bg7) зеркалены целиком: иконка справа, отступ справа",
+    /class="bg4" style="background: url\([^)]+\) right center no-repeat; background-size: 56px;[^"]*padding-right: 70px;/.test(ar)
+    && /\.bg5,\.bg6,\.bg7\{background-size:56px;padding-right:70px\}/.test(css7));
+  check("остальное письмо арабизировано", /<html\b[^>]*dir="rtl"/.test(ar) && (ar.match(/ dir="rtl"/g) || []).length > 60);
+  const naive = applyRtl(w7, { mode: "document", keepIllustrations: false });
+  check("можно отключить (keepIllustrations: false)", !/dir="ltr"/.test(naive));
+}
+
 console.log(`\nrtl-document: ${ok} ok, ${fail} fail`);
 process.exit(fail ? 1 : 0);
