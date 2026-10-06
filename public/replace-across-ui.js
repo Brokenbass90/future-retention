@@ -19,6 +19,9 @@
   let overridesQuery = '';
   const hasOwn = (key) => Object.prototype.hasOwnProperty.call(overrides, key);
   let scanTimer = null;
+  // Набор в поиске ищет только в открытом редакторе. По всем локалям —
+  // только по кнопке «Искать во всех локалях» (как в RetKit for MoEngage).
+  let scannedKey = '';
 
   function findEditor() {
     try { return (typeof getActiveCm === 'function' && getActiveCm()) || (typeof cm !== 'undefined' ? cm : null); } catch { return null; }
@@ -73,12 +76,15 @@
         <label id="rkRaModeLabel" title="В каждой локали картинка может лежать по своему адресу. Ищет все URL с тем же именем файла и меняет URL целиком." style="display:none;cursor:pointer"><input type="checkbox" id="rkRaMode"> та же картинка по имени файла</label>
         <span class="ra-note" title="Ссылка с & находится и в виде &amp;amp;; замена пишется в той же кодировке">&amp; = &amp;amp;</span></div>
       <div class="ra-chips" id="rkRaChips"></div>
+      <div class="ra-actions" id="rkRaSearchRow"><span class="ra-note">Сейчас ищем только в открытом редакторе.</span>
+        <button class="find-btn" id="rkRaSearch">Искать во всех локалях</button></div>
       <div class="ra-details" id="rkRaDetails"></div>
       <div class="ra-actions"><span class="ra-note">Замена — из поля «Заменить…» выше.</span>
         <button class="find-btn" id="rkRaApply" disabled>Заменить везде</button>
         <button class="find-btn" id="rkRaUndo" style="display:none">Отменить последнюю замену</button></div>`;
     bar.insertAdjacentElement('afterend', strip);
-    $('rkRaMode').addEventListener('change', scheduleScan);
+    $('rkRaMode').addEventListener('change', () => { scannedKey = ''; scheduleScan(); });
+    $('rkRaSearch').addEventListener('click', searchAll);
     $('rkRaApply').addEventListener('click', applySelected);
     $('rkRaUndo').addEventListener('click', undoLast);
     return strip;
@@ -87,6 +93,13 @@
   function scheduleScan() {
     clearTimeout(scanTimer);
     scanTimer = setTimeout(render, 140);
+  }
+
+  const queryKey = () => `${mode()}|${String($('findInput')?.value || '')}`;
+
+  function searchAll() {
+    scannedKey = queryKey();
+    render();
   }
 
   function chip(key, label, count, { locked = false, disabled = false, title = '' } = {}) {
@@ -173,6 +186,16 @@
     if (!RA.looksLikeImage(find)) $('rkRaMode').checked = false;
     $('rkRaUndo').style.display = lastUndo ? '' : 'none';
     if (!barOpen || !find) { strip.classList.add('hidden'); lastPlan = null; return; }
+    strip.classList.remove('hidden');
+    const scanned = scannedKey === queryKey();
+    $('rkRaSearchRow').style.display = scanned ? 'none' : '';
+    if (!scanned) {
+      lastPlan = null;
+      $('rkRaChips').replaceChildren();
+      $('rkRaDetails').replaceChildren();
+      updateApply();
+      return;
+    }
     try { if (typeof flushLocaleEditorToState === 'function') flushLocaleEditorToState(); } catch {}
     const target = codeTarget();
     lastPlan = RA.plan({ code: target.editor ? target.editor.getValue() : '', namespaces: state.namespaces || [], find, mode: mode() });
@@ -268,11 +291,13 @@
     applyPatches(result.patches);
     lastUndo = { editor: sel.code && result.codeCount ? target.editor : null, code: result.undo.code, locales: result.undo.locales };
     refreshAfter(result.patches);
+    if (String($('findInput')?.value || '') === String(find)) scannedKey = queryKey();
     render();
     return { ok: true, total: result.total, codeCount: result.codeCount, locales: result.patches.map((p) => ({ nsId: p.nsId, locale: p.locale, count: p.count })) };
   }
 
   function applySelected() {
+    if (scannedKey !== queryKey()) { toast('Сначала «Искать во всех локалях»', 'warning'); return; }
     const find = String($('findInput').value || '');
     const replacement = String($('replaceInput').value || '');
     const sel = selection();
@@ -304,7 +329,7 @@
     if (!bar || bar.dataset.raWired) return;
     bar.dataset.raWired = '1';
     ensureStrip();
-    $('findInput')?.addEventListener('input', scheduleScan);
+    $('findInput')?.addEventListener('input', () => { scannedKey = ''; scheduleScan(); });
     new MutationObserver(scheduleScan).observe(bar, { attributes: true, attributeFilter: ['class'] });
     // Toolbar shortcut: opens the same ⌘F bar.
     const anchor = $('downloadHtmlBtn');
@@ -315,7 +340,7 @@
       button.style.whiteSpace = 'nowrap';
       button.title = 'Найти и заменить в коде и во всех локалях (⌘F)';
       button.textContent = '⇄ Локали';
-      button.addEventListener('click', () => { try { openFindBar(findEditor()); } catch {} scheduleScan(); });
+      button.addEventListener('click', () => { try { openFindBar(findEditor()); } catch {} scannedKey = queryKey(); scheduleScan(); });
       anchor.parentNode.insertBefore(button, anchor);
     }
   }

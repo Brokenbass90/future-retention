@@ -48,6 +48,10 @@ assert.equal(RA.scan('<a href="https://x.com/a">', 'https://x.com/a').hits[0].ki
 const ui = fs.readFileSync(new URL('../public/replace-across-ui.js', import.meta.url), 'utf8');
 assert.match(ui, /replaceEverywhere/, 'UI exposes replaceEverywhere for models');
 assert.match(ui, /insertAdjacentElement\('afterend', strip\)|bar\.insertAdjacentElement\('afterend'/, 'strip lives under the ⌘F find bar');
+// Typing searches only the open editor; all locales only from the button.
+assert.match(ui, /id="rkRaSearch">Искать во всех локалях/, 'explicit all-locales search button');
+assert.match(ui, /\$\('findInput'\)\?\.addEventListener\('input', \(\) => \{ scannedKey = ''; scheduleScan\(\); \}\)/, 'typing drops the all-locales result');
+assert.match(ui, /const scanned = scannedKey === queryKey\(\);[\s\S]*?if \(!scanned\) \{[\s\S]*?return;/, 'render does not plan locales until the button');
 
 const html = fs.readFileSync(new URL('../public/workbench.html', import.meta.url), 'utf8');
 assert.ok(html.indexOf('/workbench.js') < html.indexOf('/replace-across.js') && html.indexOf('/replace-across.js') < html.indexOf('/replace-across-ui.js'));
