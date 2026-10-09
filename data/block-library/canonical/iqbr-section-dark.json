@@ -1,0 +1,46 @@
+{
+  "id": "iqbr-section-dark",
+  "label": "Секция: тёмная панель (голова письма)",
+  "description": "Скруглённая тёмная панель в две зоны: широкая картинка сверху и содержимое под ней. Внутрь кладутся заголовок, тексты и кнопка.",
+  "placement": "section",
+  "category": "hero",
+  "version": 1,
+  "pug": "table.row.iqbr-section-dark--brad-full.iqbr-section-dark--color-bg(style=\"background-color:{{ background_color }}\")\n    tr\n        td.wrapper.last.pt0.iqbr-section-dark--pt0\n            table.twelve.columns\n                tr\n                    td.pb10.iqbr-section-dark--pb10\n                        //- {{ MEDIA_BLOCKS }}\n    tr\n        td.wrapper.last.offset-by-one.pt0.iqbr-section-dark--pt0\n            table.ten.columns\n                tr\n                    td.text-pad-small.iqbr-section-dark--text-pad-small.pb50.iqbr-section-dark--pb50.pt10.iqbr-section-dark--pt10\n                        //- {{ INNER_BLOCKS }}",
+  "styl": ".iqbr-section-dark--brad-full{border-radius:32px !important}\n@media screen and (max-width: 600px){.iqbr-section-dark--text-pad-small{padding-left:20px !important;padding-right:20px !important}}\n.iqbr-section-dark--color-bg{background-color:#101314}\n.iqbr-section-dark--pb10{padding-bottom:10px}\n.iqbr-section-dark--pb50{padding-bottom:50px}\n.iqbr-section-dark--pt0{padding-top:0}\n.iqbr-section-dark--pt10{padding-top:10px}",
+  "slots": [
+    {
+      "id": "background_color",
+      "kind": "color",
+      "label": "Фон панели",
+      "default": "#101314",
+      "uiGroup": "appearance"
+    }
+  ],
+  "childSlots": [
+    {
+      "id": "media",
+      "marker": "MEDIA_BLOCKS",
+      "accepts": [
+        "inner",
+        "inline",
+        "both"
+      ]
+    },
+    {
+      "id": "content",
+      "marker": "INNER_BLOCKS",
+      "accepts": [
+        "inner",
+        "inline",
+        "both"
+      ]
+    }
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "iqbroker",
+    "hero"
+  ],
+  "note": "Нарезано из email-base/X_IQBroker/mail-strategies. Семейные стили втянуты в блок и заскоуплены; ink-классы (.row/.columns/.wrapper) оставлены глобальными.",
+  "scoped": true
+}

@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>RetKit — Email Constructor</title>
   <link rel="stylesheet" href="/constructor.css" />
+  <link rel="stylesheet" href="/mcp-connect.css" />
+  <link rel="stylesheet" href="/actor-badge.css" />
+  <link rel="stylesheet" href="/mail-lease.css" />
 </head>
 <body>
 
@@ -14,15 +17,44 @@
       <span class="mode-label">🎨 Constructor</span>
     </div>
     <div class="topbar-right">
+      <div class="actor-badge" id="actorBadge"></div>
       <button class="btn" id="baseBtn" title="Открыть письмо из базы / посмотреть сохранённые">🗂 База</button>
       <button class="btn" id="clearCanvasBtn" title="Очистить всё письмо">🗑 Очистить</button>
       <button class="btn" id="undoBtn" title="Отменить последнее действие (Ctrl+Z)" disabled>↩ Отменить</button>
       <input class="mail-name" id="mailName" placeholder="welcome-promo" value="welcome-demo" spellcheck="false" />
+      <input class="mail-name campaign-name" id="campaignName" placeholder="метка кампании" spellcheck="false"
+             title="Своё имя кампании. При сборке им переписываются afftrack и retrack во ВСЕХ ссылках письма — в блоках могут лежать чужие метки, в готовом письме будет эта." />
+      <button class="btn" id="linksBtn" title="Все ссылки письма в одном списке: заменить по одной или все разом">🔗 Ссылки</button>
       <button class="btn" id="previewBtn" title="Собрать письмо и показать превью">▶ Preview</button>
       <button class="btn" id="toCodeBtn" title="Перенести собранное письмо в окно кода (workbench)">→ В код</button>
       <button class="btn btn-primary" id="saveBtn" title="Сохранить в email-base/X_assembled/">💾 Save mail</button>
     </div>
   </header>
+
+  <!--
+    Полоса контекста письма. Здесь две независимые оси, и их нельзя сливать:
+
+      • Бренд   — чьё письмо: тема (цвета) и папка сохранения.
+      • Набор   — какое письмо: promo (весь каталог) или system (короткий
+                  список простых блоков для сервисных писем).
+
+    «IQ Broker × system» обязано существовать, поэтому набор не пункт в списке
+    брендов, а отдельный переключатель. Фильтр каталога ниже — третья вещь: он
+    про источник блока (curated/user/legacy), а не про бренд и не про набор.
+  -->
+  <div class="brandbar" id="brandBar">
+    <span class="brandbar-label">Бренд</span>
+    <div class="brandbar-picker" id="brandTabs"><span class="brandbar-empty">Загрузка…</span></div>
+    <div class="kit-switch" id="kitSwitch" role="radiogroup" aria-label="Набор блоков">
+      <button type="button" class="kit-option active" data-kit="promo" role="radio" aria-checked="true"
+              title="Промо: весь каталог — комбо, герои, соцсети, сторы">Promo</button>
+      <button type="button" class="kit-option" data-kit="system" role="radio" aria-checked="false" tabindex="-1"
+              title="System: короткий набор простых блоков для сервисных писем">System</button>
+    </div>
+    <span class="brandbar-spacer"></span>
+    <button class="brandbar-action" id="brandThemeBtn" type="button" title="Фирменные цвета активного бренда: колесо и HEX">🎨 Цвета</button>
+    <button class="brandbar-action" id="brandAddBtn" type="button" title="Завести новый бренд — создаст папку в базе писем">＋ Бренд</button>
+  </div>
 
   <main class="workspace">
     <!-- LEFT: one contextual rail for both library and structure -->
@@ -42,10 +74,17 @@
 
       <div class="rail-panel" id="blocksModePanel">
         <div class="cat-filter">
-          <button class="cat-tab active" data-filter="outer">Обёртки</button>
+          <!-- Вкладка по умолчанию — «Комбо»: это готовые куски письма, с
+               которых начинают. Обёртку студия ставит сама при первой секции,
+               поэтому вкладка «Обёртки» нужна только чтобы СМЕНИТЬ обёртку, а
+               не чтобы начать. Раньше она открывалась первой, и человек искал
+               там то, что происходит без него. -->
+          <button class="cat-tab" data-filter="outer"
+                  title="Наружная часть письма. Ставится сама при первой секции — сюда заходят, только чтобы её сменить">Обёртки</button>
           <button class="cat-tab" data-filter="section">Секции</button>
           <button class="cat-tab" data-filter="inner">Внутри</button>
-          <button class="cat-tab" data-filter="combo">Комбо</button>
+          <button class="cat-tab active" data-filter="combo"
+                  title="Готовые куски письма: заголовок, текст, подсветка, кнопка и футер разом">Комбо</button>
           <button class="cat-tab" data-filter="all">Все</button>
         </div>
         <div class="cat-search-row">
@@ -70,9 +109,9 @@
           Открыто legacy-письмо без модели конструктора. Секции, картинки и стили сохранены в исходном порядке как цельный код; отдельные поля внутри них не распознаны.
         </div>
         <div class="cat-count" id="catCount"></div>
-        <button class="btn chat-open-btn" id="openChatBtn" title="Спросить оператора: найти блок по картинке, проверить письмо, собрать с нуля">💬 Спросить ИИ</button>
         <button class="btn gallery-open-btn" id="openGalleryBtn" title="Открыть каталог во весь экран: плитки превью, поиск, одинаковые блоки схлопнуты">⊞ Каталог плиткой</button>
         <button class="btn author-new-btn" id="newBlockBtn" title="Создать новый блок с нуля (pug + stylus + слоты)">➕ Создать блок</button>
+        <button class="btn figma-paste-btn" id="figmaPasteBtn" title="Вставить макет из Figma: ⌘C на фрейме или ⌘L на выделении — и Ctrl+V сюда">🎨 Макет из Figma</button>
         <div class="cat-list" id="catalogList">
           <div class="cat-empty">Загрузка…</div>
         </div>
@@ -105,6 +144,15 @@
           Добавь блоки слева — здесь появится живое превью письма.<br><br>
           Можно перетаскивать блоки прямо сюда, в письмо, а клик по блоку выделяет его для правки.
         </div>
+        <!-- Три рамки предпросмотра стоят в песочнице без allow-scripts: письму
+             скрипты не нужны, а показывать чужой HTML с работающими скриптами
+             нельзя. Из-за этого в консоли видно «Blocked script execution in
+             about:blank / about:srcdoc» — по одному разу на рамку. Это НЕ
+             студия: начальное содержимое рамок — `<!doctype html><title></title>`,
+             в нём скриптов нет вовсе. Ломится расширение браузера (они
+             внедряются и в пустые рамки), песочница его не пускает. Проверить
+             за десять секунд: открыть студию в окне инкогнито — сообщения
+             пропадут. -->
         <iframe class="live-frame" id="liveFrame" sandbox="allow-same-origin"></iframe>
         <div class="preview-overlay hidden" id="previewOverlay"><span class="spinner"></span> Собираю…</div>
       </div>
@@ -216,7 +264,24 @@
     </div>
   </div>
 
+  <script src="/canvas-slot-values.js"></script>
+  <!-- Круглая кнопка разговора: внизу справа, поверх сборки. Раньше она
+       стояла в левом рейле среди фильтров каталога и читалась как фильтр. -->
+  <button class="chat-fab" id="chatFab" type="button" aria-label="Обсудить с ИИ"
+          title="Обсудить с ИИ: найти блок по картинке, проверить письмо, собрать с нуля">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.4 0-2.7-.3-3.9-.9L3 21l1.9-5.6A8.5 8.5 0 1 1 21 11.5z"
+            stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+    </svg>
+  </button>
+  <script src="/actor-badge.js"></script>
+  <script src="/mail-lease.js"></script>
+  <script src="/mail-drafts.js"></script>
+  <script src="/mcp-connect.js"></script>
   <script src="/studio-chat.js"></script>
+  <script src="/figma-paste.js"></script>
+  <script src="/brand-bar.js"></script>
+  <script src="/kit-switch.js"></script>
   <script src="/constructor.js"></script>
 </body>
 </html>

@@ -28,6 +28,8 @@ try {
     "    table.card(role='presentation')",
     "      tr",
     "        td.card__cell Pipeline check",
+    "    p.system-placeholder {{embedded.company_address}}",
+    "    p.locale-placeholder ${{ untouched.namespace }}$",
   ].join("\n"));
 
   await put("X_Test/mail-css/app/styles/common.styl", [
@@ -42,9 +44,28 @@ try {
     "    width 100% !important",
     "  .card__cell",
     "    padding 8px !important",
+    "@supports (display: grid)",
+    "  .card",
+    "    display grid",
+    "@font-face",
+    "  font-family PipelineFont",
+    "  src url('https://cdn.example.test/pipeline.woff2') format('woff2')",
+    "@keyframes pipeline-pulse",
+    "  from",
+    "    opacity .9",
+    "  to",
+    "    opacity 1",
+  ].join("\n"));
+  await put("X_Test/mail-css/app/styles/head-only.styl", [
+    ".ExternalClass",
+    "  line-height 100%",
+  ].join("\n"));
+  await put("X_Test/mail-css/app/styles/head-extra.styl", [
+    ".card__cell",
+    "  letter-spacing 1px",
   ].join("\n"));
 
-  await execFileAsync(process.execPath, [
+  const regularBuild = await execFileAsync(process.execPath, [
     buildMailPath,
     "--category", "X_Test",
     "--mail", "css",
@@ -53,15 +74,106 @@ try {
   ], { cwd: root, maxBuffer: 2 * 1024 * 1024 });
 
   const html = await readFile(path.join(root, "dist/X_Test/mail-css/index.html"), "utf8");
+  const head = html.match(/<head\b[^>]*>([\s\S]*?)<\/head>/i)?.[1] || "";
 
   assert.match(html, /<table[^>]+class="card"[^>]+style="[^"]*background-color:\s*#e5e7eb/i);
   assert.match(html, /<td[^>]+class="card__cell"[^>]+style="[^"]*color:\s*#123456/i);
   assert.match(html, /<td[^>]+class="card__cell"[^>]+style="[^"]*padding:\s*12px 24px/i);
-  assert.match(html, /<style[^>]*>[\s\S]*@media only screen and \(max-width:\s*600px\)/i);
-  assert.match(html, /@media[\s\S]*\.card[\s\S]*width:\s*100%\s*!important/i);
-  assert.doesNotMatch(html, /<style[^>]*>[\s\S]*\.card\s*\{\s*background-color:\s*#e5e7eb/i);
+  assert.match(html, /<td[^>]+class="card__cell"[^>]+style="[^"]*letter-spacing:\s*1px/i);
+  assert.match(head, /@media only screen and \(max-width:\s*600px\)/i);
+  // Правила для эмодзи Gmail дописываются после вычистки CSS: в разметке
+  // письма таких картинок нет, и вычистка удалила бы их как неиспользуемые.
+  assert.match(head, /img\[goomoji\]/i);
+  assert.match(head, /img\[src\*="notoemoji"\]/i);
+  assert.match(head, /@media[\s\S]*\.card[\s\S]*width:\s*100%\s*!important/i);
+  assert.match(head, /@supports\s*\(display:\s*grid\)/i);
+  assert.match(head, /@font-face/i);
+  assert.match(head, /@keyframes pipeline-pulse/i);
+  assert.match(head, /\.ExternalClass\s*\{\s*line-height:\s*100%/i);
+  assert.match(head, /\.card__cell\s*\{\s*letter-spacing:\s*1px/i);
+  assert.doesNotMatch(head, /\.card\s*\{\s*background-color:\s*#e5e7eb/i);
+  assert.match(regularBuild.stdout, /\[build\] CSS split: head=/);
+  assert.match(regularBuild.stdout, /\[build\] Weight: largest HTML=/);
+  assert.match(html, /\{\{embedded\.company_address\}\}/,
+    "content placeholders outside <style> must remain untouched");
+  assert.match(html, /\$\{\{ untouched\.namespace \}\}\$/,
+    "localization placeholders outside <style> must remain untouched");
 
-  console.log("✓ build-mail CSS pipeline: Stylus inline styles + media queries in head");
+  // Production uses minified head CSS. Nested at-rules normally end in `}}`,
+  // which must be separated for the downstream template pipeline without
+  // rewriting braces in the email body.
+  await execFileAsync(process.execPath, [
+    buildMailPath,
+    "--category", "X_Test",
+    "--mail", "css",
+    "--skip-locales",
+  ], { cwd: root, maxBuffer: 2 * 1024 * 1024 });
+  const compactHtml = await readFile(path.join(root, "dist/X_Test/mail-css/index.html"), "utf8");
+  const compactStyles = [...compactHtml.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)]
+    .map((match) => match[1]);
+  assert.ok(compactStyles.length > 0, "production build must retain head styles");
+  assert.ok(compactStyles.some((css) => css.includes("} }")),
+    "adjacent closing CSS braces must be separated inside <style>");
+  assert.ok(compactStyles.every((css) => !/[{}]{2}/.test(css)),
+    "no adjacent opening or closing braces may remain inside <style>");
+  assert.match(compactHtml, /\{\{embedded\.company_address\}\}/,
+    "post-build CSS normalization must not rewrite system placeholders");
+  assert.match(compactHtml, /\$\{\{ untouched\.namespace \}\}\$/,
+    "post-build CSS normalization must not rewrite localization placeholders");
+
+  await put("X_Test/mail-heavy/app/templates/index.pug", [
+    "doctype html",
+    "html",
+    "  head",
+    "    meta(charset='utf-8')",
+    "    style!= headCss",
+    "  body",
+    "    p ${{ weight.block }}$",
+  ].join("\n"));
+  await put("X_Test/mail-heavy/app/styles/common.styl", [
+    "p",
+    "  color #123456",
+    "@media only screen and (max-width: 600px)",
+    "  p",
+    "    font-size 16px !important",
+  ].join("\n"));
+  await put("vendor/data/en/weight.json", JSON.stringify({
+    block: "x".repeat(110 * 1024),
+  }));
+  await put("vendor/data/ar/weight.json", JSON.stringify({
+    block: "y".repeat(112 * 1024),
+  }));
+
+  const heavyBuild = await execFileAsync(process.execPath, [
+    buildMailPath,
+    "--category", "X_Test",
+    "--mail", "heavy",
+    "--locales", "en,ar",
+    "--no-base",
+  ], { cwd: root, maxBuffer: 2 * 1024 * 1024 });
+  assert.match(heavyBuild.stderr, /WARN weight: ar HTML[\s\S]*102\.0 KiB client-clipping risk threshold/i);
+  assert.match(heavyBuild.stderr, /Gmail may clip the message/i);
+
+  let strictError = null;
+  try {
+    await execFileAsync(process.execPath, [
+      buildMailPath,
+      "--category", "X_Test",
+      "--mail", "heavy",
+      "--locales", "en,ar",
+      "--no-base",
+      "--failOnWeight",
+    ], { cwd: root, maxBuffer: 2 * 1024 * 1024 });
+  } catch (error) {
+    strictError = error;
+  }
+  assert.ok(strictError, "strict weight gate must reject HTML at/above the clipping threshold");
+  assert.match(String(strictError.stderr || ""), /Email weight limit exceeded/i);
+  assert.match(String(strictError.stderr || ""), /limit 102\.0 KiB/i);
+  assert.match(String(strictError.stderr || ""), /en: 110\.\d KiB[\s\S]*ar: 112\.\d KiB/i,
+    "strict weight gate must inspect and report every overweight locale before failing");
+
+  console.log("✓ build-mail CSS/head contract + non-blocking weight warning + opt-in strict gate");
 } finally {
   await rm(root, { recursive: true, force: true });
 }

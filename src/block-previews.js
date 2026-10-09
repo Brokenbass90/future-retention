@@ -10,8 +10,10 @@
  * только по категории и авто-описанию вида «Импортирован из X_IQ (1 писем)».
  */
 import { existsSync, readFileSync, statSync } from "node:fs";
+import { createHash } from "node:crypto";
 import path from "node:path";
 import url from "node:url";
+import { replacePlaceholders, findPlaceholders } from "./placeholders.js";
 
 const here = path.dirname(url.fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "..");
@@ -19,6 +21,96 @@ export const PREVIEW_ROOT = path.join(repoRoot, "data", "block-previews");
 const INDEX_PATH = path.join(PREVIEW_ROOT, "index.json");
 
 let cache = { mtimeMs: -1, index: { blocks: {} } };
+
+function parseHexColor(value) {
+  const match = String(value || "").trim().match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+  if (!match) return null;
+  const full = match[1].length === 3
+    ? match[1].split("").map((char) => char + char).join("")
+    : match[1];
+  const number = Number.parseInt(full, 16);
+  return [(number >> 16) & 255, (number >> 8) & 255, number & 255];
+}
+
+function relativeLuminance(rgb) {
+  if (!rgb) return null;
+  const linear = rgb.map((channel) => {
+    const value = channel / 255;
+    return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+  });
+  return (0.2126 * linear[0]) + (0.7152 * linear[1]) + (0.0722 * linear[2]);
+}
+
+/**
+ * Transparent light-text atoms are nearly invisible on the renderer's white
+ * technical section. Give only their screenshot wrapper a dark backdrop;
+ * this metadata never enters the real email or the constructor slot values.
+ */
+export function previewBackdropForBlock(block) {
+  const slots = Array.isArray(block?.slots) ? block.slots : [];
+  const hasOwnSurface = slots.some((slot) =>
+    slot?.kind === "color" && /(?:background|surface|(?:^|_)bg(?:_|$))/i.test(String(slot?.id || ""))
+  );
+  if (hasOwnSurface) return "";
+
+  const textColors = slots
+    .filter((slot) => slot?.kind === "color" && /^(?:color|text_?color|font_?color)$/i.test(String(slot?.id || "")))
+    .map((slot) => relativeLuminance(parseHexColor(slot?.default)))
+    .filter((value) => Number.isFinite(value));
+  // Contrast of white against a foreground with luminance L is
+  // 1.05 / (L + .05). Below 3:1 the thumbnail is not legible.
+  if (textColors.some((luminance) => 1.05 / (luminance + 0.05) < 3)) return "#101314";
+
+  // И тот же случай, когда белый цвет не в слоте, а зашит в стили блока.
+  // Раньше проверялись только слоты, поэтому блоки с классом white-text давали
+  // в каталоге пустую карточку: белый текст на белой подложке. Человек видел
+  // «блок сломан» там, где блок исправен.
+  return hasLightTextInStyles(block) ? "#101314" : "";
+}
+
+/**
+ * Белый ли текст зашит в стили блока, а не в слот цвета.
+ *
+ * Правило намеренно узкое. Соблазн был широкий — «есть светлый color: в
+ * styl» — но так под тёмную подложку попадают все кнопки: у них белый текст
+ * на своей заливке, и на белой карточке они прекрасно видны. Тёмная подложка
+ * им только мешает и заодно перерисовывает сотню исправных превью.
+ *
+ * Поэтому ловим ровно тот случай, который давал пустую карточку: простой
+ * текстовый блок с классом white-text / white-title, без своей заливки и без
+ * картинки. Всё остальное разбирает проверка пустых превью — она смотрит на
+ * результат, а не на догадку по стилям.
+ */
+export function hasLightTextInStyles(block) {
+  const pug = String(block?.pug || "");
+  const styl = String(block?.styl || "");
+  if (!/\bwhite-(?:text|title|link)\b/.test(pug)) return false;
+  // Своя заливка или картинка — значит блок рисует себе фон сам.
+  if (/background/i.test(styl) || /background/i.test(pug)) return false;
+  if (/\bimg\b|src=/.test(pug)) return false;
+  // Простой текстовый блок, а не составная секция со своим оформлением.
+  return pug.split("\n").filter((line) => line.trim()).length <= 6;
+}
+
+/** Exact source identity used by both the renderer and the release gate. */
+export function blockPreviewSourceHash(block) {
+  const identity = [
+    block?.pug || "",
+    block?.styl || "",
+    block?.slots || [],
+    block?.childSlots || [],
+    block?.version || 0,
+    block?.appearance || {},
+  ];
+  const previewBackdrop = previewBackdropForBlock(block);
+  if (previewBackdrop) identity.push({ previewBackdrop });
+  // Preserve existing hashes for atomic blocks while making recipe previews
+  // correctly stale when their embedded composition changes.
+  if (block?.combo === true || (Array.isArray(block?.children) && block.children.length)) {
+    identity.push(Boolean(block?.combo), block?.children || []);
+  }
+  return createHash("sha1").update(JSON.stringify(identity)).digest("hex").slice(0, 16);
+}
 
 export function loadPreviewIndex() {
   try {
@@ -103,4 +195,80 @@ export function describeBlockForAi(block) {
     s.responsive ? "адаптивный" : "фиксированной ширины",
   ].filter(Boolean);
   return parts.join(", ");
+}
+
+/* ─── Плейсхолдеры на превью ──────────────────────────────────────────────── */
+
+/**
+ * Подстановка демо-значений перед скриншотом карточки каталога.
+ *
+ * Тонкий момент, который легко «починить» не в том месте. В собранном письме
+ * `{{embedded.company_address}}` и `${{ NS.block_01 }}$` остаются как есть —
+ * их подставляет платформа рассылки и словарь локали. Это правильно, и трогать
+ * сборку нельзя.
+ *
+ * Но карточка каталога — не письмо. По ней человек ГЛАЗАМИ выбирает блок, и
+ * фигурные скобки вместо адреса превращают выбор в угадывание. Поэтому демо-
+ * значения подставляются здесь, только для картинки, и только в ней.
+ *
+ * Словарь лежит в data/preview-placeholders.json, чтобы его правил кто угодно
+ * без похода в код.
+ */
+const PREVIEW_PLACEHOLDERS_PATH = path.join(repoRoot, "data", "preview-placeholders.json");
+let _previewPlaceholders = null;
+
+export function previewPlaceholderDictionary() {
+  if (_previewPlaceholders) return _previewPlaceholders;
+  try {
+    _previewPlaceholders = JSON.parse(readFileSync(PREVIEW_PLACEHOLDERS_PATH, "utf8"));
+  } catch {
+    _previewPlaceholders = { embedded: {}, translation: "Текст" };
+  }
+  return _previewPlaceholders;
+}
+
+/**
+ * Заменить плейсхолдеры демо-значениями.
+ *
+ * Виды плейсхолдеров описаны в src/placeholders.js — там же живёт формат
+ * MoEngage `{{ContentBlock['…']}}`. Здесь только словарь значений: какой
+ * текст показывать в карточке вместо каждого ключа.
+ *
+ * Незнакомый ключ не оставляем как есть: «{{embedded.что-то_новое}}» в
+ * карточке выглядит поломкой ровно так же, как знакомый. Поэтому для него
+ * подставляется читаемая заглушка из имени ключа.
+ */
+export function substitutePreviewPlaceholders(html, dictionary = previewPlaceholderDictionary()) {
+  const embedded = dictionary?.embedded || {};
+  const contentBlock = dictionary?.contentBlock || {};
+  const translation = dictionary?.translation || "Текст";
+
+  const resolve = (dialect, key) => {
+    if (dialect === "translate") return translation;
+    if (dialect === "style") return null; // служебная разметка остаётся как есть
+    const table = dialect === "contentBlock" ? contentBlock : embedded;
+    return Object.prototype.hasOwnProperty.call(table, key) ? String(table[key]) : humanizeKey(key);
+  };
+
+  return replacePlaceholders(String(html || ""), resolve)
+    // В <style> сборка разводит соседние скобки («{ {»), чтобы платформа
+    // рассылки не приняла CSS за шаблон. На превью это не мешает, но и
+    // подставлять там нечего — трогаем только текст письма.
+    .replace(/\{\s\{\s*embedded\.([A-Za-z0-9_]+)\s*\}\s\}/g, (_, key) => (
+      Object.prototype.hasOwnProperty.call(embedded, key) ? String(embedded[key]) : humanizeKey(key)
+    ));
+}
+
+function humanizeKey(key) {
+  return String(key).replace(/_/g, " ").replace(/^./, (char) => char.toUpperCase());
+}
+
+/** Остались ли в разметке плейсхолдеры — то, что проверяют ворота превью. */
+export function findLeftoverPlaceholders(html) {
+  // Служебную разметку не считаем: она в письме и должна остаться.
+  return [...new Set(
+    findPlaceholders(html)
+      .filter((entry) => entry.dialect !== "style")
+      .map((entry) => entry.text)
+  )];
 }

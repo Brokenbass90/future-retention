@@ -13,6 +13,8 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { composeEmailFromBlocks } from "../src/compose-email.js";
+import { assertTrustedParsedBlockProvenance } from "../src/constructor-parsed-provenance.js";
+import { classifyConstructorTopLevelLine } from "../src/constructor-legacy-parse.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const temp = mkdtempSync(path.join(os.tmpdir(), "retkit-compose-security-"));
@@ -63,6 +65,108 @@ try {
     destRoot: temp,
     blocks: [adHocEntry()],
   };
+
+  expectComposeFailure(
+    "release compose rejects an unsaved ad-hoc definition",
+    { ...baseArgs, validateOnly: true, requireApprovedBlocks: true },
+    /not release-approved/i,
+  );
+  expectComposeFailure(
+    "release compose quarantines imported library slices",
+    {
+      ...baseArgs,
+      validateOnly: true,
+      requireApprovedBlocks: true,
+      blocks: [{ id: "iq-feature-list-57", slots: {} }],
+    },
+    /quarantined/i,
+  );
+  assert.doesNotThrow(
+    () => composeEmailFromBlocks({
+      ...baseArgs,
+      validateOnly: true,
+      requireApprovedBlocks: true,
+      allowTrustedParsedBlocks: true,
+      blocks: [{ ...adHocEntry(), source: "parsed" }],
+    }),
+    "server-authorized parsed source remains available for an existing-mail round-trip",
+  );
+  expectComposeFailure(
+    "parsed source cannot self-authorize without server-proven skeleton provenance",
+    {
+      ...baseArgs,
+      validateOnly: true,
+      requireApprovedBlocks: true,
+      blocks: [{ ...adHocEntry(), source: "parsed" }],
+    },
+    /not release-approved/i,
+  );
+  assert.doesNotThrow(
+    () => composeEmailFromBlocks({
+      ...baseArgs,
+      validateOnly: true,
+      requireApprovedBlocks: true,
+      blocks: [{ id: "iq-section", slots: {} }],
+    }),
+    "canonical definitions remain release-approved",
+  );
+
+  const parsedSourceMail = "mail-existing-source";
+  const parsedSourceRoot = path.join(temp, "parsed-source", parsedSourceMail);
+  const parsedHeader = [
+    'table.row.source-section(role="presentation")',
+    "  tr",
+    "    td SOURCE-BYTES",
+  ].join("\n");
+  const parsedHeaderPath = path.join(parsedSourceRoot, "app", "templates", "blocks", "header.pug");
+  mkdirSync(path.dirname(parsedHeaderPath), { recursive: true });
+  writeFileSync(parsedHeaderPath, `${parsedHeader}\n`, "utf8");
+  const classified = classifyConstructorTopLevelLine(parsedHeader.split("\n")[0]);
+  const trustedParsedEntry = {
+    id: `parsed-${parsedSourceMail}-0`,
+    source: "parsed",
+    def: {
+      id: `parsed-${parsedSourceMail}-0`,
+      label: classified.label,
+      placement: classified.placement,
+      category: classified.category || "imported",
+      pug: parsedHeader,
+      styl: "",
+      slots: [],
+    },
+    slots: {},
+  };
+  const verifiedParsed = assertTrustedParsedBlockProvenance({
+    blocks: [trustedParsedEntry],
+    sourceMailRoot: parsedSourceRoot,
+    sourceMail: parsedSourceMail,
+  });
+  assert.deepEqual(
+    verifiedParsed,
+    { hasParsed: true, verified: true, count: 1 },
+    "parsed release bypass is granted only after exact server-side source comparison",
+  );
+  assert.throws(
+    () => assertTrustedParsedBlockProvenance({
+      blocks: [{
+        ...trustedParsedEntry,
+        def: { ...trustedParsedEntry.def, pug: `${trustedParsedEntry.def.pug}\n// injected` },
+      }],
+      sourceMailRoot: parsedSourceRoot,
+      sourceMail: parsedSourceMail,
+    }),
+    /differs from the current source mail definition/i,
+    "naming a real source mail does not authorize client-modified parsed Pug",
+  );
+  assert.throws(
+    () => assertTrustedParsedBlockProvenance({
+      blocks: [{ ...trustedParsedEntry, id: "parsed-arbitrary", def: { ...trustedParsedEntry.def, id: "parsed-arbitrary" } }],
+      sourceMailRoot: parsedSourceRoot,
+      sourceMail: parsedSourceMail,
+    }),
+    /does not exist in the current source mail/i,
+    "naming a real source mail does not authorize an unrelated parsed block id",
+  );
 
   for (const [field, value] of [
     ["brand", "../escape"],

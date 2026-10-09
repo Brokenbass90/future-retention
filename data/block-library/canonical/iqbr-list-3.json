@@ -1,0 +1,40 @@
+{
+  "id": "iqbr-list-3",
+  "label": "Список из трёх пунктов (IQ Broker)",
+  "description": "Маркированный список, три пункта.",
+  "placement": "inner",
+  "category": "text",
+  "version": 1,
+  "pug": "ul(style=\"margin: 0; padding: 0 0 0 20px;\")\n    li.iqbr-list-3--block-text\n        p.iqbr-list-3--block-text.iqbr-list-3--pb8 {{ item_1 }}\n    li.iqbr-list-3--block-text\n        p.iqbr-list-3--block-text.iqbr-list-3--pb8 {{ item_2 }}\n    li.iqbr-list-3--block-text\n        p.iqbr-list-3--block-text {{ item_3 }}",
+  "styl": ".iqbr-list-3--pb8{padding-bottom:8px}\n.iqbr-list-3--block-text{font-family:Helvetica !important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#ececed}",
+  "slots": [
+    {
+      "id": "item_1",
+      "kind": "text",
+      "label": "Пункт 1",
+      "default": "Первый пункт",
+      "uiGroup": "content"
+    },
+    {
+      "id": "item_2",
+      "kind": "text",
+      "label": "Пункт 2",
+      "default": "Второй пункт",
+      "uiGroup": "content"
+    },
+    {
+      "id": "item_3",
+      "kind": "text",
+      "label": "Пункт 3",
+      "default": "Третий пункт",
+      "uiGroup": "content"
+    }
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "iqbroker",
+    "text"
+  ],
+  "note": "Нарезано из email-base/X_IQBroker/mail-strategies. Семейные стили втянуты в блок и заскоуплены; ink-классы (.row/.columns/.wrapper) оставлены глобальными.",
+  "scoped": true
+}

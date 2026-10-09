@@ -78,13 +78,19 @@ const find = (args) => TOOL_HANDLERS.find_blocks_by_look(args, {});
     const n = parseInt(String(hex).replace("#", ""), 16);
     return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
   };
+  // Цвет ищется по ВСЕЙ палитре блока, а не только по доминирующему фону:
+  // у кнопки доминирует белое поле вокруг неё, и по одному фону ни одна
+  // оранжевая кнопка не нашлась бы. Значит и проверять надо палитру.
   const far = orange.blocks.filter((b) => {
-    if (!b.appearance?.background) return false;
-    const [r, g, bl] = parse(b.appearance.background);
-    return Math.sqrt((r - 255) ** 2 + (g - 119) ** 2 + bl ** 2) > 120;
+    const palette = [b.appearance?.background, ...(b.appearance?.palette || [])].filter(Boolean);
+    if (!palette.length) return false;
+    return palette.every((hex) => {
+      const [r, g, bl] = parse(hex);
+      return Math.sqrt((r - 255) ** 2 + (g - 119) ** 2 + bl ** 2) > 120;
+    });
   });
-  check("далёкие от запроса цвета отсеяны", far.length === 0,
-    JSON.stringify(far.slice(0, 3).map((b) => [b.id, b.appearance.background])));
+  check("блоки без близкого к запросу цвета отсеяны", far.length === 0,
+    JSON.stringify(far.slice(0, 3).map((b) => [b.id, b.appearance.palette])));
 }
 
 /* ─── Схлопывание дублей в выдаче ────────────────────────────────────────── */
@@ -126,7 +132,12 @@ const find = (args) => TOOL_HANDLERS.find_blocks_by_look(args, {});
 {
   const none = await find({ hasImage: true, hasButton: true, hasList: true, minColumns: 9, minHeight: 9000 });
   check("невозможный запрос даёт пустую выдачу", none.count === 0);
-  check("подсказка объясняет, что делать", /Loosen|loosen/.test(none.hint || ""), none.hint);
+  // Подсказка сменилась осознанно: «ослабьте фильтры» оператор читал как
+  // «такого блока нет» и говорил это человеку. Теперь она прямо запрещает
+  // такой вывод и называет, чем искать дальше.
+  check("подсказка объясняет, что делать", /list_canonical_blocks/.test(none.hint || ""), none.hint);
+  check("и не даёт сделать вывод «блока нет»",
+    /does NOT mean the block is missing/.test(none.hint || ""), none.hint);
 }
 
 /* ─── Лимит соблюдается и ограничен сверху ───────────────────────────────── */
@@ -135,6 +146,30 @@ const find = (args) => TOOL_HANDLERS.find_blocks_by_look(args, {});
   check("лимит соблюдается", three.count <= 3);
   const huge = await find({ limit: 5000 });
   check("лимит ограничен сверху", huge.count <= 40, `count=${huge.count}`);
+}
+
+/* ─── Пустая выдача не значит «блока нет» ────────────────────────────────── */
+{
+  // Настоящий случай из работы: оператор трижды получил ноль от визуального
+  // поиска и сказал человеку, что в библиотеке нет блока с кнопкой — предложив
+  // нарисовать её руками. sys-button при этом лежал в каталоге. Пустой ответ
+  // обязан давать кандидатов и прямо запрещать такой вывод.
+  const empty = await TOOL_HANDLERS.find_blocks_by_look(
+    { query: "zzz-такого-запроса-нет-qqq", placement: "inner" }, {},
+  );
+  check("визуальный поиск ничего не нашёл", empty.count === 0, String(empty.count));
+  check("но кандидаты предложены", Array.isArray(empty.candidates) && empty.candidates.length > 0,
+    String(empty.candidates?.length));
+  check("среди кандидатов есть кнопка",
+    empty.candidates.some((entry) => /button|cta/.test(entry.id)),
+    empty.candidates.slice(0, 8).map((entry) => entry.id).join(", "));
+  check("подсказка запрещает вывод «блока нет»", /NEVER tell the user a block does not exist/.test(empty.hint),
+    empty.hint);
+  check("подсказка называет запасной инструмент", /list_canonical_blocks/.test(empty.hint));
+
+  const found = await TOOL_HANDLERS.find_blocks_by_look({ query: "кнопка" }, {});
+  check("когда нашлось — кандидаты не мешаются", found.count > 0 && !found.candidates,
+    `${found.count}/${found.candidates ? found.candidates.length : 0}`);
 }
 
 console.log(`\nfind-blocks-by-look: ${pass} ok, ${fail} fail`);

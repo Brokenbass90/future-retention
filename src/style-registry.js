@@ -272,9 +272,15 @@ export function rulesForClasses(classNames, { preferSource = null, registry = lo
     const familyVariants = variants.filter((v) => v.layer === LAYERS.family);
     if (!familyVariants.length) { resolved.push(name); continue; } // чисто фреймворковый — не втягиваем
 
-    let chosen = familyVariants[0];
+    // Базовым выбираем вариант БЕЗ медиазапроса. Медиа-варианты всё равно
+    // выводятся отдельно ниже, и если базовым станет мобильный, класс потеряет
+    // десктопные правила целиком — блок поедет на широком экране. Раньше это
+    // зависело от порядка вариантов и держалось на удаче.
+    let chosen = familyVariants.find((variant) => !variant.media) || familyVariants[0];
     if (preferSource) {
-      const exact = familyVariants.find((v) => v.sources.some((s) => s.includes(preferSource)));
+      const matches = (variant) => variant.sources.some((source) => source.includes(preferSource));
+      const exact = familyVariants.find((variant) => !variant.media && matches(variant))
+        || familyVariants.find(matches);
       if (exact) chosen = exact;
     }
     if (familyVariants.length > 1) {
@@ -296,7 +302,12 @@ export function rulesForClasses(classNames, { preferSource = null, registry = lo
     }
   }
 
-  for (const [media, rules] of byMedia) {
+  // Базовые правила идут ПЕРВЫМИ, медиазапросы после. Порядок был обратным —
+  // просто потому, что медиа-вариант встречался в списке раньше, — и базовое
+  // правило перебивало мобильное: класс переставал быть адаптивным, а в почте
+  // это видно сразу на телефоне.
+  const orderedMedia = [...byMedia.entries()].sort((a, b) => (a[0] ? 1 : 0) - (b[0] ? 1 : 0));
+  for (const [media, rules] of orderedMedia) {
     const body = [...new Set(rules)].join("\n");
     chunks.push(media ? `${media}{\n${body}\n}` : body);
   }

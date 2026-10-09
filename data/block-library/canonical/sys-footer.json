@@ -1,0 +1,113 @@
+{
+  "id": "sys-footer",
+  "label": "Футер: адрес, риск, условия, отписка",
+  "description": "Простой футер сервисного письма: адрес компании, риск-предупреждение, «Условия» и «Отписаться». Без соцсетей и без кнопок магазинов.",
+  "placement": "section",
+  "category": "footer",
+  "version": 1,
+  "pug": "table.sys-footer--box(role=\"presentation\" width=\"100%\" style=\"background-color:{{ background_color }};border-radius:{{ radius }}\")\n    tr\n        td.sys-footer--pad(align=\"center\" style=\"padding:{{ padding }};text-align:center\")\n            table.sys-footer--inner(role=\"presentation\" width=\"100%\")\n                tr\n                    td(align=\"center\" style=\"text-align:center\")\n                        p.sys-footer--small(style=\"color:{{ text_color }}\") {{ company_address }}\n                        p.sys-footer--small.sys-footer--gap(style=\"color:{{ text_color }}\") {{ risk_warning }}\n                        p.sys-footer--links\n                            a.sys-footer--link(href=\"{{ terms_href }}\" universal=\"true\" target=\"_blank\" style=\"color:{{ link_color }}\") {{ conditions }}\n                            span.sys-footer--sep(style=\"color:{{ link_color }}\") &nbsp;|&nbsp;\n                            a.sys-footer--link(href=\"{{ unsubscribe_href }}\" universal=\"true\" target=\"_blank\" style=\"color:{{ link_color }}\") {{ unsubscribe }}",
+  "styl": ".sys-footer--box{display:table;width:100%;padding:0;border-collapse:separate !important;background-color:$brand_background}\n.sys-footer--inner{width:100%;border-collapse:collapse;text-align:center}\n.sys-footer--pad{padding:{{ padding }};text-align:center}\n@media screen and (max-width: 600px){.sys-footer--pad{padding:24px 20px !important}}\n.sys-footer--small{margin:0;margin-bottom:0;color:$brand_muted;font-family:Helvetica,Arial,sans-serif !important;font-size:13px;font-weight:400;line-height:20px;text-align:center}\n.sys-footer--gap{padding-top:12px}\n.sys-footer--links{margin:0;margin-bottom:0;padding-top:16px;font-family:Helvetica,Arial,sans-serif !important;font-size:13px;line-height:20px;text-align:center}\n.sys-footer--link{color:$brand_muted;font-weight:400;text-decoration:none}\n.sys-footer--sep{color:$brand_muted}",
+  "slots": [
+    {
+      "id": "company_address",
+      "kind": "richText",
+      "label": "Адрес компании",
+      "default": "{{embedded.company_address}}",
+      "uiGroup": "content",
+      "allowSystemPlaceholder": true
+    },
+    {
+      "id": "risk_warning",
+      "kind": "richText",
+      "label": "Риск-предупреждение",
+      "default": "{{embedded.risk_warning}}",
+      "uiGroup": "content",
+      "allowSystemPlaceholder": true
+    },
+    {
+      "id": "terms_href",
+      "kind": "url",
+      "label": "Ссылка «Условия»",
+      "default": "{{embedded.company_terms_link}}",
+      "uiGroup": "content",
+      "allowSystemPlaceholder": true
+    },
+    {
+      "id": "unsubscribe_href",
+      "kind": "url",
+      "label": "Ссылка отписки",
+      "default": "{{embedded.unsubscribe_link}}",
+      "uiGroup": "content",
+      "allowSystemPlaceholder": true
+    },
+    {
+      "id": "conditions",
+      "kind": "text",
+      "label": "Текст «Условия»",
+      "default": "${{ footer_upload.block_00 }}$",
+      "uiGroup": "content",
+      "allowSystemPlaceholder": true
+    },
+    {
+      "id": "unsubscribe",
+      "kind": "text",
+      "label": "Текст «Отписаться»",
+      "default": "${{ footer_upload.block_01 }}$",
+      "uiGroup": "content",
+      "allowSystemPlaceholder": true
+    },
+    {
+      "id": "background_color",
+      "kind": "color",
+      "label": "Фон футера — пусто значит «по теме бренда»",
+      "default": "",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "text_color",
+      "kind": "color",
+      "label": "Цвет текста — пусто значит «по теме бренда»",
+      "default": "",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "link_color",
+      "kind": "color",
+      "label": "Цвет ссылок (по умолчанию — как текст футера) — пусто значит «по теме бренда»",
+      "default": "",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "radius",
+      "kind": "select",
+      "label": "Скругление",
+      "default": "0",
+      "uiGroup": "appearance",
+      "options": [
+        "0",
+        "4px",
+        "8px",
+        "12px",
+        "16px",
+        "24px"
+      ]
+    },
+    {
+      "id": "padding",
+      "kind": "text",
+      "label": "Внутренние отступы",
+      "default": "32px 40px 28px",
+      "uiGroup": "appearance"
+    }
+  ],
+  "kits": [
+    "system",
+    "promo"
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "footer"
+  ],
+  "note": "Системный набор: блок написан с нуля под простые сервисные письма. Базовые цвета берутся из темы бренда ($brand_*), поэтому один и тот же блок читается и на светлом IQ Option, и на тёмном IQ Broker. Пустое значение цветового слота = «по бренду».",
+  "scoped": true
+}

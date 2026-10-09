@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { cp, mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 
 // New modular imports
@@ -41,9 +41,14 @@ import {
 } from "./src/assembler.js";
 import { parseFigmaUrl, flattenFigmaLayers, fetchFigmaNodeData, inspectFigmaUrl, exportFigmaImages, browseFigmaFile, downloadImageBuffer, buildFigmaImportFromUrl } from "./src/figma.js";
 import { callOpenAiWithRetry, extractResponseText } from "./src/ai-client.js";
+import { callOllamaChat } from "./src/ollama-client.js";
+import { resolveStudioRuntimeFlags } from "./src/runtime-flags.js";
 import { placeholderizeHtml, fixLocaleTxt, translateLocaleTxt } from "./src/locale-ai.js";
 import { placeholderizePugSource } from "./src/pug-placeholderize.js";
 import { runAgent } from "./src/ai-agent.js";
+import { normalizeConstructorCatalog, describeCatalogForAgent } from "./src/constructor-catalog.js";
+import { readThread, appendTurn, noteSurface, historyForModel, describeOtherSurface } from "./src/agent-thread.js";
+import { registerAgentThreadRoutes } from "./src/routes/agent-thread-routes.js";
 import {
   isRequestBodyTooLarge,
   readJsonRequestBody,
@@ -54,6 +59,7 @@ import * as fsLink from "node:fs";
 import { composeEmailFromBlocks, listCanonicalBlocks, userBlockPath } from "./src/compose-email.js";
 import { attachPreviews, resolvePreviewFile } from "./src/block-previews.js";
 import { putAsset, assetStorageStatus } from "./src/asset-storage.js";
+import { loadBrands, createBrand, updateBrand, getBrand, THEME_TOKENS, BrandError } from "./src/brands.js";
 import { BlockLibrarySchemaError, normalizeBlockLibrarySavePayload } from "./src/block-library-schema.js";
 import {
   assertPortableBlockSource,
@@ -61,17 +67,16 @@ import {
   transitionUserBlockReviewWithLifecycle,
 } from "./src/block-library-review.js";
 import { classifyConstructorTopLevelLine } from "./src/constructor-legacy-parse.js";
+import { assertTrustedParsedBlockProvenance } from "./src/constructor-parsed-provenance.js";
 import { stageComposeSkeletonIfDestination } from "./src/compose-skeleton-stage.js";
 import { withComposeSaveTransaction } from "./src/compose-save-transaction.js";
 import { constructorBuildMailArgs } from "./src/constructor-build-policy.js";
 import { responseSchema, cloneEditResponseSchema, translationResponseSchema, designAnalysisSchema } from "./src/ai-schemas.js";
-import { getFigmaIntegrationContract } from "./src/figma-contract.js";
-import { readEvalBenchmarkSnapshot, summarizeEvalBenchmark, findEvalBenchmarkCase, scoreEvalCase } from "./src/eval.js";
+import { readEvalBenchmarkSnapshot, summarizeEvalBenchmark } from "./src/eval.js";
 import { buildDesignDecomposition, summarizeDesignDecomposition } from "./src/design-decomposition.js";
 import { buildDesignMappingHints, summarizeDesignMappingHints } from "./src/design-mapping.js";
 import { buildDesignBlockRecommendations, summarizeDesignBlockRecommendations } from "./src/block-ranking.js";
 import { buildLayoutModel, summarizeLayoutModel, summarizeLayoutModelMeta } from "./src/layout-model.js";
-import { listScenarioFixtures, saveScenarioFixture } from "./src/scenarios.js";
 import {
   registerCatalogItem,
   extractCatalogItemsFromTemplate,
@@ -89,13 +94,12 @@ import { buildBlocksByMail as _buildBlocksByMail, readBlockSource as _readBlockS
 import { classifyChatIntent as _classifyChatIntent } from "./src/chat-intents.js";
 import { cleanText, dedupeStrings as _dedupeStrings, toRelativePath as _toRelativePath, dedupeCatalogSources as _dedupeCatalogSources, mergeCatalogTraits as _mergeCatalogTraits } from "./src/utils.js";
 import { classifyLocaleChatPolicy } from "./src/locale-chat-policy.js";
-import { enqueueJob, getJob, listJobs, cancelJob, clearJobs, getQueueStats, startWorker } from "./src/batch.js";
 import { resolveOpenAiModelForTask, summarizeOpenAiModelRouting } from "./src/model-routing.js";
 import { buildInternalDesignSchema, summarizeDesignSchema } from "./src/design-schema.js";
 import { buildComposePlanFromDesign } from "./src/design-compose.js";
 import { scaffoldMail } from "./tools/scaffold-system-mail.js";
 import { buildVendorMixinsReference, buildVendorMixinsCompact, buildMarkupPatternsReference } from "./src/vendor-mixins-ref.js";
-import { patchTheme, saveTheme, readTheme, listThemes, normalizeTheme } from "./tools/theme-patcher.js";
+import { patchTheme, saveTheme, readTheme, normalizeTheme } from "./tools/theme-patcher.js";
 import {
   isStudioModelFresh,
   listCodeWorkspace,
@@ -105,10 +109,77 @@ import {
   saveCodeHtmlOverride,
   writeFileAtomically,
 } from "./src/code-workspace.js";
+import { textEditsBetween, applyTextEditsToPug } from "./src/original-text-sync.js";
+import {
+  resolveActor,
+  renameActor,
+  listActiveActors,
+  publicActor,
+  actorCookieHeader,
+} from "./src/actor.js";
+import {
+  copyMail,
+  renameMail,
+  trashMail,
+  createMail,
+  writeMailFile,
+  safeSegment,
+  mailShortName,
+  assertMailWritable,
+  mailStoreStatus,
+  setMailWriteGuard,
+  MailStoreError,
+} from "./src/mail-store.js";
+import {
+  openDraft,
+  listDrafts,
+  draftChanges,
+  publishDraft,
+  discardDraft,
+  listSnapshots,
+  restoreSnapshot,
+  snapshotMail,
+  isDraftFolder,
+} from "./src/mail-drafts.js";
+import { createRouter } from "./src/router.js";
+import { registerWorkspaceRoutes } from "./src/routes/workspace-routes.js";
+import { registerMcpRoutes } from "./src/routes/mcp-routes.js";
+import { registerShotRoutes } from "./src/routes/shot-routes.js";
+import { registerSourceRoutes } from "./src/routes/source-routes.js";
+import { registerHistoryRoutes } from "./src/routes/history-routes.js";
+import { registerAgentRoutes } from "./src/routes/agent-routes.js";
+import { registerStudioLogRoutes } from "./src/routes/studio-log-routes.js";
+import { registerAssetRoutes } from "./src/routes/asset-routes.js";
+import { registerBrandRoutes } from "./src/routes/brand-routes.js";
+import { registerAiLessonRoutes } from "./src/routes/ai-lesson-routes.js";
+import { registerFigmaRoutes } from "./src/routes/figma-routes.js";
+import { receiveFigmaPluginImport } from "./src/figma-inbox.js";
+import {
+  createLeaseGuard,
+  takeLease,
+  refreshLease,
+  releaseLease,
+  readLease,
+  listLeases,
+  publicLease,
+  LEASE_TTL_MS,
+} from "./src/mail-locks.js";
+
+// Замки включаются один раз здесь: дальше о них не знает ни одна ручка —
+// дверь к письмам (src/mail-store.js) спрашивает разрешение сама.
+setMailWriteGuard(createLeaseGuard());
+
 import { syncWorkbenchLocaleNamespaces } from "./src/workbench-localization.js";
 import { compareStudioModelSourceSignatures } from "./src/studio-model-signatures.js";
 import { acquireKeyedOperationLock } from "./src/keyed-operation-lock.js";
+import { acquireWorkbenchMailOperationLock } from "./src/workbench-mail-operation-lock.js";
 import { resolveWorkbenchBuildLocalePolicy } from "./src/workbench-build-locales.js";
+import {
+  auditWorkbenchReleaseHtml,
+  EMAIL_CLIP_LIMIT_BYTES,
+  EMAIL_CLIP_LIMIT_KIB,
+  EMAIL_WEIGHT_LIMIT_EXCEEDED,
+} from "./src/workbench-release-preflight.js";
 import {
   createPreviewBuildCoordinator,
   createPreviewBuildKey,
@@ -122,6 +193,10 @@ import {
   resolveWorkbenchSourcePath,
   validateWorkbenchSourceContent,
 } from "./src/mail-source-security.js";
+import {
+  saveWorkbenchSourceFilesAtomically,
+  workbenchSourceContentHash,
+} from "./src/workbench-source-transaction.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -143,16 +218,146 @@ const scenarioFixturesDir = path.join(studioDataDir, "scenarios");
 const legacyToolkitSnapshotPath = path.join(studioDataDir, "imports", "legacy-retention-tool-kit.snapshot.json");
 
 const port = Number(process.env.PORT || 3000);
-const openAiApiKey = process.env.OPENAI_API_KEY || "";
+const studioRuntimeFlags = resolveStudioRuntimeFlags(process.env);
+
+/**
+ * Маршрутизатор студии. Сюда домены переезжают из лестницы `if` по одному:
+ * переписывать девятнадцать тысяч строк разом — верный способ сломать
+ * работающее. Что не его — он пропускает, и запрос разбирает прежняя лестница.
+ */
+const studioRouter = createRouter({ name: "studio" });
+registerWorkspaceRoutes(studioRouter, {
+  repoRoot: __dirname,
+  sendJson,
+  readRequestBody,
+  isReadOnly: () => Boolean(studioRuntimeFlags.readOnly),
+});
+registerMcpRoutes(studioRouter, {
+  repoRoot: __dirname,
+  sendJson,
+  readRequestBody,
+  isAuthEnabled: () => Boolean(studioRuntimeFlags.authEnabled),
+});
+registerShotRoutes(studioRouter, { sendJson, readRequestBody });
+registerAgentThreadRoutes(studioRouter, { repoRoot: __dirname, sendJson });
+registerSourceRoutes(studioRouter, { repoRoot: __dirname, sendJson });
+registerAgentRoutes(studioRouter, {
+  repoRoot: __dirname,
+  sendJson,
+  readRequestBody,
+  isReadOnly: () => Boolean(studioRuntimeFlags.readOnly),
+  apiKey: () => openAiApiKey,
+});
+registerHistoryRoutes(studioRouter, {
+  sendJson,
+  history: {
+    list: dbHistoryList,
+    getHtml: dbHistoryGetHtml,
+    delete: dbHistoryDelete,
+    clear: dbHistoryClear,
+  },
+});
+registerFigmaRoutes(studioRouter, {
+  sendJson,
+  readRequestBody,
+  apiToken: () => figmaApiToken,
+  repoRoot: __dirname,
+  importSecret: () => figmaImportSecret,
+  // Каталог с превью: подбор блоков под макет идёт по подписям картинок.
+  catalog: () => attachPreviews(listCanonicalBlocks()),
+  figma: {
+    parseUrl: (value) => parseFigmaUrl(value),
+    inspect: (value, token) => inspectFigmaUrl(value, token),
+    browse: (fileKey, token) => browseFigmaFile(fileKey, token),
+    exportImages: (fileKey, nodeIds, token, options) => exportFigmaImages(fileKey, nodeIds, token, options),
+    // Тот же путь, которым макет забирает плагин: открытый API Figma, а не
+    // разбор закрытого буфера обмена.
+    importFromUrl: (url, token) => buildFigmaImportFromUrl(url, token),
+    // Скачивание и раскладка по студии остаётся здесь: маршрут не должен
+    // знать, где у студии лежат картинки.
+    saveImage: async (figmaUrl, nodeId, format) => {
+      const { buffer, contentType } = await downloadImageBuffer(figmaUrl);
+      const ext = format === "jpg" ? "jpg" : format === "svg" ? "svg" : "png";
+      const fileName = `figma-${nodeId.replace(/[^a-z0-9]/gi, "-")}.${ext}`;
+      await mkdir(assetStorageDir, { recursive: true });
+      await writeFile(path.join(assetStorageDir, fileName), buffer);
+      return { assetUrl: `/studio-assets/${fileName}`, fileName, contentType };
+    },
+  },
+});
+registerAiLessonRoutes(studioRouter, {
+  sendJson,
+  readRequestBody,
+  journal: (entry) => appendStudioJournalEntry(entry),
+  lessons: {
+    read: () => readAiLessons(),
+    append: (lesson) => appendAiLesson(lesson),
+    remove: (id) => deleteAiLesson(id),
+    clear: async () => { try { dbLessonsClear(); } catch { /* уже пусто */ } },
+  },
+});
+registerBrandRoutes(studioRouter, {
+  sendJson,
+  readRequestBody,
+  journal: (entry) => appendStudioJournalEntry(entry),
+  brands: {
+    list: () => loadBrands(),
+    tokens: THEME_TOKENS,
+    create: (input) => createBrand(input),
+    update: (id, patch) => updateBrand(id, patch),
+    readTheme: (id) => readTheme(id),
+  },
+});
+registerAssetRoutes(studioRouter, {
+  sendJson,
+  readRequestBody,
+  canGenerate: () => Boolean(openAiApiKey),
+  journal: (entry) => appendStudioJournalEntry(entry),
+  assets: {
+    status: () => assetStorageStatus(),
+    read: () => readAssetRegistry(),
+    summarize: (registry) => summarizeAssetRegistry(registry),
+    register: (files) => registerUploadedAssets(files),
+    generate: ({ prompt, size, quality }) => generateOpenAiImageAsset({
+      prompt, size: cleanText(size), quality: cleanText(quality),
+    }),
+    update: (id, patch) => updateAssetRegistryEntry(id, patch),
+  },
+});
+registerStudioLogRoutes(studioRouter, {
+  sendJson,
+  readRequestBody,
+  journal: {
+    read: () => readStudioJournal(),
+    clear: () => clearStudioJournal(),
+    append: (entry) => appendStudioJournalEntry(entry),
+    summarize: (data) => summarizeStudioJournal(data),
+  },
+  rules: {
+    read: () => readProjectRules(),
+    append: (text, source) => appendProjectRule(text, source),
+    clear: () => clearProjectRules(),
+    summarize: (data) => summarizeProjectRules(data),
+  },
+});
+const configuredOpenAiApiKey = process.env.OPENAI_API_KEY || "";
+// Treat a disabled AI runtime exactly like an absent key throughout the old
+// OpenAI call sites. This gives public demo deployments a hard, central
+// no-spend switch rather than relying on every endpoint to remember a guard.
+const openAiApiKey = studioRuntimeFlags.aiEnabled ? configuredOpenAiApiKey : "";
 const openAiModel = process.env.OPENAI_MODEL || "gpt-4.1-mini";
 const openAiImageModel = process.env.OPENAI_IMAGE_MODEL || "gpt-image-2";
-const deepLApiKey = process.env.DEEPL_API_KEY || "";
+const ollamaBaseUrl = process.env.OLLAMA_BASE_URL || "http://127.0.0.1:11434";
+const ollamaModel = process.env.OLLAMA_MODEL || "";
+const ollamaConfigured = studioRuntimeFlags.aiEnabled && Boolean(ollamaModel);
+const configuredDeepLApiKey = process.env.DEEPL_API_KEY || "";
+const deepLApiKey = studioRuntimeFlags.aiEnabled ? configuredDeepLApiKey : "";
 const deepLApiUrl = process.env.DEEPL_API_URL || "https://api-free.deepl.com";
 const figmaApiToken = process.env.FIGMA_API_TOKEN || "";
 const figmaImportSecret = process.env.FIGMA_IMPORT_SECRET || "";
 const appAuthUser = process.env.APP_AUTH_USER || "";
 const appAuthPassword = process.env.APP_AUTH_PASSWORD || "";
-const appAuthEnabled = Boolean(appAuthUser && appAuthPassword);
+const appAuthEnabled = studioRuntimeFlags.authEnabled;
 // Build subprocesses compile author-provided Pug/Stylus. The portable-source
 // gate is the primary boundary; a minimal environment is defense in depth so
 // a compiler regression cannot expose server/API credentials.
@@ -1705,16 +1910,22 @@ function getProviderCatalog() {
       id: "openai",
       label: "OpenAI",
       available: Boolean(openAiApiKey),
-      status: openAiApiKey
-        ? `Configured: default ${modelRouting.default}, design ${modelRouting.designAnalysis}, draft ${modelRouting.draft}`
-        : "Needs OPENAI_API_KEY",
+      status: !studioRuntimeFlags.aiEnabled
+        ? "Disabled by STUDIO_AI_ENABLED/STUDIO_PUBLIC_DEMO"
+        : openAiApiKey
+          ? `Configured: default ${modelRouting.default}, design ${modelRouting.designAnalysis}, draft ${modelRouting.draft}`
+          : "Needs OPENAI_API_KEY",
       capabilities: ["chat", "vision", "structured output", "design ingest"]
     },
     {
       id: "deepl",
       label: "DeepL (translations only)",
       available: Boolean(deepLApiKey),
-      status: deepLApiKey ? `Configured: ${deepLApiUrl}` : "Needs DEEPL_API_KEY",
+      status: !studioRuntimeFlags.aiEnabled
+        ? "Disabled by STUDIO_AI_ENABLED/STUDIO_PUBLIC_DEMO"
+        : deepLApiKey
+          ? `Configured: ${deepLApiUrl}`
+          : "Needs DEEPL_API_KEY",
       capabilities: ["translations"]
     },
     {
@@ -1723,6 +1934,17 @@ function getProviderCatalog() {
       available: true,
       status: "Always available",
       capabilities: ["chat", "preview", "fallback"]
+    },
+    {
+      id: "ollama",
+      label: "Ollama (local)",
+      available: Boolean(ollamaConfigured),
+      status: !studioRuntimeFlags.aiEnabled
+        ? "Disabled by STUDIO_AI_ENABLED/STUDIO_PUBLIC_DEMO"
+        : ollamaModel
+          ? `Configured: ${ollamaModel} at ${ollamaBaseUrl}`
+          : "Needs OLLAMA_MODEL (OLLAMA_BASE_URL defaults to localhost)",
+      capabilities: ["chat", "structured draft", "translations", "local", "no API token cost"]
     },
     {
       id: "anthropic",
@@ -1738,13 +1960,6 @@ function getProviderCatalog() {
       status: "Planned adapter",
       capabilities: ["chat", "vision"]
     },
-    {
-      id: "local",
-      label: "Local model",
-      available: false,
-      status: "Planned adapter",
-      capabilities: ["classification", "cheap helpers"]
-    }
   ];
 }
 
@@ -1753,10 +1968,17 @@ function summarizeRuntimeConfig() {
     envFilePath: toStudioRelative(envFilePath),
     envFileLoaded: Boolean(envRuntime.loaded),
     envKeys: Array.isArray(envRuntime.keys) ? envRuntime.keys : [],
+    publicDemo: studioRuntimeFlags.publicDemo,
+    aiEnabled: studioRuntimeFlags.aiEnabled,
     openAiConfigured: Boolean(openAiApiKey),
+    openAiKeyPresent: Boolean(configuredOpenAiApiKey),
     openAiModel,
     openAiModelRouting: summarizeOpenAiModelRouting(),
+    ollamaConfigured,
+    ollamaModel,
+    ollamaBaseUrl,
     deepLConfigured: Boolean(deepLApiKey),
+    deepLKeyPresent: Boolean(configuredDeepLApiKey),
     deepLApiUrl,
     appAuthEnabled,
     persistenceMode: process.env.DYNO ? "ephemeral-heroku-filesystem" : "local-filesystem"
@@ -1777,7 +1999,6 @@ function summarizeFigmaIntegration() {
     pluginImportEnabled: true,
     pluginImportEndpoint: "/api/figma/import",
     readinessEndpoint: "/api/figma/readiness",
-    contractEndpoint: "/api/figma/contract",
     pluginImportSecretRequired: Boolean(figmaImportSecret),
     accessModes: [
       {
@@ -1956,14 +2177,20 @@ function summarizeEmailBase() {
 
   const categories = listDirectoryNames(
     emailBaseRoot,
-    (name) => !name.startsWith(".") && !categoryIgnoreList.has(name)
+    // Служебные папки базы начинаются с подчёркивания: _archive, _trash,
+    // _legacy. Это не бренды, и в списках писем им делать нечего.
+    (name) => !name.startsWith(".") && !name.startsWith("_") && !categoryIgnoreList.has(name)
   )
     .map((categoryName) => {
       const categoryPath = path.join(emailBaseRoot, categoryName);
-      const mails = listDirectoryNames(categoryPath, (name) => name.startsWith("mail-")).map((folder) => ({
-        id: folder.replace(/^mail-/, ""),
-        folder
-      }));
+      // Черновики лежат папками рядом с письмами (mail-x__draft-ab12cd34), и
+      // в списке писем им не место: это чья-то незаконченная копия, а не
+      // письмо базы. Кто их открыл — видит их в своём списке черновиков.
+      const mails = listDirectoryNames(categoryPath, (name) => name.startsWith("mail-") && !isDraftFolder(name))
+        .map((folder) => ({
+          id: folder.replace(/^mail-/, ""),
+          folder
+        }));
 
       return {
         name: categoryName,
@@ -2030,8 +2257,22 @@ function extractAssetRecordsFromHtml(html) {
   return [...assetMap.values()];
 }
 
+// Node that runs the build subprocesses. Normally the very binary this studio
+// runs on; if it was removed or replaced while the studio kept running (nvm
+// upgrade/uninstall), spawning it fails with ENOENT and every preview and
+// build breaks — fall back to `node` from PATH instead.
+let warnedMissingNode = false;
+function nodeBinary() {
+  if (existsSync(process.execPath)) return process.execPath;
+  if (!warnedMissingNode) {
+    warnedMissingNode = true;
+    console.warn(`[studio] ${process.execPath} no longer exists (Node was updated or removed). Builds use "node" from PATH; restart the studio to get rid of this warning.`);
+  }
+  return "node";
+}
+
 async function runCommand(command, args, cwd) {
-  if (command === process.execPath
+  if (command === nodeBinary()
       && args?.[0] === "mail"
       && /^build(?:-pretty)?$/.test(String(args?.[1] || ""))) {
     auditMailSourceBeforeBuild({
@@ -2934,7 +3175,7 @@ async function buildEmailBasePreview(category, mailId, locale) {
   const mailRoot = path.join(emailBaseRoot, selectedCategory, `mail-${selectedMail}`);
   const stylesRoot = path.join(mailRoot, "app", "styles");
   const result = await withPreferredTemplateSource(templatesRoot, () => runCommand(
-    process.execPath,
+    nodeBinary(),
     ["mail", "build-pretty", selectedCategory, selectedMail, "--locales", selectedLocale],
     emailBaseRoot
   ));
@@ -6168,7 +6409,7 @@ async function buildReferenceEmailBasePreviewFromDraft(payload, rawDraft) {
 
     for (const locale of localePayloads.keys()) {
       const buildResult = await withPreferredTemplateSource(templatesRoot, () => runCommand(
-        process.execPath,
+        nodeBinary(),
         ["mail", "build-pretty", category, mailId, "--locales", locale],
         emailBaseRoot
       ));
@@ -6333,7 +6574,7 @@ async function buildTemporaryEmailBasePreviewFromDraft(payload, rawDraft) {
 
     for (const locale of localePayloads.keys()) {
       const buildResult = await runCommand(
-        process.execPath,
+        nodeBinary(),
         ["mail", "build-pretty", category, mailId, "--locales", locale],
         emailBaseRoot
       );
@@ -6528,7 +6769,7 @@ async function createEmailBaseMailFromDraft(payload, rawDraft) {
   const localeBuildLogs = {};
   for (const locale of localePayloads.keys()) {
     const buildResult = await runCommand(
-      process.execPath,
+      nodeBinary(),
       ["mail", "build-pretty", category, mailId, "--locales", locale],
       emailBaseRoot
     );
@@ -9956,11 +10197,12 @@ function resolveEffectiveProviderId(settings = {}) {
   const requested = cleanText(settings?.providerId);
 
   if (!requested) {
-    return openAiApiKey ? "openai" : "mock";
+    return openAiApiKey ? "openai" : ollamaConfigured ? "ollama" : "mock";
   }
 
-  if (requested === "mock" && openAiApiKey && !shouldForceMockProvider(settings)) {
-    return "openai";
+  if (requested === "mock" && !shouldForceMockProvider(settings)) {
+    if (openAiApiKey) return "openai";
+    if (ollamaConfigured) return "ollama";
   }
 
   return requested;
@@ -14423,6 +14665,55 @@ async function createOpenAiDiscussion(payload) {
   return { assistantReply: extractResponseText(data) || "Обсуждение готово." };
 }
 
+async function _ollamaCall({ input, format, label, timeoutMs }) {
+  const result = await callOllamaChat({
+    baseUrl: ollamaBaseUrl,
+    model: ollamaModel,
+    input,
+    format,
+    label,
+    timeoutMs,
+  });
+  _trackUsage(result.usage);
+  return result.text;
+}
+
+/**
+ * Local text-first draft path. It deliberately does not auto-run design
+ * vision: Ollama models vary widely in image support, while text prompts and
+ * an already prepared designAnalysis are deterministic inputs.
+ */
+async function createOllamaDraft(payload) {
+  const draftTask = resolveDraftTaskForPayload(payload);
+  const effectivePayload = hydratePayloadTemplateSelection(payload);
+  const schema = draftTask === "cloneEdit" ? cloneEditResponseSchema : responseSchema;
+  const rawText = await _ollamaCall({
+    input: await buildInputMessages(effectivePayload),
+    format: schema,
+    label: draftTask === "cloneEdit" ? "ollama-clone-edit" : "ollama-create-draft",
+    timeoutMs: draftTask === "cloneEdit" ? 300_000 : 180_000,
+  });
+  const parsed = extractStructuredJsonFromModelText(rawText);
+  if (parsed) {
+    return { ...parsed, design_analysis: effectivePayload.designAnalysis || null };
+  }
+  if (draftTask === "cloneEdit") {
+    const recovered = buildCloneEditResponseFromRawHtml(rawText, effectivePayload);
+    if (recovered) return { ...recovered, design_analysis: effectivePayload.designAnalysis || null };
+  }
+  throw new Error("Ollama draft response was not valid structured JSON");
+}
+
+async function createOllamaDiscussion(payload) {
+  const effectivePayload = hydratePayloadTemplateSelection(payload);
+  const assistantReply = await _ollamaCall({
+    input: await buildDiscussionMessages(effectivePayload),
+    label: "ollama-discussion",
+    timeoutMs: 180_000,
+  });
+  return { assistantReply: assistantReply || "Локальное обсуждение готово." };
+}
+
 async function createOpenAiDesignAnalysis(payload) {
   const effectivePayload = hydratePayloadTemplateSelection(payload);
   const inputMessages = await buildDesignAnalysisMessages(effectivePayload);
@@ -14634,6 +14925,23 @@ async function createOpenAiTranslations(payload, mail, sourceEntry, targetLocale
     translations: Array.isArray(parsed.translations)
       ? parsed.translations.map((entry) => normalizeTranslationEntry(entry, mail))
       : []
+  };
+}
+
+async function createOllamaTranslations(payload, mail, sourceEntry, targetLocales) {
+  const rawText = await _ollamaCall({
+    input: buildTranslationMessages(payload, sourceEntry, targetLocales),
+    format: translationResponseSchema,
+    label: "ollama-translations",
+    timeoutMs: 240_000,
+  });
+  const parsed = extractStructuredJsonFromModelText(rawText);
+  if (!parsed) throw new Error("Ollama translation response was not valid structured JSON");
+  return {
+    assistant_reply: cleanText(parsed.assistant_reply) || `Сгенерировал ${targetLocales.length} locale(s) локально.`,
+    translations: Array.isArray(parsed.translations)
+      ? parsed.translations.map((entry) => normalizeTranslationEntry(entry, mail))
+      : [],
   };
 }
 
@@ -15360,6 +15668,37 @@ async function resolveDiscussionResponse(payload) {
     }
   }
 
+  if (providerId === "ollama" && ollamaConfigured) {
+    try {
+      const discussion = await createOllamaDiscussion(payload);
+      return {
+        assistantReply: discussion.assistantReply,
+        mode: "ollama-discuss",
+        ...buildFigmaResponseMetadata(payload),
+        providerRuntime: createProviderRuntime({
+          providerId,
+          mode: "ollama-discuss",
+          liveAttempted: true,
+          liveUsed: true
+        })
+      };
+    } catch (error) {
+      const fallback = createMockDiscussion(payload, error.message);
+      return {
+        assistantReply: fallback.assistantReply,
+        mode: "mock-discuss",
+        ...buildFigmaResponseMetadata(payload),
+        providerRuntime: createProviderRuntime({
+          providerId,
+          mode: "mock-discuss",
+          liveAttempted: true,
+          fallback: true,
+          errorMessage: error.message
+        })
+      };
+    }
+  }
+
   if (providerId === "mock") {
     const discussion = createMockDiscussion(payload, "Mock provider selected in settings");
     return {
@@ -15384,6 +15723,21 @@ async function resolveDiscussionResponse(payload) {
         mode: "mock-discuss",
         fallback: true,
         errorMessage: "OPENAI_API_KEY is not configured on the server"
+      })
+    };
+  }
+
+  if (providerId === "ollama") {
+    const discussion = createMockDiscussion(payload, "OLLAMA_MODEL is not configured or Studio AI is disabled");
+    return {
+      assistantReply: discussion.assistantReply,
+      mode: "mock-discuss",
+      ...buildFigmaResponseMetadata(payload),
+      providerRuntime: createProviderRuntime({
+        providerId,
+        mode: "mock-discuss",
+        fallback: true,
+        errorMessage: "OLLAMA_MODEL is not configured or Studio AI is disabled"
       })
     };
   }
@@ -15457,6 +15811,31 @@ async function resolveDraftResponse(payload) {
         errorMessage: error.message
       });
     }
+  } else if (providerId === "ollama" && ollamaConfigured) {
+    try {
+      generated = await createOllamaDraft(payload);
+      effectivePayload = hydratePayloadTemplateSelection({
+        ...payload,
+        designAnalysis: normalizeDesignAnalysis(generated.design_analysis)
+      });
+      mode = "ollama";
+      providerRuntime = createProviderRuntime({
+        providerId,
+        mode,
+        liveAttempted: true,
+        liveUsed: true
+      });
+    } catch (error) {
+      generated = await createProjectAwareMockDraft(payload, error.message);
+      mode = "mock";
+      providerRuntime = createProviderRuntime({
+        providerId,
+        mode,
+        liveAttempted: true,
+        fallback: true,
+        errorMessage: error.message
+      });
+    }
   } else if (providerId === "mock") {
     generated = await createProjectAwareMockDraft(payload, "Mock provider selected in settings");
     mode = "mock";
@@ -15472,6 +15851,15 @@ async function resolveDraftResponse(payload) {
       mode,
       fallback: true,
       errorMessage: "OPENAI_API_KEY is not configured on the server"
+    });
+  } else if (providerId === "ollama") {
+    generated = await createProjectAwareMockDraft(payload, "OLLAMA_MODEL is not configured or Studio AI is disabled");
+    mode = "mock";
+    providerRuntime = createProviderRuntime({
+      providerId,
+      mode,
+      fallback: true,
+      errorMessage: "OLLAMA_MODEL is not configured or Studio AI is disabled"
     });
   } else {
     generated = await createProjectAwareMockDraft(payload, `${providerId} adapter is planned but not wired yet`);
@@ -16549,6 +16937,16 @@ async function generateMissingLocales(payload, existingDraft = null) {
         errorMessage: error.message
       });
     }
+  } else if (providerId === "ollama" && ollamaConfigured) {
+    try {
+      generated = await createOllamaTranslations(payload, baseMail, sourceEntry, targetLocales);
+      mode = "ollama-translations";
+      providerRuntime = createProviderRuntime({ providerId, mode, liveAttempted: true, liveUsed: true });
+    } catch (error) {
+      generated = createMockTranslations(payload, baseMail, sourceEntry, targetLocales, error.message);
+      mode = "mock-translations";
+      providerRuntime = createProviderRuntime({ providerId, mode, liveAttempted: true, fallback: true, errorMessage: error.message });
+    }
   } else if (providerId === "mock") {
     generated = createMockTranslations(payload, baseMail, sourceEntry, targetLocales, "Mock translation mode selected.");
     mode = "mock-translations";
@@ -16564,6 +16962,16 @@ async function generateMissingLocales(payload, existingDraft = null) {
       mode,
       fallback: true,
       errorMessage: "OPENAI_API_KEY is not configured on the server."
+    });
+  } else if (providerId === "ollama") {
+    const errorMessage = "OLLAMA_MODEL is not configured or Studio AI is disabled.";
+    generated = createMockTranslations(payload, baseMail, sourceEntry, targetLocales, errorMessage);
+    mode = "mock-translations";
+    providerRuntime = createProviderRuntime({
+      providerId,
+      mode,
+      fallback: true,
+      errorMessage
     });
   } else {
     generated = createMockTranslations(payload, baseMail, sourceEntry, targetLocales, `${providerId} adapter is planned but not wired yet.`);
@@ -16689,9 +17097,52 @@ function rejectUnauthorizedRequest(response) {
  * работает в обеих, чтение локалей осмысленно только во второй, и агент сам
  * выбирает подходящие по контексту.
  */
-async function handleStudioAgent(response, body) {
+// Tells the operator exactly what is open in the code workbench, so it acts
+// instead of asking "конструктор или код?" or hunting for source files of a
+// pasted email that has none.
+function workbenchContextNote(ctx) {
+  if (ctx.brand && ctx.mail) {
+    return `[Поверхность: редактор кода. Открыто письмо ${ctx.brand}/${ctx.mail} из базы: стили и разметка в исходниках — list_mail_files → read_mail_file → write_mail_file; разовые правки собранного HTML — find_in_html → replace_in_html. Не спрашивай, конструктор это или код: это код.]`;
+  }
+  return "[Поверхность: редактор кода. Открыт вставленный HTML без исходников (pasted): САМ HTML и есть письмо, list_mail_files/read_mail_file здесь не нужны. " +
+    "Стили, цвета, фон меняй прямо в нём: find_in_html, чтобы найти повторяющийся стиль (например background-color у блоков), затем replace_in_html с replaceAll=true. " +
+    "Правка показывается человеку как предложение — сделай её, а не объясняй, как сделать. Не спрашивай, конструктор это или код: это код.]";
+}
+
+function constructorVerifyMessage(report) {
+  const problems = Array.isArray(report?.problems) ? report.problems.slice(0, 10).map((p) => String(p).slice(0, 200)) : [];
+  const live = report?.live && typeof report.live === "object" ? report.live : null;
+  const lines = ["[Проверка сборки — это сообщение прислала студия, не человек]"];
+  if (problems.length) {
+    lines.push(
+      "Студия НЕ применила твой пакет правок: он откатан целиком, канвас остался как был. Причины:",
+      ...problems.map((p) => `  – ${p}`),
+      "Собери заново, обойдя эти причины (бери блоки только из списка ниже)."
+    );
+  } else if (live) {
+    if (live.ok === false) {
+      lines.push(`Правки применены, но превью не собралось: ${String(live.error || "ошибка").slice(0, 200)} ${String(live.stderr || "").slice(0, 300)}`);
+    } else {
+      lines.push(`Правки применены, превью пересобрано: в письме ${live.blocksUsed ?? "?"} из ${live.totalBlocks ?? "?"} блоков.`);
+      if (Number(live.blocksUsed) < Number(live.totalBlocks)) {
+        lines.push("Часть блоков в письмо НЕ попала — найди какие и почему, поставь их правильно.");
+      }
+      const warnings = Array.isArray(live.warnings) ? live.warnings.slice(0, 10) : [];
+      if (warnings.length) lines.push("Предупреждения сборки:", ...warnings.map((w) => `  – ${String(w).slice(0, 200)}`));
+    }
+  }
+  lines.push(
+    "Сделай: 1) see_email — посмотри на письмо; 2) сверь с просьбой человека из истории разговора:",
+    "   порядок блоков, логотип, картинка, фон, кнопка, футер; 3) исправь то, что не так, инструментами канваса;",
+    "4) finish коротко: что проверил, что исправил, что человеку осталось прислать (тексты, картинку, ссылки).",
+    "Если всё верно — сразу finish одной-двумя фразами, без пересказа."
+  );
+  return lines.join("\n");
+}
+
+async function handleStudioAgent(response, body, actor = null) {
   if (!openAiApiKey) { sendJson(response, 503, { error: "OPENAI_API_KEY is not configured" }); return; }
-  const userMessage = String(body?.message || body?.text || "").trim();
+  let userMessage = String(body?.message || body?.text || "").trim();
   if (!userMessage) { sendJson(response, 400, { error: "message required" }); return; }
 
   const surface = body?.surface === "constructor" ? "constructor" : "workbench";
@@ -16712,6 +17163,20 @@ async function handleStudioAgent(response, body) {
     namespaces,
     activeNamespace,
     activeLocale: cleanText(body?.activeLocale || ""),
+    // Какое письмо открыто. Без этого оператор не мог тронуть ни стили, ни
+    // исходники письма: он видел готовый HTML, но не знал, из каких файлов
+    // тот собран, и на просьбу «поправь отступ в стилях» мог только
+    // пересказать HTML своими словами.
+    brand: cleanText(body?.brand || ""),
+    mail: cleanText(body?.mail || ""),
+    repoRoot: __dirname,
+    // Кто работает: черновик — личная копия, и открывать её некому, если
+    // оператор не знает, от чьего имени он действует.
+    actor,
+    readOnly: Boolean(studioRuntimeFlags.readOnly),
+    // Свой адрес — чтобы пересобрать письмо и посмотреть на него, не
+    // повторяя здесь весь конвейер сборки.
+    studioUrl: `http://127.0.0.1:${port}`,
   };
 
   if (surface === "constructor") {
@@ -16720,6 +17185,8 @@ async function handleStudioAgent(response, body) {
     // что человек собрал прямо сейчас.
     const canvas = Array.isArray(body?.canvas) ? body.canvas : [];
     ctx.canvas = canvas.slice(0, 400);
+    ctx.constructorCatalog = normalizeConstructorCatalog(body?.studio);
+    ctx.constructorMailName = cleanText(body?.mailName || "").slice(0, 80);
     ctx.canvasSummary = canvas.map((entry, index) => ({
       index,
       uid: entry?.uid ?? null,
@@ -16731,6 +17198,16 @@ async function handleStudioAgent(response, body) {
         ? Object.fromEntries(Object.entries(entry.slots).slice(0, 12)
           .map(([k, v]) => [k, String(v ?? "").slice(0, 120)]))
         : {},
+      slotSchema: Array.isArray(entry?.slotSchema)
+        ? entry.slotSchema.slice(0, 40).map((slot) => ({
+          id: String(slot?.id || "").slice(0, 128),
+          kind: String(slot?.kind || "text").slice(0, 32),
+          label: String(slot?.label || slot?.id || "").slice(0, 160),
+          ...(Array.isArray(slot?.options)
+            ? { options: slot.options.slice(0, 50).map((value) => String(value).slice(0, 160)) }
+            : {}),
+        })).filter((slot) => slot.id)
+        : undefined,
     }));
   }
 
@@ -16752,16 +17229,47 @@ async function handleStudioAgent(response, body) {
     images: Array.isArray(body?.images) ? body.images.length : 0,
   }});
 
+  // Проверка сборки: конструктор применил правки агента, пересобрал превью
+  // и прислал отчёт. Агент смотрит на настоящий результат и доделывает.
+  const isVerify = surface === "constructor" && body?.verify === true;
+  const humanMessage = userMessage;
+  if (isVerify) {
+    userMessage = constructorVerifyMessage(body?.verifyReport || {});
+  }
+
+  // Один разговор на обе поверхности: история — с сервера, а не из вкладки.
+  let thread = null;
+  try {
+    thread = readThread(__dirname, actor);
+    noteSurface(__dirname, actor, surface, surface === "constructor"
+      ? {
+        письмо: ctx.constructorMailName || "без имени",
+        бренд: ctx.constructorCatalog?.brand?.label || "",
+        набор: ctx.constructorCatalog?.kit || "",
+        блоков: Array.isArray(ctx.canvasSummary) ? ctx.canvasSummary.length : 0,
+      }
+      : {
+        письмо: ctx.brand && ctx.mail ? `${ctx.brand}/${ctx.mail}` : (ctx.html ? "вставленный HTML" : "ничего не открыто"),
+        namespace: activeNamespace ? activeNamespace.name : "",
+        локаль: ctx.activeLocale || "",
+      });
+  } catch { thread = null; }
+  const otherSurface = thread ? describeOtherSurface(thread, surface) : "";
+  const sharedHistory = thread && thread.messages.length
+    ? historyForModel(thread)
+    : (Array.isArray(body?.messages) ? body.messages : []);
+
   try {
     const result = await runAgent({
+      maxSteps: surface === "constructor" ? 24 : undefined,
       userMessage: surface === "constructor"
-        ? `${userMessage}\n\n[Поверхность: конструктор писем. Текущее дерево блоков:\n${JSON.stringify(ctx.canvasSummary || [], null, 1).slice(0, 6000)}\n]`
-        : userMessage,
-      history: Array.isArray(body?.messages) ? body.messages : [],
+        ? `${userMessage}\n\n[Поверхность: конструктор писем${ctx.constructorMailName ? ` (письмо ${ctx.constructorMailName})` : ""}.\n${describeCatalogForAgent(ctx.constructorCatalog)}\nТекущее дерево блоков:\n${JSON.stringify(ctx.canvasSummary || [], null, 1).slice(0, 6000)}\n]` + (otherSurface ? `\n${otherSurface}` : "")
+        : `${userMessage}\n\n${workbenchContextNote(ctx)}${otherSurface ? `\n${otherSurface}` : ""}`,
+      history: sharedHistory,
       images: Array.isArray(body?.images) ? body.images : [],
       ctx,
       apiKey: openAiApiKey,
-      model: "gpt-4.1-mini",
+      model: resolveOpenAiModelForTask("agent"),
       onFrame: send,
     });
     try {
@@ -16777,6 +17285,13 @@ async function handleStudioAgent(response, body) {
         },
       });
     } catch { /* журнал не должен ронять ответ */ }
+    try {
+      appendTurn(__dirname, actor, {
+        surface,
+        user: isVerify ? "" : humanMessage,
+        assistant: result.summary,
+      });
+    } catch { /* память разговора не должна ронять ответ */ }
     send({ kind: "final", payload: {
       summary: result.summary,
       modifiedHtml: result.modifiedHtml || "",
@@ -16801,7 +17316,9 @@ const server = http.createServer(async (request, response) => {
         ok: true,
         service: "retention-future",
         node: process.version,
-        authEnabled: appAuthEnabled
+        authEnabled: appAuthEnabled,
+        aiEnabled: studioRuntimeFlags.aiEnabled,
+        publicDemo: studioRuntimeFlags.publicDemo
       });
       return;
     }
@@ -16811,6 +17328,30 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
+    // Кто пришёл. Дальше этим пользуются замки на письма и личные черновики:
+    // без ответа «чья это рука» они невозможны. Сбой хранилища меток не должен
+    // ронять студию — тогда работаем как раньше, безымянно.
+    try {
+      const { actor, issued } = resolveActor(__dirname, request, {
+        demo: studioRuntimeFlags.readOnly,
+      });
+      request.retkitActor = actor;
+      if (issued) {
+        response.setHeader("Set-Cookie", actorCookieHeader(actor.token, {
+          secure: String(request.headers["x-forwarded-proto"] || "").includes("https"),
+        }));
+      }
+    } catch (actorError) {
+      console.warn("[actor] не удалось определить актёра:", actorError.message);
+    }
+
+    // Домены переезжают из этой лестницы в маршрутизатор по одному.
+    // Первым уехал «кто работает и в чьём черновике»: его поведение целиком
+    // описано тестами, значит переезд можно сверить. Не своё маршрутизатор
+    // пропускает — лестница ниже работает как работала.
+    if (await studioRouter.dispatch(request, response)) return;
+
+
     if (request.method === "GET" && request.url.startsWith("/studio-assets/")) {
       await serveStudioAsset(request, response);
       return;
@@ -16818,11 +17359,6 @@ const server = http.createServer(async (request, response) => {
 
     if (request.method === "OPTIONS" && request.url === "/api/figma/import") {
       sendText(response, 204, "", "text/plain; charset=utf-8", getFigmaImportCorsHeaders());
-      return;
-    }
-
-    if (request.method === "GET" && request.url === "/api/figma/status") {
-      sendJson(response, 200, summarizeFigmaIntegration(), getFigmaImportCorsHeaders());
       return;
     }
 
@@ -16866,36 +17402,6 @@ const server = http.createServer(async (request, response) => {
     }
 
     // ─── DeepL endpoints ──────────────────────────────────────────────────
-
-    if (request.method === "GET" && request.url === "/api/deepl/status") {
-      sendJson(response, 200, {
-        available: Boolean(deepLApiKey),
-        apiUrl: deepLApiUrl
-      });
-      return;
-    }
-
-    if (request.method === "POST" && request.url === "/api/deepl/translate") {
-      if (!deepLApiKey) {
-        sendJson(response, 400, { error: "DEEPL_API_KEY is not configured on the server" });
-        return;
-      }
-      const body = await readRequestBody(request);
-      const texts = Array.isArray(body?.texts) ? body.texts : [cleanText(body?.text)].filter(Boolean);
-      const targetLocale = cleanText(body?.targetLocale || body?.target_locale);
-      const sourceLocale = cleanText(body?.sourceLocale || body?.source_locale || "");
-      if (!targetLocale) {
-        sendJson(response, 400, { error: "targetLocale is required" });
-        return;
-      }
-      try {
-        const translated = await deeplTranslateTexts(texts, targetLocale, sourceLocale);
-        sendJson(response, 200, { translated });
-      } catch (err) {
-        sendJson(response, 500, { error: err.message });
-      }
-      return;
-    }
 
     if (request.method === "POST" && request.url === "/api/figma/import") {
       const rawPayload = await readRequestBody(request);
@@ -16968,6 +17474,16 @@ const server = http.createServer(async (request, response) => {
         }
       });
 
+      // Плагин прислал макет — положим его в ящик, иначе человек нажимает
+      // «Отправить в студию», переключается в студию и не видит там ничего:
+      // ответ уходил плагину и на этом путь без токена заканчивался.
+      const pluginImport = payloadForNormalization?.figmaImport && typeof payloadForNormalization.figmaImport === "object"
+        ? payloadForNormalization.figmaImport
+        : payloadForNormalization;
+      const inbox = receiveFigmaPluginImport(pluginImport, {
+        blocks: () => attachPreviews(listCanonicalBlocks()),
+      });
+
       const designDecomposition = buildNormalizedDesignDecomposition({ designSchema: result.designSchema }, result.designSchema);
       const designMappingHints = buildNormalizedDesignMappingHints({ designSchema: result.designSchema }, result.designSchema);
       const designBlockRecommendations = buildNormalizedDesignBlockRecommendations({
@@ -16984,6 +17500,9 @@ const server = http.createServer(async (request, response) => {
         designBlockRecommendations,
         composePlan: (() => { try { return buildComposePlanFromDesign({ schema: result.designSchema }); } catch (e) { return { plan: [], warnings: [String(e && e.message || e)] }; } })(),
         figmaEnrichment: responseFigmaEnrichment,
+        // Плагину важно знать, дошло ли до студии: «отправил и тишина» —
+        // это ровно то состояние, из-за которого путь считали нерабочим.
+        studioInbox: inbox,
         decompositionSummary: summarizeDesignDecomposition(designDecomposition),
         mappingSummary: summarizeDesignMappingHints(designMappingHints),
         blockRecommendationSummary: summarizeDesignBlockRecommendations(designBlockRecommendations),
@@ -16999,14 +17518,6 @@ const server = http.createServer(async (request, response) => {
           `Figma intake mode: ${result.intake.mode}.`,
           result.intake.recommendedNextStep
         ].filter(Boolean).join(" ")
-      }, getFigmaImportCorsHeaders());
-      return;
-    }
-
-    if (request.method === "GET" && request.url === "/api/figma/contract") {
-      sendJson(response, 200, {
-        figma: summarizeFigmaIntegration(),
-        contract: getFigmaIntegrationContract()
       }, getFigmaImportCorsHeaders());
       return;
     }
@@ -17036,76 +17547,6 @@ const server = http.createServer(async (request, response) => {
         assetRegistry: summarizeAssetRegistry(assetRegistry),
         journal: summarizeStudioJournal(journal),
         projectRules: summarizeProjectRules(projectRules)
-      });
-      return;
-    }
-
-    if (request.method === "GET" && request.url === "/api/eval/status") {
-      sendJson(response, 200, {
-        evalBenchmark: summarizeEvalFoundation()
-      });
-      return;
-    }
-
-    if (request.method === "POST" && request.url === "/api/design/decompose") {
-      const rawPayload = await readRequestBody(request);
-      const payload = await enrichPayloadWithServerSideFigma(normalizePayload(rawPayload));
-      const decomposeFigmaEnrichment = payload?.figmaEnrichment && typeof payload.figmaEnrichment === "object"
-        ? payload.figmaEnrichment
-        : hasDetailedFigmaImportPayload(payload?.design?.figmaImport)
-          ? {
-              source: cleanText(payload?.design?.figmaImport?.source) || "structured-import",
-              structured: true,
-              structuredCoverage: summarizeNormalizedFigmaImportCoverage(payload?.design?.figmaImport),
-              summary: buildFigmaIntakeSummary({
-                figmaImport: payload?.design?.figmaImport,
-                readiness: assessFigmaIntakeReadiness(cleanText(payload?.brief?.designUrl), {
-                  hasStructured: true,
-                  hasVisual: Boolean(cleanText(payload?.design?.dataUrl))
-                }),
-                importMethod: cleanText(payload?.design?.figmaImport?.source) || "structured-import",
-                hasLink: Boolean(cleanText(payload?.brief?.designUrl)),
-                hasVisual: Boolean(cleanText(payload?.design?.dataUrl))
-              }).text
-            }
-          : null;
-      sendJson(response, 200, {
-        designSchema: payload.designSchema,
-        designDecomposition: payload.designDecomposition,
-        designMappingHints: payload.designMappingHints,
-        designBlockRecommendations: payload.designBlockRecommendations,
-        figmaEnrichment: decomposeFigmaEnrichment,
-        summary: summarizeDesignDecomposition(payload.designDecomposition),
-        mappingSummary: summarizeDesignMappingHints(payload.designMappingHints),
-        blockRecommendationSummary: summarizeDesignBlockRecommendations(payload.designBlockRecommendations)
-      });
-      return;
-    }
-
-    if (request.method === "POST" && request.url === "/api/eval/score") {
-      const rawPayload = await readRequestBody(request);
-      const snapshot = readEvalBenchmarkSnapshot(evalBenchmarkPath);
-      const benchmarkCase = rawPayload?.caseId
-        ? findEvalBenchmarkCase(snapshot, rawPayload.caseId)
-        : rawPayload?.benchmarkCase;
-
-      if (!benchmarkCase) {
-        sendJson(response, 400, {
-          error: "Benchmark case not found",
-          evalBenchmark: summarizeEvalBenchmark(snapshot)
-        });
-        return;
-      }
-
-      const result = scoreEvalCase(benchmarkCase, {
-        draft: rawPayload?.draft,
-        templateSelection: rawPayload?.templateSelection,
-        providerRuntime: rawPayload?.providerRuntime
-      });
-
-      sendJson(response, 200, {
-        benchmarkCase,
-        result
       });
       return;
     }
@@ -17373,7 +17814,7 @@ const server = http.createServer(async (request, response) => {
               });
               const built = await new Promise((resolve) => {
                 const args = constructorBuildMailArgs({ brand, mailName: buildMailName, preview: true });
-                const child = spawn(process.execPath, args, {
+                const child = spawn(nodeBinary(), args, {
                   cwd: tmpDir,
                   env: buildSubprocessEnv,
                   stdio: ["ignore", "pipe", "pipe"],
@@ -17451,8 +17892,26 @@ const server = http.createServer(async (request, response) => {
         const destFolder = path.join(__dirname, "email-base", brand, "mail-" + rawName);
         const distFolder = path.join(__dirname, "email-base", "dist", brand, "mail-" + rawName);
         const force = body?.force === true;
+        // Права спрашиваем до любых действий с диском. Если письмо сейчас
+        // правит другой человек (или чей-то агент), сохранение обязано
+        // остановиться здесь — после подмены папки будет поздно.
+        await assertMailWritable(__dirname, {
+          brand,
+          mail: rawName,
+          actor: request.retkitActor,
+          readOnly: studioRuntimeFlags.readOnly,
+          reason: "сохранение из конструктора",
+        });
         releaseComposeSaveLock = await acquireKeyedOperationLock(`mail:${brand}/mail-${rawName}`);
         const hadExistingOutput = existsSync(destFolder) || existsSync(distFolder);
+        // Перезапись существующего письма — самое дорогое действие в студии, и
+        // именно его чаще всего делает агент. Снимок стоит копейки и
+        // превращает «он поменял не то» из расследования в кнопку возврата.
+        if (hadExistingOutput && force) {
+          await snapshotMail(__dirname, {
+            brand, mail: rawName, actor: request.retkitActor, note: "перед пересборкой из конструктора",
+          }).catch((error) => console.warn("[history] снимок не сделан:", error.message));
+        }
         if (hadExistingOutput && !force) {
           sendJson(response, 409, {
             error: "mail already exists",
@@ -17461,19 +17920,35 @@ const server = http.createServer(async (request, response) => {
           });
           return;
         }
+        // Parsed definitions may bypass the reusable-block approval lifecycle
+        // only for a real, server-resolved source mail. This preserves the
+        // parse-email round-trip without turning arbitrary ad-hoc definitions
+        // into approved library blocks.
+        const _skB = String(body?.sourceBrand || "").replace(/[^a-zA-Z0-9_]/g, "");
+        const _skM = String(body?.sourceMail || "").replace(/[^a-zA-Z0-9_-]/g, "");
+        const _skP = (_skB && _skM && existsSync(path.join(__dirname, "email-base", _skB, _skM)))
+          ? path.join(__dirname, "email-base", _skB, _skM)
+          : undefined;
+        const parsedProvenance = assertTrustedParsedBlockProvenance({
+          blocks,
+          sourceMailRoot: _skP,
+          sourceMail: _skM,
+        });
         // Run the shared compose-core validation before the transaction moves
         // an existing source/dist tree to backup. This rejects local/private
         // asset URLs without performing any destructive filesystem operation.
+        const campaign = String(body?.campaign || "").trim();
         composeEmailFromBlocks({
           brand,
           mailName: rawName,
           blocks,
+          campaign,
           destRoot: path.join(__dirname, "email-base"),
           validateOnly: true,
+          requireApprovedBlocks: true,
+          allowTrustedParsedBlocks: parsedProvenance.verified,
         });
         // Compose into email-base directly.
-        const _skB = String(body?.sourceBrand||"").replace(/[^a-zA-Z0-9_]/g,""); const _skM = String(body?.sourceMail||"").replace(/[^a-zA-Z0-9_-]/g,"");
-        const _skP = (_skB && _skM && existsSync(path.join(__dirname,"email-base",_skB,_skM))) ? path.join(__dirname,"email-base",_skB,_skM) : undefined;
         const stagedSkeleton = await stageComposeSkeletonIfDestination(_skP, destFolder);
         let transactionResult;
         try {
@@ -17483,15 +17958,17 @@ const server = http.createServer(async (request, response) => {
             force,
           }, async () => {
             const composed = composeEmailFromBlocks({
-              brand, mailName: rawName, blocks,
+              brand, mailName: rawName, blocks, campaign,
               destRoot: path.join(__dirname, "email-base"),
+              requireApprovedBlocks: true,
+              allowTrustedParsedBlocks: parsedProvenance.verified,
               preserveSkeletonPreheader: Boolean(_skP),
               trustedSkeletonRoots: stagedSkeleton.staged ? [stagedSkeleton.skeleton] : [],
               ...(stagedSkeleton.skeleton ? { skeleton: stagedSkeleton.skeleton } : {}),
             });
             const built = await new Promise((resolve) => {
               const args = constructorBuildMailArgs({ brand, mailName: rawName, preview: false });
-              const child = spawn(process.execPath, args, {
+              const child = spawn(nodeBinary(), args, {
                 cwd: path.join(__dirname, "email-base"),
                 env: buildSubprocessEnv,
                 stdio: ["ignore", "pipe", "pipe"],
@@ -17542,7 +18019,17 @@ const server = http.createServer(async (request, response) => {
           warnings: composed.warnings,
         });
       } catch (err) {
-        sendJson(response, 500, { error: String(err && err.message ? err.message : err) });
+        // Занятое письмо и витрина — не «ошибка сервера», а понятный отказ:
+        // человеку важно прочитать, кто держит письмо, а не увидеть 500.
+        const status = err instanceof MailStoreError
+          ? mailStoreStatus(err)
+          : Number(err?.statusCode) || 500;
+        sendJson(response, status, {
+          error: String(err && err.message ? err.message : err),
+          ...(err?.code ? { code: err.code } : {}),
+          ...(err?.holder ? { holder: err.holder } : {}),
+          ...(err?.validation ? { validation: err.validation } : {}),
+        });
       } finally {
         releaseComposeSaveLock?.();
       }
@@ -17551,27 +18038,6 @@ const server = http.createServer(async (request, response) => {
 
     if (request.method === "GET" && request.url === "/api/block-catalog") {
       sendJson(response, 200, await ensureBlockCatalog());
-      return;
-    }
-
-    if (request.method === "GET" && request.url === "/api/template-family-profiles") {
-      sendJson(response, 200, readTemplateFamilyProfilesSnapshot());
-      return;
-    }
-
-    if (request.method === "GET" && request.url === "/api/mail-structure-profiles") {
-      sendJson(response, 200, await ensureMailStructureProfiles());
-      return;
-    }
-
-    if (request.method === "POST" && request.url === "/api/mail-structure-profiles/refresh") {
-      const profiles = await ensureMailStructureProfiles({ force: true });
-      await appendStudioJournalEntry({
-        area: "catalog",
-        title: "Mail structure profiles refreshed",
-        message: `Mail structure profiles now contain ${profiles.items.length} mail profile(s).`
-      });
-      sendJson(response, 200, profiles);
       return;
     }
 
@@ -17586,137 +18052,7 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
-    // Где лежат картинки и получают ли они публичный адрес. UI по этому
-    // статусу честно предупреждает: локальные ссылки в рассылке не работают.
-    if (request.method === "GET" && request.url === "/api/assets/status") {
-      sendJson(response, 200, assetStorageStatus());
-      return;
-    }
-
-    if (request.method === "GET" && request.url === "/api/assets") {
-      const registry = await readAssetRegistry();
-      sendJson(response, 200, {
-        items: registry.items,
-        summary: summarizeAssetRegistry(registry)
-      });
-      return;
-    }
-
-    if (request.method === "POST" && request.url === "/api/assets/register") {
-      const payload = await readRequestBody(request);
-      const result = await registerUploadedAssets(Array.isArray(payload?.files) ? payload.files : []);
-      await appendStudioJournalEntry({
-        area: "assets",
-        title: "Assets uploaded",
-        message: `Registered ${result.items.length} file(s) in asset library.`,
-        meta: {
-          count: result.items.length
-        }
-      });
-      sendJson(response, 200, result);
-      return;
-    }
-
-    if (request.method === "POST" && request.url === "/api/assets/generate") {
-      if (!openAiApiKey) {
-        sendJson(response, 503, { error: "OPENAI_API_KEY is not configured" });
-        return;
-      }
-      try {
-        const payload = await readRequestBody(request);
-        const result = await generateOpenAiImageAsset({
-          prompt: payload?.prompt,
-          size: cleanText(payload?.size),
-          quality: cleanText(payload?.quality),
-        });
-        await appendStudioJournalEntry({
-          area: "assets",
-          title: "AI image generated",
-          message: `Generated ${cleanText(result.item?.label) || "image"} with ${result.model}.`,
-          meta: { assetId: result.item?.id, model: result.model, size: result.size, quality: result.quality },
-        });
-        sendJson(response, 200, { ok: true, ...result });
-      } catch (error) {
-        const message = String(error?.message || error);
-        const status = /prompt is too short/i.test(message) ? 400 : 502;
-        sendJson(response, status, { error: message });
-      }
-      return;
-    }
-
-    if (request.method === "POST" && request.url === "/api/assets/update") {
-      const payload = await readRequestBody(request);
-      const result = await updateAssetRegistryEntry(payload?.id, payload?.patch || {});
-      await appendStudioJournalEntry({
-        area: "assets",
-        title: "Asset updated",
-        message: cleanText(payload?.patch?.externalUrl)
-          ? `Linked asset ${cleanText(result.item.label) || cleanText(result.item.id)} to external URL.`
-          : `Updated asset ${cleanText(result.item.label) || cleanText(result.item.id)}.`,
-        meta: {
-          assetId: cleanText(result.item.id)
-        }
-      });
-      sendJson(response, 200, result);
-      return;
-    }
-
-    if (request.method === "GET" && request.url === "/api/journal") {
-      const journal = await readStudioJournal();
-      sendJson(response, 200, {
-        entries: journal.entries,
-        summary: summarizeStudioJournal(journal)
-      });
-      return;
-    }
-
-    if (request.method === "POST" && request.url === "/api/journal/clear") {
-      const journal = await clearStudioJournal();
-      sendJson(response, 200, {
-        entries: journal.entries,
-        summary: summarizeStudioJournal(journal)
-      });
-      return;
-    }
-
-    if (request.method === "GET" && request.url === "/api/project-rules") {
-      const rules = await readProjectRules();
-      sendJson(response, 200, {
-        items: rules.items,
-        summary: summarizeProjectRules(rules)
-      });
-      return;
-    }
-
-    if (request.method === "POST" && request.url === "/api/project-rules") {
-      const payload = await readRequestBody(request);
-      const rules = await appendProjectRule(payload?.text, payload?.source);
-      await appendStudioJournalEntry({
-        area: "rules",
-        title: "Project rule saved",
-        message: cleanText(payload?.text)
-      });
-      sendJson(response, 200, {
-        items: rules.items,
-        summary: summarizeProjectRules(rules)
-      });
-      return;
-    }
-
-    if (request.method === "POST" && request.url === "/api/project-rules/clear") {
-      const rules = await clearProjectRules();
-      await appendStudioJournalEntry({
-        area: "rules",
-        title: "Project rules cleared",
-        message: "Project rules list was reset."
-      });
-      sendJson(response, 200, {
-        items: rules.items,
-        summary: summarizeProjectRules(rules)
-      });
-      return;
-    }
-
+    // ── Бренды: список, создание, правка темы ───────────────────────────────
     if (request.method === "POST" && request.url === "/api/chat") {
       const payload = normalizePayload(await readRequestBody(request));
       payload.projectRules = (await readProjectRules()).items;
@@ -17854,64 +18190,6 @@ const server = http.createServer(async (request, response) => {
         return;
       }
       sendJson(response, 200, { ok: true, contentMap });
-      return;
-    }
-
-    if (request.method === "POST" && request.url === "/api/layout-model/inspect") {
-      let payload = normalizePayload(await readRequestBody(request));
-      payload = await enrichPayloadWithServerSideFigma(payload);
-      const html = cleanText(payload?.baseEmailHtml)
-        || cleanText(payload?.currentDraft?.html)
-        || cleanText(payload?.currentDraft?.mail?.html);
-      const contentMap = html ? extractEmailHtmlContentMap(html) : getCloneEditContentMap(payload);
-      const layoutModel = buildLayoutModel({
-        brief: payload?.brief,
-        contentMap,
-        screenshotOcr: payload?.screenshotOcr,
-        designSchema: payload?.designSchema,
-        designAnalysis: payload?.designAnalysis,
-        draft: payload?.currentDraft ? { ...payload.currentDraft } : null
-      });
-
-      sendJson(response, 200, {
-        ok: Boolean(layoutModel),
-        layoutModel,
-        summary: summarizeLayoutModel(layoutModel),
-        meta: summarizeLayoutModelMeta(layoutModel)
-      });
-      return;
-    }
-
-    if (request.method === "GET" && request.url === "/api/scenarios") {
-      const scenarios = listScenarioFixtures(scenarioFixturesDir);
-      sendJson(response, 200, {
-        ok: true,
-        count: scenarios.length,
-        scenarios: scenarios.map((entry) => ({
-          id: entry.id,
-          title: entry.title,
-          description: entry.description,
-          type: entry.type,
-          tags: entry.tags,
-          fileName: entry.fileName
-        }))
-      });
-      return;
-    }
-
-    if (request.method === "POST" && request.url === "/api/scenarios/save") {
-      const body = await readRequestBody(request);
-      const scenario = body?.scenario && typeof body.scenario === "object" ? body.scenario : body;
-      const saved = await saveScenarioFixture(scenarioFixturesDir, scenario, {
-        overwrite: Boolean(body?.overwrite)
-      });
-      sendJson(response, 200, {
-        ok: true,
-        id: saved.id,
-        fileName: saved.fileName,
-        filePath: saved.filePath,
-        scenario: saved.scenario
-      });
       return;
     }
 
@@ -18117,7 +18395,7 @@ const server = http.createServer(async (request, response) => {
 
       // Rebuild for the new locale to get preview HTML
       const buildResult = await runCommand(
-        process.execPath,
+        nodeBinary(),
         ["mail", "build-pretty", category, mailId, "--locales", locale],
         emailBaseRoot
       );
@@ -18152,208 +18430,9 @@ const server = http.createServer(async (request, response) => {
 
     // ─── AI Lessons endpoints ───────────────────────────────────────────
 
-    if (request.method === "GET" && request.url === "/api/ai/lessons") {
-      const lessons = await readAiLessons();
-      sendJson(response, 200, lessons);
-      return;
-    }
-
-    if (request.method === "POST" && request.url === "/api/ai/lesson") {
-      const body = await readRequestBody(request);
-      const lesson = await appendAiLesson({
-        category: cleanText(body?.category) || "general",
-        mistake: cleanText(body?.mistake),
-        correction: cleanText(body?.correction),
-        tags: Array.isArray(body?.tags) ? body.tags : [],
-        source: cleanText(body?.source) || "user"
-      });
-      await appendStudioJournalEntry({
-        area: "ai-lessons",
-        title: "AI lesson saved",
-        message: `Lesson: ${lesson.mistake.slice(0, 80)}...`
-      });
-      sendJson(response, 200, { ok: true, lesson });
-      return;
-    }
-
-    if (request.method === "DELETE" && request.url.startsWith("/api/ai/lesson/")) {
-      const lessonId = request.url.replace("/api/ai/lesson/", "").split("?")[0];
-      const result = await deleteAiLesson(lessonId);
-      sendJson(response, 200, result);
-      return;
-    }
-
-    if (request.method === "POST" && request.url === "/api/ai/lessons/clear") {
-      try { dbLessonsClear(); } catch { /* ignore */ }
-      sendJson(response, 200, { ok: true });
-      return;
-    }
-
-    // ─── Figma Inspect endpoint (parse URL → fetch Figma REST API) ──────
-
-    if (request.method === "POST" && request.url === "/api/figma/inspect") {
-      const body = await readRequestBody(request);
-      const figmaUrl = cleanText(body?.url);
-
-      if (!figmaUrl) {
-        sendJson(response, 400, { error: "url is required" });
-        return;
-      }
-
-      if (!figmaApiToken) {
-        const parsed = parseFigmaUrl(figmaUrl);
-        sendJson(response, 400, {
-          error: "FIGMA_API_TOKEN is not configured. Add it to your .env file to enable Figma inspection.",
-          parsed
-        });
-        return;
-      }
-
-      try {
-        const result = await inspectFigmaUrl(figmaUrl, figmaApiToken);
-        sendJson(response, 200, { ok: true, ...result });
-      } catch (err) {
-        sendJson(response, 400, { error: err.message });
-      }
-      return;
-    }
-
-    // ─── Figma Browse — list pages + frames from a file ──────────────────
-    // POST /api/figma/browse  Body: { url } or { fileKey }
-    // Response: { fileName, pages: [{ id, name, frames: [{ id, name, width, height }] }] }
-    if (request.method === "POST" && request.url === "/api/figma/browse") {
-      const body = await readRequestBody(request);
-      if (!figmaApiToken) {
-        sendJson(response, 400, { error: "FIGMA_API_TOKEN is not configured. Add it to .env." });
-        return;
-      }
-      let fileKey = cleanText(body?.fileKey);
-      if (!fileKey && body?.url) {
-        const parsed = parseFigmaUrl(cleanText(body.url));
-        if (!parsed) { sendJson(response, 400, { error: "Could not parse Figma URL" }); return; }
-        fileKey = parsed.fileKey;
-      }
-      if (!fileKey) { sendJson(response, 400, { error: "fileKey or url required" }); return; }
-      try {
-        const result = await browseFigmaFile(fileKey, figmaApiToken);
-        sendJson(response, 200, result);
-      } catch (err) {
-        sendJson(response, 400, { error: err.message });
-      }
-      return;
-    }
-
-    // ─── Figma Export Images — export nodes as PNGs, save to studio-assets ─
-    // POST /api/figma/export-images
-    // Body: { fileKey, nodeIds: string[], format?: 'png'|'jpg'|'svg', scale?: 1|2|3, save?: bool }
-    // Response: { images: [{ nodeId, name?, url, assetUrl? }] }
-    if (request.method === "POST" && request.url === "/api/figma/export-images") {
-      const body = await readRequestBody(request);
-      if (!figmaApiToken) {
-        sendJson(response, 400, { error: "FIGMA_API_TOKEN is not configured. Add it to .env." });
-        return;
-      }
-      const fileKey = cleanText(body?.fileKey);
-      const rawIds  = Array.isArray(body?.nodeIds) ? body.nodeIds.map(String) : [];
-      const format  = ["png", "jpg", "svg", "pdf"].includes(body?.format) ? body.format : "png";
-      const scale   = [1, 2, 3].includes(Number(body?.scale)) ? Number(body.scale) : 2;
-      const save    = body?.save !== false; // default true — save to studio-assets
-
-      if (!fileKey || !rawIds.length) {
-        sendJson(response, 400, { error: "fileKey and nodeIds[] required" });
-        return;
-      }
-
-      try {
-        // Step 1: get Figma-hosted download URLs for each node
-        const urlMap = await exportFigmaImages(fileKey, rawIds, figmaApiToken, { format, scale });
-
-        // Step 2: optionally download each image and register in studio-assets
-        const results = [];
-        for (const [nodeId, figmaUrl] of Object.entries(urlMap)) {
-          if (!figmaUrl) {
-            results.push({ nodeId, url: null, error: "Figma returned no URL for this node" });
-            continue;
-          }
-          if (!save) {
-            results.push({ nodeId, url: figmaUrl });
-            continue;
-          }
-          try {
-            const { buffer, contentType } = await downloadImageBuffer(figmaUrl);
-            // Build filename: sanitize nodeId "123:456" → "figma-123-456.png"
-            const ext      = format === "jpg" ? "jpg" : format === "svg" ? "svg" : "png";
-            const safeName = `figma-${nodeId.replace(/[^a-z0-9]/gi, "-")}.${ext}`;
-            const assetPath = path.join(assetStorageDir, safeName);
-            await mkdir(assetStorageDir, { recursive: true });
-            await writeFile(assetPath, buffer);
-            const assetUrl = `/studio-assets/${safeName}`;
-            results.push({ nodeId, url: figmaUrl, assetUrl, fileName: safeName, contentType });
-          } catch (dlErr) {
-            results.push({ nodeId, url: figmaUrl, error: dlErr.message });
-          }
-        }
-        sendJson(response, 200, { images: results });
-      } catch (err) {
-        sendJson(response, 400, { error: err.message });
-      }
-      return;
-    }
-
     // ─── Block-assembly pipeline ─────────────────────────────────────────
 
-    if (request.method === "POST" && request.url === "/api/email-base/assemble") {
-      const body = await readRequestBody(request);
-      const { category, mailId, blocks, referenceMailType, locale, subject } = body || {};
-
-      if (!category || !mailId) {
-        sendJson(response, 400, { error: "category and mailId are required" });
-        return;
-      }
-
-      try {
-        const result = await assembleEmail({
-          category: cleanText(category),
-          mailId: cleanText(mailId),
-          blocks: Array.isArray(blocks) ? blocks : [],
-          referenceMailType: cleanText(referenceMailType) || null,
-          locale: cleanText(locale) || "en",
-          subject: cleanText(subject) || ""
-        });
-
-        await appendStudioJournalEntry({
-          area: "assembler",
-          title: "Email assembled",
-          message: `Assembled ${category}/mail-${mailId} with ${result.blocksWritten || 0} block(s).`,
-          meta: { category, mailId, blocks: result.blocksWritten }
-        });
-
-        sendJson(response, 200, { ok: true, result });
-      } catch (err) {
-        sendJson(response, 500, { error: err.message });
-      }
-      return;
-    }
-
     // ─── Block catalog endpoints ──────────────────────────────────────────
-
-    if (request.method === "GET" && request.url === "/api/email-base/blocks") {
-      try {
-        const catalogPath = path.join(studioDataDir, "block-catalog.json");
-        if (!existsSync(catalogPath)) {
-          sendJson(response, 200, { items: [] });
-          return;
-        }
-        const raw = readFileSync(catalogPath, "utf-8");
-        const catalog = JSON.parse(raw);
-        const { enrichCatalogWithPaths } = await import("./src/assembler.js");
-        const enriched = enrichCatalogWithPaths(catalog?.items || []);
-        sendJson(response, 200, { items: enriched });
-      } catch (err) {
-        sendJson(response, 500, { error: err.message });
-      }
-      return;
-    }
 
     // ─── Email base tree (brand → mail browser) ──────────────────────────
 
@@ -18362,7 +18441,7 @@ const server = http.createServer(async (request, response) => {
         const brands = listDirectoryNames(emailBaseRoot, (n) => n.startsWith("X_") && !n.startsWith("_"));
         const tree = brands.map((brand) => {
           const brandPath = path.join(emailBaseRoot, brand);
-          const mails = listDirectoryNames(brandPath, (n) => n.startsWith("mail-"));
+          const mails = listDirectoryNames(brandPath, (n) => n.startsWith("mail-") && !isDraftFolder(n));
           return {
             brand,
             label: brand.replace(/^X_/, ""),
@@ -18444,17 +18523,11 @@ const server = http.createServer(async (request, response) => {
 
     // ─── Email base deep context (for AI debugging) ──────────────────────
 
-    if (request.method === "GET" && request.url === "/api/email-base/deep-context") {
-      const context = buildEmailBaseDeepContext();
-      sendJson(response, 200, { context });
-      return;
-    }
-
     // POST /api/email-base/scaffold — create a new system email from a template
     // Body: { category, templateMail, newMailId, localeContent?, buildAfter? }
     // Response: { mailRoot, namespace, tokenKeys, blockCount, previewHtml? }
     if (request.method === "POST" && request.url === "/api/email-base/scaffold") {
-      const payload = await readJsonBody(request);
+      const payload = await readRequestBody(request);
       const category = cleanText(payload?.category);
       const templateMail = cleanText(payload?.templateMail);
       const newMailId = cleanText(payload?.newMailId);
@@ -18488,7 +18561,7 @@ const server = http.createServer(async (request, response) => {
             const mailTemplatesRoot = path.join(emailBaseRoot, category, `mail-${safeNewMailId}`, "app", "templates");
             const locale = "en";
             await withPreferredTemplateSource(mailTemplatesRoot, () =>
-              runCommand(process.execPath, ["mail", "build-pretty", category, safeNewMailId, "--locales", locale], emailBaseRoot)
+              runCommand(nodeBinary(), ["mail", "build-pretty", category, safeNewMailId, "--locales", locale], emailBaseRoot)
             );
             const distDir = path.join(emailBaseRoot, "dist", category, `mail-${safeNewMailId}`, locale);
             const prettyPath = path.join(distDir, "index.pretty.html");
@@ -18524,79 +18597,12 @@ const server = http.createServer(async (request, response) => {
     // POST /api/email-base/patch-theme — apply brand theme to a mail's styles
     // Body: { category, mailId, theme: BrandTheme, buildAfter?, save? }
     // Response: { patched[], skipped[], buildLog?, previewHtml? }
-    if (request.method === "POST" && request.url === "/api/email-base/patch-theme") {
-      const payload = await readJsonBody(request);
-      const category = cleanText(payload?.category);
-      const mailId   = cleanText(payload?.mailId);
-      const rawTheme = payload?.theme;
-
-      if (!category || !mailId || !rawTheme) {
-        sendJson(response, 400, { error: "Required: category, mailId, theme" });
-        return;
-      }
-
-      const theme = normalizeTheme(rawTheme);
-      if (!theme) {
-        sendJson(response, 400, { error: "Invalid theme object" });
-        return;
-      }
-
-      try {
-        const mailRoot = path.join(emailBaseRoot, category, `mail-${mailId}`);
-        if (!existsSync(mailRoot)) {
-          sendJson(response, 404, { error: `Mail not found: ${category}/mail-${mailId}` });
-          return;
-        }
-
-        // Apply theme patches to styl/jade files
-        const patchResult = await patchTheme(mailRoot, theme);
-
-        // Save theme to data/brands/{brandId}/theme.json if requested
-        let savedThemePath = null;
-        if (payload?.save && theme.brandId && theme.brandId !== "unknown") {
-          savedThemePath = await saveTheme(theme);
-        }
-
-        // Rebuild after patching if requested
-        let buildLog = null;
-        let previewHtml = null;
-        if (payload?.buildAfter !== false) {
-          try {
-            const mailTemplatesRoot = path.join(mailRoot, "app", "templates");
-            const locale = "en";
-            await withPreferredTemplateSource(mailTemplatesRoot, () =>
-              runCommand(process.execPath, ["mail", "build-pretty", category, mailId, "--locales", locale], emailBaseRoot)
-            );
-            const distDir = path.join(emailBaseRoot, "dist", category, `mail-${mailId}`, locale);
-            const prettyPath = path.join(distDir, "index.pretty.html");
-            const compactPath = path.join(distDir, "index.html");
-            const htmlPath = existsSync(prettyPath) ? prettyPath : compactPath;
-            previewHtml = await readFile(htmlPath, "utf8");
-            buildLog = "Build completed.";
-          } catch (buildErr) {
-            buildLog = `Build failed: ${buildErr.message}`;
-          }
-        }
-
-        sendJson(response, 200, {
-          patched: patchResult.patched,
-          skipped: patchResult.skipped,
-          savedThemePath,
-          buildLog,
-          previewHtml
-        });
-      } catch (err) {
-        sendJson(response, 400, { error: err.message });
-      }
-      return;
-    }
-
     // POST /api/email-base/rebuild — rebuild a mail without patching styles
     // Body: { category, mailId, locale?, localeContent? }
     // Response: { previewHtml, buildLog }
     // If localeContent provided, tokens are resolved in the resulting HTML for preview.
     if (request.method === "POST" && request.url === "/api/email-base/rebuild") {
-      const payload = await readJsonBody(request);
+      const payload = await readRequestBody(request);
       const category = cleanText(payload?.category);
       const mailId   = cleanText(payload?.mailId);
       const locale   = cleanText(payload?.locale) || "en";
@@ -18617,7 +18623,7 @@ const server = http.createServer(async (request, response) => {
       try {
         const mailTemplatesRoot = path.join(mailRoot, "app", "templates");
         await withPreferredTemplateSource(mailTemplatesRoot, () =>
-          runCommand(process.execPath, ["mail", "build-pretty", category, mailId, "--locales", locale], emailBaseRoot)
+          runCommand(nodeBinary(), ["mail", "build-pretty", category, mailId, "--locales", locale], emailBaseRoot)
         );
         const distDir    = path.join(emailBaseRoot, "dist", category, `mail-${mailId}`, locale);
         const prettyPath = path.join(distDir, "index.pretty.html");
@@ -18639,7 +18645,7 @@ const server = http.createServer(async (request, response) => {
     // Body: { html, mailId?, userMessage? }
     // Response: { pugBlocks, subject, preheader, assistantReply }
     if (request.method === "POST" && request.url === "/api/email-base/html-to-pug") {
-      const body = await readJsonBody(request);
+      const body = await readRequestBody(request);
       const html = cleanText(body?.html);
       if (!html || html.length < 100) {
         sendJson(response, 400, { error: "html is required (min 100 chars)" });
@@ -18693,17 +18699,6 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
-    // GET /api/brands — list saved brand themes
-    if (request.method === "GET" && request.url === "/api/brands") {
-      try {
-        const themes = await listThemes();
-        sendJson(response, 200, { themes });
-      } catch (err) {
-        sendJson(response, 500, { error: err.message });
-      }
-      return;
-    }
-
     // GET /api/legacy-toolkit/snapshot — imported legacy toolkit metadata
     if (request.method === "GET" && request.url === "/api/legacy-toolkit/snapshot") {
       try {
@@ -18716,116 +18711,7 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
-    // GET /api/brands/:brandId — get one brand theme
-    if (request.method === "GET" && request.url.startsWith("/api/brands/")) {
-      const brandId = request.url.replace("/api/brands/", "").split("?")[0];
-      try {
-        const theme = await readTheme(brandId);
-        if (!theme) { sendJson(response, 404, { error: "Theme not found" }); return; }
-        sendJson(response, 200, { theme });
-      } catch (err) {
-        sendJson(response, 500, { error: err.message });
-      }
-      return;
-    }
-
     // ─── Batch mode endpoints ─────────────────────────────────────────────
-
-    if (request.method === "GET" && request.url === "/api/batch/status") {
-      sendJson(response, 200, {
-        stats: getQueueStats(),
-        jobs: listJobs({ limit: 20 })
-      });
-      return;
-    }
-
-    if (request.method === "GET" && request.url.startsWith("/api/batch/job/")) {
-      const jobId = request.url.replace("/api/batch/job/", "").split("?")[0];
-      const job = getJob(jobId);
-      if (!job) { sendJson(response, 404, { error: "Job not found" }); return; }
-      sendJson(response, 200, job);
-      return;
-    }
-
-    if (request.method === "POST" && request.url === "/api/batch/queue") {
-      const body = await readRequestBody(request);
-      const tasks = Array.isArray(body?.tasks) ? body.tasks : (body ? [body] : []);
-
-      if (tasks.length === 0) {
-        sendJson(response, 400, { error: "tasks[] is required" });
-        return;
-      }
-      if (tasks.length > 50) {
-        sendJson(response, 400, { error: "Max 50 tasks per batch" });
-        return;
-      }
-
-      const queued = tasks.map((task) => enqueueJob({
-        type: cleanText(task?.type) || "generate-draft",
-        brief: task?.brief || {},
-        locale: cleanText(task?.locale) || "en",
-        category: cleanText(task?.category) || "",
-        mailId: cleanText(task?.mailId) || "",
-        options: task?.options || {}
-      }));
-
-      await appendStudioJournalEntry({
-        area: "batch",
-        title: `Batch queued: ${queued.length} task(s)`,
-        message: queued.map((j) => j.id).join(", ")
-      });
-
-      sendJson(response, 200, {
-        ok: true,
-        queued: queued.length,
-        jobs: queued
-      });
-      return;
-    }
-
-    if (request.method === "POST" && request.url.startsWith("/api/batch/cancel/")) {
-      const jobId = request.url.replace("/api/batch/cancel/", "").split("?")[0];
-      const job = cancelJob(jobId);
-      if (!job) { sendJson(response, 404, { error: "Job not found or not cancellable" }); return; }
-      sendJson(response, 200, { ok: true, job });
-      return;
-    }
-
-    if (request.method === "POST" && request.url === "/api/batch/clear") {
-      const body = await readRequestBody(request);
-      const result = clearJobs({ olderThanMs: Number(body?.olderThanMs) || 3_600_000 });
-      sendJson(response, 200, { ok: true, ...result });
-      return;
-    }
-
-    // ─── Generation History endpoints ─────────────────────────────────────
-
-    if (request.method === "GET" && request.url.startsWith("/api/history")) {
-      const params = new URL(request.url, "http://localhost").searchParams;
-      const limit = Math.min(Number(params.get("limit")) || 50, 200);
-      sendJson(response, 200, { items: dbHistoryList(limit) });
-      return;
-    }
-
-    if (request.method === "GET" && request.url.startsWith("/api/history/")) {
-      const id = request.url.replace("/api/history/", "").split("?")[0];
-      const html = dbHistoryGetHtml(id);
-      if (html === null) { sendJson(response, 404, { error: "Not found" }); return; }
-      sendJson(response, 200, { id, html });
-      return;
-    }
-
-    if (request.method === "DELETE" && request.url.startsWith("/api/history/")) {
-      const id = request.url.replace("/api/history/", "").split("?")[0];
-      sendJson(response, 200, dbHistoryDelete(id));
-      return;
-    }
-
-    if (request.method === "POST" && request.url === "/api/history/clear") {
-      dbHistoryClear();
-      sendJson(response, 200, { ok: true });
-      return;
-    }
 
     // ── Workbench: list source emails from email-base ────────────────────
     // ── Workbench: block catalog + snippets (for drag-and-drop "From base" shelf)
@@ -18927,7 +18813,7 @@ const server = http.createServer(async (request, response) => {
     // Единая точка входа оператора для обеих поверхностей студии.
     if (request.method === "POST" && request.url === "/api/studio/agent") {
       try {
-        await handleStudioAgent(response, await readRequestBody(request));
+        await handleStudioAgent(response, await readRequestBody(request), request.retkitActor || null);
       } catch (e) {
         try { sendJson(response, 500, { error: e.message }); } catch { response.end(); }
       }
@@ -18938,88 +18824,7 @@ const server = http.createServer(async (request, response) => {
     // открытые вкладки и закладки; внутри — тот же самый оператор.
     if (request.method === "POST" && request.url === "/api/wb/ai/agent") {
       try {
-        await handleStudioAgent(response, await readRequestBody(request));
-      } catch (e) {
-        try { sendJson(response, 500, { error: e.message }); } catch { response.end(); }
-      }
-      return;
-    }
-
-    if (request.method === "POST" && request.url === "/api/wb/ai/agent-legacy") {
-      try {
-        const body = await readRequestBody(request);
-        if (!openAiApiKey) { sendJson(response, 503, { error: "OPENAI_API_KEY is not configured" }); return; }
-        const userMessage = String(body?.message || body?.text || "").trim();
-        if (!userMessage) { sendJson(response, 400, { error: "message required" }); return; }
-
-        // Build ctx: HTML currently open + loaded namespaces + active.
-        const namespaces = Array.isArray(body?.namespaces) ? body.namespaces.map((n) => ({
-          ...n,
-          name: cleanText(n.namespace) || cleanText(n.name) || "",
-          namespace: cleanText(n.namespace) || cleanText(n.name) || "",
-        })) : [];
-        const activeName = cleanText(body?.activeNamespaceName || "");
-        const activeNamespace = activeName
-          ? (namespaces.find((n) => n.name === activeName) || null)
-          : (namespaces[0] || null);
-        const ctx = {
-          html: String(body?.baseEmailHtml || body?.html || "").trim(),
-          namespaces,
-          activeNamespace,
-          activeLocale: cleanText(body?.activeLocale || ""),
-        };
-
-        // Stream NDJSON frames as the agent runs.
-        response.writeHead(200, {
-          "Content-Type": "application/x-ndjson; charset=utf-8",
-          "Cache-Control": "no-store",
-          Connection: "keep-alive",
-        });
-        const send = (frame) => {
-          try { response.write(JSON.stringify(frame) + "\n"); } catch { /* ignore */ }
-        };
-        send({ kind: "start", ctxSummary: {
-          htmlLength: ctx.html.length,
-          namespaces: namespaces.length,
-          activeNamespace: activeNamespace ? activeNamespace.name : null,
-          activeLocale: ctx.activeLocale,
-          images: Array.isArray(body?.images) ? body.images.length : 0,
-        }});
-
-        try {
-          const result = await runAgent({
-            userMessage,
-            history: Array.isArray(body?.messages) ? body.messages : [],
-            images: Array.isArray(body?.images) ? body.images : [],
-            ctx,
-            apiKey: openAiApiKey,
-            model: "gpt-4.1-mini",
-            onFrame: send,
-          });
-          // Journal the agent run (best-effort).
-          try {
-            await appendStudioJournalEntry({
-              area: "ai-agent",
-              title: `Agent: ${userMessage.slice(0, 60)}`,
-              message: `${result.steps.length} step(s); ${result.localeUpdates?.length || 0} locale update(s); ${result.modifiedHtml ? "modified HTML" : "no HTML change"}`,
-              meta: {
-                userMessage: userMessage.slice(0, 200),
-                summary: result.summary,
-                steps: result.steps.map((s) => ({ kind: s.kind, name: s.name || null })),
-              },
-            });
-          } catch { /* non-blocking */ }
-          send({ kind: "final", payload: {
-            summary: result.summary,
-            modifiedHtml: result.modifiedHtml || "",
-            localeUpdates: result.localeUpdates || [],
-            localeDeletes: result.localeDeletes || [],
-          }});
-        } catch (err) {
-          send({ kind: "error", message: String(err && err.message ? err.message : err) });
-        } finally {
-          response.end();
-        }
+        await handleStudioAgent(response, await readRequestBody(request), request.retkitActor || null);
       } catch (e) {
         try { sendJson(response, 500, { error: e.message }); } catch { response.end(); }
       }
@@ -19039,7 +18844,8 @@ const server = http.createServer(async (request, response) => {
         if (!html.trim()) { sendJson(response, 400, { error: "html required" }); return; }
         const locale = cleanText(body?.locale || "ar");
         const mode = cleanText(body?.mode || "text");
-        const out = applyLocaleDirectionToHtml(html, locale, { mode });
+        const lang = String(locale).split(/[-_]/)[0].toLowerCase() || "ar";
+        const out = applyLocaleDirectionToHtml(html, locale, { mode, lang });
         sendJson(response, 200, { ok: true, html: out });
       } catch (err) {
         sendJson(response, 500, { error: String(err && err.message ? err.message : err) });
@@ -19069,40 +18875,6 @@ const server = http.createServer(async (request, response) => {
     // 2) выровнять каждую локаль по структуре reference (одинаковое число
     //    блоков, переменные на местах, нехватка → пустой блок-спейсер);
     // 3) вернуть готовые TXT по всем локалям + анкер-юниты reference.
-    if (request.method === "POST" && request.url === "/api/wb/locale-prepare") {
-      try {
-        const body = await readRequestBody(request);
-        const nsName = cleanText(body?.namespace || "ns");
-        const locales = body?.locales && typeof body.locales === "object" ? body.locales : {};
-        const codes = Object.keys(locales);
-        if (!codes.length) { sendJson(response, 400, { error: "locales map required" }); return; }
-        let refCode = cleanText(body?.refCode || "");
-        if (!refCode || !(refCode in locales)) {
-          refCode = codes.find((c) => /^en/i.test(c)) || codes[0];
-        }
-        // Шаг 1: нормализация конвенций.
-        const norm = {};
-        for (const code of codes) norm[code] = _normalizeLocaleConventions(String(locales[code] || "")).txt;
-        const refBlocks = _parseNormalizedBlocks(norm[refCode]);
-        // Шаг 2: выравнивание не-reference локалей по reference.
-        const out = {};
-        const report = {};
-        for (const code of codes) {
-          if (code === refCode) { out[code] = norm[code]; report[code] = { aligned: false, padded: 0 }; continue; }
-          const locBlocks = _parseNormalizedBlocks(norm[code]);
-          const al = _alignLocaleToReference(refBlocks, locBlocks);
-          out[code] = _serializeAligned(_localePrefix(norm[code]), al.blocks);
-          report[code] = { aligned: true, padded: al.padded, dropped: al.dropped, before: locBlocks.length, after: al.blocks.length };
-        }
-        // Шаг 3: анкер-юниты reference для расстановки в HTML.
-        const units = _buildAnchorUnits(norm[refCode], nsName.replace(/[^a-z0-9_-]/gi, "_"));
-        sendJson(response, 200, { ok: true, refCode, refBlockCount: refBlocks.length, locales: out, report, units });
-      } catch (err) {
-        sendJson(response, 500, { error: String(err && err.message ? err.message : err) });
-      }
-      return;
-    }
-
     if (request.method === "POST" && request.url === "/api/wb/ai/fix-locale-txt") {
       try {
         const { txt = "", refTxt = "", language = "" } = await readRequestBody(request);
@@ -19160,7 +18932,7 @@ const server = http.createServer(async (request, response) => {
         for (const brand of brands) {
           const brandDir = path.join(srcRoot, brand);
           const mails = readdirSync(brandDir, { withFileTypes: true })
-            .filter(d => d.isDirectory() && d.name.startsWith('mail-'))
+            .filter(d => d.isDirectory() && d.name.startsWith('mail-') && !isDraftFolder(d.name))
             .map(d => {
               const built = existsSync(path.join(distRoot, brand, d.name, 'index.html'));
               return { name: d.name, built };
@@ -19230,24 +19002,113 @@ const server = http.createServer(async (request, response) => {
 
     if (request.method === "POST" && request.url === "/api/wb/code-html") {
       const { brand = "", mail = "", locale = "base", content = "" } = await readRequestBody(request);
+      let releaseHtmlLock = null;
       try {
-        const result = await saveCodeHtmlOverride({ emailBaseRoot, brand, mail, locale, html: content });
-        const workspace = await listCodeWorkspace({ emailBaseRoot, brand, mail });
-        sendJson(response, 200, { ok: true, brand, mail, ...result, locales: workspace.locales });
+        const locked = await acquireWorkbenchMailOperationLock({ emailBaseRoot, brand, mail });
+        const { resolved } = locked;
+        releaseHtmlLock = locked.release;
+        const result = await saveCodeHtmlOverride({
+          emailBaseRoot,
+          brand: resolved.brand,
+          mail: resolved.mail,
+          locale,
+          html: content,
+        });
+        const workspace = await listCodeWorkspace({
+          emailBaseRoot,
+          brand: resolved.brand,
+          mail: resolved.mail,
+        });
+        sendJson(response, 200, {
+          ok: true,
+          brand: resolved.brand,
+          mail: resolved.mail,
+          ...result,
+          locales: workspace.locales,
+        });
       } catch (error) {
         sendJson(response, 400, { ok: false, error: error.message });
+      } finally {
+        releaseHtmlLock?.();
+      }
+      return;
+    }
+
+    /**
+     * Правка текстов в Original уезжает в Pug, а не в HTML-override.
+     *
+     * Локализация здесь односторонняя: Pug — источник, локаль — его сборка с
+     * подстановкой `${{ ns.block_NN }}$`. Поэтому плейсхолдер, поставленный
+     * один раз в Original, обязан подтянуть перевод во ВСЕ локали — а этого
+     * не будет, если правку сохранить как HTML отдельной локали.
+     *
+     * Переносим только текст (см. src/original-text-sync.js), затем письмо
+     * пересобирается обычным путём.
+     */
+    if (request.method === "POST" && request.url === "/api/wb/sync-original-text") {
+      const { brand = "", mail = "", before = "", after = "" } = await readRequestBody(request);
+      let releaseSyncLock = null;
+      try {
+        const locked = await acquireWorkbenchMailOperationLock({ emailBaseRoot, brand, mail });
+        const { resolved } = locked;
+        releaseSyncLock = locked.release;
+        const edits = textEditsBetween(before, after);
+        if (!edits.length) {
+          sendJson(response, 200, { ok: true, applied: [], skipped: [], changed: false });
+          return;
+        }
+        const mailDir = path.join(emailBaseRoot, resolved.brand, resolved.mail);
+        const pugPath = ["app/templates/blocks/header.pug", "app/templates/blocks/header.jade"]
+          .map((rel) => path.join(mailDir, rel))
+          .find((candidate) => existsSync(candidate));
+        if (!pugPath) throw new Error("В письме нет app/templates/blocks/header.pug");
+        const source = readFileSync(pugPath, "utf8");
+        const { pug, applied, skipped } = applyTextEditsToPug(source, edits);
+        if (applied.length) writeFileSync(pugPath, pug, "utf8");
+        sendJson(response, 200, {
+          ok: true,
+          applied,
+          skipped,
+          changed: applied.length > 0,
+          pugPath: path.relative(mailDir, pugPath),
+        });
+      } catch (error) {
+        sendJson(response, 400, { ok: false, error: error.message });
+      } finally {
+        releaseSyncLock?.();
       }
       return;
     }
 
     if (request.method === "POST" && request.url === "/api/wb/code-html/reset") {
       const { brand = "", mail = "", locale = "base" } = await readRequestBody(request);
+      let releaseHtmlLock = null;
       try {
-        const result = await resetCodeHtmlOverride({ emailBaseRoot, brand, mail, locale });
-        const workspace = await listCodeWorkspace({ emailBaseRoot, brand, mail });
-        sendJson(response, 200, { ok: true, brand, mail, ...result, locales: workspace.locales });
+        const locked = await acquireWorkbenchMailOperationLock({ emailBaseRoot, brand, mail });
+        const { resolved } = locked;
+        releaseHtmlLock = locked.release;
+        const result = await resetCodeHtmlOverride({
+          emailBaseRoot,
+          brand: resolved.brand,
+          mail: resolved.mail,
+          locale,
+        });
+        const workspace = await listCodeWorkspace({
+          emailBaseRoot,
+          brand: resolved.brand,
+          mail: resolved.mail,
+        });
+        sendJson(response, 200, {
+          ok: true,
+          brand: resolved.brand,
+          mail: resolved.mail,
+          ...result,
+          locales: workspace.locales,
+        });
       } catch (error) {
         sendJson(response, 400, { ok: false, error: error.message });
+      } finally {
+        releaseHtmlLock?.();
       }
       return;
     }
@@ -19286,6 +19147,36 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
+    // ── Workbench: atomically save an AI Pug/Stylus source proposal ─────────
+    if (request.method === "POST" && request.url === "/api/wb/email-files") {
+      const { brand = "", mail = "", files = [] } = await readRequestBody(request);
+      if (!brand || !mail || !Array.isArray(files) || !files.length) {
+        sendJson(response, 400, { ok: false, error: "brand, mail and files required" });
+        return;
+      }
+      let releaseSourceLock = null;
+      try {
+        const resolved = resolveWorkbenchMailRoot({ emailBaseRoot, brand, mail });
+        releaseSourceLock = await acquireKeyedOperationLock(`mail:${resolved.brand}/${resolved.mail}`);
+        const result = await saveWorkbenchSourceFilesAtomically({
+          emailBaseRoot,
+          brand: resolved.brand,
+          mail: resolved.mail,
+          files,
+        });
+        sendJson(response, 200, result);
+      } catch (error) {
+        sendJson(response, Number(error?.statusCode) || 422, {
+          ok: false,
+          code: error?.code || "ATOMIC_SOURCE_SAVE_FAILED",
+          error: error?.message || "Atomic source save failed",
+        });
+      } finally {
+        releaseSourceLock?.();
+      }
+      return;
+    }
+
     // ── Workbench: read a source file ────────────────────────────────────────
     if (request.method === "GET" && request.url.startsWith("/api/wb/email-file?")) {
       const params = new URL(request.url, "http://localhost").searchParams;
@@ -19299,6 +19190,7 @@ const server = http.createServer(async (request, response) => {
         sendJson(response, 200, {
           ok: true,
           content,
+          sourceHash: workbenchSourceContentHash(content),
           brand: resolved.brand,
           mail: resolved.mail,
           file: resolved.file,
@@ -19348,7 +19240,9 @@ const server = http.createServer(async (request, response) => {
 
     // ── Workbench: rebuild an email from source (Pug+Stylus → HTML) ────────
     if (request.method === "POST" && request.url === "/api/wb/build-email") {
-      const { brand = "", mail = "", namespaces = null } = await readRequestBody(request);
+      const body = await readRequestBody(request);
+      const { brand = "", mail = "", namespaces = null } = body;
+      const releasePreflightRequested = body?.releasePreflight === true;
       if (!brand || !mail) { sendJson(response, 400, { error: "brand and mail required" }); return; }
       const emailBaseDir = path.join(__dirname, "email-base");
       const t0 = Date.now();
@@ -19364,7 +19258,13 @@ const server = http.createServer(async (request, response) => {
         const mailFolder = resolved.mail;
         // build-mail.js convention: --mail <name> where name has no "mail-" prefix.
         const mailArg = mailFolder.replace(/^mail-/, "");
-        releaseBuildLock = await acquireKeyedOperationLock(`mail:${safeBrand}/${mailFolder}`);
+        releaseBuildLock = (
+          await acquireWorkbenchMailOperationLock({
+            emailBaseRoot,
+            brand: safeBrand,
+            mail: mailFolder,
+          })
+        ).release;
         auditMailSourceBeforeBuild({ emailBaseRoot, brand: safeBrand, mail: mailFolder });
         const localeSync = namespaces == null
           ? { written: 0, unchanged: 0, fileCount: 0, namespaceCount: 0, namespaces: [], locales: [], skippedBuiltins: [] }
@@ -19385,9 +19285,13 @@ const server = http.createServer(async (request, response) => {
         } else if (localePolicy.mode === "skip") {
           buildArgs.push("--skip-locales");
         }
+        // Autosave and preview builds intentionally remain warning-only.
+        // A user-triggered release preflight is the strict production gate and
+        // checks the compact Pug output before any export can continue.
+        if (releasePreflightRequested) buildArgs.push("--failOnWeight");
         const buildResult = await new Promise((resolve, reject) => {
           const child = spawn(
-            process.execPath,
+            nodeBinary(),
             buildArgs,
             {
               cwd: emailBaseDir,
@@ -19399,7 +19303,11 @@ const server = http.createServer(async (request, response) => {
           child.stderr.on("data", d => { errOut += d.toString(); });
           child.on("close", code => {
             if (code === 0) resolve({ stderr: errOut });
-            else reject(new Error(errOut.trim().split("\n").pop() || `Exit ${code}`));
+            else {
+              const buildError = new Error(errOut.trim().split("\n").pop() || `Exit ${code}`);
+              buildError.buildStderr = errOut;
+              reject(buildError);
+            }
           });
           child.on("error", reject);
         });
@@ -19407,15 +19315,46 @@ const server = http.createServer(async (request, response) => {
           .split("\n")
           .map(line => line.trim())
           .filter(line => /WARN|unresolved placeholder|no JSON found/i.test(line));
+        // build-mail covers every freshly compiled locale. The effective
+        // Workbench workspace may additionally contain detached/manual HTML,
+        // so audit those overrides after localization as part of the same
+        // release request.
+        const releasePreflight = releasePreflightRequested
+          ? await auditWorkbenchReleaseHtml({
+              emailBaseRoot,
+              brand: safeBrand,
+              mail: mailFolder,
+            })
+          : null;
         sendJson(response, 200, {
           ok: true,
           duration: Date.now() - t0,
           localeSync,
           localePolicy,
           buildWarnings,
+          ...(releasePreflight ? { releasePreflight } : {}),
         });
       } catch(err) {
-        sendJson(response, 422, { ok: false, error: err.message });
+        const buildErrorText = `${err?.message || ""}\n${err?.buildStderr || ""}`;
+        const strictWeightFailure = releasePreflightRequested && (
+          err?.code === EMAIL_WEIGHT_LIMIT_EXCEEDED
+          || /Email weight limit exceeded/i.test(buildErrorText)
+        );
+        const releasePreflight = err?.releasePreflight || (strictWeightFailure ? {
+          ok: false,
+          thresholdBytes: EMAIL_CLIP_LIMIT_BYTES,
+          thresholdKib: EMAIL_CLIP_LIMIT_KIB,
+          checked: 0,
+          samples: [],
+          overweight: [],
+          largest: null,
+        } : null);
+        sendJson(response, Number(err?.statusCode) || 422, {
+          ok: false,
+          error: err?.message || "Release build failed",
+          ...(strictWeightFailure ? { code: EMAIL_WEIGHT_LIMIT_EXCEEDED } : {}),
+          ...(releasePreflight ? { releasePreflight } : {}),
+        });
       } finally {
         releaseBuildLock?.();
       }
@@ -19425,56 +19364,48 @@ const server = http.createServer(async (request, response) => {
     // ── Workbench: Clone email ───────────────────────────────────────────────
     if (request.method === "POST" && request.url === "/api/wb/email-clone") {
       const { brand = "", mail = "", newName = "" } = await readRequestBody(request);
-      const safe = s => s.replace(/\.\./g, "").replace(/[^a-zA-Z0-9_\-]/g, "");
-      const sBrand = safe(brand), sMail = safe(mail), sNew = safe(newName);
-      if (!sBrand || !sMail || !sNew) { sendJson(response, 400, { error: "brand, mail, newName required" }); return; }
-      const src  = path.join(__dirname, "email-base", sBrand, sMail);
-      const dest = path.join(__dirname, "email-base", sBrand, sNew);
-      if (!existsSync(src)) { sendJson(response, 404, { error: "Source not found" }); return; }
-      if (existsSync(dest)) { sendJson(response, 409, { error: "Destination already exists" }); return; }
       try {
-        await cp(src, dest, { recursive: true });
-        sendJson(response, 200, { ok: true });
-      } catch(e) { sendJson(response, 500, { error: e.message }); }
+        const { target } = await copyMail(__dirname, {
+          brand, mail, newName,
+          actor: request.retkitActor,
+          readOnly: studioRuntimeFlags.readOnly,
+        });
+        sendJson(response, 200, { ok: true, mail: target.mail });
+      } catch (e) {
+        sendJson(response, mailStoreStatus(e), { ok: false, error: e.message, code: e.code });
+      }
       return;
     }
 
     // ── Workbench: Rename email ──────────────────────────────────────────────
     if (request.method === "POST" && request.url === "/api/wb/email-rename") {
       const { brand = "", mail = "", newName = "" } = await readRequestBody(request);
-      const safe = s => s.replace(/\.\./g, "").replace(/[^a-zA-Z0-9_\-]/g, "");
-      const sBrand = safe(brand), sMail = safe(mail), sNew = safe(newName);
-      if (!sBrand || !sMail || !sNew) { sendJson(response, 400, { error: "brand, mail, newName required" }); return; }
-      const src  = path.join(__dirname, "email-base", sBrand, sMail);
-      const dest = path.join(__dirname, "email-base", sBrand, sNew);
-      if (!existsSync(src)) { sendJson(response, 404, { error: "Source not found" }); return; }
-      if (existsSync(dest)) { sendJson(response, 409, { error: "Destination already exists" }); return; }
       try {
-        await rename(src, dest);
-        sendJson(response, 200, { ok: true });
-      } catch(e) { sendJson(response, 500, { error: e.message }); }
+        const { target } = await renameMail(__dirname, {
+          brand, mail, newName,
+          actor: request.retkitActor,
+          readOnly: studioRuntimeFlags.readOnly,
+        });
+        sendJson(response, 200, { ok: true, mail: target.mail });
+      } catch (e) {
+        sendJson(response, mailStoreStatus(e), { ok: false, error: e.message, code: e.code });
+      }
       return;
     }
 
     // ── Workbench: Delete email (moves to _trash to avoid EPERM on mounted FS) ──
     if (request.method === "POST" && request.url === "/api/wb/email-delete") {
       const { brand = "", mail = "" } = await readRequestBody(request);
-      const safe = s => s.replace(/\.\./g, "").replace(/[^a-zA-Z0-9_\-]/g, "");
-      const sBrand = safe(brand), sMail = safe(mail);
-      if (!sBrand || !sMail) { sendJson(response, 400, { error: "brand and mail required" }); return; }
-      const target    = path.join(__dirname, "email-base", sBrand, sMail);
-      const trashDir  = path.join(__dirname, "email-base", "_trash", sBrand);
-      const trashDest = path.join(trashDir, sMail + "__" + Date.now());
-      if (!existsSync(target)) { sendJson(response, 404, { error: "Not found" }); return; }
       try {
-        await mkdir(trashDir, { recursive: true });
-        await rename(target, trashDest);
-        // Собранный dist оставался после удаления исходника и продолжал
-        // отдаваться в превью — письмо выглядело как «вернувшееся».
-        const distLeftover = path.join(__dirname, "email-base", "dist", sBrand, sMail);
-        await rm(distLeftover, { recursive: true, force: true }).catch(() => {});
-        sendJson(response, 200, { ok: true, note: "moved to _trash/" + sBrand });
-      } catch(e) { sendJson(response, 500, { error: e.message }); }
+        const { paths } = await trashMail(__dirname, {
+          brand, mail,
+          actor: request.retkitActor,
+          readOnly: studioRuntimeFlags.readOnly,
+        });
+        sendJson(response, 200, { ok: true, note: "moved to _trash/" + paths.brand });
+      } catch (e) {
+        sendJson(response, mailStoreStatus(e), { ok: false, error: e.message, code: e.code });
+      }
       return;
     }
 
@@ -19518,55 +19449,58 @@ const server = http.createServer(async (request, response) => {
     // ── Workbench: Import HTML → create new email source structure ──────────
     if (request.method === "POST" && request.url === "/api/wb/email-import") {
       const { brand = "", name = "", html = "", createBrand = false, format = "pug" } = await readRequestBody(request);
-      const safe = s => s.replace(/\.\./g, "").replace(/[^a-zA-Z0-9_\-]/g, "");
-      const sBrand = safe(brand), sName = safe(name);
-      if (!sBrand || !sName) { sendJson(response, 400, { error: "brand and name required" }); return; }
-      const mailFolder = sName.startsWith("mail-") ? sName : `mail-${sName}`;
-      const mailDir   = path.join(__dirname, "email-base", sBrand, mailFolder);
-      const templDir  = path.join(mailDir, "app", "templates");
-      const stylesDir = path.join(mailDir, "app", "styles");
-      const helpersDir = path.join(stylesDir, "helpers");
-      const blocksDir  = path.join(stylesDir, "blocks");
-      if (existsSync(mailDir)) { sendJson(response, 409, { error: "Письмо с таким именем уже существует" }); return; }
       try {
-        // Create brand dir if needed
+        const sBrand = safeSegment(brand);
+        const sName = mailShortName(name);
+        if (!sBrand || !sName) throw new MailStoreError("BAD_NAME", "Нужны бренд и имя письма");
+
+        // Бренда может ещё не быть — но заводим его только по явной просьбе,
+        // иначе опечатка в имени бренда тихо плодит новые папки.
         const brandDir = path.join(__dirname, "email-base", sBrand);
         if (!existsSync(brandDir)) {
-          if (!createBrand) { sendJson(response, 404, { error: "Бренд не найден. Создайте его сначала." }); return; }
+          if (!createBrand) throw new MailStoreError("MAIL_NOT_FOUND", "Бренд не найден. Создайте его сначала.");
           await mkdir(brandDir, { recursive: true });
         }
-        await mkdir(templDir, { recursive: true });
+
+        const actor = request.retkitActor;
+        const readOnly = studioRuntimeFlags.readOnly;
+        const paths = await createMail(__dirname, { brand: sBrand, mail: sName, actor, readOnly });
+        const write = (relative, content) => writeMailFile(__dirname, {
+          brand: sBrand, mail: sName, relative, content, actor, readOnly,
+        });
 
         // ─── RAW HTML MODE ─────────────────────────────────────────────
-        // No Pug, no Stylus. build-mail.js detects index.html and uses it
-        // verbatim — only localization + RTL run on it.
+        // Ни Pug, ни Stylus: build-mail.js видит index.html и берёт его как
+        // есть — поверх идут только локализация и RTL.
         if (format === "html" || format === "raw") {
-          await writeFile(path.join(templDir, "index.html"), html || "", "utf-8");
-          // Still create an EMPTY app/styles/ dir so future "add stylus" works
-          // without surprise, but no required files.
-          await mkdir(stylesDir, { recursive: true });
-          sendJson(response, 200, { ok: true, brand: sBrand, mail: mailFolder, format: "html" });
+          await write("app/templates/index.html", html || "");
+          // Пустая app/styles/ нужна, чтобы «добавить стили» позже не было
+          // сюрпризом, но обязательных файлов там нет.
+          await mkdir(paths.stylesRoot, { recursive: true });
+          sendJson(response, 200, { ok: true, brand: sBrand, mail: paths.mail, format: "html" });
           return;
         }
 
-        // ─── PUG + STYLUS MODE (legacy default) ────────────────────────
-        await mkdir(helpersDir, { recursive: true });
-        await mkdir(blocksDir, { recursive: true });
-        const pugContent = html ? `//- Импортировано из HTML\n${html}` : `//- Пустое письмо\ndoctype html\nhtml\n  head\n    title ${sName}\n  body\n    .wrapper Письмо`;
-        await writeFile(path.join(templDir, "index.pug"), pugContent, "utf-8");
-        await writeFile(path.join(stylesDir, "common.styl"), `@import 'helpers/variables'\n@import 'helpers/ink'\n@import 'helpers/mixins'\n@import 'blocks/main'\n`, "utf-8");
-        await writeFile(path.join(helpersDir, "variables.styl"), `// Переменные для ${sName}\n`, "utf-8");
-        await writeFile(path.join(blocksDir, "main.styl"), `// Стили для ${sName}\n`, "utf-8");
-        sendJson(response, 200, { ok: true, brand: sBrand, mail: mailFolder, format: "pug" });
-      } catch(e) { sendJson(response, 500, { error: e.message }); }
+        // ─── PUG + STYLUS MODE (историческое умолчание) ────────────────
+        const pugContent = html
+          ? `//- Импортировано из HTML\n${html}`
+          : `//- Пустое письмо\ndoctype html\nhtml\n  head\n    title ${sName}\n  body\n    .wrapper Письмо`;
+        await write("app/templates/index.pug", pugContent);
+        await write("app/styles/common.styl",
+          `@import 'helpers/variables'\n@import 'helpers/ink'\n@import 'helpers/mixins'\n@import 'blocks/main'\n`);
+        await write("app/styles/helpers/variables.styl", `// Переменные для ${sName}\n`);
+        await write("app/styles/blocks/main.styl", `// Стили для ${sName}\n`);
+        sendJson(response, 200, { ok: true, brand: sBrand, mail: paths.mail, format: "pug" });
+      } catch (e) {
+        sendJson(response, mailStoreStatus(e), { ok: false, error: e.message, code: e.code });
+      }
       return;
     }
 
     // ── Workbench: Create new brand folder ──────────────────────────────────
     if (request.method === "POST" && request.url === "/api/wb/create-brand") {
       const { name = "" } = await readRequestBody(request);
-      const safe = s => s.replace(/\.\./g, "").replace(/[^a-zA-Z0-9_\-]/g, "");
-      const sName = safe(name);
+      const sName = safeSegment(name);
       if (!sName) { sendJson(response, 400, { error: "name required" }); return; }
       const brandDir = path.join(__dirname, "email-base", sName);
       if (existsSync(brandDir)) { sendJson(response, 409, { error: "Бренд уже существует" }); return; }
@@ -19578,72 +19512,6 @@ const server = http.createServer(async (request, response) => {
     }
 
     // ── Workbench: HTML → Pug AI reverse compilation ────────────────
-    if (request.method === "POST" && request.url === "/api/wb/html-to-pug") {
-      const { originalHtml = "", modifiedHtml = "", currentPug = "", pugPath = "" } = await readRequestBody(request);
-      if (!modifiedHtml || !currentPug) {
-        sendJson(response, 400, { error: "modifiedHtml and currentPug are required" });
-        return;
-      }
-      if (!openAiApiKey) {
-        sendJson(response, 503, { error: "OPENAI_API_KEY is not configured" });
-        return;
-      }
-      try {
-        const systemMsg = [
-          "You are a senior Pug email template developer.",
-          "The user has edited the compiled HTML of a Pug email template.",
-          "Your job: apply ONLY the user's HTML changes to the Pug source file — preserve all existing structure, mixin calls, class names, and ${{ token }}$ placeholders.",
-          "CRITICAL: Return the FULL updated Pug file content, not a diff, not a snippet — the complete file.",
-          "CRITICAL: NEVER remove existing blocks, mixins, or tokens that were not changed by the user.",
-          "Output: a single fenced code block ```pug ... ``` containing the full updated Pug file. Nothing else.",
-        ].join(" ");
-
-        const userMsg = [
-          "=== CURRENT PUG SOURCE ===",
-          currentPug,
-          "=== END PUG SOURCE ===",
-          "",
-          originalHtml ? "=== ORIGINAL COMPILED HTML (before edits) ===" : "",
-          originalHtml ? originalHtml : "",
-          originalHtml ? "=== END ORIGINAL HTML ===" : "",
-          "",
-          "=== MODIFIED HTML (user's edits — apply these changes to the Pug above) ===",
-          modifiedHtml,
-          "=== END MODIFIED HTML ===",
-          "",
-          "Apply the HTML changes to the Pug file and return the complete updated Pug source.",
-        ].filter(Boolean).join("\n");
-
-        const data = await _aiCall(
-          async () => ({
-            body: {
-              model: openAiModel,
-              input: [
-                { role: "system", content: [{ type: "input_text", text: systemMsg }] },
-                { role: "user",   content: [{ type: "input_text", text: userMsg   }] },
-              ],
-            }
-          }),
-          "html-to-pug",
-          { timeoutMs: 120_000, retryMax: 1 }
-        );
-
-        const raw = extractResponseText(data) || "";
-        // Extract pug from fenced code block
-        const match = raw.match(/```(?:pug|jade)?\s*([\s\S]+?)```/);
-        const pugContent = match ? match[1].trim() : raw.trim();
-
-        if (!pugContent) {
-          sendJson(response, 500, { error: "AI did not return Pug content", raw: raw.slice(0, 500) });
-          return;
-        }
-        sendJson(response, 200, { ok: true, pug: pugContent });
-      } catch (e) {
-        sendJson(response, 500, { error: e.message });
-      }
-      return;
-    }
-
     if (request.method === "GET" && (request.url === "/" || request.url.startsWith("/?"))) {
       response.writeHead(302, {
         Location: "/workbench",
@@ -19736,33 +19604,17 @@ try {
   console.warn(`[db] SQLite init warning: ${dbError.message}. Falling back to JSON mode.`);
 }
 
-// ─── Startup: batch worker ───────────────────────────────────────────────────
-startWorker(async (job) => {
-  const { type, brief, locale, category, mailId } = job.payload;
+// Фоновый воркер очереди убран вместе с ручками /api/batch/*: наполнить её
+// стало нечем, а таймер продолжал опрашивать пустую очередь каждые 800 мс.
 
-  if (type === "generate-draft") {
-    // Build a minimal payload that createOpenAiDraft understands
-    const payload = {
-      brief: { ...brief, locale: locale || brief?.locale || "en", category, mailId },
-      currentDraft: null,
-      attachedImages: []
-    };
-    const result = await createOpenAiDraft(payload);
-    await appendStudioJournalEntry({
-      area: "batch",
-      title: `Batch job done: ${job.id}`,
-      message: `Generated draft for ${category}/${mailId || "new"}`
-    });
-    return result;
-  }
-
-  throw new Error(`Unknown batch job type: ${type}`);
-}, { pollMs: 800 });
-
-console.log("[batch] Worker started");
-
-if ((appAuthUser || appAuthPassword) && !appAuthEnabled) {
+if ((appAuthUser || appAuthPassword) && !studioRuntimeFlags.hasAuthCredentials && studioRuntimeFlags.authAllowed) {
   console.warn("[security] APP_AUTH_USER and APP_AUTH_PASSWORD must both be set; application auth is disabled.");
+}
+
+if (studioRuntimeFlags.publicDemo) {
+  console.warn("[runtime] Public demo mode: Basic Auth and all AI providers are disabled.");
+} else if (!studioRuntimeFlags.aiEnabled) {
+  console.warn("[runtime] Studio AI is disabled by STUDIO_AI_ENABLED.");
 }
 
 server.listen(port, () => {

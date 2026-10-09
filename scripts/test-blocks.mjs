@@ -215,7 +215,17 @@ async function main() {
   }
 
   // Merge — canonical first so they appear at the top of the report.
-  const all = [...handCrafted, ...legacy];
+  // `--only <подстрока>` прогоняет часть библиотеки: полный проход строит все
+  // 78 блоков по несколько секунд каждый и в короткий шелл не укладывается,
+  // а после правки одной семьи блоков проверять надо именно её.
+  const onlyIndex = process.argv.indexOf("--only");
+  const only = onlyIndex >= 0 ? String(process.argv[onlyIndex + 1] || "") : "";
+  const merged = [...handCrafted, ...legacy];
+  const all = only ? merged.filter((entry) => String(entry.id).includes(only)) : merged;
+  if (only && !all.length) {
+    console.error(bad(`--only ${only}: под фильтр не попал ни один блок`));
+    process.exit(1);
+  }
   console.log(c("bold", `\n══ Validating ${all.length} blocks (${handCrafted.length} hand-crafted + ${legacy.length} legacy) ══\n`));
   console.log(dim(`  scaffold root: ${TEMP_ROOT}\n`));
   setupTempRoot();

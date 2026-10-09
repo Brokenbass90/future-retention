@@ -1,0 +1,47 @@
+{
+  "id": "iqbr-title-white",
+  "label": "Крупный белый заголовок (IQ Broker)",
+  "description": "Заголовок головы письма, 48/58, на мобильном 26/32.",
+  "placement": "inner",
+  "category": "text",
+  "version": 1,
+  "pug": "p.iqbr-title-white--white-title(style=\"color:{{ color }};padding-bottom:{{ padding_bottom }}\") {{ text }}",
+  "styl": ".iqbr-title-white--white-title{font-family:Helvetica !important;font-style:normal;font-weight:700;font-size:48px;line-height:58px;color:#f9f9f9;word-break:break-word}\n@media screen and (max-width: 600px){.iqbr-title-white--white-title{font-size:26px !important;line-height:32px !important}}",
+  "slots": [
+    {
+      "id": "text",
+      "kind": "text",
+      "label": "Текст",
+      "default": "Крупный заголовок письма",
+      "uiGroup": "content"
+    },
+    {
+      "id": "color",
+      "kind": "color",
+      "label": "Цвет",
+      "default": "#F9F9F9",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "padding_bottom",
+      "kind": "select",
+      "label": "Отступ снизу",
+      "default": "16px",
+      "options": [
+        "0",
+        "8px",
+        "16px",
+        "24px",
+        "32px"
+      ],
+      "uiGroup": "appearance"
+    }
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "iqbroker",
+    "text"
+  ],
+  "note": "Нарезано из email-base/X_IQBroker/mail-strategies. Семейные стили втянуты в блок и заскоуплены; ink-классы (.row/.columns/.wrapper) оставлены глобальными.",
+  "scoped": true
+}

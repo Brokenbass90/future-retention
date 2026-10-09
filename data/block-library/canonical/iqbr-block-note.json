@@ -1,0 +1,54 @@
+{
+  "id": "iqbr-block-note",
+  "label": "Заметка с итогом (IQ Broker)",
+  "description": "Текст с пунктирной чертой, подзаголовок и серая строка с цветным хвостом — для «плюс/минус» и результатов.",
+  "placement": "inner",
+  "category": "text",
+  "version": 1,
+  "pug": "p.iqbr-block-note--block-text.iqbr-block-note--pb16.iqbr-block-note--bb-dash {{ text }}\np.iqbr-block-note--block-subtitle.iqbr-block-note--pt16.iqbr-block-note--pb8 {{ subtitle }}\np.iqbr-block-note--block-gray {{ note }}\n    span(style=\"color:{{ accent_color }}\") &nbsp;{{ accent }}",
+  "styl": ".iqbr-block-note--bb-dash{border-bottom:1px dashed #3a3f40}\n.iqbr-block-note--pb8{padding-bottom:8px}\n.iqbr-block-note--pb16{padding-bottom:16px}\n.iqbr-block-note--pt16{padding-top:16px}\n.iqbr-block-note--block-text{font-family:Helvetica !important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#ececed}\n.iqbr-block-note--block-subtitle{font-family:Helvetica !important;font-style:normal;font-weight:700;font-size:18px;line-height:27px;color:#ececed}\n.iqbr-block-note--block-gray{font-family:Helvetica !important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#a6a6ab}",
+  "slots": [
+    {
+      "id": "text",
+      "kind": "richText",
+      "label": "Текст над чертой",
+      "default": "Описание сценария.",
+      "uiGroup": "content"
+    },
+    {
+      "id": "subtitle",
+      "kind": "text",
+      "label": "Подзаголовок",
+      "default": "Итог",
+      "uiGroup": "content"
+    },
+    {
+      "id": "note",
+      "kind": "text",
+      "label": "Серая строка",
+      "default": "Результат:",
+      "uiGroup": "content"
+    },
+    {
+      "id": "accent",
+      "kind": "text",
+      "label": "Цветной хвост",
+      "default": "+10%",
+      "uiGroup": "content"
+    },
+    {
+      "id": "accent_color",
+      "kind": "color",
+      "label": "Цвет хвоста",
+      "default": "#3BA581",
+      "uiGroup": "appearance"
+    }
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "iqbroker",
+    "text"
+  ],
+  "note": "Нарезано из email-base/X_IQBroker/mail-strategies. Семейные стили втянуты в блок и заскоуплены; ink-классы (.row/.columns/.wrapper) оставлены глобальными.",
+  "scoped": true
+}

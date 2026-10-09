@@ -1,0 +1,117 @@
+{
+  "id": "sys-starter",
+  "label": "Комбо: скелет системного письма",
+  "description": "Готовая рыба сервисного письма: логотип, заголовок, приветствие, два абзаца, кнопка и футер. Раскладывается на отдельные блоки — лишнее удаляется, нужное добавляется.",
+  "placement": "section",
+  "category": "layout",
+  "version": 1,
+  "pug": "table.sys-starter--box(role=\"presentation\" width=\"100%\")\n    tr\n        td.sys-starter--pad\n            p.sys-starter--title {{ title }}\n            p.sys-starter--hello {{ hello }}\n            p.sys-starter--body {{ body }}",
+  "styl": ".sys-starter--box{display:table;width:100%;padding:0;border-collapse:separate !important;background-color:$brand_surface}\n.sys-starter--pad{padding:32px 40px}\n.sys-starter--title{margin:0;margin-bottom:12px;color:$brand_text;font-family:Helvetica,Arial,sans-serif !important;font-size:28px;font-weight:700;line-height:36px}\n.sys-starter--hello{margin:0;margin-bottom:12px;color:$brand_text;font-family:Helvetica,Arial,sans-serif !important;font-size:18px;font-weight:700;line-height:26px}\n.sys-starter--body{margin:0;margin-bottom:0;color:$brand_text;font-family:Helvetica,Arial,sans-serif !important;font-size:16px;line-height:24px}",
+  "slots": [
+    {
+      "id": "title",
+      "kind": "text",
+      "label": "Заголовок",
+      "default": "Заголовок письма",
+      "uiGroup": "content"
+    },
+    {
+      "id": "hello",
+      "kind": "text",
+      "label": "Приветствие",
+      "default": "Здравствуйте!",
+      "uiGroup": "content"
+    },
+    {
+      "id": "body",
+      "kind": "richText",
+      "label": "Первый абзац",
+      "default": "Короткий абзац письма — одна мысль на абзац.",
+      "uiGroup": "content"
+    }
+  ],
+  "kits": [
+    "system",
+    "promo"
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "combo",
+    "layout"
+  ],
+  "note": "Системный набор: блок написан с нуля под простые сервисные письма. Базовые цвета берутся из темы бренда ($brand_*), поэтому один и тот же блок читается и на светлом IQ Option, и на тёмном IQ Broker. Пустое значение цветового слота = «по бренду».",
+  "scoped": true,
+  "combo": true,
+  "children": [
+    {
+      "id": "sys-outer",
+      "role": "outer"
+    },
+    {
+      "id": "sys-section",
+      "role": "container",
+      "slots": {}
+    },
+    {
+      "id": "sys-logo",
+      "slotId": "content",
+      "role": "logo",
+      "slots": {}
+    },
+    {
+      "id": "sys-title",
+      "slotId": "content",
+      "role": "title",
+      "slots": {
+        "text": "Заголовок письма"
+      }
+    },
+    {
+      "id": "sys-subtitle",
+      "slotId": "content",
+      "role": "hello",
+      "slots": {
+        "text": "Здравствуйте!"
+      }
+    },
+    {
+      "id": "sys-text",
+      "slotId": "content",
+      "role": "body1",
+      "slots": {
+        "text": "Первый абзац: что произошло и почему пришло это письмо."
+      }
+    },
+    {
+      "id": "sys-text",
+      "slotId": "content",
+      "role": "body2",
+      "slots": {
+        "text": "Второй абзац: что нужно сделать дальше."
+      }
+    },
+    {
+      "id": "sys-callout",
+      "slotId": "content",
+      "role": "callout",
+      "slots": {
+        "tone": "success",
+        "text": "Короткая подсветка: что уже сделано или что важно заметить."
+      }
+    },
+    {
+      "id": "sys-button",
+      "slotId": "content",
+      "role": "cta",
+      "slots": {
+        "label": "Перейти",
+        "align": "left"
+      }
+    },
+    {
+      "id": "sys-footer",
+      "role": "footer",
+      "slots": {}
+    }
+  ]
+}

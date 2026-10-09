@@ -1,0 +1,85 @@
+{
+  "id": "sys-callout",
+  "label": "Подсвеченный блок",
+  "description": "Плашка с цветной подсветкой: фон и полоса слева выделяют мысль, текст остаётся обычного цвета. Цвета успеха, внимания и ошибки лежат в палитре письма.",
+  "placement": "inner",
+  "category": "highlight",
+  "version": 1,
+  "pug": "table.sys-callout--box(role=\"presentation\" width=\"100%\" style=\"border-radius:{{ radius }}\")\n    tr\n        td.sys-callout--cell(style=\"background-color:{{ background_color }};border-left:4px solid {{ accent_color }};padding:{{ padding }};text-align:{{ align }};border-radius:{{ radius }}\")\n            p.sys-callout--text(style=\"color:{{ text_color }}\") {{ text }}",
+  "styl": ".sys-callout--box{width:100%;border-collapse:separate !important;border-radius:{{ radius }}}\n.sys-callout--cell{background-color:mix($brand_text,$brand_surface,8%)}\n.sys-callout--text{margin:0;margin-bottom:0;color:$brand_text;font-family:Helvetica,Arial,sans-serif !important;font-size:16px;font-weight:400;line-height:24px}",
+  "slots": [
+    {
+      "id": "text",
+      "kind": "richText",
+      "label": "Текст плашки",
+      "default": "Заявка принята — мы вернёмся с ответом в течение суток.",
+      "uiGroup": "content"
+    },
+    {
+      "id": "background_color",
+      "kind": "color",
+      "label": "Фон плашки",
+      "default": "#E7F6EA",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "accent_color",
+      "kind": "color",
+      "label": "Полоса слева",
+      "default": "#3FB950",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "text_color",
+      "kind": "color",
+      "label": "Цвет текста — пусто значит «по теме бренда»",
+      "default": "",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "radius",
+      "kind": "select",
+      "label": "Скругление",
+      "default": "12px",
+      "uiGroup": "appearance",
+      "options": [
+        "0",
+        "4px",
+        "8px",
+        "12px",
+        "16px",
+        "24px"
+      ]
+    },
+    {
+      "id": "padding",
+      "kind": "text",
+      "label": "Внутренние отступы",
+      "default": "16px 20px",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "align",
+      "kind": "select",
+      "label": "Выравнивание",
+      "default": "left",
+      "uiGroup": "appearance",
+      "options": [
+        "left",
+        "center",
+        "right"
+      ]
+    }
+  ],
+  "kits": [
+    "system",
+    "promo"
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "highlight",
+    "callout"
+  ],
+  "note": "Системный набор: блок написан с нуля под простые сервисные письма. Базовые цвета берутся из темы бренда ($brand_*), поэтому один и тот же блок читается и на светлом IQ Option, и на тёмном IQ Broker. Пустое значение цветового слота = «по бренду».",
+  "scoped": true
+}

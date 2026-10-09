@@ -26,13 +26,18 @@
  *                               a human-readable summary for the user
  */
 
-import { placeholderizeHtml, fixLocaleTxt, translateLocaleTxt } from "./locale-ai.js";
+import { catalogAllows, filterByCatalog, catalogAlternatives } from "./constructor-catalog.js";
+import { placeholderizeHtml, fixLocaleTxt, translateLocaleTxt, parseTxtBlocks } from "./locale-ai.js";
 import { normalizeLocaleConventions, parseNormalizedBlocks, alignLocaleToReference, serializeAligned, localePrefix } from "./locale-conventions.js";
 import { analyzeLocaleAgainstHtml } from "./locale-analyze.js";
 import { compareLocales } from "./locale-cross-check.js";
 import { listHtmlSections, insertHtml, removeHtml } from "./html-blocks.js";
 import { validateHtml } from "./html-validate.js";
 import path from "node:path";
+// Shared smart find/replace (same file the Workbench ⌘F strip and RetKit for
+// MoEngage use): & == &amp;, image-by-file-name mode, built-ins never change.
+import "../public/replace-across.js";
+const ReplaceAcross = globalThis.RetKitReplaceAcross;
 import {
   composeEmailFromBlocks,
   listCanonicalBlocks,
@@ -44,11 +49,172 @@ import { withComposeSaveTransaction } from "./compose-save-transaction.js";
 import { previewForBlock } from "./block-previews.js";
 import { saveUserBlockWithLifecycle } from "./block-library-review.js";
 import { rmSync as _rmSyncBlocks, existsSync as _existsSyncBlocks } from "node:fs";
+import "../public/canvas-slot-values.js";
+import { checkCanvasReady, describeLeftovers } from "./canvas-completeness.js";
+import { seeEmail, seeBlock } from "./agent-vision.js";
+import { attachPreviews } from "./block-previews.js";
+import {
+  openDraft, listDrafts, draftChanges, publishDraft, discardDraft, listSnapshots,
+} from "./mail-drafts.js";
+import { listMailFiles, readMailFile, writeMailFile } from "./agent-mail-files.js";
+import { writeFileSync as fsWriteFileSync } from "node:fs";
+
+/**
+ * Дерево канваса с уже применёнными правками этого разговора.
+ *
+ * Без этого проверка ругалась бы на текст, который агент только что заменил:
+ * ctx.canvasSummary — снимок на момент запроса, а правки лежат в ctx.canvasOps
+ * и применяются в браузере. Считать по устаревшему снимку значит гонять агента
+ * по кругу за уже сделанную работу.
+ *
+ * Повтор безопасен: инструменты уже поправили ctx.canvasSummary, поэтому
+ * каждая операция здесь идемпотентна — добавление не задваивается, удаление
+ * отсутствующего блока молчит. Порядок (move) на готовность письма не влияет,
+ * поэтому он здесь и не пересчитывается: дважды применённая перестановка
+ * вернула бы блок на место.
+ */
+export function mergeCanvasOps(ctx) {
+  let base = (Array.isArray(ctx?.canvasSummary) ? ctx.canvasSummary : [])
+    .map((entry) => ({ ...entry, slots: { ...(entry.slots || {}) } }));
+  for (const op of Array.isArray(ctx?.canvasOps) ? ctx.canvasOps : []) {
+    const kind = String(op?.kind || "update");
+    if (kind === "clear") { base = []; continue; }
+    if (kind === "remove") {
+      const doomed = canvasSubtreeUids(base, op?.uid);
+      base = base.filter((entry) => !doomed.has(String(entry.uid)));
+      continue;
+    }
+    if (kind === "add") {
+      for (const entry of Array.isArray(op?.entries) ? op.entries : []) {
+        if (base.some((candidate) => String(candidate.uid) === String(entry.uid))) continue;
+        base.push({ ...entry, slots: { ...(entry.slots || {}) } });
+      }
+      continue;
+    }
+    if (kind === "move") continue;
+    const target = base.find((entry) => String(entry.uid) === String(op?.uid));
+    if (target && op?.slots) Object.assign(target.slots, op.slots);
+  }
+  return base;
+}
+
+const mergedCanvas = mergeCanvasOps;
+
+/** Блок и всё, что в нём лежит: удаление блока уносит поддерево. */
+function canvasSubtreeUids(tree, uid) {
+  const doomed = new Set([String(uid)]);
+  let grew = true;
+  while (grew) {
+    grew = false;
+    for (const entry of tree) {
+      if (doomed.has(String(entry.uid))) continue;
+      if (entry?.parentUid != null && doomed.has(String(entry.parentUid))) {
+        doomed.add(String(entry.uid));
+        grew = true;
+      }
+    }
+  }
+  return doomed;
+}
+
+function canvasTree(ctx) {
+  if (!Array.isArray(ctx.canvasSummary)) ctx.canvasSummary = [];
+  return ctx.canvasSummary;
+}
+
+function pushCanvasOp(ctx, op) {
+  ctx.canvasOps = ctx.canvasOps || [];
+  ctx.canvasOps.push(op);
+}
+
+function shortReason(value) {
+  return String(value || "").slice(0, 200);
+}
+
+function canvasMiss(tree, uid) {
+  return {
+    error: `no block with uid ${uid} on the canvas`,
+    availableUids: tree.map((entry) => ({ uid: entry.uid, blockId: entry.blockId })).slice(0, 40),
+  };
+}
+
+/**
+ * Временный uid для блока, которого на канвасе ещё нет.
+ *
+ * Настоящий uid выдаёт браузер, когда применяет пакет, — но агенту номер
+ * нужен раньше: поставить блок и тут же заменить в нём образцовый текст он
+ * должен в одном заходе. Браузер связывает временный номер с настоящим.
+ */
+function nextCanvasTempUid(ctx) {
+  ctx.canvasTempUid = (Number(ctx.canvasTempUid) || 0) + 1;
+  return `new-${ctx.canvasTempUid}`;
+}
+
+function canvasEntryFor(block, uid, userSlots) {
+  const slots = {};
+  for (const slot of block?.slots || []) {
+    if (!slot?.id) continue;
+    if (Object.prototype.hasOwnProperty.call(userSlots || {}, slot.id)) slots[slot.id] = userSlots[slot.id];
+    else if ("default" in slot) slots[slot.id] = slot.default;
+  }
+  return {
+    uid,
+    blockId: block.id,
+    ...(block.source ? { blockSource: block.source } : {}),
+    parentUid: null,
+    slotId: null,
+    slots,
+    slotSchema: (block?.slots || []).map((slot) => ({
+      id: slot.id,
+      kind: slot.kind || "text",
+      label: slot.label || slot.id,
+      ...(Array.isArray(slot.options) ? { options: slot.options } : {}),
+    })),
+  };
+}
+
+const CANVAS_SLOT_VALUES = globalThis.RetkitCanvasSlots;
 
 function serializeBlocks(blocks) {
   return Array.isArray(blocks) && blocks.length
     ? blocks.map((b) => `{{${b}}}`).join("\n\n") + "\n"
     : "";
+}
+
+/**
+ * Текст локали таким, каким его увидит человек после применения: последние
+ * правки этого же разговора (normalize, create, fix…) важнее того, что
+ * пришло из браузера. Раньше placeholderize брал локаль ДО нормализации —
+ * нумерация блоков в плейсхолдерах расходилась с тем, что применялось.
+ *
+ * И второе: из массива блоков строки не восстановить — «текст {{переменная}}{{.}}»
+ * одной строкой это один абзац, а через serializeBlocks каждый блок вставал
+ * на свою строку, и абзац рассыпался на «сирот». Поэтому, когда сырой TXT из
+ * браузера совпадает с блоками, берём его.
+ */
+function currentLocaleTxt(ctx, ns, code) {
+  if (!ns || !code) return "";
+  const name = ns.namespace || ns.name;
+  const pending = (ctx?.pendingLocaleUpdates || [])
+    .filter((u) => u && u.namespace === name && u.locale === code && typeof u.txt === "string");
+  if (pending.length) return pending[pending.length - 1].txt;
+  if ((ctx?.pendingLocaleDeletes || []).some((d) => d && d.namespace === name && d.locale === code)) return "";
+  const blocks = ns.locales?.[code];
+  const raw = ns.localeRaw?.[code];
+  if (typeof raw === "string" && raw.trim() && Array.isArray(blocks)) {
+    const parsed = parseTxtBlocks(raw);
+    if (parsed.length === blocks.length && parsed.every((b, i) => b === String(blocks[i] ?? "").trim())) return raw;
+  }
+  return serializeBlocks(blocks);
+}
+
+function currentLocaleCodes(ctx, ns) {
+  if (!ns) return [];
+  const name = ns.namespace || ns.name;
+  const codes = new Set(Object.keys(ns.locales || {}));
+  for (const u of ctx?.pendingLocaleUpdates || []) if (u && u.namespace === name && u.locale) codes.add(u.locale);
+  for (const d of ctx?.pendingLocaleDeletes || []) if (d && d.namespace === name) codes.delete(d.locale);
+  return [...codes];
 }
 
 function pickNamespace(ctx, name) {
@@ -214,6 +380,48 @@ export const TOOL_DEFINITIONS = [
         toLocale: { type: "string", description: "Target locale code." },
       },
       required: ["namespace", "toLocale"],
+    },
+  },
+  {
+    type: "function",
+    name: "find_across_locales",
+    description:
+      "Find a URL, image src, link or text in the WHOLE email at once: the email code AND every " +
+      "locale of every namespace. Returns per-place counts with kind (image/link/background/text) " +
+      "and context. & and &amp; are treated as the same. For images uploaded per locale under " +
+      "different paths use mode='filename' (matches every URL ending with the same file name). " +
+      "Built-in (locked) namespaces are reported with locked=true and are never changed. " +
+      "Use this BEFORE replace_across_locales.",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        query: { type: "string", description: "What to find: URL, file name, link or text (verbatim)." },
+        mode: { type: "string", enum: ["text", "filename"], description: "text (default) or filename for images." },
+      },
+      required: ["query"],
+    },
+  },
+  {
+    type: "function",
+    name: "replace_across_locales",
+    description:
+      "Replace a URL, image, link or text everywhere in one step: the email code and all locales " +
+      "(or only the listed ones). Same rules as find_across_locales; the replacement keeps the " +
+      "&amp; encoding of what it replaces; locked namespaces are skipped. Changes are staged like " +
+      "replace_in_html and reach the studio after the user confirms. Call find_across_locales first.",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        search: { type: "string", description: "What to replace (as found by find_across_locales)." },
+        replace: { type: "string", description: "Replacement (new URL / text)." },
+        mode: { type: "string", enum: ["text", "filename"], description: "text (default) or filename for images." },
+        includeHtml: { type: "boolean", description: "Also change the email code (default true)." },
+        locales: { type: "array", items: { type: "string" }, description: "Only these: locale codes (en, ar) or 'namespace|locale'. Default: all editable." },
+        perLocale: { type: "object", additionalProperties: { type: "string" }, description: "Optional own replacement per locale, e.g. {\"ar\": \"https://…/banner-ar.png\"} or {\"promo|ar\": …}; others use replace." },
+      },
+      required: ["search", "replace"],
     },
   },
   {
@@ -522,6 +730,8 @@ export const TOOL_DEFINITIONS = [
       "'make the title red', 'change the promo text' when the user is in the constructor. " +
       "Do NOT use edit_locale_block or save_user_block for this — those touch translation " +
       "files and the block library, not the email being assembled. " +
+      "Text, URL, image, colour, number and select slots are single-line; " +
+      "put intentional paragraphs only in a richText slot. " +
       "The current tree with every uid and its slot values is in the user message. " +
       "Call get_block_source first if you are unsure which slot id controls what.",
     parameters: {
@@ -548,6 +758,94 @@ export const TOOL_DEFINITIONS = [
         reason: { type: "string", description: "One short sentence for the user: what changed and why." },
       },
       required: ["uid"],
+    },
+  },
+  {
+    type: "function",
+    name: "remove_canvas_block",
+    description:
+      "Remove a block from the constructor canvas, together with everything nested inside it. " +
+      "THIS IS THE TOOL for 'удали этот блок', 'убери кнопку', 'убери нижнюю секцию' when the " +
+      "person is in the constructor. Do NOT use remove_block — that one edits the HTML of an " +
+      "email already open in the code workbench and cannot touch the canvas. " +
+      "Take the uid from the canvas tree in the user message.",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        uid: { type: ["string", "number"], description: "uid of the block on the canvas." },
+        reason: { type: "string", description: "One short sentence for the user: what you removed and why." },
+      },
+      required: ["uid"],
+    },
+  },
+  {
+    type: "function",
+    name: "clear_canvas",
+    description:
+      "Wipe the constructor canvas: every block goes, the email becomes empty. " +
+      "This is the tool for 'удали всё', 'очисти письмо', 'соберём заново'. " +
+      "Destructive: call it ONLY when the person asked for it in this conversation, and pass " +
+      "confirm: true to say you read that intent. One Ctrl+Z in the studio brings everything back. " +
+      "After clearing, build the new email with add_canvas_block + update_canvas_block.",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        confirm: { type: "boolean", description: "Must be true. The person asked to clear the canvas." },
+        reason: { type: "string", description: "One short sentence for the user." },
+      },
+      required: ["confirm"],
+    },
+  },
+  {
+    type: "function",
+    name: "add_canvas_block",
+    description:
+      "Put a block from the library onto the constructor canvas — the tool for 'добавь кнопку', " +
+      "'нужен заголовок сверху', and for rebuilding an email after clear_canvas. " +
+      "Without parentUid the studio places the block the same way a human drag-and-drop does: " +
+      "a section goes to the end of the email, an inner block into the last suitable section, " +
+      "and the wrapper is created for you — you never add one by hand. " +
+      "The result carries a uid you can pass straight to update_canvas_block in the same run to " +
+      "fill the block with real copy. Sample text arrives with the block: always replace it. " +
+      "Use list_canonical_blocks / find_blocks_by_look to choose the block, see_block to look at it.",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        blockId: { type: "string", description: "Block id from the library, e.g. 'sys-button'." },
+        blockSource: { type: "string", description: "canonical / imported / user — only when two blocks share an id." },
+        parentUid: { type: ["string", "number"], description: "uid of the container block; omit to let the studio choose." },
+        slotId: { type: "string", description: "Child slot of the parent; omit to let the studio choose." },
+        afterUid: { type: ["string", "number"], description: "Place right after this block instead of at the end." },
+        slots: {
+          type: "object",
+          additionalProperties: true,
+          description: 'Slot values for the new block, e.g. { "title": "Ваш бонус начислен" }. Anything you omit keeps the sample value.',
+        },
+        reason: { type: "string", description: "One short sentence for the user." },
+      },
+      required: ["blockId"],
+    },
+  },
+  {
+    type: "function",
+    name: "move_canvas_block",
+    description:
+      "Move a block on the constructor canvas one position up or down among its neighbours — " +
+      "'подними кнопку выше', 'футер должен быть последним'. " +
+      "Call it several times to move further. Order inside one container only: to put a block " +
+      "into a different container, remove it and add it again where it belongs.",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        uid: { type: ["string", "number"], description: "uid of the block on the canvas." },
+        direction: { type: "string", enum: ["up", "down"], description: "up = earlier in the email." },
+        reason: { type: "string", description: "One short sentence for the user." },
+      },
+      required: ["uid", "direction"],
     },
   },
   {
@@ -597,6 +895,179 @@ export const TOOL_DEFINITIONS = [
       },
       required: ["mailName", "blocks"],
     },
+  },
+  {
+    type: "function",
+    name: "open_draft",
+    description:
+      "Take a PERSONAL COPY of an email before changing it. The shared base stays untouched " +
+      "until the person says publish.\n\n" +
+      "Use this before any change to an email that already exists in the base: someone else may " +
+      "be working on it, and a change made straight into the base cannot be undone by them. " +
+      "After this, work on the draft name the tool returns.",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        brand: { type: "string", description: "Brand folder, e.g. X_IQ." },
+        mail: { type: "string", description: "Mail folder, e.g. mail-welcome." },
+      },
+      required: ["brand", "mail"],
+    },
+  },
+  {
+    type: "function",
+    name: "list_drafts",
+    description: "Which emails you currently hold a personal copy of, and how old each copy is.",
+    parameters: { type: "object", additionalProperties: false, properties: {} },
+  },
+  {
+    type: "function",
+    name: "draft_changes",
+    description:
+      "What differs between your draft and the shared base right now — file by file. " +
+      "Show this to the person BEFORE asking them to publish: 'I changed these three files' is " +
+      "an answer, 'I made some edits' is not.",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      properties: { brand: { type: "string" }, mail: { type: "string" } },
+      required: ["brand", "mail"],
+    },
+  },
+  {
+    type: "function",
+    name: "publish_draft",
+    description:
+      "Move your draft into the shared base. NEVER call this on your own initiative — only when " +
+      "the person explicitly says to publish. If the base changed since you took the copy, the " +
+      "call is refused with the difference: show it to the person and ask, do not force.",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        brand: { type: "string" },
+        mail: { type: "string" },
+        force: { type: "boolean", description: "Publish over a base that changed meanwhile. Only with explicit confirmation." },
+      },
+      required: ["brand", "mail"],
+    },
+  },
+  {
+    type: "function",
+    name: "discard_draft",
+    description: "Throw your personal copy away. The shared base is not touched. Ask first.",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      properties: { brand: { type: "string" }, mail: { type: "string" } },
+      required: ["brand", "mail"],
+    },
+  },
+  {
+    type: "function",
+    name: "mail_history",
+    description:
+      "Previous versions of an email: every publish and every rollback leaves a snapshot. " +
+      "Use it to answer 'what did it look like before' and to offer a rollback instead of " +
+      "rebuilding something that already existed.",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      properties: { brand: { type: "string" }, mail: { type: "string" } },
+      required: ["brand", "mail"],
+    },
+  },
+  {
+    type: "function",
+    name: "see_email",
+    description:
+      "LOOK at the email as a picture. Renders what the person sees right now — the open HTML " +
+      "in the code editor, or the live canvas in the constructor — and shows it to you as an image.\n\n" +
+      "Call this BEFORE saying anything about how the email looks, and before finishing an " +
+      "assembly. Byte counts and block trees do not tell you that a heading collided with an " +
+      "image or that the mobile layout is cut off. Render mobile separately (view: 'mobile') — " +
+      "it breaks more often than desktop.\n\n" +
+      "The picture arrives as the NEXT message, not inside this tool result.",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      properties: { view: { type: "string", enum: ["desktop", "mobile"], description: "Which view to render." } },
+    },
+  },
+  {
+    type: "function",
+    name: "see_block",
+    description:
+      "LOOK at a library block as a picture — the same preview the person sees in the catalogue. " +
+      "Use it when the question is about appearance: does this block fit, how does it sit next to " +
+      "its neighbour, what is wrong with it. Slot names do not describe looks.\n\n" +
+      "The picture arrives as the NEXT message.",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        id: { type: "string", description: "Block id from list_canonical_blocks." },
+        view: { type: "string", enum: ["desktop", "mobile"] },
+      },
+      required: ["id"],
+    },
+  },
+  {
+    type: "function",
+    name: "list_mail_files",
+    description:
+      "List the SOURCE files of the open email: stylus styles, pug templates, locale txt. " +
+      "The HTML you read is built FROM these. Editing the built HTML is a change that dies at " +
+      "the next rebuild — to change how the email renders, change the source.",
+    parameters: { type: "object", additionalProperties: false, properties: {} },
+  },
+  {
+    type: "function",
+    name: "read_mail_file",
+    description:
+      "Read one source file of the open email with line numbers. Big files are read in windows.",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        file: { type: "string", description: "Path inside the mail, e.g. app/styles/blocks/main.styl" },
+        from: { type: "number", description: "First line (default 1)." },
+        lines: { type: "number", description: "How many lines (default 400)." },
+      },
+      required: ["file"],
+    },
+  },
+  {
+    type: "function",
+    name: "write_mail_file",
+    description:
+      "Write a source file of the open email — THIS is how render styles are changed. " +
+      "Send the whole file, not a patch: stylus is indentation-sensitive and a near-miss patch " +
+      "breaks the build of the entire email.\n\n" +
+      "The email must be rebuilt afterwards for the change to reach the HTML. " +
+      "Locks apply to you as well: if a person is editing this email you will be refused by name.",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        file: { type: "string", description: "Path inside the mail." },
+        content: { type: "string", description: "Full new content of the file." },
+        reason: { type: "string", description: "One sentence for the person: what changed and why." },
+      },
+      required: ["file", "content"],
+    },
+  },
+  {
+    type: "function",
+    name: "check_canvas_ready",
+    description:
+      "Check the email on the constructor canvas for leftover SAMPLE text — the demo values " +
+      "blocks arrive with ('Заголовок письма', 'Перейти', 'Короткая подсветка…'). " +
+      "Call this BEFORE finish on the constructor surface. Leftover sample text is not a " +
+      "style issue: the customer sees it in the sent campaign. " +
+      "Also flags Russian service text left inside an English email.",
+    parameters: { type: "object", additionalProperties: false, properties: {} },
   },
   {
     type: "function",
@@ -706,9 +1177,13 @@ export const TOOL_HANDLERS = {
   async get_namespace_blocks(args, ctx) {
     const ns = pickNamespace(ctx, args.namespace);
     if (!ns) return { error: `namespace not found: ${args.namespace}` };
-    const blocks = (ns.locales || {})[args.locale];
-    if (!Array.isArray(blocks)) return { error: `locale not found: ${args.namespace}.${args.locale}` };
-    return { namespace: args.namespace, locale: args.locale, blocks };
+    if (!currentLocaleCodes(ctx, ns).includes(args.locale)) {
+      return { error: `locale not found: ${args.namespace}.${args.locale}`, available: currentLocaleCodes(ctx, ns) };
+    }
+    const name = ns.namespace || ns.name;
+    const staged = (ctx?.pendingLocaleUpdates || []).some((u) => u && u.namespace === name && u.locale === args.locale);
+    const blocks = staged ? parseTxtBlocks(currentLocaleTxt(ctx, ns, args.locale)) : ns.locales[args.locale];
+    return { namespace: args.namespace, locale: args.locale, blocks, ...(staged ? { staged: true, note: "Это правка этого разговора: применится после подтверждения." } : {}) };
   },
 
   async analyze_email(args, ctx) {
@@ -716,15 +1191,13 @@ export const TOOL_HANDLERS = {
     const ns = pickNamespace(ctx, args.namespace);
     if (!ns) return { error: `namespace not found: ${args.namespace}` };
     const refCode = args.refLocale || (ns.locales?.en ? "en" : ns.referenceLocale || Object.keys(ns.locales || {})[0]);
-    const refTxt = serializeBlocks(ns.locales?.[refCode]);
+    const refTxt = currentLocaleTxt(ctx, ns, refCode);
     if (!refTxt) return { error: `no reference blocks in ${args.namespace}.${refCode}` };
     return analyzeLocaleAgainstHtml({
       html: ctx.html,
       refTxt,
       refCode,
-      locales: Object.fromEntries(
-        Object.entries(ns.locales || {}).map(([c, b]) => [c, serializeBlocks(b)])
-      ),
+      locales: Object.fromEntries(currentLocaleCodes(ctx, ns).map((c) => [c, currentLocaleTxt(ctx, ns, c)])),
     });
   },
 
@@ -800,7 +1273,7 @@ export const TOOL_HANDLERS = {
     const ns = pickNamespace(ctx, args.namespace);
     if (!ns) return { error: `namespace not found: ${args.namespace}` };
     const refCode = args.refLocale || (ns.locales?.en ? "en" : ns.referenceLocale || Object.keys(ns.locales || {})[0]);
-    const refTxt = serializeBlocks(ns.locales?.[refCode]);
+    const refTxt = currentLocaleTxt(ctx, ns, refCode);
     if (!refTxt) return { error: `no reference blocks in ${args.namespace}.${refCode}` };
     const result = await placeholderizeHtml({
       html: ctx.html,
@@ -880,6 +1353,81 @@ export const TOOL_HANDLERS = {
       from: fromLocale,
       to: args.toLocale,
       blocks: r.blocks.length,
+    };
+  },
+
+  async find_across_locales(args, ctx) {
+    if (!ReplaceAcross) return { error: "replace-across core is not loaded" };
+    const query = String(args.query ?? "");
+    if (!query) return { error: "query is empty" };
+    const mode = args.mode === "filename" ? "filename" : "text";
+    const html = String(ctx.modifiedHtml || ctx.html || "");
+    const namespaces = (Array.isArray(ctx.namespaces) ? ctx.namespaces : []).map((ns) => ({
+      id: ns.namespace || ns.name, name: ns.namespace || ns.name, builtin: Boolean(ns.builtin), locales: ns.locales || {},
+    }));
+    const plan = ReplaceAcross.plan({ code: html, namespaces, find: query, mode });
+    const brief = (hits) => (hits || []).slice(0, 3).map((h) => ({ kind: h.kind, block: h.block, context: `${String(h.before).slice(-30)}[[${h.match}]]${String(h.after).slice(0, 30)}` }));
+    return {
+      query: query.slice(0, 300),
+      mode,
+      total: plan.total,
+      editableTotal: plan.editableTotal,
+      html: { count: plan.code?.count || 0, hits: brief(plan.code?.hits) },
+      locales: plan.locales.map((l) => ({ namespace: l.nsName, locale: l.locale, count: l.count, locked: l.locked, blocks: l.blockIndexes, hits: brief(l.hits) })),
+      imageModeAvailable: ReplaceAcross.looksLikeImage(query),
+      hint: (() => {
+        if (mode !== "text" || !ReplaceAcross.looksLikeImage(query)) return undefined;
+        const byName = ReplaceAcross.plan({ code: html, namespaces, find: query, mode: "filename" }).total;
+        return byName > plan.total ? `mode='filename' finds ${byName} (same image uploaded per locale under other paths)` : undefined;
+      })(),
+    };
+  },
+
+  async replace_across_locales(args, ctx) {
+    if (!ReplaceAcross) return { error: "replace-across core is not loaded" };
+    const search = String(args.search ?? "");
+    const replace = String(args.replace ?? "");
+    if (!search) return { error: "search is empty" };
+    if (replace.length > 4000) return { error: "replace too long (>4000 chars) — surgical edits only" };
+    const mode = args.mode === "filename" ? "filename" : "text";
+    const html = String(ctx.modifiedHtml || ctx.html || "");
+    const source = Array.isArray(ctx.namespaces) ? ctx.namespaces : [];
+    const namespaces = source.map((ns) => ({
+      id: ns.namespace || ns.name, name: ns.namespace || ns.name, builtin: Boolean(ns.builtin), locales: ns.locales || {},
+    }));
+    const plan = ReplaceAcross.plan({ code: html, namespaces, find: search, mode });
+    const only = Array.isArray(args.locales) && args.locales.length ? args.locales.map(String) : null;
+    const keys = plan.locales
+      .filter((l) => !l.locked)
+      .filter((l) => !only || only.includes(l.locale) || only.includes(`${l.nsName}|${l.locale}`))
+      .map((l) => `${l.nsId}|${l.locale}`);
+    const includeHtml = args.includeHtml !== false && Boolean(html);
+    const own = {};
+    if (args.perLocale && typeof args.perLocale === "object") {
+      for (const key of keys) {
+        const loc = key.split("|")[1];
+        if (Object.prototype.hasOwnProperty.call(args.perLocale, key)) own[key] = String(args.perLocale[key]);
+        else if (Object.prototype.hasOwnProperty.call(args.perLocale, loc)) own[key] = String(args.perLocale[loc]);
+      }
+    }
+    const result = ReplaceAcross.apply({ code: html, namespaces, find: search, replacement: replace, mode, selection: { code: includeHtml, locales: keys }, replacements: own });
+    if (!result.total) return { error: "nothing to replace — call find_across_locales (mind mode='filename' for images)" };
+    if (result.codeCount) {
+      if (result.code.length < html.length * 0.6) return { error: "edit would shrink the document by >40% — refused" };
+      ctx.modifiedHtml = result.code;
+    }
+    ctx.pendingLocaleUpdates = ctx.pendingLocaleUpdates || [];
+    for (const patch of result.patches) {
+      const ns = source.find((n) => (n.namespace || n.name) === patch.nsId);
+      if (ns) ns.locales = { ...(ns.locales || {}), [patch.locale]: patch.blocks };
+      ctx.pendingLocaleUpdates.push({ namespace: patch.nsId, locale: patch.locale, txt: serializeBlocks(patch.blocks) });
+    }
+    return {
+      replaced: result.total,
+      html: result.codeCount,
+      locales: result.patches.map((p) => ({ namespace: p.nsId, locale: p.locale, count: p.count })),
+      skippedLocked: plan.locales.filter((l) => l.locked).map((l) => `${l.nsName}|${l.locale}`),
+      note: "Staged. HTML and locale changes reach the studio after the user confirms (like replace_in_html).",
     };
   },
 
@@ -1076,11 +1624,15 @@ export const TOOL_HANDLERS = {
     return { namespace: ns.namespace || ns.name, locale: code, index: i, before, after: text };
   },
 
-  async list_canonical_blocks(_args, _ctx) {
+  async list_canonical_blocks(_args, ctx) {
     // Imported blocks are validated as historical source fragments, not as a
     // mutually compatible design system. Feeding all 955 legacy slices to the
     // model wastes context and lets campaign assets/styles leak into new mail.
-    const blocks = listCanonicalBlocks().filter((block) => block.source === "canonical" && block.retired !== true);
+    // In the constructor the person's catalog (brand + kit) is the truth.
+    const catalog = ctx?.constructorCatalog || null;
+    const blocks = catalog
+      ? filterByCatalog(catalog, listCanonicalBlocks().filter((block) => block.retired !== true))
+      : listCanonicalBlocks().filter((block) => block.source === "canonical" && block.retired !== true);
     return {
       count: blocks.length,
       blocks: blocks.map((b) => ({
@@ -1117,7 +1669,7 @@ export const TOOL_HANDLERS = {
    * X_IQ (1 писем)», из-за чего hero-подобные секции путались между собой.
    * Здесь она фильтрует по тому, что реально видно на превью.
    */
-  async find_blocks_by_look(args, _ctx) {
+  async find_blocks_by_look(args, ctx) {
     const limit = Math.min(Math.max(1, Number(args?.limit) || 12), 40);
     const wantPlacement = String(args?.placement || "any").toLowerCase();
     const includeLegacy = args?.includeLegacy !== false;
@@ -1126,6 +1678,8 @@ export const TOOL_HANDLERS = {
 
     let blocks = listCanonicalBlocks().filter((b) => b.retired !== true);
     if (!includeLegacy) blocks = blocks.filter((b) => b.source !== "imported");
+    // Конструктор: ищем только среди того, что человек может поставить.
+    blocks = filterByCatalog(ctx?.constructorCatalog || null, blocks);
 
     const scored = [];
     for (const block of blocks) {
@@ -1159,7 +1713,13 @@ export const TOOL_HANDLERS = {
 
       let colourScore = 0;
       if (args?.backgroundLike) {
-        const distance = colourDistance(args.backgroundLike, sig?.background);
+        // Сравниваем со ВСЕЙ палитрой, а не только с доминирующим цветом.
+        // У блока-кнопки доминирует белое поле вокруг неё, и поиск «оранжевая
+        // кнопка» по одному лишь фону не находил ни одной оранжевой кнопки.
+        const palette = [sig?.background, ...(sig?.palette || [])].filter(Boolean);
+        const distances = palette.map((c) => colourDistance(args.backgroundLike, c))
+          .filter((d) => d != null);
+        const distance = distances.length ? Math.min(...distances) : null;
         // Больше 120 по расстоянию — это уже другой цвет, а не оттенок.
         if (distance == null || distance > 120) continue;
         colourScore = 1 - distance / 120;
@@ -1221,13 +1781,39 @@ export const TOOL_HANDLERS = {
       if (out.length >= limit) break;
     }
 
+    // Пустая выдача визуального поиска НЕ означает, что блока нет в студии.
+    // На этом уже обожглись: оператор трижды получил ноль, сказал человеку
+    // «в библиотеке нет блока с кнопкой» и предложил рисовать её руками — при
+    // том что sys-button лежит в каталоге. Поэтому вместе с нулём отдаём
+    // готовый список кандидатов и прямой запрет на такой вывод.
+    const fallback = out.length ? [] : blocks
+      .filter((block) => {
+        if (wantPlacement === "any") return true;
+        const placement = block.placement === "inline" ? "inner" : block.placement;
+        const want = wantPlacement === "inline" ? "inner" : wantPlacement;
+        return placement === want || (want === "inner" && placement === "both");
+      })
+      .filter((block) => block.source === "canonical")
+      .slice(0, 20)
+      .map((block) => ({
+        id: block.id,
+        label: block.label,
+        placement: block.placement,
+        category: block.category,
+        slots: (block.slots || []).map((slot) => slot.id),
+      }));
+
     return {
       count: out.length,
       scanned: scored.length,
       blocks: out,
+      ...(fallback.length ? { candidates: fallback } : {}),
       hint: out.length
         ? "previewUrl is a rendered PNG of the block. Pass ids to compose_email_from_blocks or insert_block."
-        : "Nothing matched. Loosen the structural filters — start with placement + one of hasImage/hasButton/minColumns.",
+        : "Visual search found nothing — this does NOT mean the block is missing from the studio. "
+          + "NEVER tell the user a block does not exist based on this result. "
+          + "Pick from `candidates` above, or call list_canonical_blocks and choose by id/label "
+          + "(buttons are sys-button / iq-cta-*, text is sys-text, images are sys-image).",
     };
   },
 
@@ -1426,19 +2012,121 @@ export const TOOL_HANDLERS = {
    * edit_locale_block и save_user_block — то есть за файлы переводов и за
    * библиотеку блоков, а само письмо оставалось нетронутым.
    */
+  async open_draft(args, ctx) {
+    try {
+      const opened = await openDraft(ctx?.repoRoot, {
+        brand: args?.brand, mail: args?.mail, actor: ctx?.actor, readOnly: ctx?.readOnly,
+      });
+      // Дальше агент должен работать с черновиком, а не с базой. Говорим это
+      // прямым текстом: иначе следующий же вызов уйдёт мимо копии.
+      ctx.brand = opened.draft.brand;
+      ctx.mail = opened.draft.mail;
+      return {
+        ok: true,
+        created: opened.created,
+        draft: opened.draft.mail,
+        brand: opened.draft.brand,
+        note: `Работайте дальше с «${opened.draft.mail}» — это ваша копия. Общая база не изменится, пока человек не скажет опубликовать.`,
+      };
+    } catch (error) { return { error: error.message, code: error.code, holder: error.holder }; }
+  },
+
+  async list_drafts(args, ctx) {
+    try { return { ok: true, drafts: listDrafts(ctx?.repoRoot, ctx?.actor) }; }
+    catch (error) { return { error: error.message, code: error.code }; }
+  },
+
+  async draft_changes(args, ctx) {
+    try {
+      return {
+        ok: true,
+        changes: draftChanges(ctx?.repoRoot, { brand: args?.brand, mail: args?.mail, actor: ctx?.actor }),
+      };
+    } catch (error) { return { error: error.message, code: error.code }; }
+  },
+
+  async publish_draft(args, ctx) {
+    try {
+      return {
+        ok: true,
+        ...await publishDraft(ctx?.repoRoot, {
+          brand: args?.brand, mail: args?.mail, actor: ctx?.actor,
+          readOnly: ctx?.readOnly, force: Boolean(args?.force),
+        }),
+      };
+    } catch (error) {
+      return {
+        error: error.message,
+        code: error.code,
+        ...(error.changes ? { changes: error.changes } : {}),
+        hint: error.code === "BASE_CHANGED"
+          ? "База изменилась с тех пор, как вы взяли копию. Покажите разницу человеку и спросите — не публикуйте поверх сами."
+          : undefined,
+      };
+    }
+  },
+
+  async discard_draft(args, ctx) {
+    try {
+      return { ok: true, ...await discardDraft(ctx?.repoRoot, { brand: args?.brand, mail: args?.mail, actor: ctx?.actor }) };
+    } catch (error) { return { error: error.message, code: error.code }; }
+  },
+
+  async mail_history(args, ctx) {
+    try { return { ok: true, history: listSnapshots(ctx?.repoRoot, { brand: args?.brand, mail: args?.mail }) }; }
+    catch (error) { return { error: error.message, code: error.code }; }
+  },
+
+  async see_email(args, ctx) {
+    return seeEmail(args, ctx);
+  },
+
+  async see_block(args, ctx) {
+    return seeBlock(args, ctx, {
+      previewRoot: path.join(ctx?.repoRoot || process.cwd(), "data", "block-previews"),
+      // Превью к блокам прикручиваются отдельно: без этого у каждого блока
+      // «нет картинки», и глаза бесполезны.
+      blocks: attachPreviews(listCanonicalBlocks()),
+    });
+  },
+
+  async list_mail_files(args, ctx) {
+    try { return listMailFiles(args, ctx); }
+    catch (error) { return { error: error.message, code: error.code }; }
+  },
+
+  async read_mail_file(args, ctx) {
+    try { return readMailFile(args, ctx); }
+    catch (error) { return { error: error.message, code: error.code }; }
+  },
+
+  async write_mail_file(args, ctx) {
+    try { return await writeMailFile(args, ctx, { writeFileSync: fsWriteFileSync }); }
+    catch (error) { return { error: error.message, code: error.code }; }
+  },
+
+  async check_canvas_ready(args, ctx) {
+    const canvas = Array.isArray(ctx?.canvasSummary) ? ctx.canvasSummary : [];
+    if (!canvas.length) return { ok: true, note: "На канвасе пусто — проверять нечего." };
+    // Образцовые значения берём из живой библиотеки, а не из списка в коде:
+    // добавили блок с новым демо-текстом — проверка узнает о нём сама.
+    const result = checkCanvasReady({ canvas: mergedCanvas(ctx), blocks: listCanonicalBlocks() });
+    return {
+      ok: result.ready,
+      language: result.language,
+      leftovers: result.leftovers,
+      message: describeLeftovers(result),
+    };
+  },
+
   async update_canvas_block(args, ctx) {
     const uid = args?.uid;
     if (uid === undefined || uid === null || uid === "") {
       return { error: "uid is required — take it from the canvas tree in the user message" };
     }
-    const tree = Array.isArray(ctx?.canvasSummary) ? ctx.canvasSummary : [];
+    const tree = canvasTree(ctx);
     const target = tree.find((entry) => String(entry.uid) === String(uid));
-    if (tree.length && !target) {
-      return {
-        error: `no block with uid ${uid} on the canvas`,
-        availableUids: tree.map((e) => ({ uid: e.uid, blockId: e.blockId })).slice(0, 40),
-      };
-    }
+    if (tree.length && !target) return canvasMiss(tree, uid);
 
     const slots = args?.slots && typeof args.slots === "object" && !Array.isArray(args.slots)
       ? args.slots : null;
@@ -1448,25 +2136,209 @@ export const TOOL_HANDLERS = {
       return { error: "nothing to change — pass slots and/or appearance" };
     }
 
-    ctx.canvasOps = ctx.canvasOps || [];
-    ctx.canvasOps.push({
+    const checkedSlots = slots
+      ? CANVAS_SLOT_VALUES.normalizeSlotPatch(target?.slotSchema, slots)
+      : null;
+    if (checkedSlots && !checkedSlots.ok) {
+      return {
+        error: `canvas slot update rejected: ${checkedSlots.errors.map((item) => item.error).join("; ")}`,
+        code: "INVALID_CANVAS_SLOT_VALUE",
+        uid,
+        invalidSlots: checkedSlots.errors.map((item) => ({
+          id: item.id || null,
+          code: item.code,
+          message: item.error,
+        })),
+        hint: "Use one line for text, URL, image, colour, number and select slots. Use a richText slot for intentional paragraphs.",
+      };
+    }
+    const safeSlots = checkedSlots?.values || null;
+
+    pushCanvasOp(ctx, {
+      kind: "update",
       uid,
-      ...(slots ? { slots: JSON.parse(JSON.stringify(slots)) } : {}),
+      ...(safeSlots ? { slots: JSON.parse(JSON.stringify(safeSlots)) } : {}),
       ...(appearance ? { appearance: JSON.parse(JSON.stringify(appearance)) } : {}),
-      reason: String(args?.reason || "").slice(0, 200),
+      reason: shortReason(args?.reason),
     });
 
     // Локально обновляем сводку дерева, чтобы следующий шаг агента видел
     // уже изменённое состояние, а не спорил сам с собой.
-    if (target && slots) target.slots = { ...(target.slots || {}), ...slots };
+    if (target && safeSlots) target.slots = { ...(target.slots || {}), ...safeSlots };
 
     return {
       ok: true,
       uid,
       blockId: target?.blockId || null,
-      changedSlots: slots ? Object.keys(slots) : [],
+      changedSlots: safeSlots ? Object.keys(safeSlots) : [],
+      normalizedRichTextSlots: checkedSlots?.normalizedSlots || [],
       changedAppearance: appearance ? Object.keys(appearance) : [],
       note: "Изменение применится к канвасу конструктора, когда ты завершишь работу (finish).",
+    };
+  },
+
+  async remove_canvas_block(args, ctx) {
+    const tree = canvasTree(ctx);
+    const uid = args?.uid;
+    const target = tree.find((entry) => String(entry.uid) === String(uid));
+    if (!target) return canvasMiss(tree, uid);
+    const doomed = canvasSubtreeUids(tree, uid);
+    ctx.canvasSummary = tree.filter((entry) => !doomed.has(String(entry.uid)));
+    pushCanvasOp(ctx, { kind: "remove", uid, reason: shortReason(args?.reason) });
+    return {
+      ok: true,
+      removed: [...doomed],
+      blockId: target.blockId || null,
+      remaining: ctx.canvasSummary.length,
+      note: "Блок уйдёт с канваса, когда ты завершишь работу (finish). Один Ctrl+Z вернёт его человеку.",
+    };
+  },
+
+  async clear_canvas(args, ctx) {
+    if (args?.confirm !== true) {
+      return {
+        error: "clear_canvas wipes the whole email — pass confirm: true, and only if the person asked for it",
+        code: "CONFIRM_REQUIRED",
+      };
+    }
+    const had = canvasTree(ctx).length;
+    ctx.canvasSummary = [];
+    pushCanvasOp(ctx, { kind: "clear", reason: shortReason(args?.reason) });
+    return {
+      ok: true,
+      removed: had,
+      note: had
+        ? "Канвас очистится, когда ты завершишь работу (finish). Дальше собирай письмо через add_canvas_block."
+        : "На канвасе и так было пусто.",
+    };
+  },
+
+  async add_canvas_block(args, ctx) {
+    const tree = canvasTree(ctx);
+    const blockId = String(args?.blockId || "").trim();
+    if (!blockId) return { error: "blockId is required — take it from list_canonical_blocks or find_blocks_by_look" };
+    const library = listCanonicalBlocks();
+    const wantedSource = String(args?.blockSource || "").trim();
+    const block = library.find((candidate) => candidate.id === blockId
+      && (!wantedSource || candidate.source === wantedSource))
+      || library.find((candidate) => candidate.id === blockId);
+    if (!block) {
+      const near = library
+        .filter((candidate) => String(candidate.id).includes(blockId) || blockId.includes(String(candidate.id)))
+        .map((candidate) => candidate.id).slice(0, 8);
+      return {
+        error: `no block "${blockId}" in the library`,
+        code: "UNKNOWN_BLOCK",
+        ...(near.length ? { didYouMean: near } : {}),
+        hint: "Call list_canonical_blocks or find_blocks_by_look first — block ids are not guessable.",
+      };
+    }
+
+    if (!catalogAllows(ctx?.constructorCatalog || null, block)) {
+      return {
+        error: `block "${blockId}" is not in this constructor catalog (other brand, other kit or not reviewed)`,
+        code: "BLOCK_NOT_IN_CATALOG",
+        alternatives: catalogAlternatives(ctx.constructorCatalog, block),
+        hint: "Pick from the block list in the user message — that is exactly what the person can place here.",
+      };
+    }
+
+    const wanted = args?.slots && typeof args.slots === "object" && !Array.isArray(args.slots) ? args.slots : null;
+    const checked = wanted ? CANVAS_SLOT_VALUES.normalizeSlotPatch(block.slots, wanted) : null;
+    if (checked && !checked.ok) {
+      return {
+        error: `canvas slot values rejected: ${checked.errors.map((item) => item.error).join("; ")}`,
+        code: "INVALID_CANVAS_SLOT_VALUE",
+        invalidSlots: checked.errors.map((item) => ({ id: item.id || null, code: item.code, message: item.error })),
+        hint: "Use one line for text, URL, image, colour, number and select slots. Use a richText slot for intentional paragraphs.",
+      };
+    }
+
+    const parentUid = args?.parentUid ?? null;
+    if (parentUid != null && tree.length && !tree.some((entry) => String(entry.uid) === String(parentUid))) {
+      return canvasMiss(tree, parentUid);
+    }
+
+    // Комбо — это рецепт из нескольких блоков. Каждому ребёнку выдаём свой
+    // временный uid здесь же: иначе агент соберёт каркас и в том же заходе
+    // не сможет заменить в нём образцовый текст, а ради этого всё и делается.
+    const children = Array.isArray(block.children) && block.children.length ? block.children : null;
+    const added = [];
+    const childTempUids = [];
+    if (children) {
+      for (const child of children) {
+        const def = library.find((candidate) => candidate.id === child.id
+          && (!child.source || candidate.source === child.source))
+          || library.find((candidate) => candidate.id === child.id);
+        const temp = nextCanvasTempUid(ctx);
+        childTempUids.push(def ? temp : null);
+        if (!def) continue;
+        added.push(canvasEntryFor(def, temp, { ...(child.slots || {}) }));
+      }
+      if (!added.length) return { error: `combo "${blockId}" has no blocks this studio knows`, code: "EMPTY_COMBO" };
+    } else {
+      added.push(canvasEntryFor(block, nextCanvasTempUid(ctx), checked?.values || {}));
+    }
+
+    for (const entry of added) tree.push(entry);
+    pushCanvasOp(ctx, {
+      kind: "add",
+      blockId: block.id,
+      ...(block.source ? { blockSource: block.source } : {}),
+      ...(parentUid != null ? { parentUid } : {}),
+      ...(args?.slotId ? { slotId: String(args.slotId) } : {}),
+      ...(args?.afterUid != null ? { afterUid: args.afterUid } : {}),
+      ...(checked?.values && !children ? { slots: JSON.parse(JSON.stringify(checked.values)) } : {}),
+      tempUid: children ? null : added[0].uid,
+      ...(children ? { childTempUids } : {}),
+      // Снимок добавленного нужен только серверу: пересборка дерева после
+      // clear в этом же заходе должна дать то же, что видит агент.
+      entries: JSON.parse(JSON.stringify(added)),
+      reason: shortReason(args?.reason),
+    });
+
+    return {
+      ok: true,
+      uid: added[0].uid,
+      blockId: block.id,
+      ...(children ? { combo: true, blocks: added.map((entry) => ({ uid: entry.uid, blockId: entry.blockId })) } : {}),
+      slots: added[0].slots,
+      slotSchema: added[0].slotSchema,
+      note: "Блок появится на канвасе, когда ты завершишь работу (finish). uid уже настоящий для тебя: "
+        + "вызывай update_canvas_block с ним прямо сейчас, чтобы заменить образцовый текст.",
+    };
+  },
+
+  async move_canvas_block(args, ctx) {
+    const tree = canvasTree(ctx);
+    const uid = args?.uid;
+    const index = tree.findIndex((entry) => String(entry.uid) === String(uid));
+    if (index < 0) return canvasMiss(tree, uid);
+    const entry = tree[index];
+    const direction = args?.direction === "up" ? "up" : "down";
+    const siblings = tree.filter((candidate) => String(candidate.parentUid ?? "") === String(entry.parentUid ?? "")
+      && String(candidate.slotId ?? "") === String(entry.slotId ?? ""));
+    const at = siblings.findIndex((candidate) => String(candidate.uid) === String(uid));
+    const to = at + (direction === "up" ? -1 : 1);
+    if (at < 0 || to < 0 || to >= siblings.length) {
+      return {
+        error: `block ${uid} is already ${direction === "up" ? "first" : "last"} among its neighbours`,
+        code: "CANVAS_EDGE",
+        hint: "To put it into a different container, remove_canvas_block and add_canvas_block with that parentUid.",
+      };
+    }
+    // Сводку двигаем сразу: следующий шаг агента должен видеть новый порядок.
+    const neighbour = siblings[to];
+    const neighbourIndex = tree.findIndex((candidate) => String(candidate.uid) === String(neighbour.uid));
+    tree[index] = neighbour;
+    tree[neighbourIndex] = entry;
+    pushCanvasOp(ctx, { kind: "move", uid, direction, reason: shortReason(args?.reason) });
+    return {
+      ok: true,
+      uid,
+      direction,
+      swappedWith: neighbour.uid,
+      note: "Порядок изменится на канвасе, когда ты завершишь работу (finish).",
     };
   },
 

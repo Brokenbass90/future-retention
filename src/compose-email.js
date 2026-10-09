@@ -34,7 +34,16 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync, rmSync, readdirSync
 import path from "node:path";
 import url from "node:url";
 import { buildStudioModelSourceSignatures } from "./studio-model-signatures.js";
-import { assertPortableBlockSource } from "./block-library-review.js";
+import {
+  assertBlockReleaseApproved,
+  assertPortableBlockSource,
+  blockReviewStatus,
+} from "./block-library-review.js";
+import { getBrand, themeAsStylus, THEME_TOKENS } from "./brands.js";
+import { applyCampaign, normalizeCampaign } from "./campaign-links.js";
+import "../public/canvas-slot-values.js";
+
+const CANVAS_SLOT_VALUES = globalThis.RetkitCanvasSlots;
 
 const here = path.dirname(url.fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(here, "..");
@@ -199,18 +208,15 @@ export function assertEmailAssetSourcePublic(source, label = "composed email sou
  * interpolation expression or CSS declaration in either language.
  */
 function normalizeTypedSlotValue(block, slot, raw) {
-  if (raw == null) return "";
-  if (!["string", "number", "boolean"].includes(typeof raw)) {
-    failSlot(block, slot, "must be a string, number or boolean");
-  }
   const kind = String(slot?.kind || "text").toLowerCase();
-  let value = String(raw);
   const inPugStyle = slotUsedInPugStyle(block?.pug, slot.id);
   const inStyl = slotUsedInStyl(block?.styl, slot.id);
   const cssContext = inPugStyle || inStyl;
-  if (/\r|\n|\u0000|\u2028|\u2029/.test(value)) {
-    failSlot(block, slot, "cannot contain line breaks or control separators");
-  }
+  const normalized = CANVAS_SLOT_VALUES.normalizeSlotValue(slot, raw, {
+    allowRichTextMultiline: !cssContext,
+  });
+  if (!normalized.ok) failSlot(block, slot, normalized.reason || normalized.error);
+  let value = normalized.value;
   if (/[#!]\{/.test(value)) {
     failSlot(block, slot, "cannot contain Pug interpolation (#{...}/!{...})");
   }
@@ -235,9 +241,17 @@ function normalizeTypedSlotValue(block, slot, raw) {
     value = String(number);
   }
   if (kind === "select" && !cssContext && Array.isArray(slot.options) && slot.options.length) {
-    const option = slot.options.find((candidate) => String(candidate) === value);
-    if (option === undefined) failSlot(block, slot, `must be one of: ${slot.options.map(String).join(", ")}`);
-    value = String(option);
+    // Вариант списка — либо строка, либо {value,label}: подпись нужна там, где
+    // само значение человеку ничего не говорит (URL картинки, например).
+    // В письмо идёт только value; label существует ради интерфейса.
+    const optionValue = (candidate) => (
+      candidate && typeof candidate === "object" && !Array.isArray(candidate)
+        ? String(candidate.value ?? "")
+        : String(candidate)
+    );
+    const option = slot.options.find((candidate) => optionValue(candidate) === value);
+    if (option === undefined) failSlot(block, slot, `must be one of: ${slot.options.map(optionValue).join(", ")}`);
+    value = optionValue(option);
   }
   if (["url", "image", "localizedurl"].includes(kind)
       && /^\s*(?:javascript|vbscript|data\s*:\s*text\/html)/i.test(value)) {
@@ -589,7 +603,16 @@ export function listCanonicalBlocks() {
   // Returns canonical first, user-saved second. Same shape.
   const canonical = _readBlocksFromDir(CANONICAL_DIR, "canonical");
   const imported  = _readBlocksFromDir(IMPORTED_DIR, "imported");
-  const user      = _readBlocksFromDir(USER_BLOCK_DIR, "user");
+  const user      = _readBlocksFromDir(USER_BLOCK_DIR, "user").map((block) => ({
+    ...block,
+    review: {
+      ...(block.review && typeof block.review === "object" ? block.review : {}),
+      // A hand-edited/stale JSON cannot remain approved merely because the
+      // persisted label still says so. The catalog receives the effective
+      // fail-closed lifecycle status.
+      status: blockReviewStatus(block),
+    },
+  }));
   return [...canonical, ...imported, ...user];
 }
 
@@ -622,6 +645,26 @@ export function resolveBlockSlotValues(block, userSlots = {}) {
     }
   }
   return out;
+}
+
+/**
+ * Переменные темы бренда для блоков письма.
+ *
+ * Бренда может не быть в реестре (папка заведена руками, письмо собирается в
+ * X_preview) — тогда берутся значения по умолчанию из THEME_TOKENS: блок,
+ * написанный «по-брендовому», обязан компилироваться в любом случае, иначе
+ * сборка падала бы там, где раньше работала.
+ */
+export function brandThemeStylusHeader(brandId) {
+  let brand = null;
+  try { brand = getBrand(brandId); } catch { /* реестр недоступен — дефолты */ }
+  const source = brand || { theme: Object.fromEntries(THEME_TOKENS.map((t) => [t.id, t.fallback])) };
+  // Комментарий строкой `//`, а не `/* */`: блочный Stylus выводит в CSS, и
+  // подпись весила бы 28 лишних байт в head КАЖДОГО письма. Замерено тестом.
+  const note = brand
+    ? `// тема бренда ${brand.label} (${brand.id})`
+    : "// тема бренда: значения по умолчанию — бренда нет в реестре";
+  return `${note}\n${themeAsStylus(source)}\n`;
 }
 
 /* ─── Constructor tree helpers ─────────────────────────────────────── */
@@ -829,6 +872,8 @@ export function resolveComposeEmailTarget({
  * @param {string} [args.skeleton]   — abs path to a template mail to use as wrapper
  * @param {string} [args.destRoot]   — override destination root (default email-base)
  * @param {boolean} [args.validateOnly] — render and validate in memory without filesystem writes
+ * @param {boolean} [args.requireApprovedBlocks] — release path: canonical or currently approved user blocks only
+ * @param {boolean} [args.allowTrustedParsedBlocks] — internal round-trip escape hatch after caller verifies source skeleton provenance
  * @returns {{ destDir, brand, mailName, totalBlocks, blocksUsed, warnings }}
  */
 export function composeEmailFromBlocks({
@@ -841,6 +886,9 @@ export function composeEmailFromBlocks({
   markBlocks = false,
   preserveSkeletonPreheader = false,
   validateOnly = false,
+  campaign = "",
+  requireApprovedBlocks = false,
+  allowTrustedParsedBlocks = false,
 }) {
   const target = resolveComposeEmailTarget({ brand, mailName, destRoot });
   const safeBrand = target.brand;
@@ -882,7 +930,7 @@ export function composeEmailFromBlocks({
         childSlots: Array.isArray(entry.def.childSlots) ? entry.def.childSlots : [],
         appearance: entry.def.appearance && typeof entry.def.appearance === "object" ? entry.def.appearance : {},
       };
-      origin = "ad-hoc";
+      origin = entry.source === "parsed" ? "parsed" : "ad-hoc";
     } else {
       try {
         const record = loadBlockRecord(blockId);
@@ -896,6 +944,9 @@ export function composeEmailFromBlocks({
     }
     if (origin !== "canonical") {
       assertPortableBlockSource(block, { label: `${origin} block "${blockId}"` });
+    }
+    if (requireApprovedBlocks && !(origin === "parsed" && allowTrustedParsedBlocks)) {
+      assertBlockReleaseApproved(block, origin);
     }
     const slotValues = resolveBlockSlotValues(block, entry.slots || {});
     resolved.push({ entry, block, origin, slotValues, inputIndex });
@@ -930,6 +981,45 @@ export function composeEmailFromBlocks({
     const domStart = `// rk:block-start:${markerUid}:${block.id}`;
     const domEnd = `// rk:block-end:${markerUid}:${block.id}`;
     return `${sourceStart}\n${domStart}\n${innerPug.trimEnd()}\n${domEnd}\n${sourceEnd}`;
+  };
+
+  /**
+   * Автоотступ между соседями.
+   *
+   * Отступ здесь — свойство раскладки, а не отдельный блок в дереве. Так было
+   * решено осознанно: авто-вставка узла-разделителя означала бы узел, который
+   * надо таскать и удалять, который встаёт между целями drag&drop, остаётся
+   * висеть после удаления соседа и делает одно действие двумя шагами undo.
+   *
+   * Правило простое и совпадает с тем, что видит человек: отступ появляется
+   * МЕЖДУ соседями и не появляется после последнего. Поставил заголовок один —
+   * отступа нет; положил под него текст — отступ возник сам, потому что
+   * заголовок перестал быть последним.
+   *
+   * Включается только слотом `gap` у родителя. У существующих блоков такого
+   * слота нет, поэтому геометрия ранее собранных писем не меняется ни на
+   * пиксель — это опт-ин, а не глобальная правка вёрстки.
+   */
+  const gapSize = (item, slotId) => {
+    const declared = (item?.block?.slots || []).some((slot) => slot?.id === slotId);
+    if (!declared) return 0;
+    const value = Number(item?.slotValues?.[slotId]);
+    return Number.isFinite(value) && value > 0 ? Math.round(value) : 0;
+  };
+
+  const gapPug = (px) => `table.rk-gap(role="presentation" width="100%")\n`
+    + `    tr\n`
+    + `        td(height="${px}" style="height:${px}px;font-size:1px;line-height:1px") &nbsp;`;
+
+  /** [a, b, c] → [a, gap, b, gap, c]; после последнего отступа нет. */
+  const withGaps = (parts, px) => {
+    if (!px || parts.length < 2) return parts;
+    const out = [];
+    parts.forEach((part, index) => {
+      if (index > 0) out.push(gapPug(px));
+      out.push(part);
+    });
+    return out;
   };
 
   /** Render a node and place only compatible direct children into real markers. */
@@ -974,7 +1064,7 @@ export function composeEmailFromBlocks({
         }
         continue;
       }
-      const renderedChildren = assigned.map(renderChild).filter(Boolean);
+      const renderedChildren = withGaps(assigned.map(renderChild).filter(Boolean), gapSize(item, "gap"));
       pug = fillChildMarker(pug, slot, renderedChildren).pug;
     }
     return wrapMarkers(item, pug);
@@ -1080,7 +1170,11 @@ export function composeEmailFromBlocks({
           const rendered = renderTreeNode(child);
           if (rendered) units.push(rendered);
         }
-        return units;
+        // Между секциями — тот же автоотступ. Плюс отступ НАД первой секцией:
+        // без него письмо притирается к верхнему краю окна почтовика.
+        const spaced = withGaps(units, gapSize(item, "gap"));
+        const top = gapSize(item, "space_top");
+        return top && spaced.length ? [gapPug(top), ...spaced] : spaced;
       }
       if (["section", "both", "helper"].includes(item.block.placement)) {
         const rendered = renderTreeNode(item);
@@ -1138,13 +1232,25 @@ export function composeEmailFromBlocks({
   if (!emitted.length) {
     throw new Error(`no renderable content blocks (warnings: ${warnings.join("; ")})`);
   }
-  const composedPug = flow.join("\n");
+  // Метка кампании письма переписывает afftrack/retrack во ВСЕХ ссылках.
+  // Блок может прийти из чужого письма со своей меткой — в готовом письме
+  // метка должна быть одна и та, которую назвали, без правки кода руками.
+  const campaignLabel = normalizeCampaign(campaign);
+  const composedPug = campaignLabel
+    ? applyCampaign(flow.join("\n"), campaignLabel).text
+    : flow.join("\n");
 
   const stylParts = emitted.map(({ block, slotValues }) => {
     const sub = substituteSlotsInString(block.styl || "", slotValues, { attrEscape: false });
     return `/* ${block.id} */\n${sub.trim()}\n`;
   });
-  const composedStyl = stylParts.join("\n");
+  // Тема бренда — переменными ПЕРЕД стилями блоков: блок, написавший
+  // `background: $brand_primary`, перекрашивается вместе с брендом, а письмо
+  // не зависит от того, какой цвет кто-то однажды вписал руками.
+  //
+  // На письма, где $brand_* не используется, это не влияет никак:
+  // неиспользованная переменная Stylus не даёт ни байта CSS.
+  const composedStyl = brandThemeStylusHeader(safeBrand) + stylParts.join("\n");
 
   // Final in-memory gate before the first destructive filesystem operation.
   // Slot validation catches constructor/API values; this second pass also
@@ -1247,10 +1353,22 @@ export function composeEmailFromBlocks({
 
   const mainStyl = path.join(destDir, "app", "styles", "blocks", "main.styl");
   mkdirSync(path.dirname(mainStyl), { recursive: true });
-  // Скелет (copyTreeSkippingDist выше) принёс родной blocks/main.styl семьи —
-  // с pt/pb-хелперами, h-*, center, m-w и мобильными media. Раньше мы его
-  // затирали и композиции теряли отступы/адаптив. Теперь стили блоков
-  // ДОПОЛНЯЮТ скелетные: при конфликте классов последние (блочные) побеждают.
+
+  // Скелет принёс родной blocks/main.styl семьи — pt/pb-шкала, h-*, center,
+  // m-w и мобильные media. Стили блоков ДОПОЛНЯЮТ его: при конфликте классов
+  // побеждают блочные (идут позже).
+  //
+  // ПРОВЕРЕНО 2026-07-27, отбрасывать скелет НЕЛЬЗЯ. Замер на письме из
+  // четырёх блоков:
+  //   со скелетом:  main.styl 18 359 Б → письмо 9 089 Б (head CSS 1 551 Б)
+  //   без скелета:  main.styl  1 765 Б → письмо 8 718 Б (head CSS 1 429 Б)
+  // То есть в отправляемом письме разница 371 байт (4%): `trimCss` на сборке
+  // и так выбрасывает неиспользованные правила, и 16 КБ «лишнего» существуют
+  // только в исходнике, а не в почте.
+  // При этом отбрасывание ломает вёрстку: у 39 из 50 canonical-блоков
+  // изменилась ГЕОМЕТРИЯ — разметка скелета и сами блоки продолжают опираться
+  // на классы семьи (отступы, высоты), которые автоскоуп намеренно оставил
+  // глобальными. Цена — сломанные письма, выгода — 4% размера.
   let skeletonStyl = "";
   try { if (existsSync(mainStyl)) skeletonStyl = readFileSync(mainStyl, "utf8"); } catch { /* ignore */ }
   const mergedStyl = skeletonStyl.trim()
@@ -1271,6 +1389,9 @@ export function composeEmailFromBlocks({
   const studioModelPath = path.join(destDir, "studio-model.json");
   const studioModel = {
     schemaVersion: 1,
+    // Метку кампании храним рядом с деревом: письмо открывают заново, и она
+    // должна вернуться в поле, а не потеряться до следующего сохранения.
+    ...(campaignLabel ? { campaign: campaignLabel } : {}),
     entries: studioJsonValue(blocks) || [],
     sourceSignatures: buildStudioModelSourceSignatures(destDir),
   };

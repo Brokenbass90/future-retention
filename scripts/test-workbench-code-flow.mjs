@@ -92,7 +92,10 @@ assert.deepEqual(JSON.parse(JSON.stringify(constructorReturnSandbox.result)), {
 });
 
 const openSource = functionSource("openSourceContext");
-assert.match(openSource, /options\.initialView === 'pug'/, "constructor handoff must request Pug");
+assert.match(openSource, /options\.initialView === 'pug'/,
+  "the Pug-first branch must stay: it is what the «</> Pug» button and the file tabs rely on");
+assert.match(openSource, /options\.editHtml/,
+  "openSourceContext must honour the editable-HTML request from the constructor handoff");
 assert.match(openSource, /await loadSourceFile\(headerPug\.path\)/, "header.pug must load before background HTML");
 assert.match(openSource, /switchNamespaceScope\(brand, mail\)/,
   "opening another email must replace, not inherit, locale namespaces");
@@ -124,7 +127,17 @@ assert.match(restore, /options\.skipWorkspace/, "direct handoff must skip saved 
 assert.match(source, /if \(directMailHandoff\) state\.namespaces = \[\]/,
   "direct handoff must clear the previous global namespace state before hydration");
 assert.match(source, /restoreUiFromState\(\{ skipWorkspace: Boolean\(directMailHandoff\) \}\)/);
-assert.match(source, /loadEmailFromBase\(handoff\.brand, handoff\.mail, null, \{ initialView: 'pug' \}\)/);
+// Переход из конструктора открывает СКОМПИЛИРОВАННЫЙ HTML и сразу разрешает
+// правку: оттуда приходит менеджер править тексты, а не верстальщик. Раньше
+// открывался Pug, а вкладка HTML была read-only без единого сообщения — со
+// стороны это выглядело как «правки не применяются». Вёрстка никуда не делась:
+// Pug открывается кнопкой «</> Pug».
+assert.match(source, /loadEmailFromBase\(handoff\.brand, handoff\.mail, null, \{ initialView: 'html', editHtml: true \}\)/,
+  "constructor handoff must open editable compiled HTML");
+assert.match(source, /function enterHtmlEditMode\(/,
+  "entering HTML edit mode must be a reusable function, not only a button handler");
+assert.match(source, /enterHtmlEditMode\(ctx, \{ confirmDetach: false, silent: true \}\)/,
+  "the handoff must not ask about detaching — the user came here to edit");
 assert.doesNotMatch(source, /setTimeout\(\(\) => \{ loadEmailFromBase\(brand, mail, null, \{ initialView: 'pug' \}\)/,
   "constructor handoff must not wait behind a restored HTML tab");
 
@@ -171,10 +184,16 @@ assert.equal(
 const performBuild = functionSource("performSourceEmailBuild");
 assert.match(performBuild, /namespaces: buildNamespacesForContext\(ctx\)/,
   "build must receive only namespaces scoped to the current email");
+assert.match(performBuild, /releasePreflight: false/,
+  "background Pug/Stylus rebuilds must remain warning-only");
 assert.match(performBuild, /wasViewingHtml && !ctx\.htmlEditMode/,
   "background build must not replace an HTML override draft in the editor");
 assert.match(performBuild, /ctx\.htmlEditMode \|\| ctx\.htmlOperation/,
   "background build must not race an override save or reset request");
+assert.match(performBuild, /ctx\.lastBuildWarnings = Array\.isArray\(data\.buildWarnings\)/,
+  "server build warnings must remain visible in the Workbench context");
+assert.match(performBuild, /Сборка завершена с \$\{ctx\.lastBuildWarnings\.length\} предупрежд\./,
+  "build warnings must be surfaced immediately instead of being dropped");
 assert.match(functionSource("rebuildSourceEmail"), /while \(_sourceBuildRequested\)/,
   "edits received during a build must queue another serialized build");
 assert.match(functionSource("showCompiledHtml"), /canShowLastSuccessful/,
@@ -231,7 +250,66 @@ assert.match(source, /fetch\('\/api\/wb\/code-html\/reset', \{/);
 assert.match(html, /id="compiledViewEditHtmlBtn"/);
 assert.match(html, /id="compiledViewSaveHtmlBtn"/);
 assert.match(html, /id="compiledViewResetHtmlBtn"/);
-assert.match(html, /Удалить override · вернуть Pug/);
+// Слова «override / отвязать / привязать» из интерфейса убраны: человек
+// приходит править текст, а не разбираться в связях локали с Pug. Действие
+// осталось, называется делом.
+assert.match(html, /Собрать заново из Pug/,
+  "resetting a locale must be phrased as an action, not as «удалить override»");
+assert.doesNotMatch(html, /override/i,
+  "the word «override» must not leak into the UI");
+assert.doesNotMatch(source, /Отвязать и править HTML/,
+  "there is no separate «allow editing» step any more — HTML opens editable");
+
+// Правки HTML не теряются: автосейв с паузой + досохранение перед уходом.
+assert.match(source, /function scheduleHtmlAutosave\(/,
+  "HTML edits must autosave instead of living only in the editor buffer");
+assert.match(source, /scheduleHtmlAutosave\(ctx\);/,
+  "every keystroke in the HTML buffer must schedule an autosave");
+// Пустой буфер сервер не принимает: автосейв обязан его пропускать, иначе
+// выделил всё, нажал Delete — и поймал бесконечную ленту красных тостов и
+// запертую вкладку.
+assert.match(source, /function htmlBufferIsSavable\(/,
+  "an empty HTML buffer must never be sent to the server");
+const autosave = functionSource("scheduleHtmlAutosave");
+assert.match(autosave, /htmlBufferIsSavable\(\)/,
+  "autosave must skip an empty buffer instead of retrying a 400");
+// Открыть локаль — не значит её править. Автосохранение обязано отличать
+// настоящие правки от переформатирования, иначе локаль отвязывается от Pug в
+// момент открытия и навсегда перестаёт получать тексты из плейсхолдеров.
+assert.match(source, /function htmlBufferHasRealEdits\(/,
+  "autosave must tell real edits from prettified formatting");
+assert.match(autosave, /htmlBufferHasRealEdits\(ctx\)/,
+  "autosave must never detach a locale that was merely opened");
+const saveFn2 = functionSource("saveDetachedHtmlRevisions");
+assert.match(saveFn2, /htmlBufferHasRealEdits\(ctx\)/,
+  "saving must refuse to create an override with no actual edits");
+
+const discard = functionSource("confirmDiscardHtmlDraft");
+assert.match(discard, /return true/,
+  "leaving must never be blocked — a stuck tab is worse than a lost draft");
+assert.doesNotMatch(discard, /return false/,
+  "confirmDiscardHtmlDraft must not trap the user in the HTML view");
+assert.doesNotMatch(discard, /confirm\(/,
+  "leaving the HTML view must never offer to throw the work away");
+assert.match(discard, /saveDetachedHtmlRevisions\(ctx, \{ keepEditing: true \}\)/,
+  "unsaved HTML must be flushed, not discarded");
+// Автосейв не имеет права перезаливать буфер: он срабатывает посреди набора
+// текста, и подмена содержимого выбросила бы курсор в начало файла.
+const saveFn = functionSource("saveDetachedHtmlRevisions");
+assert.match(saveFn, /options\.keepEditing/,
+  "autosave must have a mode that leaves the editor buffer alone");
+assert.match(saveFn, /_compiledHtmlSnapshot = rawBuffer/,
+  "after an autosave the buffer must count as clean without a setValue");
+// Локаль без сборки — обычное состояние нового письма, а не поломка: раньше
+// оттуда прилетало красное «Compiled locale not found».
+const showCompiled = functionSource("showCompiledHtml");
+assert.match(showCompiled, /notBuilt/,
+  "a locale that was never compiled must be built, not reported as an error");
+assert.match(showCompiled, /rebuildSourceEmail\(\{ keepSourceView: true, background: true \}\)/,
+  "the missing locale must be compiled on the spot");
+assert.doesNotMatch(html, /id="backToConstructorBtn"/,
+  "the duplicate «В конструктор» button is gone — the header link stays");
+
 assert.match(html, /id="aiPlaceholdersBtn"/,
   "placeholderize must be a visible editor action, not only a hidden chat command");
 assert.match(source, /fetch\(sourceMode \? '\/api\/wb\/placeholderize-source'/,
@@ -239,10 +317,114 @@ assert.match(source, /fetch\(sourceMode \? '\/api\/wb\/placeholderize-source'/,
 assert.match(source, /markSourceModified\(ctx\)/,
   "placeholderized Pug must enter the normal save/build pipeline");
 assert.match(css, /\.compiled-view-edit-html\s*\{[\s\S]*background:/,
-  "HTML edit action must look enabled and clickable");
+  "the legacy edit action keeps its styling even though it is hidden now");
 
 assert.match(source, /unresolvedCount/);
 assert.match(html, /id="compiledLocalizationStatus"/);
+assert.match(html, /id="compiledPreflightBtn"/,
+  "the compiled workspace must expose an explicit all-locales preflight");
+assert.match(html, /id="compiledPreflightStatus"/,
+  "all-locales preflight results must remain visible after the check");
+assert.match(html, /Проверить к выпуску/,
+  "the strict action must be described as a release check, not ordinary preview");
+assert.match(css, /\.compiled-preflight-status\[data-state="error"\]/,
+  "preflight failures must have a visible error state");
+
+const allLocalesPreflight = functionSource("runAllLocalePreflight");
+assert.match(allLocalesPreflight, /requestReleasePreflightBuild\(ctx\)/,
+  "the explicit all-locales check must run the strict backend build");
+assert.match(allLocalesPreflight, /refreshCodeWorkspace\(ctx\)/,
+  "preflight must start from the current built locale workspace");
+assert.match(allLocalesPreflight, /\/api\/wb\/code-html\?brand=/,
+  "preflight must inspect every effective HTML locale");
+assert.match(allLocalesPreflight, /localization\.unresolvedCount/,
+  "preflight must fail unresolved localized placeholders");
+assert.match(allLocalesPreflight, /Promise\.all\(Array\.from/,
+  "locale inspection should use a bounded worker pool instead of a slow serial loop");
+assert.match(functionSource("requestReleasePreflightBuild"), /releasePreflight: true/,
+  "release preflight must opt in to --failOnWeight on the backend");
+assert.match(functionSource("ensureHtmlReleaseReady"), /runAllLocalePreflight\(ctx\)/,
+  "final source-context export must await the all-locale release report");
+assert.match(source, /downloadHtmlBtn\.addEventListener\('click', async \(\) => \{[\s\S]*?await ensureHtmlReleaseReady\(ctx\)/,
+  "the main HTML download must be blocked until release preflight passes");
+
+const aiToolApply = functionSource("applyAiToolResult");
+assert.match(aiToolApply, /offerSourceFileEditsApply/,
+  "AI source tool results must remain proposals until source diff review");
+assert.match(aiToolApply, /offerModifiedHtmlApply/,
+  "AI HTML tool results must use the shared ownership/diff gate");
+assert.match(aiToolApply, /offerLocaleEditsApply/,
+  "AI locale tool results must use locale diff review");
+assert.doesNotMatch(aiToolApply, /cm\.(?:setValue|replaceRange)|setLocaleRawContent/,
+  "an AI tool completion must never mutate source, HTML, or locales immediately");
+
+const agentChat = functionSource("runAgentChat");
+assert.match(agentChat, /offerModifiedHtmlApply\(timeline, finalPayload\.modifiedHtml\)/,
+  "agent HTML output must use the same guarded proposal flow");
+assert.match(agentChat, /offerLocaleEditsApply\(timeline, localeEdits\)/,
+  "agent locale output must require diff review");
+assert.doesNotMatch(agentChat, /cm\.setValue\(finalPayload\.modifiedHtml\)/,
+  "agent completion must not overwrite the editor");
+
+const htmlProposal = functionSource("offerHtmlApply");
+assert.match(htmlProposal, /if \(isHtml\) return offerModifiedHtmlApply\(bubble, candidate\)/,
+  "HTML fenced inside a Pug source context must become a detached-HTML proposal");
+assert.doesNotMatch(htmlProposal, /cm\.setValue/,
+  "generic AI fenced code routing must not bypass review");
+
+const modifiedHtmlProposal = functionSource("offerModifiedHtmlApply");
+assert.ok(
+  modifiedHtmlProposal.indexOf("showAiCodeDiffPreview") < modifiedHtmlProposal.indexOf("fetch('/api/wb/code-html'"),
+  "source-context AI HTML must be reviewed before a detached override is written",
+);
+assert.match(modifiedHtmlProposal, /currentHtmlForAiGuard\(\) !== baseline/,
+  "a stale HTML proposal must be rejected if the document changes during review");
+
+const sourceProposal = functionSource("offerSourceFileEditsApply");
+assert.ok(
+  sourceProposal.indexOf("showAiCodeDiffPreview") < sourceProposal.indexOf("saveAiSourceFilesAtomically"),
+  "Pug/Stylus changes must be reviewed before source writes",
+);
+assert.doesNotMatch(sourceProposal, /saveAuxiliarySourceFile/,
+  "one accepted AI proposal must not be persisted as independent per-file requests");
+assert.match(sourceProposal, /aiSourceReviewIsCurrent/,
+  "a stale Pug/Stylus proposal must be rejected after review");
+
+const preflightSummarySandbox = { result: null };
+vm.runInNewContext(`
+${functionSource("summarizeAllLocalePreflight")}
+const ready = summarizeAllLocalePreflight([
+  { locale: 'base', unresolvedCount: 0 },
+  { locale: 'en', unresolvedCount: 0 },
+]);
+const warning = summarizeAllLocalePreflight([
+  { locale: 'en', unresolvedCount: 0, detached: true, hasCompiled: true },
+]);
+const error = summarizeAllLocalePreflight([
+  { locale: 'ar', unresolvedCount: 2 },
+  { locale: 'ur', error: 'HTML missing' },
+]);
+const overweight = summarizeAllLocalePreflight([
+  { locale: 'base', unresolvedCount: 0 },
+  { locale: 'en', unresolvedCount: 0 },
+], [], {
+  ok: false,
+  thresholdKib: 102,
+  overweight: [{ locale: 'en', htmlKib: 102 }],
+});
+result = {
+  ready: { state: ready.state, ready: ready.ready, issues: ready.issues.length },
+  warning: { state: warning.state, detached: warning.detached },
+  error: { state: error.state, unresolved: error.unresolved, failed: error.failed },
+  overweight: { state: overweight.state, overweight: overweight.overweight },
+};
+`, preflightSummarySandbox);
+assert.deepEqual(JSON.parse(JSON.stringify(preflightSummarySandbox.result)), {
+  ready: { state: "ready", ready: 2, issues: 0 },
+  warning: { state: "warning", detached: 1 },
+  error: { state: "error", unresolved: 1, failed: 1 },
+  overweight: { state: "error", overweight: 1 },
+});
 
 // Executable regression: revision/value must both match before an async save
 // response is allowed to clear dirty or replace the editor buffer.

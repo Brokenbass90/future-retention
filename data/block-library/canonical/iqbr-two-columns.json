@@ -1,0 +1,38 @@
+{
+  "id": "iqbr-two-columns",
+  "label": "Двойной блок: две тёмные колонки (IQ Broker)",
+  "description": "Две тёмные колонки рядом, на мобильном — друг под другом. В каждую кладутся свои внутренние блоки.",
+  "placement": "inner",
+  "category": "layout",
+  "version": 1,
+  "pug": ".iqbr-two-columns--left-block\n    .iqbr-two-columns--padding-block\n        //- {{ LEFT_BLOCKS }}\n.iqbr-two-columns--right-block\n    .iqbr-two-columns--padding-block\n        //- {{ RIGHT_BLOCKS }}",
+  "styl": ".iqbr-two-columns--left-block{display:inline-block;vertical-align:top;width:234px;min-height:443px;background:#101314;border-radius:16px}\n@media screen and (max-width: 600px){.iqbr-two-columns--left-block{float:none !important;display:block !important;width:100% !important;margin-bottom:20px !important}}\n.iqbr-two-columns--padding-block{padding:24px}\n.iqbr-two-columns--right-block{display:inline-block;vertical-align:top;width:234px;min-height:443px;background:#101314;border-radius:16px;float:right}\n@media screen and (max-width: 600px){.iqbr-two-columns--right-block{float:none !important;display:block !important;width:100% !important}}",
+  "slots": [],
+  "childSlots": [
+    {
+      "id": "left",
+      "marker": "LEFT_BLOCKS",
+      "accepts": [
+        "inner",
+        "inline",
+        "both"
+      ]
+    },
+    {
+      "id": "right",
+      "marker": "RIGHT_BLOCKS",
+      "accepts": [
+        "inner",
+        "inline",
+        "both"
+      ]
+    }
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "iqbroker",
+    "layout"
+  ],
+  "note": "Нарезано из email-base/X_IQBroker/mail-strategies. Семейные стили втянуты в блок и заскоуплены; ink-классы (.row/.columns/.wrapper) оставлены глобальными.",
+  "scoped": true
+}

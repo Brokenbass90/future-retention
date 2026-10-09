@@ -8,6 +8,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css" />
   <link rel="stylesheet" href="/workbench.css" />
+  <link rel="stylesheet" href="/mcp-connect.css" />
+  <link rel="stylesheet" href="/actor-badge.css" />
+  <link rel="stylesheet" href="/mail-lease.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/dialog/dialog.min.css" />
 </head>
 <body>
@@ -33,6 +36,7 @@
     <input type="file" id="fileInput" accept=".html,.htm" hidden multiple />
   </div>
   <div class="topbar-right">
+    <div class="actor-badge" id="actorBadge"></div>
     <a class="icon-btn" href="/constructor" title="Открыть DnD-конструктор" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;padding:0 10px;width:auto;font-size:13px;">🎨 Конструктор</a>
     <button class="icon-btn" id="themeToggleBtn" title="Тема">
       <svg id="themeIconDark" width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -156,7 +160,7 @@
           <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><rect x="4" y="4" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M2 10V2a1 1 0 011-1h7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
           Копировать
         </button>
-        <button class="editor-action-btn" id="downloadHtmlBtn" title="Скачать">
+        <button class="editor-action-btn" id="downloadHtmlBtn" title="Проверить все локали и скачать финальный HTML">
           <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 7l3 3 3-3M1 11h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
         </button>
         <!-- Minify/Unminify toggle — shown when viewing compiled HTML -->
@@ -203,18 +207,20 @@
     <!-- Pug → localized HTML workspace -->
     <div class="compiled-view-banner hidden" id="compiledViewBanner">
       <span class="compiled-view-icon">⚡</span>
-      <span class="compiled-view-label">HTML собран из Pug.</span>
+      <span class="compiled-view-label">HTML письма</span>
       <label class="compiled-locale-picker" title="Выбрать готовую HTML-локаль">
         <span>Локаль</span>
         <select id="compiledLocaleSelect" aria-label="HTML-локаль"></select>
       </label>
       <span class="compiled-locale-status" id="compiledLocaleStatus" data-state="linked">Связана с Pug</span>
       <span class="compiled-localization-status hidden" id="compiledLocalizationStatus"></span>
-      <button class="compiled-view-back" id="compiledViewBackBtn">← Вернуться к Pug</button>
+      <button class="compiled-preflight-btn" id="compiledPreflightBtn" type="button" title="Строго пересобрать и проверить все локали: плейсхолдеры и compact HTML меньше 102 KiB">Проверить к выпуску</button>
+      <span class="compiled-preflight-status" id="compiledPreflightStatus" data-state="idle">Не проверено</span>
+      <button class="compiled-view-back" id="compiledViewBackBtn" title="Открыть вёрстку письма: pug + stylus">&lt;/&gt; Pug</button>
       <button class="compiled-view-edit-html" id="compiledViewEditHtmlBtn" title="Создать независимую ручную версию только для выбранной локали">✏️ Править HTML</button>
-      <button class="compiled-view-save-html hidden" id="compiledViewSaveHtmlBtn">Сохранить локаль</button>
+      <button class="compiled-view-save-html hidden" id="compiledViewSaveHtmlBtn">Сохранить</button>
       <button class="compiled-view-cancel-html hidden" id="compiledViewCancelHtmlBtn">Отменить</button>
-      <button class="compiled-view-reset-html hidden" id="compiledViewResetHtmlBtn" title="Удалить ручную HTML-версию и снова связать локаль с Pug-сборкой">↺ Удалить override · вернуть Pug</button>
+      <button class="compiled-view-reset-html hidden" id="compiledViewResetHtmlBtn" title="Выбросить правки этой локали и собрать её заново из Pug">↺ Собрать заново из Pug</button>
     </div>
 
     <!-- Blocks shelf — drag & drop email block constructor -->
@@ -279,6 +285,10 @@
         </div>
         <div class="ai-handle-right">
           <span class="ai-token-counter" id="aiTokenCounter" hidden>🪙 0</span>
+          <!-- Дверь к своему агенту должна быть видна всегда, а не только когда
+               у студии нет своей модели: подключать Клода приходят осознанно. -->
+          <button class="ai-agent-btn" id="aiAgentBtn" type="button"
+                  title="Подключить своего Клода по MCP: он будет работать в студии вашими инструментами">⚡ Свой агент</button>
           <button class="ai-drawer-toggle" id="aiDrawerToggle" title="Открыть или свернуть AI-помощник">
             <svg width="14" height="14" viewBox="0 0 14 14" id="aiToggleIcon">
               <path d="M2 4.5l5-3 5 3M2 9.5l5 3 5-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -338,7 +348,9 @@
       <button class="pencil-toggle" id="previewMaxBtn" title="Развернуть письмо на весь экран (скрыть код)" aria-pressed="false">⛶</button>
       <button class="pencil-toggle" id="previewRtlBtn" title="Сделать письмо RTL (право-центрировать). Идемпотентно — можно жать повторно.">⇄ RTL</button>
       <button class="pencil-toggle hidden" id="blocksPaletteToggle" title="Блоки — перетащи в письмо" aria-pressed="false">🧩 Блоки</button>
-      <button class="pencil-toggle" id="backToConstructorBtn" title="Увести письмо обратно в DnD-конструктор и доделать там">🎨 В конструктор</button>
+      <!-- Кнопка «В конструктор» убрана из панели превью: она дублировала
+           ссылку «🎨 Конструктор» в шапке и налезала на соседние иконки.
+           Обработчик оставлен — он ищет кнопку по id и просто её не находит. -->
       <div style="flex:1"></div>
       <div class="preview-ns-label hidden" id="previewNsLabel"></div>
     </div>
@@ -568,6 +580,7 @@
     <div class="settings-row"><label>API Key</label><div class="settings-status" id="aiKeyStatus">—</div></div>
     <div class="settings-row"><label>Модель</label><div class="settings-status" id="aiModelStatus">—</div></div>
     <div class="settings-row"><label>Токены</label><div class="settings-status" id="aiTokenStatus">0</div></div>
+    <div class="settings-connect" id="aiSettingsConnect"></div>
   </div>
 </div>
 
@@ -837,7 +850,14 @@
   </div>
 </div>
 <script src="/outline-parse.js"></script>
+  <script src="/actor-badge.js"></script>
+  <script src="/mail-lease.js"></script>
+  <script src="/mail-drafts.js"></script>
+  <script src="/mcp-connect.js"></script>
+  <script src="/click-to-source.js"></script>
   <script src="/workbench.js"></script>
+  <script src="/replace-across.js"></script>
+  <script src="/replace-across-ui.js"></script>
   <script src="/outline-mode.js"></script>
 <script src="/monaco-pilot.js"></script>
 <script src="/blocks-palette.js"></script>

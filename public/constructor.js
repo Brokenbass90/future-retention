@@ -24,7 +24,8 @@ const state = {
   library: [],
   canvas: [],
   selectedUid: null,
-  filter: "outer",
+  // Начинают с готовых кусков, а не с обёртки: её студия ставит сама.
+  filter: "combo",
   q: "",
   brand: "all",
   cat: "all",
@@ -120,10 +121,44 @@ function isInnerBlock(block) {
   return p === "inner" || p === "both";
 }
 
+/**
+ * `slotPresets`: выбор варианта в одном слоте подставляет значения в другие.
+ * Правило обязано совпадать с серверным (src/block-library-schema.js).
+ * Смысл — человек выбирает «успех», а не подбирает HEX, и при этом видит в
+ * инспекторе конкретный цвет, который стоит, и может его переопределить.
+ */
+function slotPresetAssignments(block, slotId, value) {
+  const branch = block?.slotPresets?.[String(slotId)];
+  if (!branch || typeof branch !== "object") return null;
+  const assignments = branch[String(value)];
+  return assignments && typeof assignments === "object" ? assignments : null;
+}
+
 function defaultSlotsFor(block, overrides) {
   const slots = {};
   for (const slot of block?.slots || []) {
     if (Object.prototype.hasOwnProperty.call(slot, "default")) slots[slot.id] = slot.default;
+  }
+  // Фон письма вокруг секций — единственный цвет обёртки, который доезжает до
+  // собранного письма: pug и styl outer-блока не эмитятся, compose переносит
+  // только непустое background_color в index.pug скелета. Поэтому «пусто =
+  // по бренду» здесь нельзя оставить пустым — иначе останется фон скелета
+  // (тёмный IQ Broker) даже в светлом письме. Подставляем тему бренда.
+  // Пресеты дефолтного варианта — чтобы поля цвета были заполнены сразу после
+  // вставки блока, а не пустовали до первого переключения тона.
+  for (const driverId of Object.keys(block?.slotPresets || {})) {
+    const assignments = slotPresetAssignments(block, driverId, slots[driverId]);
+    if (!assignments) continue;
+    for (const [targetId, value] of Object.entries(assignments)) {
+      if (!overrides || !Object.prototype.hasOwnProperty.call(overrides, targetId)) slots[targetId] = value;
+    }
+  }
+
+  const outerBgOverridden = overrides && Object.prototype.hasOwnProperty.call(overrides, "background_color");
+  if (placementOf(block) === "outer" && !outerBgOverridden
+      && Object.prototype.hasOwnProperty.call(slots, "background_color")) {
+    const themed = window.RetkitBrands?.active?.()?.theme?.background;
+    if (themed) slots.background_color = themed;
   }
   return Object.assign(slots, overrides || {});
 }
@@ -208,15 +243,35 @@ function latestSectionEntry(childBlock = null) {
   )) || null;
 }
 
+/**
+ * Блок, который студия подставляет сама: обёртка при первом добавлении и
+ * секция-хозяин для внутреннего блока, положенного в пустой канвас.
+ *
+ * Сначала ищем среди блоков АКТИВНОГО бренда: подставлять письму IQ Broker
+ * секцию IQ Option — значит незаметно смешать две семьи. Замечено на комбо
+ * с двойным блоком: в канвас приезжал чужой `iq-section`.
+ */
 function findDefaultBlock(placement) {
-  const preferred = placement === "outer"
-    ? ["iq-outer-wrapper"]
-    : ["iq-section", "iq-content-section"];
+  const fits = (b) => placementOf(b) === placement && b.source !== "parsed";
+  const ownBrand = state.library.filter((b) => fits(b) && !blockBelongsToOtherBrand(b));
+
+  // Каркас, который движок достраивает сам (обёртка под первую секцию, секция
+  // под первый inner-блок), обязан быть из текущего набора. Иначе первый же
+  // блок в режиме system молча притаскивает в письмо промо-каркас, которого в
+  // каталоге этого режима нет — и человек не понимает, откуда он взялся.
+  const inKit = ownBrand.filter((b) => blockAllowedInKit(b));
+  const pool = inKit.length ? inKit : ownBrand;
+
+  const preferred = activeKit() === "system"
+    ? (placement === "outer" ? ["sys-outer"] : ["sys-section"])
+    : (placement === "outer"
+      ? ["iqbr-outer-wrapper", "iq-outer-wrapper"]
+      : ["iqbr-section-bordered", "iq-section", "iq-content-section"]);
   for (const id of preferred) {
-    const block = state.library.find((b) => b.id === id && placementOf(b) === placement);
+    const block = pool.find((b) => b.id === id);
     if (block) return block;
   }
-  return state.library.find((b) => placementOf(b) === placement && b.source !== "parsed") || null;
+  return pool[0] || ownBrand[0] || state.library.find(fits) || null;
 }
 
 function markEntrySlotExplicit(entry, slotId) {
@@ -360,10 +415,14 @@ function selectionPath(entry) {
 function syncPaletteToSelection() {
   const selected = entryByUid(state.selectedUid);
   const block = blockForEntry(selected);
-  let hint = "Начни с обёртки или готового комбо";
+  // Обёртку студия добавляет сама (ensureOuterForMutation) при первой же
+  // секции — человеку её выбирать не нужно. Подсказка раньше говорила
+  // обратное («начни с обёртки»), и он шёл во вкладку «Обёртки» искать то,
+  // что произойдёт без него.
+  let hint = "Добавь секцию или готовое комбо — обёртку студия поставит сама";
 
   if (!state.canvas.length) {
-    hint = "Начни с обёртки, секции или готового комбо";
+    hint = "Начни с секции или готового комбо. Обёртку письма студия добавит сама";
   } else if (!selected) {
     hint = rootOuterEntry() ? "Добавь следующую секцию или комбо" : hint;
   } else if (placementOf(block) === "outer") {
@@ -406,11 +465,78 @@ async function loadLibrary() {
 
 // brand = who the block belongs to: canonical / user, or the source
 // category prefix for imported ones (iq, exnova, system, …).
+/**
+ * Блок принадлежит ДРУГОМУ бренду, чем открытая вкладка?
+ *
+ * Семья блока помечена тегом (`iq`, `iqbroker`) — он совпадает с blockTag
+ * бренда в реестре. Правила ровно два, и оба нужны:
+ *   – блок без тега семьи виден всегда (общие, импортированные, свои);
+ *   – если тег активного бренда в библиотеке не встречается (X_assembled,
+ *     X_preview), фильтр не применяется — иначе каталог опустел бы целиком.
+ */
+function knownBrandTags() {
+  const tags = (window.RetkitBrands?.all?.() || [])
+    .map((b) => String(b.blockTag || "").toLowerCase())
+    .filter(Boolean);
+  return new Set(tags);
+}
+
+function blockBelongsToOtherBrand(block) {
+  const active = String(window.RetkitBrands?.active?.()?.blockTag || "").toLowerCase();
+  if (!active) return false;
+  const known = knownBrandTags();
+  const tags = (block.tags || []).map((t) => String(t).toLowerCase());
+  const owners = tags.filter((t) => known.has(t));
+  if (!owners.length) return false;
+  // Тег активного бренда ни на одном блоке — фильтровать нечем и незачем.
+  if (!state.library.some((b) => (b.tags || []).some((t) => String(t).toLowerCase() === active))) return false;
+  return !owners.includes(active);
+}
+
 function brandOf(b) {
   if (b.source === "canonical" || b.source === "user") return b.source;
   return String(b.id || "").split("-")[0] || "imported";
 }
-function hasMobile(b) { return /@media/i.test(b.styl || ""); }
+/**
+ * Есть ли у блока мобильная вёрстка.
+ *
+ * У комбо своих стилей почти нет: это сборка из других блоков, и медиазапросы
+ * живут у детей. Считать «мобильность» только по собственному styl значит
+ * спрятать все комбо разом, стоит человеку поставить галочку «мобильные» —
+ * именно так из каталога пропал sys-starter, единственное комбо системного
+ * набора, и вкладка «Комбо» показала ноль из девяноста трёх.
+ */
+function hasMobile(b) {
+  if (/@media/i.test(b?.styl || "")) return true;
+  const children = Array.isArray(b?.children) ? b.children : [];
+  if (!children.length) return false;
+  return children.some((child) => {
+    const id = String(child?.id || "");
+    if (!id) return false;
+    const source = state.library.find((candidate) => candidate.id === id);
+    return /@media/i.test(source?.styl || "");
+  });
+}
+
+/**
+ * Набор (kit) — третья ось каталога, независимая от источника и от бренда.
+ * Правило обязано совпадать с серверным (src/block-library-schema.js), иначе
+ * человек увидит в каталоге блок, который сервер в этом наборе не признаёт;
+ * совпадение проверяет scripts/test-kit-switch.mjs.
+ *
+ * promo — fail-open, system — whitelist. Почему именно так — см. комментарий
+ * у BLOCK_KITS в схеме.
+ */
+function activeKit() {
+  return window.RetkitKit?.current?.() || "promo";
+}
+
+function blockAllowedInKit(block, kit = activeKit()) {
+  const kits = Array.isArray(block?.kits) ? block.kits : [];
+  const target = String(kit).toLowerCase();
+  if (target === "system") return kits.includes("system");
+  return !kits.length || kits.includes(target);
+}
 
 function blockReviewStatus(block) {
   if (block?.source === "canonical") return "approved";
@@ -426,7 +552,8 @@ function blockReviewLabel(block) {
 }
 
 function blockCatalogUsable(block) {
-  return block?.source !== "user" || blockReviewStatus(block) !== "draft";
+  return block?.source === "canonical"
+    || (block?.source === "user" && blockReviewStatus(block) === "approved");
 }
 
 function catalogSourceAllowed(block, scope = "curated") {
@@ -444,6 +571,7 @@ function applyCatalogFilters() {
   const q = state.q.trim().toLowerCase();
   return state.library.filter((b) => {
     if (!catalogSourceAllowed(b, state.sourceScope)) return false;
+    if (!blockAllowedInKit(b)) return false;
     const isCombo = isComboBlock(b);
     const isComboDivider = b.placement === "section" && (b.tags || []).includes("combo-divider");
     if (f === "combo") { if (!isCombo && !isComboDivider) return false; }
@@ -452,6 +580,7 @@ function applyCatalogFilters() {
       if (b.placement !== f && b.placement !== "both" && !(f === "inner" && b.placement === "inline")) return false;
     }
     if (state.brand !== "all" && brandOf(b) !== state.brand) return false;
+    if (blockBelongsToOtherBrand(b)) return false;
     if (state.cat !== "all" && (b.category || "") !== state.cat) return false;
     if (state.mobileOnly && !hasMobile(b)) return false;
     if (q) {
@@ -496,15 +625,29 @@ function renderCatalog() {
   const sourceTotal = state.library.filter((block) => catalogSourceAllowed(block, state.sourceScope)).length;
   if (counter) {
     const hidden = unfiltered.length - filtered.length;
+    const brandLabel = window.RetkitBrands?.active?.()?.label || "";
+    const otherBrand = state.library.filter((b) => catalogSourceAllowed(b, state.sourceScope) && blockBelongsToOtherBrand(b)).length;
+    const otherKit = state.library.filter((b) => catalogSourceAllowed(b, state.sourceScope) && !blockAllowedInKit(b)).length;
+    // Переключение набора не трогает канвас (см. kit-switch.js), поэтому в
+    // письме законно могут лежать блоки другого набора. Молчать об этом —
+    // значит оставить человека гадать, почему блок в письме есть, а в
+    // каталоге его нет.
+    const foreignInCanvas = state.canvas.filter((entry) => {
+      const block = blockForEntry(entry);
+      return block && !blockAllowedInKit(block);
+    }).length;
     counter.textContent = `${filtered.length} из ${sourceTotal} блоков`
-      + (hidden > 0 ? ` · ${hidden} одинаковых скрыто` : "");
+      + (hidden > 0 ? ` · ${hidden} одинаковых скрыто` : "")
+      + (otherKit > 0 ? ` · ${otherKit} из другого набора скрыто` : "")
+      + (otherBrand > 0 ? ` · ${otherBrand} чужих брендов скрыто (бренд: ${brandLabel})` : "")
+      + (foreignInCanvas > 0 ? ` · в письме ${foreignInCanvas} блок(ов) другого набора` : "");
   }
   const sourceWarning = $("catLegacyWarning");
   if (sourceWarning) {
     sourceWarning.classList.toggle("hidden", state.sourceScope === "curated");
     sourceWarning.textContent = state.sourceScope === "user"
-      ? "Draft не прошёл детерминированную проверку и не вставляется в письмо. Candidate уже компилируется, но попадёт в «Проверенные» только после ручного одобрения. AI-review можно добавить позже как совет, не как пропуск."
-      : "Legacy-блоки вырезаны из старых писем: их стили и картинки относятся к конкретным кампаниям и могут плохо сочетаться между собой.";
+      ? "Draft не прошёл release-проверку. Candidate можно изучить и одобрить, но вставлять в письмо можно только approved-блоки. AI-review остаётся советом, не пропуском."
+      : "Legacy-блоки вырезаны из старых писем и находятся в карантине: их можно изучить, но нельзя вставить в выпускаемое письмо.";
   }
   if (!filtered.length) {
     list.innerHTML = `<div class="cat-empty">Ничего не найдено. Сбрось фильтры или поменяй запрос.</div>`;
@@ -523,7 +666,9 @@ function renderCatalog() {
     el.dataset.placement = b.placement || "";
     el.title = usable
       ? "Перетащи на канвас (или клик чтобы добавить в конец)"
-      : "Draft нельзя вставить: открой код и исправь ошибки проверки";
+      : b.source === "imported"
+        ? "Legacy-блок в карантине: скопируй его в «Мои блоки», проверь и одобри перед использованием"
+        : "Вставлять можно только approved-блок: исправь release-проверки и нажми ✓";
     const slotCount = (b.slots || []).length;
     const isUser = b.source === "user";
     el.innerHTML = `
@@ -555,6 +700,13 @@ function renderCatalog() {
       if (delBtn) {
         e.stopPropagation();
         deleteUserBlock(delBtn.dataset.delId);
+        return;
+      }
+      // Клик по самой картинке — это «покажи крупно», а не «добавь в письмо».
+      // Человек первым делом тыкает в превью, чтобы разглядеть блок.
+      if (e.target.closest(".cat-item-thumb")) {
+        e.stopPropagation();
+        openBlockView(b);
         return;
       }
       const viewBtn = e.target.closest(".cat-item-view");
@@ -836,6 +988,7 @@ function openBlockView(b) {
     ? b.slots.map((sl) => `<span class="pill" title="${escapeHtml(sl.kind || "text")}">${escapeHtml(sl.id)}${sl.default != null ? " = " + escapeHtml(String(sl.default).slice(0, 40)) : ""}</span>`).join(" ")
     : "<span class='cat-empty'>нет слотов</span>";
   $("viewModal").classList.remove("hidden");
+  wireBlockViewTabs(b);
 }
 function closeBlockView() { $("viewModal").classList.add("hidden"); _viewBlock = null; }
 function duplicateToUserBlock(b) {
@@ -885,19 +1038,46 @@ function signaturePillsMarkup(b) {
   return `<div style="margin-top:6px">${pills} ${swatches}</div>`;
 }
 
-/** Увеличенное превью: desktop + mobile рядом, для окна просмотра блока. */
+/**
+ * Крупный просмотр блока: одна большая картинка и переключатель ширины.
+ *
+ * Две маленькие картинки рядом (как было) не отвечали на вопрос «что это за
+ * блок»: превью высотой в сотню пикселей нечитаемо. Здесь блок показан в
+ * натуральную величину колонки письма, с прокруткой если он длинный.
+ */
 function previewPairMarkup(b) {
   const p = b && b.preview;
-  if (!p || p.status !== "ok") return "";
-  const shot = (s, label) => s
-    ? `<figure style="margin:0;flex:0 1 auto;max-width:${s.width > 400 ? "62%" : "38%"}">
-         <img src="${escapeHtml(s.url)}" alt="${escapeHtml(label)}" style="width:100%;height:auto;border:1px solid #e5e7eb;border-radius:6px;background:#fff">
-         <figcaption style="font-size:11px;color:#6b7280;margin-top:4px">${escapeHtml(label)} · ${s.width}×${s.height}</figcaption>
-       </figure>`
-    : "";
-  return `<div style="display:flex;gap:12px;align-items:flex-start;margin:10px 0">
-      ${shot(p.desktop, "600 px")}${shot(p.mobile, "375 px")}
+  if (p && p.status === "failed") {
+    return `<div class="block-view-preview-failed">Превью не собралось: ${escapeHtml(p.error || "неизвестная причина")}</div>`;
+  }
+  if (!p || p.status !== "ok" || !p.desktop) return "";
+  const has = (s) => Boolean(s && s.url);
+  return `
+    <div class="block-view-preview">
+      <div class="block-view-tabs">
+        <button type="button" class="block-view-tab active" data-shot="desktop">🖥 Десктоп · ${p.desktop.width}×${p.desktop.height}</button>
+        ${has(p.mobile) ? `<button type="button" class="block-view-tab" data-shot="mobile">📱 Мобильный · ${p.mobile.width}×${p.mobile.height}</button>` : ""}
+      </div>
+      <div class="block-view-stage">
+        <img id="blockViewShot" src="${escapeHtml(p.desktop.url)}" alt="Превью блока">
+      </div>
     </div>`;
+}
+
+/** Переключение desktop/mobile в окне просмотра блока. */
+function wireBlockViewTabs(block) {
+  const root = document.getElementById("viewMeta");
+  if (!root) return;
+  const img = root.querySelector("#blockViewShot");
+  if (!img) return;
+  root.querySelectorAll(".block-view-tab").forEach((tab) => {
+    tab.addEventListener("click", () => {
+      const shot = block?.preview?.[tab.dataset.shot];
+      if (!shot?.url) return;
+      img.src = shot.url;
+      root.querySelectorAll(".block-view-tab").forEach((t) => t.classList.toggle("active", t === tab));
+    });
+  });
 }
 
 // ─── Lazy block thumbnails (live mini-render via /api/compose-preview) ──────
@@ -995,12 +1175,22 @@ function instantiateCombo(block, opts = {}) {
   let firstSection = true;
   const roleEntries = new Map();
 
-  for (const child of block.children || []) {
+  for (const [childIndex, child] of (block.children || []).entries()) {
     const def = blockById(child.id, child.source);
     if (!def) continue;
     const placement = placementOf(def);
     let parent = null;
     let slot = null;
+
+    // Блок с размещением «both» (отбивка) годится и в секции, и внутрь.
+    // Раньше он всегда шёл по внутреннему пути: если подходящего контейнера
+    // не было, движок создавал ДЕФОЛТНУЮ секцию — из чужого бренда — и прятал
+    // отбивку в неё. Решает не размещение, а есть ли куда положить внутрь.
+    const fitsCurrentContainer = placement === "both"
+      && container
+      && Boolean(chooseChildSlot(blockForEntry(container), def, child.slotId));
+    const asSection = placement === "section"
+      || (placement === "both" && !child.parentRole && !fitsCurrentContainer);
 
     if (placement === "outer") {
       const current = rootOuterEntry();
@@ -1017,15 +1207,22 @@ function instantiateCombo(block, opts = {}) {
         current.recipeInstanceId = recipeInstanceId;
         last = current;
         roleEntries.set(child.role || "outer", current);
+        opts.onChild?.(childIndex, current);
         continue;
       }
-    } else if (placement === "section") {
+    } else if (asSection) {
       const requestedParent = opts.parentUid != null ? entryByUid(opts.parentUid) : null;
       parent = placementOf(blockForEntry(requestedParent)) === "outer" ? requestedParent : outer;
       slot = chooseChildSlot(blockForEntry(parent), def, firstSection ? (opts.slotId || child.slotId) : child.slotId);
     } else {
+      // Родителем может быть не только секция, но и inner-контейнер —
+      // например двойной блок с колонками. Раньше такой parentRole молча
+      // отбрасывался (проверялось placement), и рецепт «карточка → две
+      // колонки → содержимое колонок» собрать было нельзя. Важно не
+      // размещение родителя, а наличие у него подходящего слота.
       parent = child.parentRole ? roleEntries.get(child.parentRole) : null;
-      if (!parent || placementOf(blockForEntry(parent)) !== "section") parent = container || latestSectionEntry(def);
+      if (parent && !chooseChildSlot(blockForEntry(parent), def, child.slotId)) parent = null;
+      if (!parent) parent = container || latestSectionEntry(def);
       if (parent && !chooseChildSlot(blockForEntry(parent), def, child.slotId)) parent = latestSectionEntry(def);
       if (!parent) {
         const sectionDef = findDefaultBlock("section");
@@ -1049,18 +1246,21 @@ function instantiateCombo(block, opts = {}) {
       recipeInstanceId,
     });
     const followsLast = last && sameUid(last.parentUid, entry.parentUid) && last.slotId === entry.slotId;
-    const sectionAfter = placement === "section" && lastSection ? lastSection.uid : undefined;
+    const sectionAfter = asSection && lastSection ? lastSection.uid : undefined;
     insertEntryAfterSiblings(
       entry,
       followsLast ? last.uid : sectionAfter ?? (firstSection ? opts.afterUid : undefined),
-      placement === "section" && firstSection ? opts.beforeUid : undefined,
+      asSection && firstSection ? opts.beforeUid : undefined,
     );
-    if (placement === "section") {
-      container = entry;
+    if (asSection) {
+      // Контейнером считаем только настоящую секцию: отбивка ничего в себя
+      // не принимает, и следующий внутренний блок должен идти в карточку.
+      if (placement === "section") container = entry;
       lastSection = entry;
       firstSection = false;
     }
     if (child.role) roleEntries.set(child.role, entry);
+    opts.onChild?.(childIndex, entry);
     last = entry;
   }
   return last || container || outer;
@@ -1073,6 +1273,7 @@ function addToCanvas(block, options = {}) {
 
   if (Array.isArray(block.children) && block.children.length) {
     const selected = instantiateCombo(block, opts);
+    if (selected) opts.onEntry?.(selected);
     finishCanvasMutation(selected?.uid, block, opts.origin);
     return;
   }
@@ -1090,11 +1291,13 @@ function addToCanvas(block, options = {}) {
         delete existing.explicitSlots;
       }
       existing.slotId = "root";
+      opts.onEntry?.(existing);
       finishCanvasMutation(existing.uid, block, opts.origin);
       return;
     }
     const entry = createEntry(block, { parentUid: null, slotId: "root", slots: opts.slots, explicitSlots: opts.explicitSlots });
     state.canvas.unshift(entry);
+    opts.onEntry?.(entry);
     finishCanvasMutation(entry.uid, block, opts.origin);
     return;
   }
@@ -1102,7 +1305,7 @@ function addToCanvas(block, options = {}) {
   const outer = ensureOuterForMutation();
   if (!outer) {
     _canvasUndo.pop();
-    alert("В библиотеке нет блока-обёртки. Сначала добавь outer-блок.");
+    if (!opts.quiet) alert("В библиотеке нет блока-обёртки. Сначала добавь outer-блок.");
     return;
   }
 
@@ -1133,7 +1336,7 @@ function addToCanvas(block, options = {}) {
 
   if (!parent || !slot) {
     _canvasUndo.pop();
-    alert(`Блок «${block.label || block.id}» нельзя вставить в выбранный контейнер.`);
+    if (!opts.quiet) alert(`Блок «${block.label || block.id}» нельзя вставить в выбранный контейнер.`);
     return;
   }
 
@@ -1145,6 +1348,7 @@ function addToCanvas(block, options = {}) {
     recipeInstanceId: opts.recipeInstanceId,
   });
   insertEntryAfterSiblings(entry, opts.afterUid, opts.beforeUid);
+  opts.onEntry?.(entry);
   finishCanvasMutation(entry.uid, block, opts.origin);
 }
 
@@ -1490,7 +1694,7 @@ function duplicateBlock(uid) {
 
 /** Короткая подсказка в углу канваса вместо alert'ов на каждое действие. */
 let _canvasHintTimer = null;
-function flashCanvasHint(text) {
+function flashCanvasHint(text, duration = 1800) {
   let el = document.getElementById("canvasHint");
   if (!el) {
     el = document.createElement("div");
@@ -1501,7 +1705,7 @@ function flashCanvasHint(text) {
   el.textContent = text;
   el.classList.add("visible");
   clearTimeout(_canvasHintTimer);
-  _canvasHintTimer = setTimeout(() => el.classList.remove("visible"), 1800);
+  _canvasHintTimer = setTimeout(() => el.classList.remove("visible"), duration);
 }
 
 /** Пункты меню, зависящие от буфера, должны гаснуть, когда он пуст. */
@@ -1643,17 +1847,10 @@ function openCatalogContextMenu(x, y, block) {
  */
 function discussBlockWithAi(block, entry) {
   const chat = ensureStudioChat();
-  if (!chat) { alert("Панель оператора не загрузилась — обнови страницу"); return; }
-  chat.mount();
-  chat.open();
+  if (!chat) { flashCanvasHint("Панель оператора не загрузилась — обнови страницу"); return; }
   const name = block?.label || block?.id || "блок";
-  const where = entry ? " в этом письме" : "";
-  const draft = `Блок «${name}» (id: ${block?.id})${where}. `;
-  if (chat.input && !chat.input.value.trim()) {
-    chat.input.value = draft;
-    chat.input.focus();
-    chat.input.setSelectionRange(draft.length, draft.length);
-  }
+  const where = entry ? " в этом письме" : " из каталога";
+  chat.discuss({ text: `Блок «${name}» (id: ${block?.id})${where}.` });
 }
 
 /* ─── Горячие клавиши буфера ─────────────────────────────────────────────── */
@@ -1668,6 +1865,11 @@ document.addEventListener("keydown", (e) => {
   if (!(e.metaKey || e.ctrlKey) || e.altKey) return;
   // Пока курсор в поле ввода, Ctrl+C/V принадлежат тексту, а не блокам.
   if (isTypingTarget(document.activeElement)) return;
+  // И если человек выделил текст мышью — Ctrl+C должен скопировать текст.
+  // Без этой проверки нельзя было скопировать ответ оператора из чата:
+  // мы перехватывали сочетание и копировали блок канваса.
+  const selection = window.getSelection?.();
+  if (selection && !selection.isCollapsed && String(selection).trim()) return;
   const key = String(e.key || "").toLowerCase();
   const uid = state.selectedUid;
 
@@ -1954,7 +2156,11 @@ const APPLIED_STYLE_READERS = {
   border(cs) {
     const width = parseFloat(cs.borderTopWidth) || 0;
     if (!width) return "нет";
-    return `${cs.borderTopWidth} ${cs.borderTopStyle} ${cs.borderTopColor}`;
+    // Браузер отдаёт цвет как rgb(255, 119, 0). В студии цвета везде HEX —
+    // и в полях, и в сохранённом Pug/Stylus, — поэтому показываем так же,
+    // иначе значение из подсказки нельзя просто скопировать в поле.
+    const colour = rgbToHex(cs.borderTopColor) || cs.borderTopColor;
+    return `${cs.borderTopWidth} ${cs.borderTopStyle} ${colour}`;
   },
   radius(cs) {
     const r = cs.borderTopLeftRadius;
@@ -2019,13 +2225,73 @@ function appliedStyleNote(uid, key) {
     </div>`;
 }
 
-/** rgb(255, 119, 0) → #ff7700; всё остальное отдаём как есть. */
+/** rgb(255, 119, 0) → #FF7700; всё остальное отдаём как есть. */
 function rgbToHex(value) {
   const m = /^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)$/.exec(String(value).trim());
   if (!m) return null;
   if (m[4] !== undefined && Number(m[4]) === 0) return "прозрачный";
-  const hex = "#" + [m[1], m[2], m[3]].map((n) => Number(n).toString(16).padStart(2, "0")).join("");
+  const hex = "#" + [m[1], m[2], m[3]].map((n) => Number(n).toString(16).padStart(2, "0")).join("").toUpperCase();
   return m[4] !== undefined && Number(m[4]) < 1 ? `${hex} (${Math.round(Number(m[4]) * 100)}%)` : hex;
+}
+
+/**
+ * Палитра письма: то, что реально нужно под рукой.
+ *
+ * Первые две строки — текст, фоны и рамки; третья — акценты статусов и их
+ * бледные подложки (успех / внимание / ошибка), из которых собираются
+ * подсвеченные плашки. Всё остальное набирается в HEX или колесом.
+ */
+const EMAIL_HEX_PALETTE = Object.freeze([
+  "#000000", "#222222", "#393A44", "#6B7280",
+  "#FFFFFF", "#F9F9F9", "#ECECED", "#FF7700",
+  "#3FB950", "#E3A008", "#F85149", "#2563EB",
+  "#E7F6EA", "#FCF4E3", "#FEEAE9", "#EEF2FF",
+]);
+
+/**
+ * Email-safe colour accepted by the constructor.
+ *
+ * We intentionally do not accept rgb()/rgba(), alpha HEX or named colours:
+ * the authored Pug/Stylus and the compiled inline CSS stay explicit #RRGGBB.
+ * `transparent` and `inherit` remain available for nested backgrounds.
+ */
+function parseEmailColor(value, options) {
+  const allowEmpty = Boolean(options?.allowEmpty);
+  const raw = String(value ?? "").trim();
+  if (!raw) return allowEmpty ? "" : null;
+  const keyword = raw.toLowerCase();
+  if (keyword === "transparent" || keyword === "inherit") return keyword;
+  const short = /^#([0-9a-f]{3})$/i.exec(raw);
+  if (short) {
+    return "#" + short[1].split("").map((char) => char + char).join("").toUpperCase();
+  }
+  const full = /^#([0-9a-f]{6})$/i.exec(raw);
+  return full ? `#${full[1].toUpperCase()}` : null;
+}
+
+function renderEmailColorControl({ target, id, value, placeholder }) {
+  const normalized = parseEmailColor(value, { allowEmpty: true });
+  const shown = normalized === null ? String(value ?? "") : normalized;
+  const swatch = /^#[0-9A-F]{6}$/.test(normalized || "") ? normalized : "#000000";
+  const transparent = !/^#[0-9A-F]{6}$/.test(normalized || "");
+  const key = `${target}:${id}`;
+  const dataId = target === "slot"
+    ? `data-slot-id="${escapeHtml(id)}"`
+    : `data-appearance-id="${escapeHtml(id)}"`;
+  const presets = EMAIL_HEX_PALETTE.map((color) =>
+    `<button type="button" class="email-color-preset" data-email-color-value="${color}" style="--email-swatch:${color}" title="${color}" aria-label="${color}"></button>`
+  ).join("");
+  return `<button type="button" class="email-color-swatch${transparent ? " is-transparent" : ""}" data-email-color-open="${escapeHtml(key)}" style="--email-swatch:${escapeHtml(swatch)}" title="Открыть HEX-палитру"><span class="email-color-swatch-chip"></span><span>HEX</span></button>
+    <input type="text" class="email-hex-input" data-email-color="${escapeHtml(target)}" ${dataId} value="${escapeHtml(shown)}" placeholder="${escapeHtml(placeholder)}" maxlength="11" inputmode="text" autocomplete="off" spellcheck="false" aria-label="Цвет в формате HEX" />
+    <div class="email-color-popover" data-email-color-popover="${escapeHtml(key)}" hidden>
+      <div class="email-color-popover-title">Цвета письма</div>
+      <div class="email-color-presets">${presets}</div>
+      <label class="email-color-wheel">
+        <input type="color" data-email-color-wheel="${escapeHtml(key)}" value="${escapeHtml(swatch)}" />
+        <span>Другой цвет…</span>
+      </label>
+      <div class="email-color-popover-hint">Или введи <code>#RRGGBB</code> в поле рядом</div>
+    </div>`;
 }
 
 // ─── Inspector ──────────────────────────────────────────────────────────
@@ -2056,8 +2322,13 @@ function renderFallbackAppearanceControl(binding, entry, block) {
   const label = `<label>${escapeHtml(binding.label)} <span class="slot-kind">общий</span></label>`;
   const reset = `<button type="button" class="slot-value-btn" data-reset-appearance="${id}" title="Убрать переопределение и вернуть оформление блока">↺</button>`;
   if (binding.kind === "color") {
-    const swatch = /^#[0-9a-f]{6}$/i.test(String(value)) ? String(value) : "#000000";
-    return `<div class="insp-slot insp-style-slot style-background">${label}<div class="insp-value-row insp-color-row"><input type="color" data-appearance-id="${id}" value="${escapeHtml(swatch)}" /><input type="text" data-appearance-id="${id}" value="${escapeHtml(value)}" placeholder="как в блоке / #RRGGBB" /><button type="button" class="slot-value-btn transparent" data-transparent-appearance="${id}" title="Прозрачный: будет виден фон родительского блока">Как родитель</button>${reset}</div></div>`;
+    const colorControl = renderEmailColorControl({
+      target: "appearance",
+      id: binding.key,
+      value,
+      placeholder: "как в блоке / #RRGGBB",
+    });
+    return `<div class="insp-slot insp-style-slot style-background">${label}<div class="insp-value-row insp-color-row">${colorControl}<button type="button" class="slot-value-btn transparent" data-transparent-appearance="${id}" title="Прозрачный: будет виден фон родительского блока">Как родитель</button>${reset}</div></div>`;
   }
   const placeholder = binding.key === "border" ? "как в блоке / 1px solid #ECECED"
     : binding.key === "radius" ? "как в блоке / 16px"
@@ -2099,6 +2370,160 @@ function renderCommonAppearance(block, entry, bindings) {
       return `<div class="insp-surface-field" data-applied-for="${escapeHtml(binding.key)}">${control}${appliedStyleNote(entry?.uid, binding.key)}</div>`;
     }).join("")}
   </section>`;
+}
+
+function bindEmailColorControls(body, entry, block) {
+  const closePalettes = (exceptKey = "") => {
+    body.querySelectorAll("[data-email-color-popover]").forEach((popover) => {
+      if (popover.dataset.emailColorPopover !== exceptKey) popover.hidden = true;
+    });
+    body.querySelectorAll("[data-email-color-open]").forEach((button) => {
+      button.setAttribute("aria-expanded", button.dataset.emailColorOpen === exceptKey ? "true" : "false");
+    });
+  };
+
+  const syncVisual = (input, normalized) => {
+    const target = input.dataset.emailColor;
+    const id = target === "slot" ? input.dataset.slotId : input.dataset.appearanceId;
+    const key = `${target}:${id}`;
+    const swatch = body.querySelector(`[data-email-color-open="${CSS.escape(key)}"]`);
+    if (!swatch) return;
+    const isHex = /^#[0-9A-F]{6}$/.test(normalized || "");
+    swatch.classList.toggle("is-transparent", !isHex);
+    if (isHex) swatch.style.setProperty("--email-swatch", normalized);
+  };
+
+  const commit = (input, { captureUndo = true, report = true } = {}) => {
+    const target = input.dataset.emailColor;
+    const id = target === "slot" ? input.dataset.slotId : input.dataset.appearanceId;
+    const allowEmpty = target === "appearance";
+    const normalized = parseEmailColor(input.value, { allowEmpty });
+    if (normalized === null) {
+      input.setCustomValidity("Используй #RGB, #RRGGBB, transparent или inherit. RGB/RGBA для email не сохраняются.");
+      input.setAttribute("aria-invalid", "true");
+      if (report) input.reportValidity();
+      return false;
+    }
+    input.setCustomValidity("");
+    input.removeAttribute("aria-invalid");
+    input.value = normalized;
+    syncVisual(input, normalized);
+
+    let changed = false;
+    if (target === "slot") {
+      const current = String(entry.slots[id] ?? "");
+      if (current !== normalized) {
+        if (captureUndo && input.dataset.undoCaptured !== "1") pushCanvasUndo();
+        entry.slots[id] = normalized;
+        markEntrySlotExplicit(entry, id);
+        changed = true;
+      }
+    } else {
+      if (!entry.appearance || typeof entry.appearance !== "object") entry.appearance = {};
+      const hasCurrent = Object.prototype.hasOwnProperty.call(entry.appearance, id);
+      const current = hasCurrent ? String(entry.appearance[id] ?? "") : "";
+      if (normalized === "") {
+        if (hasCurrent) {
+          if (captureUndo && input.dataset.undoCaptured !== "1") pushCanvasUndo();
+          delete entry.appearance[id];
+          changed = true;
+        }
+      } else if (!hasCurrent || current !== normalized) {
+        if (captureUndo && input.dataset.undoCaptured !== "1") pushCanvasUndo();
+        entry.appearance[id] = normalized;
+        changed = true;
+      }
+    }
+    if (changed) scheduleLivePreview();
+    return true;
+  };
+
+  body.querySelectorAll("[data-email-color]").forEach((input) => {
+    const initial = parseEmailColor(input.value, { allowEmpty: input.dataset.emailColor === "appearance" });
+    if (initial !== null) {
+      input.value = initial;
+      syncVisual(input, initial);
+    }
+    input.addEventListener("focus", () => {
+      if (input.dataset.undoCaptured !== "1") {
+        pushCanvasUndo();
+        input.dataset.undoCaptured = "1";
+      }
+    });
+    input.addEventListener("input", () => {
+      const parsed = parseEmailColor(input.value, { allowEmpty: input.dataset.emailColor === "appearance" });
+      input.setCustomValidity("");
+      input.removeAttribute("aria-invalid");
+      if (parsed !== null) syncVisual(input, parsed);
+    });
+    input.addEventListener("change", () => commit(input, { captureUndo: false }));
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        if (commit(input, { captureUndo: false })) input.blur();
+      } else if (event.key === "Escape") {
+        closePalettes();
+        input.blur();
+      }
+    });
+    input.addEventListener("blur", () => { delete input.dataset.undoCaptured; });
+  });
+
+  body.querySelectorAll("[data-email-color-open]").forEach((button) => {
+    button.setAttribute("aria-expanded", "false");
+    button.addEventListener("click", () => {
+      const key = button.dataset.emailColorOpen;
+      const popover = body.querySelector(`[data-email-color-popover="${CSS.escape(key)}"]`);
+      if (!popover) return;
+      const opening = popover.hidden;
+      closePalettes(opening ? key : "");
+      popover.hidden = !opening;
+      button.setAttribute("aria-expanded", opening ? "true" : "false");
+    });
+  });
+
+  body.querySelectorAll("[data-email-color-value]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const popover = button.closest("[data-email-color-popover]");
+      const key = popover?.dataset.emailColorPopover || "";
+      const [target, ...idParts] = key.split(":");
+      const id = idParts.join(":");
+      const selector = target === "slot"
+        ? `[data-email-color="slot"][data-slot-id="${CSS.escape(id)}"]`
+        : `[data-email-color="appearance"][data-appearance-id="${CSS.escape(id)}"]`;
+      const input = body.querySelector(selector);
+      if (!input) return;
+      pushCanvasUndo();
+      input.dataset.undoCaptured = "1";
+      input.value = button.dataset.emailColorValue;
+      commit(input, { captureUndo: false });
+      closePalettes();
+      input.focus();
+    });
+  });
+
+  // Колесо выбора цвета: для всего, чего нет в палитре письма. Пишем в то же
+  // поле, поэтому HEX-нормализация и валидация остаются одни на всех.
+  body.querySelectorAll("[data-email-color-wheel]").forEach((wheel) => {
+    wheel.addEventListener("input", () => {
+      const key = wheel.dataset.emailColorWheel || "";
+      const [target, ...idParts] = key.split(":");
+      const id = idParts.join(":");
+      const selector = target === "slot"
+        ? `[data-email-color="slot"][data-slot-id="${CSS.escape(id)}"]`
+        : `[data-email-color="appearance"][data-appearance-id="${CSS.escape(id)}"]`;
+      const input = body.querySelector(selector);
+      if (!input) return;
+      if (wheel.dataset.undoCaptured !== "1") {
+        pushCanvasUndo();
+        wheel.dataset.undoCaptured = "1";
+      }
+      input.dataset.undoCaptured = "1";
+      input.value = String(wheel.value || "").toUpperCase();
+      commit(input, { captureUndo: false });
+    });
+    wheel.addEventListener("change", () => { delete wheel.dataset.undoCaptured; });
+  });
 }
 
 function renderInspector() {
@@ -2167,7 +2592,7 @@ function renderInspector() {
   `;
   body.innerHTML = html;
   // Wire up change handlers.
-  body.querySelectorAll("[data-slot-id]").forEach((el) => {
+  body.querySelectorAll("[data-slot-id]:not([data-email-color])").forEach((el) => {
     el.addEventListener("focus", () => {
       if (el.dataset.undoCaptured === "1") return;
       pushCanvasUndo();
@@ -2206,16 +2631,21 @@ function renderInspector() {
       el.setCustomValidity("");
       entry.slots[id] = v;
       markEntrySlotExplicit(entry, id);
-      // Keep the paired color text/swatch inputs in sync.
-      if (el.type === "color" || (el.type === "text" && el.previousElementSibling?.type === "color")) {
-        body.querySelectorAll(`[data-slot-id="${CSS.escape(id)}"]`).forEach((other) => {
-          if (other !== el && other.value !== v) other.value = v;
-        });
+      // Инспектор писал слот напрямую, мимо setEntrySlotValue — и связанные
+      // слоты (ширина кнопки в CSS, прижатие) не обновлялись НИКОГДА. Снаружи
+      // это выглядело как «выбор в выпадашке ничего не делает».
+      const linked = slotPresetAssignments(block, id, v);
+      if (linked) {
+        for (const [targetId, targetValue] of Object.entries(linked)) {
+          entry.slots[targetId] = targetValue;
+          markEntrySlotExplicit(entry, targetId);
+        }
+        renderInspector();
       }
       scheduleLivePreview();
     });
   });
-  body.querySelectorAll("[data-appearance-id]").forEach((el) => {
+  body.querySelectorAll("[data-appearance-id]:not([data-email-color])").forEach((el) => {
     el.addEventListener("focus", () => {
       if (el.dataset.undoCaptured === "1") return;
       pushCanvasUndo();
@@ -2228,12 +2658,10 @@ function renderInspector() {
       if (!entry.appearance || typeof entry.appearance !== "object") entry.appearance = {};
       if (String(value).trim()) entry.appearance[id] = value;
       else delete entry.appearance[id];
-      body.querySelectorAll(`[data-appearance-id="${CSS.escape(id)}"]`).forEach((other) => {
-        if (other !== el && other.value !== value) other.value = value;
-      });
       scheduleLivePreview();
     });
   });
+  bindEmailColorControls(body, entry, block);
   body.querySelectorAll("[data-reset-slot]").forEach((button) => {
     button.addEventListener("click", () => {
       const id = button.dataset.resetSlot;
@@ -2453,7 +2881,15 @@ function renderSlotControl(slot, current, block) {
     return `<div class="${wrapClass}">${label}<textarea data-slot-id="${escapeHtml(id)}" maxlength="${slot.max || 1000}">${escapeHtml(v)}</textarea>${placeholderButton}</div>`;
   }
   if (kind === "select") {
-    const options = (slot.options || []).map((o) => `<option value="${escapeHtml(o)}" ${o === v ? "selected" : ""}>${escapeHtml(o)}</option>`).join("");
+    // Вариант — строка или {value,label}. Подпись нужна там, где значение
+    // нечитаемо: в выпадашке логотипа человек должен видеть «Тёмное», а не
+    // ссылку на CDN. В письмо уходит только value.
+    const options = (slot.options || []).map((o) => {
+      const isPair = o && typeof o === "object" && !Array.isArray(o);
+      const value = isPair ? String(o.value ?? "") : String(o);
+      const text = isPair ? String(o.label ?? o.value ?? "") : String(o);
+      return `<option value="${escapeHtml(value)}" ${value === v ? "selected" : ""}>${escapeHtml(text)}</option>`;
+    }).join("");
     return `<div class="${wrapClass}">${label}<div class="insp-value-row"><select data-slot-id="${escapeHtml(id)}">${options}</select>${resetButton}</div></div>`;
   }
   if (kind === "number") {
@@ -2471,11 +2907,16 @@ function renderSlotControl(slot, current, block) {
       </div></div>`;
   }
   if (kind === "color") {
-    const swatch = /^#[0-9a-f]{6}$/i.test(String(v)) ? String(v) : "#000000";
     const transparentButton = appearanceRole === "background"
       ? `<button type="button" class="slot-value-btn transparent" data-transparent-slot="${escapeHtml(id)}" title="Прозрачный: показывать фон родительского блока">Как родитель</button>`
       : "";
-    return `<div class="${wrapClass}">${label}<div class="insp-value-row insp-color-row"><input type="color" data-slot-id="${escapeHtml(id)}" value="${escapeHtml(swatch)}" /><input type="text" data-slot-id="${escapeHtml(id)}" value="${escapeHtml(v)}" placeholder="#RRGGBB или transparent" />${transparentButton}${resetButton}</div></div>`;
+    const colorControl = renderEmailColorControl({
+      target: "slot",
+      id,
+      value: v,
+      placeholder: "#RRGGBB или transparent",
+    });
+    return `<div class="${wrapClass}">${label}<div class="insp-value-row insp-color-row">${colorControl}${transparentButton}${resetButton}</div></div>`;
   }
   // default: text
   const stylePlaceholder = appearanceRole === "border" ? "none или 1px solid #ECECED"
@@ -2495,6 +2936,15 @@ function setEntrySlotValue(entry, slotId, value) {
   pushCanvasUndo();
   entry.slots[slotId] = value;
   markEntrySlotExplicit(entry, slotId);
+  // Тон плашки переключает фон и полосу разом. Значения ставим явными: человек
+  // видит их в полях и может переопределить, а следующий выбор тона перепишет.
+  const assignments = slotPresetAssignments(blockForEntry(entry), slotId, value);
+  if (assignments) {
+    for (const [targetId, targetValue] of Object.entries(assignments)) {
+      entry.slots[targetId] = targetValue;
+      markEntrySlotExplicit(entry, targetId);
+    }
+  }
   renderInspector();
   scheduleLivePreview(100);
   return true;
@@ -2805,7 +3255,11 @@ function canvasToBlocks(options) {
     if (c.appearance && typeof c.appearance === "object" && Object.keys(c.appearance).length) {
       out.appearance = { ...c.appearance };
     }
-    if (b && b.source !== "canonical") {
+    // Saved user blocks are release artifacts: send only their id/source so
+    // compose reloads the current on-disk record and verifies its approval.
+    // Inline definitions are reserved for server-verifiable parsed mail
+    // fragments (and unsaved authoring previews, which release-save rejects).
+    if (b && !["canonical", "user"].includes(b.source)) {
       out.def = {
         id: b.id,
         label: b.label,
@@ -2821,6 +3275,18 @@ function canvasToBlocks(options) {
     return out;
   });
 }
+/**
+ * Метка кампании письма.
+ *
+ * У блоков в ссылках лежат чужие `afftrack`/`retrack` — блок берут в новое
+ * письмо, и метка едет с ним. При сборке студия переписывает их на эту.
+ * Поле пустое — ничего не трогаем, ссылки остаются как в блоках.
+ */
+function campaignPayload() {
+  const value = ($("campaignName")?.value || "").trim();
+  return value ? { campaign: value } : {};
+}
+
 function sourceSkeletonPayload() {
   const s = state.sourceSkeleton;
   // A studio-model can contain only canonical entries while still depending on
@@ -2833,6 +3299,24 @@ function sourceSkeletonPayload() {
 let _livePreviewTimer = null;
 let _livePreviewToken = 0;
 let _lastLiveHtml = "";
+// Кто ждёт ближайшую сборку превью (проверка работы агента).
+const _liveWaiters = [];
+function waitForLivePreview(timeoutMs = 25000) {
+  return new Promise((resolve) => {
+    const waiter = (result) => { clearTimeout(timer); resolve(result); };
+    const timer = setTimeout(() => {
+      const index = _liveWaiters.indexOf(waiter);
+      if (index >= 0) _liveWaiters.splice(index, 1);
+      resolve({ ok: false, error: "превью не успело собраться" });
+    }, timeoutMs);
+    _liveWaiters.push(waiter);
+  });
+}
+function settleLiveWaiters(result) {
+  for (const waiter of _liveWaiters.splice(0)) {
+    try { waiter(result); } catch { /* ждущий не должен ронять сборку */ }
+  }
+}
 const _livePreviewSessionNonce = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
 function livePreviewRequestMailName(rawName, token, nonce = _livePreviewSessionNonce) {
@@ -2870,6 +3354,7 @@ function scheduleLivePreview(delay = 650) {
     const placeholder = $("previewPlaceholder");
     if (placeholder) placeholder.innerHTML = "Добавь блоки слева — здесь появится живое превью письма.<br><br>Можно перетаскивать блоки прямо сюда, в письмо, а клик по блоку выделяет его для правки.";
     setLiveStatus("пусто");
+    settleLiveWaiters({ ok: true, empty: true });
     return;
   }
   setLiveStatus("ожидание правок…");
@@ -2889,6 +3374,7 @@ async function runLivePreview() {
     const _ph = $("previewPlaceholder"); if (_ph) _ph.textContent = "Добавь секцию или комбо слева — здесь появится письмо.";
     setLiveStatus("добавь секцию", "");
     overlay?.classList.add("hidden");
+    settleLiveWaiters({ ok: true, empty: true });
     return;
   }
   overlay?.classList.remove("hidden");
@@ -2899,7 +3385,7 @@ async function runLivePreview() {
     const res = await fetch("/api/compose-preview", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mailName: previewMailName, blocks, ...sourceSkeletonPayload() }),
+      body: JSON.stringify({ mailName: previewMailName, blocks, ...campaignPayload(), ...sourceSkeletonPayload() }),
     });
     const data = await res.json();
     if (token !== _livePreviewToken) return; // a newer build superseded us
@@ -2910,6 +3396,7 @@ async function runLivePreview() {
         `<div style="font:12px/1.5 ui-monospace,Menlo,monospace;color:#b91c1c;white-space:pre-wrap;padding:18px">`
         + `⚠ Ошибка сборки\n\n${escapeHtml(data.error || res.status)}\n\n${escapeHtml((data.stderr || "").slice(0, 700))}</div>`;
       setLiveStatus("ошибка сборки", "err");
+      settleLiveWaiters({ ok: false, error: String(data.error || res.status), stderr: String(data.stderr || "").slice(0, 600) });
       return;
     }
     _lastLiveHtml = sanitizeIframePreviewHtml(data.html);
@@ -2924,9 +3411,16 @@ async function runLivePreview() {
     frame.srcdoc = _lastLiveHtml;
     const warn = (data.warnings && data.warnings.length) ? ` · ⚠${data.warnings.length}` : "";
     setLiveStatus(`${data.blocksUsed}/${data.totalBlocks} блоков · ${(data.htmlLength/1024).toFixed(1)}KB${warn}`, "ok");
+    settleLiveWaiters({
+      ok: true,
+      blocksUsed: data.blocksUsed,
+      totalBlocks: data.totalBlocks,
+      warnings: Array.isArray(data.warnings) ? data.warnings.slice(0, 20).map((w) => String(w?.message || w).slice(0, 200)) : [],
+    });
   } catch (err) {
     if (token !== _livePreviewToken) return;
     setLiveStatus("сеть: " + err.message, "err");
+    settleLiveWaiters({ ok: false, error: err.message });
   } finally {
     if (token === _livePreviewToken) overlay?.classList.add("hidden");
   }
@@ -3125,6 +3619,24 @@ function siblingBeforeUidAtPointer(parentUid, slotId, anchorUid, clientY) {
   return siblings[index + 1]?.uid ?? null;
 }
 
+/**
+ * Куда встать среди детей контейнера, если указатель НЕ над конкретным блоком.
+ *
+ * Такое место в письме теперь есть у каждой секции: между блоками стоят
+ * автоотступы, и они не принадлежат ни одному блоку. Раньше указатель над
+ * отступом означал «блок-цель не найден», beforeUid оставался пустым, и линия
+ * вставки уезжала в самый низ секции — со стороны это выглядит как «подсветка
+ * не появляется там, куда тащу».
+ */
+function childBeforeUidAtPointer(parentUid, slotId, clientY) {
+  for (const child of childrenOf(parentUid, slotId)) {
+    if (sameUid(child.uid, _draggingCanvasUid)) continue;
+    const midpoint = renderedRangeMidpoint(child.uid);
+    if (midpoint != null && clientY <= midpoint) return child.uid;
+  }
+  return null;
+}
+
 function iframeDropContextFor(target, clientY) {
   const movingEntry = entryByUid(_draggingCanvasUid);
   const block = movingEntry ? blockForEntry(movingEntry) : blockById(_draggingBlockId, _draggingBlockSource);
@@ -3169,6 +3681,11 @@ function iframeDropContextFor(target, clientY) {
   let beforeUid = null;
   if (placementOf(targetBlock) === "section") {
     parent = targetEntry;
+    const sectionSlot = chooseChildSlot(targetBlock, block);
+    if (sectionSlot) {
+      preferredSlot = sectionSlot.id;
+      beforeUid = childBeforeUidAtPointer(targetEntry.uid, sectionSlot.id, clientY);
+    }
   } else if (targetEntry && isInnerBlock(targetBlock)) {
     parent = entryByUid(targetEntry.parentUid);
     preferredSlot = targetEntry.slotId;
@@ -3325,7 +3842,7 @@ async function preview() {
     const res = await fetch("/api/compose-preview", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mailName: $("mailName").value.trim() || "preview", blocks, ...sourceSkeletonPayload() }),
+      body: JSON.stringify({ mailName: $("mailName").value.trim() || "preview", blocks, ...campaignPayload(), ...sourceSkeletonPayload() }),
     });
     const data = await res.json();
     if (!res.ok || !data.ok) {
@@ -3362,7 +3879,7 @@ async function save() {
     const res = await fetch("/api/compose-save", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ brand, mailName, blocks, force: !!force, ...sourceSkeletonPayload() }),
+      body: JSON.stringify({ brand, mailName, blocks, force: !!force, ...campaignPayload(), ...sourceSkeletonPayload() }),
     });
     return { status: res.status, data: await res.json() };
   };
@@ -3776,6 +4293,10 @@ async function saveAuthorBlock() {
   } else if (placement === "inner" && /spacer|divider|разделител|utility/i.test(dividerHint)) {
     structuralTags.push("inner-divider");
   }
+  // Набор system — whitelist: блок, созданный в этом режиме и не объявивший
+  // себя системным, исчез бы из каталога сразу после сохранения. Поэтому
+  // авторство наследует активный набор, а не молча роняет блок в промо.
+  const kits = activeKit() === "system" ? ["system", "promo"] : [];
   const payload = {
     id,
     label: $("abLabel").value.trim() || id,
@@ -3786,6 +4307,7 @@ async function saveAuthorBlock() {
     styl: $("abStyl").value,
     slots: buildAuthorSlots(),
     tags: structuralTags,
+    ...(kits.length ? { kits } : {}),
     force: !!authorState.editingId,
   };
   if (childSlots.length) payload.childSlots = childSlots;
@@ -3859,40 +4381,186 @@ $("openGalleryBtn")?.addEventListener("click", openBlockGallery);
  * какое дерево блоков собрано прямо сейчас.
  */
 /**
- * Применить правки канваса, которые агент накопил через update_canvas_block.
+ * Применить правки канваса, которые агент накопил своими инструментами.
  * Сервер их только передаёт: канвас существует лишь в браузере.
- * Одна отмена на весь пакет — человек говорил одну фразу, откатывать он
- * тоже захочет одним Ctrl+Z, а не по слоту.
+ *
+ * Пакет — это одна фраза человека («удали всё и собери заново»), поэтому он
+ * атомарен в обе стороны: одна отмена на весь пакет, а на первой же неудачной
+ * операции канвас возвращается к состоянию до пакета. Половина выполненной
+ * просьбы хуже невыполненной: человек не видит, где сборка оборвалась.
+ *
+ * Виды операций (kind):
+ *   update — слоты и оформление уже стоящего блока (исторически без kind)
+ *   remove — блок вместе со всем вложенным
+ *   clear  — весь канвас
+ *   add    — блок из библиотеки; op.tempUid связывает его с uid, который
+ *            агент уже использовал в последующих update в этом же пакете
+ *   move   — на позицию вверх/вниз среди соседей
  */
 function applyAgentCanvasOps(ops) {
-  if (!Array.isArray(ops) || !ops.length) return;
-  const applied = [];
-  const missed = [];
-  pushCanvasUndo();
+  if (!Array.isArray(ops) || !ops.length) return { applied: false, problems: [] };
+  const slotValues = globalThis.RetkitCanvasSlots;
+  let before;
+  try { before = JSON.stringify(state.canvas); } catch { before = null; }
+  const undoDepth = _canvasUndo.length;
+
+  // Блоки, созданные этим же пакетом: агент ссылается на них временным uid,
+  // настоящий появляется только здесь.
+  const tempUids = new Map();
+  const realUid = (uid) => (uid != null && tempUids.has(String(uid)) ? tempUids.get(String(uid)) : uid);
+
+  const problems = [];
+  const counts = { update: 0, remove: 0, clear: 0, add: 0, move: 0 };
+  let touched = null;
+
+  const need = (uid, what) => {
+    const entry = entryByUid(realUid(uid));
+    if (!entry) problems.push(`${what}: блока uid ${uid} на канвасе нет`);
+    return entry;
+  };
+
   for (const op of ops) {
-    const entry = entryByUid(op?.uid);
-    if (!entry) { missed.push(op?.uid); continue; }
+    const kind = String(op?.kind || "update");
+
+    if (kind === "clear") {
+      state.canvas = [];
+      state.selectedUid = null;
+      state.sourceSkeleton = null;
+      touched = null;
+      counts.clear += 1;
+      continue;
+    }
+
+    if (kind === "remove") {
+      const entry = need(op?.uid, "удаление");
+      if (!entry) break;
+      const parentUid = entry.parentUid ?? null;
+      removeFromCanvas(entry.uid);
+      touched = parentUid;
+      counts.remove += 1;
+      continue;
+    }
+
+    if (kind === "move") {
+      const entry = need(op?.uid, "перестановка");
+      if (!entry) break;
+      if (entry.parentUid == null) {
+        problems.push("перестановка: обёртку письма переставлять некуда");
+        break;
+      }
+      const siblings = childrenOf(entry.parentUid, entry.slotId);
+      const index = siblings.findIndex((candidate) => sameUid(candidate.uid, entry.uid));
+      const delta = op?.direction === "up" ? -1 : 1;
+      if (index < 0 || index + delta < 0 || index + delta >= siblings.length) {
+        problems.push(`перестановка: блок уже ${delta < 0 ? "первый" : "последний"} среди соседей`);
+        break;
+      }
+      moveInCanvas(entry.uid, delta);
+      touched = entry.uid;
+      counts.move += 1;
+      continue;
+    }
+
+    if (kind === "add") {
+      const block = blockById(op?.blockId, op?.blockSource);
+      if (!block) { problems.push(`добавление: блока «${op?.blockId}» нет в каталоге этого режима`); break; }
+      let created = null;
+      addToCanvas(block, {
+        quiet: true,
+        parentUid: realUid(op?.parentUid),
+        slotId: op?.slotId || undefined,
+        afterUid: realUid(op?.afterUid),
+        slots: op?.slots && typeof op.slots === "object" ? op.slots : undefined,
+        explicitSlots: Object.keys(op?.slots && typeof op.slots === "object" ? op.slots : {}),
+        onEntry: (entry) => { created = entry; },
+        // Комбо разворачивается в несколько блоков: агент заранее выдал
+        // каждому свой временный uid — связываем их по порядку детей рецепта.
+        onChild: (index, entry) => {
+          const temp = Array.isArray(op?.childTempUids) ? op.childTempUids[index] : null;
+          if (temp != null) tempUids.set(String(temp), entry.uid);
+        },
+      });
+      if (!created) { problems.push(`добавление: блок «${block.label || block.id}» некуда поставить`); break; }
+      if (op?.tempUid != null) tempUids.set(String(op.tempUid), created.uid);
+      touched = created.uid;
+      counts.add += 1;
+      continue;
+    }
+
+    const entry = need(op?.uid, "правка");
+    if (!entry) break;
+    let slots = null;
     if (op.slots && typeof op.slots === "object") {
-      entry.slots = { ...(entry.slots || {}), ...op.slots };
+      if (!slotValues?.normalizeSlotPatch) { problems.push("проверка типов слотов недоступна"); break; }
+      const checked = slotValues.normalizeSlotPatch(blockForEntry(entry)?.slots, op.slots);
+      if (!checked.ok) { problems.push(checked.errors[0]?.error || "слот не принял значение"); break; }
+      slots = checked.values;
+    }
+    if (slots) {
+      entry.slots = { ...(entry.slots || {}), ...slots };
+      Object.keys(slots).forEach((slotId) => markEntrySlotExplicit(entry, slotId));
     }
     if (op.appearance && typeof op.appearance === "object") {
       entry.appearance = { ...(entry.appearance || {}), ...op.appearance };
     }
-    applied.push(entry.uid);
+    touched = entry.uid;
+    counts.update += 1;
   }
-  if (!applied.length) {
-    _canvasUndo.pop();
-    flashCanvasHint(`Оператор не нашёл блок на канвасе${missed.length ? ` (uid ${missed.join(", ")})` : ""}`);
-    return;
+
+  // Вложенные мутации складывали собственные снимки отмены — пакет
+  // откатывается одной кнопкой, поэтому стек возвращаем к своей отметке.
+  _canvasUndo.length = undoDepth;
+
+  if (problems.length) {
+    if (before != null) { try { state.canvas = JSON.parse(before); } catch { /* снимок не удался */ } }
+    state.selectedUid = null;
+    console.warn("[constructor] rejected agent canvas package", problems);
+    finishCanvasMutation(null);
+    flashCanvasHint(`Оператор не применил правку: ${problems[0]}`, 6000);
+    return { applied: false, problems };
   }
-  if (applied.length) state.selectedUid = applied[0];
-  finishCanvasMutation(state.selectedUid);
-  flashCanvasHint(applied.length === 1
-    ? "Оператор изменил блок — Ctrl+Z отменит"
-    : `Оператор изменил ${applied.length} блока — Ctrl+Z отменит`);
+
+  const total = counts.update + counts.remove + counts.clear + counts.add + counts.move;
+  if (!total) return { applied: false, problems: [] };
+  if (before != null) _canvasUndo.push(before);
+  const undoBtn = document.getElementById("undoBtn");
+  if (undoBtn) undoBtn.disabled = _canvasUndo.length === 0;
+
+  finishCanvasMutation(touched ?? state.selectedUid);
+  const said = [];
+  if (counts.clear) said.push("очистил письмо");
+  if (counts.add) said.push(`добавил ${counts.add}`);
+  if (counts.remove) said.push(`удалил ${counts.remove}`);
+  if (counts.move) said.push(`переставил ${counts.move}`);
+  if (counts.update) said.push(`изменил ${counts.update}`);
+  flashCanvasHint(`Оператор: ${said.join(", ")} — Ctrl+Z отменит всё разом`, 5000);
+  return { applied: true, problems: [], counts };
 }
 
 let _studioChat = null;
+function agentCatalogContext() {
+  const brand = window.RetkitBrands?.active?.() || null;
+  const blocks = state.library.filter((b) => catalogSourceAllowed(b, "curated")
+    && blockAllowedInKit(b) && !blockBelongsToOtherBrand(b));
+  return {
+    brand: brand ? {
+      id: brand.id,
+      label: brand.label || brand.id,
+      blockTag: brand.blockTag || "",
+      theme: brand.theme || {},
+    } : null,
+    kit: activeKit(),
+    blocks: blocks.slice(0, 400).map((b) => ({
+      id: b.id,
+      source: b.source || "",
+      label: String(b.label || "").slice(0, 90),
+      placement: b.placement || "",
+      category: b.category || "",
+      combo: isComboBlock(b),
+    })),
+  };
+}
+
 function ensureStudioChat() {
   if (_studioChat) return _studioChat;
   if (typeof StudioChat === "undefined") return null;
@@ -3902,14 +4570,32 @@ function ensureStudioChat() {
     buildContext: () => ({
       // Дерево отдаём как есть: сервер не хранит несохранённый канвас,
       // а агент должен видеть именно текущее состояние сборки.
-      canvas: state.canvas.map((e) => ({
-        uid: e.uid, blockId: e.blockId || e.id, blockSource: e.blockSource || e.source,
-        parentUid: e.parentUid, slotId: e.slotId, slots: e.slots || {},
-      })),
+      canvas: state.canvas.map((e) => {
+        const block = blockForEntry(e);
+        return {
+          uid: e.uid, blockId: e.blockId || e.id, blockSource: e.blockSource || e.source,
+          parentUid: e.parentUid, slotId: e.slotId, slots: e.slots || {},
+          slotSchema: (block?.slots || []).map((slot) => ({
+            id: slot.id,
+            kind: slot.kind || "text",
+            label: slot.label || slot.id,
+            ...(Array.isArray(slot.options) ? { options: slot.options } : {}),
+          })),
+        };
+      }),
       html: _lastLiveHtml || "",
+      mailName: $("mailName")?.value?.trim() || "",
+      // Что человек видит в каталоге: бренд, набор и блоки, которые здесь
+      // реально можно поставить. Без этого агент выбирал из всех 540 блоков,
+      // включая чужие бренды и черновые импорты, и пакет правок обрывался на
+      // «блока нет в каталоге этого режима».
+      studio: agentCatalogContext(),
     }),
-    onResult: (payload) => {
-      applyAgentCanvasOps(payload?.canvasOps);
+    // Подсветка кнопки живёт там же, где открытие окна: иначе окно, открытое
+    // правой кнопкой по блоку, оставляло кнопку погашенной.
+    onOpenChange: (open) => $("chatFab")?.classList.toggle("active", open),
+    onResult: async (payload, meta = {}) => {
+      const outcome = applyAgentCanvasOps(payload?.canvasOps);
       // Агент собрал письмо своим инструментом — предлагаем открыть результат,
       // но не подменяем канвас молча: человек мог не этого хотеть.
       if (payload?.composed?.brand && payload.composed.mailName) {
@@ -3918,11 +4604,98 @@ function ensureStudioChat() {
           loadParsedEmail(brand, `mail-${String(mailName).replace(/^mail-/, "")}`);
         }
       }
+      // Агент собирает вслепую: правки применяет браузер уже после его
+      // «готово». Поэтому один раз показываем ему настоящий результат — то,
+      // что студия не приняла, и свежее превью — и даём доделать.
+      if (meta.verifyRound || !outcome) return;
+      if (!outcome.applied && !outcome.problems.length) return;
+      const live = outcome.applied ? await waitForLivePreview() : null;
+      await _studioChat?.verifyBuild({ problems: outcome.problems, live });
     },
   });
   return _studioChat;
 }
-$("openChatBtn")?.addEventListener("click", () => ensureStudioChat()?.toggle());
+// Разговор открывается круглой кнопкой внизу справа — рядом со сборкой, а не
+// среди фильтров каталога, где её принимали за фильтр.
+$("chatFab")?.addEventListener("click", () => ensureStudioChat()?.toggle());
+
+/**
+ * Вставка макета из Figma.
+ *
+ * Разобранный макет не превращается в письмо сам: перевод секций в блоки —
+ * это решение, а не пересчёт. Поэтому план уходит оператору вместе с
+ * задачей: у него есть и каталог блоков, и глаза, и правило про фоновые
+ * картинки. Молча собрать письмо «по макету» было бы ровно тем случаем, из-за
+ * которого в письме оставался образцовый текст.
+ */
+$("figmaPasteBtn")?.addEventListener("click", () => {
+  if (!window.RetkitFigmaPaste) { flashCanvasHint("Окно вставки макета не загрузилось — обнови страницу"); return; }
+  window.RetkitFigmaPaste.open({
+    onPlan: (data) => {
+      const chat = ensureStudioChat();
+      if (!chat) return;
+      chat.discuss({
+        text: `Вот разбор макета из Figma (${data.plan.sections.length} секций, ` +
+          `${data.plan.frame.width}px) и подбор блоков под него — подбор структурный, ` +
+          `по числу картинок, колонок и объёму текста, так что проверь его глазами ` +
+          `(see_block) прежде чем брать.\n\n${data.summary}\n\n${data.matchSummary || ""}\n\n` +
+          `Собери письмо, отступы возьми из плана. Секции, для которых блока нет, ` +
+          `собери из мелких или предложи новый блок по образцу соседа.\n\nЗадача:`,
+      });
+    },
+  });
+  // Тексты макета доезжают даже когда до Figma не достучаться. Отдаём их
+  // оператору как содержимое письма — это ровно та работа, которую человек
+  // иначе перепечатывал бы руками.
+  window.RetkitFigmaPaste.onTexts = (text) => {
+    const chat = ensureStudioChat();
+    if (!chat) return;
+    chat.discuss({
+      text: `Вот тексты из макета Figma, по порядку сверху вниз. Разложи их по блокам письма: ` +
+        `заголовок, подзаголовок, абзацы, подсветка, надпись на кнопке — каждое на своё место, ` +
+        `а не абзацами в тело.\n\n${text}\n\nЗадача:`,
+    });
+  };
+  window.RetkitFigmaPaste.onImage = (dataUrl) => {
+    const chat = ensureStudioChat();
+    if (!chat) return;
+    chat.mount();
+    chat.open();
+    chat.addImages([dataUrlToFile(dataUrl, "figma-macket.png")]);
+    chat.discuss({ text: "Вот снимок макета. Найди похожие блоки в библиотеке." });
+  };
+});
+
+/** Снимок из буфера приходит строкой — панели чата нужен файл. */
+function dataUrlToFile(dataUrl, name) {
+  const [head, payload] = String(dataUrl).split(",");
+  const mime = (head.match(/data:([^;]+)/) || [])[1] || "image/png";
+  const binary = atob(payload || "");
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new File([bytes], name, { type: mime });
+}
+
+/**
+ * Кнопка разговора держится за угол области сборки, а не за угол окна.
+ *
+ * Окно шире области сборки на ширину инспектора, и «внизу справа окна» — это
+ * поверх свойств блока. Кнопка считается по реальным границам колонки: ширина
+ * инспектора меняется на разных экранах, и зашивать её числом в CSS значит
+ * промахиваться на каждом втором ноутбуке.
+ */
+function placeChatFab() {
+  const fab = $("chatFab");
+  const pane = document.querySelector(".canvas-pane");
+  if (!fab || !pane) return;
+  const rect = pane.getBoundingClientRect();
+  fab.style.left = `${Math.round(rect.right - 24 - fab.offsetWidth)}px`;
+  fab.style.right = "auto";
+  fab.style.bottom = `${Math.max(16, Math.round(window.innerHeight - rect.bottom + 24))}px`;
+}
+window.addEventListener("resize", placeChatFab);
+document.addEventListener("DOMContentLoaded", placeChatFab);
+placeChatFab();
 document.addEventListener("keydown", (e) => {
   // Esc закрывает чат, но только если не открыто что-то поверх него.
   if (e.key !== "Escape") return;
@@ -4029,6 +4802,22 @@ async function loadConstructorDeepLink(search = window.location.search) {
 }
 loadLibrary().then(() => loadConstructorDeepLink());
 
+// Переключили бренд — каталог перерисовывается: часть блоков принадлежит
+// другой семье и в чужом бренде только мешает.
+window.RetkitBrands?.onChange?.(() => {
+  state.renderCap = 60;
+  if (state.library.length) renderCatalog();
+});
+
+// Переключили набор — то же самое, и намеренно только это. Канвас не трогаем:
+// человек мог собрать половину письма, и выкинуть его блоки молча значило бы
+// потерять чужую работу. Что в письме остались блоки другого набора, честно
+// написано в счётчике каталога.
+window.RetkitKit?.onChange?.(() => {
+  state.renderCap = 60;
+  if (state.library.length) renderCatalog();
+});
+
 
 // ─── Undo wiring ─────────────────────────────────────────────────────────
 document.getElementById("undoBtn")?.addEventListener("click", undoCanvas);
@@ -4094,6 +4883,7 @@ const RETKIT_CONSTRUCTOR_BUILD = '2026-07-13-style-surface';
         <button id="baseClose" style="background:#2c313c;border:none;color:#e6e6e6;border-radius:8px;padding:7px 11px;cursor:pointer;">✕</button>
       </div>
       <div style="display:flex;flex:1;min-height:0;">
+        <div id="baseBrands" style="width:186px;flex:none;overflow:auto;padding:8px 6px;border-right:1px solid #2c313c;background:#171b22;"></div>
         <div id="baseList" style="flex:1;overflow:auto;padding:8px;border-right:1px solid #2c313c;"></div>
         <div style="width:344px;flex:none;display:flex;flex-direction:column;background:#12151b;min-height:0;">
           <div id="basePreviewLabel" style="padding:8px 12px;font-size:11px;color:#8b93a3;border-bottom:1px solid #2c313c;flex:none;">Наведи на письмо — предпросмотр</div>
@@ -4185,6 +4975,9 @@ const RETKIT_CONSTRUCTOR_BUILD = '2026-07-13-style-surface';
     async function refreshList() {
       try {
         listData = await fetchList();
+        // Счётчики в папках берутся из listData — без пересчёта после
+        // удаления письма папка показывала бы старое число.
+        drawBrandFolders();
         draw(searchEl.value);
       } catch (e) { alert("Не удалось обновить базу: " + e.message); }
     }
@@ -4241,12 +5034,60 @@ const RETKIT_CONSTRUCTOR_BUILD = '2026-07-13-style-surface';
       setTimeout(() => document.addEventListener("mousedown", dismiss, true), 0);
     }
 
+    /* ── Папки брендов слева ──
+       Бренд здесь берётся из реестра (/api/brands), а не из имён папок: у
+       бренда есть название и фирменный цвет, и в списке должен быть виден
+       даже тот, в котором писем ещё нет — иначе непонятно, куда сохранять. */
+    let selectedBrand = window.RetkitBrands?.activeId?.() || "all";
+    function drawBrandFolders() {
+      const host = box.querySelector("#baseBrands");
+      if (!host) return;
+      const counts = new Map();
+      for (const e of listData) counts.set(e.brand, (counts.get(e.brand) || 0) + 1);
+      const registry = (window.RetkitBrands?.all?.() || []);
+      const known = new Map(registry.map((b) => [b.id, b]));
+      const ids = [...new Set([...registry.map((b) => b.id), ...counts.keys()])]
+        .sort((a, b) => (counts.get(b) || 0) - (counts.get(a) || 0) || a.localeCompare(b));
+      if (selectedBrand !== "all" && !ids.includes(selectedBrand)) selectedBrand = "all";
+
+      const row = (id, label, count, color) => {
+        const on = selectedBrand === id;
+        const dot = color
+          ? `<span style="width:9px;height:9px;border-radius:50%;background:${color};flex:none;"></span>`
+          : `<span style="width:9px;flex:none;"></span>`;
+        return `<button class="base-brand" data-brand="${escapeHtml(id)}" title="${escapeHtml(label)} · ${count} писем"
+          style="display:flex;align-items:center;gap:7px;width:100%;text-align:left;border:none;cursor:pointer;font:inherit;font-size:12px;padding:6px 8px;border-radius:7px;margin-bottom:2px;background:${on ? "#2c3a5a" : "transparent"};color:${on ? "#cfe0ff" : "#c3cad6"};">
+          ${dot}
+          <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(label)}</span>
+          <span style="color:#6d7787;font-size:11px;">${count}</span>
+        </button>`;
+      };
+
+      host.innerHTML = row("all", "Все письма", listData.length, "")
+        + `<div style="height:1px;background:#2c313c;margin:6px 2px;"></div>`
+        + ids.map((id) => {
+            const brand = known.get(id);
+            return row(id, brand?.label || id.replace(/^X_/, ""), counts.get(id) || 0, brand?.theme?.primary || "#5b6472");
+          }).join("");
+
+      host.querySelectorAll(".base-brand").forEach((el) => {
+        el.addEventListener("click", () => {
+          selectedBrand = el.dataset.brand;
+          drawBrandFolders();
+          draw(searchEl.value);
+        });
+      });
+    }
+
     /* ── Список ── */
     let hoverTimer = null;
     const draw = (q) => {
       const ql = (q || "").trim().toLowerCase();
-      const rows = listData.filter((e) => !ql || (e.brand + " " + e.name).toLowerCase().includes(ql));
-      box.querySelector("#baseCount").textContent = `${rows.length} из ${listData.length} писем`;
+      const rows = listData
+        .filter((e) => selectedBrand === "all" || e.brand === selectedBrand)
+        .filter((e) => !ql || (e.brand + " " + e.name).toLowerCase().includes(ql));
+      const scopeNote = selectedBrand === "all" ? "" : ` · папка ${selectedBrand}`;
+      box.querySelector("#baseCount").textContent = `${rows.length} из ${listData.length} писем${scopeNote}`;
       listEl.innerHTML = rows.slice(0, 500).map((e) => `
         <div class="base-row" data-brand="${e.brand}" data-mail="${e.name}" style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:8px;cursor:default;">
           <div class="base-thumb" data-brand="${e.brand}" data-mail="${e.name}"
@@ -4288,6 +5129,7 @@ const RETKIT_CONSTRUCTOR_BUILD = '2026-07-13-style-surface';
         });
       });
     };
+    drawBrandFolders();
     draw("");
     searchEl.addEventListener("input", (e) => draw(e.target.value));
     box.querySelector("#baseClose").addEventListener("click", close);
@@ -4459,6 +5301,10 @@ async function loadParsedEmail(brand, mail) {
     state.selectedUid = null;
     const nameInput = document.getElementById("mailName");
     if (nameInput) nameInput.value = mail.replace(/^mail-/, "");
+    // Метку кампании письмо хранит рядом с деревом — возвращаем её в поле,
+    // иначе при пересохранении ссылки уехали бы обратно к меткам блоков.
+    const campaignInput = document.getElementById("campaignName");
+    if (campaignInput) campaignInput.value = String(d.model?.campaign || "");
     populateCatalogFilters();
     renderCanvas(); renderInspector(); syncPaletteToSelection(); scheduleLivePreview();
     return true;
@@ -4606,7 +5452,19 @@ async function chooseSaveTarget({ allowTemp = false } = {}) {
     const data = await r.json();
     brands = (data.emails || []).map((g) => g.brand).filter((b) => b && b !== "X_preview");
   } catch { /* сеть упала — останется ручной ввод нового бренда */ }
+  // Бренд из реестра может быть заведён только что и ещё не иметь писем —
+  // по одному лишь /api/wb/emails он бы не появился в списке, и сохранить
+  // в него было бы некуда.
+  for (const brand of (window.RetkitBrands?.all?.() || [])) {
+    if (brand.id && !brands.includes(brand.id)) brands.push(brand.id);
+  }
   if (!brands.includes("X_assembled")) brands.push("X_assembled");
+  // Предвыбор — активная вкладка бренда: обычно сохраняют туда, где работают.
+  const activeBrandId = window.RetkitBrands?.activeId?.() || "";
+  const brandLabel = (id) => {
+    const found = (window.RetkitBrands?.all?.() || []).find((b) => b.id === id);
+    return found && found.label !== id.replace(/^X_/, "") ? `${found.label} (${id})` : id;
+  };
 
   return new Promise((resolve) => {
     const row = "display:flex;gap:8px;align-items:center;padding:8px 10px;border-radius:8px;cursor:pointer;background:#12151b;";
@@ -4614,7 +5472,12 @@ async function chooseSaveTarget({ allowTemp = false } = {}) {
     overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;";
     const options = [
       ...(allowTemp ? [`<label style="${row}"><input type="radio" name="saveTarget" value="__temp__" checked /> ⏱ Временно (X_preview) — только доработать сейчас</label>`] : []),
-      ...brands.map((b, i) => `<label style="${row}"><input type="radio" name="saveTarget" value="${escapeHtml(b)}" ${!allowTemp && i === 0 ? "checked" : ""} /> 📁 ${escapeHtml(b)}</label>`),
+      ...brands.map((b, i) => {
+        const preselect = allowTemp
+          ? false
+          : (activeBrandId ? b === activeBrandId : i === 0);
+        return `<label style="${row}"><input type="radio" name="saveTarget" value="${escapeHtml(b)}" ${preselect ? "checked" : ""} /> 📁 ${escapeHtml(brandLabel(b))}</label>`;
+      }),
       `<label style="${row}"><input type="radio" name="saveTarget" value="__new__" /> ➕ Новый бренд: <input id="newBrandName" type="text" placeholder="X_MyBrand" style="flex:1;background:#0d1015;border:1px solid #2c313c;color:#e6e6e6;border-radius:6px;padding:5px 8px;" /></label>`,
     ].join("");
     overlay.innerHTML = `
@@ -4666,7 +5529,7 @@ async function transferToCode() {
     const send = async (force) => {
       const response = await fetch("/api/compose-save", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ brand, mailName: rawName, blocks: canvasToBlocks(), force, ...sourceSkeletonPayload() }),
+        body: JSON.stringify({ brand, mailName: rawName, blocks: canvasToBlocks(), force, ...campaignPayload(), ...sourceSkeletonPayload() }),
       });
       return { response, data: await response.json() };
     };
@@ -4692,3 +5555,92 @@ async function transferToCode() {
 document.getElementById("toCodeBtn")?.addEventListener("click", transferToCode);
 
 document.getElementById("clearCanvasBtn")?.addEventListener("click", clearCanvas);
+
+/* ─── Ссылки письма в одном списке ───────────────────────────────────────────
+   Ссылки разбросаны по слотам десятка блоков, и найти их все, кликая по
+   каждому блоку, невозможно. Здесь они собраны в одно окно: видно, где какая
+   стоит, любую можно заменить, а можно заменить все разом — например, поменяв
+   заглушки на боевые адреса перед выпуском. */
+function collectCanvasLinks() {
+  const out = [];
+  for (const entry of state.canvas) {
+    const def = blockForEntry(entry);
+    for (const slot of (def?.slots || [])) {
+      if (slot.kind !== "url" && slot.kind !== "link") continue;
+      const value = Object.prototype.hasOwnProperty.call(entry.slots || {}, slot.id)
+        ? entry.slots[slot.id]
+        : slot.default;
+      out.push({
+        uid: entry.uid,
+        slotId: slot.id,
+        where: `${def.label || def.id} · ${slot.label || slot.id}`,
+        value: String(value ?? ""),
+      });
+    }
+  }
+  return out;
+}
+
+function openLinksDialog() {
+  const links = collectCanvasLinks();
+  const overlay = document.createElement("div");
+  overlay.className = "brandbar-overlay";
+  const rows = links.map((link, index) => `
+    <div class="links-row">
+      <span class="links-where" title="${escapeHtml(link.where)}">${escapeHtml(link.where)}</span>
+      <input type="text" data-link="${index}" value="${escapeHtml(link.value)}" spellcheck="false" />
+    </div>`).join("");
+
+  overlay.innerHTML = `
+    <div class="brandbar-dialog" style="width:min(760px,94vw)">
+      <div class="brandbar-dialog-title">Ссылки письма — ${links.length}</div>
+      <div class="brandbar-hint">
+        Метка кампании (<code>afftrack</code>, <code>retrack</code>) переписывается при сборке
+        отдельно — полем в шапке. Здесь сами адреса.
+      </div>
+      ${links.length ? `<div class="links-bulk">
+        <input type="text" id="linksBulkValue" placeholder="https://… — поставить во все ссылки" spellcheck="false" />
+        <button type="button" class="brandbar-btn" id="linksBulkApply">Во все</button>
+      </div>` : `<div class="brandbar-hint">В письме пока нет блоков со ссылками.</div>`}
+      <div style="max-height:52vh;overflow:auto;">${rows}</div>
+      <div class="brandbar-actions">
+        <button type="button" class="brandbar-btn" id="linksCancel">Отмена</button>
+        <button type="button" class="brandbar-btn primary" id="linksSave">Применить</button>
+      </div>
+    </div>`;
+
+  const close = () => { overlay.remove(); document.removeEventListener("keydown", onKey); };
+  const onKey = (e) => { if (e.key === "Escape") close(); };
+  document.addEventListener("keydown", onKey);
+  overlay.addEventListener("mousedown", (e) => { if (e.target === overlay) close(); });
+  document.body.appendChild(overlay);
+
+  overlay.querySelector("#linksBulkApply")?.addEventListener("click", () => {
+    const value = overlay.querySelector("#linksBulkValue").value.trim();
+    if (!value) return;
+    overlay.querySelectorAll("[data-link]").forEach((input) => { input.value = value; });
+  });
+  overlay.querySelector("#linksCancel").addEventListener("click", close);
+  overlay.querySelector("#linksSave").addEventListener("click", () => {
+    pushCanvasUndo();
+    let changed = 0;
+    overlay.querySelectorAll("[data-link]").forEach((input) => {
+      const link = links[Number(input.dataset.link)];
+      const next = input.value.trim();
+      if (!link || next === link.value) return;
+      const entry = entryByUid(link.uid);
+      if (!entry) return;
+      entry.slots = entry.slots || {};
+      entry.slots[link.slotId] = next;
+      markEntrySlotExplicit(entry, link.slotId);
+      changed += 1;
+    });
+    close();
+    if (changed) {
+      renderCanvas(); renderInspector(); scheduleLivePreview();
+      flashCanvasHint(`Заменено ссылок: ${changed}`);
+    }
+  });
+}
+
+document.getElementById("linksBtn")?.addEventListener("click", openLinksDialog);

@@ -1,5 +1,5 @@
 import path from "node:path";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { existsSync } from "node:fs";
 import { mkdir, readFile, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
 import { resolveRemainingHtmlLocalization } from "./workbench-localization.js";
@@ -15,6 +15,21 @@ const overrideWriteTails = new Map();
 // Keep diagnostics discovered while reading the *active* HTML document, but do
 // not read and localize every locale merely to render the selector.
 const htmlDiagnosticsCache = new Map();
+
+export function codeHtmlContentHash(html) {
+  return createHash("sha256")
+    .update(String(html ?? ""), "utf8")
+    .digest("hex");
+}
+
+function htmlPayload(html) {
+  const content = String(html ?? "");
+  return {
+    html: content,
+    htmlBytes: Buffer.byteLength(content, "utf8"),
+    htmlHash: codeHtmlContentHash(content),
+  };
+}
 
 function privateSiblingPath(destination, purpose) {
   return path.join(
@@ -222,7 +237,7 @@ export async function readCodeHtml({ emailBaseRoot, brand, mail, locale }) {
     rememberHtmlDiagnostics(overridePath, metadata, resolved.localization);
     return {
       locale: normalizedLocale,
-      html: resolved.html,
+      ...htmlPayload(resolved.html),
       detached: true,
       source: "override",
       localization: resolved.localization,
@@ -239,7 +254,7 @@ export async function readCodeHtml({ emailBaseRoot, brand, mail, locale }) {
   rememberHtmlDiagnostics(builtPath, metadata, resolved.localization);
   return {
     locale: normalizedLocale,
-    html: resolved.html,
+    ...htmlPayload(resolved.html),
     detached: false,
     source: "pug",
     localization: resolved.localization,

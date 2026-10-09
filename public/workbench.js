@@ -68,6 +68,7 @@ const r = {
   aiHandleLabel:       $('aiHandleLabel'),
   aiTokenCounter:      $('aiTokenCounter'),
   aiDrawerToggle:      $('aiDrawerToggle'),
+  aiAgentBtn:          $('aiAgentBtn'),
   aiMessages:          $('aiMessages'),
   aiInput:             $('aiInput'),
   aiSendBtn:           $('aiSendBtn'),
@@ -201,6 +202,8 @@ const r = {
   compiledLocaleSelect:    $('compiledLocaleSelect'),
   compiledLocaleStatus:    $('compiledLocaleStatus'),
   compiledLocalizationStatus: $('compiledLocalizationStatus'),
+  compiledPreflightBtn:    $('compiledPreflightBtn'),
+  compiledPreflightStatus: $('compiledPreflightStatus'),
   aiResizeHandle:      $('aiResizeHandle'),
   blocksShelf:         $('blocksShelf'),
   blocksShelfInner:    $('blocksShelfInner'),
@@ -617,14 +620,20 @@ r.themeToggleBtn.addEventListener('click', () => setTheme(state.theme === 'dark'
 // ═══════════════════════════════════════════════════════════════
 
 function buildHtmlPhOverlay() {
+  // Виды плейсхолдеров описаны в src/placeholders.js; здесь их браузерная
+  // подсветка. Правила держим в том же порядке: сначала узкие шаблоны.
   return {
     token(stream) {
-      // ${{ ns.block_N }}$
+      // ${{ ns.block_N }}$ — перевод, подставляет сборка
       if (stream.peek() === '$') {
         if (stream.match(/\$\{\{[^}]*?\}\}\$/)) return 'ph-translate';
       }
       if (stream.peek() === '{') {
         if (stream.match(/\{%[^%]*?%\}/)) return 'ph-style';
+        // {{ContentBlock['key']}} — блок контента MoEngage. Точки внутри нет,
+        // поэтому правило для {{embedded.x}} его не ловило, и в редакторе он
+        // выглядел обычным текстом: человек правил его как текст и ломал.
+        if (stream.match(/\{\{\s*ContentBlock\s*\[\s*(['"])[^'"\]]+\1\s*\]\s*\}\}/)) return 'ph-embedded';
         if (stream.match(/\{\{[a-zA-Z0-9_]+\.[^}]+?\}\}/)) return 'ph-embedded';
         stream.next(); return null;
       }
@@ -915,6 +924,7 @@ document.querySelectorAll('.etype-tab').forEach(tab => {
 
 let _compiledViewMinified = false;
 const HTML_BASE_LOCALE = 'base';
+const EMAIL_CLIP_LIMIT_BYTES = 102 * 1024;
 let _compiledHtmlSnapshot = '';
 let _compiledHtmlRequest = 0;
 let _sourcePreviewLocaleRequest = 0;
@@ -964,6 +974,83 @@ function markDetachedHtmlBuffer(ctx, value) {
     bumpEditorRevision(ctx, 'htmlRevision');
   }
   ctx.htmlDirty = next !== _compiledHtmlSnapshot;
+  scheduleHtmlAutosave(ctx);
+}
+
+/**
+ * Автосохранение правок HTML.
+ *
+ * Без него набранный текст жил только в буфере CodeMirror, и любое действие
+ * (переключение локали, уход в Pug, пересборка) показывало «Есть несохранённые
+ * изменения HTML. Отменить их?» — то есть предлагало выбросить работу. Человек
+ * жмёт ОК, потому что хочет продолжить, и теряет правки. Никакой кнопки
+ * «сохранить и продолжить» не было.
+ *
+ * Сохраняем сами, с паузой после последнего нажатия клавиши. Ручная кнопка
+ * «Сохранить» остаётся — она просто почти всегда уже не нужна.
+ */
+const HTML_AUTOSAVE_DELAY_MS = 800;
+let _htmlAutosaveTimer = null;
+
+/**
+ * Пустой (или почти пустой) буфер сохранять НЕЛЬЗЯ: сервер отвергает такой
+ * HTML с «HTML is empty» (src/code-workspace.js:267). Пока проверки не было,
+ * выделение всего кода и Delete запускало автосейв → 400 → красный тост →
+ * и так на каждое нажатие. Человек не мог ни переключить локаль, ни закрыть
+ * письмо.
+ */
+function htmlBufferIsSavable() {
+  return Boolean(stripPreviewArtifacts(cm?.getValue() || '').trim());
+}
+
+/**
+ * Есть ли в буфере НАСТОЯЩИЕ правки — то, ради чего стоит отвязывать локаль.
+ *
+ * Просто открыть локаль недостаточно: редактор показывает отформатированный
+ * (prettyHtml) вариант того же документа, поэтому посимвольно буфер почти
+ * всегда «не равен» скомпилированному HTML. С автосохранением это означало
+ * катастрофу: локаль отвязывалась от Pug в момент, когда человек её просто
+ * ОТКРЫЛ. Дальше она навсегда переставала пересобираться, и подставленные в
+ * Pug плейсхолдеры в неё уже не попадали — снаружи «ничего не тянется».
+ *
+ * Сравниваем по смыслу: без разницы в пробелах между тегами.
+ */
+function normalizeHtmlForCompare(value) {
+  return String(value || '')
+    .replace(/>\s+</g, '><')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/** Original — это вид на источник, а не самостоятельная локаль. */
+function isOriginalHtmlLocale(ctx = state.srcCtx) {
+  const locale = ctx?.activeHtmlLocale || HTML_BASE_LOCALE;
+  return locale === HTML_BASE_LOCALE || locale === 'original';
+}
+
+function htmlBufferHasRealEdits(ctx = state.srcCtx) {
+  if (!ctx?.htmlEditMode || !cm) return false;
+  const buffer = normalizeHtmlForCompare(stripPreviewArtifacts(cm.getValue()));
+  if (!buffer) return false;
+  const compiled = normalizeHtmlForCompare(ctx.compiledHtml || '');
+  return Boolean(compiled) && buffer !== compiled;
+}
+
+function scheduleHtmlAutosave(ctx) {
+  clearTimeout(_htmlAutosaveTimer);
+  if (!ctx?.viewingCompiledHtml || !ctx.htmlEditMode || !ctx.htmlDirty) return;
+  if (!htmlBufferIsSavable() || !htmlBufferHasRealEdits(ctx)) return;
+  _htmlAutosaveTimer = setTimeout(() => {
+    // Пока ждали паузу, могли открыть другое письмо или выйти из режима —
+    // тогда сохранять уже нечего и некуда.
+    if (state.srcCtx !== ctx || !ctx.htmlEditMode || !ctx.htmlDirty) return;
+    if (!htmlBufferIsSavable() || !htmlBufferHasRealEdits(ctx)) return;
+    if (isOriginalHtmlLocale(ctx)) {
+      syncOriginalTextToPug(ctx).catch(() => { /* тост покажет сама */ });
+      return;
+    }
+    saveDetachedHtmlRevisions(ctx, { keepEditing: true }).catch(() => { /* тост покажет сама */ });
+  }, HTML_AUTOSAVE_DELAY_MS);
 }
 
 async function refreshCodeWorkspace(ctx = state.srcCtx) {
@@ -982,10 +1069,39 @@ async function refreshCodeWorkspace(ctx = state.srcCtx) {
   return data;
 }
 
+/**
+ * Раньше здесь стоял confirm «отменить изменения и продолжить?» — то есть
+ * единственным способом уйти было выбросить работу. Теперь правки досохраняются
+ * (автосейв мог не успеть за последним нажатием клавиши), а действие человек
+ * повторяет через секунду. Данные не теряются никогда.
+ */
 function confirmDiscardHtmlDraft() {
   const ctx = state.srcCtx;
   if (!ctx?.viewingCompiledHtml || !ctx.htmlEditMode || !ctx.htmlDirty) return true;
-  return confirm('Есть несохранённые изменения HTML. Отменить их и продолжить?');
+  clearTimeout(_htmlAutosaveTimer);
+
+  // Сохранить пустой буфер невозможно. Раньше мы в этом случае возвращали
+  // false и НЕ ПУСКАЛИ никуда: ни сменить локаль, ни закрыть вкладку. Так
+  // делать нельзя ни при каких обстоятельствах — говорим правду и пропускаем.
+  if (!htmlBufferIsSavable()) {
+    ctx.htmlDirty = false;
+    toast('Пустой HTML не сохраняется — правки этой локали отброшены', 'warning', 3500);
+    return true;
+  }
+
+  // Ничего не меняли — уходим молча. Отвязывать локаль от Pug только потому,
+  // что её открыли и закрыли, нельзя ни в коем случае.
+  if (!htmlBufferHasRealEdits(ctx)) {
+    ctx.htmlDirty = false;
+    return true;
+  }
+
+  // Локаль и содержимое захватываются синхронно, до первого await, поэтому
+  // сохранение уедет в ПРАВИЛЬНУЮ локаль, даже если человек уже переключился.
+  // Значит блокировать переход незачем.
+  if (isOriginalHtmlLocale(ctx)) syncOriginalTextToPug(ctx).catch(() => {});
+  else saveDetachedHtmlRevisions(ctx, { keepEditing: true }).catch(() => {});
+  return true;
 }
 
 function updateCompiledLocalizationStatus(ctx = state.srcCtx, options = {}) {
@@ -1010,6 +1126,396 @@ function updateCompiledLocalizationStatus(ctx = state.srcCtx, options = {}) {
       toast(`Локаль ${(diagnostics.locale || ctx.activeHtmlLocale || '').toUpperCase()}: ${unresolvedCount} плейсхолдер(ов) без текста`, 'warning', 5200);
     }
   }
+}
+
+function summarizeAllLocalePreflight(entries = [], buildWarnings = [], releaseWeight = null) {
+  const normalized = Array.isArray(entries) ? entries : [];
+  const warnings = (Array.isArray(buildWarnings) ? buildWarnings : [])
+    .map(item => String(item || '').trim())
+    .filter(Boolean);
+  const failedEntries = normalized.filter(item => item.error);
+  const unresolvedEntries = normalized.filter(item => !item.error && Number(item.unresolvedCount || 0) > 0);
+  const manualOnlyEntries = normalized.filter(item => item.detached && item.hasCompiled === false);
+  const detachedEntries = normalized.filter(item => item.detached);
+  const overweightEntries = Array.isArray(releaseWeight?.overweight) ? releaseWeight.overweight : [];
+  const ready = normalized.filter(item => !item.error && Number(item.unresolvedCount || 0) === 0).length;
+  const issues = [
+    ...failedEntries.map(item => `${String(item.locale || '').toUpperCase()}: ${item.error}`),
+    ...unresolvedEntries.map(item => `${String(item.locale || '').toUpperCase()}: ${Number(item.unresolvedCount || 0)} плейсхолдер(ов) без текста`),
+    ...overweightEntries.map(item => (
+      `${String(item.locale || '').toUpperCase()}: ${Number(item.htmlKib || 0).toFixed(1)} KiB — лимит ${Number(releaseWeight.thresholdKib || 102).toFixed(1)} KiB`
+    )),
+    ...manualOnlyEntries.map(item => `${String(item.locale || '').toUpperCase()}: только ручной HTML, возврат к Pug пока невозможен`),
+    ...detachedEntries
+      .filter(item => item.hasCompiled !== false)
+      .map(item => `${String(item.locale || '').toUpperCase()}: ручной HTML override, Pug не перезапишет эту локаль`),
+    ...warnings.map(item => `Сборка: ${item}`),
+  ];
+  const stateName = failedEntries.length || unresolvedEntries.length || releaseWeight?.ok === false
+    ? 'error'
+    : (manualOnlyEntries.length || detachedEntries.length || warnings.length ? 'warning' : 'ready');
+  return {
+    state: stateName,
+    checked: normalized.length,
+    total: normalized.length,
+    ready,
+    failed: failedEntries.length,
+    unresolved: unresolvedEntries.length,
+    overweight: overweightEntries.length,
+    detached: detachedEntries.length,
+    manualOnly: manualOnlyEntries.length,
+    buildWarnings: warnings,
+    releaseWeight,
+    issues,
+    checkedAt: Date.now(),
+  };
+}
+
+function normalizeReleaseSnapshotLocale(locale) {
+  return String(locale || HTML_BASE_LOCALE).trim().toLowerCase() || HTML_BASE_LOCALE;
+}
+
+function createImmutableReleaseSnapshot(entries = []) {
+  const snapshotByLocale = Object.create(null);
+  for (const entry of Array.isArray(entries) ? entries : []) {
+    const locale = normalizeReleaseSnapshotLocale(entry?.locale);
+    const html = entry?.html;
+    const htmlHash = String(entry?.htmlHash || '').trim().toLowerCase();
+    if (typeof html !== 'string' || !/^[a-f0-9]{64}$/.test(htmlHash)) {
+      throw new Error(`Некорректный release-снимок HTML для локали ${locale.toUpperCase()}`);
+    }
+    if (Object.prototype.hasOwnProperty.call(snapshotByLocale, locale)) {
+      throw new Error(`Дублирующаяся локаль в release-снимке: ${locale.toUpperCase()}`);
+    }
+    snapshotByLocale[locale] = Object.freeze({
+      locale,
+      html,
+      htmlHash,
+    });
+  }
+  return Object.freeze(snapshotByLocale);
+}
+
+function createReleasePreflightResult(report, snapshotEntries = []) {
+  return Object.freeze({
+    report,
+    snapshotByLocale: createImmutableReleaseSnapshot(snapshotEntries),
+  });
+}
+
+function getReleaseSnapshotHtml(releaseReady, locale = HTML_BASE_LOCALE) {
+  const entry = releaseReady?.snapshotByLocale?.[normalizeReleaseSnapshotLocale(locale)];
+  return entry && typeof entry.html === 'string' ? entry.html : null;
+}
+
+function invalidateLocalePreflight(ctx = state.srcCtx, reason = 'Исходники изменились — повторите проверку', buildWarnings = []) {
+  if (!ctx) return;
+  ctx.localePreflight = {
+    state: 'stale',
+    checked: 0,
+    total: Array.isArray(ctx.htmlLocales) ? ctx.htmlLocales.length : 0,
+    issues: [reason, ...(Array.isArray(buildWarnings) ? buildWarnings : [])].filter(Boolean),
+    buildWarnings: Array.isArray(buildWarnings) ? buildWarnings : [],
+  };
+  if (state.srcCtx === ctx) renderLocalePreflightControls(ctx);
+}
+
+function renderLocalePreflightControls(ctx = state.srcCtx) {
+  if (!ctx) return;
+  const report = ctx.localePreflight || { state: 'idle', checked: 0, total: 0, issues: [] };
+  const status = report.state || 'idle';
+  if (r.compiledPreflightBtn) {
+    r.compiledPreflightBtn.disabled = status === 'checking' || Boolean(ctx.htmlEditMode || ctx.htmlOperation);
+    r.compiledPreflightBtn.textContent = status === 'checking' ? 'Проверяю выпуск…' : 'Проверить к выпуску';
+    r.compiledPreflightBtn.title = ctx.htmlEditMode || ctx.htmlOperation
+      ? 'Сначала завершите сохранение/отмену ручного HTML'
+      : 'Строго пересобрать и проверить все локали: плейсхолдеры и лимит compact HTML < 102 KiB';
+  }
+  if (!r.compiledPreflightStatus) return;
+  r.compiledPreflightStatus.dataset.state = status;
+  if (status === 'checking') {
+    r.compiledPreflightStatus.textContent = `Проверяю 0/${report.total || 0}`;
+  } else if (status === 'ready') {
+    const largest = report.releaseWeight?.largest?.htmlKib;
+    r.compiledPreflightStatus.textContent = `✓ ${report.ready}/${report.total} готовы${Number.isFinite(largest) ? ` · макс. ${largest.toFixed(1)} KiB` : ''}`;
+  } else if (status === 'error') {
+    const problems = Number(report.failed || 0) + Number(report.unresolved || 0) + Number(report.overweight || 0);
+    r.compiledPreflightStatus.textContent = `⚠ ${problems} проблем · ${report.checked}/${report.total}`;
+  } else if (status === 'warning') {
+    const warnings = Number(report.detached || 0) + (report.buildWarnings?.length || 0);
+    r.compiledPreflightStatus.textContent = `⚠ Проверено ${report.checked}/${report.total}${warnings ? ` · ${warnings} предупрежд.` : ''}`;
+  } else if (status === 'stale') {
+    // Раньше здесь висело «Нужно проверить заново» — требование без повода:
+    // проверка к выпуску нужна перед выпуском, а не после каждой правки.
+    // Оставляем нейтральную подпись у самой кнопки.
+    r.compiledPreflightStatus.textContent = '';
+  } else {
+    r.compiledPreflightStatus.textContent = 'Не проверено';
+  }
+  r.compiledPreflightStatus.title = (report.issues || []).join('\n') || 'Release-preflight всех локалей ещё не запускался';
+}
+
+async function requestReleasePreflightBuild(ctx) {
+  const response = await fetch('/api/wb/build-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      brand: ctx.brand,
+      mail: ctx.mail,
+      namespaces: buildNamespacesForContext(ctx),
+      releasePreflight: true,
+    }),
+  });
+  let data = null;
+  try { data = await response.json(); } catch { /* handled below */ }
+  if (!response.ok || !data?.ok) {
+    const error = new Error(data?.error || `Release-preflight failed (HTTP ${response.status})`);
+    error.code = data?.code || '';
+    error.releasePreflight = data?.releasePreflight || null;
+    throw error;
+  }
+  return data;
+}
+
+async function runAllLocalePreflight(ctx = state.srcCtx) {
+  if (!ctx) return null;
+  if (ctx.htmlEditMode || ctx.htmlOperation) {
+    toast('Сначала завершите сохранение или отмените ручной HTML-черновик', 'warning', 3200);
+    return null;
+  }
+  if (ctx.buildState === 'error') {
+    const report = summarizeAllLocalePreflight([{
+      locale: 'build',
+      error: ctx.lastBuildError || 'последняя Pug/Stylus-сборка завершилась ошибкой',
+    }], ctx.lastBuildWarnings || []);
+    ctx.localePreflight = report;
+    renderLocalePreflightControls(ctx);
+    toast('Preflight остановлен: сначала исправьте ошибку сборки', 'error', 4200);
+    return createReleasePreflightResult(report);
+  }
+  if (ctx.modified || ctx.buildState === 'queued') {
+    toast('Сначала сохраняю и собираю актуальный Pug/Stylus…', 'info', 2200);
+    const built = await rebuildCurrentSourceFromUi();
+    if (!built || state.srcCtx !== ctx) return null;
+  } else if (ctx.buildState === 'building' && _sourceBuildPromise) {
+    const built = await _sourceBuildPromise;
+    if (!built || state.srcCtx !== ctx) return null;
+  }
+
+  ctx.localePreflight = {
+    state: 'checking',
+    checked: 0,
+    total: Array.isArray(ctx.htmlLocales) ? ctx.htmlLocales.length : 0,
+    issues: [],
+    buildWarnings: [],
+  };
+  renderLocalePreflightControls(ctx);
+
+  let releaseBuild;
+  try {
+    releaseBuild = await requestReleasePreflightBuild(ctx);
+    if (state.srcCtx !== ctx) return null;
+    ctx.lastBuildWarnings = Array.isArray(releaseBuild.buildWarnings) ? releaseBuild.buildWarnings : [];
+  } catch (error) {
+    const releaseWeight = error.releasePreflight || null;
+    const report = summarizeAllLocalePreflight([{
+      locale: 'release',
+      error: error.message || 'строгая финальная сборка завершилась ошибкой',
+    }], [], releaseWeight);
+    report.code = error.code || '';
+    ctx.localePreflight = report;
+    renderLocalePreflightControls(ctx);
+    toast('Выпуск заблокирован: ' + error.message, 'error', 7000);
+    return createReleasePreflightResult(report);
+  }
+
+  let workspace;
+  try {
+    workspace = await refreshCodeWorkspace(ctx);
+  } catch (error) {
+    const report = summarizeAllLocalePreflight([{ locale: 'workspace', error: error.message }]);
+    ctx.localePreflight = report;
+    renderLocalePreflightControls(ctx);
+    toast('Preflight локалей не запущен: ' + error.message, 'error');
+    return createReleasePreflightResult(report);
+  }
+  const localeItems = Array.isArray(workspace?.locales) ? workspace.locales : [];
+  if (!localeItems.length) {
+    const report = summarizeAllLocalePreflight([{ locale: 'HTML', error: 'нет собранных локалей' }]);
+    ctx.localePreflight = report;
+    renderLocalePreflightControls(ctx);
+    toast('Нет собранных HTML-локалей', 'warning');
+    return createReleasePreflightResult(report);
+  }
+
+  ctx.localePreflight = {
+    state: 'checking',
+    checked: 0,
+    total: localeItems.length,
+    issues: [],
+    buildWarnings: ctx.lastBuildWarnings || [],
+    releaseWeight: releaseBuild.releasePreflight || null,
+  };
+  renderLocalePreflightControls(ctx);
+  const releaseSamplesByLocale = new Map(
+    (Array.isArray(releaseBuild.releasePreflight?.samples)
+      ? releaseBuild.releasePreflight.samples
+      : [])
+      .map(sample => [String(sample?.locale || '').toLowerCase(), sample]),
+  );
+  const queue = [...localeItems];
+  const results = [];
+  const snapshotEntries = [];
+  let checked = 0;
+  const worker = async () => {
+    while (queue.length) {
+      const item = queue.shift();
+      if (!item || state.srcCtx !== ctx) return;
+      try {
+        const res = await fetch(`/api/wb/code-html?brand=${encodeURIComponent(ctx.brand)}&mail=${encodeURIComponent(ctx.mail)}&locale=${encodeURIComponent(item.code)}`);
+        const data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.error || 'HTML не найден');
+        if (typeof data.html !== 'string') {
+          throw new Error('Сервер вернул некорректный HTML release-снимка');
+        }
+        const expectedSnapshot = releaseSamplesByLocale.get(String(item.code || '').toLowerCase());
+        const expectedHash = String(expectedSnapshot?.htmlHash || '').toLowerCase();
+        const responseHash = String(data.htmlHash || '').toLowerCase();
+        const fetchedBytesHash = await htmlSha256(data.html);
+        if (
+          !expectedHash
+          || !responseHash
+          || expectedHash !== responseHash
+          || expectedHash !== fetchedBytesHash
+        ) {
+          throw new Error(
+            'HTML изменился после строгой проверки веса. Повторите release-preflight перед экспортом.',
+          );
+        }
+        snapshotEntries.push({
+          locale: item.code,
+          html: data.html,
+          htmlHash: fetchedBytesHash,
+        });
+        rememberCompiledHtml(ctx, data);
+        const localization = data.localization || {};
+        const unresolvedCount = localization.expectedRaw === true
+          ? 0
+          : Number(localization.unresolvedCount || 0);
+        results.push({
+          locale: item.code,
+          unresolvedCount,
+          detached: Boolean(data.detached || item.detached),
+          hasCompiled: item.hasCompiled !== false,
+        });
+      } catch (error) {
+        results.push({
+          locale: item.code,
+          error: error.message || 'Не удалось открыть HTML',
+          detached: Boolean(item.detached),
+          hasCompiled: item.hasCompiled !== false,
+        });
+      } finally {
+        checked += 1;
+        if (state.srcCtx === ctx && ctx.localePreflight?.state === 'checking') {
+          ctx.localePreflight.checked = checked;
+          if (r.compiledPreflightStatus) {
+            r.compiledPreflightStatus.textContent = `Проверяю ${checked}/${localeItems.length}`;
+          }
+        }
+      }
+    }
+  };
+  const workerCount = Math.min(4, localeItems.length);
+  await Promise.all(Array.from({ length: workerCount }, () => worker()));
+  if (state.srcCtx !== ctx) return null;
+  const report = summarizeAllLocalePreflight(
+    results,
+    ctx.localePreflight?.buildWarnings || [],
+    ctx.localePreflight?.releaseWeight || null,
+  );
+  let releaseReady;
+  try {
+    releaseReady = createReleasePreflightResult(report, snapshotEntries);
+  } catch (error) {
+    const snapshotReport = summarizeAllLocalePreflight([
+      ...results,
+      { locale: 'snapshot', error: error.message || 'Не удалось зафиксировать HTML release-снимок' },
+    ], report.buildWarnings || [], report.releaseWeight || null);
+    ctx.localePreflight = snapshotReport;
+    renderLocalePreflightControls(ctx);
+    toast('Экспорт заблокирован: ' + error.message, 'error', 5200);
+    return createReleasePreflightResult(snapshotReport);
+  }
+  ctx.localePreflight = report;
+  renderCompiledLocaleControls();
+  if (report.state === 'ready') {
+    toast(`✓ Все HTML-локали готовы: ${report.ready}/${report.total}`, 'success', 3200);
+  } else {
+    toast(`Preflight: ${report.issues.length} предупреждений/ошибок. Наведи на статус для деталей.`, report.state === 'error' ? 'error' : 'warning', 5200);
+  }
+  return releaseReady;
+}
+
+function htmlUtf8Bytes(html) {
+  return new TextEncoder().encode(String(html || '')).byteLength;
+}
+
+async function htmlSha256(html) {
+  const digest = await globalThis.crypto.subtle.digest(
+    'SHA-256',
+    new TextEncoder().encode(String(html || '')),
+  );
+  return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+}
+
+async function ensureHtmlReleaseReady(ctx = state.srcCtx, standaloneHtml = '') {
+  if (ctx) {
+    const releaseReady = await runAllLocalePreflight(ctx);
+    const report = releaseReady?.report || null;
+    if (!report || report.state === 'error') {
+      if (report) toast('Экспорт отменён: исправьте ошибки release-проверки', 'error', 5200);
+      return null;
+    }
+    const snapshotCount = Object.keys(releaseReady.snapshotByLocale || {}).length;
+    if (snapshotCount !== Number(report.total || 0)) {
+      toast('Экспорт отменён: release-снимок содержит не все локали', 'error', 5200);
+      return null;
+    }
+    return releaseReady;
+  }
+  const htmlBytes = htmlUtf8Bytes(standaloneHtml);
+  if (htmlBytes >= EMAIL_CLIP_LIMIT_BYTES) {
+    toast(
+      `Экспорт отменён: HTML ${(htmlBytes / 1024).toFixed(1)} KiB, нужен размер меньше 102.0 KiB`,
+      'error',
+      7000,
+    );
+    return null;
+  }
+  // Standalone HTML has no server locale workspace. Keep the exact checked
+  // bytes in the same immutable shape so export handlers never re-read an
+  // editor/display buffer after the size gate.
+  let standaloneHash;
+  try {
+    standaloneHash = await htmlSha256(standaloneHtml);
+  } catch {
+    toast('Экспорт отменён: браузер не смог зафиксировать SHA-256 снимок HTML', 'error', 5200);
+    return null;
+  }
+  const report = Object.freeze({
+    state: 'ready',
+    checked: 1,
+    total: 1,
+    ready: 1,
+    issues: [],
+    checkedAt: Date.now(),
+  });
+  return createReleasePreflightResult(report, [{
+    locale: HTML_BASE_LOCALE,
+    html: String(standaloneHtml || ''),
+    htmlHash: standaloneHash,
+  }]);
 }
 
 function renderCompiledLocaleControls() {
@@ -1046,35 +1552,46 @@ function renderCompiledLocaleControls() {
     const unresolvedCount = Number(ctx.localization?.unresolvedCount ?? meta.localization?.unresolvedCount ?? 0);
     const unresolved = !detached && (meta.ready === false || unresolvedCount > 0);
     r.compiledLocaleStatus.dataset.state = editing ? 'editing' : (detached ? 'detached' : (unresolved ? 'unresolved' : 'linked'));
+    // Слова «отвязать / привязать» человеку ничего не объясняют: он пришёл
+    // править текст. Показываем состояние делом — правится эта локаль или
+    // собирается из Pug.
     r.compiledLocaleStatus.textContent = editing
-      ? (detached ? 'Правка ручной версии' : 'После сохранения отвяжется')
+      ? (ctx.htmlDirty ? 'Сохраняю…' : 'Сохранено')
       : (detached
-        ? 'Отвязана от Pug'
-        : (unresolved ? `Не готова${unresolvedCount ? ` · ${unresolvedCount} без текста` : ''}` : 'Связана с Pug'));
+        ? 'Своя версия'
+        : (unresolved ? `Не готова${unresolvedCount ? ` · ${unresolvedCount} без текста` : ''}` : 'Из Pug'));
   }
 
   const label = r.compiledViewBanner?.querySelector('.compiled-view-label');
   if (label) {
     const shown = meta.label || locale;
     const baseLabel = editing
-      ? `HTML · ${shown} · ручное редактирование`
-      : (meta.detached ? `HTML · ${shown} · сохранённая ручная версия` : `HTML · ${shown} · результат Pug-сборки`);
+      ? `HTML · ${shown} · правится`
+      : (meta.detached ? `HTML · ${shown} · своя версия` : `HTML · ${shown} · собран из Pug`);
     const refreshing = !editing && (ctx.buildState === 'queued' || ctx.buildState === 'building');
     label.textContent = baseLabel + (refreshing ? ' · обновляется…' : '');
   }
 
-  r.compiledViewEditHtmlBtn?.classList.toggle('hidden', editing);
-  if (r.compiledViewEditHtmlBtn) {
-    const canEdit = Boolean(ctx.viewingCompiledHtml && ctx.compiledHtml);
-    r.compiledViewEditHtmlBtn.disabled = !canEdit;
-    r.compiledViewEditHtmlBtn.textContent = meta.detached ? '✏️ Править ручную версию' : '✏️ Отвязать и править HTML';
-    r.compiledViewEditHtmlBtn.title = canEdit
-      ? 'Создать независимую HTML-версию только для выбранной локали'
-      : 'Сначала откройте собранный HTML';
-  }
-  r.compiledViewSaveHtmlBtn?.classList.toggle('hidden', !editing);
-  r.compiledViewCancelHtmlBtn?.classList.toggle('hidden', !editing);
-  r.compiledViewResetHtmlBtn?.classList.toggle('hidden', editing || !meta.detached);
+  // Панель над кодом сведена к минимуму: статус правки и одна кнопка «</> Pug».
+  //
+  // Всё остальное было перегрузом ради перегруза:
+  //   • выпадашка «Локаль» дублировала полосу локалей Original/EN/AR сверху;
+  //   • «Проверить к выпуску» и его статус — операция перед выпуском, а не
+  //     то, что нужно видеть на каждой правке текста;
+  //   • «Сохранить» и «Отменить» потеряли смысл, когда появился автосейв;
+  //   • отдельная кнопка «разрешить правку» исчезла ещё раньше — HTML и так правится.
+  // Элементы остались в разметке (скрытыми), поэтому вернуть любой из них —
+  // одна строка, и обработчики не осиротели.
+  r.compiledViewEditHtmlBtn?.classList.add('hidden');
+  if (r.compiledViewEditHtmlBtn) r.compiledViewEditHtmlBtn.disabled = true;
+  r.compiledViewSaveHtmlBtn?.classList.add('hidden');
+  r.compiledViewCancelHtmlBtn?.classList.add('hidden');
+  r.compiledLocaleSelect?.closest('.compiled-locale-picker')?.classList.add('hidden');
+  r.compiledPreflightBtn?.classList.add('hidden');
+  r.compiledPreflightStatus?.classList.add('hidden');
+  // Показываем всегда, когда локаль отвязана: это единственный способ
+  // вернуть её под Pug, а режим правки теперь включён постоянно.
+  r.compiledViewResetHtmlBtn?.classList.toggle('hidden', !meta.detached);
   if (r.compiledViewSaveHtmlBtn) r.compiledViewSaveHtmlBtn.disabled = !ctx.htmlDirty;
   if (r.compiledViewResetHtmlBtn) {
     r.compiledViewResetHtmlBtn.disabled = meta.detached && meta.hasCompiled === false;
@@ -1083,7 +1600,13 @@ function renderCompiledLocaleControls() {
       : 'Удалить ручную версию и снова взять эту локаль из Pug-сборки';
   }
   if (r.minifyBtn) r.minifyBtn.disabled = editing;
+  // Открыли локаль — она сразу редактируемая. Иначе человек снова упирается в
+  // read-only без единого сообщения, ради чего всё это и переделывалось.
+  if (!editing && ctx.viewingCompiledHtml && ctx.compiledHtml && !ctx.htmlOperation) {
+    setTimeout(() => enterHtmlEditMode(ctx, { confirmDetach: false, silent: true }), 0);
+  }
   updateCompiledLocalizationStatus(ctx);
+  renderLocalePreflightControls(ctx);
 }
 
 function applyCompiledHtmlToEditor(ctx, payload, minified = false) {
@@ -1172,9 +1695,45 @@ async function showCompiledHtml(minified = false, locale = null, options = {}) {
     ctx.activeHtmlLocale = requestedLocale;
     renderCompiledLocaleControls();
     const requestId = ++_compiledHtmlRequest;
+    // Метаданные локалей уже знают, у какой есть собранный HTML. Спрашивать
+    // сервер о заведомо отсутствующей локали — значит гарантированно получить
+    // 404 красной строкой в консоли ещё до того, как мы её соберём.
+    const knownMeta = (ctx.htmlLocales || []).find(item => item.code === requestedLocale);
+    if (knownMeta && knownMeta.hasCompiled === false && !knownMeta.detached && !options.retriedAfterBuild) {
+      const label = requestedLocale === HTML_BASE_LOCALE ? 'Original' : requestedLocale.toUpperCase();
+      toast(`Локаль ${label} ещё не собрана — собираю…`, 'info', 2500);
+      const built = await rebuildSourceEmail({ keepSourceView: true, background: true });
+      if (state.srcCtx !== ctx) return;
+      if (built) {
+        await showCompiledHtml(minified, requestedLocale, { ...options, retriedAfterBuild: true });
+        return;
+      }
+      toast(`Локаль ${label} пока не собрана: добавьте для неё тексты и нажмите пересборку`, 'warning', 4500);
+      return;
+    }
     const res = await fetch(`/api/wb/code-html?brand=${encodeURIComponent(ctx.brand)}&mail=${encodeURIComponent(ctx.mail)}&locale=${encodeURIComponent(requestedLocale)}`);
     const data = await res.json();
-    if (!res.ok || !data.ok) throw new Error(data.error || 'HTML-локаль не найдена');
+    if (!res.ok || !data.ok) {
+      // Локаль ещё не собиралась — это нормальное состояние нового письма, а
+      // не поломка. Раньше отсюда прилетало красное «Compiled locale not
+      // found», человек видел ошибку на пустом месте и терял нить.
+      const notBuilt = res.status === 404 || /not found|не найден/i.test(String(data?.error || ''));
+      const label = requestedLocale === HTML_BASE_LOCALE ? 'Original' : requestedLocale.toUpperCase();
+      if (notBuilt && !options.retriedAfterBuild) {
+        toast(`Локаль ${label} ещё не собрана — собираю…`, 'info', 2500);
+        const built = await rebuildSourceEmail({ keepSourceView: true, background: true });
+        if (state.srcCtx !== ctx) return;
+        if (built) {
+          await showCompiledHtml(minified, requestedLocale, { ...options, retriedAfterBuild: true });
+          return;
+        }
+      }
+      if (notBuilt) {
+        toast(`Локаль ${label} пока не собрана: добавьте для неё тексты и нажмите пересборку`, 'warning', 4500);
+        return;
+      }
+      throw new Error(data.error || 'HTML-локаль не найдена');
+    }
     if (requestId !== _compiledHtmlRequest || state.srcCtx !== ctx) return;
     applyCompiledHtmlToEditor(ctx, data, minified);
   } catch (error) {
@@ -1229,21 +1788,28 @@ r.compiledViewBackBtn?.addEventListener('click', () => {
 
 // Editing HTML creates an explicit, per-locale override. Pug remains the source
 // of truth for every linked locale and can restore an override at any time.
-r.compiledViewEditHtmlBtn?.addEventListener('click', () => {
-  const ctx = state.srcCtx;
-  if (!ctx?.viewingCompiledHtml || !ctx.compiledHtml) {
-    toast('Сначала откройте HTML нужной локали', 'warning');
-    return;
-  }
+/**
+ * Включить правку скомпилированного HTML.
+ *
+ * Вынесено из обработчика кнопки, потому что тем же путём теперь идёт переход
+ * из конструктора: менеджер приходит править ТЕКСТЫ, и HTML должен открываться
+ * сразу редактируемым. Раньше вкладка открывалась read-only без единого
+ * сообщения — со стороны это выглядело как «ничего не работает, не меняется».
+ *
+ * @param {boolean} confirmDetach — спрашивать ли про отвязку локали от Pug.
+ *   Кнопка спрашивает (человек мог зайти посмотреть), автопереход — нет.
+ */
+function enterHtmlEditMode(ctx = state.srcCtx, { confirmDetach = true, silent = false } = {}) {
+  if (!ctx?.viewingCompiledHtml || !ctx.compiledHtml) return false;
   const meta = getActiveHtmlLocaleMeta(ctx);
   const locale = ctx.activeHtmlLocale || HTML_BASE_LOCALE;
   const localeLabel = locale === HTML_BASE_LOCALE ? 'Original' : locale.toUpperCase();
-  if (!meta?.detached && !confirm(
+  if (confirmDetach && !meta?.detached && !confirm(
     `${localeLabel} сейчас связана с Pug.\n\n` +
     'После сохранения появится отдельный HTML override только для этой локали. ' +
     'Следующие изменения Pug её не перезапишут, пока вы не нажмёте «Удалить override · вернуть Pug».\n\n' +
     'Отвязать и начать редактирование HTML?'
-  )) return;
+  )) return false;
   _compiledHtmlSnapshot = cm?.getValue() || ctx.compiledHtml || '';
   ctx.htmlEditMode = true;
   ctx.htmlDirty = false;
@@ -1252,11 +1818,87 @@ r.compiledViewEditHtmlBtn?.addEventListener('click', () => {
   try { cm?.refresh(); } catch {}
   renderCompiledLocaleControls();
   cm?.focus();
-  toast('Правки сохранятся только для этой HTML-локали', 'info', 2400);
+  if (!silent) toast('Правки сохранятся только для этой HTML-локали', 'info', 2400);
+  return true;
+}
+
+r.compiledViewEditHtmlBtn?.addEventListener('click', () => {
+  const ctx = state.srcCtx;
+  if (!ctx?.viewingCompiledHtml || !ctx.compiledHtml) {
+    toast('Сначала откройте HTML нужной локали', 'warning');
+    return;
+  }
+  enterHtmlEditMode(ctx, { confirmDetach: true });
 });
 
-async function saveDetachedHtmlRevisions(ctx = state.srcCtx) {
+/**
+ * @param {boolean} [options.keepEditing] — сохранить, НЕ трогая редактор.
+ *   Ручное сохранение может позволить себе перезалить буфер отформатированным
+ *   ответом сервера. Автосохранение — нет: оно срабатывает через 800 мс после
+ *   нажатия клавиши, и подмена содержимого выбросила бы курсор в начало файла
+ *   прямо посреди набора текста. Поэтому автосейв только фиксирует, что буфер
+ *   и сохранённая версия совпали.
+ */
+/**
+ * Правка Original — это правка ИСТОЧНИКА, а не одной локали.
+ *
+ * Поставил плейсхолдер в Original → он уезжает в Pug → пересборка → каждая
+ * локаль подтянула СВОЙ перевод. Именно так работает локализация проекта, и
+ * именно этого ждёт человек. Сохранять Original как HTML-override нельзя: тогда
+ * правка запирается внутри одной локали, а остальные собираются из нетронутого
+ * Pug — «приходится в каждой локали подставлять руками».
+ *
+ * Переносится только текст; разметку и стили правят в Pug/Stylus.
+ */
+async function syncOriginalTextToPug(ctx = state.srcCtx) {
+  if (!ctx || !cm) return false;
+  const after = stripPreviewArtifacts(cm.getValue());
+  const before = ctx.compiledHtml || '';
+  if (!after.trim() || !before.trim()) return false;
+  try {
+    const res = await fetch('/api/wb/sync-original-text', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ brand: ctx.brand, mail: ctx.mail, before, after }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(data.error || 'Не удалось перенести текст в Pug');
+
+    if (data.skipped?.length) {
+      const first = data.skipped[0];
+      toast(`Не перенёс «${String(first.from).slice(0, 40)}»: ${first.reason}`, 'warning', 6000);
+    }
+    if (!data.changed) {
+      if (!data.skipped?.length) toast('В Original нечего переносить — текст не менялся', 'info', 2500);
+      return false;
+    }
+
+    ctx.htmlDirty = false;
+    toast(`Перенёс в Pug: ${data.applied.length} · пересобираю все локали…`, 'info', 3000);
+    await rebuildSourceEmail({ keepSourceView: true, background: true });
+    if (state.srcCtx !== ctx) return true;
+    await refreshCodeWorkspace(ctx);
+    await showCompiledHtml(false, ctx.activeHtmlLocale || HTML_BASE_LOCALE, { force: true });
+    toast('Готово: текст в Pug, локали пересобраны', 'success', 3000);
+    return true;
+  } catch (error) {
+    toast('Перенос текста в Pug: ' + error.message, 'error');
+    return false;
+  }
+}
+
+async function saveDetachedHtmlRevisions(ctx = state.srcCtx, options = {}) {
   if (!ctx?.htmlEditMode || !ctx.htmlDirty || !cm) return null;
+  if (!htmlBufferIsSavable()) {
+    toast('Пустой HTML не сохраняется. Верните код или нажмите «Собрать заново из Pug»', 'warning', 4000);
+    return null;
+  }
+  // Последний рубеж: не создавать override для локали, в которой ничего не
+  // меняли. Отвязанная локаль перестаёт пересобираться из Pug навсегда.
+  if (!options.force && !htmlBufferHasRealEdits(ctx)) {
+    ctx.htmlDirty = false;
+    return null;
+  }
   ctx.htmlSaveRequested = true;
   if (ctx.htmlSavePromise) return ctx.htmlSavePromise;
 
@@ -1265,7 +1907,8 @@ async function saveDetachedHtmlRevisions(ctx = state.srcCtx) {
     while (ctx.htmlSaveRequested && ctx.htmlEditMode) {
       ctx.htmlSaveRequested = false;
       const locale = ctx.activeHtmlLocale || HTML_BASE_LOCALE;
-      const content = stripPreviewArtifacts(cm.getValue());
+      const rawBuffer = cm.getValue();
+      const content = stripPreviewArtifacts(rawBuffer);
       const snapshot = captureEditorRevision(ctx, 'htmlRevision', content);
       ++_compiledHtmlRequest;
       ctx.htmlOperation = 'save';
@@ -1284,6 +1927,7 @@ async function saveDetachedHtmlRevisions(ctx = state.srcCtx) {
         if (!res.ok || !data.ok) throw new Error(data.error || 'Не удалось сохранить HTML');
         lastData = data;
         ctx.htmlLocales = data.locales || ctx.htmlLocales;
+        invalidateLocalePreflight(ctx, `HTML ${locale === HTML_BASE_LOCALE ? 'Original' : locale.toUpperCase()} отвязан от Pug — повторите проверку локалей`);
 
         const currentContent = state.srcCtx === ctx && ctx.htmlEditMode && ctx.activeHtmlLocale === locale
           ? stripPreviewArtifacts(cm.getValue())
@@ -1302,8 +1946,18 @@ async function saveDetachedHtmlRevisions(ctx = state.srcCtx) {
         }
 
         ctx.htmlPersistedRevision = snapshot.revision;
-        applyCompiledHtmlToEditor(ctx, data, false);
-        toast(`HTML ${data.locale === HTML_BASE_LOCALE ? 'Original' : data.locale.toUpperCase()} сохранён отдельно от Pug`, 'success', 3000);
+        if (options.keepEditing) {
+          // Буфер не трогаем: человек продолжает печатать. Просто помечаем,
+          // что сохранённое и набранное совпали.
+          rememberCompiledHtml(ctx, data);
+          _compiledHtmlSnapshot = rawBuffer;
+          ctx.htmlRevisionValue = rawBuffer;
+          ctx.htmlDirty = cm.getValue() !== rawBuffer;
+          if (state.srcCtx === ctx) renderCompiledLocaleControls();
+        } else {
+          applyCompiledHtmlToEditor(ctx, data, false);
+          toast(`HTML ${data.locale === HTML_BASE_LOCALE ? 'Original' : data.locale.toUpperCase()} сохранён`, 'success', 3000);
+        }
       } catch (error) {
         ctx.htmlDirty = true;
         ctx.htmlSaveRequested = false;
@@ -1330,6 +1984,12 @@ async function saveDetachedHtmlRevisions(ctx = state.srcCtx) {
 
 r.compiledViewSaveHtmlBtn?.addEventListener('click', () => {
   saveDetachedHtmlRevisions().catch(() => {});
+});
+
+r.compiledPreflightBtn?.addEventListener('click', () => {
+  runAllLocalePreflight().catch(error => {
+    toast('Ошибка preflight локалей: ' + error.message, 'error');
+  });
 });
 
 r.compiledViewCancelHtmlBtn?.addEventListener('click', () => {
@@ -1363,6 +2023,7 @@ r.compiledViewResetHtmlBtn?.addEventListener('click', async () => {
     if (!res.ok || !data.ok) throw new Error(data.error || 'Не удалось восстановить HTML');
     if (state.srcCtx !== ctx || requestId !== _compiledHtmlRequest) return;
     ctx.htmlLocales = data.locales || ctx.htmlLocales;
+    invalidateLocalePreflight(ctx, `${label} снова связан с Pug — повторите проверку локалей`);
     applyCompiledHtmlToEditor(ctx, data, false);
     toast(`${label}: снова связана с Pug`, 'success');
   } catch (error) {
@@ -1662,6 +2323,12 @@ async function navigateBackToConstructor(ctx, btn) {
   btn.addEventListener('click', () => { void navigateBackToConstructor(state.srcCtx, btn); });
 })();
 
+function rtlLangForButton() {
+  const code = String(state.activeLocale || '').toLowerCase();
+  const lang = code.split(/[-_]/)[0];
+  return /^(?:ar|ur|fa|he)$/.test(lang) ? lang : 'ar';
+}
+
 (function setupPreviewRtlButton() {
   const btn = document.getElementById('previewRtlBtn');
   if (!btn) return;
@@ -1680,14 +2347,21 @@ async function navigateBackToConstructor(ctx, btn) {
       // Use the SAME server-side transform AR/UR locales use at build (src/rtl.js).
       const res = await fetch('/api/wb/rtl', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ html, locale: 'ar' }),
+        // Полная арабизация: dir/lang на документе, dir="rtl" на блоках,
+        // зеркальные стороны inline и в <style>. Эталон —
+        // email-base/tools/rtl.js, режим document.
+        body: JSON.stringify({ html, locale: rtlLangForButton(), mode: 'document' }),
       });
       const json = await res.json();
       if (!res.ok || !json.ok) throw new Error(json.error || ('HTTP ' + res.status));
+      if (json.html === html) {
+        toast('Письмо уже арабизировано — ничего не менял.', 'success', 3500);
+        return;
+      }
       cm.setValue(json.html);
       if (typeof updateEditorStats === 'function') updateEditorStats();
       updatePreview();
-      toast('Письмо приведено к RTL — как на AR/UR. Повторно безопасно.', 'success', 3000);
+      toast('Письмо арабизировано: направление справа налево, стороны отзеркалены. Ctrl+Z — вернуть.', 'success', 3500);
     } catch (e) { toast('RTL: ' + (e.message || e), 'error', 5000); }
     finally { btn.disabled = false; }
   });
@@ -1727,16 +2401,54 @@ $('fsWrapBtn')?.addEventListener('click', () => {
 });
 $('fsCopyBtn')?.addEventListener('click', async () => {
   if (!cmFullscreen) return;
-  try { await navigator.clipboard.writeText(cmFullscreen.getValue()); toast('Скопировано!', 'success'); }
+  const ctx = state.srcCtx;
+  const copyingFinalHtml = !ctx || Boolean(ctx.viewingCompiledHtml);
+  let releaseReady = null;
+  if (copyingFinalHtml) {
+    const standaloneHtml = ctx ? '' : cmFullscreen.getValue();
+    releaseReady = await ensureHtmlReleaseReady(ctx, standaloneHtml);
+    if (!releaseReady) return;
+    if (ctx && state.srcCtx !== ctx) return;
+  }
+  const locale = ctx?.activeHtmlLocale || HTML_BASE_LOCALE;
+  const content = copyingFinalHtml
+    ? getReleaseSnapshotHtml(releaseReady, locale)
+    : cmFullscreen.getValue();
+  if (typeof content !== 'string') {
+    toast('Экспорт отменён: проверенный HTML выбранной локали отсутствует', 'error', 5200);
+    return;
+  }
+  try { await navigator.clipboard.writeText(content); toast('Скопировано!', 'success'); }
   catch { toast('Ошибка', 'error'); }
 });
-$('fsDownloadBtn')?.addEventListener('click', () => {
+$('fsDownloadBtn')?.addEventListener('click', async () => {
   if (!cmFullscreen) return;
-  const blob = new Blob([cmFullscreen.getValue()], { type: 'text/html' });
+  const ctx = state.srcCtx;
+  const exportingFinalHtml = !ctx || Boolean(ctx.viewingCompiledHtml);
+  let releaseReady = null;
+  if (exportingFinalHtml) {
+    const standaloneHtml = ctx ? '' : cmFullscreen.getValue();
+    releaseReady = await ensureHtmlReleaseReady(ctx, standaloneHtml);
+    if (!releaseReady) return;
+    if (ctx && state.srcCtx !== ctx) return;
+  }
+  const locale = ctx?.activeHtmlLocale || HTML_BASE_LOCALE;
+  const content = exportingFinalHtml
+    ? getReleaseSnapshotHtml(releaseReady, locale)
+    : cmFullscreen.getValue();
+  if (typeof content !== 'string') {
+    toast('Экспорт отменён: проверенный HTML выбранной локали отсутствует', 'error', 5200);
+    return;
+  }
+  const blob = new Blob([content], { type: exportingFinalHtml ? 'text/html' : 'text/plain' });
   const url = URL.createObjectURL(blob);
+  const sourceName = state.files.find(f => f.id === state.activeFileId)?.name || ctx?.activeFile || 'email.html';
+  const downloadName = ctx?.viewingCompiledHtml
+    ? (locale === HTML_BASE_LOCALE ? `${ctx.mail}.html` : `${ctx.mail}_${locale}.html`)
+    : sourceName;
   Object.assign(document.createElement('a'), {
     href: url,
-    download: state.files.find(f => f.id === state.activeFileId)?.name || 'email.html',
+    download: downloadName,
   }).click();
   URL.revokeObjectURL(url);
 });
@@ -1855,7 +2567,7 @@ async function toggleFsSplit() {
     cmFullscreenSplit.on('change', debounce(async () => {
       if (!_fsSplitActiveFile || !state.srcCtx) return;
       try { await saveAuxiliarySourceFile(state.srcCtx, _fsSplitActiveFile, cmFullscreenSplit.getValue()); }
-      catch {}
+      catch (e) { warnSaveFailed('файл', e); }
     }, 1200));
   }
 
@@ -2039,14 +2751,14 @@ async function saveFullscreenLeftFileIfNeeded(nextFilePath = null) {
   const ctx = state.srcCtx;
   if (!ctx || !cmFullscreen || !_fsActiveFile || _fsActiveFile === nextFilePath) return;
   try { await saveAuxiliarySourceFile(ctx, _fsActiveFile, cmFullscreen.getValue()); }
-  catch {}
+  catch (e) { warnSaveFailed('файл', e); }
 }
 
 async function saveFullscreenSplitFileIfNeeded(nextFilePath = null) {
   const ctx = state.srcCtx;
   if (!ctx || !cmFullscreenSplit || !_fsSplitActiveFile || _fsSplitActiveFile === nextFilePath) return;
   try { await saveAuxiliarySourceFile(ctx, _fsSplitActiveFile, cmFullscreenSplit.getValue()); }
-  catch {}
+  catch (e) { warnSaveFailed('файл', e); }
 }
 
 function renderFsPaneFileMenus() {
@@ -2337,7 +3049,7 @@ async function loadFileIntoFsSplit(filePath) {
     cmFullscreenSplit.on('change', debounce(async () => {
       if (!_fsSplitActiveFile || !state.srcCtx) return;
       try { await saveAuxiliarySourceFile(state.srcCtx, _fsSplitActiveFile, cmFullscreenSplit.getValue()); }
-      catch {}
+      catch (e) { warnSaveFailed('файл', e); }
     }, 1200));
   }
 
@@ -4120,6 +4832,7 @@ document.addEventListener('click',function(e){
   if(link){ e.preventDefault(); e.stopPropagation(); }
   var el=e.target.closest('[data-retkit-ph]');
   if(el){window.parent.postMessage({type:'retkit-ph-click',ph:el.dataset.retkitPh},'*');return;}
+  try{ if(window.parent&&window.parent.__retkitPreviewPick&&window.parent.__retkitPreviewPick(e)) return; }catch(_){}
   var block=e.target.closest('p,h1,h2,h3,h4,h5,h6,li,a')||e.target.closest('span,td,th,div');
   var blockHtml=block?(block.innerHTML||'').trim():'';
   var text='';
@@ -4335,6 +5048,10 @@ function applyRtl(html, opts = {}) {
     return error;
   };
 
+  // Already arabized as a whole (document marker, or dir="rtl" on <html>/<body>):
+  // the preview shows it as is, no second pass and no error.
+  if (/<!--\s*retkit-rtl:v2:document\s*-->/i.test(html)
+    || /<(?:html|body)\b[^>]*\bdir\s*=\s*(["']?)rtl\1/i.test(html)) return html;
   const appliedMode = getAppliedRtlMode(html);
   if (appliedMode) {
     if (appliedMode === mode) return html;
@@ -4711,6 +5428,105 @@ function cmHighlight(pos, posEnd, targetCm) {
   activeCm.focus();
 }
 
+// ─── Preview click → exact source element (shared RetKit matcher) ─────────
+// The preview script calls this first. It describes the clicked element (tag,
+// its ordinal, img src, link href, background url, the exact text node) and
+// resolves it with the same matcher RetKit for MoEngage uses. Returns true when
+// it selected something; false lets the legacy text search run as before.
+// Visual feedback is drawn in the parent page, never inside the preview DOM:
+// PDF export and the pencil inspector read the preview DOM / outerHTML, so the
+// preview document must stay byte-identical to what was rendered.
+function markPreviewElement(el) {
+  try {
+    const frame = r.previewFrame;
+    if (!el || !frame || typeof el.getBoundingClientRect !== 'function') return;
+    const box = el.getBoundingClientRect();
+    const frameBox = frame.getBoundingClientRect();
+    let flash = document.getElementById('rkPreviewPickFlash');
+    if (!flash) {
+      flash = document.createElement('div');
+      flash.id = 'rkPreviewPickFlash';
+      flash.style.cssText = 'position:fixed;pointer-events:none;z-index:2147483000;border:2px solid #4f7cff;border-radius:3px;box-shadow:0 0 0 3px rgba(79,124,255,.18);transition:opacity .35s ease;';
+      document.body.appendChild(flash);
+    }
+    Object.assign(flash.style, {
+      left: `${frameBox.left + box.left - 2}px`,
+      top: `${frameBox.top + box.top - 2}px`,
+      width: `${Math.max(4, box.width + 4)}px`,
+      height: `${Math.max(4, box.height + 4)}px`,
+      opacity: '1',
+      display: 'block',
+    });
+    clearTimeout(markPreviewElement.timer);
+    markPreviewElement.timer = setTimeout(() => {
+      flash.style.opacity = '0';
+      setTimeout(() => { flash.style.display = 'none'; }, 380);
+    }, 1100);
+  } catch {}
+}
+
+function resolvePreviewPickInSource(event, doc, code, sourceIsHtml) {
+  const matcher = window.RetKitClickToSource;
+  if (!matcher) return null;
+  if (sourceIsHtml) return matcher.resolveClick(event, doc, code);
+
+  // Pug/Stylus source: element ordinals do not exist, but literal URLs and
+  // copy do. Try img src, link href, then the exact text node occurrence.
+  const target = event.target?.nodeType === 1 ? event.target : event.target?.parentElement;
+  if (!target) return null;
+  const point = matcher.getPointTextFromClick(event, doc);
+  const d = matcher.descriptorFromElement(target, doc, point);
+  const literal = (needle, occurrence) => {
+    if (!needle) return null;
+    let start = matcher.findOccurrenceIndex(code, needle, occurrence || 0);
+    if (start === -1 && occurrence) start = matcher.findOccurrenceIndex(code, needle, 0);
+    return start === -1 ? null : { start, end: start + needle.length };
+  };
+  if (d.tag === 'IMG' && d.src) {
+    const hit = literal(d.src, d.srcOccurrence);
+    if (hit) return { kind: 'src', ...hit, descriptor: d };
+  }
+  const text = String(d.pointText || '').trim();
+  if (text) {
+    const hit = matcher.findTextOccurrenceRange(code, text, d.pointTextGlobalOccurrence || 0)
+      || matcher.findTextOccurrenceRange(code, text, 0);
+    if (hit) return { kind: 'pointText', ...hit, descriptor: d };
+  }
+  if (d.href) {
+    const hit = literal(d.href, d.hrefOccurrence);
+    if (hit) return { kind: 'href', ...hit, descriptor: d };
+  }
+  for (const url of d.backgroundUrls || []) {
+    const hit = literal(url, 0);
+    if (hit) return { kind: 'background', ...hit, descriptor: d };
+  }
+  return null;
+}
+
+window.__retkitPreviewPick = function retkitPreviewPick(event) {
+  try {
+    const doc = event?.target?.ownerDocument || event?.view?.document;
+    const activeCm = getActiveCm() || cm;
+    if (!doc || !activeCm) return false;
+    const code = activeCm.getValue();
+    if (!code) return false;
+    // A text selection in the preview means "find this text": keep legacy flow.
+    const selection = doc.getSelection?.();
+    if (selection && String(selection).trim()) return false;
+    const sourceIsHtml = !(state.srcCtx && !state.srcCtx.viewingCompiledHtml);
+    const result = resolvePreviewPickInSource(event, doc, code, sourceIsHtml);
+    if (!result) return false;
+    const target = event.target?.nodeType === 1 ? event.target : event.target?.parentElement;
+    markPreviewElement(target);
+    cmHighlight(activeCm.posFromIndex(result.start), activeCm.posFromIndex(result.end), activeCm);
+    return true;
+  } catch (error) {
+    console.warn('[RetKit] preview pick failed, falling back to text search', error);
+    return false;
+  }
+};
+// ─── end preview pick ───
+
 window.addEventListener('message', e => {
   if (!e.data || !cm) return;
 
@@ -4811,30 +5627,62 @@ document.querySelectorAll('.vp-btn').forEach(btn => {
 
 r.copyHtmlBtn.addEventListener('click', async () => {
   if (!cm) return;
+  const ctx = state.srcCtx;
+  let releaseReady = null;
+  if (ctx) {
+    releaseReady = await ensureHtmlReleaseReady(ctx);
+    if (!releaseReady) return;
+    if (state.srcCtx !== ctx) return;
+  }
   // If a locale is active — copy the rendered (substituted) HTML, not raw placeholders
   const isLocale = state.activeLocale !== 'original';
-  const codeLocale = state.srcCtx?.activeHtmlLocale || null;
+  const codeLocale = ctx ? (ctx.activeHtmlLocale || HTML_BASE_LOCALE) : null;
   // Built locale HTML is already localized by the Pug pipeline. Do not run the
   // separately loaded TXT namespace substitution over it a second time.
-  const text = codeLocale
-    ? (state.srcCtx?.viewingCompiledHtml ? cm.getValue() : getRenderedHtml(true))
+  let text = codeLocale
+    ? getReleaseSnapshotHtml(releaseReady, codeLocale)
     : (isLocale ? getRenderedHtml(true) : cm.getValue());
+  if (!ctx) {
+    releaseReady = await ensureHtmlReleaseReady(null, text);
+    if (!releaseReady) return;
+    text = getReleaseSnapshotHtml(releaseReady, HTML_BASE_LOCALE);
+  }
+  if (typeof text !== 'string') {
+    toast('Экспорт отменён: проверенный HTML выбранной локали отсутствует', 'error', 5200);
+    return;
+  }
   const shownLocale = codeLocale === HTML_BASE_LOCALE ? 'Original' : (codeLocale || state.activeLocale);
   const label = (isLocale || codeLocale) ? `HTML (${shownLocale}) скопирован!` : 'HTML скопирован!';
   try { await navigator.clipboard.writeText(text); toast(label, 'success'); }
   catch { toast('Ошибка копирования', 'error'); }
 });
 
-r.downloadHtmlBtn.addEventListener('click', () => {
+r.downloadHtmlBtn.addEventListener('click', async () => {
   if (!cm) return;
+  const ctx = state.srcCtx;
+  let releaseReady = null;
+  if (ctx) {
+    releaseReady = await ensureHtmlReleaseReady(ctx);
+    if (!releaseReady) return;
+    if (state.srcCtx !== ctx) return;
+  }
   const isLocale = state.activeLocale !== 'original';
-  const codeLocale = state.srcCtx?.activeHtmlLocale || null;
-  const text = codeLocale
-    ? (state.srcCtx?.viewingCompiledHtml ? cm.getValue() : getRenderedHtml(true))
+  const codeLocale = ctx ? (ctx.activeHtmlLocale || HTML_BASE_LOCALE) : null;
+  let text = codeLocale
+    ? getReleaseSnapshotHtml(releaseReady, codeLocale)
     : (isLocale ? getRenderedHtml(true) : cm.getValue());
+  if (!ctx) {
+    releaseReady = await ensureHtmlReleaseReady(null, text);
+    if (!releaseReady) return;
+    text = getReleaseSnapshotHtml(releaseReady, HTML_BASE_LOCALE);
+  }
+  if (typeof text !== 'string') {
+    toast('Экспорт отменён: проверенный HTML выбранной локали отсутствует', 'error', 5200);
+    return;
+  }
   const baseName = state.files.find(f => f.id === state.activeFileId)?.name || 'email.html';
   const fileName = codeLocale
-    ? (codeLocale === HTML_BASE_LOCALE ? `${state.srcCtx.mail}.html` : `${state.srcCtx.mail}_${codeLocale}.html`)
+    ? (codeLocale === HTML_BASE_LOCALE ? `${ctx.mail}.html` : `${ctx.mail}_${codeLocale}.html`)
     : isLocale
     ? baseName.replace(/\.html$/i, '') + `_${state.activeLocale}.html`
     : baseName;
@@ -5508,7 +6356,7 @@ function insertEmailBlock(block, placement = {}) {
       if (!state.srcCtx?.modified) return;
       try {
         await saveCurrentSourceFile(activeCm.getValue());
-      } catch {}
+      } catch (e) { warnSaveFailed('файл', e); }
     }, 800);
   }
 }
@@ -5858,7 +6706,38 @@ function setupBlocksDragDrop() {
   // No-op: document-level listeners are added/removed per drag
 }
 
+// Что делать, когда письмо занято: копию открываем сразу, перехват молча
+// не оставляем — человек должен видеть, что письмо теперь его.
+window.RetkitLease?.configure({
+  onCopy: ({ brand, mail }) => {
+    openSourceContext(brand, mail).catch(error => toast('Копия не открылась: ' + error.message, 'error'));
+  },
+  onTaken: () => toast('Письмо перехвачено — теперь оно ваше', 'success'),
+});
+
+window.RetkitDrafts?.configure({
+  onOpenDraft: ({ brand, mail }) => {
+    openSourceContext(brand, mail).catch(error => toast('Черновик не открылся: ' + error.message, 'error'));
+  },
+  onPublished: ({ brand, mail }) => {
+    toast('Черновик опубликован в базу', 'success');
+    openSourceContext(brand, mail).catch(() => { /* письмо откроется вручную */ });
+  },
+  onDiscarded: ({ brand, mail }) => {
+    toast('Черновик отложен, база не изменилась', 'info');
+    openSourceContext(brand, mail).catch(() => { /* письмо откроется вручную */ });
+  },
+});
+
 async function openSourceContext(brand, mail, options = {}) {
+  // Письмо занимается сразу при открытии: узнать, что оно чужое, лучше до
+  // часа работы, чем при сохранении. Отказ не мешает открыть и посмотреть —
+  // сервер всё равно не даст записать поверх чужой работы.
+  window.RetkitLease?.hold(brand, mail).catch(() => { /* замок не должен мешать работе */ });
+  // И сразу говорим, с чем человек работает: это черновик или оригинал, по
+  // которому черновик уже есть. Молчание здесь стоит дорого — можно неделю
+  // править копию, думая, что правишь письмо базы.
+  window.RetkitDrafts?.reflect(brand, mail);
   state.activeFileId = null;
   r.fileTabs?.querySelectorAll('.file-tab').forEach(t => t.classList.remove('active'));
   r.fileTabs?.querySelector('[data-file-id="__empty__"]')?.remove();
@@ -5911,6 +6790,8 @@ async function openSourceContext(brand, mail, options = {}) {
     htmlOperation: null,
     buildState: 'idle',
     lastBuildError: '',
+    lastBuildWarnings: [],
+    localePreflight: { state: 'idle', checked: 0, total: 0, issues: [] },
   };
   const ctx = state.srcCtx;
   renderSrcFileTabs();
@@ -5958,6 +6839,12 @@ async function openSourceContext(brand, mail, options = {}) {
         updatePreview();
       } else {
         applyCompiledHtmlToEditor(ctx, htmlData, false);
+        // Открыли HTML для правки по явной просьбе (переход из конструктора):
+        // спрашивать про отвязку локали здесь нечего — человек за этим и шёл.
+        if (options.editHtml) {
+          enterHtmlEditMode(ctx, { confirmDetach: false, silent: true });
+          toast('HTML открыт для правки. Вёрстка — кнопкой «← Вернуться к Pug»', 'info', 3200);
+        }
       }
     } catch (err) {
       console.warn('[compile-on-open] failed:', err && err.message);
@@ -6000,6 +6887,7 @@ function renderSrcFileTabs() {
   if (ctx.compiledHtml) {
     const builtBadge = document.createElement('span');
     const buildState = ctx.buildState || 'idle';
+    const buildWarningCount = Array.isArray(ctx.lastBuildWarnings) ? ctx.lastBuildWarnings.length : 0;
     builtBadge.className = 'src-compiled-badge' +
       (ctx.viewingCompiledHtml ? ' active' : '') +
       (buildState === 'queued' || buildState === 'building' ? ' pending' : '') +
@@ -6008,11 +6896,13 @@ function renderSrcFileTabs() {
     const detached = Boolean(getActiveHtmlLocaleMeta(ctx)?.detached || ctx.compiledHtmlDetached);
     builtBadge.title = buildState === 'error'
       ? `Ошибка сборки: ${ctx.lastBuildError || 'неизвестная ошибка'}`
-      : (detached ? 'Открыть ручную HTML-версию локали' : 'Показать HTML, собранный из Pug');
+      : (buildWarningCount
+        ? `Сборка завершена с предупреждениями:\n${ctx.lastBuildWarnings.join('\n')}`
+        : (detached ? 'Открыть ручную HTML-версию локали' : 'Показать HTML, собранный из Pug'));
     const buildSuffix = buildState === 'building' ? ' · собирается…'
       : buildState === 'queued' ? ' · в очереди…'
         : buildState === 'error' ? ' · ошибка' : '';
-    builtBadge.innerHTML = `<svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M1 1l4 5-4 5h2l4-5-4-5z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 1l4 5-4 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg> HTML · ${escapeHtml(localeLabel)}${detached ? ' ⚠' : ''}${buildSuffix}`;
+    builtBadge.innerHTML = `<svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M1 1l4 5-4 5h2l4-5-4-5z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 1l4 5-4 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg> HTML · ${escapeHtml(localeLabel)}${detached ? ' ⚠' : ''}${buildWarningCount ? ` · ⚠${buildWarningCount}` : ''}${buildSuffix}`;
     builtBadge.addEventListener('click', () => showCompiledHtml());
     r.srcFileTabs.appendChild(builtBadge);
   }
@@ -6981,13 +7871,30 @@ async function performSourceEmailBuild(ctx) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        brand: ctx.brand,
-        mail: ctx.mail,
+        brand: ctx.brand || undefined,
+        mail: ctx.mail || undefined,
         namespaces: buildNamespacesForContext(ctx),
+        // Fast editor feedback: warn about weight, but never interrupt typing.
+        // Strict all-locale enforcement belongs to requestReleasePreflightBuild.
+        releasePreflight: false,
       }),
     });
     const data = await res.json();
     if (!data.ok) throw new Error(data.error);
+    ctx.lastBuildWarnings = Array.isArray(data.buildWarnings) ? data.buildWarnings : [];
+    invalidateLocalePreflight(
+      ctx,
+      'Pug/Stylus пересобран — запустите all-locales preflight',
+      ctx.lastBuildWarnings,
+    );
+    if (state.srcCtx === ctx && ctx.lastBuildWarnings.length) {
+      const firstWarning = String(ctx.lastBuildWarnings[0] || '').replace(/^WARN(?:ING)?[:\s-]*/i, '');
+      toast(
+        `Сборка завершена с ${ctx.lastBuildWarnings.length} предупрежд.: ${firstWarning}`,
+        'warning',
+        7000,
+      );
+    }
 
     // Refresh available built locales, then cache the effective current locale.
     // The source editor remains active; only an already-open HTML view is
@@ -7187,6 +8094,7 @@ function markSourceModified(ctx = state.srcCtx) {
   }
   ctx.modified = true;
   if (ctx.buildState !== 'building') ctx.buildState = 'queued';
+  invalidateLocalePreflight(ctx);
 
   // Reflect modified dot in active tab
   const active = r.srcFileTabs?.querySelector('.src-tab.active');
@@ -7576,7 +8484,12 @@ async function buildEmail(brand, mail, btnEl) {
     const res  = await fetch('/api/wb/build-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ brand, mail, namespaces: targetNamespaces }),
+      body: JSON.stringify({
+        brand,
+        mail,
+        namespaces: targetNamespaces,
+        releasePreflight: false,
+      }),
     });
     const data = await res.json();
     if (!data.ok) throw new Error(data.error || 'Ошибка сборки');
@@ -8328,13 +9241,73 @@ function toggleAiDrawer() {
   r.aiDrawer.dataset.state = open ? 'collapsed' : 'expanded';
   // When opening, clear explicit height set by drag-resize so CSS transition can run
   if (open) { r.aiDrawer.style.height = ''; }
-  if (!open) setTimeout(() => r.aiInput.focus(), 290);
+  if (!open) { setTimeout(() => r.aiInput.focus(), 290); offerAgentIfNeeded(); }
+}
+
+/**
+ * Своей модели у студии может не быть вовсе — и тогда честнее не молчать
+ * «нет ключа», а показать мастер подключения прямо в том окне, где человек
+ * начал разговор с ИИ. Модель он приносит свою: его Claude, его подписка.
+ *
+ * Проверяем один раз за жизнь вкладки: чат чистится кнопкой, а сервер
+ * дёргать на каждую очистку незачем.
+ */
+let _agentOfferChecked = false;
+async function offerAgentIfNeeded(host) {
+  if (!window.RetkitMcpConnect) return;
+  if (!host) {
+    if (_agentOfferChecked) return;
+    _agentOfferChecked = true;
+  }
+  let configured = false;
+  try {
+    const res = await fetch('/api/status', { signal: AbortSignal.timeout(5000) });
+    const data = await res.json();
+    configured = Boolean(data?.openAiConfigured);
+  } catch {
+    // Статус не пришёл — молчим: мастер важен, но не важнее рабочего чата.
+    return;
+  }
+  if (configured && !host) return;
+  const target = host || (() => {
+    r.aiMessages.querySelector('.ai-welcome')?.remove();
+    const box = document.createElement('div');
+    box.className = 'ai-message assistant ai-mcp-offer';
+    r.aiMessages.appendChild(box);
+    return box;
+  })();
+  window.RetkitMcpConnect.render(target);
+  if (!host) r.aiMessages.scrollTop = r.aiMessages.scrollHeight;
 }
 
 r.aiDrawerHandle.addEventListener('click', e => {
   if (e.target.closest('.ai-drawer-toggle') || e.target.closest('.ai-send-btn')) return;
   toggleAiDrawer();
 });
+
+/**
+ * Перевод отказа модели на человеческий — тот же, что и в окне конструктора.
+ *
+ * «429» и «insufficient_quota» — это не поломка студии: у модели кончились
+ * токены или она занята, и человеку надо подождать, а не искать баг.
+ */
+function describeAiFailure(message) {
+  const text = String(message || '');
+  if (/insufficient_quota|exceeded your current quota|billing/i.test(text)) {
+    return '⏳ У модели кончились токены — счёт исчерпан. Работа не потеряна: допишите квоту '
+      + 'или подключите своего агента, и продолжим с этого же места.';
+  }
+  if (/\b429\b|rate[ _-]?limit|too many requests/i.test(text)) {
+    return '⏳ Модель занята — слишком много запросов подряд. Подождите полминуты и повторите.';
+  }
+  if (/\b(408|504)\b|timeout|timed out/i.test(text)) {
+    return '⏳ Модель не ответила вовремя. Повторите — обычно со второго раза проходит.';
+  }
+  if (/OPENAI_API_KEY is not configured/i.test(text)) {
+    return 'Своей модели у студии нет — это нормально. Подключите своего агента.';
+  }
+  return '⚠ ' + text;
+}
 
 // ─── AI drawer drag-to-resize ────────────────────────────────────
 if (r.aiResizeHandle) {
@@ -8370,6 +9343,19 @@ if (r.aiResizeHandle) {
   });
 }
 r.aiDrawerToggle.addEventListener('click', e => { e.stopPropagation(); toggleAiDrawer(); });
+
+// Мастер подключения по нажатию: раньше он показывался сам и только при
+// отсутствии своей модели — у тех, у кого модель настроена, двери не было.
+r.aiAgentBtn?.addEventListener('click', e => {
+  e.stopPropagation();
+  if (r.aiDrawer.dataset.state !== 'expanded') r.aiDrawer.dataset.state = 'expanded';
+  r.aiMessages.querySelector('.ai-welcome')?.remove();
+  const box = document.createElement('div');
+  box.className = 'ai-message assistant ai-mcp-offer';
+  r.aiMessages.appendChild(box);
+  offerAgentIfNeeded(box);
+  r.aiMessages.scrollTop = r.aiMessages.scrollHeight;
+});
 
 r.aiSendBtn.addEventListener('click', sendAiMessage);
 r.aiInput.addEventListener('keydown', e => {
@@ -8423,6 +9409,8 @@ async function runAgentChat(text, images = []) {
 
   try {
     const currentHtml = cm?.getValue() || '';
+    // The open source mail (brand/mail) — empty for raw pasted HTML.
+    const ctx = state.srcCtx || {};
     const res = await fetch('/api/wb/ai/agent', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -8431,10 +9419,15 @@ async function runAgentChat(text, images = []) {
         message: text,
         messages: state.chatHistory.slice(-6),
         baseEmailHtml: currentHtml,
+        // Какое письмо открыто: без этого оператор видит готовый HTML, но не
+        // знает, из каких исходников тот собран, и стили тронуть не может.
+        brand: ctx.brand,
+        mail: ctx.mail,
         namespaces: state.namespaces.map(ns => ({
           id: ns.id,
           name: ns.name,
           namespace: ns.name,
+          builtin: Boolean(ns.builtin),
           referenceLocale: getReferenceLocaleCode(ns),
           locales: ns.locales || {},
           localeRaw: ns.localeRaw || {},
@@ -8492,50 +9485,48 @@ async function runAgentChat(text, images = []) {
         } else if (frame.kind === 'final') {
           finalPayload = frame.payload;
         } else if (frame.kind === 'error') {
-          timeline.appendChild(stepEl('error', '⚠ ' + frame.message));
+          timeline.appendChild(stepEl('error', describeAiFailure(frame.message)));
         }
         r.aiMessages.scrollTop = r.aiMessages.scrollHeight;
       }
     }
     setStatus('🤖 Agent готов');
     if (finalPayload) {
-      const sum = stepEl('text', finalPayload.summary || '');
-      sum.classList.add('ai-agent-summary');
-      timeline.appendChild(sum);
+      // The agent streams its answer as a `text` frame and then repeats it in
+      // finish.summary — show it once.
+      const lastText = [...timeline.querySelectorAll('.ai-agent-text')].pop()?.textContent?.trim() || '';
+      if ((finalPayload.summary || '').trim() !== lastText) {
+        const sum = stepEl('text', finalPayload.summary || '');
+        sum.classList.add('ai-agent-summary');
+        timeline.appendChild(sum);
+      } else {
+        [...timeline.querySelectorAll('.ai-agent-text')].pop()?.classList.add('ai-agent-summary');
+      }
       state.chatHistory.push({ role: 'assistant', content: finalPayload.summary || '' });
 
-      // Apply modified HTML if any.
+      // Agent output is a proposal. Reuse the same diff/ownership gates as the
+      // regular AI drawer; streaming completion never mutates the editor.
       if (finalPayload.modifiedHtml && cm) {
-        const apply = document.createElement('button');
-        apply.className = 'ai-preset';
-        apply.textContent = `↩ Применить HTML (${finalPayload.modifiedHtml.length} симв.)`;
-        apply.onclick = () => { cm.setValue(finalPayload.modifiedHtml); updatePreview(); apply.disabled = true; apply.textContent = '✓ Применено'; };
-        timeline.appendChild(apply);
+        offerModifiedHtmlApply(timeline, finalPayload.modifiedHtml);
       }
-      // Apply locale updates if any.
       if (Array.isArray(finalPayload.localeUpdates) && finalPayload.localeUpdates.length) {
+        const localeEdits = [];
         for (const upd of finalPayload.localeUpdates) {
           const safeNamespace = normalizeWorkbenchNamespaceName(upd.namespace);
-          const apply = document.createElement('button');
-          apply.className = 'ai-preset';
-          apply.textContent = `↩ Применить локаль ${safeNamespace}/${upd.locale}`;
-          apply.onclick = () => {
-            try {
-              let ns = state.namespaces.find(n => n.name === safeNamespace);
-              if (!ns) {
-                ns = { id: `ns-${uid()}`, name: safeNamespace, locales: {} };
-                state.namespaces.push(ns);
-              }
-              setLocaleRawContent(ns, upd.locale, upd.txt);
-              renderLocalesBar();
-              renderNamespaceBar();
-              saveToLocalStorage();
-              try { activateLocale(upd.locale); } catch {}
-              apply.disabled = true; apply.textContent = `✓ ${safeNamespace}/${upd.locale}`;
-            } catch (err) { apply.textContent = '✗ ' + (err.message || 'error'); }
-          };
-          timeline.appendChild(apply);
+          const ns = state.namespaces.find(item => item.name === safeNamespace);
+          if (!ns || !upd.locale || !upd.txt) {
+            timeline.appendChild(stepEl('error', `⚠ Пропущена локаль ${safeNamespace || 'unknown'}: namespace не загружен или ответ пуст`));
+            continue;
+          }
+          localeEdits.push({
+            nsId: ns.id,
+            namespace: ns.name,
+            code: String(upd.locale).toLowerCase(),
+            rawText: String(upd.txt),
+            parsed: parseTxtDetailed(upd.txt),
+          });
         }
+        if (localeEdits.length) offerLocaleEditsApply(timeline, localeEdits);
       }
       // Locale deletes queued by the agent — applied only after user click+confirm.
       if (Array.isArray(finalPayload.localeDeletes) && finalPayload.localeDeletes.length) {
@@ -9228,6 +10219,7 @@ async function sendAiMessage() {
         namespaces: state.namespaces.map(ns => ({
           id: ns.id,
           name: ns.name,
+          builtin: Boolean(ns.builtin),
           referenceLocale: getReferenceLocaleCode(ns),
           locales: ns.locales || {},
           localeRaw: ns.localeRaw || {},
@@ -9320,108 +10312,35 @@ async function sendAiMessage() {
 }
 
 
-// AI-tool results are proposals by default. Only the verified placeholder tool
-// may update open HTML immediately; locale changes require a diff confirmation.
+// AI-tool results are proposals only. Source, HTML, and locale mutations all
+// require an explicit diff review and a second accept action.
 function applyAiToolResult(tool, bubble) {
-  let didSomething = false;
+  let proposed = 0;
   if (typeof tool.editorSource === 'string' && tool.editorSource.trim().length > 20 && state.srcCtx) {
     const ctx = state.srcCtx;
     const sourceFile = String(tool.sourceFile || ctx.activeFile || '');
-    const activePug = !ctx.viewingCompiledHtml
-      && sourceFile === ctx.activeFile
-      && /\.(?:pug|jade)$/i.test(sourceFile);
-    if (activePug && cm) {
-      pushUndoSnapshot('Плейсхолдеры Pug');
-      _suppressSrcModified = true;
-      const lastLine = cm.lastLine();
-      const lastCh = cm.getLine(lastLine)?.length ?? 0;
-      cm.operation(() => {
-        cm.replaceRange(tool.editorSource, { line: 0, ch: 0 }, { line: lastLine, ch: lastCh });
-      });
-      setTimeout(() => { _suppressSrcModified = false; }, 0);
-      _backupOffered = true;
-      markSourceModified(ctx);
-      renderSrcFileTabs();
-      updateEditorStats();
-      updatePreview();
-      didSomething = true;
-    } else if (sourceFile && ctx.files?.some(file => file.path === sourceFile)) {
-      // Do not replace a Stylus/HTML editor behind the user's back. The
-      // existing source-edit proposal saves the named Pug file explicitly.
-      offerSourceFileEditsApply(bubble, [{ path: sourceFile, content: tool.editorSource }]);
+    if (sourceFile && ctx.files?.some(file => file.path === sourceFile)) {
+      if (offerSourceFileEditsApply(bubble, [{ path: sourceFile, content: tool.editorSource }])) proposed += 1;
     }
   }
   if (typeof tool.editorHtml === 'string' && tool.editorHtml.trim().length > 50) {
-    if (tool.kind === 'placeholderize' && cm && !state.srcCtx) {
-      pushUndoSnapshot('Плейсхолдеры AI');
-      // Use replaceRange instead of setValue to preserve mode + overlays
-      // (placeholder ph-overlay highlight) and keep undo history clean.
-      const lastLine = cm.lastLine();
-      const lastCh = cm.getLine(lastLine)?.length ?? 0;
-      cm.operation(() => {
-        cm.replaceRange(tool.editorHtml, { line: 0, ch: 0 }, { line: lastLine, ch: lastCh });
-      });
-      // Force CM to re-render highlights/overlay after a large change.
-      try { cm.refresh(); } catch {}
-      try { updatePreview(); } catch {}
-      try { saveToLocalStorage(); } catch {}
-      didSomething = true;
-    } else {
-      offerModifiedHtmlApply(bubble, tool.editorHtml);
-    }
+    if (offerModifiedHtmlApply(bubble, tool.editorHtml)) proposed += 1;
   }
   if (Array.isArray(tool.localeUpdates) && tool.localeUpdates.length) {
-    let rejected = 0;
-    let proposed = 0;
+    const localeEdits = [];
     for (const u of tool.localeUpdates) {
       if (!u || !u.code || !u.txt) continue;
-      // GUARD: refuse to write a locale that contains literal ${{...}}$ tokens
-      // INSIDE block bodies. That's a hallucination — placeholders belong in
-      // the HTML, not in the locale TXT. Reject without applying.
-      if (/\{\{\s*\$\{\{|\$\{\{[\s\S]*?\}\}\$/.test(u.txt)) {
-        rejected += 1;
-        console.warn('[AI] locale update rejected — contains literal ${{ }} tokens:', u.code);
-        continue;
-      }
       const ns = (state.namespaces || []).find(n => n.name === u.namespace);
       if (!ns) continue;
-      const beforeRaw = ns.localeRaw?.[u.code] ?? serializeTxt(ns.locales?.[u.code] || []);
-      const before = parseTxt(beforeRaw);
-      const after = parseTxt(u.txt);
-      const btn = document.createElement('button');
-      btn.className = 'btn-primary';
-      btn.style.cssText = 'margin-top:8px;font-size:12px;padding:5px 14px;display:block;background:var(--success)';
-      btn.textContent = `Проверить правку ${ns.name}/${String(u.code).toUpperCase()}`;
-      btn.onclick = async () => {
-        const apply = await showLocaleFixDiffPreview({
-          code: u.code,
-          nsName: ns.name,
-          before,
-          after,
-        });
-        if (!apply) return;
-        _lastLocaleFixSnapshot = { nsId: ns.id, code: u.code, prevRawTxt: beforeRaw };
-        setLocaleRawContent(ns, u.code, u.txt);
-        refreshLocaleUiAfterStructureChange();
-        activateLocale(u.code);
-        saveToLocalStorage();
-        btn.disabled = true;
-        btn.textContent = `✓ Применено ${ns.name}/${String(u.code).toUpperCase()}`;
-        toast(`Локаль ${String(u.code).toUpperCase()} обновлена после подтверждения`, 'success');
-      };
-      bubble.after(btn);
-      proposed += 1;
+      localeEdits.push({
+        nsId: ns.id,
+        namespace: ns.name,
+        code: String(u.code).toLowerCase(),
+        rawText: String(u.txt),
+        parsed: parseTxtDetailed(u.txt),
+      });
     }
-    if (rejected) {
-      toast(`AI вернул мусор в ${rejected} локалях (${'${{'} '}-токены внутри переводов) — не применил.`, 'warning', 4500);
-    }
-    if (proposed && bubble) {
-      const note = document.createElement('div');
-      note.className = 'ai-apply-warning';
-      note.style.cssText = 'margin-top:8px;font-size:12px;color:var(--text-muted);';
-      note.textContent = `Подготовлено правок: ${proposed}. Ничего не применено — сначала открой diff.`;
-      bubble.appendChild(note);
-    }
+    if (localeEdits.length && offerLocaleEditsApply(bubble, localeEdits)) proposed += localeEdits.length;
   }
   if (Array.isArray(tool.localeDeletes) && tool.localeDeletes.length) {
     if (bubble) {
@@ -9431,13 +10350,12 @@ function applyAiToolResult(tool, bubble) {
       bubble.appendChild(note);
     }
   }
-  if (didSomething && bubble) {
-    const mark = document.createElement('div');
-    mark.style.cssText = 'margin-top:6px;font-size:11px;color:#16a34a;font-weight:600;';
-    mark.textContent = state.srcCtx
-      ? '✓ Плейсхолдеры применены к Pug-исходнику'
-      : '✓ Плейсхолдеры применены к открытому HTML';
-    bubble.appendChild(mark);
+  if (proposed && bubble) {
+    const note = document.createElement('div');
+    note.className = 'ai-apply-warning';
+    note.style.cssText = 'margin-top:8px;font-size:12px;color:var(--text-muted);';
+    note.textContent = `AI подготовил ${proposed} правок. Код и локали не изменены — открой diff и прими нужное.`;
+    bubble.appendChild(note);
   }
 }
 
@@ -9468,6 +10386,17 @@ function htmlBodyStats(html) {
   return { bodyHtml, bodyText, elementCount, length: source.length };
 }
 
+function expandPlaceholdersForGuard(text) {
+  return String(text || '').replace(/\$\{\{\s*([\w-]+)\.block_(\d+)\s*\}\}\$/g, (match, nsName, num) => {
+    const ns = (state.namespaces || []).find((n) => n.name === nsName);
+    const code = ns ? getReferenceLocaleCode(ns) : null;
+    const block = code ? (ns.locales?.[code] || [])[Number(num)] : null;
+    // Неизвестный блок считаем текстом средней длины: страж ловит пропажу
+    // текста, а не ссылки, которые студия пока не может разрешить.
+    return block ? String(block).replace(/@@/g, '') : 'x'.repeat(60);
+  });
+}
+
 function inspectAiHtmlCandidate(candidate, baseline = currentHtmlForAiGuard()) {
   const html = String(candidate || '').trim();
   const base = String(baseline || '').trim();
@@ -9480,6 +10409,11 @@ function inspectAiHtmlCandidate(candidate, baseline = currentHtmlForAiGuard()) {
 
   const next = htmlBodyStats(html);
   const prev = htmlBodyStats(base);
+  // Плейсхолдер ${{ ns.block_NN }}$ — это не удалённый текст, а ссылка на
+  // него в локали. Без этой подстановки любая расстановка плейсхолдеров
+  // выглядела как «AI удалил большую часть текста» и блокировалась.
+  next.bodyText = expandPlaceholdersForGuard(next.bodyText);
+  prev.bodyText = expandPlaceholdersForGuard(prev.bodyText);
   if (!next.bodyHtml || (next.bodyText.length < 10 && next.elementCount < 3)) {
     return { ok: false, reason: 'В новом HTML почти нет содержимого письма.' };
   }
@@ -9501,6 +10435,113 @@ function appendAiGuardWarning(bubble, reason) {
   bubble.after(note);
 }
 
+function showAiCodeDiffPreview({ title, ownership, files }) {
+  return new Promise(resolve => {
+    document.getElementById('aiCodeDiffModal')?.remove();
+    const host = document.createElement('div');
+    host.id = 'aiCodeDiffModal';
+    host.className = 'modal-backdrop locale-fix-diff-backdrop';
+    const items = (Array.isArray(files) ? files : []).map(file => {
+      const before = String(file.before ?? '');
+      const after = String(file.after ?? '');
+      const maxPreview = 60000;
+      const beforePreview = before.slice(0, maxPreview);
+      const afterPreview = after.slice(0, maxPreview);
+      const beforeLines = before ? before.split('\n').length : 0;
+      const afterLines = after ? after.split('\n').length : 0;
+      const truncated = before.length > maxPreview || after.length > maxPreview;
+      return `<section class="ai-code-diff-file">
+        <div class="ai-code-diff-file-head">
+          <strong>${escapeHtml(file.path || 'HTML')}</strong>
+          <span>${beforeLines} → ${afterLines} строк${truncated ? ' · preview сокращён' : ''}</span>
+        </div>
+        <div class="ai-code-diff-columns">
+          <div><span class="ai-code-diff-label">Сейчас</span><pre>${escapeHtml(beforePreview)}</pre></div>
+          <div><span class="ai-code-diff-label">Предложение AI</span><pre>${escapeHtml(afterPreview)}</pre></div>
+        </div>
+      </section>`;
+    }).join('');
+    host.innerHTML = `
+      <div class="locale-fix-diff-modal ai-code-diff-modal">
+        <div class="diff-header">
+          <span class="diff-title">${escapeHtml(title || 'AI diff')}</span>
+          <button class="diff-close" type="button">✕</button>
+        </div>
+        <div class="diff-summary ai-code-ownership">${escapeHtml(ownership || 'Ничего не изменено. Проверь diff перед применением.')}</div>
+        <div class="diff-rows-wrap">${items || '<p>Нет изменений для сравнения.</p>'}</div>
+        <div class="diff-footer">
+          <button class="diff-cancel" type="button">Отклонить</button>
+          <button class="diff-apply" type="button">Принять изменения</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(host);
+    const done = value => {
+      host.remove();
+      resolve(value);
+    };
+    host.querySelector('.diff-close').addEventListener('click', () => done(false));
+    host.querySelector('.diff-cancel').addEventListener('click', () => done(false));
+    host.querySelector('.diff-apply').addEventListener('click', () => done(true));
+    host.addEventListener('click', event => {
+      if (event.target === host) done(false);
+    });
+  });
+}
+
+async function readCurrentSourceForAiReview(ctx, filePath) {
+  if (state.srcCtx === ctx && !ctx.viewingCompiledHtml && ctx.activeFile === filePath && cm) {
+    return stripPreviewArtifacts(cm.getValue());
+  }
+  const persisted = await readPersistedSourceForAiReview(ctx, filePath);
+  return persisted.content;
+}
+
+async function readPersistedSourceForAiReview(ctx, filePath) {
+  const res = await fetch(`/api/wb/email-file?brand=${encodeURIComponent(ctx.brand)}&mail=${encodeURIComponent(ctx.mail)}&file=${encodeURIComponent(filePath)}`);
+  const data = await res.json();
+  if (!res.ok || !data.ok) throw new Error(data.error || `Не удалось прочитать ${filePath}`);
+  const sourceHash = String(data.sourceHash || '').toLowerCase();
+  if (!/^[a-f0-9]{64}$/.test(sourceHash)) {
+    throw new Error(`Сервер не вернул baseline SHA-256 для ${filePath}`);
+  }
+  return {
+    content: String(data.content || ''),
+    sourceHash,
+  };
+}
+
+async function prepareAiSourceReview(ctx, edits) {
+  return Promise.all(edits.map(async edit => {
+    const [before, persisted] = await Promise.all([
+      readCurrentSourceForAiReview(ctx, edit.path),
+      readPersistedSourceForAiReview(ctx, edit.path),
+    ]);
+    if (before !== persisted.content) {
+      throw new Error(`Локальный редактор ${edit.path} ещё не совпадает с сохранённым исходником`);
+    }
+    return {
+      path: edit.path,
+      before,
+      after: String(edit.content ?? ''),
+      expectedHash: persisted.sourceHash,
+    };
+  }));
+}
+
+async function aiSourceReviewIsCurrent(ctx, reviewedFiles) {
+  if (state.srcCtx !== ctx) return false;
+  const latest = await Promise.all(reviewedFiles.map(async file => ({
+    visible: await readCurrentSourceForAiReview(ctx, file.path),
+    persisted: await readPersistedSourceForAiReview(ctx, file.path),
+  })));
+  return reviewedFiles.every((file, index) => (
+    file.before === latest[index].visible
+    && file.expectedHash === latest[index].persisted.sourceHash
+    && file.before === latest[index].persisted.content
+  ));
+}
+
 // Apply the server-returned full modified HTML (from clone-edit mode)
 function offerModifiedHtmlApply(bubble, modifiedHtml) {
   const guard = inspectAiHtmlCandidate(modifiedHtml);
@@ -9518,11 +10559,34 @@ function offerModifiedHtmlApply(bubble, modifiedHtml) {
     // for the selected locale; source Pug remains untouched and restorable.
     const locale = ctx.activeHtmlLocale || HTML_BASE_LOCALE;
     const localeLabel = locale === HTML_BASE_LOCALE ? 'Original' : locale.toUpperCase();
-    btn.textContent = `✓ Сохранить как ручной HTML · ${localeLabel}`;
+    const initialLabel = `Посмотреть HTML diff · ${localeLabel}`;
+    btn.textContent = initialLabel;
     btn.onclick = async () => {
       btn.disabled = true;
-      btn.textContent = 'Сохраняю ручную версию…';
+      btn.textContent = 'Готовлю diff…';
       try {
+        if (state.srcCtx !== ctx || (ctx.activeHtmlLocale || HTML_BASE_LOCALE) !== locale) {
+          throw new Error('Открыто другое письмо или локаль — предложение устарело');
+        }
+        const baseline = currentHtmlForAiGuard();
+        const currentGuard = inspectAiHtmlCandidate(modifiedHtml, baseline);
+        if (!currentGuard.ok) throw new Error(currentGuard.reason);
+        const accepted = await showAiCodeDiffPreview({
+          title: `AI HTML · ${localeLabel}`,
+          ownership: `Pug/Stylus останутся исходником. После принятия только ${localeLabel} станет отдельным HTML override; вернуть связь можно кнопкой «Удалить override · вернуть Pug».`,
+          files: [{ path: `HTML · ${localeLabel}`, before: baseline, after: modifiedHtml }],
+        });
+        if (!accepted) {
+          btn.disabled = false;
+          btn.textContent = initialLabel;
+          return;
+        }
+        if (state.srcCtx !== ctx
+          || (ctx.activeHtmlLocale || HTML_BASE_LOCALE) !== locale
+          || currentHtmlForAiGuard() !== baseline) {
+          throw new Error('Код изменился во время проверки. Открой diff ещё раз.');
+        }
+        btn.textContent = 'Сохраняю ручную версию…';
         const res = await fetch('/api/wb/code-html', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -9531,6 +10595,7 @@ function offerModifiedHtmlApply(bubble, modifiedHtml) {
         const data = await res.json();
         if (!res.ok || !data.ok) throw new Error(data.error || 'Не удалось сохранить HTML');
         ctx.htmlLocales = data.locales || ctx.htmlLocales;
+        invalidateLocalePreflight(ctx, `AI создал ручной HTML override для ${localeLabel}`);
         useCompiledHtml(ctx, { ...data, detached: true });
         if (ctx.viewingCompiledHtml) applyCompiledHtmlToEditor(ctx, data, false);
         else {
@@ -9541,15 +10606,35 @@ function offerModifiedHtmlApply(bubble, modifiedHtml) {
         toast('AI-версия сохранена отдельно; Pug не изменён', 'success');
       } catch (error) {
         btn.disabled = false;
-        btn.textContent = `✓ Сохранить как ручной HTML · ${localeLabel}`;
+        btn.textContent = initialLabel;
         toast('Ошибка сохранения AI HTML: ' + error.message, 'error');
       }
     };
   } else {
-    // Plain HTML mode: apply directly to editor
-    btn.textContent = '✓ Применить HTML в редактор';
-    btn.onclick = () => {
-      if (!cm) return;
+    // Plain HTML mode still requires an explicit diff review before mutation.
+    const initialLabel = 'Посмотреть HTML diff';
+    btn.textContent = initialLabel;
+    btn.onclick = async () => {
+      if (!cm || state.srcCtx) return;
+      btn.disabled = true;
+      btn.textContent = 'Готовлю diff…';
+      const baseline = cm.getValue();
+      const accepted = await showAiCodeDiffPreview({
+        title: 'AI HTML · открытый файл',
+        ownership: 'Ничего ещё не изменено. После принятия будет обновлён только открытый HTML; действие можно откатить.',
+        files: [{ path: 'Открытый HTML', before: baseline, after: modifiedHtml }],
+      });
+      if (!accepted) {
+        btn.disabled = false;
+        btn.textContent = initialLabel;
+        return;
+      }
+      if (state.srcCtx || cm.getValue() !== baseline) {
+        btn.disabled = false;
+        btn.textContent = initialLabel;
+        toast('Код изменился во время проверки. Открой diff ещё раз.', 'warning');
+        return;
+      }
       pushUndoSnapshot('AI HTML');
       cm.setValue(prettyHtml(modifiedHtml));
       updatePreview(); saveToLocalStorage();
@@ -9608,6 +10693,61 @@ function parseAiSourceFileEdits(text) {
   return [...editsByPath.values()];
 }
 
+function normalizeAiSourceEditsForSave(ctx, edits) {
+  ensureValidNamespaceNames(state.srcCtx === ctx ? state.namespaces : readNamespaceScope(ctx.brand, ctx.mail));
+  if (state.srcCtx === ctx) persistNamespaceScope(ctx.brand, ctx.mail, state.namespaces);
+  return edits.map(edit => {
+    const rawContent = stripPreviewArtifacts(String(edit.content ?? ''));
+    return {
+      path: edit.path,
+      content: /\.(?:pug|jade)$/i.test(edit.path)
+        ? repairInvalidNamespaceTokens(rawContent)
+        : rawContent,
+    };
+  });
+}
+
+async function saveAiSourceFilesAtomically(ctx, edits, reviewedFiles) {
+  if (!ctx?.brand || !ctx?.mail || !Array.isArray(edits) || !edits.length) {
+    throw new Error('Нет исходников для применения');
+  }
+  const reviewedByPath = new Map(
+    (Array.isArray(reviewedFiles) ? reviewedFiles : [])
+      .map(file => [String(file?.path || ''), file]),
+  );
+  const files = await Promise.all(edits.map(async edit => {
+    const reviewed = reviewedByPath.get(edit.path);
+    if (!reviewed || typeof reviewed.before !== 'string') {
+      throw new Error(`Нет проверенного baseline для ${edit.path}`);
+    }
+    const expectedHash = String(reviewed.expectedHash || '').toLowerCase();
+    if (!/^[a-f0-9]{64}$/.test(expectedHash)) {
+      throw new Error(`Нет проверенного baseline SHA-256 для ${edit.path}`);
+    }
+    return {
+      file: edit.path,
+      content: edit.content,
+      expectedHash,
+    };
+  }));
+  const res = await fetch('/api/wb/email-files', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      brand: ctx.brand,
+      mail: ctx.mail,
+      files,
+    }),
+  });
+  const data = await res.json();
+  if (!res.ok || !data.ok) {
+    const error = new Error(data.error || 'Не удалось атомарно сохранить исходники');
+    error.code = data.code || '';
+    throw error;
+  }
+  return data;
+}
+
 function offerSourceFileEditsApply(bubble, edits) {
   const ctx = state.srcCtx;
   if (!ctx || !edits.length) return false;
@@ -9615,25 +10755,46 @@ function offerSourceFileEditsApply(bubble, edits) {
   const btn = document.createElement('button');
   btn.className = 'btn-primary';
   btn.style.cssText = 'margin-top:8px;font-size:12px;padding:5px 14px;display:block;background:var(--success)';
-  btn.textContent = edits.length === 1
-    ? `✓ Применить ${edits[0].path}`
-    : `✓ Применить ${edits.length} файла и пересобрать`;
+  const initialLabel = edits.length === 1
+    ? `Посмотреть diff · ${edits[0].path}`
+    : `Посмотреть diff · ${edits.length} файла`;
+  btn.textContent = initialLabel;
 
   btn.onclick = async () => {
     btn.disabled = true;
-    btn.textContent = 'Сохраняю файлы…';
-    pushUndoSnapshot('AI source files');
+    btn.textContent = 'Готовлю diff…';
     try {
       // Do not let a still-running manual/autosave overwrite an accepted AI
       // revision after this operation finishes.
+      if (ctx.modified && ctx.activeFile && !ctx.viewingCompiledHtml) {
+        await saveCurrentSourceFile();
+      }
       if (ctx.sourceSavePromise) await ctx.sourceSavePromise;
-      for (const edit of edits) {
-        await saveAuxiliarySourceFile(ctx, edit.path, edit.content, { rebuild: false });
+      if (state.srcCtx !== ctx) throw new Error('Открыто другое письмо — предложение устарело');
+      const persistableEdits = normalizeAiSourceEditsForSave(ctx, edits);
+      const reviewedFiles = await prepareAiSourceReview(ctx, persistableEdits);
+      const accepted = await showAiCodeDiffPreview({
+        title: edits.length === 1 ? `AI source · ${edits[0].path}` : `AI source · ${edits.length} файла`,
+        ownership: 'После принятия изменятся указанные Pug/Stylus-файлы, затем письмо пересоберётся. Связанные HTML-локали обновятся; ручные HTML overrides останутся отдельными.',
+        files: reviewedFiles,
+      });
+      if (!accepted) {
+        btn.disabled = false;
+        btn.textContent = initialLabel;
+        return;
+      }
+      if (!(await aiSourceReviewIsCurrent(ctx, reviewedFiles))) {
+        throw new Error('Исходник изменился во время проверки. Открой diff ещё раз.');
+      }
+      btn.textContent = 'Сохраняю файлы атомарно…';
+      await saveAiSourceFilesAtomically(ctx, persistableEdits, reviewedFiles);
+      pushUndoSnapshot('AI source files');
+      for (const edit of persistableEdits) {
         if (!ctx.openedFiles) ctx.openedFiles = [];
         if (!ctx.openedFiles.includes(edit.path)) ctx.openedFiles.push(edit.path);
       }
 
-      const visibleEdit = edits.find(edit => edit.path === ctx.activeFile) || edits[0];
+      const visibleEdit = persistableEdits.find(edit => edit.path === ctx.activeFile) || persistableEdits[0];
       ctx.activeFile = visibleEdit.path;
       ctx.modified = false;
       ctx.viewingCompiledHtml = false;
@@ -9656,7 +10817,7 @@ function offerSourceFileEditsApply(bubble, edits) {
       toast(`AI применил ${edits.length} файл(а)`, 'success');
     } catch (err) {
       btn.disabled = false;
-      btn.textContent = 'Повторить применение';
+      btn.textContent = initialLabel;
       toast('Ошибка применения AI-правок: ' + err.message, 'error');
     }
   };
@@ -9689,17 +10850,21 @@ function parseAiLocaleEdits(text) {
 }
 
 function offerLocaleEditsApply(bubble, edits) {
-  if (!edits.length) return false;
+  const safeEdits = edits.filter(edit => !/\{\{\s*\$\{\{|\$\{\{[\s\S]*?\}\}\$/.test(String(edit.rawText || '')));
+  if (!safeEdits.length) {
+    appendAiGuardWarning(bubble, 'AI вернул плейсхолдеры внутри текста локали; предложение отклонено.');
+    return false;
+  }
   const btn = document.createElement('button');
   btn.className = 'btn-primary';
   btn.style.cssText = 'margin-top:8px;font-size:12px;padding:5px 14px;display:block;background:var(--success)';
-  btn.textContent = edits.length === 1
-    ? `✓ Применить локаль ${edits[0].namespace}/${edits[0].code.toUpperCase()}`
-    : `✓ Применить ${edits.length} локалей`;
+  btn.textContent = safeEdits.length === 1
+    ? `Посмотреть diff · ${safeEdits[0].namespace}/${safeEdits[0].code.toUpperCase()}`
+    : `Посмотреть diff · ${safeEdits.length} локалей`;
 
   btn.onclick = async () => {
     const approved = [];
-    for (const edit of edits) {
+    for (const edit of safeEdits) {
       const ns = getNs(edit.nsId);
       if (!ns) continue;
       const beforeRaw = ns.localeRaw?.[edit.code] ?? serializeTxt(ns.locales?.[edit.code] || []);
@@ -9720,6 +10885,7 @@ function offerLocaleEditsApply(bubble, edits) {
     });
     refreshLocaleUiAfterStructureChange();
     if (state._editNsId && state._editLocale) loadLocaleIntoLocaleCM(state._editNsId, state._editLocale);
+    saveToLocalStorage();
     btn.textContent = '✓ Локали применены';
     addUndoButton(btn);
     toast(`Применено после проверки: ${approved.length} локаль(и)`, 'success');
@@ -9751,55 +10917,14 @@ function offerHtmlApply(bubble, text) {
   const isHtml = !isPug && !isStyl && candidate.includes('<');
 
   const ctx = state.srcCtx;
-
-  const btn = document.createElement('button');
-  btn.className = 'btn-primary';
-  btn.style.cssText = 'margin-top:8px;font-size:12px;padding:5px 14px;display:block';
-
   if (isPug && ctx?.activeFile?.match(/\.(pug|jade)$/)) {
-    btn.textContent = '✓ Применить в Pug файл';
-    btn.onclick = async () => {
-      btn.disabled = true; btn.textContent = 'Сохраняю…';
-      _suppressSrcModified = true;
-      cm?.setValue(candidate);
-      setTimeout(() => { _suppressSrcModified = false; }, 0);
-      try { await saveCurrentSourceFile(); } catch {}
-      btn.textContent = '✓ Применено и пересобрано';
-      toast('Pug обновлён из ответа AI', 'success');
-    };
-  } else if (isStyl && ctx?.activeFile?.match(/\.(styl|css)$/)) {
-    btn.textContent = '✓ Применить в Stylus файл';
-    btn.onclick = async () => {
-      btn.disabled = true; btn.textContent = 'Сохраняю…';
-      _suppressSrcModified = true;
-      cm?.setValue(candidate);
-      setTimeout(() => { _suppressSrcModified = false; }, 0);
-      try { await saveCurrentSourceFile(); } catch {}
-      btn.textContent = '✓ Применено и пересобрано';
-      toast('Stylus обновлён из ответа AI', 'success');
-    };
-  } else if (isHtml) {
-    const guard = inspectAiHtmlCandidate(candidate);
-    if (!guard.ok) {
-      appendAiGuardWarning(bubble, guard.reason);
-      return false;
-    }
-    btn.textContent = '✓ Применить HTML в редактор';
-    btn.onclick = () => {
-      if (!cm) return;
-      pushUndoSnapshot('AI HTML');
-      cm.setValue(candidate);
-      updatePreview(); saveToLocalStorage();
-      btn.textContent = '✓ Применено'; btn.disabled = true;
-      addUndoButton(btn);
-      toast('HTML обновлён из ответа AI', 'success');
-    };
-  } else {
-    return false; // unknown type, don't show button
+    return offerSourceFileEditsApply(bubble, [{ path: ctx.activeFile, content: candidate }]);
   }
-
-  bubble.after(btn);
-  return true;
+  if (isStyl && ctx?.activeFile?.match(/\.(styl|css)$/)) {
+    return offerSourceFileEditsApply(bubble, [{ path: ctx.activeFile, content: candidate }]);
+  }
+  if (isHtml) return offerModifiedHtmlApply(bubble, candidate);
+  return false;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -9837,6 +10962,10 @@ r.aiSettingsBtn.addEventListener('click', () => {
   r.aiSettingsModal.classList.remove('hidden');
   r.aiSettingsBackdrop.classList.remove('hidden');
   refreshAiStatus();
+  // В настройках мастер показываем всегда: сюда приходят именно за тем,
+  // чтобы разобраться с подключением модели.
+  const host = document.getElementById('aiSettingsConnect');
+  if (host) offerAgentIfNeeded(host);
 });
 r.closeAiSettingsBtn.addEventListener('click', () => {
   r.aiSettingsModal.classList.add('hidden'); r.aiSettingsBackdrop.classList.add('hidden');
@@ -9950,7 +11079,21 @@ function saveToLocalStorage() {
     } else {
       localStorage.removeItem(LS_SRC_CTX);
     }
-  } catch(e) { console.warn('localStorage save failed:', e); }
+  } catch(e) { console.warn('localStorage save failed:', e); warnSaveFailed('черновик в браузере', e); }
+}
+
+// Surface save failures instead of swallowing them (at most once per 20 s per kind).
+const _saveFailWarnedAt = {};
+function warnSaveFailed(what, err) {
+  try { console.warn('[save failed]', what, err); } catch {}
+  const now = Date.now();
+  if (_saveFailWarnedAt[what] && now - _saveFailWarnedAt[what] < 20000) return;
+  _saveFailWarnedAt[what] = now;
+  const quota = err && (err.name === 'QuotaExceededError' || /quota/i.test(String(err.message || '')));
+  const msg = quota
+    ? `Не сохранилось (${what}): в браузере кончилось место. Скачайте/сохраните письмо в файл.`
+    : `Не сохранилось (${what}): ${String(err && err.message || err || 'ошибка').slice(0, 120)}`;
+  try { toast(msg, 'error', 6000); } catch {}
 }
 
 function loadFromLocalStorage() {
@@ -10392,9 +11535,14 @@ document.addEventListener('DOMContentLoaded', init);
 document.addEventListener('DOMContentLoaded', () => {
   const handoff = getDirectMailHandoff();
   if (!handoff || typeof loadEmailFromBase !== 'function') return;
-  // `init` is registered first, so CodeMirror is ready here. Start immediately
-  // and explicitly force header.pug; saved HTML-view state is ignored above.
-  loadEmailFromBase(handoff.brand, handoff.mail, null, { initialView: 'pug' }).catch(() => {});
+  // `init` is registered first, so CodeMirror is ready here.
+  //
+  // Из конструктора приходит менеджер, а не верстальщик: ему нужно поправить
+  // тексты и плейсхолдеры в готовом письме. Поэтому открываем скомпилированный
+  // HTML и сразу разрешаем правку — вкладка Pug остаётся рядом и открывается
+  // кнопкой «← Вернуться к Pug» для тех, кому нужна вёрстка.
+  loadEmailFromBase(handoff.brand, handoff.mail, null, { initialView: 'html', editHtml: true })
+    .catch(() => {});
 });
 
 
@@ -11721,3 +12869,23 @@ if (typeof window !== 'undefined') {
     (window.WB._fileChangeListeners || []).forEach((cb) => { try { cb(); } catch (e) { console.error(e); } });
   };
 }
+
+// ─── Общий разговор с оператором (тот же, что в конструкторе) ───────────
+async function loadSharedAgentThread() {
+  if (!r.aiMessages) return;
+  try {
+    const res = await fetch('/api/studio/agent/thread');
+    const data = res.ok ? await res.json() : null;
+    const messages = Array.isArray(data?.messages) ? data.messages.slice(-12) : [];
+    if (!messages.length) return;
+    for (const m of messages) {
+      const role = m.role === 'assistant' ? 'assistant' : 'user';
+      const tag = m.surface === 'constructor' ? '[конструктор] ' : '';
+      const bubble = addMessage(role, `${tag}${m.content}`);
+      if (role === 'assistant') bubble.textContent = `${tag}${m.content}`;
+    }
+    state.chatHistory = messages.map((m) => ({ role: m.role, content: m.content }));
+  } catch { /* без истории чат всё равно работает */ }
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', loadSharedAgentThread);
+else loadSharedAgentThread();

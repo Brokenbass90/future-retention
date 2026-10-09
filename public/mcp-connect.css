@@ -1,0 +1,179 @@
+/* ═══════════════════════════════════════════════════════════════
+   Мастер «Подключите своего агента» (public/mcp-connect.js).
+
+   Один файл на две поверхности: конструктор и воркбенч. У них разные
+   наборы переменных (--bg-2 против --surface) и у воркбенча есть светлая
+   тема, поэтому цвета берём через локальные переменные с цепочкой
+   запасных значений — так мастер выглядит своим в обоих окнах и не
+   ломается там, где переменной нет.
+═══════════════════════════════════════════════════════════════ */
+
+.mcp-connect {
+  --mcp-text:    var(--text, #e6edf3);
+  --mcp-muted:   var(--text-2, #8b949e);
+  --mcp-border:  var(--border, rgba(255, 255, 255, .12));
+  --mcp-surface: var(--surface, var(--bg-2, rgba(255, 255, 255, .04)));
+  --mcp-accent:  var(--accent, #2563eb);
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: var(--mcp-text);
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: left;
+  white-space: normal;
+}
+
+.mcp-connect-loading,
+.mcp-connect-error {
+  color: var(--text-2, #8b949e);
+  font-size: 12px;
+  padding: 6px 0;
+}
+.mcp-connect-error { color: var(--danger, #f85149); }
+
+.mcp-connect-head b { display: block; margin-bottom: 4px; font-size: 13px; }
+
+.mcp-hint {
+  margin: 4px 0 0;
+  color: var(--mcp-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+/* ── Шаги ─────────────────────────────────────────────── */
+.mcp-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 9px 10px;
+  border: 1px solid var(--mcp-border);
+  border-radius: 9px;
+  background: var(--mcp-surface);
+}
+.mcp-step > div { min-width: 0; flex: 1 1 auto; }
+.mcp-step b { font-weight: 600; }
+
+.mcp-step-no {
+  flex: 0 0 auto;
+  width: 19px;
+  height: 19px;
+  margin-top: 1px;
+  border-radius: 50%;
+  background: var(--mcp-accent);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 19px;
+  text-align: center;
+}
+
+/* ── Кнопка «Подключить автоматически» ────────────────── */
+.mcp-primary {
+  margin-top: 8px;
+  padding: 7px 14px;
+  border: 0;
+  border-radius: 7px;
+  background: var(--mcp-accent);
+  color: #fff;
+  font: 600 12px/1 inherit;
+  cursor: pointer;
+}
+.mcp-primary:hover:not(:disabled) { filter: brightness(1.12); }
+.mcp-primary:disabled { opacity: .6; cursor: default; }
+
+/* ── Ручная настройка ─────────────────────────────────── */
+.mcp-manual { margin-top: 8px; }
+.mcp-manual summary {
+  cursor: pointer;
+  color: var(--mcp-muted);
+  font-size: 12px;
+  list-style: none;
+}
+.mcp-manual summary::-webkit-details-marker { display: none; }
+.mcp-manual summary::before { content: "▸ "; }
+.mcp-manual[open] summary::before { content: "▾ "; }
+.mcp-manual summary:hover { color: var(--mcp-text); }
+
+.mcp-code {
+  margin: 6px 0 0;
+  padding: 8px 10px;
+  max-height: 190px;
+  overflow: auto;
+  border: 1px solid var(--mcp-border);
+  border-radius: 7px;
+  background: var(--bg, #0d1117);
+  color: var(--mcp-text);
+  font: 11px/1.45 ui-monospace, Menlo, "JetBrains Mono", monospace;
+  white-space: pre;
+  user-select: text;
+}
+
+.mcp-hint code {
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: var(--mcp-surface);
+  font: 11px ui-monospace, Menlo, monospace;
+  word-break: break-all;
+}
+
+.mcp-copy {
+  margin-top: 6px;
+  padding: 5px 10px;
+  border: 1px solid var(--mcp-border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--mcp-text);
+  font: 500 11px/1 inherit;
+  cursor: pointer;
+}
+.mcp-copy:hover { background: var(--mcp-surface); }
+
+/* ── Результат установки ──────────────────────────────── */
+.mcp-result {
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.45;
+  word-break: break-word;
+}
+.mcp-result[data-state="ok"] {
+  background: rgba(34, 197, 94, .12);
+  color: var(--success, #3fb950);
+}
+.mcp-result[data-state="err"] {
+  background: rgba(248, 81, 73, .12);
+  color: var(--danger, #f85149);
+}
+
+/* ── Посадочные места ─────────────────────────────────── */
+
+/* Конструктор: мастер приходит пузырём в чат, но обычные пузыри узкие и
+   с pre-wrap — под мастер их ограничения снимаем. */
+.chat-msg.mcp {
+  align-self: stretch;
+  max-width: 100%;
+  padding: 10px;
+  background: var(--bg-1, #1a2233);
+  white-space: normal;
+}
+
+/* Воркбенч: сообщение в ai-drawer и блок в настройках AI. */
+.ai-message.ai-mcp-offer {
+  max-width: 100%;
+  padding: 10px;
+  white-space: normal;
+}
+.settings-connect { margin-top: 12px; }
+.settings-connect:empty { display: none; }
+
+/* Состояние, прочитанное с диска: «уже подключено» и «подключено не туда».
+   Раньше это было состоянием кнопки, и во втором окне студии человек снова
+   видел предложение подключиться к тому, что уже стоит. */
+.mcp-hint.mcp-done { color: var(--success, #3fb950); }
+.mcp-hint.mcp-warn { color: var(--warning, #f59e0b); }
+
+/* Шаг про то, где вообще разговаривать: его путают чаще всего. */
+.mcp-step-where { border-color: rgba(37, 99, 235, .45); }
+.mcp-step-where b { color: var(--mcp-text); }

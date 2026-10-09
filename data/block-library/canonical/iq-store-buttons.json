@@ -40,5 +40,8 @@
       "uiGroup": "assets"
     }
   ],
-  "scoped": true
+  "scoped": true,
+  "tags": [
+    "iq"
+  ]
 }
