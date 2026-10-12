@@ -44,11 +44,13 @@ assert.deepEqual(resolveStudioRuntimeFlags({
   APP_AUTH_ENABLED: "true",
 }), {
   publicDemo: true,
-  readOnly: true,
+  readOnly: false, // 2026-10-12: public demo keeps writing; read-only only via STUDIO_READONLY=1
   aiEnabled: false,
   authEnabled: false,
   authAllowed: false,
   hasAuthCredentials: true,
 });
+
+assert.equal(resolveStudioRuntimeFlags({ STUDIO_PUBLIC_DEMO: "1", STUDIO_READONLY: "1" }).readOnly, true, "explicit STUDIO_READONLY still works");
 
 console.log("runtime flags: explicit auth override + public demo AI/auth/write safety ok");

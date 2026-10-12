@@ -19,9 +19,11 @@ export function resolveStudioRuntimeFlags(env = process.env) {
   const aiEnabled = !publicDemo && parseBooleanEnv(env.STUDIO_AI_ENABLED, true);
   const authAllowed = !publicDemo && parseBooleanEnv(env.APP_AUTH_ENABLED, true);
   const hasAuthCredentials = Boolean(env.APP_AUTH_USER && env.APP_AUTH_PASSWORD);
-  // Витрина ничего не пишет на диск: на Heroku записанное всё равно исчезает
-  // при рестарте дино, и молчаливая потеря правок хуже честного «только чтение».
-  const readOnly = parseBooleanEnv(env.STUDIO_READONLY, publicDemo);
+  // «Только чтение» — только по явному STUDIO_READONLY=1. Прод на Heroku
+  // работает с STUDIO_PUBLIC_DEMO=1 (без ИИ и без пароля), и с 5 октября это
+  // молча выключило там «→ В код» и «Save mail». Каждый работает в своём
+  // браузере, черновики разведены по браузерам — запись нужна.
+  const readOnly = parseBooleanEnv(env.STUDIO_READONLY, false);
 
   return Object.freeze({
     publicDemo,
