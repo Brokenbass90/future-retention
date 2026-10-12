@@ -1746,6 +1746,7 @@ function openCanvasContextMenu(x, y, uid) {
     { key: "down", label: "Переместить ниже", disabled: index < 0 || index >= siblings.length - 1 },
     { separator: true },
     { key: "code", label: "Открыть код блока" },
+    { key: "ai", label: "Обсудить с ИИ" },
     { key: "delete", label: "Удалить", hint: "Delete", danger: true },
   ];
 
@@ -1809,6 +1810,7 @@ function openCatalogContextMenu(x, y, block) {
     { key: "copy-id", label: "Скопировать id блока" },
     { separator: true },
     { key: "similar", label: `Показать похожие${group?.size > 1 ? ` (${group.size - 1})` : ""}`, disabled: !(group?.size > 1) },
+    { key: "ai", label: "Обсудить с ИИ" },
     ...(block.source === "user" ? [{ separator: true }, { key: "edit", label: "Редактировать блок" }] : []),
   ];
   const menu = renderContextMenu(x, y, items);
@@ -4626,8 +4628,6 @@ $("chatFab")?.addEventListener("click", () => ensureStudioChat()?.toggle());
  * картинки. Молча собрать письмо «по макету» было бы ровно тем случаем, из-за
  * которого в письме оставался образцовый текст.
  */
-// Без ИИ-оператора разбор макета некуда отдать — кнопку прячем.
-$("figmaPasteBtn")?.remove();
 $("figmaPasteBtn")?.addEventListener("click", () => {
   if (!window.RetkitFigmaPaste) { flashCanvasHint("Окно вставки макета не загрузилось — обнови страницу"); return; }
   window.RetkitFigmaPaste.open({

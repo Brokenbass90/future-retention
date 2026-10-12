@@ -20,14 +20,13 @@ const KNOWN_FAILING = new Map([
 // Tests that belong to a dedicated suite (npm run test:blocks, …) run there,
 // not in the default run — unless the default chain always included them.
 // Features removed on purpose (2026-10-12): each person works in their own
-// browser — no names, mail locks, server drafts, MCP wizard or studio chat.
+// browser — no name badge, mail locks or server drafts. (The operator chat
+// and the «Свой агент» MCP wizard stay: one operator for constructor + code.)
 // Their tests stay in scripts/ for history but are not run.
 const RETIRED = new Map([
   ['test-actor.mjs', 'actor badge removed'],
   ['test-mail-drafts.mjs', 'server drafts UI removed'],
   ['test-mail-locks.mjs', 'mail locks removed'],
-  ['test-mcp-setup.mjs', 'MCP connect wizard removed'],
-  ['test-studio-chat-discuss.mjs', 'studio chat removed from the constructor'],
 ]);
 
 const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
