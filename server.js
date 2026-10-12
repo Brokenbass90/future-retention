@@ -165,9 +165,8 @@ import {
   LEASE_TTL_MS,
 } from "./src/mail-locks.js";
 
-// Замки включаются один раз здесь: дальше о них не знает ни одна ручка —
-// дверь к письмам (src/mail-store.js) спрашивает разрешение сама.
-setMailWriteGuard(createLeaseGuard());
+// Замки писем выключены: каждый работает в своём браузере, без занятости,
+// перехвата и heartbeat'ов. (src/mail-locks.js остаётся, но не подключён.)
 
 import { syncWorkbenchLocaleNamespaces } from "./src/workbench-localization.js";
 import { compareStudioModelSourceSignatures } from "./src/studio-model-signatures.js";

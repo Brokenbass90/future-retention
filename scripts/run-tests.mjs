@@ -19,6 +19,17 @@ const KNOWN_FAILING = new Map([
 
 // Tests that belong to a dedicated suite (npm run test:blocks, …) run there,
 // not in the default run — unless the default chain always included them.
+// Features removed on purpose (2026-10-12): each person works in their own
+// browser — no names, mail locks, server drafts, MCP wizard or studio chat.
+// Their tests stay in scripts/ for history but are not run.
+const RETIRED = new Map([
+  ['test-actor.mjs', 'actor badge removed'],
+  ['test-mail-drafts.mjs', 'server drafts UI removed'],
+  ['test-mail-locks.mjs', 'mail locks removed'],
+  ['test-mcp-setup.mjs', 'MCP connect wizard removed'],
+  ['test-studio-chat-discuss.mjs', 'studio chat removed from the constructor'],
+]);
+
 const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
 const legacy = new Set((pkg.scripts['test:legacy-chain'] || '').match(/test-[a-z0-9-]+\.mjs/g) || []);
 const separate = new Map();
@@ -47,6 +58,7 @@ function run(name) {
 const failures = [];
 let skipped = 0;
 for (const name of [...files, ...extra]) {
+  if (RETIRED.has(name)) { skipped += 1; console.log(`- ${name} (retired: ${RETIRED.get(name)})`); continue; }
   if (KNOWN_FAILING.has(name) && !filter) { skipped += 1; console.log(`- ${name} (known failing: ${KNOWN_FAILING.get(name)})`); continue; }
   const result = await run(name);
   if (result.code === 0) console.log(`✓ ${name} (${result.ms} ms)`);

@@ -1746,7 +1746,6 @@ function openCanvasContextMenu(x, y, uid) {
     { key: "down", label: "Переместить ниже", disabled: index < 0 || index >= siblings.length - 1 },
     { separator: true },
     { key: "code", label: "Открыть код блока" },
-    { key: "ai", label: "Обсудить с ИИ" },
     { key: "delete", label: "Удалить", hint: "Delete", danger: true },
   ];
 
@@ -1810,7 +1809,6 @@ function openCatalogContextMenu(x, y, block) {
     { key: "copy-id", label: "Скопировать id блока" },
     { separator: true },
     { key: "similar", label: `Показать похожие${group?.size > 1 ? ` (${group.size - 1})` : ""}`, disabled: !(group?.size > 1) },
-    { key: "ai", label: "Обсудить с ИИ" },
     ...(block.source === "user" ? [{ separator: true }, { key: "edit", label: "Редактировать блок" }] : []),
   ];
   const menu = renderContextMenu(x, y, items);
@@ -4628,6 +4626,8 @@ $("chatFab")?.addEventListener("click", () => ensureStudioChat()?.toggle());
  * картинки. Молча собрать письмо «по макету» было бы ровно тем случаем, из-за
  * которого в письме оставался образцовый текст.
  */
+// Без ИИ-оператора разбор макета некуда отдать — кнопку прячем.
+$("figmaPasteBtn")?.remove();
 $("figmaPasteBtn")?.addEventListener("click", () => {
   if (!window.RetkitFigmaPaste) { flashCanvasHint("Окно вставки макета не загрузилось — обнови страницу"); return; }
   window.RetkitFigmaPaste.open({
@@ -5512,9 +5512,26 @@ async function chooseSaveTarget({ allowTemp = false } = {}) {
 }
 
 /* ─── «→ В код»: перенос собранного письма в workbench ─────────────────── */
+// Свой код для этого браузера: создаётся один раз и хранится только здесь.
+function browserWorkspaceId() {
+  try {
+    let id = localStorage.getItem("retkit-browser-id");
+    if (!id) {
+      id = Math.random().toString(36).slice(2, 8) + Date.now().toString(36).slice(-4);
+      localStorage.setItem("retkit-browser-id", id);
+    }
+    return id.replace(/[^a-z0-9]/gi, "").slice(0, 12) || "local";
+  } catch {
+    return "local";
+  }
+}
+
 async function transferToCode() {
   if (!state.canvas.length) { alert("Канвас пуст — сначала собери письмо."); return; }
-  const rawName = (document.getElementById("mailName")?.value || "").trim() || "draft";
+  const typedName = (document.getElementById("mailName")?.value || "").trim();
+  // Черновик «В код» лежит в общей служебной базе: без своей приставки у
+  // двоих людей он назывался бы одинаково («draft») и перезаписывал друг друга.
+  const rawName = `${typedName || "draft"}-${browserWorkspaceId()}`;
   if (!/^[a-z0-9_-]+$/i.test(rawName)) { alert("Имя письма: только буквы, цифры, дефис, подчёркивание."); return; }
   // Opening the code workspace is not a permanent save/version action.
   // Persist the working copy in the hidden service base; the explicit
