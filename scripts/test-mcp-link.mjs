@@ -46,8 +46,30 @@ try {
   check("по ссылке весь набор студии", tools.length >= 19 && tools.some((t) => t.name === "retkit_list_blocks"), String(tools.length));
   const res = await client.callTool({ name: "retkit_list_blocks", arguments: { kit: "system", limit: 2 } });
   check("инструмент работает за паролем студии", /"blocks"/.test(res.content?.[0]?.text || ""), res.content?.[0]?.text);
-  await client.close();
   const cookie = (r.headers.get("set-cookie") || "").split(";")[0];
+  // Связь с RetKit в MoEngage: окно связи (здесь — имитация) опрашивает студию
+  // с cookie человека, агент зовёт moengage_* по той же ссылке.
+  const offline = await client.callTool({ name: "moengage_status", arguments: {} });
+  check("без окна связи агент получает понятный отказ", offline.isError && /не на связи/.test(offline.content?.[0]?.text || ""), JSON.stringify(offline));
+  let polls = 0;
+  const fakeRelay = (async () => {
+    for (let i = 0; i < 6; i += 1) {
+      const p = await (await fetch(`${base}/api/relay/poll`, { method: "POST", headers: { ...AUTH, cookie, "content-type": "application/json" },
+        body: JSON.stringify({ status: { workspaceOpen: true, locale: "EN" } }) })).json();
+      polls += 1;
+      if (p.command) {
+        await fetch(`${base}/api/relay/result`, { method: "POST", headers: { ...AUTH, cookie, "content-type": "application/json" },
+          body: JSON.stringify({ id: p.command.id, ok: true, result: { echo: p.command.tool, locale: "EN" } }) });
+        return p.command.tool;
+      }
+    }
+    return null;
+  })();
+  await new Promise((r) => setTimeout(r, 300));
+  const online = await client.callTool({ name: "moengage_status", arguments: {} });
+  check("команда агента дошла до RetKit и вернулась", /"echo": "status"/.test(online.content?.[0]?.text || ""), JSON.stringify(online));
+  check("окно связи получило именно эту команду", (await fakeRelay) === "status");
+  await client.close();
   const again = await (await fetch(`${base}/api/mcp/link`, { headers: { ...AUTH, cookie } })).json();
   check("студия видит, что агент заходил", Boolean(again.lastSeenAt) && again.lastClient.startsWith("test-mcp-link"), JSON.stringify(again));
 } catch (error) {

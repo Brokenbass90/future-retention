@@ -145,6 +145,7 @@ import { createRouter } from "./src/router.js";
 import { registerWorkspaceRoutes } from "./src/routes/workspace-routes.js";
 import { registerMcpRoutes } from "./src/routes/mcp-routes.js";
 import { isMcpHttpRequest, handleMcpHttp } from "./src/routes/mcp-http.js";
+import { registerRelayRoutes } from "./src/routes/relay-routes.js";
 import { registerShotRoutes } from "./src/routes/shot-routes.js";
 import { registerSourceRoutes } from "./src/routes/source-routes.js";
 import { registerHistoryRoutes } from "./src/routes/history-routes.js";
@@ -239,6 +240,7 @@ registerMcpRoutes(studioRouter, {
   isAuthEnabled: () => Boolean(studioRuntimeFlags.authEnabled),
 });
 registerShotRoutes(studioRouter, { sendJson, readRequestBody });
+registerRelayRoutes(studioRouter, { sendJson, readRequestBody });
 registerAgentThreadRoutes(studioRouter, { repoRoot: __dirname, sendJson });
 registerSourceRoutes(studioRouter, { repoRoot: __dirname, sendJson });
 registerAgentRoutes(studioRouter, {

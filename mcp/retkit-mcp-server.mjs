@@ -268,6 +268,8 @@ const SERVER_INSTRUCTIONS = [
   "",
   "Темы инструкций (retkit_studio_guide): emails — сборка писем; development — работа над кодом самой студии; architecture — устройство изнутри; blocks — формат блоков и слотов; locales — плейсхолдеры и переводы. Берите тему под задачу, а не всё сразу.",
   "",
+  "Письмо, открытое у человека в MoEngage, доступно через расширение RetKit: moengage_status (первым) → moengage_read_email → правка → moengage_write_email (с hash из чтения, после согласия человека). Замены во всех локалях — moengage_find_across_locales: вы готовите, нажимает человек. Сохранение кампании в MoEngage — всегда кнопка человека.",
+  "",
   "Чего не делать: не публиковать черновик и не сохранять письмо без подтверждения человека; не трогать письмо, которое студия называет занятым (его сейчас правит человек или другой агент); не выдумывать id блоков и имена слотов — спрашивайте retkit_get_block.",
 ].join("\n");
 
@@ -1184,6 +1186,116 @@ try {
 } catch (error) {
   console.error(`[retkit] полный набор студии недоступен (${error.message}) — работают только встроенные инструменты.`);
 }
+
+/* ─── Письмо в MoEngage (через расширение RetKit) ────────────────────────────
+ *
+ * Эти инструменты работают с письмом, открытым у человека во вкладке MoEngage.
+ * Команды идут через студию в расширение RetKit (src/relay.js). Сохранение
+ * кампании в MoEngage — всегда кнопка человека: агент только правит письмо в
+ * редакторе RetKit и готовит замены.
+ */
+async function moengage(tool, args = {}) {
+  const reply = await studioFetch("/api/relay/call", { method: "POST", body: { tool, args } });
+  if (!reply?.ok) throw new Error(reply?.error || "RetKit не ответил");
+  return reply.result;
+}
+const asText = (value) => ({ content: [{ type: "text", text: typeof value === "string" ? value : JSON.stringify(value, null, 2) }] });
+
+server.registerTool(
+  "moengage_status",
+  {
+    title: "MoEngage: что открыто",
+    description:
+      "Подключено ли расширение RetKit в MoEngage и что там открыто: письмо, текущая локаль, список локалей, " +
+      "тема, есть ли несохранённые правки. Вызывайте первым перед любой работой с письмом в MoEngage.",
+    inputSchema: {},
+    annotations: { readOnlyHint: true, openWorldHint: false },
+  },
+  async () => asText(await moengage("status"))
+);
+
+server.registerTool(
+  "moengage_read_email",
+  {
+    title: "MoEngage: HTML письма",
+    description:
+      "HTML письма из MoEngage. Без locale — текущая локаль (быстро). С locale — RetKit переключит вкладку " +
+      "локали у человека, прочитает и вернётся обратно (человек это видит). Возвращает html и hash: hash нужен " +
+      "для moengage_write_email. Большое письмо читайте частями через offset.",
+    inputSchema: {
+      locale: z.string().optional().describe("Локаль, например AR_KW или EN. Без неё — открытая."),
+      offset: z.number().int().min(0).default(0).describe("С какого символа отдать."),
+      max_chars: z.number().int().min(1000).max(200000).default(60000).describe("Сколько символов отдать."),
+    },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+  },
+  async ({ locale, offset = 0, max_chars = 60000 }) => {
+    const data = await moengage("read_email", { locale });
+    const html = String(data?.html || "");
+    const part = html.slice(offset, offset + max_chars);
+    return asText({
+      locale: data?.locale, hash: data?.hash, length: html.length, offset,
+      returned: part.length, more: offset + part.length < html.length, html: part,
+    });
+  }
+);
+
+server.registerTool(
+  "moengage_write_email",
+  {
+    title: "MoEngage: заменить HTML открытой локали",
+    description:
+      "Записать новый HTML открытой локали в редактор RetKit — как будто человек вставил его сам; RetKit " +
+      "передаст его в редактор MoEngage со всеми своими проверками. Кампанию в MoEngage человек сохраняет сам. " +
+      "Обязателен based_on_hash из moengage_read_email: если письмо успели изменить, запись откажется — перечитайте. " +
+      "Пишите только после согласия человека и присылайте HTML целиком.",
+    inputSchema: {
+      html: z.string().describe("Полный новый HTML письма."),
+      based_on_hash: z.string().describe("hash из moengage_read_email этой же локали."),
+    },
+    annotations: { destructiveHint: true, openWorldHint: false },
+  },
+  async ({ html, based_on_hash }) => asText(await moengage("write_email", { html, based_on_hash }))
+);
+
+server.registerTool(
+  "moengage_switch_locale",
+  {
+    title: "MoEngage: открыть локаль",
+    description: "Переключить открытую локаль в MoEngage (человек это видит). Несохранённое RetKit сначала досохранит.",
+    inputSchema: { locale: z.string().describe("Локаль, например FR_FR.") },
+    annotations: { openWorldHint: false },
+  },
+  async ({ locale }) => asText(await moengage("switch_locale", { locale }))
+);
+
+server.registerTool(
+  "moengage_find_across_locales",
+  {
+    title: "MoEngage: найти (и подготовить замену) во всех локалях",
+    description:
+      "Поиск по всем локалям письма тем же окном RetKit, что у человека (⌘F → «Искать во всех локалях»). " +
+      "С replacement RetKit ещё и подготовит замену и покажет её человеку, но САМУ ЗАМЕНУ нажимает человек — " +
+      "так задумано. Возвращает, сколько и где нашлось.",
+    inputSchema: {
+      query: z.string().describe("Что искать — текст или кусок ссылки."),
+      replacement: z.string().optional().describe("На что заменить (подготовить)."),
+    },
+    annotations: { openWorldHint: false },
+  },
+  async ({ query, replacement }) => asText(await moengage("find_across_locales", { query, replacement }))
+);
+
+server.registerTool(
+  "moengage_validator",
+  {
+    title: "MoEngage: замечания проверки RetKit",
+    description: "Ошибки и предупреждения проверки вёрстки RetKit для открытой локали.",
+    inputSchema: {},
+    annotations: { readOnlyHint: true, openWorldHint: false },
+  },
+  async () => asText(await moengage("validator"))
+);
 
 return server;
 }
