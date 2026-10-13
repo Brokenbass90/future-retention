@@ -63,9 +63,14 @@
       <div class="mcp-step">
         <span class="mcp-step-no">1</span>
         <div>
-          <b>Скопируйте свою ссылку</b>
+          <b>Нажмите — Claude откроется с уже вписанной ссылкой</b>
+          <p><button type="button" class="mcp-primary" id="mcpAddToClaude"
+            data-url="${esc(link.url)}">Добавить в Claude</button></p>
+          <p class="mcp-hint">В открывшемся окне Claude останется нажать <b>«Добавить»</b>
+          (если спросит про вход — <b>«Без входа»</b>). Ссылка заодно скопирована: если поле
+          окажется пустым, просто вставьте её (⌘V / Ctrl+V).</p>
           <pre class="mcp-code" id="mcpLinkUrl">${esc(link.url)}</pre>
-          <button type="button" class="mcp-primary" data-copy="mcpLinkUrl">Скопировать ссылку</button>
+          <button type="button" class="mcp-copy" data-copy="mcpLinkUrl">Скопировать ссылку (для Codex)</button>
           <p class="mcp-hint">Ссылка личная: агент по ней работает в <b>ваших</b> черновиках и письмах. Никому её не пересылайте — её владелец действует от вашего имени.</p>
           ${localNote}
           ${seenLine}
@@ -75,7 +80,9 @@
       <div class="mcp-step">
         <span class="mcp-step-no">2</span>
         <div>
-          <b>Вставьте её в свой Claude или Codex</b>
+          <b>Включите его в чате</b>
+          <p class="mcp-hint">Откройте <b>новый</b> чат в Claude → <b>+</b> → Коннекторы → включите RetKit.</p>
+          <details class="mcp-manual"><summary>Вручную или в Codex</summary>
           <p class="mcp-hint"><b>Claude</b> (сайт claude.ai или приложение, любой тариф, включая бесплатный):
           Настройки (Customize) → <b>Коннекторы</b> (Connectors) → <b>+</b> → <b>Добавить свой коннектор</b> (Add custom connector) → имя «RetKit», вставить ссылку →
           вход: <b>«Без входа»</b> (No sign in) → Добавить. Потом в чате: <b>+</b> → Коннекторы → включить RetKit.</p>
@@ -83,6 +90,7 @@
           тип <b>Streamable HTTP</b>, вставить ссылку → Save → Restart.</p>
           <p class="mcp-hint">В организации Claude Team / Enterprise коннектор добавляет администратор.
           На бесплатном Claude можно держать один свой коннектор.</p>
+          </details>
         </div>
       </div>
 
@@ -233,6 +241,18 @@
           selection?.addRange(range);
         }
       });
+    });
+
+    // Claude умеет открывать окно «Добавить свой коннектор» с уже вписанными
+    // именем и адресом. Ссылку всё равно кладём в буфер: если Claude изменит
+    // адрес страницы настроек, человеку останется только вставить её.
+    $("mcpAddToClaude")?.addEventListener("click", async (event) => {
+      const linkUrl = event.currentTarget.dataset.url || "";
+      try { await navigator.clipboard.writeText(linkUrl); } catch { /* буфер закрыт — поле всё равно заполнено */ }
+      const target = "https://claude.ai/customize/connectors?modal=add-custom-connector" +
+        `&mcpName=${encodeURIComponent("RetKit")}&mcpServerUrl=${encodeURIComponent(linkUrl)}`;
+      window.open(target, "_blank", "noopener");
+      event.currentTarget.textContent = "Открыл Claude — нажмите там «Добавить»";
     });
 
     $("mcpInstallBtn")?.addEventListener("click", async () => {
