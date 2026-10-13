@@ -46,6 +46,23 @@
    * Windows одинаково. Студия сама отдаёт свои инструменты по HTTPS, человек
    * вставляет ссылку в свой Claude или Codex.
    */
+  /**
+   * Текст, который человек вставляет своему агенту. Claude Code и Codex умеют
+   * сами выполнять команды, поэтому подключение делают они, а не человек.
+   */
+  function agentPrompt(url) {
+    return [
+      "Подключи студию писем RetKit как MCP-сервер (Streamable HTTP, без входа):",
+      url,
+      "",
+      "Если ты Codex — выполни:  codex mcp add retkit --url " + url,
+      "Если ты Claude Code — выполни:  claude mcp add --transport http --scope user retkit " + url,
+      "",
+      "Потом скажи мне перезапустить тебя (новая сессия), проверь, что появились инструменты retkit_*, " +
+      "и вызови retkit_studio_guide. Ссылка личная — никуда её не публикуй.",
+    ].join("\n");
+  }
+
   function linkHtml(setup) {
     const link = setup.link;
     if (!link?.url) {
@@ -66,6 +83,9 @@
       </ol>
       ${seenLine}
       ${localNote}
+      <p><button type="button" class="mcp-copy" data-copy="mcpAgentPrompt">Скопировать инструкцию для Codex / Claude Code</button></p>
+      <p class="mcp-hint">Вставьте её своему агенту в чат — он подключится сам.</p>
+      <pre class="mcp-code" id="mcpAgentPrompt" hidden>${esc(agentPrompt(link.url))}</pre>
       <details class="mcp-manual"><summary>Ссылка (для Codex)</summary>
         <pre class="mcp-code" id="mcpLinkUrl">${esc(link.url)}</pre>
         <button type="button" class="mcp-copy" data-copy="mcpLinkUrl">Скопировать</button>
