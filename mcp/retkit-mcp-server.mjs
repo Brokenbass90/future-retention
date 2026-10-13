@@ -1153,7 +1153,25 @@ const ALREADY_WRAPPED = new Set([
 try {
   const listed = await cachedToolList(STUDIO_URL, () => studioFetch("/api/agent/tools"));
   for (const tool of listed?.tools || []) {
-    if (tool.browserOnly || ALREADY_WRAPPED.has(tool.name)) continue;
+    if (ALREADY_WRAPPED.has(tool.name)) continue;
+    if (tool.browserOnly) {
+      // Холст конструктора: правка уходит во вкладку человека (src/relay.js).
+      server.registerTool(
+        `retkit_${tool.name}`,
+        {
+          title: tool.name,
+          description: `${tool.description}\n\n(Холст конструктора, открытого у человека в браузере. Сначала retkit_read_canvas — там uid блоков. Правка видна сразу, человек отменяет её Ctrl+Z.)`,
+          inputSchema: zodFromJsonSchema(tool.parameters),
+          annotations: { openWorldHint: false, destructiveHint: /remove|clear/.test(tool.name) },
+        },
+        async (args) => {
+          const data = await studioFetch("/api/agent/canvas-call", { method: "POST", body: { tool: tool.name, args } });
+          if (data?.ok === false && data?.error) throw new Error(data.error);
+          return { content: [{ type: "text", text: JSON.stringify(data?.result ?? data, null, 2).slice(0, 24000) }] };
+        }
+      );
+      continue;
+    }
     const name = `retkit_${tool.name}`;
     server.registerTool(
       name,
@@ -1200,6 +1218,24 @@ async function moengage(tool, args = {}) {
   return reply.result;
 }
 const asText = (value) => ({ content: [{ type: "text", text: typeof value === "string" ? value : JSON.stringify(value, null, 2) }] });
+
+server.registerTool(
+  "retkit_read_canvas",
+  {
+    title: "Конструктор: что на холсте",
+    description:
+      "Дерево блоков письма, которое человек собирает в конструкторе прямо сейчас (вкладка в его браузере): " +
+      "uid, блок, родитель, значения полей. Нужен перед любой правкой холста — инструменты retkit_*_canvas_block " +
+      "работают по uid отсюда.",
+    inputSchema: {},
+    annotations: { readOnlyHint: true, openWorldHint: false },
+  },
+  async () => {
+    const data = await studioFetch("/api/agent/canvas-call", { method: "POST", body: { tool: "read_canvas" } });
+    if (data?.ok === false) throw new Error(data.error || "Конструктор не ответил");
+    return asText(data.result);
+  }
+);
 
 server.registerTool(
   "moengage_status",

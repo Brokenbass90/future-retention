@@ -18,7 +18,7 @@ export function registerRelayRoutes(router, { sendJson, readRequestBody }) {
     const token = tokenOf(request);
     if (!token) { sendJson(response, 503, { ok: false, error: "Студия не узнала браузер" }); return; }
     const body = await readRequestBody(request).catch(() => ({}));
-    const command = await pollRelay(token, body?.status || null);
+    const command = await pollRelay(token, body?.status || null, { channel: body?.channel });
     sendJson(response, 200, { ok: true, command });
   });
 
@@ -28,7 +28,7 @@ export function registerRelayRoutes(router, { sendJson, readRequestBody }) {
       ok: body?.ok === true,
       result: body?.result ?? null,
       error: body?.ok === true ? undefined : String(body?.error || "Ошибка в RetKit"),
-    });
+    }, body?.channel);
     sendJson(response, 200, { ok: done });
   });
 

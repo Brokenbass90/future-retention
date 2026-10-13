@@ -4561,13 +4561,9 @@ function agentCatalogContext() {
   };
 }
 
-function ensureStudioChat() {
-  if (_studioChat) return _studioChat;
-  if (typeof StudioChat === "undefined") return null;
-  _studioChat = new StudioChat({
-    surface: "constructor",
-    title: "Оператор — конструктор",
-    buildContext: () => ({
+/** То, что видит агент о холсте: и оператор студии, и свой агент по ссылке. */
+function agentCanvasContext() {
+  return {
       // Дерево отдаём как есть: сервер не хранит несохранённый канвас,
       // а агент должен видеть именно текущее состояние сборки.
       canvas: state.canvas.map((e) => {
@@ -4590,7 +4586,54 @@ function ensureStudioChat() {
       // включая чужие бренды и черновые импорты, и пакет правок обрывался на
       // «блока нет в каталоге этого режима».
       studio: agentCatalogContext(),
-    }),
+  };
+}
+
+/**
+ * Свой агент (Claude, Codex по личной ссылке) работает с этим холстом через
+ * студию: вкладка спрашивает сервер «есть работа?» (src/relay.js, канал
+ * constructor), отдаёт холст и применяет правки так же, как правки оператора.
+ */
+async function agentRelayLoop() {
+  const post = (url, body) => fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  for (;;) {
+    try {
+      const response = await post("/api/relay/poll", { channel: "constructor", status: { mailName: $("mailName")?.value?.trim() || "", blocks: state.canvas.length } });
+      if (!response.ok) { await new Promise((r) => setTimeout(r, 10000)); continue; }
+      const command = (await response.json())?.command;
+      if (!command) continue;
+      let reply;
+      try {
+        if (command.tool === "canvas_read") {
+          const context = agentCanvasContext();
+          delete context.html;
+          reply = { ok: true, result: context };
+        } else if (command.tool === "canvas_apply") {
+          const outcome = applyAgentCanvasOps(command.args?.ops);
+          const live = outcome.applied ? await waitForLivePreview(15000) : null;
+          if (outcome.applied) flashCanvasHint?.("Ваш агент поправил письмо — отменить: Ctrl+Z", 4000);
+          reply = { ok: true, result: { ...outcome, preview: live ? { ok: live.ok !== false, error: live.error } : null } };
+        } else {
+          reply = { ok: false, error: `Неизвестная команда холста: ${command.tool}` };
+        }
+      } catch (error) {
+        reply = { ok: false, error: String(error?.message || error) };
+      }
+      await post("/api/relay/result", { channel: "constructor", id: command.id, ...reply });
+    } catch {
+      await new Promise((r) => setTimeout(r, 5000));
+    }
+  }
+}
+setTimeout(agentRelayLoop, 1500);
+
+function ensureStudioChat() {
+  if (_studioChat) return _studioChat;
+  if (typeof StudioChat === "undefined") return null;
+  _studioChat = new StudioChat({
+    surface: "constructor",
+    title: "Оператор — конструктор",
+    buildContext: () => agentCanvasContext(),
     // Подсветка кнопки живёт там же, где открытие окна: иначе окно, открытое
     // правой кнопкой по блоку, оставляло кнопку погашенной.
     onOpenChange: (open) => $("chatFab")?.classList.toggle("active", open),

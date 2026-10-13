@@ -66,7 +66,11 @@ function resolveExecutable(chromium) {
     try { return chromium.executablePath(); } catch { return ""; }
   })();
   if (bundled && existsSync(bundled)) return bundled;
-  const system = SYSTEM_CHROME_CANDIDATES.find((candidate) => existsSync(candidate));
+  // Heroku: Chrome ставит buildpack heroku-buildpack-google-chrome и
+  // сообщает путь переменными окружения.
+  const fromEnv = [process.env.CHROME_PATH, process.env.GOOGLE_CHROME_BIN, process.env.GOOGLE_CHROME_SHIM,
+    "/app/.apt/usr/bin/google-chrome", "/app/.apt/usr/bin/google-chrome-stable"].filter(Boolean);
+  const system = [...fromEnv, ...SYSTEM_CHROME_CANDIDATES].find((candidate) => existsSync(candidate));
   if (system) return system;
   throw new ShotUnavailableError(
     "Снимок недоступен: на этой машине не найден браузер. " +

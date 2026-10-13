@@ -146,6 +146,7 @@ import { registerWorkspaceRoutes } from "./src/routes/workspace-routes.js";
 import { registerMcpRoutes } from "./src/routes/mcp-routes.js";
 import { isMcpHttpRequest, handleMcpHttp } from "./src/routes/mcp-http.js";
 import { registerRelayRoutes } from "./src/routes/relay-routes.js";
+import { canvasSummaryFrom } from "./src/canvas-summary.js";
 import { registerShotRoutes } from "./src/routes/shot-routes.js";
 import { registerSourceRoutes } from "./src/routes/source-routes.js";
 import { registerHistoryRoutes } from "./src/routes/history-routes.js";
@@ -17189,28 +17190,7 @@ async function handleStudioAgent(response, body, actor = null) {
     ctx.canvas = canvas.slice(0, 400);
     ctx.constructorCatalog = normalizeConstructorCatalog(body?.studio);
     ctx.constructorMailName = cleanText(body?.mailName || "").slice(0, 80);
-    ctx.canvasSummary = canvas.map((entry, index) => ({
-      index,
-      uid: entry?.uid ?? null,
-      blockId: entry?.blockId || entry?.id || null,
-      source: entry?.blockSource || entry?.source || null,
-      parentUid: entry?.parentUid ?? null,
-      slotId: entry?.slotId ?? null,
-      slots: entry?.slots && typeof entry.slots === "object"
-        ? Object.fromEntries(Object.entries(entry.slots).slice(0, 12)
-          .map(([k, v]) => [k, String(v ?? "").slice(0, 120)]))
-        : {},
-      slotSchema: Array.isArray(entry?.slotSchema)
-        ? entry.slotSchema.slice(0, 40).map((slot) => ({
-          id: String(slot?.id || "").slice(0, 128),
-          kind: String(slot?.kind || "text").slice(0, 32),
-          label: String(slot?.label || slot?.id || "").slice(0, 160),
-          ...(Array.isArray(slot?.options)
-            ? { options: slot.options.slice(0, 50).map((value) => String(value).slice(0, 160)) }
-            : {}),
-        })).filter((slot) => slot.id)
-        : undefined,
-    }));
+    ctx.canvasSummary = canvasSummaryFrom(canvas);
   }
 
   response.writeHead(200, {

@@ -92,11 +92,14 @@ const slotScriptAt = constructorHtml.indexOf("/canvas-slot-values.js");
 const constructorScriptAt = constructorHtml.indexOf("/constructor.js");
 assert.ok(slotScriptAt >= 0 && slotScriptAt < constructorScriptAt, "browser loads the shared guard before constructor.js");
 
+// Дерево холста собирается в одном месте — и для оператора, и для своего агента.
 const serverSource = readFileSync(new URL("../server.js", import.meta.url), "utf8");
+assert.match(serverSource, /ctx\.canvasSummary\s*=\s*canvasSummaryFrom\(canvas\)/, "server builds the canvas tree with the shared helper");
+const summarySource = readFileSync(new URL("../src/canvas-summary.js", import.meta.url), "utf8");
 assert.match(
-  serverSource,
-  /ctx\.canvasSummary\s*=\s*canvas\.map[\s\S]*?slotSchema:\s*Array\.isArray\(entry\?\.slotSchema\)/,
-  "server preserves the sanitized slot schema used by the AI tool guard",
+  summarySource,
+  /canvas\)\s*\?\s*canvas\s*:\s*\[\]\)\.slice\(0, 400\)\.map[\s\S]*?slotSchema:\s*Array\.isArray\(entry\?\.slotSchema\)/,
+  "shared canvas tree preserves the sanitized slot schema used by the AI tool guard",
 );
 
 console.log("✓ canvas slot kind validation and AI multiline regression tests passed");

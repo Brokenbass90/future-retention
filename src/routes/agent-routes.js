@@ -21,6 +21,9 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { TOOL_DEFINITIONS, TOOL_HANDLERS } from "../ai-tools.js";
+import { callRelay } from "../relay.js";
+import { canvasSummaryFrom } from "../canvas-summary.js";
+import { normalizeConstructorCatalog } from "../constructor-catalog.js";
 
 /** Инструменты, которым нужен живой браузер человека, а не имя письма. */
 // Канвас конструктора существует только в браузере: на диске его нет, и
@@ -60,6 +63,61 @@ export function registerAgentRoutes(router, deps) {
         browserOnly: BROWSER_ONLY.has(tool.name),
       })),
     });
+  });
+
+  /**
+   * Холст конструктора для своего агента. Холст живёт во вкладке человека,
+   * поэтому: забираем его оттуда через связь (src/relay.js, канал
+   * constructor), прогоняем тем же инструментом, что и оператор студии, и
+   * отправляем получившиеся правки обратно во вкладку — она применяет их
+   * так же, как правки оператора, с отменой по Ctrl+Z.
+   */
+  router.post("/api/agent/canvas-call", async (request, response) => {
+    try {
+      const body = await readRequestBody(request);
+      const name = String(body?.tool || "").trim();
+      const token = request.retkitActor?.token || "";
+      if (name !== "read_canvas" && !BROWSER_ONLY.has(name)) {
+        sendJson(response, 400, { ok: false, error: `"${name}" — не инструмент холста.` });
+        return;
+      }
+      const read = await callRelay(token, "canvas_read", {}, { channel: "constructor", timeoutMs: 20_000 });
+      if (!read.ok) { sendJson(response, 200, read); return; }
+      const canvas = Array.isArray(read.result?.canvas) ? read.result.canvas : [];
+      const summary = canvasSummaryFrom(canvas);
+      if (name === "read_canvas") {
+        sendJson(response, 200, { ok: true, result: { mailName: read.result?.mailName || "", blocks: summary } });
+        return;
+      }
+      const ctx = {
+        surface: "constructor",
+        repoRoot,
+        readOnly: Boolean(isReadOnly()),
+        actor: request.retkitActor || null,
+        apiKey: apiKey(),
+        canvas,
+        canvasSummary: summary,
+        constructorCatalog: normalizeConstructorCatalog(read.result?.studio),
+        constructorMailName: String(read.result?.mailName || ""),
+        pendingLocaleUpdates: [],
+        pendingLocaleDeletes: [],
+        pendingImages: [],
+        html: "",
+      };
+      const result = await TOOL_HANDLERS[name](body?.args && typeof body.args === "object" ? body.args : {}, ctx);
+      if (result?.error || !Array.isArray(ctx.canvasOps) || !ctx.canvasOps.length) {
+        sendJson(response, 200, { ok: !result?.error, result });
+        return;
+      }
+      const applied = await callRelay(token, "canvas_apply", { ops: ctx.canvasOps }, { channel: "constructor", timeoutMs: 30_000 });
+      sendJson(response, 200, {
+        ok: applied.ok && !(applied.result?.problems || []).length,
+        result: { tool: result, onCanvas: applied.ok ? applied.result : null },
+        ...(applied.ok ? {} : { error: applied.error }),
+      });
+    } catch (error) {
+      sendJson(response, 500, { ok: false, error: error.message });
+    }
   });
 
   router.post("/api/agent/call", async (request, response) => {

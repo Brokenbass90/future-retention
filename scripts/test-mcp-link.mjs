@@ -69,6 +69,34 @@ try {
   const online = await client.callTool({ name: "moengage_status", arguments: {} });
   check("команда агента дошла до RetKit и вернулась", /"echo": "status"/.test(online.content?.[0]?.text || ""), JSON.stringify(online));
   check("окно связи получило именно эту команду", (await fakeRelay) === "status");
+  // Холст конструктора: вкладка (имитация) опрашивает канал constructor.
+  const canvas = [
+    { uid: "o1", blockId: "sys-outer", parentUid: null, slotId: "root", slots: {} },
+    { uid: "s1", blockId: "sys-section", parentUid: "o1", slotId: "sections", slots: {} },
+    { uid: "b1", blockId: "sys-button", parentUid: "s1", slotId: "content", slots: { label: "Перейти" } },
+  ];
+  const seen = [];
+  let stopTab = false;
+  const fakeTab = (async () => {
+    while (!stopTab) { try {
+      const p = await (await fetch(`${base}/api/relay/poll`, { method: "POST", headers: { ...AUTH, cookie, "content-type": "application/json" },
+        body: JSON.stringify({ channel: "constructor", status: {} }) })).json();
+      if (!p.command) continue;
+      seen.push(p.command.tool);
+      const result = p.command.tool === "canvas_read" ? { canvas, mailName: "test" } : { applied: true, problems: [], ops: p.command.args.ops };
+      await fetch(`${base}/api/relay/result`, { method: "POST", headers: { ...AUTH, cookie, "content-type": "application/json" },
+        body: JSON.stringify({ channel: "constructor", id: p.command.id, ok: true, result }) });
+    } catch { return; } }
+  })();
+  await new Promise((r) => setTimeout(r, 300));
+  const toolsNow = (await client.listTools()).tools.map((t) => t.name);
+  check("инструменты холста есть у агента", toolsNow.includes("retkit_read_canvas") && toolsNow.includes("retkit_remove_canvas_block"), toolsNow.join(","));
+  const readCanvas = await client.callTool({ name: "retkit_read_canvas", arguments: {} });
+  check("агент видит холст", /sys-button/.test(readCanvas.content?.[0]?.text || ""), JSON.stringify(readCanvas).slice(0, 300));
+  const removed = await client.callTool({ name: "retkit_remove_canvas_block", arguments: { uid: "b1" } });
+  check("удаление кнопки дошло до вкладки", !removed.isError && seen.includes("canvas_apply") && /remove/.test(removed.content?.[0]?.text || ""), JSON.stringify(removed).slice(0, 400));
+  stopTab = true;
+  fakeTab.catch(() => {});
   await client.close();
   const again = await (await fetch(`${base}/api/mcp/link`, { headers: { ...AUTH, cookie } })).json();
   check("студия видит, что агент заходил", Boolean(again.lastSeenAt) && again.lastClient.startsWith("test-mcp-link"), JSON.stringify(again));
