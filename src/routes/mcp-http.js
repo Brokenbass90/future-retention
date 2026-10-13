@@ -65,6 +65,32 @@ function clientNameOf(body) {
 }
 
 /**
+ * Как студии дозвониться до самой себя. На Heroku сервер может слушать только
+ * IPv6 — тогда 127.0.0.1 молчит, и все инструменты агента падали с
+ * «fetch failed». Пробуем адреса по очереди и запоминаем тот, что ответил.
+ */
+let _selfUrl = "";
+async function selfUrl(request, port) {
+  if (_selfUrl) return _selfUrl;
+  const local = String(request.socket?.localAddress || "").replace(/^::ffff:/, "");
+  const localPort = Number(request.socket?.localPort) || port;
+  const candidates = [
+    `http://127.0.0.1:${port}`,
+    `http://[::1]:${port}`,
+    `http://localhost:${port}`,
+    local ? `http://${local.includes(":") ? `[${local}]` : local}:${localPort}` : "",
+  ].filter(Boolean);
+  for (const candidate of candidates) {
+    try {
+      const response = await fetch(`${candidate}/healthz`, { signal: AbortSignal.timeout(2500) });
+      if (response.ok) { _selfUrl = candidate; return candidate; }
+    } catch { /* следующий адрес */ }
+  }
+  console.error("[mcp-http] студия не дозвонилась до себя ни по одному адресу:", candidates.join(", "));
+  return candidates[0];
+}
+
+/**
  * @param {import("node:http").IncomingMessage} request
  * @param {import("node:http").ServerResponse} response
  * @param {{ port:number, env?:NodeJS.ProcessEnv }} deps
@@ -109,7 +135,7 @@ export async function handleMcpHttp(request, response, { port, env = process.env
   let transport = null;
   try {
     server = await createRetkitMcpServer({
-      studioUrl: `http://127.0.0.1:${port}`,
+      studioUrl: await selfUrl(request, port),
       user: String(env.APP_AUTH_USER || ""),
       password: String(env.APP_AUTH_PASSWORD || ""),
       token,

@@ -99,7 +99,7 @@ async function studioFetch(pathname, { method = "GET", body } = {}) {
     });
   } catch (error) {
     throw new Error(
-      `Студия не отвечает по адресу ${STUDIO_URL} (${error.message}). ` +
+      `Студия не отвечает по адресу ${STUDIO_URL} (${error.message}${error.cause?.code ? ` ${error.cause.code}` : ""}). ` +
       `Запустите её командой npm start в папке проекта или задайте другой STUDIO_URL.`
     );
   }
@@ -141,7 +141,7 @@ async function studioImage(pathname, { method = "GET", body } = {}) {
     });
   } catch (error) {
     throw new Error(
-      `Студия не отвечает по адресу ${STUDIO_URL} (${error.message}). ` +
+      `Студия не отвечает по адресу ${STUDIO_URL} (${error.message}${error.cause?.code ? ` ${error.cause.code}` : ""}). ` +
       `Запустите её командой npm start в папке проекта.`
     );
   }
