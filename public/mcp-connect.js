@@ -52,14 +52,17 @@
    */
   function agentPrompt(url) {
     return [
-      "Подключи студию писем RetKit как MCP-сервер (Streamable HTTP, без входа):",
+      "Подключи студию писем RetKit (MCP-сервер, Streamable HTTP, без входа). Адрес:",
       url,
       "",
-      "Если ты Codex — выполни:  codex mcp add retkit --url " + url,
-      "Если ты Claude Code — выполни:  claude mcp add --transport http --scope user retkit " + url,
+      "• Ты Codex — выполни команду:  codex mcp add retkit --url " + url,
+      "• Ты Claude Code — выполни команду:  claude mcp add --transport http --scope user retkit " + url,
+      "• Ты Claude в приложении или на claude.ai (сам добавить не можешь) — скажи мне коротко: " +
+        "Настройки → Коннекторы → Добавить → «Добавить пользовательский коннектор», Имя: RetKit, URL: адрес выше → Продолжить; " +
+        "потом новый чат → + → Коннекторы → RetKit.",
       "",
-      "Потом скажи мне перезапустить тебя (новая сессия), проверь, что появились инструменты retkit_*, " +
-      "и вызови retkit_studio_guide. Ссылка личная — никуда её не публикуй.",
+      "После подключения нужна новая сессия. Проверь, что есть инструменты retkit_* и moengage_*, " +
+        "вызови retkit_studio_guide и moengage_status. Ссылка личная — никуда её не публикуй.",
     ].join("\n");
   }
 
@@ -75,18 +78,12 @@
     const localNote = link.reachableFromCloud ? "" :
       `<p class="mcp-hint mcp-warn">⚠ Это локальная студия — Claude до неё не достанет. Откройте студию на Heroku.</p>`;
     return `
-      <ol class="mcp-simple">
-        <li><button type="button" class="mcp-primary" id="mcpAddToClaude"
-          data-url="${esc(link.url)}">Подключить Claude</button></li>
-        <li>В окне Claude: <b>Имя</b> — RetKit, <b>URL</b> — вставьте <b>⌘V</b> → <b>Продолжить</b>.</li>
-        <li>В новом чате Claude: <b>+</b> → Коннекторы → RetKit.</li>
-      </ol>
+      <p><button type="button" class="mcp-primary" data-copy="mcpAgentPrompt">Скопировать для агента</button></p>
+      <p class="mcp-hint">Вставьте в чат своему Claude или Codex — он подключится сам или скажет, куда нажать.</p>
+      <pre class="mcp-code" id="mcpAgentPrompt" hidden>${esc(agentPrompt(link.url))}</pre>
       ${seenLine}
       ${localNote}
-      <p><button type="button" class="mcp-copy" data-copy="mcpAgentPrompt">Скопировать инструкцию для Codex / Claude Code</button></p>
-      <p class="mcp-hint">Вставьте её своему агенту в чат — он подключится сам.</p>
-      <pre class="mcp-code" id="mcpAgentPrompt" hidden>${esc(agentPrompt(link.url))}</pre>
-      <details class="mcp-manual"><summary>Ссылка (для Codex)</summary>
+      <details class="mcp-manual"><summary>Только ссылка</summary>
         <pre class="mcp-code" id="mcpLinkUrl">${esc(link.url)}</pre>
         <button type="button" class="mcp-copy" data-copy="mcpLinkUrl">Скопировать</button>
         <p class="mcp-hint">Codex: Settings → MCP servers → Add server → Streamable HTTP → вставить.

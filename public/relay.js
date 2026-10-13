@@ -17,11 +17,17 @@
 
   function agentPrompt(url) {
     return [
-      "Подключи студию писем RetKit как MCP-сервер (Streamable HTTP, без входа):", url, "",
-      "Если ты Codex — выполни:  codex mcp add retkit --url " + url,
-      "Если ты Claude Code — выполни:  claude mcp add --transport http --scope user retkit " + url, "",
-      "Потом скажи мне перезапустить тебя (новая сессия), проверь, что появились инструменты retkit_* и moengage_*, " +
-      "и вызови moengage_status. Ссылка личная — никуда её не публикуй.",
+      "Подключи студию писем RetKit (MCP-сервер, Streamable HTTP, без входа). Адрес:",
+      url,
+      "",
+      "• Ты Codex — выполни команду:  codex mcp add retkit --url " + url,
+      "• Ты Claude Code — выполни команду:  claude mcp add --transport http --scope user retkit " + url,
+      "• Ты Claude в приложении или на claude.ai (сам добавить не можешь) — скажи мне коротко: " +
+        "Настройки → Коннекторы → Добавить → «Добавить пользовательский коннектор», Имя: RetKit, URL: адрес выше → Продолжить; " +
+        "потом новый чат → + → Коннекторы → RetKit.",
+      "",
+      "После подключения нужна новая сессия. Проверь, что есть инструменты retkit_* и moengage_*, " +
+        "вызови retkit_studio_guide и moengage_status. Ссылка личная — никуда её не публикуй.",
     ].join("\n");
   }
 
@@ -32,13 +38,7 @@
   }
 
   fetch("/api/mcp/link").then((r) => r.json()).then((data) => { if (data?.ok) link = data; }).catch(() => {});
-  $("copyPrompt").addEventListener("click", (e) => link && copy(agentPrompt(link.url), e.currentTarget, "Скопировать инструкцию для Codex / Claude Code"));
-  $("addClaude").addEventListener("click", async (e) => {
-    if (!link) return;
-    try { await navigator.clipboard.writeText(link.url); } catch {}
-    window.open("https://claude.ai/customize/connectors?modal=add-custom-connector&mcpName=RetKit&mcpServerUrl=" + encodeURIComponent(link.url), "_blank", "noopener");
-    e.currentTarget.textContent = "Ссылка скопирована — вставьте её в Claude";
-  });
+  $("copyPrompt").addEventListener("click", (e) => link && copy(agentPrompt(link.url), e.currentTarget, "Скопировать для агента"));
 
   window.addEventListener("message", (event) => {
     if (!RETKIT_ORIGIN.test(event.origin)) return;
