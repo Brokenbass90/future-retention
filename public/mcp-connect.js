@@ -21,11 +21,81 @@
 
   async function loadSetup() {
     if (_setup) return _setup;
-    const response = await fetch("/api/mcp/setup");
+    const [response, linkResponse] = await Promise.all([
+      fetch("/api/mcp/setup"),
+      fetch("/api/mcp/link").catch(() => null),
+    ]);
     const data = await response.json();
     if (!response.ok || !data?.ok) throw new Error(data?.error || `HTTP ${response.status}`);
+    // Ссылка — главный способ; если её не отдали, мастер всё равно покажет
+    // прежний путь, а не сломается целиком.
+    const link = linkResponse ? await linkResponse.json().catch(() => null) : null;
+    data.link = link?.ok ? link : null;
     _setup = data;
     return _setup;
+  }
+
+  /** Был ли агент по ссылке за последние сутки. */
+  function linkSeen(setup) {
+    const at = Number(setup?.link?.lastSeenAt || 0);
+    return at && Date.now() - at < 24 * 60 * 60 * 1000 ? at : 0;
+  }
+
+  /**
+   * Подключение по ссылке: без терминала, без установки, без платы, на Mac и
+   * Windows одинаково. Студия сама отдаёт свои инструменты по HTTPS, человек
+   * вставляет ссылку в свой Claude или Codex.
+   */
+  function linkHtml(setup) {
+    const link = setup.link;
+    if (!link?.url) {
+      return `<p class="mcp-hint mcp-warn">Ссылку получить не удалось — обновите страницу.</p>`;
+    }
+    const seen = linkSeen(setup);
+    const seenLine = seen
+      ? `<p class="mcp-hint mcp-done">✓ Ваш агент заходил ${esc(new Date(seen).toLocaleString())}${link.lastClient ? ` (${esc(link.lastClient)})` : ""}.</p>`
+      : "";
+    const localNote = link.reachableFromCloud ? "" :
+      `<p class="mcp-hint mcp-warn">⚠ Студия открыта по локальному адресу: такую ссылку увидит Codex
+       на этом компьютере, но не Claude — он подключается из своего облака. Для Claude
+       откройте студию на Heroku и возьмите ссылку там.</p>`;
+    return `
+      <div class="mcp-step">
+        <span class="mcp-step-no">1</span>
+        <div>
+          <b>Скопируйте свою ссылку</b>
+          <pre class="mcp-code" id="mcpLinkUrl">${esc(link.url)}</pre>
+          <button type="button" class="mcp-primary" data-copy="mcpLinkUrl">Скопировать ссылку</button>
+          <p class="mcp-hint">Ссылка личная: агент по ней работает в <b>ваших</b> черновиках и в этом же
+          разговоре с оператором. Никому её не пересылайте — её владелец действует от вашего имени.</p>
+          ${localNote}
+          ${seenLine}
+        </div>
+      </div>
+
+      <div class="mcp-step">
+        <span class="mcp-step-no">2</span>
+        <div>
+          <b>Вставьте её в свой Claude или Codex</b>
+          <p class="mcp-hint"><b>Claude</b> (сайт claude.ai или приложение, любой тариф, включая бесплатный):
+          Настройки (Customize) → <b>Коннекторы</b> (Connectors) → <b>+</b> → <b>Добавить свой коннектор</b> (Add custom connector) → имя «RetKit», вставить ссылку →
+          вход: <b>«Без входа»</b> (No sign in) → Добавить. Потом в чате: <b>+</b> → Коннекторы → включить RetKit.</p>
+          <p class="mcp-hint"><b>Codex</b> (приложение): Settings → <b>MCP servers</b> → <b>Add server</b> →
+          тип <b>Streamable HTTP</b>, вставить ссылку → Save → Restart.</p>
+          <p class="mcp-hint">В организации Claude Team / Enterprise коннектор добавляет администратор.
+          На бесплатном Claude можно держать один свой коннектор.</p>
+        </div>
+      </div>
+
+      <div class="mcp-step mcp-step-where">
+        <span class="mcp-step-no">3</span>
+        <div>
+          <b>Говорите с ним в его окне</b>
+          <p class="mcp-hint">Например: «покажи каталог блоков RetKit» или «собери системное письмо про
+          отсутствие платёжки». Он работает инструментами студии, а результат вы видите здесь.
+          Здесь же, в этом окне, отвечает оператор студии — и он видит то же, что сделал ваш агент.</p>
+        </div>
+      </div>`;
   }
 
   function stepsHtml(setup) {
@@ -85,6 +155,9 @@
         : `<p class="mcp-hint">Поставится сам вместе с подключением — отдельно ставить не нужно.</p>`;
 
     return `
+      ${linkHtml(setup)}
+      <details class="mcp-manual mcp-advanced">
+      <summary>Для разработчиков: локально, через Claude Code или конфиг</summary>
       <div class="mcp-step">
         <span class="mcp-step-no">1</span>
         <div>
@@ -135,6 +208,7 @@
           <p class="mcp-hint">Перезапустите Claude после подключения, иначе он не увидит студию.</p>
         </div>
       </div>
+      </details>
 
       <div class="mcp-result" id="mcpResult" hidden></div>`;
   }
@@ -208,8 +282,9 @@
         <div class="mcp-connect">
           <div class="mcp-connect-head">
             <b>Подключите своего агента</b>
-            <p class="mcp-hint">Студия умеет работать с вашим Claude: он видит каталог блоков,
-            собирает письмо и сохраняет его сюда. Своей модели у студии нет — и платить за неё не нужно.</p>
+            <p class="mcp-hint">Ваш Claude или Codex управляет студией: видит каталог блоков,
+            собирает и правит письма, сохраняет их сюда. Ничего устанавливать не нужно —
+            только ссылка. Платить студии тоже не нужно: модель ваша.</p>
           </div>
           ${stepsHtml(setup)}
         </div>`;
@@ -233,11 +308,20 @@
     try {
       const setup = await loadSetup();
       const link = setup.connection || {};
+      if (linkSeen(setup)) {
+        return {
+          state: "on",
+          label: "свой агент подключён",
+          title: `Ваш агент заходил по ссылке ${new Date(linkSeen(setup)).toLocaleString()}` +
+            (setup.link?.lastClient ? ` (${setup.link.lastClient})` : "") +
+            ". Разговаривать с ним — в его окне; здесь отвечает оператор студии.",
+        };
+      }
       if (!setup.local) {
         return {
-          state: "remote",
-          label: "агент: не отсюда",
-          title: "Студия открыта не с этого компьютера — подключение придётся прописать вручную.",
+          state: "off",
+          label: "свой агент не подключён",
+          title: "Нажмите, чтобы получить личную ссылку и вставить её в свой Claude или Codex — без установки и терминала.",
         };
       }
       if (link.connected && link.commandMissing) {

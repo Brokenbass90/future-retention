@@ -26,6 +26,7 @@ import {
   ensureAgentToken,
   describeConnection,
 } from "../mcp-setup.js";
+import { makeMcpKey, publicOrigin, mcpSeen } from "../mcp-link.js";
 
 /**
  * @param {object} deps
@@ -78,6 +79,30 @@ export function registerMcpRoutes(router, deps) {
       // Состояние спрашиваем у диска, а не помним в интерфейсе: иначе второе
       // окно студии снова предлагает подключиться к тому, что уже стоит.
       connection: local ? describeConnection({ repoRoot, serverPath }) : null,
+    });
+  });
+
+  /**
+   * Личная ссылка для своего Claude или Codex — главный способ подключения.
+   * Ничего не ставится: человек копирует ссылку и вставляет её в настройки
+   * своего клиента. Ссылка привязана к этому браузеру — агент работает в
+   * черновиках этого человека и в его же разговоре с оператором.
+   */
+  router.get("/api/mcp/link", (request, response) => {
+    const token = request.retkitActor?.token;
+    if (!token) {
+      sendJson(response, 503, { ok: false, error: "Студия не смогла узнать этот браузер — обновите страницу." });
+      return;
+    }
+    const seen = mcpSeen(token);
+    sendJson(response, 200, {
+      ok: true,
+      url: `${publicOrigin(request)}/mcp/${makeMcpKey(token)}`,
+      // Облако Claude не достучится до студии на 127.0.0.1 — ссылка оттуда
+      // годится только для Codex и Claude Code на этом же компьютере.
+      reachableFromCloud: !/^http:\/\/(localhost|127\.0\.0\.1|\[::1\])/i.test(publicOrigin(request)),
+      lastSeenAt: seen?.at || 0,
+      lastClient: seen?.client || "",
     });
   });
 

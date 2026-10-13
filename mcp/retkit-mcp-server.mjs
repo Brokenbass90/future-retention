@@ -26,16 +26,51 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import url from "node:url";
 
-const STUDIO_URL = String(process.env.STUDIO_URL || "http://127.0.0.1:3000").replace(/\/+$/, "");
-const STUDIO_USER = process.env.STUDIO_USER || "";
+/**
+ * Список инструментов студии, общий для всех подключений к одной студии.
+ *
+ * По ссылке (HTTP) сервер собирается заново на каждый запрос — иначе пришлось
+ * бы держать сессии, а Heroku их теряет при каждом перезапуске. Спрашивать
+ * студию о её инструментах на каждый вызов незачем: они меняются только с
+ * новой версией кода.
+ */
+const _toolListCache = new Map();
+const TOOL_LIST_TTL_MS = 60_000;
+async function cachedToolList(key, load) {
+  const hit = _toolListCache.get(key);
+  if (hit && Date.now() - hit.at < TOOL_LIST_TTL_MS) return hit.value;
+  const value = await load();
+  _toolListCache.set(key, { at: Date.now(), value });
+  return value;
+}
+
+/**
+ * Собрать MCP-сервер студии.
+ *
+ * Один и тот же набор работает двумя способами: локально через stdio (как
+ * раньше, для Claude Code) и по ссылке — студия сама отдаёт его по HTTPS на
+ * /mcp/<ключ>, и человек добавляет эту ссылку в Claude или Codex кнопками,
+ * без терминала и без установки чего-либо.
+ *
+ * @param {object} [options]
+ * @param {string} [options.studioUrl] куда ходить за студией
+ * @param {string} [options.user]      Basic Auth студии
+ * @param {string} [options.password]
+ * @param {string} [options.token]     метка человека (32 hex): работа агента
+ *   идёт в его черновики и в его разговор с оператором
+ * @returns {Promise<McpServer>}
+ */
+export async function createRetkitMcpServer(options = {}) {
+const STUDIO_URL = String(options.studioUrl || process.env.STUDIO_URL || "http://127.0.0.1:3000").replace(/\/+$/, "");
+const STUDIO_USER = options.user ?? (process.env.STUDIO_USER || "");
 /**
  * Метка агента. Студия по ней понимает, что пишет не человек, а чей-то Клод:
  * от этого зависят замки на письма («не трогай то, что человек правит прямо
  * сейчас») и то, в чей черновик уходит работа. Без метки агент выглядел бы
  * новым безымянным человеком на каждый запрос.
  */
-const STUDIO_TOKEN = (process.env.RETKIT_TOKEN || process.env.STUDIO_TOKEN || "").trim();
-const STUDIO_PASSWORD = process.env.STUDIO_PASSWORD || "";
+const STUDIO_TOKEN = String(options.token ?? (process.env.RETKIT_TOKEN || process.env.STUDIO_TOKEN || "")).trim();
+const STUDIO_PASSWORD = options.password ?? (process.env.STUDIO_PASSWORD || "");
 
 /* ─── Обращение к студии ──────────────────────────────────────────────────── */
 
@@ -1114,7 +1149,7 @@ const ALREADY_WRAPPED = new Set([
 ]);
 
 try {
-  const listed = await studioFetch("/api/agent/tools");
+  const listed = await cachedToolList(STUDIO_URL, () => studioFetch("/api/agent/tools"));
   for (const tool of listed?.tools || []) {
     if (tool.browserOnly || ALREADY_WRAPPED.has(tool.name)) continue;
     const name = `retkit_${tool.name}`;
@@ -1150,4 +1185,16 @@ try {
   console.error(`[retkit] полный набор студии недоступен (${error.message}) — работают только встроенные инструменты.`);
 }
 
-await server.connect(new StdioServerTransport());
+return server;
+}
+
+/* Запущен как программа (Claude Code, Claude Desktop) — работаем через stdio.
+ * Импортирован студией — только отдаём фабрику. */
+const launchedDirectly = (() => {
+  try { return import.meta.url === url.pathToFileURL(path.resolve(process.argv[1] || "")).href; }
+  catch { return false; }
+})();
+if (launchedDirectly) {
+  const server = await createRetkitMcpServer();
+  await server.connect(new StdioServerTransport());
+}

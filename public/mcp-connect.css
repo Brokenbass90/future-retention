@@ -177,3 +177,7 @@
 /* Шаг про то, где вообще разговаривать: его путают чаще всего. */
 .mcp-step-where { border-color: rgba(37, 99, 235, .45); }
 .mcp-step-where b { color: var(--mcp-text); }
+
+/* Прежний путь (конфиг, терминал) — свёрнут под ссылкой. */
+.mcp-advanced { margin-top: 14px; }
+.mcp-advanced > summary { font-weight: 600; }

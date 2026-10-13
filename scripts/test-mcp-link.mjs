@@ -1,0 +1,59 @@
+// Студия по ссылке: личный ключ, подпись, и живой MCP через Streamable HTTP —
+// так, как к ней приходит Claude («свой коннектор») или Codex («Add server»).
+import { spawn } from "node:child_process";
+import path from "node:path";
+import url from "node:url";
+import { makeMcpKey, verifyMcpKey, mcpKeyFromUrl, publicOrigin, mcpLinkSecret } from "../src/mcp-link.js";
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+
+const root = path.join(path.dirname(url.fileURLToPath(import.meta.url)), "..");
+let failed = 0;
+const check = (name, ok, detail = "") => { console.log(`${ok ? "PASS" : "FAIL"} ${name}${ok ? "" : ` ${detail}`}`); if (!ok) failed += 1; };
+
+const token = "0123456789abcdef0123456789abcdef";
+const key = makeMcpKey(token, "s1");
+check("ключ — метка + подпись", /^[0-9a-f]{48}$/.test(key) && key.startsWith(token));
+check("ключ проверяется", verifyMcpKey(key, "s1") === token);
+check("чужой секрет не подходит", verifyMcpKey(key, "s2") === null);
+check("подделка не подходит", verifyMcpKey(token + "0".repeat(16), "s1") === null);
+check("путь /mcp/<ключ>", mcpKeyFromUrl(`/mcp/${key}`) === key && mcpKeyFromUrl(`/mcp/${key}/`) === key);
+check("чужой путь не ключ", mcpKeyFromUrl(`/mcp/${key}/x`) === null && mcpKeyFromUrl("/mcp/abc") === null);
+check("секрет переживает перезапуск", mcpLinkSecret({ APP_AUTH_USER: "u", APP_AUTH_PASSWORD: "p" }) === mcpLinkSecret({ APP_AUTH_USER: "u", APP_AUTH_PASSWORD: "p" }));
+check("за прокси Heroku — https", publicOrigin({ headers: { host: "x.herokuapp.com", "x-forwarded-proto": "https" } }) === "https://x.herokuapp.com");
+
+const port = 3900 + Math.floor(Math.random() * 90);
+const env = { ...process.env, PORT: String(port), APP_AUTH_USER: "u", APP_AUTH_PASSWORD: "p" };
+const child = spawn(process.execPath, ["server.js"], { cwd: root, env, stdio: ["ignore", "pipe", "pipe"] });
+const base = `http://127.0.0.1:${port}`;
+const AUTH = { authorization: "Basic " + Buffer.from("u:p").toString("base64") };
+try {
+  let up = false;
+  for (let i = 0; i < 60 && !up; i += 1) {
+    await new Promise((r) => setTimeout(r, 500));
+    up = await fetch(`${base}/healthz`).then((r) => r.ok).catch(() => false);
+  }
+  check("студия поднялась", up);
+  const r = await fetch(`${base}/api/mcp/link`, { headers: AUTH });
+  const link = await r.json();
+  check("студия выдаёт ссылку", link.ok && link.url.startsWith(`${base}/mcp/`), JSON.stringify(link));
+  const forged = await fetch(link.url.slice(0, -1) + (link.url.endsWith("0") ? "1" : "0"), { method: "POST", headers: { "content-type": "application/json" }, body: "{}" });
+  check("поддельная ссылка не пускает", forged.status === 404);
+  check("OAuth не требуется", (await fetch(`${base}/.well-known/oauth-protected-resource`)).status === 404);
+  const client = new Client({ name: "test-mcp-link", version: "1" });
+  await client.connect(new StreamableHTTPClientTransport(new URL(link.url)));
+  const { tools } = await client.listTools();
+  check("по ссылке весь набор студии", tools.length >= 19 && tools.some((t) => t.name === "retkit_list_blocks"), String(tools.length));
+  const res = await client.callTool({ name: "retkit_list_blocks", arguments: { kit: "system", limit: 2 } });
+  check("инструмент работает за паролем студии", /"blocks"/.test(res.content?.[0]?.text || ""), res.content?.[0]?.text);
+  await client.close();
+  const cookie = (r.headers.get("set-cookie") || "").split(";")[0];
+  const again = await (await fetch(`${base}/api/mcp/link`, { headers: { ...AUTH, cookie } })).json();
+  check("студия видит, что агент заходил", Boolean(again.lastSeenAt) && again.lastClient.startsWith("test-mcp-link"), JSON.stringify(again));
+} catch (error) {
+  check("без исключений", false, error.stack);
+} finally {
+  child.kill();
+}
+if (failed) { console.log(`${failed} failed`); process.exit(1); }
+console.log("mcp-link: all passed");

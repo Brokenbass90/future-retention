@@ -144,6 +144,7 @@ import {
 import { createRouter } from "./src/router.js";
 import { registerWorkspaceRoutes } from "./src/routes/workspace-routes.js";
 import { registerMcpRoutes } from "./src/routes/mcp-routes.js";
+import { isMcpHttpRequest, handleMcpHttp } from "./src/routes/mcp-http.js";
 import { registerShotRoutes } from "./src/routes/shot-routes.js";
 import { registerSourceRoutes } from "./src/routes/source-routes.js";
 import { registerHistoryRoutes } from "./src/routes/history-routes.js";
@@ -17319,6 +17320,13 @@ const server = http.createServer(async (request, response) => {
         aiEnabled: studioRuntimeFlags.aiEnabled,
         publicDemo: studioRuntimeFlags.publicDemo
       });
+      return;
+    }
+
+    // Студия по ссылке для своего Claude или Codex. До проверки пароля:
+    // облако Claude его не знает, пускает подпись в личной ссылке.
+    if (isMcpHttpRequest(request)) {
+      await handleMcpHttp(request, response, { port });
       return;
     }
 
