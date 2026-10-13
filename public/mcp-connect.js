@@ -56,54 +56,22 @@
       ? `<p class="mcp-hint mcp-done">✓ Ваш агент заходил ${esc(new Date(seen).toLocaleString())}${link.lastClient ? ` (${esc(link.lastClient)})` : ""}.</p>`
       : "";
     const localNote = link.reachableFromCloud ? "" :
-      `<p class="mcp-hint mcp-warn">⚠ Студия открыта по локальному адресу: такую ссылку увидит Codex
-       на этом компьютере, но не Claude — он подключается из своего облака. Для Claude
-       откройте студию на Heroku и возьмите ссылку там.</p>`;
+      `<p class="mcp-hint mcp-warn">⚠ Это локальная студия — Claude до неё не достанет. Откройте студию на Heroku.</p>`;
     return `
-      <div class="mcp-step">
-        <span class="mcp-step-no">1</span>
-        <div>
-          <b>Нажмите — Claude откроется с уже вписанной ссылкой</b>
-          <p><button type="button" class="mcp-primary" id="mcpAddToClaude"
-            data-url="${esc(link.url)}">Добавить в Claude</button></p>
-          <p class="mcp-hint">В открывшемся окне Claude останется нажать <b>«Добавить»</b>
-          (если спросит про вход — <b>«Без входа»</b>). Ссылка заодно скопирована: если поле
-          окажется пустым, просто вставьте её (⌘V / Ctrl+V).</p>
-          <pre class="mcp-code" id="mcpLinkUrl">${esc(link.url)}</pre>
-          <button type="button" class="mcp-copy" data-copy="mcpLinkUrl">Скопировать ссылку (для Codex)</button>
-          <p class="mcp-hint">Ссылка личная: агент по ней работает в <b>ваших</b> черновиках и письмах. Никому её не пересылайте — её владелец действует от вашего имени.</p>
-          ${localNote}
-          ${seenLine}
-        </div>
-      </div>
-
-      <div class="mcp-step">
-        <span class="mcp-step-no">2</span>
-        <div>
-          <b>Включите его в чате</b>
-          <p class="mcp-hint">Откройте <b>новый</b> чат в Claude → <b>+</b> → Коннекторы → включите RetKit.</p>
-          <details class="mcp-manual"><summary>Вручную или в Codex</summary>
-          <p class="mcp-hint"><b>Claude</b> (сайт claude.ai или приложение, любой тариф, включая бесплатный):
-          Настройки (Customize) → <b>Коннекторы</b> (Connectors) → <b>+</b> → <b>Добавить свой коннектор</b> (Add custom connector) → имя «RetKit», вставить ссылку →
-          вход: <b>«Без входа»</b> (No sign in) → Добавить. Потом в чате: <b>+</b> → Коннекторы → включить RetKit.</p>
-          <p class="mcp-hint"><b>Codex</b> (приложение): Settings → <b>MCP servers</b> → <b>Add server</b> →
-          тип <b>Streamable HTTP</b>, вставить ссылку → Save → Restart.</p>
-          <p class="mcp-hint">В организации Claude Team / Enterprise коннектор добавляет администратор.
-          На бесплатном Claude можно держать один свой коннектор.</p>
-          </details>
-        </div>
-      </div>
-
-      <div class="mcp-step mcp-step-where">
-        <span class="mcp-step-no">3</span>
-        <div>
-          <b>Говорите с ним в его окне</b>
-          <p class="mcp-hint">Например: «покажи каталог блоков RetKit» или «собери системное письмо про
-          отсутствие платёжки». Он работает инструментами студии, а результат вы видите здесь.
-          Здесь, в этом окне, отвечает оператор студии: переписку вашего агента он не видит,
-          а письма и черновики, которые тот изменил, — видит.</p>
-        </div>
-      </div>`;
+      <ol class="mcp-simple">
+        <li><button type="button" class="mcp-primary" id="mcpAddToClaude"
+          data-url="${esc(link.url)}">Подключить Claude</button></li>
+        <li>В окне Claude: <b>Имя</b> — RetKit, <b>URL</b> — вставьте <b>⌘V</b> → <b>Продолжить</b>.</li>
+        <li>В новом чате Claude: <b>+</b> → Коннекторы → RetKit.</li>
+      </ol>
+      ${seenLine}
+      ${localNote}
+      <details class="mcp-manual"><summary>Ссылка (для Codex)</summary>
+        <pre class="mcp-code" id="mcpLinkUrl">${esc(link.url)}</pre>
+        <button type="button" class="mcp-copy" data-copy="mcpLinkUrl">Скопировать</button>
+        <p class="mcp-hint">Codex: Settings → MCP servers → Add server → Streamable HTTP → вставить.
+        Ссылка личная — никому не пересылайте.</p>
+      </details>`;
   }
 
   function stepsHtml(setup) {
@@ -252,7 +220,7 @@
       const target = "https://claude.ai/customize/connectors?modal=add-custom-connector" +
         `&mcpName=${encodeURIComponent("RetKit")}&mcpServerUrl=${encodeURIComponent(linkUrl)}`;
       window.open(target, "_blank", "noopener");
-      event.currentTarget.textContent = "Открыл Claude — нажмите там «Добавить»";
+      event.currentTarget.textContent = "Ссылка скопирована — вставьте её в Claude";
     });
 
     $("mcpInstallBtn")?.addEventListener("click", async () => {
@@ -301,10 +269,8 @@
       host.innerHTML = `
         <div class="mcp-connect">
           <div class="mcp-connect-head">
-            <b>Подключите своего агента</b>
-            <p class="mcp-hint">Ваш Claude или Codex управляет студией: видит каталог блоков,
-            собирает и правит письма, сохраняет их сюда. Ничего устанавливать не нужно —
-            только ссылка. Платить студии тоже не нужно: модель ваша.</p>
+            <b>Свой Claude</b>
+            <p class="mcp-hint">Ваш Claude будет собирать и править письма студии. Бесплатно, ничего ставить не нужно.</p>
           </div>
           ${stepsHtml(setup)}
         </div>`;

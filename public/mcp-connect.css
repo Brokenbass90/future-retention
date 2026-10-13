@@ -181,3 +181,5 @@
 /* Прежний путь (конфиг, терминал) — свёрнут под ссылкой. */
 .mcp-advanced { margin-top: 14px; }
 .mcp-advanced > summary { font-weight: 600; }
+.mcp-simple{margin:10px 0 6px;padding-left:20px;line-height:1.7}
+.mcp-simple li{margin:6px 0}
