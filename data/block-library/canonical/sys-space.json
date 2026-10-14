@@ -1,0 +1,39 @@
+{
+  "id": "sys-space",
+  "label": "Отбивка (пустое место)",
+  "description": "Вертикальный промежуток между блоками внутри секции.",
+  "placement": "inner",
+  "category": "utility",
+  "version": 1,
+  "pug": "table.sys-space--box(role=\"presentation\" width=\"100%\")\n    tr\n        td(height=\"{{ height }}\" style=\"height:{{ height }}px;font-size:1px;line-height:1px;background-color:{{ background_color }}\") &nbsp;",
+  "styl": ".sys-space--box{width:100%;border-collapse:collapse}",
+  "slots": [
+    {
+      "id": "height",
+      "kind": "number",
+      "label": "Высота, px",
+      "default": 24,
+      "uiGroup": "appearance",
+      "min": 2,
+      "max": 120
+    },
+    {
+      "id": "background_color",
+      "kind": "color",
+      "label": "transparent",
+      "default": "appearance",
+      "uiGroup": "content"
+    }
+  ],
+  "kits": [
+    "system",
+    "promo"
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "utility",
+    "inner-divider"
+  ],
+  "note": "Системный набор: блок написан с нуля под простые сервисные письма. Базовые цвета берутся из темы бренда ($brand_*), поэтому один и тот же блок читается и на светлом IQ Option, и на тёмном IQ Broker. Пустое значение цветового слота = «по бренду».",
+  "scoped": true
+}

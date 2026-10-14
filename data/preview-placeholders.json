@@ -1,0 +1,21 @@
+{
+  "_comment": "Демо-значения для превью блоков каталога. В настоящем письме эти плейсхолдеры подставляет платформа рассылки, поэтому в собранном HTML они остаются как есть — и это правильно. Но в карточке каталога человек должен видеть блок, а не фигурные скобки: по картинке он выбирает блок. Значения намеренно нейтральные и узнаваемо демонстрационные. Разделы: embedded — переменные письма, contentBlock — блоки контента MoEngage, translation — любой перевод.",
+  "embedded": {
+    "company_address": "Quadcode Ltd, 123 Demo Street, Nicosia",
+    "company_email": "support@example.com",
+    "company_terms_link": "#",
+    "unsubscribe_link": "#",
+    "risk_warning": "Торговля связана с риском потери капитала. Демо-текст предупреждения для превью.",
+    "user_id": "10 000 000",
+    "user_first_name": "Имя",
+    "domain": "example.com"
+  },
+  "translation": "Текст перевода",
+  "contentBlock": {
+    "iq_company_address_text": "Quadcode Ltd, 123 Demo Street, Nicosia",
+    "iq_risk_warning_noreg_text": "Торговля связана с риском потери капитала. Демо-текст предупреждения для превью.",
+    "iq_terms_noreg_url": "#",
+    "iq_unsubscribe": "#",
+    "iq_socials_dynamic": "[ соцсети ]"
+  }
+}

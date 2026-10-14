@@ -15,6 +15,101 @@ export const BLOCK_PLACEMENTS = Object.freeze([
 
 const placementSet = new Set(BLOCK_PLACEMENTS);
 
+/**
+ * Набор блоков — ось, независимая от бренда и от placement.
+ *
+ *   promo  — рекламное письмо: комбо, герои, соцсети, сторы;
+ *   system — сервисное письмо: короткий список простых блоков.
+ *
+ * Отдельное поле, а не тег: теги уже несут владельца-бренд (`iq`, `iqbroker`),
+ * `combo` и `combo-divider`, и brandOf()/фильтр комбо разбирают их по строкам.
+ * Новая ось в той же куче начала бы цепляться за чужие правила.
+ *
+ * Оси намеренно НЕсимметричны, и это главное решение здесь:
+ *
+ *   promo  — fail-open: блок без `kits` виден. Иначе подключение оси разом
+ *            спрятало бы всю существующую библиотеку.
+ *   system — whitelist: блок виден, только если сам себя объявил системным.
+ *            Смысл набора в том, что кусков МЕНЬШЕ; fail-open здесь вернул бы
+ *            в короткий список все 78 промо-блоков и обнулил бы набор.
+ *
+ * Блок может состоять в обоих наборах — так и сделаны простые `sys-*`: они и
+ * скелет системного письма, и кубики для промки без дизайнера.
+ */
+export const BLOCK_KITS = Object.freeze(["promo", "system"]);
+
+const kitSet = new Set(BLOCK_KITS);
+
+export function normalizeKits(value, path = "kits") {
+  if (value == null) return [];
+  if (!Array.isArray(value)) fail(path, `must be an array of: ${BLOCK_KITS.join(", ")}`);
+  const out = [];
+  for (const [index, raw] of value.entries()) {
+    const kit = String(raw ?? "").trim().toLowerCase();
+    if (!kitSet.has(kit)) fail(`${path}[${index}]`, `must be one of: ${BLOCK_KITS.join(", ")}`);
+    if (!out.includes(kit)) out.push(kit);
+  }
+  return out;
+}
+
+/**
+ * `slotPresets` — «выбрал вариант в одном слоте, подставились значения в другие».
+ *
+ * Нужен ровно для того, чтобы человек НЕ подбирал цвета руками и при этом
+ * ВИДЕЛ, что стоит сейчас. Плашка с тоном «успех» кладёт в поля фона и полосы
+ * конкретные HEX; поля перестают быть пустыми, и их можно переопределить.
+ * Держать цвет только в стилях нельзя: инспектор показывал бы пустоту и правка
+ * фона молча ничего не делала бы.
+ *
+ * Форма: { <slotId>: { <значение слота>: { <другойSlotId>: "значение" } } }.
+ */
+export function normalizeSlotPresets(value, path = "slotPresets") {
+  if (value == null) return {};
+  if (typeof value !== "object" || Array.isArray(value)) fail(path, "must be an object");
+  const out = {};
+  for (const [driverId, byValue] of Object.entries(value)) {
+    const at = `${path}.${driverId}`;
+    normalizeId(driverId, `${at} (slot id)`);
+    if (!byValue || typeof byValue !== "object" || Array.isArray(byValue)) fail(at, "must be an object");
+    const branch = {};
+    for (const [optionValue, assignments] of Object.entries(byValue)) {
+      const where = `${at}["${optionValue}"]`;
+      if (!assignments || typeof assignments !== "object" || Array.isArray(assignments)) {
+        fail(where, "must be an object of slotId → value");
+      }
+      const target = {};
+      for (const [targetId, targetValue] of Object.entries(assignments)) {
+        normalizeId(targetId, `${where}.${targetId}`);
+        if (!["string", "number", "boolean"].includes(typeof targetValue)) {
+          fail(`${where}.${targetId}`, "must be a string, number or boolean");
+        }
+        target[targetId] = String(targetValue);
+      }
+      branch[String(optionValue)] = target;
+    }
+    out[driverId] = branch;
+  }
+  return out;
+}
+
+/** Значения, которые подставляет выбор `value` в слоте `slotId`. */
+export function slotPresetAssignments(block, slotId, value) {
+  const presets = block?.slotPresets;
+  if (!presets || typeof presets !== "object") return null;
+  const branch = presets[String(slotId)];
+  if (!branch || typeof branch !== "object") return null;
+  const assignments = branch[String(value)];
+  return assignments && typeof assignments === "object" ? assignments : null;
+}
+
+/** Правило видимости блока в наборе — см. комментарий выше. */
+export function blockAllowedInKit(block, kit) {
+  const kits = Array.isArray(block?.kits) ? block.kits : [];
+  const target = String(kit || "").toLowerCase();
+  if (target === "system") return kits.includes("system");
+  return !kits.length || kits.includes(target);
+}
+
 export class BlockLibrarySchemaError extends Error {
   constructor(message) {
     super(message);
@@ -239,8 +334,14 @@ export function normalizeBlockLibrarySavePayload(body, { createdAt = new Date().
     createdAt,
   };
 
+  if (hasOwn(body, "kits")) normalized.kits = normalizeKits(body.kits);
+  if (hasOwn(body, "slotPresets")) normalized.slotPresets = normalizeSlotPresets(body.slotPresets);
   if (hasOwn(body, "childSlots")) normalized.childSlots = childSlots;
   if (hasOwn(body, "combo")) normalized.combo = normalizeBoolean(body.combo, "combo");
+  // Признак «классы блока в собственном скоупе». Нужен и людям (видно, что
+  // блок не столкнётся с чужими стилями), и инструментам: по нему отличают
+  // мигрированную библиотеку от legacy-нарезки.
+  if (hasOwn(body, "scoped")) normalized.scoped = normalizeBoolean(body.scoped, "scoped");
   if (hasOwn(body, "children")) normalized.children = normalizeChildren(body.children, childSlots);
   if (hasOwn(body, "appearance")) normalized.appearance = normalizeAppearance(body.appearance);
   if (hasOwn(body, "outlookSafe")) {

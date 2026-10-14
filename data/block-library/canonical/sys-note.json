@@ -1,0 +1,56 @@
+{
+  "id": "sys-note",
+  "label": "Мелкий текст / дисклеймер",
+  "description": "Второстепенный текст: сноска, уточнение, дисклеймер. Цвет — второстепенный цвет бренда.",
+  "placement": "inner",
+  "category": "text",
+  "version": 1,
+  "pug": "table.sys-note--box(role=\"presentation\" width=\"100%\")\n    tr\n        td(style=\"padding:{{ padding }};text-align:{{ align }}\")\n            p.sys-note--p(style=\"color:{{ text_color }}\") {{ text }}",
+  "styl": ".sys-note--box{width:100%;border-collapse:collapse}\n.sys-note--p{margin:0;margin-bottom:0;color:$brand_muted;font-family:Helvetica,Arial,sans-serif !important;font-size:13px;font-weight:400;line-height:20px}",
+  "slots": [
+    {
+      "id": "text",
+      "kind": "richText",
+      "label": "Текст заметки",
+      "default": "Это письмо отправлено автоматически, отвечать на него не нужно.",
+      "uiGroup": "content"
+    },
+    {
+      "id": "text_color",
+      "kind": "color",
+      "label": "Цвет — пусто значит «по теме бренда»",
+      "default": "",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "align",
+      "kind": "select",
+      "label": "Выравнивание",
+      "default": "left",
+      "uiGroup": "appearance",
+      "options": [
+        "left",
+        "center",
+        "right"
+      ]
+    },
+    {
+      "id": "padding",
+      "kind": "text",
+      "label": "Внутренние отступы",
+      "default": "0",
+      "uiGroup": "appearance"
+    }
+  ],
+  "kits": [
+    "system",
+    "promo"
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "text",
+    "note"
+  ],
+  "note": "Системный набор: блок написан с нуля под простые сервисные письма. Базовые цвета берутся из темы бренда ($brand_*), поэтому один и тот же блок читается и на светлом IQ Option, и на тёмном IQ Broker. Пустое значение цветового слота = «по бренду».",
+  "scoped": true
+}

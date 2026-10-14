@@ -17,5 +17,8 @@
       "default": "335",
       "uiGroup": "appearance"
     }
+  ],
+  "tags": [
+    "iq"
   ]
 }

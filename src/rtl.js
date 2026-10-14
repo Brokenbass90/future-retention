@@ -28,8 +28,8 @@ const RTL_SCRIPT_CODES = new Set([
 const RTL_DEFAULT_LANGUAGES = new Set([
   "ar", "arc", "dv", "fa", "he", "khw", "ks", "ps", "sd", "ug", "ur", "yi",
 ]);
-const RTL_V2_MARKER_RE = /<!--\s*retkit-rtl:v2:(text|mirror)\s*-->/i;
-const RTL_ANY_MARKER_RE = /<!--\s*retkit-rtl:v(?:1|2(?::(?:text|mirror))?)\s*-->/i;
+const RTL_V2_MARKER_RE = /<!--\s*retkit-rtl:v2:(text|mirror|document)\s*-->/i;
+const RTL_ANY_MARKER_RE = /<!--\s*retkit-rtl:v(?:1|2(?::(?:text|mirror|document))?)\s*-->/i;
 
 // Cache the resolved module — but invalidate when the file on disk
 // changes. Without this, edits to email-base/tools/rtl.js wouldn't take
@@ -92,7 +92,11 @@ function normalizeRtlMode(opts) {
   const rawMode = typeof opts === "string"
     ? opts
     : (opts && (opts.mode || opts.layout || opts.layoutMode));
-  return /^(?:mirror|full)$/i.test(String(rawMode || "").trim()) ? "mirror" : "text";
+  const value = String(rawMode || "").trim();
+  // "document" (полная арабизация) лежит только в email-base/tools/rtl.js;
+  // запасной путь его не умеет и делает ближайшее — mirror.
+  if (/^(?:document|arabic|arabize|full-document)$/i.test(value)) return "mirror";
+  return /^(?:mirror|full)$/i.test(value) ? "mirror" : "text";
 }
 
 function getAppliedRtlMode(html) {

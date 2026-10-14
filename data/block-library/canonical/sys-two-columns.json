@@ -1,0 +1,91 @@
+{
+  "id": "sys-two-columns",
+  "label": "Две колонки текста",
+  "description": "Две колонки рядом, на мобильном встают друг под другом. Для сравнения, шагов, «до / после».",
+  "placement": "inner",
+  "category": "layout",
+  "version": 1,
+  "pug": "table.sys-two-columns--box(role=\"presentation\" width=\"100%\")\n    tr\n        td.sys-two-columns--col(style=\"padding:{{ padding_left }};text-align:{{ align }}\")\n            p.sys-two-columns--head(style=\"color:{{ title_color }}\") {{ left_title }}\n            p.sys-two-columns--body(style=\"color:{{ text_color }}\") {{ left_text }}\n        td.sys-two-columns--col(style=\"padding:{{ padding_right }};text-align:{{ align }}\")\n            p.sys-two-columns--head(style=\"color:{{ title_color }}\") {{ right_title }}\n            p.sys-two-columns--body(style=\"color:{{ text_color }}\") {{ right_text }}",
+  "styl": ".sys-two-columns--box{width:100%;border-collapse:collapse}\n.sys-two-columns--col{width:50%;vertical-align:top}\n.sys-two-columns--head{margin:0;margin-bottom:0;padding-bottom:6px;color:$brand_text;font-family:Helvetica,Arial,sans-serif !important;font-size:16px;font-weight:700;line-height:22px}\n.sys-two-columns--body{margin:0;margin-bottom:0;color:$brand_text;font-family:Helvetica,Arial,sans-serif !important;font-size:15px;font-weight:400;line-height:22px}\n@media screen and (max-width: 600px){.sys-two-columns--col{display:block !important;width:100% !important;padding:0 0 16px 0 !important}}",
+  "slots": [
+    {
+      "id": "left_title",
+      "kind": "text",
+      "label": "Заголовок слева",
+      "default": "Слева",
+      "uiGroup": "content"
+    },
+    {
+      "id": "left_text",
+      "kind": "richText",
+      "label": "Текст слева",
+      "default": "Короткий текст первой колонки.",
+      "uiGroup": "content"
+    },
+    {
+      "id": "right_title",
+      "kind": "text",
+      "label": "Заголовок справа",
+      "default": "Справа",
+      "uiGroup": "content"
+    },
+    {
+      "id": "right_text",
+      "kind": "richText",
+      "label": "Текст справа",
+      "default": "Короткий текст второй колонки.",
+      "uiGroup": "content"
+    },
+    {
+      "id": "title_color",
+      "kind": "color",
+      "label": "Цвет заголовков — пусто значит «по теме бренда»",
+      "default": "",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "text_color",
+      "kind": "color",
+      "label": "Цвет текста — пусто значит «по теме бренда»",
+      "default": "",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "padding_left",
+      "kind": "text",
+      "label": "Отступы левой колонки",
+      "default": "0 12px 0 0",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "padding_right",
+      "kind": "text",
+      "label": "Отступы правой колонки",
+      "default": "0 0 0 12px",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "align",
+      "kind": "select",
+      "label": "Выравнивание",
+      "default": "left",
+      "uiGroup": "appearance",
+      "options": [
+        "left",
+        "center",
+        "right"
+      ]
+    }
+  ],
+  "kits": [
+    "system",
+    "promo"
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "layout",
+    "columns"
+  ],
+  "note": "Системный набор: блок написан с нуля под простые сервисные письма. Базовые цвета берутся из темы бренда ($brand_*), поэтому один и тот же блок читается и на светлом IQ Option, и на тёмном IQ Broker. Пустое значение цветового слота = «по бренду».",
+  "scoped": true
+}

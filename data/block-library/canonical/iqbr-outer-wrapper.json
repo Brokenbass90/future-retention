@@ -1,0 +1,43 @@
+{
+  "id": "iqbr-outer-wrapper",
+  "label": "Обёртка письма (IQ Broker)",
+  "description": "Наружная часть письма IQ Broker: тёмный фон, preheader, контейнер, footer, gmail-fix. Внутрь стекаются секции.",
+  "placement": "outer",
+  "category": "wrapper",
+  "version": 1,
+  "pug": "doctype PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"\nhtml(xmlns=\"http://www.w3.org/1999/xhtml\")\n\n    include ../../../../vendor/helpers/mixins\n    include ../../../../vendor/helpers/head\n    <u></u>\n    body.body(style=\"background-color:{{ background_color }}\")\n        include helpers/preheader\n        table.body(style=\"background-color:{{ background_color }}\")\n            tr\n                td.center.iqbr-outer-wrapper--center.iqbr-outer-wrapper--bg-col(align=\"center\", valign=\"top\" style=\"background-color:{{ background_color }}\")\n                    center\n                        table.container\n                            tr\n                                td.pt0.iqbr-outer-wrapper--pt0.iqbr-outer-wrapper--out-wrapper\n                                    //- {{ SECTION_BLOCKS }}\n                                    include blocks/header\n                                    include helpers/footer\n\n        //Gmail App Fix\n        include ../../../../vendor/helpers/gmail-fix\n",
+  "styl": ".iqbr-outer-wrapper--bg-col{background-color:#01080d}\n.iqbr-outer-wrapper--center{text-align:center;margin:0 auto}\n.iqbr-outer-wrapper--out-wrapper{padding:0 10px}\n@media screen and (max-width: 600px){.iqbr-outer-wrapper--out-wrapper{padding:0 !important}}\n.iqbr-outer-wrapper--pt0{padding-top:0}",
+  "slots": [
+    {
+      "id": "background_color",
+      "kind": "color",
+      "label": "Фон письма",
+      "default": "#01080D",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "preheader",
+      "kind": "text",
+      "label": "Preheader (скрытый предпросмотр)",
+      "default": "",
+      "uiGroup": "content"
+    }
+  ],
+  "childSlots": [
+    {
+      "id": "sections",
+      "marker": "SECTION_BLOCKS",
+      "accepts": [
+        "section",
+        "both"
+      ]
+    }
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "iqbroker",
+    "wrapper"
+  ],
+  "note": "Нарезано из email-base/X_IQBroker/mail-strategies. Семейные стили втянуты в блок и заскоуплены; ink-классы (.row/.columns/.wrapper) оставлены глобальными.",
+  "scoped": true
+}

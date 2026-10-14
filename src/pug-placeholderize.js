@@ -1,6 +1,27 @@
 import { buildAnchorUnits } from "./locale-conventions.js";
 
+import { replacePlaceholders } from "./placeholders.js";
+
 const EXISTING_TOKEN_RE = /\$\{\{[\s\S]*?\}\}\$/;
+
+/**
+ * Строка, в которой нет ничего, кроме плейсхолдеров, — не текст для перевода.
+ *
+ * Это не теория. Футер MoEngage выглядит так:
+ *   p.address-text {{ContentBlock['iq_company_address_text']}}
+ * Расстановка считала это обычным текстом, заменяла на ${{ NS.block_00 }}$ и
+ * клала сам плейсхолдер платформы в словарь локали как «перевод». В рассылку
+ * уходило письмо без адреса компании и без предупреждения о рисках — то есть
+ * с юридической дырой, и заметить это можно было только глазами.
+ *
+ * Смешанный текст («Привет, {{embedded.user_first_name}}!») переводить можно и
+ * нужно: переменная останется внутри значения словаря. Поэтому проверяем
+ * именно «не осталось ничего осмысленного», а не «есть плейсхолдер».
+ */
+function isOnlyPlaceholders(raw) {
+  const stripped = replacePlaceholders(String(raw || ""), () => "");
+  return !/[\p{L}\p{N}]/u.test(stripped);
+}
 const PUG_CONTROL_RE = /^(?:doctype|include|extends|append|prepend|block|mixin|each|for|while|case|when|default|if|unless|else|yield)(?:\s|$)/i;
 
 function normalizeVisibleCopy(value) {
@@ -98,7 +119,7 @@ export function extractPugTextCandidates(pugSource) {
 
     const raw = trimmed.slice(tailAt).replace(/\s+$/, "");
     const normalized = normalizeVisibleCopy(raw);
-    if (!normalized || EXISTING_TOKEN_RE.test(raw)) {
+    if (!normalized || EXISTING_TOKEN_RE.test(raw) || isOnlyPlaceholders(raw)) {
       offset += line.length;
       continue;
     }

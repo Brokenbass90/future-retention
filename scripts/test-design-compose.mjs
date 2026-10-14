@@ -17,6 +17,7 @@ import os from "node:os";
 import path from "node:path";
 import url from "node:url";
 import { buildComposePlanFromDesign } from "../src/design-compose.js";
+import { listCanonicalBlocks } from "../src/compose-email.js";
 import { composeEmailFromBlocks } from "../src/compose-email.js";
 
 const REPO = path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), "..");
@@ -50,10 +51,25 @@ const result = buildComposePlanFromDesign({ schema });
 const ids = result.plan.map((p) => p.id);
 console.log("  plan:", JSON.stringify(ids));
 
-check("only roles with release-safe canonical sections are mapped",
-  JSON.stringify(ids) === JSON.stringify(["iq-combo-hero-bgr", "iq-combo-steps-promocode"]));
-check("missing canonical header is reported instead of using a legacy slice",
-  result.sections.find((section) => section.role === "header")?.status === "no-canonical-block");
+// Проверяем ПРАВИЛО, а не замороженный список: в план попадают только
+// release-safe канонические блоки. Раньше здесь стоял точный список из двух
+// идентификаторов — он устарел в тот день, когда в каталоге появился
+// канонический header (iqbr-section-header), и тест начал падать на
+// улучшении. Сам тест при этом никогда не запускался: его не было в npm test.
+const canonicalIds = new Set(
+  listCanonicalBlocks().filter((block) => block.retired !== true).map((block) => block.id),
+);
+check("в план попали только канонические блоки",
+  ids.length > 0 && ids.every((id) => canonicalIds.has(id)), JSON.stringify(ids));
+
+// Роль header закрывается каноническим блоком, если такой в каталоге есть, и
+// честно помечается как незакрытая, если его нет. Legacy-нарезку брать нельзя
+// ни при каком раскладе — ради этого запрета тест и написан.
+const header = result.sections.find((section) => section.role === "header");
+const headerOk = header?.status === "no-canonical-block"
+  || (header?.blockId && canonicalIds.has(header.blockId));
+check("роль header закрыта каноническим блоком или честно помечена пустой",
+  headerOk, JSON.stringify(header || null));
 
 const hero = result.plan.find((p) => p.id === "iq-combo-hero-bgr");
 check("hero title filled from design heading", hero?.slots.title_text === "Welcome traders");

@@ -35,6 +35,11 @@ function functionSource(name) {
 const shouldAutoOpen = Function(`return (${functionSource("shouldAutoOpenInnerForCatalogBlock")})`)();
 const canAutoAddDrop = Function(`return (${functionSource("canAutoAddCatalogDrop")})`)();
 const catalogSourceAllowed = Function(`return (${functionSource("catalogSourceAllowed")})`)();
+const clientBlockReviewStatus = Function(`return (${functionSource("blockReviewStatus")})`)();
+const blockCatalogUsable = Function(
+  "blockReviewStatus",
+  `return (${functionSource("blockCatalogUsable")})`,
+)(clientBlockReviewStatus);
 const readySection = {
   placement: "section",
   childSlots: [{ id: "content", accepts: ["inner"] }],
@@ -54,8 +59,76 @@ assert.equal(catalogSourceAllowed({ source: "user" }, "user"), true, "manual dra
 assert.equal(catalogSourceAllowed({ source: "imported" }, "curated"), false, "curated catalog hides legacy imported slices by default");
 assert.equal(catalogSourceAllowed({ source: "imported" }, "all"), true, "legacy archive is available only through the explicit all-sources scope");
 assert.equal(catalogSourceAllowed({ source: "parsed" }, "all"), false, "mail-local parsed definitions never leak into the reusable catalog");
+assert.equal(blockCatalogUsable({ source: "canonical" }), true, "canonical blocks remain insertable");
+assert.equal(blockCatalogUsable({ source: "user", review: { status: "approved" } }), true, "approved user blocks are insertable");
+assert.equal(blockCatalogUsable({ source: "user", review: { status: "candidate" } }), false, "candidate user blocks are review-only until approval");
+assert.equal(blockCatalogUsable({ source: "imported" }), false, "legacy imported blocks are quarantined/read-only");
 assert.match(constructorHtml, /id="catSourceScope"[\s\S]*?Проверенные блоки[\s\S]*?Мои блоки[\s\S]*?Все, включая legacy/, "catalog separates approved blocks, manual lifecycle and the legacy archive");
 assert.match(constructorHtml, /Авто → Внутри/, "auto-advance toggle says what it actually does");
+
+const approvedUserDefinition = {
+  id: "approved-user-cta",
+  source: "user",
+  label: "Approved user CTA",
+  placement: "inner",
+  category: "cta",
+  pug: "table.approved-user-cta\n  tr\n    td Approved",
+  styl: "",
+  slots: [],
+  review: { status: "approved" },
+};
+const parsedDefinition = {
+  id: "parsed-source-section",
+  source: "parsed",
+  label: "Parsed source section",
+  placement: "section",
+  category: "imported",
+  pug: "table.parsed-source-section\n  tr\n    td Parsed",
+  styl: "",
+  slots: [],
+};
+const canvasPayloadState = {
+  canvas: [
+    {
+      uid: "user-1",
+      blockId: approvedUserDefinition.id,
+      blockSource: "user",
+      parentUid: null,
+      slotId: null,
+      slots: {},
+    },
+    {
+      uid: "parsed-1",
+      blockId: parsedDefinition.id,
+      blockSource: "parsed",
+      parentUid: null,
+      slotId: null,
+      slots: {},
+    },
+  ],
+};
+const canvasToBlocksForPolicyTest = Function(
+  "state",
+  "blockForEntry",
+  "assertCanvasAssetsPublic",
+  `return (${functionSource("canvasToBlocks")})`,
+)(
+  canvasPayloadState,
+  (entry) => entry.blockSource === "user" ? approvedUserDefinition : parsedDefinition,
+  () => {},
+);
+const releaseCanvasPayload = canvasToBlocksForPolicyTest({ allowLocalAssets: true });
+assert.equal(releaseCanvasPayload[0].source, "user", "approved user block keeps its library provenance");
+assert.equal(
+  Object.prototype.hasOwnProperty.call(releaseCanvasPayload[0], "def"),
+  false,
+  "approved user block is sent by id so compose reloads and verifies its current on-disk review",
+);
+assert.equal(
+  releaseCanvasPayload[1].def?.pug,
+  parsedDefinition.pug,
+  "mail-local parsed block still carries the exact definition required for server provenance verification",
+);
 
 const syncSource = functionSource("syncPaletteToSelection");
 assert.doesNotMatch(syncSource, /state\.filter\s*=/, "selection sync never mutates the active catalog filter");
@@ -276,6 +349,22 @@ assert.match(functionSource("saveSelectedAsUserBlock"), /payload\.appearance/, "
 assert.match(constructorSource, /function instantiateCombo[\s\S]*?appearance:\s*child\.appearance/, "combo recipes pass child surface tuning into editable instances");
 assert.match(constructorSource, /data-transparent-slot=/, "background controls provide an explicit transparent/inherit action");
 assert.match(constructorSource, /data-reset-appearance-all/, "common appearance has one clear reset action");
+const parseEmailColor = Function(`return (${functionSource("parseEmailColor")})`)();
+assert.equal(parseEmailColor("#f70"), "#FF7700", "short HEX is expanded for email output");
+assert.equal(parseEmailColor("#ff7700"), "#FF7700", "full HEX is normalized to uppercase");
+assert.equal(parseEmailColor(" transparent "), "transparent", "transparent remains an explicit email background value");
+assert.equal(parseEmailColor("INHERIT"), "inherit", "inherit remains available for nested block backgrounds");
+assert.equal(parseEmailColor("", { allowEmpty: true }), "", "empty fallback appearance removes its override");
+for (const unsafeColor of ["rgb(255, 119, 0)", "rgba(255, 119, 0, .5)", "#FF770080", "orange", "#12", "#12345G"]) {
+  assert.equal(parseEmailColor(unsafeColor), null, `${unsafeColor} is rejected instead of leaking non-HEX colour into authored email styles`);
+}
+assert.doesNotMatch(constructorSource, /type="color"/, "constructor uses its own HEX palette instead of the OS RGB colour dialog");
+assert.match(functionSource("bindEmailColorControls"), /scheduleLivePreview\(\)/, "a committed valid HEX value refreshes the rendered email");
+assert.match(
+  functionSource("bindEmailColorControls"),
+  /input\.addEventListener\("input", \(\) => \{[\s\S]*?if \(parsed !== null\) syncVisual\(input, parsed\);\s*\}\);/,
+  "unfinished HEX typing only updates validation/swatch state and waits for a committed change",
+);
 assert.match(functionSource("buildAuthorSlots"), /uiGroup:\s*slotInspectorGroup/, "manual block style slots keep their inspector group when saved");
 const authorTemplatesSource = constructorSource.slice(
   constructorSource.indexOf("const AUTHOR_TEMPLATES"),
@@ -346,6 +435,9 @@ const persistentBuildArgs = constructorBuildMailArgs({ brand: "X_saved", mailNam
 assert.equal(previewBuildArgs.includes("--pretty"), false, "iframe preview must not pay for a second pretty build");
 assert.equal(handoffBuildArgs.includes("--pretty"), false, "temporary code handoff must not pay for a second pretty build");
 assert.equal(persistentBuildArgs.includes("--pretty"), true, "persistent constructor save keeps review-friendly pretty HTML");
+assert.equal(previewBuildArgs.includes("--failOnWeight"), false, "live preview stays warning-only while the user edits");
+assert.equal(handoffBuildArgs.includes("--failOnWeight"), false, "temporary code handoff stays warning-only");
+assert.equal(persistentBuildArgs.includes("--failOnWeight"), true, "persistent constructor save enforces the compact email weight gate");
 assert.deepEqual(previewBuildArgs.slice(-2), ["--locales", "en"], "temporary preview remains limited to en");
 assert.deepEqual(handoffBuildArgs.slice(-2), ["--locales", "en"], "hidden code handoff initially builds only en");
 assert.equal(persistentBuildArgs.includes("--locales"), false, "persistent compose-save rebuilds every available locale");

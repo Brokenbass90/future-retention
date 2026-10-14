@@ -1,0 +1,63 @@
+{
+  "id": "sys-divider",
+  "label": "Разделительная линия",
+  "description": "Видимая горизонтальная черта между частями письма. Не путать с отбивкой: та даёт воздух, эта — линию.",
+  "placement": "inner",
+  "category": "utility",
+  "version": 1,
+  "pug": "table.sys-divider--box(role=\"presentation\" width=\"100%\")\n    tr\n        td(style=\"padding:{{ padding }}\")\n            table.sys-divider--rule(role=\"presentation\" width=\"{{ width }}\")\n                tr\n                    td(height=\"{{ thickness }}\" style=\"height:{{ thickness }}px;font-size:1px;line-height:1px;background-color:{{ color }}\") &nbsp;",
+  "styl": ".sys-divider--box{width:100%;border-collapse:collapse}\n.sys-divider--rule{border-collapse:collapse;margin:0 auto}\n.sys-divider--rule td{background-color:$brand_border}",
+  "slots": [
+    {
+      "id": "color",
+      "kind": "color",
+      "label": "Цвет линии",
+      "default": "#ECECED",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "thickness",
+      "kind": "number",
+      "label": "Толщина, px",
+      "default": 1,
+      "uiGroup": "appearance",
+      "min": 1,
+      "max": 8
+    },
+    {
+      "id": "width",
+      "kind": "select",
+      "label": "Длина",
+      "default": "100%",
+      "uiGroup": "appearance",
+      "options": [
+        {
+          "value": "100%",
+          "label": "Во всю ширину"
+        },
+        {
+          "value": "60%",
+          "label": "Короткая, по центру"
+        }
+      ]
+    },
+    {
+      "id": "padding",
+      "kind": "text",
+      "label": "Внутренние отступы",
+      "default": "0",
+      "uiGroup": "appearance"
+    }
+  ],
+  "kits": [
+    "system",
+    "promo"
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "utility",
+    "inner-divider"
+  ],
+  "note": "Системный набор: блок написан с нуля под простые сервисные письма. Базовые цвета берутся из темы бренда ($brand_*), поэтому один и тот же блок читается и на светлом IQ Option, и на тёмном IQ Broker. Пустое значение цветового слота = «по бренду».",
+  "scoped": true
+}

@@ -1,0 +1,56 @@
+{
+  "id": "sys-title",
+  "label": "Заголовок",
+  "description": "Главный заголовок письма. Цвет по умолчанию — текстовый цвет бренда.",
+  "placement": "inner",
+  "category": "text",
+  "version": 1,
+  "pug": "table.sys-title--box(role=\"presentation\" width=\"100%\")\n    tr\n        td(style=\"padding:{{ padding }};text-align:{{ align }}\")\n            p.sys-title--h1(style=\"color:{{ text_color }}\") {{ text }}",
+  "styl": ".sys-title--box{width:100%;border-collapse:collapse}\n.sys-title--h1{margin:0;margin-bottom:0;color:$brand_text;font-family:Helvetica,Arial,sans-serif !important;font-size:28px;font-weight:700;line-height:36px}\n@media screen and (max-width: 600px){.sys-title--h1{font-size:24px !important;line-height:30px !important}}",
+  "slots": [
+    {
+      "id": "text",
+      "kind": "text",
+      "label": "Текст заголовка",
+      "default": "Заголовок письма",
+      "uiGroup": "content"
+    },
+    {
+      "id": "text_color",
+      "kind": "color",
+      "label": "Цвет заголовка — пусто значит «по теме бренда»",
+      "default": "",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "align",
+      "kind": "select",
+      "label": "Выравнивание",
+      "default": "left",
+      "uiGroup": "appearance",
+      "options": [
+        "left",
+        "center",
+        "right"
+      ]
+    },
+    {
+      "id": "padding",
+      "kind": "text",
+      "label": "Внутренние отступы",
+      "default": "0",
+      "uiGroup": "appearance"
+    }
+  ],
+  "kits": [
+    "system",
+    "promo"
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "text",
+    "title"
+  ],
+  "note": "Системный набор: блок написан с нуля под простые сервисные письма. Базовые цвета берутся из темы бренда ($brand_*), поэтому один и тот же блок читается и на светлом IQ Option, и на тёмном IQ Broker. Пустое значение цветового слота = «по бренду».",
+  "scoped": true
+}

@@ -1,0 +1,56 @@
+{
+  "id": "sys-text",
+  "label": "Абзац текста",
+  "description": "Основной абзац письма. Переносы строк превращаются в <br>.",
+  "placement": "inner",
+  "category": "text",
+  "version": 1,
+  "pug": "table.sys-text--box(role=\"presentation\" width=\"100%\")\n    tr\n        td(style=\"padding:{{ padding }};text-align:{{ align }}\")\n            p.sys-text--p(style=\"color:{{ text_color }}\") {{ text }}",
+  "styl": ".sys-text--box{width:100%;border-collapse:collapse}\n.sys-text--p{margin:0;margin-bottom:0;color:$brand_text;font-family:Helvetica,Arial,sans-serif !important;font-size:16px;font-weight:400;line-height:24px}",
+  "slots": [
+    {
+      "id": "text",
+      "kind": "richText",
+      "label": "Текст",
+      "default": "Короткий абзац письма — одна мысль на абзац.",
+      "uiGroup": "content"
+    },
+    {
+      "id": "text_color",
+      "kind": "color",
+      "label": "Цвет текста — пусто значит «по теме бренда»",
+      "default": "",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "align",
+      "kind": "select",
+      "label": "Выравнивание",
+      "default": "left",
+      "uiGroup": "appearance",
+      "options": [
+        "left",
+        "center",
+        "right"
+      ]
+    },
+    {
+      "id": "padding",
+      "kind": "text",
+      "label": "Внутренние отступы",
+      "default": "0",
+      "uiGroup": "appearance"
+    }
+  ],
+  "kits": [
+    "system",
+    "promo"
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "text",
+    "body"
+  ],
+  "note": "Системный набор: блок написан с нуля под простые сервисные письма. Базовые цвета берутся из темы бренда ($brand_*), поэтому один и тот же блок читается и на светлом IQ Option, и на тёмном IQ Broker. Пустое значение цветового слота = «по бренду».",
+  "scoped": true
+}

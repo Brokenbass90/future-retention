@@ -1,0 +1,103 @@
+{
+  "id": "sys-two-buttons",
+  "label": "Две кнопки в ряд",
+  "description": "Главная и второстепенная кнопка рядом. На мобильном встают друг под другом во всю ширину.",
+  "placement": "inner",
+  "category": "cta",
+  "version": 1,
+  "pug": "table.sys-two-buttons--box(role=\"presentation\" width=\"100%\")\n    tr\n        td.sys-two-buttons--col(style=\"padding:0 8px 0 0\")\n            table.sys-two-buttons--btn(role=\"presentation\" width=\"100%\")\n                tr\n                    td.sys-two-buttons--cell(style=\"background-color:{{ primary_background }};border-radius:{{ radius }}\")\n                        a.sys-two-buttons--link(href=\"{{ primary_href }}\" universal=\"true\" target=\"_blank\" style=\"color:{{ primary_text_color }}\") {{ primary_label }}\n        td.sys-two-buttons--col(style=\"padding:0 0 0 8px\")\n            table.sys-two-buttons--btn(role=\"presentation\" width=\"100%\")\n                tr\n                    td.sys-two-buttons--cell(style=\"background-color:{{ secondary_background }};border:{{ secondary_border }};border-radius:{{ radius }}\")\n                        a.sys-two-buttons--link(href=\"{{ secondary_href }}\" universal=\"true\" target=\"_blank\" style=\"color:{{ secondary_text_color }}\") {{ secondary_label }}",
+  "styl": ".sys-two-buttons--box{width:100%;border-collapse:collapse}\n.sys-two-buttons--col{width:50%;vertical-align:top}\n.sys-two-buttons--btn{width:100%;border-collapse:separate !important}\n.sys-two-buttons--cell{background-color:$brand_primary;border-radius:12px;text-align:center}\n.sys-two-buttons--link{display:block;padding:16px 12px;color:$brand_primary_text;font-family:Helvetica,Arial,sans-serif !important;font-size:15px;font-weight:700;line-height:20px;text-align:center;text-decoration:none}\n@media screen and (max-width: 600px){.sys-two-buttons--col{display:block !important;width:100% !important;padding:0 0 12px 0 !important}}",
+  "slots": [
+    {
+      "id": "primary_label",
+      "kind": "text",
+      "label": "Текст левой кнопки",
+      "default": "Перейти",
+      "uiGroup": "content"
+    },
+    {
+      "id": "primary_href",
+      "kind": "url",
+      "label": "Ссылка левой кнопки",
+      "default": "#",
+      "uiGroup": "content",
+      "allowSystemPlaceholder": true
+    },
+    {
+      "id": "secondary_label",
+      "kind": "text",
+      "label": "Текст правой кнопки",
+      "default": "Подробнее",
+      "uiGroup": "content"
+    },
+    {
+      "id": "secondary_href",
+      "kind": "url",
+      "label": "Ссылка правой кнопки",
+      "default": "#",
+      "uiGroup": "content",
+      "allowSystemPlaceholder": true
+    },
+    {
+      "id": "primary_background",
+      "kind": "color",
+      "label": "Фон левой кнопки",
+      "default": "#FF7700",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "primary_text_color",
+      "kind": "color",
+      "label": "Текст левой кнопки — цвет — пусто значит «по теме бренда»",
+      "default": "",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "secondary_background",
+      "kind": "color",
+      "label": "Фон правой кнопки",
+      "default": "transparent",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "secondary_border",
+      "kind": "text",
+      "label": "Обводка правой кнопки",
+      "default": "1px solid #ECECED",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "secondary_text_color",
+      "kind": "color",
+      "label": "Текст правой кнопки — цвет",
+      "default": "#393A44",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "radius",
+      "kind": "select",
+      "label": "Скругление",
+      "default": "12px",
+      "uiGroup": "appearance",
+      "options": [
+        "0",
+        "4px",
+        "8px",
+        "12px",
+        "16px",
+        "24px"
+      ]
+    }
+  ],
+  "kits": [
+    "system",
+    "promo"
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "cta",
+    "columns"
+  ],
+  "note": "Системный набор: блок написан с нуля под простые сервисные письма. Базовые цвета берутся из темы бренда ($brand_*), поэтому один и тот же блок читается и на светлом IQ Option, и на тёмном IQ Broker. Пустое значение цветового слота = «по бренду».",
+  "scoped": true
+}

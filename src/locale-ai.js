@@ -75,6 +75,9 @@ function visibleTextOf(html) {
   return String(html || '')
     .replace(/<style[\s\S]*?<\/style>/gi, '')
     .replace(/<script[\s\S]*?<\/script>/gi, '')
+    // Строчные теги не разрывают текст: «contact <a>x</a>.» читается как
+    // «contact x.», а не «contact x .».
+    .replace(/<\/?(?:a|span|b|strong|em|i|u|font|small|sup|sub)\b[^>]*>/gi, '')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&nbsp;/g, ' ')
     .replace(/&amp;/g, '&')
@@ -187,7 +190,36 @@ export function extractVisibleElements(html) {
   // another candidate. O(n²) but n is small for emails (<200 typical).
   const isContainedBy = (inner, outer) =>
     inner.openStart >= outer.openEnd && inner.closeEnd <= outer.closeStart;
+  // Абзац со ссылкой внутри («…contact <a>{{embedded.company_email}}</a>.») —
+  // тоже текстовый элемент: у него есть СВОЙ текст вокруг ссылки. Раньше его
+  // выкидывали как «не лист», оставалась одна ссылка, и весь абзац становился
+  // сиротой. Оставляем контейнер, если внутри только строчные элементы и у
+  // него есть собственный видимый текст; строчные span-обёртки поглощаются,
+  // ссылки остаются отдельными элементами (у кнопки-ссылки может быть свой блок).
+  const INLINE = new Set(['a', 'span', 'b', 'strong', 'em', 'i', 'u', 'font', 'small', 'sup', 'sub']);
+  const ownText = (c, children) => {
+    let inner = html.slice(c.openEnd, c.closeStart);
+    const base = c.openEnd;
+    for (const child of [...children].sort((a, b) => b.openStart - a.openStart)) {
+      inner = inner.slice(0, child.openStart - base) + ' ' + inner.slice(child.closeEnd - base);
+    }
+    return visibleTextOf(inner);
+  };
+  const absorbed = new Set();
+  const keepContainer = new Set();
+  candidates.forEach((c, idx) => {
+    const children = candidates.filter((other, j) => j !== idx && isContainedBy(other, c));
+    if (!children.length) return;
+    if (c.tag === 'a' || c.tag === 'span') return;
+    if (!children.every((child) => INLINE.has(child.tag))) return;
+    // Только прямые потомки: вложенность глубже — не «строчный» абзац.
+    if (!ownText(c, children).trim()) return;
+    keepContainer.add(idx);
+    children.forEach((child) => { if (child.tag !== 'a') absorbed.add(candidates.indexOf(child)); });
+  });
   const leaves = candidates.filter((c, idx) => {
+    if (absorbed.has(idx)) return false;
+    if (keepContainer.has(idx)) { c.hasInline = true; return true; }
     for (let j = 0; j < candidates.length; j += 1) {
       if (j === idx) continue;
       if (isContainedBy(candidates[j], c)) return false;
@@ -209,6 +241,7 @@ export function extractVisibleElements(html) {
         parentChain: c.parentChain,
         innerStart: c.openEnd,
         innerEnd: c.closeStart,
+        hasInline: Boolean(c.hasInline),
         outerStart: c.openStart,
         outerEnd: c.closeEnd,
       };
@@ -348,6 +381,46 @@ function topCandidatesForRef(refText, elements, usedIds, topN = 5) {
  *   }
  * }>}
  */
+/**
+ * Где в HTML (между start и end) стоят текстовые куски юнита — по порядку и
+ * только в тексте, не внутри тегов. Пробелы и &nbsp; равнозначны, & == &amp;.
+ * Нет хотя бы одного куска — null: лучше не трогать абзац, чем сломать ссылку.
+ */
+export function surgicalPartRanges(html, start, end, parts) {
+  const segment = html.slice(start, end);
+  const esc = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const pattern = (text) => esc(text.trim())
+    .replace(/\s+/g, "(?:\\s|&nbsp;|&#160;)+")
+    .replace(/&/g, "(?:&|&amp;)")
+    .replace(/'/g, "(?:'|&#39;|&apos;|’|&rsquo;)");
+  const inText = (idx) => segment.lastIndexOf("<", idx) <= segment.lastIndexOf(">", idx)
+    // и не внутри {{переменной}}: точка из «{{embedded.company_email}}» — не наша точка
+    && segment.lastIndexOf("{{", idx) <= segment.lastIndexOf("}}", idx);
+  const out = [];
+  let cursor = 0;
+  for (const part of parts || []) {
+    const source = String(part.source || "").replace(/@@/g, "").trim();
+    if (!source) continue;
+    if (part.kind === "var") {
+      let at = segment.indexOf(source, cursor);
+      while (at >= 0 && segment.lastIndexOf("<", at) > segment.lastIndexOf(">", at)) at = segment.indexOf(source, at + 1);
+      if (at >= 0) cursor = at + source.length;
+      continue;
+    }
+    const re = new RegExp(pattern(source), "g");
+    re.lastIndex = cursor;
+    let m;
+    let found = null;
+    while ((m = re.exec(segment))) {
+      if (inText(m.index)) { found = m; break; }
+    }
+    if (!found) return null;
+    out.push({ start: start + found.index, end: start + found.index + found[0].length, replacement: part.token });
+    cursor = found.index + found[0].length;
+  }
+  return out.length ? out : null;
+}
+
 export async function placeholderizeHtml({
   html, refLocaleTxt, namespace,
   apiKey, model = "gpt-4.1-mini",
@@ -714,7 +787,20 @@ export async function placeholderizeHtml({
     seenBlocks.add(it.blockIndex);
 
     const r = findMatchInHtml(it.original);
-    if (r.kind === "ok") {
+    const unit = anchorable[it.blockIndex];
+    const el = elements.find((e) => e.id === it._elementId);
+    const surgical = r.kind === "ok" && unit && (el?.hasInline || unit.parts.some((part) => part.kind === "var"));
+    if (surgical) {
+      // Внутри абзаца есть ссылка или переменная: заменяем ТОЛЬКО текстовые
+      // куски на их плейсхолдеры, а разметку (ссылку, жирный) не трогаем.
+      // Раньше заменялся весь абзац — и ссылка со своим href пропадала.
+      const parts = surgicalPartRanges(html, r.start, r.end, unit.parts);
+      if (parts) {
+        for (const part of parts) matches.push({ ...part, blockIndex: it.blockIndex, tier: "surgical" });
+      } else {
+        ambiguous.push(it.blockIndex);
+      }
+    } else if (r.kind === "ok") {
       matches.push({ start: r.start, end: r.end, blockIndex: it.blockIndex, tier: r.tier || "exact" });
     } else if (r.kind === "ambiguous") {
       ambiguous.push(it.blockIndex);
@@ -751,7 +837,9 @@ export async function placeholderizeHtml({
   let out = html;
   for (const m of filteredMatches) {
     const unit = anchorable[m.blockIndex];
-    const substitution = unit ? unit.replacement : placeholderToken(ns, m.blockIndex);
+    const substitution = typeof m.replacement === "string"
+      ? m.replacement
+      : (unit ? unit.replacement : placeholderToken(ns, m.blockIndex));
     out = out.slice(0, m.start) + substitution + out.slice(m.end);
   }
 
@@ -801,7 +889,8 @@ export async function placeholderizeHtml({
 
   return {
     html: out,
-    anchors: matches.length,
+    // Хирургическая замена даёт несколько кусков на один блок — считаем блоки.
+    anchors: new Set(matches.map((m) => m.blockIndex)).size,
     missed: dedupedMissed,
     ambiguous: dedupedAmbiguous,
     raw: parsed,
