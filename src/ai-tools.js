@@ -1613,7 +1613,16 @@ export const TOOL_HANDLERS = {
   },
 
   async set_locale_blocks(args, ctx) {
-    const ns = pickNamespace(ctx, args.namespace);
+    let ns = pickNamespace(ctx, args.namespace);
+    let created = false;
+    // Нового письма без локалей ещё нет ни одного namespace — создаём его
+    // этим же вызовом (обычно сначала пишут эталонную локаль en).
+    if (!ns && Array.isArray(ctx.namespaces)) {
+      const name = String(args.namespace || ctx.mail || "mail-namespace").trim().replace(/^mail-/, "").replace(/[^A-Za-z0-9_-]+/g, "-") || "mail-namespace";
+      ns = { name, namespace: name, locales: {}, referenceLocale: String(args.locale || "en") };
+      ctx.namespaces.push(ns);
+      created = true;
+    }
     if (!ns) return { error: `namespace not found: ${args.namespace || "(active)"} — open the email in the Code tab` };
     const code = String(args.locale || "").trim();
     if (!/^[a-z]{2}(_[A-Za-z]{2,4})?$/i.test(code)) return { error: `invalid locale code: "${code}"` };
@@ -1631,7 +1640,7 @@ export const TOOL_HANDLERS = {
       (u) => !(u.namespace === (ns.namespace || ns.name) && u.locale === code)
     );
     ctx.pendingLocaleUpdates.push({ namespace: ns.namespace || ns.name, locale: code, txt: serializeBlocks(blocks) });
-    return { namespace: ns.namespace || ns.name, locale: code, blocks: blocks.length, ...(warning ? { warning } : {}) };
+    return { namespace: ns.namespace || ns.name, locale: code, blocks: blocks.length, ...(created ? { createdNamespace: true } : {}), ...(warning ? { warning } : {}) };
   },
 
   async edit_locale_block(args, ctx) {

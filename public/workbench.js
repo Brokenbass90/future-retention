@@ -12926,7 +12926,14 @@ function showAgentProposal(payload) {
   if (payload.modifiedHtml && cm) { offerModifiedHtmlApply(bubble, payload.modifiedHtml); offered += 1; }
   const edits = [];
   for (const upd of Array.isArray(payload.localeUpdates) ? payload.localeUpdates : []) {
-    const ns = state.namespaces.find(item => item.name === normalizeWorkbenchNamespaceName(upd.namespace));
+    const nsName = normalizeWorkbenchNamespaceName(upd.namespace);
+    let ns = state.namespaces.find(item => item.name === nsName);
+    if (!ns && upd.locale && upd.txt) {
+      // Новое письмо: агент сначала пишет эталонную локаль, namespace рождается с ней.
+      ns = { id: `ns-${uid()}`, name: nsName, locales: {} };
+      state.namespaces.push(ns);
+      try { renderNamespaceBar(); } catch {}
+    }
     if (!ns || !upd.locale || !upd.txt) continue;
     edits.push({ nsId: ns.id, namespace: ns.name, code: String(upd.locale).toLowerCase(), rawText: String(upd.txt), parsed: parseTxtDetailed(upd.txt) });
   }
