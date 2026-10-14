@@ -12964,6 +12964,11 @@ async function agentWorkbenchRelayLoop() {
       try {
         if (command.tool === 'wb_context') reply = { ok: true, result: agentWorkbenchContext() };
         else if (command.tool === 'wb_apply') reply = { ok: true, result: { offered: showAgentProposal(command.args || {}) } };
+        else if (command.tool === 'to_constructor') {
+          const ctx = state.srcCtx || {};
+          if (!ctx.brand || !ctx.mail) reply = { ok: false, error: 'В «Коде» открыт HTML не из базы — в конструктор его не увести.' };
+          else { reply = { ok: true, result: { started: true, brand: ctx.brand, mail: ctx.mail } }; setTimeout(() => { void navigateBackToConstructor(ctx, null); }, 60); }
+        }
         else reply = { ok: false, error: `Неизвестная команда: ${command.tool}` };
       } catch (error) {
         reply = { ok: false, error: String(error?.message || error) };
@@ -12975,3 +12980,16 @@ async function agentWorkbenchRelayLoop() {
   }
 }
 setTimeout(agentWorkbenchRelayLoop, 1500);
+
+
+// Своей модели у студии нет — поле ввода во встроенном ИИ прячем: отвечать
+// некому. Окно остаётся — туда приходят правки своего агента с «Применить».
+(async function agentOnlyAiDrawer() {
+  try {
+    const data = await (await fetch('/api/status', { signal: AbortSignal.timeout(5000) })).json();
+    if (data?.openAiConfigured) return;
+  } catch { return; }
+  const row = document.querySelector('.ai-input-row');
+  if (row) row.style.display = 'none';
+  if (r.aiHandleLabel) r.aiHandleLabel.textContent = 'Ваш агент';
+})();

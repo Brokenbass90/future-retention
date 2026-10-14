@@ -83,6 +83,11 @@ try {
         body: JSON.stringify({ channel: "constructor", status: {} }) })).json();
       if (!p.command) continue;
       seen.push(p.command.tool);
+      if (p.command.tool === "to_code") {
+        // Вкладка, ещё висевшая на связи, тоже может получить переход.
+        setTimeout(() => fetch(`${base}/api/relay/poll`, { method: "POST", headers: { ...AUTH, cookie, "content-type": "application/json" },
+          body: JSON.stringify({ channel: "workbench", status: { mail: "mail-x" } }) }).catch(() => {}), 1500);
+      }
       const result = p.command.tool === "canvas_read" ? { canvas, mailName: "test" } : { applied: true, problems: [], ops: p.command.args.ops };
       await fetch(`${base}/api/relay/result`, { method: "POST", headers: { ...AUTH, cookie, "content-type": "application/json" },
         body: JSON.stringify({ channel: "constructor", id: p.command.id, ok: true, result }) });
@@ -122,6 +127,29 @@ try {
   check("перевод агента пришёл во вкладку «Код» на применение", Boolean(applyCmd) && /Hola/.test(JSON.stringify(applyCmd.args.localeUpdates)) && /показана человеку/.test(wrote.content?.[0]?.text || ""), JSON.stringify(wrote).slice(0, 400));
   stopWb = true;
   fakeWb.catch(() => {});
+  // Переход «→ В код» по просьбе агента: конструктор получает to_code,
+  // затем новая вкладка «Код» выходит на связь.
+  let navStop = false;
+  const fakeCons = (async () => {
+    while (!navStop) { try {
+      const p = await (await fetch(`${base}/api/relay/poll`, { method: "POST", headers: { ...AUTH, cookie, "content-type": "application/json" },
+        body: JSON.stringify({ channel: "constructor", status: {} }) })).json();
+      if (!p.command) continue;
+      await fetch(`${base}/api/relay/result`, { method: "POST", headers: { ...AUTH, cookie, "content-type": "application/json" },
+        body: JSON.stringify({ channel: "constructor", id: p.command.id, ok: p.command.tool === "to_code", result: { started: true } }) });
+      if (p.command.tool === "to_code") {
+        setTimeout(() => fetch(`${base}/api/relay/poll`, { method: "POST", headers: { ...AUTH, cookie, "content-type": "application/json" },
+          body: JSON.stringify({ channel: "workbench", status: { mail: "mail-x" } }) }).catch(() => {}), 1500);
+        return;
+      }
+    } catch { return; } }
+  })();
+  await new Promise((r) => setTimeout(r, 300));
+  const nav = await client.callTool({ name: "retkit_open_in_code", arguments: {} });
+  check("агент сам переводит письмо в «Код»", !nav.isError && /Код/.test(nav.content?.[0]?.text || ""), JSON.stringify(nav).slice(0, 300));
+  navStop = true;
+  const viaCall = await client.callTool({ name: "retkit_call", arguments: { tool: "list" } });
+  check("retkit_call видит свежий список инструментов", /set_locale_blocks/.test(viaCall.content?.[0]?.text || ""));
   await client.close();
   const again = await (await fetch(`${base}/api/mcp/link`, { headers: { ...AUTH, cookie } })).json();
   check("студия видит, что агент заходил", Boolean(again.lastSeenAt) && again.lastClient.startsWith("test-mcp-link"), JSON.stringify(again));

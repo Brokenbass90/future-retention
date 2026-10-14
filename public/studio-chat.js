@@ -222,6 +222,32 @@
 
       this.loadThread();
       this.open();
+      this.applyAgentOnlyMode();
+    }
+
+    /**
+     * У студии нет своей модели (так на Heroku) — значит, отвечать здесь
+     * некому, и поле ввода только путает: человек пишет, а в ответ ошибка.
+     * Тогда окно становится окном подключения своего агента: сам разговор
+     * идёт в Claude или Codex, а правки агента видны прямо на холсте и в коде.
+     */
+    async applyAgentOnlyMode() {
+      let aiEnabled = true;
+      try { aiEnabled = Boolean((await (await fetch("/healthz")).json())?.aiEnabled); } catch { return; }
+      if (aiEnabled || !this.root) return;
+      this.root.classList.add("agent-only");
+      const form = this.root.querySelector(".chat-form");
+      const attachments = this.root.querySelector(".chat-attachments");
+      const clear = this.root.querySelector(".chat-clear");
+      for (const node of [form, attachments, clear]) if (node) node.style.display = "none";
+      const title = this.root.querySelector(".chat-title");
+      if (title) title.textContent = "🤖 Ваш агент";
+      this.log.innerHTML = "";
+      const note = el("div", "chat-msg assistant");
+      note.textContent = "Пишите своему Claude или Codex в их окне — он работает прямо в этой студии: видит холст и код, " +
+        "правит письмо, переходит между конструктором и кодом. Правки появляются здесь сразу.";
+      this.log.appendChild(note);
+      this.showAgentWizard();
     }
 
     /**

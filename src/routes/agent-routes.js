@@ -21,7 +21,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { TOOL_DEFINITIONS, TOOL_HANDLERS } from "../ai-tools.js";
-import { callRelay, relayOnline } from "../relay.js";
+import { callRelay, relayOnline, relayStatus } from "../relay.js";
 import { canvasSummaryFrom } from "../canvas-summary.js";
 import { normalizeConstructorCatalog } from "../constructor-catalog.js";
 
@@ -115,6 +115,36 @@ export function registerAgentRoutes(router, deps) {
         result: { tool: result, onCanvas: applied.ok ? applied.result : null },
         ...(applied.ok ? {} : { error: applied.error }),
       });
+    } catch (error) {
+      sendJson(response, 500, { ok: false, error: error.message });
+    }
+  });
+
+  /**
+   * Переход между конструктором и кодом по просьбе агента. Нажимает ту же
+   * кнопку, что человек («→ В код» / «В конструктор»), и ждёт, пока на том
+   * конце откроется вкладка — тогда агент сразу может работать дальше.
+   */
+  router.post("/api/agent/navigate", async (request, response) => {
+    try {
+      const body = await readRequestBody(request);
+      const to = body?.to === "constructor" ? "constructor" : "workbench";
+      const from = to === "constructor" ? "workbench" : "constructor";
+      const token = request.retkitActor?.token || "";
+      const started = await callRelay(token, to === "workbench" ? "to_code" : "to_constructor", {}, { channel: from, timeoutMs: 15_000 });
+      if (!started.ok) { sendJson(response, 200, started); return; }
+      const deadline = Date.now() + 25_000;
+      // Старая вкладка ещё «на связи» несколько секунд: ждём именно новую.
+      const before = relayStatus(token, to).lastPollAt || 0;
+      while (Date.now() < deadline) {
+        await new Promise((resolve) => setTimeout(resolve, 700));
+        const status = relayStatus(token, to);
+        if (status.online && status.lastPollAt > before) {
+          sendJson(response, 200, { ok: true, result: { opened: to === "workbench" ? "Код" : "Конструктор", ...started.result, tab: status.moengage || null } });
+          return;
+        }
+      }
+      sendJson(response, 200, { ok: false, error: "Переход начат, но новая вкладка не ответила за 25 секунд — возможно, студия показала человеку вопрос или ошибку." });
     } catch (error) {
       sendJson(response, 500, { ok: false, error: error.message });
     }

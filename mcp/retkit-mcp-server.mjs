@@ -270,6 +270,8 @@ const SERVER_INSTRUCTIONS = [
   "",
   "Локали и вёрстка письма в студии: письмо должно быть открыто у человека во вкладке «Код» — инструменты видят его оттуда, а правки приходят туда же с diff и кнопкой «Применить». Переводите сами, модель студии для этого не нужна: retkit_get_namespace_blocks (исходная локаль) → перевод → retkit_set_locale_blocks (вся локаль целиком, тот же порядок блоков). translate_locale_txt и create_locale с translate=true требуют ключа студии — не используйте их.",
   "",
+  "Переходы: retkit_open_in_code (холст → «Код») и retkit_open_in_constructor («Код» → холст) — ходите сами, человеку нажимать не нужно. Если нужного инструмента нет в вашем списке (клиент закешировал старый), вызывайте его через retkit_call.",
+  "",
   "Холст конструктора: retkit_read_canvas → retkit_update_canvas_block / remove / add / move (по uid). Правка видна у человека сразу.",
   "",
   "Письмо, открытое у человека в MoEngage, доступно через расширение RetKit: moengage_status (первым) → moengage_read_email → правка → moengage_write_email (с hash из чтения, после согласия человека). Замены во всех локалях — moengage_find_across_locales: вы готовите, нажимает человек. Сохранение кампании в MoEngage — всегда кнопка человека.",
@@ -1222,6 +1224,51 @@ async function moengage(tool, args = {}) {
   return reply.result;
 }
 const asText = (value) => ({ content: [{ type: "text", text: typeof value === "string" ? value : JSON.stringify(value, null, 2) }] });
+
+for (const [name, to, title, description] of [
+  ["retkit_open_in_code", "workbench", "Конструктор → Код",
+    "Перенести письмо с холста конструктора во вкладку «Код» — та же кнопка «→ В код», что у человека. Ждёт, пока «Код» откроется; после этого работают инструменты вёрстки и локалей."],
+  ["retkit_open_in_constructor", "constructor", "Код → Конструктор",
+    "Увести письмо, открытое в «Коде», обратно в конструктор — та же кнопка «В конструктор». Если в коде есть несохранённые правки, студия спросит человека."],
+]) {
+  server.registerTool(name, { title, description, inputSchema: {}, annotations: { openWorldHint: false } }, async () => {
+    const data = await studioFetch("/api/agent/navigate", { method: "POST", body: { to } });
+    if (data?.ok === false) throw new Error(data.error || "Переход не удался");
+    return asText(data.result);
+  });
+}
+
+server.registerTool(
+  "retkit_call",
+  {
+    title: "Любой инструмент студии по имени",
+    description:
+      "Вызвать инструмент студии по его имени (без префикса retkit_), например set_locale_blocks. Нужен, когда " +
+      "в вашем списке инструмента нет: клиент мог закешировать старый список, а студия уже обновилась. " +
+      "Список имён и параметров — GET инструментов студии: вызовите с tool=\"list\".",
+    inputSchema: {
+      tool: z.string().describe("Имя инструмента студии, например set_locale_blocks, или list."),
+      args: z.record(z.any()).optional().describe("Параметры инструмента."),
+      brand: z.string().optional(),
+      mail: z.string().optional(),
+    },
+    annotations: { openWorldHint: false },
+  },
+  async ({ tool, args = {}, brand, mail }) => {
+    if (tool === "list") {
+      const listed = await studioFetch("/api/agent/tools");
+      return asText((listed?.tools || []).map((t) => ({ name: t.name, browserOnly: t.browserOnly, params: Object.keys(t.parameters?.properties || {}) })));
+    }
+    const listed = await cachedToolList(STUDIO_URL, () => studioFetch("/api/agent/tools"));
+    const known = (listed?.tools || []).find((t) => t.name === tool);
+    if (!known) throw new Error(`У студии нет инструмента «${tool}». Вызовите retkit_call с tool="list".`);
+    const data = known.browserOnly
+      ? await studioFetch("/api/agent/canvas-call", { method: "POST", body: { tool, args } })
+      : await studioFetch("/api/agent/call", { method: "POST", body: { tool, args, context: { brand, mail, surface: "workbench" } } });
+    if (data?.ok === false && data?.error) throw new Error(data.error);
+    return asText(data?.result ?? data);
+  }
+);
 
 server.registerTool(
   "retkit_read_canvas",

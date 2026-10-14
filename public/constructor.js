@@ -4613,6 +4613,9 @@ async function agentRelayLoop() {
           const live = outcome.applied ? await waitForLivePreview(15000) : null;
           if (outcome.applied) flashCanvasHint?.("Ваш агент поправил письмо — отменить: Ctrl+Z", 4000);
           reply = { ok: true, result: { ...outcome, preview: live ? { ok: live.ok !== false, error: live.error } : null } };
+        } else if (command.tool === "to_code") {
+          if (!state.canvas.length) reply = { ok: false, error: "Холст пуст — переносить в код нечего." };
+          else { reply = { ok: true, result: { started: true, mailName: $("mailName")?.value?.trim() || "" } }; setTimeout(transferToCode, 60); }
         } else {
           reply = { ok: false, error: `Неизвестная команда холста: ${command.tool}` };
         }
