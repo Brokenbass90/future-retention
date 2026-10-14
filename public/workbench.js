@@ -12923,7 +12923,15 @@ function showAgentProposal(payload) {
   bubble.appendChild(head);
   r.aiMessages.appendChild(bubble);
   let offered = 0;
-  if (payload.modifiedHtml && cm) { offerModifiedHtmlApply(bubble, payload.modifiedHtml); offered += 1; }
+  if (payload.modifiedHtml && cm) {
+    // Правки HTML агента копятся в одном черновике: прежнее предложение
+    // устарело — убираем его кнопку, чтобы не применить старую версию.
+    document.querySelectorAll('.agent-html-offer').forEach(node => node.remove());
+    if (offerModifiedHtmlApply(bubble, payload.modifiedHtml)) {
+      bubble.nextElementSibling?.classList.add('agent-html-offer');
+      offered += 1;
+    }
+  }
   const edits = [];
   for (const upd of Array.isArray(payload.localeUpdates) ? payload.localeUpdates : []) {
     const nsName = normalizeWorkbenchNamespaceName(upd.namespace);
@@ -12984,6 +12992,15 @@ async function agentWorkbenchRelayLoop() {
         if (command.tool === 'wb_context') reply = { ok: true, result: agentWorkbenchContext() };
         else if (command.tool === 'wb_apply') reply = { ok: true, result: { offered: showAgentProposal(command.args || {}) } };
         else if (command.tool === 'wb_placeholders') reply = await agentPlaceholderize(command.args || {});
+        else if (command.tool === 'wb_build') {
+          const ctx = state.srcCtx;
+          if (!ctx) reply = { ok: false, error: 'В «Коде» открыт HTML не из базы — собирать нечего.' };
+          else {
+            const ok = await rebuildCurrentSourceFromUi();
+            reply = { ok: true, result: { built: ok !== false && ctx.buildState !== 'error', error: ctx.lastBuildError || '', brand: ctx.brand, mail: ctx.mail,
+              locales: (ctx.htmlLocales || []).map(item => item.code) } };
+          }
+        }
         else if (command.tool === 'to_constructor') {
           const ctx = state.srcCtx || {};
           if (!ctx.brand || !ctx.mail) reply = { ok: false, error: 'В «Коде» открыт HTML не из базы — в конструктор его не увести.' };
@@ -13037,17 +13054,27 @@ async function agentPlaceholderize({ namespace = '', refLocale = 'en' } = {}) {
   const ns = (namespace ? state.namespaces.find(n => n.name === nsName) : null)
     || state.namespaces.find(n => n.id === state.activeNamespaceId) || null;
   if (!ns) return { ok: false, error: `Набор текстов «${namespace}» не найден в «Коде» — сначала запишите эталонную локаль.` };
-  const raw = ns.localeRaw?.[refLocale] || (Array.isArray(ns.locales?.[refLocale]) ? serializeTxt(ns.locales[refLocale]) : '');
-  if (!raw.trim()) return { ok: false, error: `В «${ns.name}» нет локали ${refLocale}.` };
+  const rawOf = code => ns.localeRaw?.[code] || (Array.isArray(ns.locales?.[code]) ? serializeTxt(ns.locales[code]) : '');
   const source = cm.getValue();
   const sourceMode = Boolean(ctx && !ctx.viewingCompiledHtml && /\.(?:pug|jade)$/i.test(ctx.activeFile || ''));
-  const res = await fetch(sourceMode ? '/api/wb/placeholderize-source' : '/api/wb/ai/placeholderize', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(sourceMode ? { pug: source, refLocaleTxt: raw, namespace: ns.name } : { html: source, refLocaleTxt: raw, namespace: ns.name }),
-  });
-  const json = await res.json().catch(() => ({}));
-  if (!res.ok || !json.ok) return { ok: false, error: json.error || `HTTP ${res.status}` };
-  if (!json.anchors) return { ok: false, error: `Совпадений не найдено: 0/${json.total ?? '?'} — тексты локали не совпадают с письмом.` };
+  // Якорить надо по локали, на языке которой написан сам исходник: письмо
+  // может быть русским, а эталон переводов — en. Пробуем просимую локаль,
+  // затем остальные, и берём ту, что легла на исходник лучше всех.
+  const order = [refLocale, ...Object.keys(ns.locales || {}).filter(code => code !== refLocale)].filter(code => rawOf(code).trim());
+  if (!order.length) return { ok: false, error: `В «${ns.name}» нет ни одной локали с текстом.` };
+  let json = null; let used = '';
+  for (const code of order) {
+    const res = await fetch(sourceMode ? '/api/wb/placeholderize-source' : '/api/wb/ai/placeholderize', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(sourceMode ? { pug: source, refLocaleTxt: rawOf(code), namespace: ns.name } : { html: source, refLocaleTxt: rawOf(code), namespace: ns.name }),
+    });
+    const candidate = await res.json().catch(() => ({}));
+    if (!res.ok || !candidate.ok) { if (!json && code === order[order.length - 1]) return { ok: false, error: candidate.error || `HTTP ${res.status}` }; continue; }
+    if (!json || Number(candidate.anchors || 0) > Number(json.anchors || 0)) { json = candidate; used = code; }
+    if (Number(candidate.anchors || 0) >= Number(candidate.total || Infinity)) break;
+  }
+  if (!json?.anchors) return { ok: false, error: `Совпадений не найдено ни по одной локали — тексты локалей не совпадают с исходником письма.` };
+  refLocale = used;
   pushUndoSnapshot('Агент: плейсхолдеры по ' + refLocale.toUpperCase());
   _suppressSrcModified = true;
   cm.operation(() => {
@@ -13059,6 +13086,12 @@ async function agentPlaceholderize({ namespace = '', refLocale = 'en' } = {}) {
   updatePreview();
   updateEditorStats();
   toast(`🤖 Агент расставил ${json.anchors} плейсхолдеров (${sourceMode ? 'Pug' : 'HTML'})`, 'success', 3500);
-  return { ok: true, result: { anchors: json.anchors, total: json.total, missed: json.missed || [], ambiguous: json.ambiguous || [], target: sourceMode ? 'pug' : 'html',
-    note: 'Применено. Человек сохраняет письмо как обычно; откат — «Отменить».' } };
+  // Плейсхолдеры в исходнике — письмо надо пересобрать, иначе HTML и
+  // превью покажут старые тексты (так и было: «ничего не расставилось»).
+  if (sourceMode && ctx) {
+    try { await saveCurrentSourceFile(null, { awaitBuild: true }); } catch { /* сборку агент запросит сам */ }
+  }
+  return { ok: true, result: { anchors: json.anchors, total: json.total, anchoredBy: refLocale, missed: json.missed || [], ambiguous: json.ambiguous || [], target: sourceMode ? 'pug' : 'html',
+    built: sourceMode && ctx ? ctx.buildState !== 'error' : undefined,
+    note: 'Применено в исходник и пересобрано. Откат — «Отменить».' } };
 }

@@ -24,6 +24,12 @@ import { TOOL_DEFINITIONS, TOOL_HANDLERS } from "../ai-tools.js";
 import { callRelay, relayOnline, relayStatus } from "../relay.js";
 import { canvasSummaryFrom } from "../canvas-summary.js";
 import { normalizeConstructorCatalog } from "../constructor-catalog.js";
+import { extractEmailTexts } from "../email-texts.js";
+import { createHash } from "node:crypto";
+
+/** Черновик HTML-правок своего агента: правки копятся, а не перетирают друг друга. */
+const agentHtmlDrafts = new Map();
+const hashOf = (text) => createHash("sha1").update(String(text || "")).digest("hex");
 
 /** Инструменты, которым нужен живой браузер человека, а не имя письма. */
 // Канвас конструктора существует только в браузере: на диске его нет, и
@@ -163,6 +169,57 @@ export function registerAgentRoutes(router, deps) {
     }
   });
 
+  /** Собранный HTML письма с диска: оригинал или локаль. */
+  async function readBuilt(brand, mail, locale) {
+    const safe = (value) => String(value || "").replace(/[^A-Za-z0-9_.-]/g, "");
+    const parts = [repoRoot, "email-base", "dist", safe(brand), safe(mail)];
+    const code = String(locale || "").trim();
+    if (code && !/^original$/i.test(code)) parts.push(safe(code.toLowerCase()));
+    return readFile(path.join(...parts, "index.html"), "utf8");
+  }
+
+  /**
+   * Собрать письмо так же, как кнопка «Собрать» во вкладке «Код» (она же
+   * синхронизирует локали на диск), и вернуть, что получилось: тексты
+   * каждой просимой локали и неподставленные плейсхолдеры — проверка итога.
+   */
+  router.post("/api/agent/build", async (request, response) => {
+    try {
+      const body = await readRequestBody(request);
+      const token = request.retkitActor?.token || "";
+      const built = await callRelay(token, "wb_build", {}, { channel: "workbench", timeoutMs: 120_000 });
+      if (!built.ok) { sendJson(response, 200, built); return; }
+      const { brand, mail } = built.result || {};
+      const wanted = Array.isArray(body?.locales) && body.locales.length ? body.locales.map(String) : ["original"];
+      const locales = {};
+      for (const code of wanted.slice(0, 8)) {
+        try { locales[code] = extractEmailTexts(await readBuilt(brand, mail, code)); }
+        catch { locales[code] = { error: `локаль ${code} не собрана` }; }
+      }
+      sendJson(response, 200, { ok: built.result.built, result: { ...built.result, locales } });
+    } catch (error) {
+      sendJson(response, 500, { ok: false, error: error.message });
+    }
+  });
+
+  /** Тексты открытого письма по порядку — вместо 25 КБ вёрстки. */
+  router.post("/api/agent/texts", async (request, response) => {
+    try {
+      const body = await readRequestBody(request);
+      const token = request.retkitActor?.token || "";
+      let brand = String(body?.brand || ""); let mail = String(body?.mail || "");
+      let html = "";
+      if ((!brand || !mail) && relayOnline(token, Date.now(), "workbench")) {
+        const got = await callRelay(token, "wb_context", {}, { channel: "workbench", timeoutMs: 15_000 });
+        if (got.ok) { brand = brand || got.result.brand; mail = mail || got.result.mail; if (!brand || !mail) html = got.result.html || ""; }
+      }
+      if (!html) html = await readBuilt(brand, mail, body?.locale);
+      sendJson(response, 200, { ok: true, result: { brand, mail, locale: body?.locale || "original", ...extractEmailTexts(html) } });
+    } catch (error) {
+      sendJson(response, 200, { ok: false, error: `Не удалось прочитать письмо: ${error.message}` });
+    }
+  });
+
   router.post("/api/agent/call", async (request, response) => {
     try {
       const body = await readRequestBody(request);
@@ -234,7 +291,12 @@ export function registerAgentRoutes(router, deps) {
         } catch { /* письмо не собрано — инструмент скажет об этом сам */ }
       }
 
+      const draftKey = request.retkitActor?.kind === "agent" && live ? token : "";
+      const baseHash = draftKey ? hashOf(ctx.html) : "";
+      const draft = draftKey ? agentHtmlDrafts.get(draftKey) : null;
+      if (draft && draft.base === baseHash) ctx.html = draft.html;
       const result = await handler(body?.args && typeof body.args === "object" ? body.args : {}, ctx);
+      if (draftKey && ctx.modifiedHtml) agentHtmlDrafts.set(draftKey, { base: baseHash, html: ctx.modifiedHtml });
 
       // Правки письма и локалей — предложение человеку во вкладке «Код»: там
       // они показываются с diff и кнопкой «Применить», как у оператора.

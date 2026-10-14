@@ -268,7 +268,7 @@ const SERVER_INSTRUCTIONS = [
   "",
   "Темы инструкций (retkit_studio_guide): emails — сборка писем; development — работа над кодом самой студии; architecture — устройство изнутри; blocks — формат блоков и слотов; locales — плейсхолдеры и переводы. Берите тему под задачу, а не всё сразу.",
   "",
-  "Локали и вёрстка письма в студии: письмо должно быть открыто у человека во вкладке «Код» — инструменты видят его оттуда; правки локалей и плейсхолдеры применяются там сразу (человек откатывает), прямая правка HTML приходит с diff на подтверждение. Флоу перевода: set_locale_blocks (en) → retkit_place_placeholders → set_locale_blocks (остальные локали). Переводите сами, модель студии для этого не нужна: retkit_get_namespace_blocks (исходная локаль) → перевод → retkit_set_locale_blocks (вся локаль целиком, тот же порядок блоков). translate_locale_txt и create_locale с translate=true требуют ключа студии — не используйте их.",
+  "Локали и вёрстка письма в студии: письмо должно быть открыто у человека во вкладке «Код» — инструменты видят его оттуда; правки локалей и плейсхолдеры применяются там сразу (человек откатывает), прямая правка HTML приходит с diff на подтверждение. Флоу перевода: retkit_email_texts (тексты по порядку) → set_locale_blocks (язык письма и en) → retkit_place_placeholders (сам подберёт якорную локаль, пишет в Pug и пересобирает) → set_locale_blocks (переводы) → retkit_build_mail (проверить итог по локалям). Для писем из базы RTL на ar/ur делает сборка. Переводите сами, модель студии для этого не нужна: retkit_get_namespace_blocks (исходная локаль) → перевод → retkit_set_locale_blocks (вся локаль целиком, тот же порядок блоков). translate_locale_txt и create_locale с translate=true требуют ключа студии — не используйте их.",
   "",
   "Переходы: retkit_open_in_code (холст → «Код») и retkit_open_in_constructor («Код» → холст) — ходите сами, человеку нажимать не нужно. Если нужного инструмента нет в вашем списке (клиент закешировал старый), вызывайте его через retkit_call.",
   "",
@@ -1154,6 +1154,8 @@ const ALREADY_WRAPPED = new Set([
   // заголовке запроса), а через мост они пришли бы от имени студии — и агент
   // писал бы в чужую копию.
   "open_draft", "list_drafts", "draft_changes", "publish_draft", "discard_draft", "mail_history",
+  // Плейсхолдеры: через вкладку «Код» в Pug, без модели (retkit_placeholderize_html ниже).
+  "placeholderize_html",
 ]);
 
 try {
@@ -1250,6 +1252,61 @@ server.registerTool(
       namespace: z.string().describe("Набор текстов письма (namespace)."),
       refLocale: z.string().default("en").describe("Эталонная локаль."),
     },
+    annotations: { openWorldHint: false },
+  },
+  async ({ namespace, refLocale = "en" }) => {
+    const data = await studioFetch("/api/agent/placeholders", { method: "POST", body: { namespace, refLocale } });
+    if (data?.ok === false) throw new Error(data.error || "Не удалось расставить плейсхолдеры");
+    return asText(data.result);
+  }
+);
+
+server.registerTool(
+  "retkit_build_mail",
+  {
+    title: "Код: собрать письмо и проверить",
+    description:
+      "Собрать письмо, открытое во вкладке «Код» (та же кнопка «Собрать»: заодно записывает локали на диск), и " +
+      "вернуть итог по локалям: тексты по порядку и неподставленные ${{ }}$. Вызывайте после правок Pug, локалей " +
+      "и плейсхолдеров — не сдавайте работу, не посмотрев результат. Для ar/ur RTL применяется сборкой сам.",
+    inputSchema: { locales: z.array(z.string()).optional().describe("Какие локали показать: original, en, ar…") },
+    annotations: { openWorldHint: false },
+  },
+  async ({ locales }) => {
+    const data = await studioFetch("/api/agent/build", { method: "POST", body: { locales } });
+    if (data?.ok === false && data?.error) throw new Error(data.error);
+    return asText(data.result ?? data);
+  }
+);
+
+server.registerTool(
+  "retkit_email_texts",
+  {
+    title: "Тексты письма по порядку",
+    description:
+      "Только тексты письма (прехедер, абзацы, заголовки, alt) в порядке документа и неподставленные плейсхолдеры — " +
+      "вместо всей вёрстки. Без brand/mail — письмо, открытое во вкладке «Код». С locale — собранная локаль.",
+    inputSchema: {
+      brand: z.string().optional(), mail: z.string().optional(),
+      locale: z.string().optional().describe("original (по умолчанию), en, ar…"),
+    },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+  },
+  async (args) => {
+    const data = await studioFetch("/api/agent/texts", { method: "POST", body: args });
+    if (data?.ok === false) throw new Error(data.error);
+    return asText(data.result);
+  }
+);
+
+server.registerTool(
+  "retkit_placeholderize_html",
+  {
+    title: "Расставить плейсхолдеры (без модели)",
+    description:
+      "То же, что retkit_place_placeholders: детерминированно, в Pug-исходник письма во вкладке «Код», с пересборкой. " +
+      "Якорную локаль подберёт сам (письмо может быть на русском при эталоне en).",
+    inputSchema: { namespace: z.string(), refLocale: z.string().optional() },
     annotations: { openWorldHint: false },
   },
   async ({ namespace, refLocale = "en" }) => {
