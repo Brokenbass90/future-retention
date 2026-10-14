@@ -233,7 +233,7 @@
      */
     async applyAgentOnlyMode() {
       let aiEnabled = true;
-      try { aiEnabled = Boolean((await (await fetch("/healthz")).json())?.aiEnabled); } catch { return; }
+      try { aiEnabled = (await (await fetch("/healthz")).json())?.aiEnabled !== false; } catch { return; }
       if (aiEnabled || !this.root) return;
       this.root.classList.add("agent-only");
       const form = this.root.querySelector(".chat-form");
