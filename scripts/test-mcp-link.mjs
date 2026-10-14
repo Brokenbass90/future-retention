@@ -97,6 +97,31 @@ try {
   check("удаление кнопки дошло до вкладки", !removed.isError && seen.includes("canvas_apply") && /remove/.test(removed.content?.[0]?.text || ""), JSON.stringify(removed).slice(0, 400));
   stopTab = true;
   fakeTab.catch(() => {});
+  // Вкладка «Код»: агент переводит сам и пишет локаль целиком.
+  const wbSeen = [];
+  let stopWb = false;
+  const fakeWb = (async () => {
+    while (!stopWb) { try {
+      const p = await (await fetch(`${base}/api/relay/poll`, { method: "POST", headers: { ...AUTH, cookie, "content-type": "application/json" },
+        body: JSON.stringify({ channel: "workbench", status: {} }) })).json();
+      if (!p.command) continue;
+      wbSeen.push(p.command);
+      const result = p.command.tool === "wb_context"
+        ? { html: "<html><body>${{ ns.block_00 }}$</body></html>", brand: "X_IQ", mail: "mail-test", activeNamespaceName: "ns", activeLocale: "en",
+            namespaces: [{ id: "n1", name: "ns", namespace: "ns", referenceLocale: "en", locales: { en: ["Hello", "Bye"] }, localeRaw: {} }] }
+        : { offered: 1 };
+      await fetch(`${base}/api/relay/result`, { method: "POST", headers: { ...AUTH, cookie, "content-type": "application/json" },
+        body: JSON.stringify({ channel: "workbench", id: p.command.id, ok: true, result }) });
+    } catch { return; } }
+  })();
+  await new Promise((r) => setTimeout(r, 300));
+  const blocksRead = await client.callTool({ name: "retkit_get_namespace_blocks", arguments: { namespace: "ns", locale: "en" } });
+  check("агент видит локали открытого письма", /Hello/.test(blocksRead.content?.[0]?.text || ""), JSON.stringify(blocksRead).slice(0, 300));
+  const wrote = await client.callTool({ name: "retkit_set_locale_blocks", arguments: { namespace: "ns", locale: "es", blocks: ["Hola", "Adiós"] } });
+  const applyCmd = wbSeen.find((c) => c.tool === "wb_apply");
+  check("перевод агента пришёл во вкладку «Код» на применение", Boolean(applyCmd) && /Hola/.test(JSON.stringify(applyCmd.args.localeUpdates)) && /показана человеку/.test(wrote.content?.[0]?.text || ""), JSON.stringify(wrote).slice(0, 400));
+  stopWb = true;
+  fakeWb.catch(() => {});
   await client.close();
   const again = await (await fetch(`${base}/api/mcp/link`, { headers: { ...AUTH, cookie } })).json();
   check("студия видит, что агент заходил", Boolean(again.lastSeenAt) && again.lastClient.startsWith("test-mcp-link"), JSON.stringify(again));

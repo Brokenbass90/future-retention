@@ -12889,3 +12889,82 @@ async function loadSharedAgentThread() {
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', loadSharedAgentThread);
 else loadSharedAgentThread();
+
+
+// ─── Свой агент (Claude, Codex по личной ссылке) в этой вкладке ──────────
+// Агент работает со студией из своего окна. Когда его инструменты трогают
+// письмо или локали, студия спрашивает эту вкладку «что открыто» (src/relay.js,
+// канал workbench), а результат приходит сюда же — тем же предложением с diff
+// и кнопкой «Применить», что и у встроенного оператора. Решает человек.
+function agentWorkbenchContext() {
+  const ctx = state.srcCtx || {};
+  const activeNs = state.activeNamespaceId ? state.namespaces.find(n => n.id === state.activeNamespaceId) : null;
+  return {
+    html: cm?.getValue() || '',
+    brand: ctx.brand || '',
+    mail: ctx.mail || '',
+    namespaces: state.namespaces.map(ns => ({
+      id: ns.id, name: ns.name, namespace: ns.name, builtin: Boolean(ns.builtin),
+      referenceLocale: getReferenceLocaleCode(ns), locales: ns.locales || {}, localeRaw: ns.localeRaw || {},
+    })),
+    activeNamespaceName: activeNs ? activeNs.name : null,
+    activeLocale: state.activeLocale || null,
+  };
+}
+
+function showAgentProposal(payload) {
+  if (r.aiDrawer && r.aiDrawer.dataset.state !== 'expanded') toggleAiDrawer();
+  r.aiMessages.querySelector('.ai-welcome')?.remove();
+  const bubble = document.createElement('div');
+  bubble.className = 'ai-message assistant ai-agent-timeline';
+  const head = document.createElement('div');
+  head.className = 'ai-agent-step ai-agent-text';
+  head.textContent = `🤖 Ваш агент: ${payload.note || 'предлагает правку'}`;
+  bubble.appendChild(head);
+  r.aiMessages.appendChild(bubble);
+  let offered = 0;
+  if (payload.modifiedHtml && cm) { offerModifiedHtmlApply(bubble, payload.modifiedHtml); offered += 1; }
+  const edits = [];
+  for (const upd of Array.isArray(payload.localeUpdates) ? payload.localeUpdates : []) {
+    const ns = state.namespaces.find(item => item.name === normalizeWorkbenchNamespaceName(upd.namespace));
+    if (!ns || !upd.locale || !upd.txt) continue;
+    edits.push({ nsId: ns.id, namespace: ns.name, code: String(upd.locale).toLowerCase(), rawText: String(upd.txt), parsed: parseTxtDetailed(upd.txt) });
+  }
+  if (edits.length && offerLocaleEditsApply(bubble, edits) !== false) offered += edits.length;
+  for (const del of Array.isArray(payload.localeDeletes) ? payload.localeDeletes : []) {
+    if (!del?.locale) continue;
+    const btnDel = document.createElement('button');
+    btnDel.className = 'ai-preset';
+    btnDel.textContent = `🗑 Удалить локаль ${del.namespace}/${del.locale}`;
+    btnDel.onclick = () => { if (deleteLocaleInNamespace(del.namespace, del.locale)) { btnDel.disabled = true; btnDel.textContent = `✓ Удалена ${del.namespace}/${del.locale}`; } };
+    bubble.appendChild(btnDel);
+    offered += 1;
+  }
+  r.aiMessages.scrollTop = r.aiMessages.scrollHeight;
+  return offered;
+}
+
+async function agentWorkbenchRelayLoop() {
+  const post = (url, body) => fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  for (;;) {
+    try {
+      const ctx = state.srcCtx || {};
+      const response = await post('/api/relay/poll', { channel: 'workbench', status: { brand: ctx.brand || '', mail: ctx.mail || '' } });
+      if (!response.ok) { await new Promise(res => setTimeout(res, 10000)); continue; }
+      const command = (await response.json())?.command;
+      if (!command) continue;
+      let reply;
+      try {
+        if (command.tool === 'wb_context') reply = { ok: true, result: agentWorkbenchContext() };
+        else if (command.tool === 'wb_apply') reply = { ok: true, result: { offered: showAgentProposal(command.args || {}) } };
+        else reply = { ok: false, error: `Неизвестная команда: ${command.tool}` };
+      } catch (error) {
+        reply = { ok: false, error: String(error?.message || error) };
+      }
+      await post('/api/relay/result', { channel: 'workbench', id: command.id, ...reply });
+    } catch {
+      await new Promise(res => setTimeout(res, 5000));
+    }
+  }
+}
+setTimeout(agentWorkbenchRelayLoop, 1500);

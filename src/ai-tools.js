@@ -542,6 +542,26 @@ export const TOOL_DEFINITIONS = [
   },
   {
     type: "function",
+    name: "set_locale_blocks",
+    description:
+      "Write a WHOLE locale of a namespace: create it or replace all its blocks with the texts you give. " +
+      "This is how an agent that translates by itself (Claude, Codex) creates and translates locales: read the " +
+      "source with get_namespace_blocks, translate every block yourself keeping the same order and count, " +
+      "keep {{ }} variables and @@bold@@ markers as they are, then call this once. No studio model needed.",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        namespace: { type: "string", description: "Namespace name (default: active namespace)." },
+        locale: { type: "string", description: "Locale code, e.g. ar, es, pt_PT." },
+        blocks: { type: "array", items: { type: "string" }, description: "All block texts, in the source order." },
+        reason: { type: "string", description: "One short sentence for the person: what this is." },
+      },
+      required: ["locale", "blocks"],
+    },
+  },
+  {
+    type: "function",
     name: "validate_html",
     description:
       "Structural check of the OPEN email: unclosed/mismatched HTML tags, unbalanced " +
@@ -1590,6 +1610,28 @@ export const TOOL_HANDLERS = {
     ctx.pendingLocaleDeletes = ctx.pendingLocaleDeletes || [];
     ctx.pendingLocaleDeletes.push({ namespace: ns.namespace || ns.name, locale: code });
     return { namespace: ns.namespace || ns.name, locale: code, queued: true, note: "The studio will ask the user to confirm before deleting." };
+  },
+
+  async set_locale_blocks(args, ctx) {
+    const ns = pickNamespace(ctx, args.namespace);
+    if (!ns) return { error: `namespace not found: ${args.namespace || "(active)"} — open the email in the Code tab` };
+    const code = String(args.locale || "").trim();
+    if (!/^[a-z]{2}(_[A-Za-z]{2,4})?$/i.test(code)) return { error: `invalid locale code: "${code}"` };
+    const blocks = Array.isArray(args.blocks) ? args.blocks.map((b) => String(b ?? "")) : [];
+    if (!blocks.length) return { error: "blocks is empty" };
+    if (blocks.some((t) => /\$\{\{[\s\S]*?\}\}\$/.test(t))) {
+      return { error: "a block contains literal ${{...}}$ tokens — placeholders belong in the HTML, not in locale TXT" };
+    }
+    const reference = ns.locales?.[ns.referenceLocale] || ns.locales?.en || null;
+    const warning = Array.isArray(reference) && reference.length !== blocks.length
+      ? `block count ${blocks.length} differs from the reference locale (${reference.length}) — placeholders may shift`
+      : undefined;
+    ns.locales = { ...(ns.locales || {}), [code]: blocks };
+    ctx.pendingLocaleUpdates = (ctx.pendingLocaleUpdates || []).filter(
+      (u) => !(u.namespace === (ns.namespace || ns.name) && u.locale === code)
+    );
+    ctx.pendingLocaleUpdates.push({ namespace: ns.namespace || ns.name, locale: code, txt: serializeBlocks(blocks) });
+    return { namespace: ns.namespace || ns.name, locale: code, blocks: blocks.length, ...(warning ? { warning } : {}) };
   },
 
   async edit_locale_block(args, ctx) {

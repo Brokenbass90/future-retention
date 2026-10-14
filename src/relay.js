@@ -27,7 +27,8 @@ const relays = new Map();
  * "constructor" (открытая вкладка конструктора). У каждого своя очередь,
  * иначе правка холста могла бы уехать в MoEngage.
  */
-const keyOf = (token, channel = "moengage") => `${token}:${channel === "constructor" ? "constructor" : "moengage"}`;
+const CHANNELS = new Set(["moengage", "constructor", "workbench"]);
+const keyOf = (token, channel = "moengage") => `${token}:${CHANNELS.has(channel) ? channel : "moengage"}`;
 
 function relayFor(token, channel) {
   const key = keyOf(token, channel);
@@ -101,6 +102,8 @@ export function callRelay(token, tool, args = {}, { timeoutMs = 90_000, channel 
       ok: false,
       error: channel === "constructor"
         ? "Конструктор не открыт. Попросите человека открыть конструктор студии в этом же браузере (вкладку можно не трогать)."
+        : channel === "workbench"
+        ? "Вкладка «Код» студии не открыта. Попросите человека открыть письмо в студии во вкладке «Код»."
         : "Расширение RetKit не на связи. Попросите человека открыть письмо в MoEngage, " +
           "открыть RetKit и нажать в нём кнопку «Агент» (откроется маленькое окно связи — его не закрывать).",
     });

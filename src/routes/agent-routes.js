@@ -21,7 +21,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { TOOL_DEFINITIONS, TOOL_HANDLERS } from "../ai-tools.js";
-import { callRelay } from "../relay.js";
+import { callRelay, relayOnline } from "../relay.js";
 import { canvasSummaryFrom } from "../canvas-summary.js";
 import { normalizeConstructorCatalog } from "../constructor-catalog.js";
 
@@ -142,8 +142,23 @@ export function registerAgentRoutes(router, deps) {
       }
 
       const given = body?.context && typeof body.context === "object" ? body.context : {};
-      const brand = String(given.brand || "").trim();
-      const mail = String(given.mail || "").trim();
+      // Свой агент по ссылке: письмо и локали, открытые у человека во вкладке
+      // «Код», берём оттуда (src/relay.js, канал workbench) — иначе агент не
+      // видел локалей и его правки некуда было применить.
+      const token = request.retkitActor?.token || "";
+      let live = null;
+      if (request.retkitActor?.kind === "agent" && relayOnline(token, Date.now(), "workbench")) {
+        const got = await callRelay(token, "wb_context", {}, { channel: "workbench", timeoutMs: 15_000 });
+        const wanted = (value, open) => !String(value || "").trim() || String(value).trim() === String(open || "").trim();
+        if (got.ok && got.result && wanted(given.brand, got.result.brand) && wanted(given.mail, got.result.mail)) live = got.result;
+      }
+      const brand = String(live?.brand || given.brand || "").trim();
+      const mail = String(live?.mail || given.mail || "").trim();
+      const liveNamespaces = Array.isArray(live?.namespaces) ? live.namespaces.map((n) => ({
+        ...n,
+        name: String(n.namespace || n.name || ""),
+        namespace: String(n.namespace || n.name || ""),
+      })) : null;
 
       const ctx = {
         surface: given.surface === "constructor" ? "constructor" : "workbench",
@@ -153,14 +168,17 @@ export function registerAgentRoutes(router, deps) {
         readOnly: Boolean(isReadOnly()),
         actor: request.retkitActor || null,
         apiKey: apiKey(),
-        activeLocale: String(given.locale || "").trim(),
-        namespaces: Array.isArray(given.namespaces) ? given.namespaces : [],
+        activeLocale: String(live?.activeLocale || given.locale || "").trim(),
+        namespaces: liveNamespaces || (Array.isArray(given.namespaces) ? given.namespaces : []),
         canvasSummary: Array.isArray(given.canvas) ? given.canvas : [],
         pendingLocaleUpdates: [],
         pendingLocaleDeletes: [],
         pendingImages: [],
-        html: String(given.html || "").trim(),
+        html: String(live?.html || given.html || "").trim(),
       };
+      if (liveNamespaces) {
+        ctx.activeNamespace = liveNamespaces.find((n) => n.name === live.activeNamespaceName) || liveNamespaces[0] || null;
+      }
 
       // Вёрстку письма читаем с диска, если её не прислали: у агента без
       // браузера нет «открытого редактора», но письмо в базе есть.
@@ -175,10 +193,30 @@ export function registerAgentRoutes(router, deps) {
 
       const result = await handler(body?.args && typeof body.args === "object" ? body.args : {}, ctx);
 
+      // Правки письма и локалей — предложение человеку во вкладке «Код»: там
+      // они показываются с diff и кнопкой «Применить», как у оператора.
+      const hasEdits = Boolean(ctx.modifiedHtml) || ctx.pendingLocaleUpdates.length || (ctx.pendingLocaleDeletes || []).length;
+      let delivery = null;
+      if (hasEdits && request.retkitActor?.kind === "agent") {
+        if (live) {
+          const shown = await callRelay(token, "wb_apply", {
+            note: String(body?.args?.reason || name),
+            modifiedHtml: ctx.modifiedHtml || "",
+            localeUpdates: ctx.pendingLocaleUpdates,
+            localeDeletes: ctx.pendingLocaleDeletes || [],
+          }, { channel: "workbench", timeoutMs: 15_000 });
+          delivery = shown.ok
+            ? "Правка показана человеку во вкладке «Код» с diff и кнопкой «Применить». Скажите ему проверить и нажать."
+            : `Правку не удалось показать во вкладке «Код»: ${shown.error}`;
+        } else {
+          delivery = "Правка НЕ сохранена: письмо не открыто у человека во вкладке «Код». Попросите открыть его там и повторите.";
+        }
+      }
+
       sendJson(response, 200, {
         ok: !result?.error,
         tool: name,
-        result,
+        result: delivery ? { ...result, delivery } : result,
         // Картинки инструмент кладёт в очередь: у оператора их показывает цикл
         // агента, а вызывающему по HTTP надо отдать их явно.
         images: (ctx.pendingImages || []).map((shot) => ({ note: shot.note, dataUrl: shot.dataUrl })),

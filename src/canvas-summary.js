@@ -21,7 +21,7 @@ export function canvasSummaryFrom(canvas) {
         kind: String(slot?.kind || "text").slice(0, 32),
         label: String(slot?.label || slot?.id || "").slice(0, 160),
         ...(Array.isArray(slot?.options)
-          ? { options: slot.options.slice(0, 50).map((value) => String(value).slice(0, 160)) }
+          ? { options: slot.options.slice(0, 50).map((value) => String(value && typeof value === "object" ? (value.value ?? value.id ?? value.label ?? "") : value).slice(0, 160)) }
           : {}),
       })).filter((slot) => slot.id)
       : undefined,
