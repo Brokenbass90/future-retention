@@ -12937,7 +12937,26 @@ function showAgentProposal(payload) {
     if (!ns || !upd.locale || !upd.txt) continue;
     edits.push({ nsId: ns.id, namespace: ns.name, code: String(upd.locale).toLowerCase(), rawText: String(upd.txt), parsed: parseTxtDetailed(upd.txt) });
   }
-  if (edits.length && offerLocaleEditsApply(bubble, edits) !== false) offered += edits.length;
+  if (edits.length && payload.auto) {
+    // Человек попросил агента применять сразу: правка ложится в локали,
+    // откатывается кнопкой под сообщением или общим «Отменить».
+    const unsafe = edits.filter(edit => /\$\{\{[\s\S]*?\}\}\$/.test(String(edit.rawText || '')));
+    if (unsafe.length) appendAiGuardWarning(bubble, 'Агент прислал плейсхолдеры внутри текста локали — эти локали не применены.');
+    const safe = edits.filter(edit => !unsafe.includes(edit));
+    if (safe.length) {
+      pushUndoSnapshot('Агент: локали');
+      for (const edit of safe) setLocaleRawContent(getNs(edit.nsId), edit.code, edit.rawText);
+      refreshLocaleUiAfterStructureChange();
+      if (state._editNsId && state._editLocale) loadLocaleIntoLocaleCM(state._editNsId, state._editLocale);
+      saveToLocalStorage();
+      const done = document.createElement('div');
+      done.className = 'ai-agent-step ai-agent-toolresult';
+      done.textContent = '✓ Применено: ' + safe.map(edit => `${edit.namespace}/${edit.code.toUpperCase()}`).join(', ');
+      bubble.appendChild(done);
+      addUndoButton(done, 'Откатить правку агента');
+      offered += safe.length;
+    }
+  } else if (edits.length && offerLocaleEditsApply(bubble, edits) !== false) offered += edits.length;
   for (const del of Array.isArray(payload.localeDeletes) ? payload.localeDeletes : []) {
     if (!del?.locale) continue;
     const btnDel = document.createElement('button');
@@ -12964,6 +12983,7 @@ async function agentWorkbenchRelayLoop() {
       try {
         if (command.tool === 'wb_context') reply = { ok: true, result: agentWorkbenchContext() };
         else if (command.tool === 'wb_apply') reply = { ok: true, result: { offered: showAgentProposal(command.args || {}) } };
+        else if (command.tool === 'wb_placeholders') reply = await agentPlaceholderize(command.args || {});
         else if (command.tool === 'to_constructor') {
           const ctx = state.srcCtx || {};
           if (!ctx.brand || !ctx.mail) reply = { ok: false, error: 'В «Коде» открыт HTML не из базы — в конструктор его не увести.' };
@@ -12993,3 +13013,52 @@ setTimeout(agentWorkbenchRelayLoop, 1500);
   if (row) row.style.display = 'none';
   if (r.aiHandleLabel) r.aiHandleLabel.textContent = 'Ваш агент';
 })();
+
+
+/**
+ * Плейсхолдеры по просьбе агента — тем же путём, что кнопка «✱ Плейсхолдеры»:
+ * в Pug-исходник (письмо остаётся привязанным к Pug), без вопроса — агент
+ * применяет сразу, откат — «Отменить».
+ */
+async function agentPlaceholderize({ namespace = '', refLocale = 'en' } = {}) {
+  if (!cm) return { ok: false, error: 'Редактор «Кода» не готов.' };
+  let ctx = state.srcCtx;
+  if (ctx) {
+    const currentExt = ctx.activeFile?.split('.').pop()?.toLowerCase();
+    if (ctx.viewingCompiledHtml || !['pug', 'jade'].includes(currentExt)) {
+      const pugFile = ctx.files?.find(file => /templates\/blocks\/header\.(?:pug|jade)$/.test(file.path))?.path
+        || ctx.files?.find(file => file.ext === 'pug' || file.ext === 'jade')?.path;
+      if (!pugFile) return { ok: false, error: 'В этом письме нет Pug-исходника.' };
+      await loadSourceFile(pugFile, { force: true });
+      ctx = state.srcCtx;
+    }
+  }
+  const nsName = normalizeWorkbenchNamespaceName(namespace || '');
+  const ns = (namespace ? state.namespaces.find(n => n.name === nsName) : null)
+    || state.namespaces.find(n => n.id === state.activeNamespaceId) || null;
+  if (!ns) return { ok: false, error: `Набор текстов «${namespace}» не найден в «Коде» — сначала запишите эталонную локаль.` };
+  const raw = ns.localeRaw?.[refLocale] || (Array.isArray(ns.locales?.[refLocale]) ? serializeTxt(ns.locales[refLocale]) : '');
+  if (!raw.trim()) return { ok: false, error: `В «${ns.name}» нет локали ${refLocale}.` };
+  const source = cm.getValue();
+  const sourceMode = Boolean(ctx && !ctx.viewingCompiledHtml && /\.(?:pug|jade)$/i.test(ctx.activeFile || ''));
+  const res = await fetch(sourceMode ? '/api/wb/placeholderize-source' : '/api/wb/ai/placeholderize', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(sourceMode ? { pug: source, refLocaleTxt: raw, namespace: ns.name } : { html: source, refLocaleTxt: raw, namespace: ns.name }),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok || !json.ok) return { ok: false, error: json.error || `HTTP ${res.status}` };
+  if (!json.anchors) return { ok: false, error: `Совпадений не найдено: 0/${json.total ?? '?'} — тексты локали не совпадают с письмом.` };
+  pushUndoSnapshot('Агент: плейсхолдеры по ' + refLocale.toUpperCase());
+  _suppressSrcModified = true;
+  cm.operation(() => {
+    const lastLine = cm.lastLine();
+    cm.replaceRange(sourceMode ? json.pug : json.html, { line: 0, ch: 0 }, { line: lastLine, ch: cm.getLine(lastLine)?.length ?? 0 });
+  });
+  setTimeout(() => { _suppressSrcModified = false; }, 0);
+  if (sourceMode && ctx) { _backupOffered = true; markSourceModified(ctx); renderSrcFileTabs(); }
+  updatePreview();
+  updateEditorStats();
+  toast(`🤖 Агент расставил ${json.anchors} плейсхолдеров (${sourceMode ? 'Pug' : 'HTML'})`, 'success', 3500);
+  return { ok: true, result: { anchors: json.anchors, total: json.total, missed: json.missed || [], ambiguous: json.ambiguous || [], target: sourceMode ? 'pug' : 'html',
+    note: 'Применено. Человек сохраняет письмо как обычно; откат — «Отменить».' } };
+}

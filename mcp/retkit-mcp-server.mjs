@@ -268,7 +268,7 @@ const SERVER_INSTRUCTIONS = [
   "",
   "Темы инструкций (retkit_studio_guide): emails — сборка писем; development — работа над кодом самой студии; architecture — устройство изнутри; blocks — формат блоков и слотов; locales — плейсхолдеры и переводы. Берите тему под задачу, а не всё сразу.",
   "",
-  "Локали и вёрстка письма в студии: письмо должно быть открыто у человека во вкладке «Код» — инструменты видят его оттуда, а правки приходят туда же с diff и кнопкой «Применить». Переводите сами, модель студии для этого не нужна: retkit_get_namespace_blocks (исходная локаль) → перевод → retkit_set_locale_blocks (вся локаль целиком, тот же порядок блоков). translate_locale_txt и create_locale с translate=true требуют ключа студии — не используйте их.",
+  "Локали и вёрстка письма в студии: письмо должно быть открыто у человека во вкладке «Код» — инструменты видят его оттуда; правки локалей и плейсхолдеры применяются там сразу (человек откатывает), прямая правка HTML приходит с diff на подтверждение. Флоу перевода: set_locale_blocks (en) → retkit_place_placeholders → set_locale_blocks (остальные локали). Переводите сами, модель студии для этого не нужна: retkit_get_namespace_blocks (исходная локаль) → перевод → retkit_set_locale_blocks (вся локаль целиком, тот же порядок блоков). translate_locale_txt и create_locale с translate=true требуют ключа студии — не используйте их.",
   "",
   "Переходы: retkit_open_in_code (холст → «Код») и retkit_open_in_constructor («Код» → холст) — ходите сами, человеку нажимать не нужно. Если нужного инструмента нет в вашем списке (клиент закешировал старый), вызывайте его через retkit_call.",
   "",
@@ -1237,6 +1237,27 @@ for (const [name, to, title, description] of [
     return asText(data.result);
   });
 }
+
+server.registerTool(
+  "retkit_place_placeholders",
+  {
+    title: "Код: расставить плейсхолдеры",
+    description:
+      "Расставить ${{ NS.block_NN }}$ в Pug-исходнике письма, открытого во вкладке «Код», по эталонной локали " +
+      "(обычно en) — та же кнопка «✱ Плейсхолдеры», что у человека, но без вопроса. Обязательный шаг, если делаете " +
+      "переводы: без плейсхолдеров локаль не подставится. Перед этим запишите эталонную локаль (set_locale_blocks).",
+    inputSchema: {
+      namespace: z.string().describe("Набор текстов письма (namespace)."),
+      refLocale: z.string().default("en").describe("Эталонная локаль."),
+    },
+    annotations: { openWorldHint: false },
+  },
+  async ({ namespace, refLocale = "en" }) => {
+    const data = await studioFetch("/api/agent/placeholders", { method: "POST", body: { namespace, refLocale } });
+    if (data?.ok === false) throw new Error(data.error || "Не удалось расставить плейсхолдеры");
+    return asText(data.result);
+  }
+);
 
 server.registerTool(
   "retkit_call",

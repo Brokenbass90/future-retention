@@ -124,7 +124,7 @@ try {
   check("агент видит локали открытого письма", /Hello/.test(blocksRead.content?.[0]?.text || ""), JSON.stringify(blocksRead).slice(0, 300));
   const wrote = await client.callTool({ name: "retkit_set_locale_blocks", arguments: { namespace: "ns", locale: "es", blocks: ["Hola", "Adiós"] } });
   const applyCmd = wbSeen.find((c) => c.tool === "wb_apply");
-  check("перевод агента пришёл во вкладку «Код» на применение", Boolean(applyCmd) && /Hola/.test(JSON.stringify(applyCmd.args.localeUpdates)) && /показана человеку/.test(wrote.content?.[0]?.text || ""), JSON.stringify(wrote).slice(0, 400));
+  check("перевод агента пришёл во вкладку «Код» на применение", Boolean(applyCmd) && /Hola/.test(JSON.stringify(applyCmd.args.localeUpdates)) && /Применено во вкладке/.test(wrote.content?.[0]?.text || ""), JSON.stringify(wrote).slice(0, 400));
   stopWb = true;
   fakeWb.catch(() => {});
   // Переход «→ В код» по просьбе агента: конструктор получает to_code,

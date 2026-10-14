@@ -150,6 +150,19 @@ export function registerAgentRoutes(router, deps) {
     }
   });
 
+  /** Плейсхолдеры по эталонной локали — в Pug открытого письма, сразу. */
+  router.post("/api/agent/placeholders", async (request, response) => {
+    try {
+      const body = await readRequestBody(request);
+      const reply = await callRelay(request.retkitActor?.token || "", "wb_placeholders",
+        { namespace: String(body?.namespace || ""), refLocale: String(body?.refLocale || "en") },
+        { channel: "workbench", timeoutMs: 45_000 });
+      sendJson(response, 200, reply);
+    } catch (error) {
+      sendJson(response, 500, { ok: false, error: error.message });
+    }
+  });
+
   router.post("/api/agent/call", async (request, response) => {
     try {
       const body = await readRequestBody(request);
@@ -230,13 +243,16 @@ export function registerAgentRoutes(router, deps) {
       if (hasEdits && request.retkitActor?.kind === "agent") {
         if (live) {
           const shown = await callRelay(token, "wb_apply", {
+            auto: true,
             note: String(body?.args?.reason || name),
             modifiedHtml: ctx.modifiedHtml || "",
             localeUpdates: ctx.pendingLocaleUpdates,
             localeDeletes: ctx.pendingLocaleDeletes || [],
           }, { channel: "workbench", timeoutMs: 15_000 });
           delivery = shown.ok
-            ? "Правка показана человеку во вкладке «Код» с diff и кнопкой «Применить». Скажите ему проверить и нажать."
+            ? (ctx.modifiedHtml
+              ? "Локали применены сразу; правка HTML показана человеку с diff и кнопкой «Применить» (прямая правка HTML отвязала бы локаль от Pug)."
+              : "Применено во вкладке «Код» сразу; человек может откатить кнопкой под сообщением агента.")
             : `Правку не удалось показать во вкладке «Код»: ${shown.error}`;
         } else {
           delivery = "Правка НЕ сохранена: письмо не открыто у человека во вкладке «Код». Попросите открыть его там и повторите.";
