@@ -4,9 +4,9 @@
   "description": "Отдельная текстовая плашка для content-зоны hero. Текст, фон, рамка, скругление, цвет и отступы настраиваются слотами.",
   "placement": "inner",
   "category": "hero",
-  "version": 2,
-  "pug": "table.iq-hero-date--iq-hero-date(role=\"presentation\" align=\"{{ align }}\")\n    tr\n        td.iq-hero-date--iq-hero-date-cell(align=\"{{ align }}\" style=\"background-color:{{ background_color }};background-image:url('{{ background_image }}');background-position:center;background-repeat:no-repeat;background-size:cover;border:{{ border }};border-radius:{{ radius }};padding:{{ padding }};text-align:{{ align }}\") {{ label }}",
-  "styl": ".iq-hero-date--iq-hero-date{border-collapse:separate!important}\n.iq-hero-date--iq-hero-date-cell{color:{{ text_color }};font-family:Helvetica,Arial,sans-serif!important;font-size:{{ font_size }}px;font-style:normal;font-weight:700;line-height:{{ line_height }}px}",
+  "version": 3,
+  "pug": "//- Своя строка: таблица с align=\"left\" в браузерах обтекается соседями\n//- (заголовок вставал справа от плашки), поэтому плашка лежит в строке на всю ширину.\ntable.iq-hero-date--row(role=\"presentation\" width=\"100%\")\n    tr\n        td.iq-hero-date--row-cell(align=\"{{ align }}\" style=\"text-align:{{ align }}\")\n            table.iq-hero-date--iq-hero-date(role=\"presentation\" align=\"{{ align }}\")\n                tr\n                    td.iq-hero-date--iq-hero-date-cell(align=\"{{ align }}\" style=\"background-color:{{ background_color }};background-image:url('{{ background_image }}');background-position:center;background-repeat:no-repeat;background-size:cover;border:{{ border }};border-radius:{{ radius }};padding:{{ padding }};text-align:{{ align }}\") {{ label }}",
+  "styl": ".iq-hero-date--iq-hero-date{border-collapse:separate!important}\n.iq-hero-date--iq-hero-date-cell{color:{{ text_color }};font-family:Helvetica,Arial,sans-serif!important;font-size:{{ font_size }}px;font-style:normal;font-weight:700;line-height:{{ line_height }}px}\n.iq-hero-date--row{width:100%;border-collapse:collapse}.iq-hero-date--row-cell{padding:0 0 16px 0!important}",
   "slots": [
     {
       "id": "label",

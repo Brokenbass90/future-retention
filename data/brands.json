@@ -19,7 +19,12 @@
         "link": "#FF7700"
       },
       "createdAt": "2026-08-02T19:10:24.788Z",
-      "updatedAt": "2026-08-03T07:40:50.712Z"
+      "updatedAt": "2026-08-03T07:40:50.712Z",
+      "assets": {
+        "logo": "https://fsms.quadcode.com/storage/public/cu/uq/33bjqakjdvu1n1f0/iq-logo-small.png",
+        "logo_light": "https://fsms.quadcode.com/storage/public/cs/gd/i86di3umufauu84g/Logotype%202.png",
+        "logo_alt": "IQ Option"
+      }
     },
     {
       "id": "X_IQBroker",
@@ -39,7 +44,12 @@
         "link": "#FF5500"
       },
       "createdAt": "2026-08-02T19:10:24.788Z",
-      "updatedAt": "2026-08-03T07:40:50.715Z"
+      "updatedAt": "2026-08-03T07:40:50.715Z",
+      "assets": {
+        "logo": "https://fsms.quadcode.com/storage/public/d5/ss/e6gggnfnh4cs771g/logo-broker.png",
+        "logo_alt": "IQ Broker",
+        "logo_href": "https://api.trade.iqbroker.com/v1/multi-links/open-asset?aff=7"
+      }
     },
     {
       "id": "X_assembled",

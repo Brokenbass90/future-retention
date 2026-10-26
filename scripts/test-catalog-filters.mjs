@@ -83,7 +83,13 @@ const hasMobile = (block) => {
   const html = read("public", "constructor.html");
   check("каталог открывается на готовых кусках", /data-filter="combo"[^>]*\n?[^>]*active|class="cat-tab active" data-filter="combo"/.test(html)
     || /cat-tab active[^>]*data-filter="combo"/.test(html));
-  check("вкладка обёрток объясняет, зачем она", /Ставится сама при первой секции/.test(html));
+  // Вкладки «Обёртки» и «Все» убраны: обёртка ставится сама, а вкладок три —
+  // Комбо, Секции (наружные), Внутри (внутренние).
+  check("вкладки «Обёртки» нет", !/data-filter="outer"/.test(html));
+  check("вкладки «Все» нет", !/data-filter="all"/.test(html));
+  check("три вкладки: комбо, секции, внутри",
+    ["combo", "section", "inner"].every((f) => html.includes(`data-filter="${f}"`)));
+  check("кнопки «Макет из Figma» нет — макет идёт через чат с ИИ", !/id="figmaPasteBtn"/.test(html));
 }
 
 console.log(`\ncatalog-filters: ${pass} ok, ${fail} fail`);

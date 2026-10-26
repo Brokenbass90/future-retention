@@ -130,6 +130,8 @@
           <span id="statLines">0 строк</span>
           <span class="stat-sep">·</span>
           <span id="statBlocks" style="color:var(--ph-translate)">0 блоков</span>
+          <span class="stat-sep">·</span>
+          <span id="statWeight" title="Вес появится, когда соберётся превью">⚖ —</span>
         </div>
         <!-- Decompile button: shown only on HTML tab — converts HTML→Pug -->
         <!-- Convert button shown only for Pug/Stylus source files -->
@@ -145,7 +147,7 @@
         <div class="convert-error hidden" id="convertError"></div>
       </div>
       <div class="editor-actions">
-        <button class="editor-action-btn" id="aiPlaceholdersBtn" style="color:#c4b5fd;border-color:rgba(139,92,246,.45)" title="Расставить плейсхолдеры по reference-локали. В письме из базы меняется Pug-исходник, а не скомпилированный HTML.">
+        <button class="editor-action-btn" id="aiPlaceholdersBtn" style="color:#c4b5fd;border-color:rgba(139,92,246,.45)" title="Расставить плейсхолдеры по reference-локали без ИИ: сначала дословно, иначе по порядку — каждый следующий текст письма занимает следующий блок TXT. Если текстов и мест разное число — откажется и ничего не изменит. В письме из базы меняется Pug-исходник.">
           ✱ Плейсхолдеры
         </button>
         <!-- Save source file button — shown only in source edit mode -->
@@ -343,6 +345,7 @@
       <div class="preview-brand-badge hidden" id="previewBrandBadge"></div>
       <button class="pencil-toggle" id="pencilToggle" title="Pencil mode — click any element in the preview to edit" aria-pressed="false">🖊</button>
       <button class="pencil-toggle" id="previewMaxBtn" title="Развернуть письмо на весь экран (скрыть код)" aria-pressed="false">⛶</button>
+      <button class="pencil-toggle" id="previewNoadaptBtn" aria-pressed="false" title="Адаптив везде, включая Gmail">📱 адаптив</button>
       <button class="pencil-toggle" id="previewRtlBtn" title="Сделать письмо RTL (право-центрировать). Идемпотентно — можно жать повторно.">⇄ RTL</button>
       <button class="pencil-toggle hidden" id="blocksPaletteToggle" title="Блоки — перетащи в письмо" aria-pressed="false">🧩 Блоки</button>
       <!-- Кнопка «В конструктор» убрана из панели превью: она дублировала
@@ -849,6 +852,8 @@
 <script src="/outline-parse.js"></script>
   <script src="/mcp-connect.js"></script>
   <script src="/click-to-source.js"></script>
+  <script src="/rtl-core.js"></script>
+  <script src="/email-weight.js"></script>
   <script src="/workbench.js"></script>
   <script src="/replace-across.js"></script>
   <script src="/replace-across-ui.js"></script>

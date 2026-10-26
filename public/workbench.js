@@ -1260,6 +1260,7 @@ async function requestReleasePreflightBuild(ctx) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
+      noadapt: isNoadaptOn(),
       brand: ctx.brand,
       mail: ctx.mail,
       namespaces: buildNamespacesForContext(ctx),
@@ -2329,6 +2330,41 @@ function rtlLangForButton() {
   return /^(?:ar|ur|fa|he)$/.test(lang) ? lang : 'ar';
 }
 
+// ─── Без адаптива в Gmail (--noadapt) ──────────────────────────────────────
+// Выкл (по умолчанию): письмо адаптивно везде, <style> лёгкий.
+// Вкл: сборка кладёт в <head> весь CSS (>16 КБ) — Gmail его выбрасывает и
+// показывает десктоп, браузер и почта iPhone адаптируются, как раньше.
+const NOADAPT_KEY = 'retkit.wb.noadapt';
+function isNoadaptOn() {
+  try { return localStorage.getItem(NOADAPT_KEY) === '1'; } catch { return false; }
+}
+(function setupNoadaptButton() {
+  const btn = document.getElementById('previewNoadaptBtn');
+  if (!btn) return;
+  const paint = () => {
+    const on = isNoadaptOn();
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.classList.toggle('active', on);
+    btn.textContent = on ? '📱 без Gmail' : '📱 адаптив';
+    btn.title = on
+      ? 'Сборка --noadapt: адаптив в браузере и почте iPhone, в Gmail десктоп. Нажмите — адаптив везде.'
+      : 'Адаптив везде, включая Gmail. Нажмите — собрать с --noadapt (в Gmail десктоп).';
+  };
+  paint();
+  btn.addEventListener('click', async () => {
+    const next = !isNoadaptOn();
+    try { localStorage.setItem(NOADAPT_KEY, next ? '1' : '0'); } catch {}
+    paint();
+    const ctx = state.srcCtx;
+    if (ctx && ctx.brand && ctx.mail && typeof performSourceEmailBuild === 'function') {
+      toast(next ? 'Пересобираю с --noadapt: в Gmail будет десктоп' : 'Пересобираю: адаптив везде', 'success', 3000);
+      await performSourceEmailBuild(ctx);
+    } else {
+      toast(next ? '--noadapt включён: действует на сборку писем из базы' : 'Адаптив везде', 'success', 3000);
+    }
+  });
+})();
+
 (function setupPreviewRtlButton() {
   const btn = document.getElementById('previewRtlBtn');
   if (!btn) return;
@@ -2362,7 +2398,14 @@ function rtlLangForButton() {
       if (typeof updateEditorStats === 'function') updateEditorStats();
       updatePreview();
       toast('Письмо арабизировано: направление справа налево, стороны отзеркалены. Ctrl+Z — вернуть.', 'success', 3500);
-    } catch (e) { toast('RTL: ' + (e.message || e), 'error', 5000); }
+    } catch (e) {
+      const msg = String(e.message || e);
+      if (/already transformed|RETKIT_RTL_MODE_CONFLICT/i.test(msg)) {
+        toast('Это письмо уже переведено в RTL другим способом — откройте исходный HTML и примените ещё раз.', 'warning', 6000);
+      } else {
+        toast('RTL: ' + msg, 'error', 5000);
+      }
+    }
     finally { btn.disabled = false; }
   });
 })();
@@ -4947,6 +4990,7 @@ function updatePreview() {
     }
     r.previewEmpty.classList.remove('hidden');
     r.previewEmpty.style.display = '';
+    updateWeightBadge();
     hideBlocksCarousel();
     r.blocksCarouselToggleBtn?.classList.remove('active');
     r.blocksCarouselToggleBtn?.classList.add('hidden');
@@ -4957,6 +5001,16 @@ function updatePreview() {
   const doc = r.previewFrame.contentDocument || r.previewFrame.contentWindow.document;
   doc.open(); doc.write(html); doc.close();
   wirePreviewFrameDragDrop();
+  updateWeightBadge();
+}
+
+// Весы: вес готового письма текущей локали (без служебной разметки превью).
+function updateWeightBadge() {
+  const el = document.getElementById('statWeight');
+  if (!el || !window.RetkitEmailWeight) return;
+  let html = '';
+  try { html = getRenderedHtml(true); } catch { html = ''; }
+  window.RetkitEmailWeight.paint(el, html);
 }
 
 /**
@@ -4995,421 +5049,31 @@ function boldify(text) {
   return text.replace(/@@([\s\S]*?)@@/g, '<b>$1</b>');
 }
 
-// ─── RTL transform (mirrors email-base/tools/rtl.js) ──────────────────────
-// Client-side port of the server-side rtl.js (kept here so the workbench
-// preview can RTL-transform on locale switch without a server round-trip).
-// Whenever you touch one file, mirror the change in the other.
-//
-// Default pipeline (must match server-side) is text-only: framework-derived
-// inline layout on body/table/td/img stays untouched. opts.mode="mirror" adds
-// physical side/align/known-column mirroring for templates that require it.
-//   4) button shells (table with innermost <td class="butt…">) get
-//      align="right" (no dir added)
-//   5) <p>/<h1-6>/<li> get dir="rtl" + text-align: right (if missing)
-//      (mixed text/media blocks are alignment-only in safe text mode)
-//   6) leaf <div> with text (no block children, not spacer) gets dir + align
-//      (mixed text/media leaves preserve their authored source order)
-//   6.5) direct-text <td>/<th> gets dir + align; structural cells stay intact
-//   7) <td class="butt"> gets dir="rtl"
-//   8) mirror mode only: direction:rtl on icon+text <a>/<button>
-//
-//   NO dir="rtl" on layout <td>, <table>, <center>, wrappers, or spacers.
+// ─── RTL transform ─────────────────────────────────────────────────────────
+// Один движок на студию, сборку базы и расширение RetKit: email-base/tools/rtl.js.
+// В браузер он приходит как /rtl-core.js (сервер оборачивает тот же файл),
+// поэтому превью арабской локали совпадает с тем, что сделает сборка и RTL Fix.
+// Режим по умолчанию — document (полная арабизация).
 function applyRtl(html, opts = {}) {
   if (!html || typeof html !== 'string') return html;
-
-  const modeRaw = typeof opts === 'string' ? opts : (opts && (opts.mode || opts.layout || opts.layoutMode));
-  const mode = /^(?:mirror|full)$/i.test(String(modeRaw || '').trim()) ? 'mirror' : 'text';
-  const RTL_FRAGMENT_MARKER_RE = /<!--\s*retkit-rtl:v(?:1|2(?::(?:text|mirror))?)\s*-->/i;
-  const RTL_V2_MARKER_RE = /<!--\s*retkit-rtl:v2:(text|mirror)\s*-->/i;
-  const getAppliedRtlMode = source => {
-    const marker = RTL_V2_MARKER_RE.exec(String(source || ''));
-    return marker ? marker[1].toLowerCase() : '';
-  };
-  const hasRtlAppliedMarker = source =>
-    /<html\b[^>]*\bdata-retkit-rtl\s*=\s*(["']?)1\1/i.test(source)
-      || RTL_FRAGMENT_MARKER_RE.test(source);
-  const looksLikeLegacyRtlOutput = source =>
-    /\bdata-rtl-swapped\s*=/i.test(source);
-  const markRtlApplied = (source, appliedMode = mode) => {
-    if (hasRtlAppliedMarker(source)) return source;
-    const marker = '<!--retkit-rtl:v2:' + appliedMode + '-->';
-    if (/<html\b/i.test(source)) {
-      return source.replace(/<html\b[^>]*>/i, open => open + marker);
-    }
-    return marker + source;
-  };
-  const createRtlModeConflict = (appliedMode, requestedMode) => {
-    const error = new Error('[rtl] HTML is already transformed in "' + appliedMode +
-      '" mode and cannot be switched to "' + requestedMode +
-      '" after mutation. Rebuild from clean source (Original) and apply the requested mode.');
-    error.code = 'RETKIT_RTL_MODE_CONFLICT';
-    error.appliedMode = appliedMode;
-    error.requestedMode = requestedMode;
-    return error;
-  };
-
-  // Already arabized as a whole (document marker, or dir="rtl" on <html>/<body>):
-  // the preview shows it as is, no second pass and no error.
-  if (/<!--\s*retkit-rtl:v2:document\s*-->/i.test(html)
-    || /<(?:html|body)\b[^>]*\bdir\s*=\s*(["']?)rtl\1/i.test(html)) return html;
-  const appliedMode = getAppliedRtlMode(html);
-  if (appliedMode) {
-    if (appliedMode === mode) return html;
-    throw createRtlModeConflict(appliedMode, mode);
+  const engine = window.RetKitRtlCore;
+  if (!engine || typeof engine.applyRtl !== 'function') {
+    console.warn('[rtl] /rtl-core.js не загрузился — превью без RTL');
+    return html;
   }
-  if (hasRtlAppliedMarker(html)) throw createRtlModeConflict('legacy/unknown', mode);
-  if (looksLikeLegacyRtlOutput(html)) {
-    if (mode !== 'mirror') throw createRtlModeConflict('mirror', mode);
-    return markRtlApplied(html, 'mirror');
+  const lang = (typeof rtlLangForButton === 'function') ? rtlLangForButton() : 'ar';
+  try {
+    return engine.applyRtl(html, { mode: 'document', lang, ...opts });
+  } catch (err) {
+    if (err && err.code === 'RETKIT_RTL_MODE_CONFLICT') {
+      // явный режим — вызывающий сам решает, что показать
+      if (opts && opts.mode) throw err;
+      // превью: письмо уже переведено в RTL другим режимом — показываем как есть
+      return html;
+    }
+    console.warn('[rtl] apply failed:', err && err.message ? err.message : err);
+    return html;
   }
-
-  const VISIBLE_TEXT_RE = /[A-Za-zА-Яа-яЁё֐-׿؀-ۿݐ-ݿ]/;
-  const hasVisibleText = s => {
-    if (!s) return false;
-    const text = String(s)
-      .replace(/<style[\s\S]*?<\/style>/gi, '')
-      .replace(/<script[\s\S]*?<\/script>/gi, '')
-      .replace(/<[^>]+>/g, ' ');
-    return VISIBLE_TEXT_RE.test(text) || /&[a-zA-Z]+;|&#\d+;/.test(String(s));
-  };
-
-  const readAttr = (attrs, name) => {
-    const src = String(attrs || '');
-    const quoted = new RegExp('\\b' + name + '\\s*=\\s*(["\'])([\\s\\S]*?)\\1', 'i').exec(src);
-    if (quoted) return quoted[2];
-    const bare = new RegExp('\\b' + name + '\\s*=\\s*([^\\s"\'>]+)', 'i').exec(src);
-    return bare ? bare[1] : '';
-  };
-  const hasClassToken = (attrs, re) => readAttr(attrs, 'class')
-    .split(/\s+/).filter(Boolean).some(t => re.test(t));
-
-  const withDirRtl = attrs => /\bdir\s*=/i.test(attrs) ? attrs : ' dir="rtl"' + attrs;
-  const INLINE_ORDER_MEDIA_RE = /<(?:img|svg|picture|video|object|embed|input)\b/i;
-
-  // ── 0) Explicit cleanup of stale legacy dir="rtl" ────────────────
-  if (opts && typeof opts === 'object' && opts.cleanupLegacy === true) {
-    html = html.replace(/\s+dir\s*=\s*(["']?)rtl\1/gi, '');
-  }
-
-  // ── 1) text-align flip in CSS and inline styles ──────────────────
-  const flipTextAlignInCss = css => !css ? css : css.replace(
-    /\btext-align\s*:\s*(left|start|end)\b([^;}\n]*)/gi,
-    (match, value, rest) => /\!\s*important/i.test(rest) ? match : 'text-align: right' + rest
-  );
-  const flipTextAlignInStyleAttr = attrs => {
-    if (!/\bstyle\s*=/i.test(attrs)) return attrs;
-    return attrs.replace(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i,
-      (_m, q, body) => 'style=' + q + flipTextAlignInCss(body) + q);
-  };
-  // Keep global framework CSS in <head> intact. In particular, changing
-  // `img{float:left}` globally makes logos and content images jump sides.
-  // Precise inline/text-block rules below are sufficient for RTL content.
-  if (mode === 'mirror') {
-    html = html.replace(/<([a-z][\w:-]*)([^>]*)>/gi, (m, tag, attrs) => {
-      if (/^(?:style|script)$/i.test(tag)) return m;
-      if (!/\bstyle\s*=/i.test(attrs)) return m;
-      return '<' + tag + flipTextAlignInStyleAttr(attrs) + '>';
-    });
-  }
-
-  // ── 2) Physical-side swap (padding/margin/float + background-position)
-  const swapPhysicalSidesInCss = css => {
-    if (!css) return css;
-    let out = css.replace(/\bfloat\s*:\s*(left|right)\b([^;}\n]*)/gi, (match, value, rest) => {
-      if (/\!\s*important/i.test(rest)) return match;
-      return 'float: ' + (value === 'left' ? 'right' : 'left') + rest;
-    });
-    const TOKEN_L = '\x00LFT\x00', TOKEN_R = '\x00RGT\x00';
-    out = out.replace(/\bpadding-left\s*:\s*([^;}\n]+?)(?=\s*(?:;|}|$|\n))/gi,
-      (match, value) => /\!\s*important/i.test(value) ? match : 'padding-' + TOKEN_L + ': ' + value.trim());
-    out = out.replace(/\bpadding-right\s*:\s*([^;}\n]+?)(?=\s*(?:;|}|$|\n))/gi,
-      (match, value) => /\!\s*important/i.test(value) ? match : 'padding-' + TOKEN_R + ': ' + value.trim());
-    out = out.replace(/\bmargin-left\s*:\s*([^;}\n]+?)(?=\s*(?:;|}|$|\n))/gi,
-      (match, value) => /\!\s*important/i.test(value) ? match : 'margin-' + TOKEN_L + ': ' + value.trim());
-    out = out.replace(/\bmargin-right\s*:\s*([^;}\n]+?)(?=\s*(?:;|}|$|\n))/gi,
-      (match, value) => /\!\s*important/i.test(value) ? match : 'margin-' + TOKEN_R + ': ' + value.trim());
-    out = out.replace(new RegExp(TOKEN_L, 'g'), 'right').replace(new RegExp(TOKEN_R, 'g'), 'left');
-
-    const POS_L = '\x00POSL\x00', POS_R = '\x00POSR\x00';
-    out = out.replace(/\bbackground-position\s*:\s*([^;}\n]+)/gi, (match, value) => {
-      if (/\!\s*important/i.test(value)) return match;
-      return 'background-position: ' + value.replace(/\bleft\b/g, POS_L).replace(/\bright\b/g, POS_R);
-    });
-    out = out.replace(/\bbackground\s*:\s*([^;}\n]+)/gi, (match, value) => {
-      if (/\!\s*important/i.test(value)) return match;
-      const swapped = value.replace(/(url\([^)]*\))|(\bleft\b)|(\bright\b)/g, (m, u, l, r) => u || (l ? POS_L : (r ? POS_R : m)));
-      return 'background: ' + swapped;
-    });
-    out = out.replace(new RegExp(POS_L, 'g'), 'right').replace(new RegExp(POS_R, 'g'), 'left');
-    return out;
-  };
-  const swapPhysicalSidesInStyleAttr = attrs => {
-    if (!/\bstyle\s*=/i.test(attrs)) return attrs;
-    return attrs.replace(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i,
-      (_m, q, body) => 'style=' + q + swapPhysicalSidesInCss(body) + q);
-  };
-  if (mode === 'mirror') {
-    html = html.replace(/<([a-z][\w:-]*)([^>]*)>/gi, (m, tag, attrs) => {
-      if (/^(?:style|script)$/i.test(tag)) return m;
-      if (!/\bstyle\s*=/i.test(attrs)) return m;
-      return '<' + tag + swapPhysicalSidesInStyleAttr(attrs) + '>';
-    });
-  }
-
-  // ── 3) Flip align="left|start|end" on every tag (no dir added) ───
-  const flipAlign = attrs => attrs.replace(/\balign\s*=\s*(["']?)(left|start|end)\1/gi, 'align="right"');
-  if (mode === 'mirror') {
-    html = html.replace(/<([a-z][\w:-]*)([^>]*)>/gi, (m, tag, attrs) => {
-      if (/^(?:style|script)$/i.test(tag) || !/\balign\s*=/i.test(attrs)) return m;
-      return '<' + tag + flipAlign(attrs) + '>';
-    });
-  }
-
-  // ── 4) Button shells — innermost <table> enclosing a <td class="butt…">
-  const buttonShellStarts = (() => {
-    const marked = new Set();
-    const stack = [];
-    const tagRe = /<(\/?)(table|td|th)\b([^>]*)>/gi;
-    let m;
-    while ((m = tagRe.exec(html)) !== null) {
-      const closing = m[1] === '/'; const tag = m[2].toLowerCase();
-      if (!closing) {
-        if (tag === 'table') stack.push({ start: m.index });
-        else {
-          const cls = readAttr(m[3] || '', 'class');
-          const isButt = cls.split(/\s+/).some(t => /^butt(?:[-_].*)?$/i.test(t));
-          if (isButt && stack.length) marked.add(stack[stack.length - 1].start);
-        }
-      } else if (tag === 'table') stack.pop();
-    }
-    return marked;
-  })();
-  const isButtonClassToken = attrs =>
-    hasClassToken(attrs, /^(?:button|tiny-button|small-button|medium-button(?:-[\w-]+)?|large-button)$/i)
-      || hasClassToken(attrs, /(?:^|-)button(?:-|$)/i);
-  const forceAlignRightAttr = attrs => {
-    if (!/\balign\s*=/i.test(attrs)) return attrs + ' align="right"';
-    return attrs.replace(/\balign\s*=\s*(["'])([\s\S]*?)\1/i, 'align="right"')
-                .replace(/\balign\s*=\s*([^\s"\'>]+)/i, 'align="right"');
-  };
-  // Centered-by-design buttons must STAY centered in RTL (parity with
-  // email-base/tools/rtl.js): own align="center", margin auto, or sitting
-  // inside <center> / a center-aligned td/div — leave untouched.
-  const isSelfCentered = attrs => {
-    if (/\balign\s*=\s*(["']?)(?:center|middle)\1/i.test(attrs)) return true;
-    const sm = String(attrs || '').match(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i);
-    if (sm && /\bmargin\s*:\s*[^;]*\bauto\b/i.test(sm[2])) return true;
-    if (sm && /\bmargin-left\s*:\s*auto\b/i.test(sm[2]) && /\bmargin-right\s*:\s*auto\b/i.test(sm[2])) return true;
-    return false;
-  };
-  const centeredCtxStarts = (() => {
-    const centered = new Set();
-    const stack2 = [];
-    const re = /<(\/?)(table|td|th|center|div)\b([^>]*)>/gi;
-    let mm;
-    while ((mm = re.exec(html)) !== null) {
-      const closing = mm[1] === '/'; const tag = mm[2].toLowerCase(); const attrs = mm[3] || '';
-      if (closing) { stack2.pop(); continue; }
-      if (/\/\s*$/.test(attrs)) continue;
-      let centers = false;
-      if (tag === 'center') centers = true;
-      else if (tag === 'td' || tag === 'th' || tag === 'div') {
-        if (/\balign\s*=\s*(["']?)(?:center|middle)\1/i.test(attrs)) centers = true;
-        else {
-          const sm = attrs.match(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i);
-          if (sm && /\btext-align\s*:\s*center\b/i.test(sm[2])) centers = true;
-        }
-      }
-      if (tag === 'table' && stack2.some(Boolean)) centered.add(mm.index);
-      stack2.push(centers);
-    }
-    return centered;
-  })();
-  html = html.replace(/<table\b([^>]*)>/gi, (m, attrs, offset) => {
-    if (!isButtonClassToken(attrs) && !buttonShellStarts.has(offset)) return m;
-    if (isSelfCentered(attrs)) return m;
-    if (!/\balign\s*=/i.test(attrs) && centeredCtxStarts.has(offset)) return m;
-    return '<table' + forceAlignRightAttr(attrs) + '>';
-  });
-
-  // ── 4.5) Two-column content rows (td.m-w + td.w-a): swap cell order so
-  //         the number/icon column sits on the RIGHT in RTL. Marked with
-  //         data-rtl-swapped="1" → re-runs are no-ops. Parity with core.
-  if (mode === 'mirror') html = (function mirrorTwoColumnRows(h) {
-    const isNarrow = a => hasClassToken(a, /^m-w$/i);
-    const isAuto = a => hasClassToken(a, /^w-a$/i);
-    const qualifies = (a, b) => (isNarrow(a) && isAuto(b)) || (isAuto(a) && isNarrow(b));
-    const re = /<(\/?)(table|tr|td|th)\b([^>]*)>/gi;
-    const stack3 = []; const swaps = [];
-    let mm;
-    while ((mm = re.exec(h)) !== null) {
-      const closing = mm[1] === '/'; const tag = mm[2].toLowerCase();
-      if (!closing) {
-        const frame = { tag, start: mm.index, openEnd: re.lastIndex, attrs: mm[3] || '', tds: [] };
-        if ((tag === 'td' || tag === 'th') && stack3.length && stack3[stack3.length - 1].tag === 'tr') {
-          stack3[stack3.length - 1].tds.push(frame);
-        }
-        stack3.push(frame);
-      } else {
-        let frame = null;
-        for (let i = stack3.length - 1; i >= 0; i--) {
-          if (stack3[i].tag === tag) { frame = stack3[i]; stack3.length = i; break; }
-        }
-        if (!frame) continue;
-        frame.end = re.lastIndex;
-        if (tag === 'tr') {
-          const tds = frame.tds.filter(td => td.end != null);
-          if (tds.length === 2 && !/\bdata-rtl-swapped\b/i.test(frame.attrs) && qualifies(tds[0].attrs, tds[1].attrs)) {
-            swaps.push({ tr: frame, a: tds[0], b: tds[1] });
-          }
-        }
-      }
-    }
-    if (!swaps.length) return h;
-    const inner = swaps.filter(s => !swaps.some(o => o !== s && o.tr.start > s.tr.start && o.tr.end < s.tr.end));
-    inner.sort((x, y) => y.tr.start - x.tr.start);
-    let out = h;
-    for (const { tr, a, b } of inner) {
-      const between = out.slice(a.end, b.start);
-      const swapped = out.slice(b.start, b.end) + between + out.slice(a.start, a.end);
-      out = out.slice(0, a.start) + swapped + out.slice(b.end);
-      out = out.slice(0, tr.start) + '<tr data-rtl-swapped="1"' + tr.attrs + '>' + out.slice(tr.openEnd);
-    }
-    return out;
-  })(html);
-
-  // ── 5) p / h* / li get dir + text-align: right (if no text-align set) ──
-  const ensureTextAlignRightIfMissing = attrs => {
-    const currentMatch = String(attrs || '').match(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i);
-    const currentAlign = currentMatch && currentMatch[2].match(/\btext-align\s*:\s*([a-zA-Z-]+)/i);
-    if (currentAlign && !/^(?:left|start|end)$/i.test(currentAlign[1])) return attrs;
-    if (currentAlign) attrs = flipTextAlignInStyleAttr(attrs);
-    const attrAlign = readAttr(attrs, 'align').toLowerCase();
-    if (/^(?:center|middle|right|justify)$/.test(attrAlign)) return attrs;
-    if (/^(?:left|start|end)$/.test(attrAlign)) attrs = forceAlignRightAttr(attrs);
-    if (currentAlign) return attrs;
-    if (!/\bstyle\s*=/i.test(attrs)) return attrs + ' style="text-align: right;"';
-    return attrs.replace(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i,
-      (_m, q, body) => 'style=' + q + body.replace(/\s*;?\s*$/, ';') + ' text-align: right;' + q);
-  };
-  const textBlocksWithInlineMedia = (() => {
-    const marked = new Set();
-    const stack = [];
-    const re = /<(\/?)\s*(p|h[1-6]|li)\b([^>]*)>/gi;
-    let match;
-    while ((match = re.exec(html)) !== null) {
-      if (!match[1]) {
-        stack.push({ tag: match[2].toLowerCase(), start: match.index, openEnd: re.lastIndex });
-        continue;
-      }
-      const tag = match[2].toLowerCase();
-      let frame = null;
-      for (let index = stack.length - 1; index >= 0; index -= 1) {
-        if (stack[index].tag === tag) {
-          frame = stack[index]; stack.length = index; break;
-        }
-      }
-      if (frame && INLINE_ORDER_MEDIA_RE.test(html.slice(frame.openEnd, match.index))) marked.add(frame.start);
-    }
-    return marked;
-  })();
-  html = html.replace(/<(p|h[1-6]|li)\b([^>]*)>/gi, (m, tag, attrs, offset) => {
-    const preserveInlineOrder = mode !== 'mirror' && textBlocksWithInlineMedia.has(offset);
-    return '<' + tag + ensureTextAlignRightIfMissing(preserveInlineOrder ? attrs : withDirRtl(attrs)) + '>';
-  });
-
-  // ── 6) leaf <div> with real text (not spacer) gets dir + align ───
-  const isSpacerDivContent = inner => {
-    const stripped = String(inner || '')
-      .replace(/<br\s*\/?>/gi, '')
-      .replace(/&nbsp;|&#160;|&#xa0;/gi, '')
-      .replace(/<[^>]+>/g, '')
-      .replace(/\s+/g, '');
-    return stripped.length === 0;
-  };
-  html = html.replace(/<div\b([^>]*)>([\s\S]*?)<\/div>/gi, (m, attrs, inner) => {
-    if (/<(?:p|h[1-6]|li|div|table)\b/i.test(inner)) return m;
-    if (!hasVisibleText(inner)) return m;
-    if (isSpacerDivContent(inner)) return m;
-    const preserveInlineOrder = mode !== 'mirror' && INLINE_ORDER_MEDIA_RE.test(inner);
-    return '<div' + ensureTextAlignRightIfMissing(preserveInlineOrder ? attrs : withDirRtl(attrs)) + '>' + inner + '</div>';
-  });
-
-  // ── 6.5) Direct-text td/th gets direction; layout-only cells do not ──
-  const hasMeaningfulDirectText = text => {
-    const stripped = String(text || '')
-      .replace(/&nbsp;|&#160;|&#xa0;|&#8203;|&#x200b;/gi, '')
-      .replace(/\s+/g, '');
-    return stripped.length > 0 && hasVisibleText(stripped);
-  };
-  const hasDirectVisibleText = inner => {
-    const blockTagRe = /^(?:table|tbody|thead|tfoot|tr|td|th|center|div|p|h[1-6]|ul|ol|li|blockquote)$/i;
-    const tokenRe = /<!--[\s\S]*?-->|<[^>]+>|[^<]+/g;
-    let depth = 0;
-    let token;
-    while ((token = tokenRe.exec(String(inner || ''))) !== null) {
-      const part = token[0];
-      if (part.startsWith('<!--')) continue;
-      if (part.startsWith('<')) {
-        const tag = /^<\s*(\/?)\s*([a-z][\w:-]*)\b[^>]*>/i.exec(part);
-        if (!tag || !blockTagRe.test(tag[2])) continue;
-        if (tag[1]) depth = Math.max(0, depth - 1);
-        else if (!/\/\s*>$/.test(part)) depth += 1;
-        continue;
-      }
-      if (depth === 0 && hasMeaningfulDirectText(part)) return true;
-    }
-    return false;
-  };
-  const directTextCellStarts = (() => {
-    const pairs = [];
-    const stack = [];
-    const re = /<(\/?)\s*(td|th)\b([^>]*)>/gi;
-    let match;
-    while ((match = re.exec(html)) !== null) {
-      if (!match[1]) stack.push({ start: match.index, openEnd: re.lastIndex });
-      else {
-        const frame = stack.pop();
-        if (frame) pairs.push(Object.assign(frame, { closeStart: match.index }));
-      }
-    }
-    return new Map(
-      pairs
-        .map(pair => Object.assign(pair, { inner: html.slice(pair.openEnd, pair.closeStart) }))
-        .filter(pair => hasDirectVisibleText(pair.inner))
-        .map(pair => [pair.start, INLINE_ORDER_MEDIA_RE.test(pair.inner)])
-    );
-  })();
-  html = html.replace(/<(td|th)\b([^>]*)>/gi, (m, tag, attrs, offset) => {
-    if (!directTextCellStarts.has(offset)) return m;
-    const preserveInlineOrder = mode !== 'mirror' && directTextCellStarts.get(offset);
-    return '<' + tag + ensureTextAlignRightIfMissing(preserveInlineOrder ? attrs : withDirRtl(attrs)) + '>';
-  });
-
-  // ── 7) <td class="butt…"> gets dir="rtl" (link text reads RTL) ──
-  html = html.replace(/<(td|th)\b([^>]*)>/gi, (m, tag, attrs) => {
-    if (!hasClassToken(attrs, /^butt(?:[-_].*)?$/i)) return m;
-    return '<' + tag + withDirRtl(attrs) + '>';
-  });
-
-  // ── 8) smart icon-text mirror for <a>/<button> ──────────────────
-  if (mode === 'mirror' && opts.smart !== false) {
-    html = html.replace(/<(a|button)\b([^>]*)>([\s\S]*?)<\/\1>/gi, (m, tag, attrs, inner) => {
-      if (!/<(?:img|svg|i\b|span\s+class=["\'][^"\']*\bicon)/i.test(inner)) return m;
-      if (!hasVisibleText(inner)) return m;
-      if (/\bdirection\s*:/i.test(attrs)) return m;
-      let nextAttrs;
-      if (/\bstyle\s*=/i.test(attrs)) {
-        nextAttrs = attrs.replace(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i,
-          (_full, q, body) => 'style=' + q + body.replace(/\s*;?\s*$/, ';') + ' direction: rtl;' + q);
-      } else {
-        nextAttrs = attrs + ' style="direction: rtl;"';
-      }
-      return '<' + tag + nextAttrs + '>' + inner + '</' + tag + '>';
-    });
-  }
-
-  return markRtlApplied(html, mode);
 }
 
 // ─── Preview click → editor highlight ──────────────────────────
@@ -7871,6 +7535,7 @@ async function performSourceEmailBuild(ctx) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+      noadapt: isNoadaptOn(),
         brand: ctx.brand || undefined,
         mail: ctx.mail || undefined,
         namespaces: buildNamespacesForContext(ctx),
@@ -8485,6 +8150,7 @@ async function buildEmail(brand, mail, btnEl) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+      noadapt: isNoadaptOn(),
         brand,
         mail,
         namespaces: targetNamespaces,
@@ -11623,34 +11289,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!refTxt) { toast('Нет reference TXT в этом namespace', 'warning'); return; }
     const sourceMode = Boolean(ctx && !ctx.viewingCompiledHtml && /\.(?:pug|jade)$/i.test(ctx.activeFile || ''));
     setBusy(pBtn, '✱ Плейсхолдеры');
-    try {
-      const res = await fetch(sourceMode ? '/api/wb/placeholderize-source' : '/api/wb/ai/placeholderize', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(sourceMode
-          ? { pug: editorSource, refLocaleTxt: refTxt, namespace: ns.name }
-          : { html: editorSource, refLocaleTxt: refTxt, namespace: ns.name }),
-      });
-      const json = await res.json();
-      if (res.status === 404) throw new Error('Сервер не подхватил новый редактор исходников. Перезапусти студию и попробуй снова.');
-      if (!res.ok || !json.ok) throw new Error(json.error || `HTTP ${res.status}`);
-      const total = Number(json.total ?? parseTxt(refTxt).length);
-      if (!json.anchors) {
-        toast(`Совпадений не найдено: 0/${total}. Проверь выбранный namespace и reference-локаль.`, 'warning', 4800);
-        return;
-      }
-      const summary =
-        `${sourceMode ? 'В Pug найдено' : 'AI нашёл'} ${json.anchors}/${total} текстовых блоков. ` +
-        (json.missed?.length ? `Не нашёл: ${json.missed.join(', ')}. ` : '') +
-        (json.ambiguous?.length ? `Неоднозначно: ${json.ambiguous.join(', ')}. ` : '') +
-        `\n\nПрименить к ${sourceMode ? 'Pug-исходнику' : 'HTML'}?`;
-      if (!confirm(summary)) { toast('Плейсхолдеры не применены', 'info'); return; }
+    // Без ИИ. Pug: сначала ищем тексты TXT в исходнике дословно; если нашлись
+    // не все — расставляем по порядку (N-й текст письма ← N-й блок TXT).
+    // HTML — сразу по порядку. Счёт не сошёлся — отказ и уведомление.
+    const applyResult = (nextSource, count, label) => {
       pushUndoSnapshot('Плейсхолдеры по ' + String(refLocale || '').toUpperCase());
       _suppressSrcModified = true;
       cm.operation(() => {
         const lastLine = cm.lastLine();
         const lastCh = cm.getLine(lastLine)?.length ?? 0;
-        cm.replaceRange(sourceMode ? json.pug : json.html, { line: 0, ch: 0 }, { line: lastLine, ch: lastCh });
+        cm.replaceRange(nextSource, { line: 0, ch: 0 }, { line: lastLine, ch: lastCh });
       });
       setTimeout(() => { _suppressSrcModified = false; }, 0);
       if (sourceMode && ctx) {
@@ -11662,13 +11310,66 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       updatePreview();
       updateEditorStats();
-      toast(`✓ ${json.anchors} плейсхолдеров применено к ${sourceMode ? 'Pug' : 'HTML'}`, 'success', 3200);
+      toast(`✓ ${count} плейсхолдеров ${label}`, 'success', 3200);
+    };
+    try {
+      if (sourceMode) {
+        const res = await fetch('/api/wb/placeholderize-source', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pug: editorSource, refLocaleTxt: refTxt, namespace: ns.name }),
+        });
+        const json = await res.json();
+        if (res.status === 404) throw new Error('Сервер не подхватил новый редактор исходников. Перезапусти студию и попробуй снова.');
+        if (!res.ok || !json.ok) throw new Error(json.error || `HTTP ${res.status}`);
+        const total = Number(json.total ?? parseTxt(refTxt).length);
+        if (json.anchors && json.anchors === total) {
+          if (!confirm(`В Pug найдены все ${total} текстов TXT дословно.\n\nПрименить к Pug-исходнику?`)) { toast('Плейсхолдеры не применены', 'info'); return; }
+          applyResult(json.pug, json.anchors, 'применено к Pug (совпадение текстов)');
+          return;
+        }
+      }
+      const res = await fetch('/api/wb/placeholderize-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ source: editorSource, kind: sourceMode ? 'pug' : 'html', refLocaleTxt: refTxt, namespace: ns.name }),
+      });
+      const json = await res.json();
+      if (res.status === 404) throw new Error('Сервер не подхватил расстановку по порядку. Перезапусти студию и попробуй снова.');
+      if (json.refused) {
+        const extra = (json.extra || []).length ? `\nЛишнее: «${json.extra.join('», «')}»` : '';
+        notifyPlaceholderRefusal(json.error + extra);
+        return;
+      }
+      if (!res.ok || !json.ok) throw new Error(json.error || `HTTP ${res.status}`);
+      const preview = (json.pairs || []).slice(0, 6)
+        .map((pair) => `«${String(pair.text).slice(0, 40)}» → ${pair.token.replace(/^\$\{\{\s*|\s*\}\}\$$/g, '')}`).join('\n');
+      const more = (json.pairs || []).length > 6 ? `\n… и ещё ${(json.pairs || []).length - 6}` : '';
+      const already = json.alreadyPlaced ? `Уже стояло: ${json.alreadyPlaced}.\n` : '';
+      if (!confirm(`По порядку: ${json.placed} текстов письма ← ${json.placed} блоков ${String(refLocale).toUpperCase()}-TXT.\n${already}\n${preview}${more}\n\nПрименить к ${sourceMode ? 'Pug-исходнику' : 'HTML'}?`)) {
+        toast('Плейсхолдеры не применены', 'info');
+        return;
+      }
+      applyResult(json.source, json.placed, `расставлено по порядку в ${sourceMode ? 'Pug' : 'HTML'}`);
     } catch (err) {
       toast(`Не удалось расставить плейсхолдеры: ${err.message}`, 'error');
     } finally {
       clearBusy(pBtn);
     }
   });
+
+  // Отказ расставлять — громко: тост в студии и системное уведомление
+  // (если браузер разрешил), чтобы не пропустить, переключившись в другое окно.
+  function notifyPlaceholderRefusal(message) {
+    toast(`✋ ${message}`, 'error', 9000);
+    try {
+      const Notify = window.Notification;
+      if (!Notify) return;
+      const show = () => new Notify('Плейсхолдеры не расставлены', { body: message, tag: 'retkit-placeholders' });
+      if (Notify.permission === 'granted') show();
+      else if (Notify.permission !== 'denied') Notify.requestPermission().then((p) => { if (p === 'granted') show(); });
+    } catch { /* уведомления недоступны — тоста достаточно */ }
+  }
 
   // ── Translate active locale's TXT from EN (or chosen src) ───────────────
   tBtn?.addEventListener('click', async () => {

@@ -286,16 +286,26 @@ function rtlInlineFallback(source, opts = {}) {
 export function applyLocaleDirectionToHtml(html, locale, cleanText, opts = {}) {
   const source = typeof cleanText === "function" ? cleanText(html) : String(html || "");
   if (!source || !isRtlLocale(locale)) return source;
+  // Без явного режима — полная арабизация (document), как сборка базы и
+  // кнопка RTL Fix в расширении. Явный mode от вызывающего не трогаем.
+  const explicitMode = Boolean(opts && (opts.mode || opts.layout || opts.layoutMode));
+  const effective = explicitMode
+    ? opts
+    : { ...opts, mode: "document", lang: (opts && opts.lang) || parseLocaleForDirection(locale).language || "ar" };
   const core = loadRtlCore();
   if (core && typeof core.applyRtl === "function") {
     try {
-      return core.applyRtl(source, opts);
+      return core.applyRtl(source, effective);
     } catch (err) {
-      if (err && err.code === "RETKIT_RTL_MODE_CONFLICT") throw err;
+      if (err && err.code === "RETKIT_RTL_MODE_CONFLICT") {
+        // Превью: письмо уже переведено в RTL другим режимом — показываем как есть.
+        if (!explicitMode) return source;
+        throw err;
+      }
       console.warn("[rtl] core apply failed:", err && err.message ? err.message : err);
     }
   }
-  return rtlInlineFallback(source, opts);
+  return rtlInlineFallback(source, effective);
 }
 
 /**

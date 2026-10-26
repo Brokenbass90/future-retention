@@ -71,10 +71,11 @@ const headerOk = header?.status === "no-canonical-block"
 check("роль header закрыта каноническим блоком или честно помечена пустой",
   headerOk, JSON.stringify(header || null));
 
-const hero = result.plan.find((p) => p.id === "iq-combo-hero-bgr");
-check("hero title filled from design heading", hero?.slots.title_text === "Welcome traders");
-check("hero body filled from design body", hero?.slots.body_text === "Trade smarter today.");
-check("hero image filled from design image", hero?.slots.head_image === "https://example.com/hero.png");
+// Хедер — комбо «картинка-сцена» (iq-combo-hero-bgr убран из каталога).
+const hero = result.plan.find((p) => p.id === "iq-combo-hero-scene");
+check("hero title filled from design heading", hero?.slots.title === "Welcome traders");
+check("hero body filled from design body", hero?.slots.body === "Trade smarter today.");
+check("hero image filled from design image", hero?.slots.bg_image === "https://example.com/hero.png");
 
 const cta = result.plan.find((p) => p.id === "iq-combo-steps-promocode");
 check("cta label filled from design cta text", cta?.slots.cta_label === "Sign up");

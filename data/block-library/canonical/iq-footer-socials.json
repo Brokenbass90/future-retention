@@ -1,6 +1,6 @@
 {
   "id": "iq-footer-socials",
-  "label": "Футер: соцсети (встроенные ссылки по локалям)",
+  "label": "[устарел] Футер: соцсети (встроенные ссылки по локалям)",
   "description": "Ряд иконок соцсетей для футера. Ссылки по умолчанию берутся из встроенного namespace soc-block-2 (vendor/data/<locale>/soc-block-2.json) и локализуются при сборке автоматически: TikTok, Instagram, Trading Dashboard, YouTube, Telegram. Любую ссылку можно переопределить в слоте на свою.",
   "placement": "section",
   "category": "footer",
@@ -89,5 +89,6 @@
     "combo",
     "iq"
   ],
-  "scoped": true
+  "scoped": true,
+  "retired": true
 }

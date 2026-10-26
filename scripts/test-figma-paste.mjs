@@ -258,7 +258,9 @@ const imported = {
   check("снимок уходит на поиск похожих блоков", /Найди похожие блоки/.test(constructorJs));
 
   const html = read("public", "constructor.html");
-  check("кнопка есть в разметке", html.includes('id="figmaPasteBtn"'));
+  // Кнопку из боковой колонки убрали: макет из Figma разбирает ИИ в чате, туда его
+  // и перетаскивают. Окно вставки и разбор остаются для чата и агента.
+  check("кнопки в боковой колонке нет", !html.includes('id="figmaPasteBtn"'));
   check("панель подключена", html.includes("/figma-paste.js"));
 }
 

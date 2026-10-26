@@ -496,7 +496,7 @@ async function inlineHtml(html, inlineCssText) {
 
 async function main() {
   const argv = minimist(process.argv.slice(2), {
-    boolean: ['minifyCss', 'base', 'failOnMissing', 'failOnWeight', 'pretty', 'trimCss', 'minifyHtml', 'minifyAll', 'skip-locales'],
+    boolean: ['noadapt', 'minifyCss', 'base', 'failOnMissing', 'failOnWeight', 'pretty', 'trimCss', 'minifyHtml', 'minifyAll', 'skip-locales'],
     string: ['rtl-mode', 'warnHtmlKb', 'clipHtmlKb', 'warnHeadCssKb', 'maxHtmlKb'],
     default: {
       minifyCss: true,
@@ -510,7 +510,9 @@ async function main() {
       minifyHtml: false,
       minifyAll: false,
       'skip-locales': false,
-      'rtl-mode': 'text',
+      // document — полная арабизация, как кнопка RTL Fix в расширении RetKit
+      // и кнопка RTL в студии. Откат на старое поведение: --rtl-mode=text.
+      'rtl-mode': 'document',
     },
     alias: {
       c: 'category',
@@ -630,7 +632,10 @@ async function writeHtmlPair(dirAbs, htmlCompact, htmlPretty, { emitPretty = fal
   const locales = argv['skip-locales']
     ? []
     : (parseLocalesArg(argv.locales) || (await listLocales(langDirAbs)));
-  const rtlMode = /^(?:mirror|full)$/i.test(String(argv['rtl-mode'] || '').trim()) ? 'mirror' : 'text';
+  const rtlModeRaw = String(argv['rtl-mode'] || '').trim();
+  const rtlMode = /^(?:document|arabic|arabize|full-document)$/i.test(rtlModeRaw)
+    ? 'document'
+    : (/^(?:mirror|full)$/i.test(rtlModeRaw) ? 'mirror' : 'text');
 
   // 1) CSS (compile once, then assemble per-output). In RAW HTML MODE
   // with no stylus entry, we use an empty CSS — HTML is taken verbatim.
@@ -728,6 +733,7 @@ async function writeHtmlPair(dirAbs, htmlCompact, htmlPretty, { emitPretty = fal
     return htmlText.replace(/>\s+</g, '><').trim();
   }
 
+  let noadaptHeadBytes = 0;
   async function buildHtmlVariant({ minifyHead, prettyHtml, minifyInline, minifyHtml }) {
     const minifySafe = (css) => {
       if (!minifyHead || !css) return css;
@@ -790,6 +796,16 @@ async function writeHtmlPair(dirAbs, htmlCompact, htmlPretty, { emitPretty = fal
     }
 
     headCssFinal = stripEmptyAtRules(headCssFinal);
+
+    // --noadapt: в <head> кладём весь CSS письма, не только @media. <style>
+    // становится больше 16 КБ, Gmail выбрасывает его целиком вместе с @media —
+    // в Gmail письмо остаётся десктопным, браузер и почта iPhone адаптируются.
+    if (argv.noadapt) {
+      let fullCss = inlineCssRaw || '';
+      try { fullCss = csso.minify(fullCss).css; } catch {}
+      headCssFinal = [fullCss, headCssFinal].filter(Boolean).join('\n');
+      noadaptHeadBytes = Math.max(noadaptHeadBytes, Buffer.byteLength(headCssFinal, 'utf8'));
+    }
     html = renderHtml(headCssFinal, prettyHtml);
 
     // 3) Inline
@@ -896,9 +912,10 @@ async function writeHtmlPair(dirAbs, htmlCompact, htmlPretty, { emitPretty = fal
     }
 
     if (isRtlLocaleCode(locale)) {
-      try { localized = applyRtlToHtml(localized, { mode: rtlMode }); } catch (e) { console.warn(`[build] RTL apply failed for '${locale}': ${e.message || e}`); }
+      const rtlLang = String(locale).split(/[-_]/)[0].toLowerCase();
+      try { localized = applyRtlToHtml(localized, { mode: rtlMode, lang: rtlLang }); } catch (e) { console.warn(`[build] RTL apply failed for '${locale}': ${e.message || e}`); }
       if (localizedPretty) {
-        try { localizedPretty = applyRtlToHtml(localizedPretty, { mode: rtlMode }); } catch {}
+        try { localizedPretty = applyRtlToHtml(localizedPretty, { mode: rtlMode, lang: rtlLang }); } catch {}
       }
     }
     registerEmailWeight(locale, localized);
@@ -946,6 +963,15 @@ async function writeHtmlPair(dirAbs, htmlCompact, htmlPretty, { emitPretty = fal
           "Use compact content/styles or raise --maxHtmlKb explicitly.",
         );
       }
+    }
+  }
+
+  if (argv.noadapt) {
+    const kb = (noadaptHeadBytes / 1024).toFixed(1);
+    if (noadaptHeadBytes <= 17 * 1024) {
+      console.warn(`[build] WARN noadapt: <style> всего ${kb} KB — меньше 17 KB Gmail его не выбросит, адаптив в Gmail останется`);
+    } else {
+      console.log(`[build] noadapt: <style> ${kb} KB > 16 KB — Gmail выбросит его, в Gmail письмо будет десктопным`);
     }
   }
 

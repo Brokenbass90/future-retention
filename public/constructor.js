@@ -6,7 +6,7 @@
  *     library:        [{ id, label, description, placement, category, slots, ... }, ...],
  *     canvas:         [{ uid, blockId, blockSource, parentUid, slotId, slots }, ...],
  *     selectedUid:    1 | null,
- *     filter:         "section" | "inline" | "all",
+ *     filter:         "combo" | "section" | "inner",
  *   }
  *
  * Three panes refresh from `state`:
@@ -152,6 +152,14 @@ function defaultSlotsFor(block, overrides) {
     for (const [targetId, value] of Object.entries(assignments)) {
       if (!overrides || !Object.prototype.hasOwnProperty.call(overrides, targetId)) slots[targetId] = value;
     }
+  }
+
+  // Слот с brandAsset берёт значение из ресурсов активного бренда (data/brands.json
+  // → assets): системный логотип у IQ Broker свой, а не IQ Option.
+  const brandAssets = (typeof window !== "undefined" && window.RetkitBrands?.active?.()?.assets) || {};
+  for (const slot of block?.slots || []) {
+    const asset = slot?.brandAsset ? brandAssets[slot.brandAsset] : "";
+    if (asset && !(overrides && Object.prototype.hasOwnProperty.call(overrides, slot.id))) slots[slot.id] = asset;
   }
 
   const outerBgOverridden = overrides && Object.prototype.hasOwnProperty.call(overrides, "background_color");
@@ -1011,8 +1019,21 @@ function duplicateToUserBlock(b) {
  * выглядел ровно как нормальный. Теперь: картинка сразу, а если превью не
  * собралось — честный бейдж с причиной.
  */
-function catalogThumbMarkup(b) {
+/**
+ * Превью под активный бренд. Универсальные блоки (системный набор) снимаются
+ * отдельно под каждый бренд — scripts/render-block-previews.mjs кладёт их в
+ * preview.brands[blockTag]. Нет варианта под бренд — общее превью.
+ */
+function brandedPreview(b) {
   const p = b && b.preview;
+  if (!p || p.status !== "ok") return p;
+  const tag = String(window.RetkitBrands?.active?.()?.blockTag || "").toLowerCase();
+  const variant = tag && p.brands ? p.brands[tag] : null;
+  return variant?.desktop ? { ...p, desktop: variant.desktop, mobile: variant.mobile || null } : p;
+}
+
+function catalogThumbMarkup(b) {
+  const p = brandedPreview(b);
   if (p && p.status === "ok" && p.desktop) {
     const alt = escapeHtml(`${b.label || b.id} — превью блока`);
     return `<img class="cat-thumb-img" src="${escapeHtml(p.desktop.url)}" alt="${alt}" loading="lazy" decoding="async"
@@ -1046,7 +1067,7 @@ function signaturePillsMarkup(b) {
  * натуральную величину колонки письма, с прокруткой если он длинный.
  */
 function previewPairMarkup(b) {
-  const p = b && b.preview;
+  const p = brandedPreview(b);
   if (p && p.status === "failed") {
     return `<div class="block-view-preview-failed">Превью не собралось: ${escapeHtml(p.error || "неизвестная причина")}</div>`;
   }
@@ -1266,14 +1287,77 @@ function instantiateCombo(block, opts = {}) {
   return last || container || outer;
 }
 
+/* ─── Разделители между секциями ставятся сами ───────────────────────────
+ * Человек добавляет секцию или комбо из каталога — студия сама ставит
+ * разделитель сверху (если секция первая) и между ней и соседями, где его
+ * нет. Вытягивать разделитель руками больше не нужно. Удалённый вручную
+ * разделитель обратно не возвращается: правило срабатывает только при
+ * добавлении из каталога, не при каждом изменении письма. Агент ставит
+ * разделители сам, его вставки правило не трогает.
+ */
+function isSectionSpacerBlock(block) {
+  if (!block) return false;
+  const tags = block.tags || [];
+  return tags.includes("combo-divider") || tags.includes("outer-divider")
+    || (placementOf(block) !== "inner" && /(?:^|-)spacer$/.test(String(block.id || "")));
+}
+
+function sectionSpacerBlock() {
+  return (state.library || []).find((b) => isSectionSpacerBlock(b)
+    && (placementOf(b) === "section" || placementOf(b) === "both")
+    && catalogSourceAllowed(b, "curated") && blockAllowedInKit(b) && !blockBelongsToOtherBrand(b)) || null;
+}
+
+function autoSpaceSections(addedEntries) {
+  const outer = rootOuterEntry();
+  const spacer = sectionSpacerBlock();
+  if (!outer || !spacer) return;
+  const heightSlot = (spacer.slots || []).find((slot) => slot.id === "height");
+  const spacerEntry = (height) => createEntry(spacer, {
+    parentUid: outer.uid,
+    slotId: "sections",
+    slots: heightSlot ? { height: /px$/.test(String(heightSlot.default || "")) ? `${height}px` : String(height) } : undefined,
+  });
+  const isSpacer = (entry) => isSectionSpacerBlock(blockForEntry(entry));
+  const added = addedEntries.filter((entry) => sameUid(entry.parentUid, outer.uid) && !isSpacer(entry));
+  for (const entry of added) {
+    const siblings = childrenOf(outer.uid, entry.slotId);
+    const index = siblings.findIndex((candidate) => sameUid(candidate.uid, entry.uid));
+    if (index < 0) continue;
+    const prev = siblings[index - 1];
+    const next = siblings[index + 1];
+    // Отбивка от «потолка» письма — выше; между карточками — 12px, как в письмах.
+    if (!prev) {
+      const top = spacerEntry(30); top.slotId = entry.slotId;
+      insertEntryAfterSiblings(top, null, entry.uid);
+    } else if (!isSpacer(prev) && !(entry.recipeInstanceId && prev.recipeInstanceId === entry.recipeInstanceId)) {
+      // части одного комбо (сноски + соцсети) идут вплотную, как в письме
+      const gap = spacerEntry(12); gap.slotId = entry.slotId;
+      insertEntryAfterSiblings(gap, null, entry.uid);
+    }
+    if (next && !isSpacer(next) && !added.some((other) => sameUid(other.uid, next.uid))
+      && !(entry.recipeInstanceId && next.recipeInstanceId === entry.recipeInstanceId)) {
+      const gap = spacerEntry(12); gap.slotId = entry.slotId;
+      insertEntryAfterSiblings(gap, null, next.uid);
+    }
+  }
+}
+
 function addToCanvas(block, options = {}) {
   if (!block) return;
   const opts = (typeof options === "number") ? {} : (options || {});
   pushCanvasUndo();
+  // Только добавление человеком из каталога (см. autoSpaceSections).
+  const autoSpace = ["catalog", "gallery", "catalog-menu"].includes(opts.origin);
+  const before = autoSpace ? new Set(state.canvas.map((entry) => String(entry.uid))) : null;
+  const spaceNew = () => {
+    if (autoSpace) autoSpaceSections(state.canvas.filter((entry) => !before.has(String(entry.uid))));
+  };
 
   if (Array.isArray(block.children) && block.children.length) {
     const selected = instantiateCombo(block, opts);
     if (selected) opts.onEntry?.(selected);
+    spaceNew();
     finishCanvasMutation(selected?.uid, block, opts.origin);
     return;
   }
@@ -1349,6 +1433,7 @@ function addToCanvas(block, options = {}) {
   });
   insertEntryAfterSiblings(entry, opts.afterUid, opts.beforeUid);
   opts.onEntry?.(entry);
+  spaceNew();
   finishCanvasMutation(entry.uid, block, opts.origin);
 }
 
@@ -1471,7 +1556,8 @@ function normalizeCanvasOrder(override) {
  * созданный user-блок) — оставляем иконку размещения, как было.
  */
 function canvasCardThumbMarkup(block) {
-  const shot = block?.preview?.status === "ok" && block.preview.desktop;
+  const branded = brandedPreview(block);
+  const shot = branded?.status === "ok" && branded.desktop;
   if (!shot) return `<span class="canvas-card-icon">${PLACEMENT_ICON[block.placement] || "📐"}</span>`;
   return `<span class="canvas-card-thumb" title="${escapeHtml(block.label || block.id)}">
       <img src="${escapeHtml(shot.url)}" alt="" loading="lazy" decoding="async">
@@ -3410,7 +3496,9 @@ async function runLivePreview() {
     };
     frame.srcdoc = _lastLiveHtml;
     const warn = (data.warnings && data.warnings.length) ? ` · ⚠${data.warnings.length}` : "";
-    setLiveStatus(`${data.blocksUsed}/${data.totalBlocks} блоков · ${(data.htmlLength/1024).toFixed(1)}KB${warn}`, "ok");
+    setLiveStatus(`${data.blocksUsed}/${data.totalBlocks} блоков${warn}`, "ok");
+    // Весы считают собранное письмо, а не превью со служебной разметкой.
+    if (typeof window !== "undefined") window.RetkitEmailWeight?.paint($("liveWeight"), data.html);
     settleLiveWaiters({
       ok: true,
       blocksUsed: data.blocksUsed,

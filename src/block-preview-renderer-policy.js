@@ -27,6 +27,8 @@ export function previewKeysToPrune(index, library, { source = "all", only = null
   return Object.keys(index?.blocks || {}).filter((key) => {
     const entrySource = String(key).split(":", 1)[0];
     const inScope = source === "all" || entrySource === source;
-    return inScope && !alive.has(key);
+    // «canonical:sys-logo@iqbroker» — превью того же блока под бренд: живёт,
+    // пока жив сам блок.
+    return inScope && !alive.has(String(key).split("@", 1)[0]);
   });
 }

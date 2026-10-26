@@ -627,7 +627,7 @@ export function userBlockDir() { return USER_BLOCK_DIR; }
  * Merge block.slots[] defaults with user-supplied values.
  * Throws if a required slot is missing AND has no default.
  */
-export function resolveBlockSlotValues(block, userSlots = {}) {
+export function resolveBlockSlotValues(block, userSlots = {}, { brandAssets = null } = {}) {
   if (!userSlots || typeof userSlots !== "object" || Array.isArray(userSlots)) {
     throw new Error(`block ${block?.id || "unknown"}: slots must be an object`);
   }
@@ -636,8 +636,12 @@ export function resolveBlockSlotValues(block, userSlots = {}) {
     if (!slot || !SAFE_BLOCK_ID_RE.test(String(slot.id || ""))) {
       throw new Error(`block ${block?.id || "unknown"}: invalid slot definition`);
     }
+    const brandValue = slot.brandAsset && brandAssets ? brandAssets[slot.brandAsset] : "";
     if (Object.prototype.hasOwnProperty.call(userSlots, slot.id)) {
       out[slot.id] = normalizeTypedSlotValue(block, slot, userSlots[slot.id]);
+    } else if (brandValue) {
+      // Ресурс бренда (логотип IQ Broker и т.п.) вместо общего значения по умолчанию.
+      out[slot.id] = normalizeTypedSlotValue(block, slot, brandValue);
     } else if ("default" in slot) {
       out[slot.id] = normalizeTypedSlotValue(block, slot, slot.default);
     } else {
@@ -889,9 +893,14 @@ export function composeEmailFromBlocks({
   campaign = "",
   requireApprovedBlocks = false,
   allowTrustedParsedBlocks = false,
+  // Тема и ресурсы другого бренда при сборке в чужую папку — для превью блоков
+  // под каждый бренд (scripts/render-block-previews.mjs собирает в X_preview).
+  themeBrand = "",
 }) {
   const target = resolveComposeEmailTarget({ brand, mailName, destRoot });
   const safeBrand = target.brand;
+  let brandAssetsForCompose = null;
+  try { brandAssetsForCompose = getBrand(themeBrand || safeBrand)?.assets || null; } catch { /* реестр недоступен */ }
   const safeMailName = target.mailName;
   const destDir = target.destDir;
   const resolvedSkeleton = resolveTrustedSkeleton(skeleton, trustedSkeletonRoots);
@@ -948,7 +957,7 @@ export function composeEmailFromBlocks({
     if (requireApprovedBlocks && !(origin === "parsed" && allowTrustedParsedBlocks)) {
       assertBlockReleaseApproved(block, origin);
     }
-    const slotValues = resolveBlockSlotValues(block, entry.slots || {});
+    const slotValues = resolveBlockSlotValues(block, entry.slots || {}, { brandAssets: brandAssetsForCompose });
     resolved.push({ entry, block, origin, slotValues, inputIndex });
   }
   if (!resolved.length) throw new Error(`no resolvable blocks (warnings: ${warnings.join("; ")})`);
@@ -1250,7 +1259,7 @@ export function composeEmailFromBlocks({
   //
   // На письма, где $brand_* не используется, это не влияет никак:
   // неиспользованная переменная Stylus не даёт ни байта CSS.
-  const composedStyl = brandThemeStylusHeader(safeBrand) + stylParts.join("\n");
+  const composedStyl = brandThemeStylusHeader(themeBrand || safeBrand) + stylParts.join("\n");
 
   // Final in-memory gate before the first destructive filesystem operation.
   // Slot validation catches constructor/API values; this second pass also

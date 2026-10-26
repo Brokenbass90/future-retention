@@ -131,8 +131,9 @@ export function previewForBlock(block) {
   if (!block || !block.id) return null;
   const index = loadPreviewIndex();
   const entry = index.blocks?.[`${block.source || "canonical"}:${block.id}`]
-    // Блок мог переехать между директориями — ищем по id как запасной вариант.
-    || Object.values(index.blocks || {}).find((b) => b.id === block.id);
+    // Блок мог переехать между директориями — ищем по id как запасной вариант
+    // (превью под бренд сюда не годится: у него свой ключ с «@»).
+    || Object.entries(index.blocks || {}).find(([key, b]) => b.id === block.id && !key.includes("@"))?.[1];
   if (!entry) return null;
   if (entry.error) return { status: "failed", error: entry.error };
   // Группа одинаковых на вид блоков (scripts/group-block-duplicates.mjs):
@@ -145,12 +146,24 @@ export function previewForBlock(block) {
       members: index.groups[entry.groupId].members || [],
     }
     : null;
+  // Превью того же блока под бренд (универсальные блоки перекрашиваются темой
+  // бренда): ключи вида «canonical:sys-logo@iqbroker».
+  const baseKey = `${block.source || "canonical"}:${block.id}`;
+  const brands = {};
+  for (const [key, variant] of Object.entries(index.blocks || {})) {
+    if (!key.startsWith(`${baseKey}@`) || variant?.error || !variant?.shots?.desktop) continue;
+    brands[key.slice(baseKey.length + 1)] = {
+      desktop: toUrl(variant.shots.desktop),
+      mobile: variant.shots.mobile ? toUrl(variant.shots.mobile) : null,
+    };
+  }
   return {
     status: "ok",
     desktop: entry.shots?.desktop ? toUrl(entry.shots.desktop) : null,
     mobile: entry.shots?.mobile ? toUrl(entry.shots.mobile) : null,
     signature: entry.signature || null,
     group,
+    ...(Object.keys(brands).length ? { brands } : {}),
   };
 }
 

@@ -31,6 +31,13 @@
  *   node scripts/render-block-previews.mjs --sheet 6          # блоков на сборку
  *   node scripts/render-block-previews.mjs --force            # игнорировать кэш
  *   node scripts/render-block-previews.mjs --no-mobile        # только desktop
+ *   node scripts/render-block-previews.mjs --brand X_IQBroker # только превью универсальных блоков под бренд
+ *   node scripts/render-block-previews.mjs --no-brands        # без превью под бренды
+ *   node scripts/render-block-previews.mjs --offline          # без сети: картинки заглушкой
+ *
+ * Картинки блоков качаются по-настоящему (один раз за прогон); без сети —
+ * заглушка. Универсальные блоки (kits, без тега бренда) снимаются ещё и под
+ * каждый активный бренд: canonical:sys-logo@iqbroker → sys-logo.iqbroker.desktop.png.
  *
  * Разовая настройка: npx playwright-core install --only-shell chromium
  */
@@ -45,6 +52,7 @@ import { chromium } from "playwright-core";
 import { PNG } from "pngjs";
 
 import { composeEmailFromBlocks } from "../src/compose-email.js";
+import { loadBrands } from "../src/brands.js";
 import {
   blockPreviewSourceHash,
   previewBackdropForBlock,
@@ -81,6 +89,14 @@ const ONLY = opt("only", null);
 const LIMIT = Number(opt("limit", 0)) || Infinity;
 const SHEET_SIZE = Math.max(1, Number(opt("sheet", 8)) || 8);
 const FORCE = flag("force");
+// --brand X_IQBroker — только превью универсальных блоков под этот бренд.
+// --no-brands — без превью под бренды. --offline — без сети, картинки заглушкой.
+const BRAND_ONLY = opt("brand", null);
+const NO_BRANDS = flag("no-brands");
+const OFFLINE = flag("offline");
+// Версия рендера: поднимается, когда меняется сам способ съёмки (не блоки).
+// Rev 2 — настоящие картинки вместо заглушки; старые превью перерисуются сами.
+const RENDER_REV = 2;
 const SYSTEM_CHROME_CANDIDATES = process.platform === "darwin"
   ? [
       "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
@@ -127,6 +143,31 @@ const IMAGE_PLACEHOLDER = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" w
   </g>
 </svg>`, "utf8");
 const PLACEHOLDER_TYPE = "image/svg+xml";
+
+/**
+ * Настоящие картинки блока на превью: по превью с заглушкой нельзя было
+ * отличить hero от логотипа. Каждую картинку качаем один раз за прогон;
+ * не скачалась (нет сети, 404, --offline) — ставим заглушку, прогон не падает.
+ */
+const imageCache = new Map();
+async function serveImage(route) {
+  const placeholder = { contentType: PLACEHOLDER_TYPE, body: IMAGE_PLACEHOLDER };
+  if (OFFLINE) return route.fulfill(placeholder);
+  const target = route.request().url();
+  if (!imageCache.has(target)) {
+    imageCache.set(target, (async () => {
+      try {
+        const response = await route.fetch({ timeout: 15000 });
+        const contentType = response.headers()["content-type"] || "";
+        const body = await response.body();
+        if (response.ok() && /^image\//i.test(contentType) && body.length) return { contentType, body };
+      } catch { /* сети нет — заглушка */ }
+      return null;
+    })());
+  }
+  const image = await imageCache.get(target);
+  return route.fulfill(image ? { status: 200, ...image } : placeholder);
+}
 
 /* ─── Демо-наполнение пустых обёрток ─────────────────────────────────────── */
 // Секция-обёртка без содержимого визуально неотличима от любой другой.
@@ -233,9 +274,10 @@ function makeSandbox() {
   return dir;
 }
 
-function buildSheet(sandbox, mailName, entries) {
+function buildSheet(sandbox, mailName, entries, themeBrand = "") {
   composeEmailFromBlocks({
     brand: "X_preview",
+    themeBrand,
     mailName,
     blocks: entries,
     destRoot: sandbox,
@@ -434,6 +476,25 @@ async function main() {
   if (ONLY) library = library.filter((b) => b.id.includes(ONLY));
   library.sort((a, b) => (a.source + a.id).localeCompare(b.source + b.id));
 
+  if (!BRAND_ONLY) await runPass(library);
+  if (NO_BRANDS) return;
+
+  // Универсальные блоки (без тега бренда) перекрашиваются темой бренда, и у
+  // системного логотипа свой логотип бренда. Превью снимаем под каждый бренд,
+  // иначе в IQ Broker × System каталог показывал блоки в цветах IQ Option.
+  const brands = loadBrands().filter((b) => b.active && !b.service && (!BRAND_ONLY || b.id === BRAND_ONLY));
+  const known = new Set(loadBrands().map((b) => b.blockTag).filter(Boolean));
+  // Универсальные — те, что явно входят в наборы (kits) и не помечены брендом:
+  // это блоки системного набора. Импортированные из старых писем сюда не идут.
+  const neutral = library.filter((b) => Array.isArray(b.kits) && b.kits.length
+    && !(b.tags || []).some((t) => known.has(String(t).toLowerCase())));
+  for (const brand of brands) {
+    console.log(`\n── превью под бренд ${brand.label} (${brand.blockTag}): ${neutral.length} универсальных блоков`);
+    await runPass(neutral, { brand: { id: brand.id, tag: brand.blockTag } });
+  }
+}
+
+async function runPass(library, { brand = null } = {}) {
   // Индекс читаем ВСЕГДА, даже с --force. Иначе прогон с фильтром
   // (`--only ... --force`) стирал записи всех остальных блоков: картинки на
   // диске оставались, а каталог считал, что превью у них нет.
@@ -450,7 +511,7 @@ async function main() {
   // фильтром, и всё остальное выглядело бы удалённым. При --source чистим
   // только выбранный namespace: canonical-прогон не владеет imported/user.
   let pruned = 0;
-  if (!ONLY) {
+  if (!ONLY && !brand) {
     for (const key of previewKeysToPrune(index, library, { source: SOURCE, only: ONLY })) {
       const entry = index.blocks[key];
       for (const shot of Object.values(entry?.shots || {})) {
@@ -465,11 +526,11 @@ async function main() {
   const todo = [];
   for (const b of library) {
     const hash = blockHash(b);
-    const key = `${b.source}:${b.id}`;
+    const key = `${b.source}:${b.id}${brand ? `@${brand.tag}` : ""}`;
     const prev = index.blocks[key];
     const filesOk = prev && !prev.error && WIDTHS.every((w) =>
       prev.shots?.[w.name]?.file && existsSync(path.join(repoRoot, prev.shots[w.name].file)));
-    if (!FORCE && prev && prev.hash === hash && filesOk) continue;
+    if (!FORCE && prev && prev.hash === hash && prev.rev === RENDER_REV && filesOk) continue;
     todo.push({ block: b, hash, key });
     if (todo.length >= LIMIT) break;
   }
@@ -516,9 +577,7 @@ async function main() {
         viewport: { width: w.width, height: 900 }, deviceScaleFactor: 1, reducedMotion: "reduce",
       });
       await ctx.route(/^https?:\/\//, (route) =>
-        route.request().resourceType() === "image"
-          ? route.fulfill({ contentType: PLACEHOLDER_TYPE, body: IMAGE_PLACEHOLDER })
-          : route.abort());
+        route.request().resourceType() === "image" ? serveImage(route) : route.abort());
       contexts[w.name] = { ctx, page: await ctx.newPage() };
     }
   }
@@ -557,7 +616,7 @@ async function main() {
 
     let htmlPath;
     try {
-      htmlPath = buildSheet(sandbox, mailName, entries);
+      htmlPath = buildSheet(sandbox, mailName, entries, brand?.id || "");
     } catch (e) {
       if (retry && items.length > 1) {
         for (const one of items) await renderSheet([one], { retry: false });
@@ -607,7 +666,7 @@ async function main() {
         if (!m || m.error) { firstError ||= m?.error || "не удалось измерить блок"; continue; }
         const dir = path.join(outRoot, block.source);
         mkdirSync(dir, { recursive: true });
-        const file = path.join(dir, `${block.id}.${w.name}.png`);
+        const file = path.join(dir, `${block.id}${brand ? `.${brand.tag}` : ""}.${w.name}.png`);
         // Клип не должен вылезать за границы страницы — иначе playwright ругается.
         const clip = {
           x: m.box.x, y: m.box.y,
@@ -638,6 +697,8 @@ async function main() {
         placement: block.placement || null,
         category: block.category || null,
         hash: t.hash,
+        rev: RENDER_REV,
+        ...(brand ? { brand: brand.tag } : {}),
         shots,
         signature: buildSignature(block, measuredByWidth.desktop[uid], colorsByWidth, shots),
       };
@@ -658,14 +719,14 @@ async function main() {
       { uid: "outer-txt", blockId: "iq-text-title", parentUid: secUid, slotId: "content", slots: {} },
     ];
     try {
-      const htmlPath = buildSheet(sandbox, mailName, entries);
+      const htmlPath = buildSheet(sandbox, mailName, entries, brand?.id || "");
       const shots = {}; const colorsByWidth = {};
       for (const w of WIDTHS) {
         const { page } = contexts[w.name];
         await page.goto(url.pathToFileURL(htmlPath).href, { waitUntil: "load", timeout: 30000 });
         const dir = path.join(outRoot, b.source);
         mkdirSync(dir, { recursive: true });
-        const file = path.join(dir, `${b.id}.${w.name}.png`);
+        const file = path.join(dir, `${b.id}${brand ? `.${brand.tag}` : ""}.${w.name}.png`);
         const buf = await page.screenshot({ path: file, fullPage: true });
         const dim = PNG.sync.read(buf);
         shots[w.name] = { file: path.relative(repoRoot, file), width: dim.width, height: dim.height };
@@ -673,7 +734,7 @@ async function main() {
       }
       index.blocks[t.key] = {
         id: b.id, source: b.source, label: b.label || b.id, placement: "outer",
-        category: b.category || null, hash: t.hash, shots,
+        category: b.category || null, hash: t.hash, rev: RENDER_REV, ...(brand ? { brand: brand.tag } : {}), shots,
         signature: buildSignature(b, { dom: {} }, colorsByWidth, shots),
       };
       done++;

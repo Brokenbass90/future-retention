@@ -48,7 +48,8 @@ for (const block of canonical) {
 
 const indexedCanonical = Object.keys(index.blocks || {}).filter((key) => key.startsWith("canonical:"));
 assert.deepEqual(
-  indexedCanonical.filter((key) => !expectedKeys.has(key)),
+  // «canonical:sys-logo@iqbroker» — превью того же блока под бренд.
+  indexedCanonical.filter((key) => !expectedKeys.has(key.split("@", 1)[0])),
   [],
   "preview index must not retain orphan canonical entries",
 );

@@ -45,6 +45,7 @@ import { callOllamaChat } from "./src/ollama-client.js";
 import { resolveStudioRuntimeFlags } from "./src/runtime-flags.js";
 import { placeholderizeHtml, fixLocaleTxt, translateLocaleTxt } from "./src/locale-ai.js";
 import { placeholderizePugSource } from "./src/pug-placeholderize.js";
+import { registerLocaleToolsRoutes } from "./src/routes/locale-tools-routes.js";
 import { runAgent } from "./src/ai-agent.js";
 import { normalizeConstructorCatalog, describeCatalogForAgent } from "./src/constructor-catalog.js";
 import { readThread, appendTurn, noteSurface, historyForModel, describeOtherSurface } from "./src/agent-thread.js";
@@ -189,6 +190,7 @@ import {
 } from "./src/preview-build-coordinator.js";
 import { shouldClassifyAiToolIntent } from "./src/ai-intent-routing.js";
 import { ACTIVE_EMAIL_BASE_BRANDS, partitionEmailBaseGroups, visibleEmailBaseGroups } from "./src/active-base-policy.js";
+import { createPreviewAutoRender } from "./src/preview-autorender.js";
 import {
   auditMailSourceBeforeBuild,
   resolveWorkbenchMailRoot,
@@ -241,6 +243,7 @@ registerMcpRoutes(studioRouter, {
   isAuthEnabled: () => Boolean(studioRuntimeFlags.authEnabled),
 });
 registerShotRoutes(studioRouter, { sendJson, readRequestBody });
+registerLocaleToolsRoutes(studioRouter, { repoRoot: __dirname, sendJson, sendText: (...args) => sendText(...args), readRequestBody });
 registerRelayRoutes(studioRouter, { sendJson, readRequestBody });
 registerAgentThreadRoutes(studioRouter, { repoRoot: __dirname, sendJson });
 registerSourceRoutes(studioRouter, { repoRoot: __dirname, sendJson });
@@ -17572,6 +17575,7 @@ const server = http.createServer(async (request, response) => {
           return;
         }
         const saved = await saveUserBlockWithLifecycle({ payload: blockJson, target, force });
+        previewAutoRender.schedule(id).catch(() => {});
         try { await appendStudioJournalEntry({ area: "blocks", title: `User block saved: ${id}`, message: `placement=${placement}, slots=${slots.length}`, meta: { id, placement, category, slots: slots.length } }); } catch {}
         sendJson(response, 200, { ok: true, id, path: path.relative(__dirname, target), review: saved.review });
       } catch (err) {
@@ -19278,6 +19282,8 @@ const server = http.createServer(async (request, response) => {
         // A user-triggered release preflight is the strict production gate and
         // checks the compact Pug output before any export can continue.
         if (releasePreflightRequested) buildArgs.push("--failOnWeight");
+        // Кнопка «📱» в «Коде»: без адаптива в Gmail (полный <style> > 16 КБ).
+        if (body?.noadapt === true) buildArgs.push("--noadapt");
         const buildResult = await new Promise((resolve, reject) => {
           const child = spawn(
             nodeBinary(),
@@ -19606,6 +19612,15 @@ if (studioRuntimeFlags.publicDemo) {
   console.warn("[runtime] Studio AI is disabled by STUDIO_AI_ENABLED.");
 }
 
+// Превью каталога перерисовываются сами: при запуске — всё изменённое,
+// после сохранения блока — этот блок (src/preview-autorender.js).
+const previewAutoRender = createPreviewAutoRender({ repoRoot: __dirname, nodeBinary: nodeBinary() });
+
 server.listen(port, () => {
   console.log(`Email Studio Demo is running on http://localhost:${port}`);
+  setTimeout(() => {
+    previewAutoRender.schedule().then((started) => {
+      if (started) console.log("[previews] фоном перерисовываю изменившиеся превью каталога");
+    }).catch(() => {});
+  }, 15000).unref?.();
 });

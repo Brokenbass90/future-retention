@@ -99,6 +99,24 @@ try {
   assert.match(html, /\$\{\{ untouched\.namespace \}\}\$/,
     "localization placeholders outside <style> must remain untouched");
 
+  // --noadapt: весь CSS письма остаётся и в <head> (Gmail выбросит <style> > 16 КБ
+  // вместе с @media), инлайн при этом тот же. Фикстура маленькая — ждём WARN.
+  const noadaptBuild = await execFileAsync(process.execPath, [
+    buildMailPath,
+    "--category", "X_Test",
+    "--mail", "css",
+    "--skip-locales",
+    "--noadapt",
+  ], { cwd: root, maxBuffer: 2 * 1024 * 1024 });
+  const noadaptHtml = await readFile(path.join(root, "dist/X_Test/mail-css/index.html"), "utf8");
+  const noadaptHead = noadaptHtml.match(/<head\b[^>]*>([\s\S]*?)<\/head>/i)?.[1] || "";
+  assert.match(noadaptHead, /\.card\s*\{[^}]*background-color:\s*#e5e7eb/i,
+    "--noadapt keeps regular rules in <head>");
+  assert.match(noadaptHead, /@media/i, "--noadapt keeps @media");
+  assert.match(noadaptHtml, /<table[^>]+class="card"[^>]+style="[^"]*background-color:\s*#e5e7eb/i,
+    "--noadapt still inlines");
+  assert.match(noadaptBuild.stderr, /WARN noadapt: <style>/);
+
   // Production uses minified head CSS. Nested at-rules normally end in `}}`,
   // which must be separated for the downstream template pipeline without
   // rewriting braces in the email body.

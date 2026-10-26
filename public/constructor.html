@@ -64,25 +64,23 @@
       <div class="palette-context">
         <div class="palette-breadcrumb" id="paletteBreadcrumb">Письмо</div>
         <div class="palette-context-row">
-          <span id="paletteContextHint">Начни с обёртки или готового комбо</span>
+          <span id="paletteContextHint">Начни с секции или готового комбо</span>
           <button class="palette-back hidden" id="paletteParentBtn" type="button">↑ Родитель</button>
         </div>
       </div>
 
       <div class="rail-panel" id="blocksModePanel">
         <div class="cat-filter">
-          <!-- Вкладка по умолчанию — «Комбо»: это готовые куски письма, с
-               которых начинают. Обёртку студия ставит сама при первой секции,
-               поэтому вкладка «Обёртки» нужна только чтобы СМЕНИТЬ обёртку, а
-               не чтобы начать. Раньше она открывалась первой, и человек искал
-               там то, что происходит без него. -->
-          <button class="cat-tab" data-filter="outer"
-                  title="Наружная часть письма. Ставится сама при первой секции — сюда заходят, только чтобы её сменить">Обёртки</button>
-          <button class="cat-tab" data-filter="section">Секции</button>
-          <button class="cat-tab" data-filter="inner">Внутри</button>
+          <!-- Обёртку письма студия ставит сама при первой секции, поэтому
+               отдельной вкладки «Обёртки» нет. «Все» тоже убрана: три вкладки
+               отвечают на вопрос «что добавить» — готовый кусок, секцию или
+               содержимое секции. -->
           <button class="cat-tab active" data-filter="combo"
                   title="Готовые куски письма: заголовок, текст, подсветка, кнопка и футер разом">Комбо</button>
-          <button class="cat-tab" data-filter="all">Все</button>
+          <button class="cat-tab" data-filter="section"
+                  title="Наружные блоки: секции-контейнеры, в которые кладутся внутренние">Секции</button>
+          <button class="cat-tab" data-filter="inner"
+                  title="Внутренние блоки: текст, картинка, кнопка, колонки — кладутся в секцию">Внутри</button>
         </div>
         <div class="cat-search-row">
           <input type="search" id="catSearch" class="cat-search" placeholder="Поиск блоков…" spellcheck="false" />
@@ -108,7 +106,6 @@
         <div class="cat-count" id="catCount"></div>
         <button class="btn gallery-open-btn" id="openGalleryBtn" title="Открыть каталог во весь экран: плитки превью, поиск, одинаковые блоки схлопнуты">⊞ Каталог плиткой</button>
         <button class="btn author-new-btn" id="newBlockBtn" title="Создать новый блок с нуля (pug + stylus + слоты)">➕ Создать блок</button>
-        <button class="btn figma-paste-btn" id="figmaPasteBtn" title="Вставить макет из Figma: ⌘C на фрейме или ⌘L на выделении — и Ctrl+V сюда">🎨 Макет из Figma</button>
         <div class="cat-list" id="catalogList">
           <div class="cat-empty">Загрузка…</div>
         </div>
@@ -130,6 +127,7 @@
       <div class="preview-pane-header">
         <span class="preview-pane-title">Превью</span>
         <span class="preview-pane-status" id="livePreviewStatus">пусто</span>
+        <span class="preview-pane-status" id="liveWeight" title="Вес появится, когда соберётся превью">⚖ —</span>
         <div class="preview-device-toggle">
           <button class="dev-btn active" id="devDesktop" data-w="desktop" title="Desktop (600px)">🖥</button>
           <button class="dev-btn" id="devMobile" data-w="mobile" title="Mobile (375px)">📱</button>
@@ -276,6 +274,7 @@
   <script src="/figma-paste.js"></script>
   <script src="/brand-bar.js"></script>
   <script src="/kit-switch.js"></script>
+  <script src="/email-weight.js"></script>
   <script src="/constructor.js"></script>
 </body>
 </html>

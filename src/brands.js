@@ -119,6 +119,27 @@ export function blockTagFromId(id) {
   return String(id || "").replace(/^X_/, "").toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
+/**
+ * Ресурсы бренда для универсальных (системных) блоков: логотип и его alt/ссылка.
+ * Блок помечает слот `brandAsset: "logo"`, конструктор подставляет значение
+ * активного бренда — у IQ Broker в системном письме свой логотип.
+ */
+export const BRAND_ASSET_KEYS = Object.freeze(["logo", "logo_light", "logo_alt", "logo_href"]);
+
+function normalizeAssets(assets) {
+  const out = {};
+  if (!assets || typeof assets !== "object") return out;
+  for (const key of BRAND_ASSET_KEYS) {
+    const value = String(assets[key] ?? "").trim();
+    if (!value) continue;
+    if (key !== "logo_alt" && !/^(?:https?:\/\/|#|\{\{)/i.test(value)) {
+      throw new BrandError(`assets.${key}: ожидается ссылка (https://…), получено "${value.slice(0, 40)}"`);
+    }
+    out[key] = value.slice(0, 600);
+  }
+  return out;
+}
+
 function normalizeBrand(entry) {
   const id = String(entry?.id || "").trim();
   if (!/^X_[A-Za-z0-9_]{1,45}$/.test(id)) {
@@ -134,6 +155,7 @@ function normalizeBrand(entry) {
     // умолчанию, а по алфавиту первым оказывался служебный X_assembled.
     order: Number.isFinite(Number(entry?.order)) ? Number(entry.order) : 100,
     theme: normalizeTheme(entry?.theme),
+    assets: normalizeAssets(entry?.assets),
     createdAt: String(entry?.createdAt || new Date().toISOString()),
     updatedAt: String(entry?.updatedAt || new Date().toISOString()),
   };
@@ -245,6 +267,7 @@ export function updateBrand(id, patch = {}) {
     ...(patch.service !== undefined ? { service: Boolean(patch.service) } : {}),
     // Тему мержим, а не заменяем: интерфейс присылает один изменённый токен.
     theme: { ...current.theme, ...normalizeTheme(patch.theme, { partial: true }) },
+    assets: patch.assets !== undefined ? { ...current.assets, ...normalizeAssets(patch.assets) } : current.assets,
     createdAt: current.createdAt,
     updatedAt: new Date().toISOString(),
   });

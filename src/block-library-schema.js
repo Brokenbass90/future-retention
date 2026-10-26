@@ -118,6 +118,8 @@ export class BlockLibrarySchemaError extends Error {
   }
 }
 
+export const BRAND_ASSET_KEYS = new Set(["logo", "logo_light", "logo_alt", "logo_href"]);
+
 function fail(path, message) {
   throw new BlockLibrarySchemaError(`${path} ${message}`);
 }
@@ -190,6 +192,14 @@ function normalizeSlots(value) {
     if (hasOwn(raw, "uiGroup")) {
       if (typeof raw.uiGroup !== "string") fail(`${at}.uiGroup`, "must be a string");
       slot.uiGroup = raw.uiGroup.trim().slice(0, 80);
+    }
+    // Значение по умолчанию берётся из ресурсов активного бренда (data/brands.json →
+    // assets): системный логотип у IQ Broker — свой, а не IQ Option.
+    if (hasOwn(raw, "brandAsset")) {
+      if (!BRAND_ASSET_KEYS.has(raw.brandAsset)) {
+        fail(`${at}.brandAsset`, `must be one of: ${[...BRAND_ASSET_KEYS].join(", ")}`);
+      }
+      slot.brandAsset = raw.brandAsset;
     }
     return slot;
   });

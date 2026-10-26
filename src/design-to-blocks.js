@@ -100,6 +100,14 @@ function distance(shape, signature) {
     score += 15;
   }
 
+  // Мелкий текст и несколько ссылок — так выглядит футер (адрес, риск,
+  // условия, отписка). Без этого признака футер уезжал в «подсветку» с тем же
+  // объёмом текста, стоило превью футера показать адрес полностью.
+  if (shape.maxFont > 0 && shape.maxFont <= 12 && (Number(signature?.links) || 0) >= 2) {
+    notes.push("мелкий текст со ссылками — как футер");
+    score -= 10;
+  }
+
   if (shape.maxFont >= 24 && (Number(signature?.textChars) || 0) <= 60 && shape.images === 0) {
     notes.push("похоже на заголовок");
     score -= 10;
