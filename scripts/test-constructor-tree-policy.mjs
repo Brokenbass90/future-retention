@@ -64,7 +64,7 @@ assert.equal(blockCatalogUsable({ source: "user", review: { status: "approved" }
 assert.equal(blockCatalogUsable({ source: "user", review: { status: "candidate" } }), false, "candidate user blocks are review-only until approval");
 assert.equal(blockCatalogUsable({ source: "imported" }), false, "legacy imported blocks are quarantined/read-only");
 assert.match(constructorHtml, /id="catSourceScope"[\s\S]*?Проверенные блоки[\s\S]*?Мои блоки[\s\S]*?Все, включая legacy/, "catalog separates approved blocks, manual lifecycle and the legacy archive");
-assert.match(constructorHtml, /Авто → Внутри/, "auto-advance toggle says what it actually does");
+assert.doesNotMatch(constructorHtml, /Авто → Внутри/, "the confusing auto-advance toggle is gone: the catalog never switches tabs by itself");
 
 const approvedUserDefinition = {
   id: "approved-user-cta",

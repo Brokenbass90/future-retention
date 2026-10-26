@@ -335,7 +335,8 @@
     const anchor = $('downloadHtmlBtn');
     if (anchor && !$('replaceAcrossBtn')) {
       const button = document.createElement('button');
-      button.className = 'editor-action-btn';
+      // Кнопка живёт в меню «⋯» панели: в самой панели не хватает места.
+      button.className = 'editor-action-btn toolbar-in-more';
       button.id = 'replaceAcrossBtn';
       button.style.whiteSpace = 'nowrap';
       button.title = 'Найти и заменить в коде и во всех локалях (⌘F)';

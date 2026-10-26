@@ -6,7 +6,7 @@
   "category": "cta",
   "version": 1,
   "pug": "table.sys-button--box(align=\"{{ align }}\" role=\"presentation\" width=\"{{ width }}\" style=\"width:{{ width_css }};{{ align_css }}\")\n    tr\n        td.sys-button--cell(style=\"background-color:{{ background_color }};border-radius:{{ radius }}\")\n            a.sys-button--link(href=\"{{ href }}\" universal=\"true\" target=\"_blank\" style=\"color:{{ text_color }}\") {{ label }}",
-  "styl": ".sys-button--box{border-collapse:separate !important}\n@media screen and (max-width: 600px){.sys-button--box{width:100% !important;max-width:100% !important}}\n.sys-button--cell{background-color:$brand_primary;border-radius:12px;text-align:center}\n.sys-button--link{display:block;padding:18px 32px;color:$brand_primary_text;font-family:Helvetica,Arial,sans-serif !important;font-size:16px;font-weight:700;line-height:22px;text-align:center;text-decoration:none}",
+  "styl": ".sys-button--box{border-collapse:separate !important}\n@media screen and (max-width: 600px){.sys-button--box{width:100% !important;max-width:100% !important}}\n.sys-button--cell{padding:0 !important;background-color:$brand_primary;border-radius:12px;text-align:center}\n.sys-button--link{display:block;padding:18px 32px;color:$brand_primary_text;font-family:Helvetica,Arial,sans-serif !important;font-size:16px;font-weight:700;line-height:22px;text-align:center;text-decoration:none}",
   "slots": [
     {
       "id": "label",

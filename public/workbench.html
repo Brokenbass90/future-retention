@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="/workbench.css" />
   <link rel="stylesheet" href="/mcp-connect.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/dialog/dialog.min.css" />
+  <style>.toolbar-in-more{display:none!important}.editor-stats{white-space:nowrap;flex-shrink:0}</style>
 </head>
 <body>
 
@@ -155,15 +156,11 @@
           <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M2 1h8l3 3v9H2V1z" stroke="currentColor" stroke-width="1.4"/><rect x="4" y="8" width="6" height="5" rx=".5" stroke="currentColor" stroke-width="1.3"/><path d="M5 1v3h4" stroke="currentColor" stroke-width="1.3"/></svg>
           Сохранить
         </button>
-        <button class="editor-action-btn" id="copyHtmlBtn">
-          <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><rect x="4" y="4" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M2 10V2a1 1 0 011-1h7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-          Копировать
-        </button>
-        <button class="editor-action-btn" id="downloadHtmlBtn" title="Проверить все локали и скачать финальный HTML">
+        <button class="editor-action-btn toolbar-in-more" id="downloadHtmlBtn" title="Проверить все локали и скачать финальный HTML">
           <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 7l3 3 3-3M1 11h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
         </button>
         <!-- Minify/Unminify toggle — shown when viewing compiled HTML -->
-        <button class="editor-action-btn hidden" id="minifyBtn" title="Минифицировать / развернуть HTML">
+        <button class="editor-action-btn hidden toolbar-in-more" id="minifyBtn" title="Минифицировать / развернуть HTML">
           <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M1 3h12M3 7h8M5 11h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
           Минифицировать
         </button>
@@ -174,14 +171,21 @@
           <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M1 3h12M1 7h8M1 11h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M11 9l2-2-2-2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
           Wrap
         </button>
+        <button class="editor-action-btn" id="copyHtmlBtn" title="Копировать HTML" aria-label="Копировать HTML">
+          <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><rect x="4" y="4" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M2 10V2a1 1 0 011-1h7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        </button>
         <div class="toolbar-more-wrap">
           <button class="editor-action-btn" id="toolbarMoreBtn" title="Ещё инструменты" aria-haspopup="true" aria-expanded="false" style="font-weight:600">⋯</button>
           <div class="toolbar-more-menu hidden" id="toolbarMoreMenu" role="menu">
+            <button class="more-menu-item" data-proxy="replaceAcrossBtn" role="menuitem">⇄ Найти и заменить во всех локалях</button>
+            <button class="more-menu-item" data-proxy="downloadHtmlBtn" role="menuitem">⬇ Скачать финальный HTML</button>
+            <button class="more-menu-item" data-proxy="minifyBtn" data-when-available="1" role="menuitem">≡ Минифицировать / развернуть HTML</button>
+            <button class="more-menu-item" data-proxy="fullscreenBtn" role="menuitem">⛶ Полный экран</button>
             <button class="more-menu-item" data-proxy="outlineToggleBtn" role="menuitem">📑 Структура письма (Outline)</button>
             <button class="more-menu-item" data-proxy="blocksPaletteBtn" role="menuitem">⧉ Палитра блоков (из других писем)</button>
           </div>
         </div>
-        <button class="editor-action-btn" id="fullscreenBtn" title="Полный экран">
+        <button class="editor-action-btn toolbar-in-more" id="fullscreenBtn" title="Полный экран">
           <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M1 5V1h4M9 1h4v4M13 9v4H9M5 13H1V9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
@@ -345,7 +349,7 @@
       <div class="preview-brand-badge hidden" id="previewBrandBadge"></div>
       <button class="pencil-toggle" id="pencilToggle" title="Pencil mode — click any element in the preview to edit" aria-pressed="false">🖊</button>
       <button class="pencil-toggle" id="previewMaxBtn" title="Развернуть письмо на весь экран (скрыть код)" aria-pressed="false">⛶</button>
-      <button class="pencil-toggle" id="previewNoadaptBtn" aria-pressed="false" title="Адаптив везде, включая Gmail">📱 адаптив</button>
+      <button class="pencil-toggle" id="previewNoadaptBtn" aria-pressed="false" title="Адаптив везде, включая Gmail">📱</button>
       <button class="pencil-toggle" id="previewRtlBtn" title="Сделать письмо RTL (право-центрировать). Идемпотентно — можно жать повторно.">⇄ RTL</button>
       <button class="pencil-toggle hidden" id="blocksPaletteToggle" title="Блоки — перетащи в письмо" aria-pressed="false">🧩 Блоки</button>
       <!-- Кнопка «В конструктор» убрана из панели превью: она дублировала

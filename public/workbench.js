@@ -2228,6 +2228,9 @@ r.fullscreenBtn.addEventListener('click', openFullscreen);
     menu.querySelectorAll('.more-menu-item').forEach(item => {
       const tgt = document.getElementById(item.dataset.proxy);
       if (tgt && tgt.getAttribute('aria-pressed')) item.setAttribute('aria-pressed', tgt.getAttribute('aria-pressed'));
+      // Пункт есть только тогда, когда есть его кнопка; «минифицировать» — только
+      // когда кнопка доступна в текущем режиме (на скомпилированном HTML).
+      item.hidden = !tgt || (item.dataset.whenAvailable === '1' && tgt.classList.contains('hidden'));
     });
     menu.classList.remove('hidden'); btn.setAttribute('aria-expanded', 'true');
   };
@@ -2345,7 +2348,8 @@ function isNoadaptOn() {
     const on = isNoadaptOn();
     btn.setAttribute('aria-pressed', on ? 'true' : 'false');
     btn.classList.toggle('active', on);
-    btn.textContent = on ? '📱 без Gmail' : '📱 адаптив';
+    // Коротко: место в панели превью узкое. Смысл — в подсказке.
+    btn.textContent = on ? '📱 −G' : '📱';
     btn.title = on
       ? 'Сборка --noadapt: адаптив в браузере и почте iPhone, в Gmail десктоп. Нажмите — адаптив везде.'
       : 'Адаптив везде, включая Gmail. Нажмите — собрать с --noadapt (в Gmail десктоп).';
@@ -2365,6 +2369,17 @@ function isNoadaptOn() {
   });
 })();
 
+// Снимок письма до арабизации — для обратного нажатия ⇄ RTL.
+let _rtlSnapshot = null;
+function paintRtlButton(btn, on) {
+  if (!btn) return;
+  btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  btn.classList.toggle('active', on);
+  btn.title = on
+    ? 'Письмо в RTL. Нажми ещё раз — вернётся слева направо, как было.'
+    : 'Сделать письмо RTL (справа налево). Повторное нажатие вернёт как было.';
+}
+
 (function setupPreviewRtlButton() {
   const btn = document.getElementById('previewRtlBtn');
   if (!btn) return;
@@ -2377,6 +2392,23 @@ function isNoadaptOn() {
     }
     const html = cm.getValue();
     if (!html || !/<\w/.test(html)) { toast('Нет HTML для RTL', 'warning'); return; }
+    // Повторное нажатие возвращает письмо, каким оно было до арабизации.
+    // Движок не умеет «разарабизировать», поэтому храним снимок до RTL и
+    // возвращаем его, только если код с тех пор не трогали.
+    if (_rtlSnapshot && html === _rtlSnapshot.after) {
+      pushUndoSnapshot('RTL → обратно');
+      cm.setValue(_rtlSnapshot.before);
+      _rtlSnapshot = null;
+      if (typeof updateEditorStats === 'function') updateEditorStats();
+      updatePreview();
+      paintRtlButton(btn, false);
+      toast('Вернул письмо слева направо, как до RTL. Ctrl+Z — снова RTL.', 'success', 3500);
+      return;
+    }
+    if (/<!--\s*retkit-rtl:v2:/i.test(html)) {
+      toast('Письмо уже арабизировано, а исходной версии в этой сессии нет — верни её через Ctrl+Z или открой исходный HTML.', 'warning', 6000);
+      return;
+    }
     try {
       btn.disabled = true;
       pushUndoSnapshot('RTL письма');
@@ -2395,9 +2427,11 @@ function isNoadaptOn() {
         return;
       }
       cm.setValue(json.html);
+      _rtlSnapshot = { before: html, after: cm.getValue() };
       if (typeof updateEditorStats === 'function') updateEditorStats();
       updatePreview();
-      toast('Письмо арабизировано: направление справа налево, стороны отзеркалены. Ctrl+Z — вернуть.', 'success', 3500);
+      paintRtlButton(btn, true);
+      toast('Письмо арабизировано: справа налево, стороны отзеркалены. Нажми ⇄ RTL ещё раз — вернётся как было.', 'success', 3500);
     } catch (e) {
       const msg = String(e.message || e);
       if (/already transformed|RETKIT_RTL_MODE_CONFLICT/i.test(msg)) {
@@ -7568,8 +7602,21 @@ async function performSourceEmailBuild(ctx) {
     // A manual HTML draft (including an override save currently in flight)
     // owns the editor. Do not even request a linked HTML document here: that
     // request could otherwise win the token race after the override was saved.
+    // Открытая локаль сама входит в режим правки (тихо), поэтому htmlEditMode
+    // ещё не значит, что человек что-то менял. Нет реальных правок и нет
+    // override — просто подменяем HTML свежей сборкой (иначе --noadapt и любые
+    // правки Pug «не видны»: вес и превью остаются от старого HTML).
+    const htmlDraftUntouched = ctx.htmlEditMode && !ctx.htmlOperation
+      && !ctx.htmlDirty && !htmlBufferHasRealEdits(ctx)
+      && !getActiveHtmlLocaleMeta(ctx)?.detached;
+    if (htmlDraftUntouched) {
+      ctx.htmlEditMode = false;
+    }
     if (ctx.htmlEditMode || ctx.htmlOperation) {
-      if (state.srcCtx === ctx) toast(`✓ Pug собран за ${data.duration}мс · HTML-черновик не затронут`, 'success', 2600);
+      if (state.srcCtx === ctx) toast(
+        `✓ Pug собран за ${data.duration}мс · HTML-черновик не затронут — в превью и весе старый HTML. Чтобы увидеть новую сборку, удалите ручную версию (↻)`,
+        'warning', 6000,
+      );
       setSourceBuildState(ctx, 'idle');
       return true;
     }

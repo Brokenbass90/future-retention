@@ -33,7 +33,9 @@ const state = {
   sourceScope: "curated",
   renderCap: 60,
   railMode: "blocks",
-  autoPalette: true,
+  // Кнопку «Авто → Внутри» убрали: каталог больше не перепрыгивает на вкладку
+  // «Внутри» сам — человек сам выбирает, что добавлять дальше.
+  autoPalette: false,
   sourceSkeleton: null,
   _uidCounter: 1,
 };
@@ -1805,8 +1807,20 @@ function updateClipboardAffordances() {
 
 /* ─── Контекстное меню блока на канвасе ──────────────────────────────────── */
 
+// Один обработчик закрытия на всё время жизни меню. Раньше каждое открытие
+// вешало свой mousedown на document и не снимало его после клика по пункту:
+// при следующем открытии «старый» обработчик видел клик вне СВОЕГО (уже
+// удалённого) меню и закрывал новое на mousedown — до click. Пункт не
+// срабатывал через раз: то не удалялось, то не копировалось, то не вставлялось.
+let _ctxMenuDismiss = null;
 function closeCanvasContextMenu() {
   document.querySelector(".canvas-ctx-menu")?.remove();
+  if (_ctxMenuDismiss) {
+    document.removeEventListener("mousedown", _ctxMenuDismiss, true);
+    document.removeEventListener("keydown", _ctxMenuDismiss, true);
+    try { iframeDoc()?.removeEventListener("mousedown", _ctxMenuDismiss, true); } catch { /* превью перезагрузилось */ }
+    _ctxMenuDismiss = null;
+  }
 }
 
 function openCanvasContextMenu(x, y, uid) {
@@ -1875,12 +1889,15 @@ function renderContextMenu(x, y, items) {
   menu.style.left = `${Math.max(8, Math.min(x, window.innerWidth - rect.width - 8))}px`;
   menu.style.top = `${Math.max(8, Math.min(y, window.innerHeight - rect.height - 8))}px`;
 
-  const dismiss = (ev) => {
-    if (menu.contains(ev.target)) return;
+  // Закрываем по клику вне меню (и в превью-iframe) и по Esc.
+  _ctxMenuDismiss = (ev) => {
+    if (ev.type === "keydown") { if (ev.key === "Escape") closeCanvasContextMenu(); return; }
+    if (ev.target?.closest?.(".canvas-ctx-menu")) return;
     closeCanvasContextMenu();
-    document.removeEventListener("mousedown", dismiss, true);
   };
-  document.addEventListener("mousedown", dismiss, true);
+  document.addEventListener("mousedown", _ctxMenuDismiss, true);
+  document.addEventListener("keydown", _ctxMenuDismiss, true);
+  try { iframeDoc()?.addEventListener("mousedown", _ctxMenuDismiss, true); } catch { /* нет превью */ }
   return menu;
 }
 
@@ -1947,10 +1964,12 @@ function isTypingTarget(el) {
   return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || el.isContentEditable;
 }
 
-document.addEventListener("keydown", (e) => {
+// Горячие клавиши работают и когда фокус в превью письма: клик по блоку в
+// iframe уводил фокус туда, и Ctrl+C/V/X/D и Delete до страницы не доходили.
+function onCanvasClipboardHotkey(e) {
   if (!(e.metaKey || e.ctrlKey) || e.altKey) return;
   // Пока курсор в поле ввода, Ctrl+C/V принадлежат тексту, а не блокам.
-  if (isTypingTarget(document.activeElement)) return;
+  if (isTypingTarget(document.activeElement) || isTypingTarget(e.target)) return;
   // И если человек выделил текст мышью — Ctrl+C должен скопировать текст.
   // Без этой проверки нельзя было скопировать ответ оператора из чата:
   // мы перехватывали сочетание и копировали блок канваса.
@@ -1963,7 +1982,8 @@ document.addEventListener("keydown", (e) => {
   if (key === "x" && uid != null) { e.preventDefault(); cutBlock(uid); return; }
   if (key === "d" && uid != null) { e.preventDefault(); duplicateBlock(uid); return; }
   if (key === "v") { e.preventDefault(); pasteBlock(uid, { inside: false }); return; }
-});
+}
+document.addEventListener("keydown", onCanvasClipboardHotkey);
 
 function isChildPlacement(p) { return p === "inner" || p === "inline" || p === "both"; }
 
@@ -3625,6 +3645,8 @@ function wireIframeInteractions() {
   doc.addEventListener("dragover", onIframeDragOver);
   doc.addEventListener("drop", onIframeDrop);
   doc.addEventListener("dragleave", onIframeDragLeave);
+  doc.addEventListener("keydown", onCanvasClipboardHotkey);
+  doc.addEventListener("keydown", onCanvasDeleteHotkey);
   _iframeWired = true;
 }
 
@@ -5285,14 +5307,15 @@ const RETKIT_CONSTRUCTOR_BUILD = '2026-07-13-style-surface';
 })();
 
 /* Удаление выделенного блока по Delete/Backspace (если фокус не в поле ввода). */
-document.addEventListener("keydown", (e) => {
+function onCanvasDeleteHotkey(e) {
   if (e.key !== "Delete" && e.key !== "Backspace") return;
   const t = e.target;
   if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
-  if (!state.selectedUid) return;
+  if (state.selectedUid == null) return;
   e.preventDefault();
   removeFromCanvas(state.selectedUid);
-});
+}
+document.addEventListener("keydown", onCanvasDeleteHotkey);
 
 /* ─── Системные плейсхолдеры: реестр + вставка в слот ───────────────────── */
 state.placeholders = [];
@@ -5568,7 +5591,7 @@ function restoreCanvasState() {
       // оставляем только те, чей блок есть в библиотеке
       state.canvas = migrateCanvasTree(d.canvas.filter((e) => blockById(e.blockId || e.id, e.blockSource || e.source)));
       state.sourceSkeleton = d.sourceSkeleton || null;
-      state.autoPalette = d.autoPalette !== false;
+      state.autoPalette = false;
       setRailMode(d.railMode || "blocks");
       const nameInput = document.getElementById("mailName");
       if (nameInput && d.mailName) nameInput.value = d.mailName;
