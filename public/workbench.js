@@ -1927,7 +1927,10 @@ async function syncOriginalTextToPug(ctx = state.srcCtx) {
 
     ctx.htmlDirty = false;
     toast(`Перенёс в Pug: ${data.applied.length} · пересобираю все локали…`, 'info', 3000);
-    const built = await rebuildSourceEmail({ keepSourceView: true, background: true });
+    ctx.syncingOriginalText = true;
+    let built;
+    try { built = await rebuildSourceEmail({ keepSourceView: true, background: true }); }
+    finally { ctx.syncingOriginalText = false; }
     if (state.srcCtx !== ctx) return true;
     if (built === false) {
       // Pug уже сохранён, но HTML не собрался. Перезагрузить сейчас — значит
@@ -3867,6 +3870,7 @@ function importFilesIntoNamespace(fileList, nsName) {
       } else {
         toast(`"${nsName}" — все ${rejected} файлов отвергнуты валидатором`, 'error', 4500);
       }
+      if (ok > 0) scheduleRebuildAfterTxtChange();
     }
     reader.readAsText(file, 'utf-8');
   });
@@ -4823,6 +4827,20 @@ r.closeLocaleEditBtn.addEventListener('click', closeLocaleEditModal);
 r.cancelLocaleEditBtn.addEventListener('click', closeLocaleEditModal);
 r.localeEditBackdrop.addEventListener('click', closeLocaleEditModal);
 
+// TXT локали поменялся (сохранили, загрузили, удалили) → письмо из базы надо
+// ПЕРЕСОБРАТЬ: его HTML уже содержит старые тексты, одной перерисовки превью
+// мало. Раньше так и было: «поменял блок в EN — в письме не подтянулось».
+let _txtRebuildTimer = null;
+function scheduleRebuildAfterTxtChange(reason = '') {
+  if (!state.srcCtx) return;
+  clearTimeout(_txtRebuildTimer);
+  _txtRebuildTimer = setTimeout(() => {
+    if (!state.srcCtx) return;
+    if (reason) toast(`${reason} · пересобираю письмо`, 'info', 1800);
+    rebuildSourceEmail({ keepSourceView: true, background: true }).catch?.(() => {});
+  }, 350);
+}
+
 r.saveLocaleEditBtn.addEventListener('click', () => {
   const text = cmLocale ? cmLocale.getValue() : r.localeEditTextarea.value;
   const ns = getNs(state._editNsId);
@@ -4834,6 +4852,7 @@ r.saveLocaleEditBtn.addEventListener('click', () => {
   saveToLocalStorage();
   toast(`${state._editLocale.toUpperCase()} сохранено — ${parsed.blocks.length} блоков`, parsed.issues.some(i => i.severity === 'error') ? 'warning' : 'success');
   closeLocaleEditModal();
+  scheduleRebuildAfterTxtChange();
 });
 
 r.deleteLocaleBtn.addEventListener('click', () => {
@@ -4851,6 +4870,7 @@ r.deleteLocaleBtn.addEventListener('click', () => {
   saveToLocalStorage();
   toast(`Локаль ${state._editLocale?.toUpperCase()} удалена`, 'success');
   closeLocaleEditModal();
+  scheduleRebuildAfterTxtChange();
 });
 
 r.splitLocaleSelectionBtn?.addEventListener('click', splitSelectedLocaleBlockAcrossLocales);
@@ -7740,6 +7760,9 @@ async function performSourceEmailBuild(ctx) {
     const data = await res.json();
     if (!data.ok) throw new Error(data.error);
     ctx.lastBuildWarnings = Array.isArray(data.buildWarnings) ? data.buildWarnings : [];
+    // С --noadapt полный CSS в <head> — нарочно (Gmail видит десктоп), а не
+    // проблема. Не пугаем этим предупреждением на каждой сборке.
+    if (isNoadaptOn()) ctx.lastBuildWarnings = ctx.lastBuildWarnings.filter(w => !/head CSS:/i.test(String(w)));
     invalidateLocalePreflight(
       ctx,
       'Pug/Stylus пересобран — запустите all-locales preflight',
@@ -7777,7 +7800,7 @@ async function performSourceEmailBuild(ctx) {
     }
     if (ctx.htmlEditMode || ctx.htmlOperation) {
       const shown = (ctx.activeHtmlLocale || HTML_BASE_LOCALE) === HTML_BASE_LOCALE ? 'Original' : String(ctx.activeHtmlLocale).toUpperCase();
-      if (state.srcCtx === ctx && !ctx.htmlOperation) toast(
+      if (state.srcCtx === ctx && !ctx.htmlOperation && !ctx.syncingOriginalText) toast(
         activeDetached
           ? `✓ Собрано за ${data.duration}мс · у ${shown} ручная версия: Pug и TXT её не обновляют. Вернуть сборку — ↻`
           : `✓ Собрано за ${data.duration}мс · в редакторе ${shown} несохранённая правка HTML, превью обновится после неё`,

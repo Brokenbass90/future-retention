@@ -58,3 +58,14 @@ import { planWorkbenchLocaleSync, recoverLocaleCode } from "../src/workbench-loc
 }
 
 console.log("✓ placeholder flow: duplicate texts by order, bad locale codes recovered");
+
+// 6. Сохранили/загрузили/удалили TXT — открытое письмо пересобирается.
+{
+  const fs = await import("node:fs");
+  const wb = fs.readFileSync(new URL("../public/workbench.js", import.meta.url), "utf8");
+  const save = wb.slice(wb.indexOf("r.saveLocaleEditBtn.addEventListener('click'"), wb.indexOf("r.deleteLocaleBtn.addEventListener"));
+  assert.match(save, /scheduleRebuildAfterTxtChange\(\)/, "saving a locale TXT rebuilds the open email");
+  assert.match(wb, /function scheduleRebuildAfterTxtChange[\s\S]*?rebuildSourceEmail\(\{ keepSourceView: true, background: true \}\)/);
+  assert.match(wb, /if \(isNoadaptOn\(\)\) ctx\.lastBuildWarnings = ctx\.lastBuildWarnings\.filter/, "no head-CSS alarm when --noadapt is on");
+  console.log("✓ TXT change → rebuild");
+}
