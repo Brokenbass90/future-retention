@@ -1,0 +1,47 @@
+/* Бейдж актёра в шапке студии. Общий файл на конструктор и воркбенч:
+   переменные берём с запасными значениями, чтобы светлая тема воркбенча
+   не осталась без цвета. */
+.actor-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 4px;
+  white-space: nowrap;
+}
+.actor-badge:empty { display: none; }
+
+.actor-name {
+  border: 1px solid var(--border, rgba(255, 255, 255, .12));
+  border-radius: 999px;
+  background: var(--surface, var(--bg-2, rgba(255, 255, 255, .04)));
+  color: var(--text, #e6edf3);
+  padding: 5px 11px;
+  font: 500 12px/1 inherit;
+  cursor: pointer;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.actor-name:hover { border-color: var(--accent, #2563eb); }
+
+.actor-others {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--accent, #2563eb);
+  color: #fff;
+  font: 600 11px/1 inherit;
+  cursor: default;
+}
+
+.actor-readonly {
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: rgba(245, 158, 11, .16);
+  color: var(--warning, #f59e0b);
+  font: 600 11px/1 inherit;
+}

@@ -138,7 +138,9 @@ function normalizeRtlMode(opts) {
   const raw = typeof opts === 'string'
     ? opts
     : (opts && (opts.mode || opts.layout || opts.layoutMode));
-  return /^(?:mirror|full)$/i.test(String(raw || '').trim()) ? 'mirror' : 'text';
+  const value = String(raw || '').trim();
+  if (/^(?:document|arabic|arabize|full-document)$/i.test(value)) return 'document';
+  return /^(?:mirror|full)$/i.test(value) ? 'mirror' : 'text';
 }
 
 /* ─── Style flippers: text-align only, !important preserved ─────── */
@@ -764,8 +766,8 @@ function stripStaleDirRtl(html) {
 
 /* ─── Whole-document idempotency ──────────────────────────────── */
 
-const RTL_FRAGMENT_MARKER_RE = /<!--\s*retkit-rtl:v(?:1|2(?::(?:text|mirror))?)\s*-->/i;
-const RTL_V2_MARKER_RE = /<!--\s*retkit-rtl:v2:(text|mirror)\s*-->/i;
+const RTL_FRAGMENT_MARKER_RE = /<!--\s*retkit-rtl:v(?:1|2(?::(?:text|mirror|document))?)\s*-->/i;
+const RTL_V2_MARKER_RE = /<!--\s*retkit-rtl:v2:(text|mirror|document)\s*-->/i;
 
 function getAppliedRtlMode(html) {
   const marker = RTL_V2_MARKER_RE.exec(String(html || ''));
@@ -834,21 +836,269 @@ function smartMirrorButtonIcons(html) {
 
 /* ─── Public entry point ────────────────────────────────────── */
 
+/* ─── Document mode: the whole email becomes an Arabic email ─────────
+ *
+ * The way the retention team arabizes a finished English email by hand
+ * (reference pair: tests/fixtures/rtl/photo-welcome2.*):
+ *   – <html dir="rtl" lang="ar">, <body dir="rtl" style="direction: rtl; …">;
+ *   – dir="rtl" on every block (table, td, th, div, p, h1–h6, li, ul, ol), so
+ *     columns, cards, icons and store badges flow right-to-left by themselves;
+ *   – every physical side is mirrored, inline AND in <style>: text-align
+ *     left → right, padding/margin/border left ↔ right, float, the 4-value
+ *     margin/padding shorthand, align="left" → "right";
+ *   – nothing else moves: centered blocks stay centered, colours, sizes and
+ *     text are untouched, and no cell order is swapped (dir already does it).
+ * Unlike "mirror", !important declarations are mirrored too: in this mode the
+ * whole email is the RTL version, so an LTR-only !important is not intent.
+ */
+const DOC_BLOCK_TAGS = /^(?:table|td|th|div|p|h[1-6]|li|ul|ol)$/i;
+
+function swapFourValueShorthand(css) {
+  return css.replace(/\b(margin|padding)\s*:\s*([^;}\n]+)/gi, (match, prop, value) => {
+    const important = /\s*!\s*important\s*$/i.test(value) ? ' !important' : '';
+    const parts = value.replace(/\s*!\s*important\s*$/i, '').trim().split(/\s+/);
+    if (parts.length !== 4 || parts[1] === parts[3]) return match;
+    return `${prop}: ${parts[0]} ${parts[3]} ${parts[2]} ${parts[1]}${important}`;
+  });
+}
+
+function mirrorCssForDocument(css) {
+  if (!css) return css;
+  const L = '\x00DL\x00';
+  const R = '\x00DR\x00';
+  let out = css.replace(/\b(text-align\s*:\s*)(left|start)\b/gi, (_m, head) => `${head}right`);
+  out = out.replace(/\bfloat\s*:\s*(left|right)\b/gi, (_m, v) => `float: ${v.toLowerCase() === 'left' ? R : L}`);
+  out = out.replace(/\b(padding|margin|border)-(left|right)(?=\s*:|-(?:width|style|color)\s*:)/gi,
+    (_m, prop, side) => `${prop}-${side.toLowerCase() === 'left' ? R : L}`);
+  out = out.replace(/\b(left|right)(\s*:\s*[^;}\n]+)/gi, (m, side, rest, offset, all) => {
+    // Absolute offsets (left: 10px) — only as a standalone property.
+    const before = all.slice(Math.max(0, offset - 1), offset);
+    if (before && /[\w-]/.test(before)) return m;
+    return `${side.toLowerCase() === 'left' ? R : L}${rest}`;
+  });
+  out = out.replace(new RegExp(L, 'g'), 'left').replace(new RegExp(R, 'g'), 'right');
+  out = swapFourValueShorthand(out);
+  // background-position keywords, reusing the mirror pass logic.
+  out = out.replace(/\bbackground(-position)?\s*:\s*([^;}\n]+)/gi, (match, longhand, value) => {
+    if (!/\b(?:left|right)\b/.test(value.replace(/url\([^)]*\)/g, ''))) return match;
+    const swapped = value.replace(/(url\([^)]*\))|\bleft\b|\bright\b/g,
+      (m, urlPart) => (urlPart ? urlPart : (m === 'left' ? R : L)));
+    return `background${longhand || ''}: ${swapped}`;
+  });
+  return out.replace(new RegExp(L, 'g'), 'left').replace(new RegExp(R, 'g'), 'right');
+}
+
+function setAttr(attrs, name, value, { overwrite = false } = {}) {
+  const re = new RegExp(`\\s${name}\\s*=\\s*(["'])[\\s\\S]*?\\1|\\s${name}\\s*=\\s*[^\\s"'>]+`, 'i');
+  if (re.test(attrs)) return overwrite ? attrs.replace(re, ` ${name}="${value}"`) : attrs;
+  return ` ${name}="${value}"${attrs}`;
+}
+
+/* ─── Illustration cards: text goes RTL, the picture stays put ──────
+ * A card whose background is a large illustration anchored to one side
+ * ("right bottom", "right center", background-size 200–460px) keeps its
+ * text column on the opposite side by design. Mirroring such a card moves
+ * the text onto the picture. So inside it RetKit changes only the text:
+ * the card gets dir="ltr" (stops the inherited RTL from re-flowing the
+ * column), every paragraph/heading inside gets dir="rtl" + text-align:right,
+ * and neither the background position nor any side is swapped.
+ * Small side icons with padding reserved for them (icon 56px + padding-left
+ * 70px) are a different pattern — those mirror as a whole, icon and text.
+ */
+const ILLUSTRATION_MIN_PX = 120;
+const VOID_TAGS = /^(?:area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)$/i;
+const DOC_TEXT_TAGS = /^(?:p|h[1-6]|li)$/i;
+
+function readStyle(attrs) {
+  const m = String(attrs || '').match(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i);
+  return m ? m[2] : '';
+}
+
+function backgroundSidePx(style, cssByClass, classes) {
+  // background shorthand / background-position with a left|right keyword, plus size.
+  const sources = [style, ...classes.map((c) => cssByClass.get(c) || '')];
+  let side = '';
+  let size = 0;
+  let pad = { left: 0, right: 0 };
+  for (const css of sources) {
+    const bg = css.match(/\bbackground(?:-position)?\s*:\s*([^;}]+)/i);
+    if (bg && /url\(/i.test(css)) {
+      const kw = bg[1].replace(/url\([^)]*\)/gi, '').match(/\b(left|right)\b/i);
+      if (kw && !side) side = kw[1].toLowerCase();
+    }
+    const sz = css.match(/\bbackground-size\s*:\s*(\d+)px/i);
+    if (sz && !size) size = Number(sz[1]);
+    for (const k of ['left', 'right']) {
+      const pm = css.match(new RegExp(`\\bpadding-${k}\\s*:\\s*(\\d+)px`, 'i'));
+      if (pm) pad[k] = Math.max(pad[k], Number(pm[1]));
+    }
+  }
+  return { side, size, pad };
+}
+
+function isIllustrationCard(attrs, cssByClass) {
+  const style = readStyle(attrs);
+  const classes = (readAttr(attrs, 'class') || '').split(/\s+/).filter(Boolean);
+  if (!/url\(/i.test(style) && !classes.some((c) => /url\(/i.test(cssByClass.get(c) || ''))) return false;
+  const { side, size, pad } = backgroundSidePx(style, cssByClass, classes);
+  if (!side) return false;
+  // Icon with room reserved next to it → mirrors as one piece.
+  if (pad[side] > 0 && (!size || pad[side] >= size)) return false;
+  return !size || size >= ILLUSTRATION_MIN_PX;
+}
+
+function cssRulesByClass(html) {
+  const map = new Map();
+  const css = (String(html).match(/<style\b[^>]*>([\s\S]*?)<\/style>/gi) || []).join('\n');
+  for (const m of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    for (const sel of m[1].split(',')) {
+      const last = sel.trim().match(/\.([\w-]+)$/);
+      if (last) map.set(last[1], `${map.get(last[1]) || ''};${m[2]}`);
+    }
+  }
+  return map;
+}
+
+function ensureTextRight(attrs) {
+  if (/\bstyle\s*=/i.test(attrs)) {
+    return attrs.replace(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i, (_f, q, body) => {
+      if (/\btext-align\s*:/i.test(body)) {
+        return `style=${q}${body.replace(/\b(text-align\s*:\s*)(left|start)\b/gi, (_m, h) => `${h}right`)}${q}`;
+      }
+      return `style=${q}${body.replace(/\s*;?\s*$/, ';')} text-align: right;${q}`;
+    });
+  }
+  return `${attrs} style="text-align: right;"`;
+}
+
+function applyDocumentRtl(html, opts = {}) {
+  const lang = String(opts.lang || 'ar').replace(/[^a-zA-Z_-]/g, '').replace('_', '-') || 'ar';
+  const cssByClass = cssRulesByClass(html);
+  const keepIllustrations = opts.keepIllustrations !== false;
+
+  // Illustration classes found in the markup: their <style> rules keep the
+  // background where it is (mobile media queries included).
+  const frozenClasses = new Set();
+  if (keepIllustrations) {
+    for (const m of html.matchAll(/<([a-z][\w:-]*)\b([^>]*)>/gi)) {
+      if (/^(?:style|script|html|body)$/i.test(m[1])) continue;
+      if (!isIllustrationCard(m[2], cssByClass)) continue;
+      for (const c of (readAttr(m[2], 'class') || '').split(/\s+/).filter(Boolean)) {
+        if (/url\(/i.test(cssByClass.get(c) || '')) frozenClasses.add(c);
+      }
+    }
+  }
+
+  let out = html.replace(/(<style\b[^>]*>)([\s\S]*?)(<\/style>)/gi, (_m, open, css, close) => {
+    const mirrored = css.replace(/([^{}]+)\{([^{}]*)\}/g, (rule, selector, body) => {
+      const frozen = selector.split(',').some((sel) => {
+        const last = sel.trim().match(/\.([\w-]+)$/);
+        return last && frozenClasses.has(last[1]);
+      });
+      return frozen ? rule : `${selector}{${mirrorCssForDocument(body)}}`;
+    });
+    return `${open}${mirrored}${close}`;
+  });
+
+  const stack = []; // open element tags; entries { tag, frozen }
+  let frozenDepth = 0;
+  const illustrations = [];
+  out = out.replace(/<(\/?)([a-z][\w:-]*)([^>]*)>/gi, (m, closing, tag, attrs) => {
+    const lower = tag.toLowerCase();
+    if (/^(?:style|script)$/i.test(lower)) return m;
+    if (closing) {
+      for (let i = stack.length - 1; i >= 0; i -= 1) {
+        if (stack[i].tag !== lower) continue;
+        for (const popped of stack.splice(i)) if (popped.frozen) frozenDepth -= 1;
+        break;
+      }
+      return m;
+    }
+    const selfClosing = VOID_TAGS.test(lower) || /\/\s*$/.test(attrs);
+    let next = attrs;
+    const startsFrozen = keepIllustrations && frozenDepth === 0 && !/^(?:html|body)$/.test(lower) && isIllustrationCard(attrs, cssByClass);
+
+    if (frozenDepth > 0 || startsFrozen) {
+      if (startsFrozen) {
+        next = setAttr(next, 'dir', 'ltr', { overwrite: true });
+        illustrations.push((readAttr(attrs, 'class') || lower).split(/\s+/)[0]);
+      } else if (DOC_TEXT_TAGS.test(lower)) {
+        next = ensureTextRight(setAttr(next, 'dir', 'rtl', { overwrite: true }));
+      }
+    } else {
+      if (/\bstyle\s*=/i.test(next)) {
+        next = next.replace(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i, (_f, q, body) => `style=${q}${mirrorCssForDocument(body)}${q}`);
+      }
+      if (/\balign\s*=/i.test(next)) next = flipAlignAttr(next);
+      if (lower === 'html') {
+        next = setAttr(next, 'lang', lang, { overwrite: true });
+        next = setAttr(next, 'dir', 'rtl', { overwrite: true });
+      } else if (lower === 'body') {
+        next = setAttr(next, 'dir', 'rtl', { overwrite: true });
+        if (/\bstyle\s*=/i.test(next)) {
+          if (!/\bdirection\s*:/i.test(next)) next = next.replace(/\bstyle\s*=\s*(["'])/i, (f) => `${f}direction: rtl; `);
+        } else next = `${next} style="direction: rtl;"`;
+      } else if (DOC_BLOCK_TAGS.test(lower)) {
+        next = setAttr(next, 'dir', 'rtl');
+      }
+    }
+    if (!selfClosing) {
+      stack.push({ tag: lower, frozen: startsFrozen });
+      if (startsFrozen) frozenDepth += 1;
+    }
+    return next === attrs ? m : `<${tag}${next}>`;
+  });
+  if (typeof opts.onReport === 'function') opts.onReport({ illustrations });
+  // The marker goes after the opening <html> (doctype stays first).
+  return markRtlApplied(out, 'document');
+}
+
+// An email that is already arabized as a whole: the RetKit document marker,
+// or dir="rtl" on <html>/<body> (a hand-made AR version, or ours after
+// MoEngage dropped the HTML comment). Such an email is left as it is.
+function isArabizedDocument(html) {
+  const source = String(html || '');
+  if (getAppliedRtlMode(source) === 'document') return true;
+  return /<(?:html|body)\b[^>]*\bdir\s*=\s*(["']?)rtl\1/i.test(source);
+}
+
 function applyRtl(html, opts = {}) {
   if (!html || typeof html !== 'string') return html;
   const mode = normalizeRtlMode(opts);
+  // Already arabized → never arabize again (any mode) and never error out.
+  if (isArabizedDocument(html)) {
+    if (typeof opts.onReport === 'function') opts.onReport({ alreadyRtl: true, illustrations: [] });
+    return html;
+  }
   const appliedMode = getAppliedRtlMode(html);
   if (appliedMode) {
     if (appliedMode === mode) return html;
+    // A fragment RTL-ed in another mode is still RTL: a full arabization on
+    // top would mirror sides twice. Keep it, say so.
+    if (mode === 'document') {
+      if (typeof opts.onReport === 'function') opts.onReport({ alreadyRtl: true, appliedMode, illustrations: [] });
+      return html;
+    }
     throw createRtlModeConflict(appliedMode, mode);
   }
   // v1/data-retkit-rtl had no mode metadata. A second pass cannot safely
   // infer whether physical sides were already swapped, so require Original.
-  if (hasRtlAppliedMarker(html)) throw createRtlModeConflict('legacy/unknown', mode);
+  if (hasRtlAppliedMarker(html)) {
+    if (mode === 'document') {
+      if (typeof opts.onReport === 'function') opts.onReport({ alreadyRtl: true, appliedMode: 'legacy', illustrations: [] });
+      return html;
+    }
+    throw createRtlModeConflict('legacy/unknown', mode);
+  }
   if (looksLikeLegacyRtlOutput(html)) {
+    if (mode === 'document') {
+      if (typeof opts.onReport === 'function') opts.onReport({ alreadyRtl: true, appliedMode: 'mirror', illustrations: [] });
+      return html;
+    }
     if (mode !== 'mirror') throw createRtlModeConflict('mirror', mode);
     return markRtlApplied(html, 'mirror');
   }
+  if (mode === 'document') return applyDocumentRtl(html, opts);
   let out = html;
 
   // Legacy cleanup is explicit. Unmarked dir="rtl" in a fresh source can be

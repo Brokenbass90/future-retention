@@ -1,0 +1,133 @@
+{
+  "id": "iq-combo-promo-card",
+  "label": "Комбо: Карта с промокодом (рамка, заголовок, текст, промокод, кнопка)",
+  "description": "Белая карта с оранжевой рамкой: заголовок и текст по центру, жирная подводка, промокод в пунктирной рамке и оранжевая кнопка. Нарезано из письма Triggers-First-Deposit-2-Made (IQ Option). Раскладывается на отдельные редактируемые блоки.",
+  "placement": "section",
+  "category": "cta",
+  "version": 1,
+  "outlookSafe": true,
+  "pug": "table.row.brad-full.iq-combo-promo-card(role=\"presentation\" style=\"border:{{ border }}\")\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns(role=\"presentation\")\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.iq-combo-promo-card--title.center.pb16 {{ title }}\n                        p.iq-combo-promo-card--text.center {{ body }}\n                        p.iq-combo-promo-card--text.pt24.pb5\n                            b {{ promo_lead }}\n                        p.iq-combo-promo-card--promocode {{ promo_code }}\n                        .h-40 &nbsp;\n                        table.iq-combo-promo-card--w280(align=\"center\" role=\"presentation\" style=\"border-collapse:initial\")\n                            tr\n                                td.iq-combo-promo-card--butt(style=\"padding:0\")\n                                    a.iq-combo-promo-card--butt-link(href=\"{{ cta_href }}\" universal=\"true\" target=\"_blank\") {{ cta_label }}",
+  "styl": ".iq-combo-promo-card\n  background-color #FFFFFF\n  border-collapse separate !important\n  border-radius 32px !important\n.iq-combo-promo-card--title\n  font-family: Helvetica, Arial, sans-serif !important\n  font-size 32px\n  font-weight 700\n  line-height 42px\n  color #393A44\n  margin 0\n  @media screen and (max-width: 600px)\n    font-size 28px !important\n    line-height 34px !important\n.iq-combo-promo-card--text\n  font-family: Helvetica, Arial, sans-serif !important\n  font-size 18px\n  font-weight 400\n  line-height 26px\n  color #393A44\n  letter-spacing 0\n  margin 0\n.iq-combo-promo-card--promocode\n  background-color #FFEFE0\n  border 2px dashed #FF7700\n  border-radius 16px\n  color #FF7700\n  font-family Helvetica, Arial, sans-serif !important\n  font-size 24px\n  font-weight 700\n  line-height 31px\n  margin 0\n  padding 16px 22px\n.iq-combo-promo-card--w280\n  width 100%\n  max-width 280px\n  @media screen and (max-width: 600px)\n    max-width 100% !important\n.iq-combo-promo-card--butt\n  background-color #FF7700\n  border-radius 16px !important\n.iq-combo-promo-card--butt-link\n  color #F9F9F9\n  display block\n  font-family Helvetica, Arial, sans-serif !important\n  font-size 18px\n  font-weight 700\n  line-height 27px\n  padding 16px 0\n  text-align center\n  text-decoration none",
+  "slots": [
+    {
+      "id": "title",
+      "kind": "text",
+      "label": "Заголовок",
+      "default": "Title text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "body",
+      "kind": "richText",
+      "label": "Текст",
+      "default": "Body text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "promo_lead",
+      "kind": "text",
+      "label": "Подводка к промокоду (жирная)",
+      "default": "Promo lead text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "promo_code",
+      "kind": "text",
+      "label": "Промокод",
+      "default": "TRADERPRO",
+      "uiGroup": "content"
+    },
+    {
+      "id": "cta_label",
+      "kind": "text",
+      "label": "Текст кнопки",
+      "default": "Button text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "cta_href",
+      "kind": "url",
+      "label": "Ссылка кнопки",
+      "default": "https://api.iqoption.com/v1/multi-links/deposit?promocode=TRADERPRO&aff=7",
+      "uiGroup": "content",
+      "allowSystemPlaceholder": true
+    },
+    {
+      "id": "border",
+      "kind": "text",
+      "label": "Рамка карты",
+      "default": "4px solid #FF7700",
+      "uiGroup": "appearance"
+    }
+  ],
+  "combo": true,
+  "tags": [
+    "combo",
+    "promo",
+    "card",
+    "iq"
+  ],
+  "children": [
+    {
+      "id": "iq-section-card-border",
+      "role": "container",
+      "slots": {
+        "border": "4px solid #FF7700"
+      }
+    },
+    {
+      "id": "iq-middle-title",
+      "slotId": "content",
+      "role": "title",
+      "slots": {
+        "text": "Title text",
+        "align": "center"
+      }
+    },
+    {
+      "id": "iq-text-plain",
+      "slotId": "content",
+      "role": "body",
+      "slots": {
+        "text": "Body text",
+        "align": "center"
+      }
+    },
+    {
+      "id": "iq-lead-bold",
+      "slotId": "content",
+      "role": "promo-lead",
+      "slots": {
+        "text": "Promo lead text",
+        "align": "left"
+      }
+    },
+    {
+      "id": "iq-promocode-box",
+      "slotId": "content",
+      "role": "promocode",
+      "slots": {
+        "code": "TRADERPRO"
+      }
+    },
+    {
+      "id": "iq-spacer",
+      "slotId": "content",
+      "role": "spacer",
+      "slots": {
+        "height": "40"
+      }
+    },
+    {
+      "id": "iq-cta-w280",
+      "slotId": "content",
+      "role": "cta",
+      "slots": {
+        "label": "Button text",
+        "href": "https://api.iqoption.com/v1/multi-links/deposit?promocode=TRADERPRO&aff=7",
+        "align": "center"
+      }
+    }
+  ],
+  "scoped": true
+}

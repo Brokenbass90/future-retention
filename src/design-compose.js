@@ -38,7 +38,7 @@ const ROLE_TO_CATEGORY = {
 
 // When several section blocks share a category, prefer these ids.
 const PREFERRED_BLOCK_BY_CATEGORY = {
-  hero: "iq-combo-hero-bgr",
+  hero: "iq-combo-hero-scene",
   cta: "iq-combo-steps-promocode",
   "feature-list": "iq-combo-steps-promocode",
   footer: "iq-footer",

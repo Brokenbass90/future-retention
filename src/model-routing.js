@@ -18,7 +18,10 @@ const TASK_MODEL_ENV = {
   discussion: ["OPENAI_MODEL_DISCUSSION", "OPENAI_MODEL_CHAT", "OPENAI_MODEL"],
   translations: ["OPENAI_MODEL_TRANSLATIONS", "OPENAI_MODEL_TRANSLATION", "OPENAI_MODEL"],
   cloneEdit: ["OPENAI_MODEL_CLONE_EDIT", "OPENAI_MODEL_DRAFT", "OPENAI_MODEL"],
-  followupEdit: ["OPENAI_MODEL_FOLLOWUP_EDIT", "OPENAI_MODEL_DRAFT", "OPENAI_MODEL"]
+  followupEdit: ["OPENAI_MODEL_FOLLOWUP_EDIT", "OPENAI_MODEL_DRAFT", "OPENAI_MODEL"],
+  // The tool-using operator (workbench + constructor chat). Tool use and
+  // following the context needs the strongest configured edit model.
+  agent: ["OPENAI_MODEL_AGENT", "OPENAI_MODEL_FOLLOWUP_EDIT", "OPENAI_MODEL_DRAFT", "OPENAI_MODEL"]
 };
 
 function resolveFromEnv(keys = []) {
@@ -43,6 +46,7 @@ export function summarizeOpenAiModelRouting() {
     draft: resolveOpenAiModelForTask("draft"),
     designAnalysis: resolveOpenAiModelForTask("designAnalysis"),
     translations: resolveOpenAiModelForTask("translations"),
+    agent: resolveOpenAiModelForTask("agent"),
     cloneEdit: resolveOpenAiModelForTask("cloneEdit"),
     followupEdit: resolveOpenAiModelForTask("followupEdit")
   };

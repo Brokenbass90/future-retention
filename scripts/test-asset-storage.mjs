@@ -46,7 +46,15 @@ const check = (name, cond, extra = "") => {
   const written = path.join(repoRoot, "data", "assets", "test-storage-probe.png");
   check("файл действительно лёг на диск", existsSync(written));
   check("содержимое не испорчено", existsSync(written) && readFileSync(written).equals(buffer));
-  if (existsSync(written)) rmSync(written, { force: true });
+  // Уборка не должна ронять проверку: на смонтированных файловых системах
+  // удаление бывает запрещено, и тогда важнее результат теста, чем чистота.
+  if (existsSync(written)) {
+    try {
+      rmSync(written, { force: true });
+    } catch {
+      console.log("  (пробный файл остался в data/assets — удалите вручную)");
+    }
+  }
 }
 
 {

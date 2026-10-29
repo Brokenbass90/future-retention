@@ -1,0 +1,21 @@
+doctype html
+html(xmlns="http://www.w3.org/1999/xhtml")
+
+    include ../../../../vendor/helpers/mixins
+    include ../../../../vendor/helpers/head
+    <u></u>
+    body.body
+        include helpers/preheader
+        table.body
+            tr
+                td(align="center", valign="top").center.bg-col
+                    center
+                        table.container
+                            tr
+                                td.pt0.plr10a
+                                    include blocks/header
+                                    include helpers/footer
+
+
+        //Gmail App Fix
+        include ../../../../vendor/helpers/gmail-fix

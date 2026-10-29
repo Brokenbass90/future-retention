@@ -1,0 +1,93 @@
+{
+  "id": "iqbr-combo-header-hero",
+  "label": "Комбо: Начало письма (лого + тёмный герой)",
+  "description": "Шапка с логотипом и тёмная панель: картинка, крупный заголовок, два абзаца и кнопка. С этого начинается письмо IQ Broker.",
+  "placement": "section",
+  "category": "hero",
+  "version": 1,
+  "pug": "table.row\n    tr\n        td.wrapper.last.offset-by-one.pt0.iqbr-section-header--pt0\n            table.ten.columns\n                tr\n                    td.text-pad-small.iqbr-section-header--text-pad-small.pb0.iqbr-section-header--pb0\n                        a(href=\"https://api.trade.iqbroker.com/v1/multi-links/open-asset?aff=7\" universal=\"true\" target=\"_blank\")\n                            img.logo.iqbr-logo--logo.center.iqbr-logo--center(src=\"https://fsms.quadcode.com/storage/public/d5/ss/e6gggnfnh4cs771g/logo-broker.png\" alt=\"IQ Broker\")\n\ntable.row.iqbr-section-dark--brad-full.iqbr-section-dark--color-bg(style=\"background-color:#101314\")\n    tr\n        td.wrapper.last.pt0.iqbr-section-dark--pt0\n            table.twelve.columns\n                tr\n                    td.pb10.iqbr-section-dark--pb10\n                        a(href=\"#\" universal=\"true\" target=\"_blank\")\n                            img.center.iqbr-image--center(src=\"https://fsms.quadcode.com/storage/public/d5/th/ok8ggnfnh4cs77ag/strategies-head.png\" alt=\"\" style=\"padding-bottom:0\")\n    tr\n        td.wrapper.last.offset-by-one.pt0.iqbr-section-dark--pt0\n            table.ten.columns\n                tr\n                    td.text-pad-small.iqbr-section-dark--text-pad-small.pb50.iqbr-section-dark--pb50.pt10.iqbr-section-dark--pt10\n                        p.iqbr-title-white--white-title(style=\"color:#F9F9F9;padding-bottom:16px\") Крупный заголовок письма\n                        p.iqbr-text-white--white-text(style=\"color:#FFFFFF;padding-bottom:0\") Первый абзац вступления — что предлагаем и кому.\n                        p.iqbr-text-white--white-text(style=\"color:#FFFFFF;padding-bottom:0\") Второй абзац — что человек получит.\n                        div(style=\"font-size:8px;line-height:24px;height:24px\") &nbsp;\n                        table.iqbr-button--w280(align=\"left\" style=\"width: 100%;\")\n                            tr\n                                td.butt.iqbr-button--butt.pb0.iqbr-button--pb0(style=\"background-color:#FF5500;border-radius:12px\")\n                                    a.iqbr-button--butt-link(href=\"https://api.trade.iqbroker.com/v1/multi-links/open-asset?aff=7\" universal=\"true\" target=\"_blank\" style=\"color:#F9F9F9\") Перейти",
+  "styl": "@media screen and (max-width: 600px){.iqbr-section-header--text-pad-small{padding-left:20px !important;padding-right:20px !important}}\n.iqbr-section-header--pb0{padding-bottom:0 !important}\n.iqbr-section-header--pt0{padding-top:0}\n.iqbr-logo--center{text-align:center;margin:0 auto}\n.iqbr-logo--logo{float:none;max-width:146px;padding-top:32px;padding-bottom:28px}\n@media screen and (max-width: 600px){.iqbr-logo--logo{margin:0 auto !important}}\n.iqbr-section-dark--brad-full{border-radius:32px !important}\n@media screen and (max-width: 600px){.iqbr-section-dark--text-pad-small{padding-left:20px !important;padding-right:20px !important}}\n.iqbr-section-dark--color-bg{background-color:#101314}\n.iqbr-section-dark--pb10{padding-bottom:10px}\n.iqbr-section-dark--pb50{padding-bottom:50px}\n.iqbr-section-dark--pt0{padding-top:0}\n.iqbr-section-dark--pt10{padding-top:10px}\n.iqbr-image--center{text-align:center;margin:0 auto}\n.iqbr-title-white--white-title{font-family:Helvetica !important;font-style:normal;font-weight:700;font-size:48px;line-height:58px;color:#f9f9f9;word-break:break-word}\n@media screen and (max-width: 600px){.iqbr-title-white--white-title{font-size:26px !important;line-height:32px !important}}\n.iqbr-text-white--white-text{font-family:Helvetica !important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#fff}\n.iqbr-button--w280{width:100%;max-width:280px}\n@media screen and (max-width: 600px){.iqbr-button--w280{max-width:100% !important}}\n.iqbr-button--butt{background-size:cover;background-color:#f50;font-size:18px !important;font-weight:700 !important;border-radius:12px !important;text-transform:none;font-family:Helvetica !important;height:auto}\n.iqbr-button--butt-link{font-size:18px;line-height:27px;font-weight:700;text-transform:none;text-decoration:none;color:#f9f9f9;display:block;padding:16px 0 16px;text-align:center;letter-spacing:0px}\n.iqbr-button--pb0{padding-bottom:0 !important}",
+  "slots": [],
+  "combo": true,
+  "children": [
+    {
+      "id": "iqbr-section-header",
+      "role": "container",
+      "slots": {}
+    },
+    {
+      "id": "iqbr-logo",
+      "slotId": "content",
+      "role": "logo",
+      "slots": {}
+    },
+    {
+      "id": "iqbr-section-dark",
+      "role": "hero",
+      "slots": {}
+    },
+    {
+      "id": "iqbr-image",
+      "parentRole": "hero",
+      "slotId": "media",
+      "role": "hero-image",
+      "slots": {
+        "image": "https://fsms.quadcode.com/storage/public/d5/th/ok8ggnfnh4cs77ag/strategies-head.png",
+        "padding_bottom": "0"
+      }
+    },
+    {
+      "id": "iqbr-title-white",
+      "parentRole": "hero",
+      "slotId": "content",
+      "role": "hero-title",
+      "slots": {
+        "text": "Крупный заголовок письма"
+      }
+    },
+    {
+      "id": "iqbr-text-white",
+      "parentRole": "hero",
+      "slotId": "content",
+      "role": "hero-text-1",
+      "slots": {
+        "text": "Первый абзац вступления — что предлагаем и кому."
+      }
+    },
+    {
+      "id": "iqbr-text-white",
+      "parentRole": "hero",
+      "slotId": "content",
+      "role": "hero-text-2",
+      "slots": {
+        "text": "Второй абзац — что человек получит."
+      }
+    },
+    {
+      "id": "iqbr-spacer",
+      "parentRole": "hero",
+      "slotId": "content",
+      "role": "hero-gap",
+      "slots": {
+        "height": "24px"
+      }
+    },
+    {
+      "id": "iqbr-button",
+      "parentRole": "hero",
+      "slotId": "content",
+      "role": "hero-cta",
+      "slots": {
+        "label": "Перейти",
+        "align": "left"
+      }
+    }
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "iqbroker",
+    "combo",
+    "hero"
+  ],
+  "note": "Рецепт: ставит готовый набор блоков IQ Broker. Разбирается и правится как обычные блоки. Собственная разметка нужна для превью и для вставки одним блоком."
+}

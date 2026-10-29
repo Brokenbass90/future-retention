@@ -31,6 +31,13 @@
  *   node scripts/render-block-previews.mjs --sheet 6          # блоков на сборку
  *   node scripts/render-block-previews.mjs --force            # игнорировать кэш
  *   node scripts/render-block-previews.mjs --no-mobile        # только desktop
+ *   node scripts/render-block-previews.mjs --brand X_IQBroker # только превью универсальных блоков под бренд
+ *   node scripts/render-block-previews.mjs --no-brands        # без превью под бренды
+ *   node scripts/render-block-previews.mjs --offline          # без сети: картинки заглушкой
+ *
+ * Картинки блоков качаются по-настоящему (один раз за прогон); без сети —
+ * заглушка. Универсальные блоки (kits, без тега бренда) снимаются ещё и под
+ * каждый активный бренд: canonical:sys-logo@iqbroker → sys-logo.iqbroker.desktop.png.
  *
  * Разовая настройка: npx playwright-core install --only-shell chromium
  */
@@ -38,7 +45,6 @@ import {
   existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync, rmSync, symlinkSync,
 } from "node:fs";
 import { spawnSync } from "node:child_process";
-import { createHash } from "node:crypto";
 import path from "node:path";
 import os from "node:os";
 import url from "node:url";
@@ -46,6 +52,14 @@ import { chromium } from "playwright-core";
 import { PNG } from "pngjs";
 
 import { composeEmailFromBlocks } from "../src/compose-email.js";
+import { loadBrands } from "../src/brands.js";
+import {
+  blockPreviewSourceHash,
+  previewBackdropForBlock,
+  substitutePreviewPlaceholders,
+  findLeftoverPlaceholders,
+} from "../src/block-previews.js";
+import { contentSamplingRect, previewKeysToPrune } from "../src/block-preview-renderer-policy.js";
 
 /* ─── Песочница/CI без root: локальные стабы системных библиотек ─────────── */
 if (process.platform === "linux") {
@@ -75,6 +89,20 @@ const ONLY = opt("only", null);
 const LIMIT = Number(opt("limit", 0)) || Infinity;
 const SHEET_SIZE = Math.max(1, Number(opt("sheet", 8)) || 8);
 const FORCE = flag("force");
+// --brand X_IQBroker — только превью универсальных блоков под этот бренд.
+// --no-brands — без превью под бренды. --offline — без сети, картинки заглушкой.
+const BRAND_ONLY = opt("brand", null);
+const NO_BRANDS = flag("no-brands");
+const OFFLINE = flag("offline");
+// Версия рендера: поднимается, когда меняется сам способ съёмки (не блоки).
+// Rev 2 — настоящие картинки вместо заглушки; старые превью перерисуются сами.
+const RENDER_REV = 2;
+const SYSTEM_CHROME_CANDIDATES = process.platform === "darwin"
+  ? [
+      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+      "/Applications/Chromium.app/Contents/MacOS/Chromium",
+    ]
+  : [];
 /**
  * Ширины окна для съёмки.
  *
@@ -116,6 +144,31 @@ const IMAGE_PLACEHOLDER = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" w
 </svg>`, "utf8");
 const PLACEHOLDER_TYPE = "image/svg+xml";
 
+/**
+ * Настоящие картинки блока на превью: по превью с заглушкой нельзя было
+ * отличить hero от логотипа. Каждую картинку качаем один раз за прогон;
+ * не скачалась (нет сети, 404, --offline) — ставим заглушку, прогон не падает.
+ */
+const imageCache = new Map();
+async function serveImage(route) {
+  const placeholder = { contentType: PLACEHOLDER_TYPE, body: IMAGE_PLACEHOLDER };
+  if (OFFLINE) return route.fulfill(placeholder);
+  const target = route.request().url();
+  if (!imageCache.has(target)) {
+    imageCache.set(target, (async () => {
+      try {
+        const response = await route.fetch({ timeout: 15000 });
+        const contentType = response.headers()["content-type"] || "";
+        const body = await response.body();
+        if (response.ok() && /^image\//i.test(contentType) && body.length) return { contentType, body };
+      } catch { /* сети нет — заглушка */ }
+      return null;
+    })());
+  }
+  const image = await imageCache.get(target);
+  return route.fulfill(image ? { status: 200, ...image } : placeholder);
+}
+
 /* ─── Демо-наполнение пустых обёрток ─────────────────────────────────────── */
 // Секция-обёртка без содержимого визуально неотличима от любой другой.
 // В превью мы подставляем в её childSlots канонические атомы, помечая их
@@ -154,10 +207,7 @@ function loadLibrary() {
 
 /* ─── Хеш содержимого блока ──────────────────────────────────────────────── */
 function blockHash(b) {
-  return createHash("sha1").update(JSON.stringify([
-    b.pug || "", b.styl || "", b.slots || [], b.childSlots || [],
-    b.version || 0, b.appearance || {},
-  ])).digest("hex").slice(0, 16);
+  return blockPreviewSourceHash(b);
 }
 
 /* ─── Сборка одного контактного листа ────────────────────────────────────── */
@@ -190,7 +240,11 @@ function buildSheetTree(blocks) {
     } else {
       // inner / inline / helper — кладём в стандартную секцию-обёртку.
       const wrapUid = nextUid("wrap");
-      entries.push({ uid: wrapUid, blockId: DEFAULT_SECTION, parentUid: rootUid, slotId: "sections", slots: {} });
+      const previewBackdrop = previewBackdropForBlock(b);
+      const wrapperSlots = previewBackdrop
+        ? { bg: "", background_color: previewBackdrop, border: "none", radius: "0" }
+        : {};
+      entries.push({ uid: wrapUid, blockId: DEFAULT_SECTION, parentUid: rootUid, slotId: "sections", slots: wrapperSlots });
       ownUid = nextUid("blk");
       entries.push({ uid: ownUid, blockId: b.id, source: b.source, parentUid: wrapUid, slotId: "content", slots: {} });
     }
@@ -220,9 +274,10 @@ function makeSandbox() {
   return dir;
 }
 
-function buildSheet(sandbox, mailName, entries) {
+function buildSheet(sandbox, mailName, entries, themeBrand = "") {
   composeEmailFromBlocks({
     brand: "X_preview",
+    themeBrand,
     mailName,
     blocks: entries,
     destRoot: sandbox,
@@ -238,7 +293,21 @@ function buildSheet(sandbox, mailName, entries) {
   }
   const html = path.join(sandbox, "dist", "X_preview", `mail-${mailName}`, "en", "index.html");
   if (!existsSync(html)) throw new Error("build ok, but dist HTML missing");
-  return html;
+
+  // В письме плейсхолдеры остаются: их подставляет платформа рассылки. В
+  // карточке каталога они не нужны — человек выбирает блок глазами, и
+  // «{{embedded.company_address}}» вместо адреса превращает выбор в
+  // угадывание. Подменяем только копию для скриншота, собранное письмо не
+  // трогаем: снимок с подстановкой — отдельный файл рядом.
+  const shot = path.join(path.dirname(html), "preview.html");
+  const built = readFileSync(html, "utf8");
+  const filled = substitutePreviewPlaceholders(built);
+  writeFileSync(shot, filled, "utf8");
+  const leftover = findLeftoverPlaceholders(filled);
+  if (leftover.length) {
+    console.log(`  ⚠ на листе остались плейсхолдеры: ${leftover.slice(0, 4).join(", ")}`);
+  }
+  return shot;
 }
 
 /* ─── Измерение и вырезание блоков в браузере ────────────────────────────── */
@@ -247,6 +316,7 @@ function buildSheet(sandbox, mailName, entries) {
  * вернуть суммарный bounding box + структурные признаки содержимого.
  */
 const MEASURE = /* js */ `(uids) => {
+  const contentSamplingRect = ${contentSamplingRect.toString()};
   const walker = document.createNodeIterator(document.documentElement, NodeFilter.SHOW_COMMENT);
   const starts = new Map(), ends = new Map();
   let c;
@@ -255,6 +325,21 @@ const MEASURE = /* js */ `(uids) => {
     if (!m) continue;
     (m[1] === "start" ? starts : ends).set(m[2], c);
   }
+  // Горизонтальные границы колонки письма. Клип по ним, а не по bbox блока:
+  // ширина таблицы внутри листа зависит от соседей (браузер согласовывает
+  // ширины ячеек), и один и тот же блок в разных листах давал 560 или 580 px.
+  // Из-за этого превью нельзя было сравнивать между прогонами — а сравнение
+  // «до/после» это главный способ проверять миграции библиотеки.
+  // Колонка письма в этом фреймворке всегда 600px и центрируется. Берём её
+  // геометрию из ширины окна, а не измеряем в DOM: измеренная ширина зависит
+  // от того, какие блоки попали в тот же лист, и один блок в разных прогонах
+  // давал 560/580/600. Фиксированное окно делает превью сравнимыми.
+  const EMAIL_COLUMN = 600;
+  const viewport = document.documentElement.clientWidth;
+  const column = viewport >= EMAIL_COLUMN
+    ? { x: Math.floor((viewport - EMAIL_COLUMN) / 2), width: EMAIL_COLUMN }
+    : { x: 0, width: viewport };
+
   const out = {};
   for (const uid of uids) {
     const s = starts.get(uid), e = ends.get(uid);
@@ -295,8 +380,9 @@ const MEASURE = /* js */ `(uids) => {
     }
     if (!isFinite(top) || bottom <= top) { out[uid] = { error: "block rendered with zero size" }; continue; }
     out[uid] = {
-      box: { x: Math.max(0, Math.floor(left)), y: Math.max(0, Math.floor(top)),
-             width: Math.ceil(right - left), height: Math.ceil(bottom - top) },
+      box: { x: column.x, y: Math.max(0, Math.floor(top)),
+             width: column.width, height: Math.ceil(bottom - top) },
+      content: contentSamplingRect(left, right, column),
       dom: {
         textChars: text.replace(/\\s+/g, " ").trim().length,
         images, links, listItems, buttons,
@@ -308,15 +394,24 @@ const MEASURE = /* js */ `(uids) => {
   return out;
 }`;
 
-/** Доминирующие цвета по PNG: квантизация до сетки 32 и топ-4. */
-function dominantColors(pngBuffer) {
+/**
+ * Доминирующие цвета по PNG: квантизация до сетки 32 и топ-4.
+ *
+ * `content` ограничивает выборку реальными границами блока. Снимок берётся по
+ * всей колонке письма (чтобы превью были сравнимы между прогонами), и без
+ * этого ограничения доминирующим цветом узкой кнопки становится белое поле
+ * вокруг неё — поиск «оранжевая кнопка» переставал находить оранжевые кнопки.
+ */
+function dominantColors(pngBuffer, content = null) {
   let img;
   try { img = PNG.sync.read(pngBuffer); } catch { return []; }
   const counts = new Map();
   const { data, width, height } = img;
-  const step = Math.max(1, Math.floor(Math.sqrt((width * height) / 20000))); // ≤20k проб
+  const x0 = content ? Math.max(0, Math.min(content.dx, width - 1)) : 0;
+  const x1 = content ? Math.min(width, x0 + content.width) : width;
+  const step = Math.max(1, Math.floor(Math.sqrt(((x1 - x0) * height) / 20000)));
   for (let y = 0; y < height; y += step) {
-    for (let x = 0; x < width; x += step) {
+    for (let x = x0; x < x1; x += step) {
       const i = (width * y + x) << 2;
       if (data[i + 3] < 128) continue;
       const key = `${data[i] >> 5},${data[i + 1] >> 5},${data[i + 2] >> 5}`;
@@ -381,6 +476,25 @@ async function main() {
   if (ONLY) library = library.filter((b) => b.id.includes(ONLY));
   library.sort((a, b) => (a.source + a.id).localeCompare(b.source + b.id));
 
+  if (!BRAND_ONLY) await runPass(library);
+  if (NO_BRANDS) return;
+
+  // Универсальные блоки (без тега бренда) перекрашиваются темой бренда, и у
+  // системного логотипа свой логотип бренда. Превью снимаем под каждый бренд,
+  // иначе в IQ Broker × System каталог показывал блоки в цветах IQ Option.
+  const brands = loadBrands().filter((b) => b.active && !b.service && (!BRAND_ONLY || b.id === BRAND_ONLY));
+  const known = new Set(loadBrands().map((b) => b.blockTag).filter(Boolean));
+  // Универсальные — те, что явно входят в наборы (kits) и не помечены брендом:
+  // это блоки системного набора. Импортированные из старых писем сюда не идут.
+  const neutral = library.filter((b) => Array.isArray(b.kits) && b.kits.length
+    && !(b.tags || []).some((t) => known.has(String(t).toLowerCase())));
+  for (const brand of brands) {
+    console.log(`\n── превью под бренд ${brand.label} (${brand.blockTag}): ${neutral.length} универсальных блоков`);
+    await runPass(neutral, { brand: { id: brand.id, tag: brand.blockTag } });
+  }
+}
+
+async function runPass(library, { brand = null } = {}) {
   // Индекс читаем ВСЕГДА, даже с --force. Иначе прогон с фильтром
   // (`--only ... --force`) стирал записи всех остальных блоков: картинки на
   // диске оставались, а каталог считал, что превью у них нет.
@@ -390,20 +504,50 @@ async function main() {
     : { generatedAt: null, blocks: {} };
   index.blocks ||= {};
 
+  // Блок удалили из библиотеки — запись и картинки должны уйти следом.
+  // Иначе каталог показывает превью несуществующего блока, а релизный тест
+  // (test-canonical-preview-release) справедливо падает на «сироте».
+  // При выборочном прогоне (--only) не чистим: библиотека здесь урезана
+  // фильтром, и всё остальное выглядело бы удалённым. При --source чистим
+  // только выбранный namespace: canonical-прогон не владеет imported/user.
+  let pruned = 0;
+  if (!ONLY && !brand) {
+    for (const key of previewKeysToPrune(index, library, { source: SOURCE, only: ONLY })) {
+      const entry = index.blocks[key];
+      for (const shot of Object.values(entry?.shots || {})) {
+        try { if (shot?.file) rmSync(path.join(repoRoot, shot.file), { force: true }); } catch { /* нет файла — и ладно */ }
+      }
+      delete index.blocks[key];
+      pruned += 1;
+      console.log(`  удалена запись превью: ${key} (блока больше нет)`);
+    }
+  }
+
   const todo = [];
   for (const b of library) {
     const hash = blockHash(b);
-    const key = `${b.source}:${b.id}`;
+    const key = `${b.source}:${b.id}${brand ? `@${brand.tag}` : ""}`;
     const prev = index.blocks[key];
     const filesOk = prev && !prev.error && WIDTHS.every((w) =>
       prev.shots?.[w.name]?.file && existsSync(path.join(repoRoot, prev.shots[w.name].file)));
-    if (!FORCE && prev && prev.hash === hash && filesOk) continue;
+    if (!FORCE && prev && prev.hash === hash && prev.rev === RENDER_REV && filesOk) continue;
     todo.push({ block: b, hash, key });
     if (todo.length >= LIMIT) break;
   }
 
   console.log(`библиотека: ${library.length} блоков · к перерисовке: ${todo.length}`);
-  if (!todo.length) { console.log("всё актуально"); return; }
+  if (!todo.length) {
+    // Перерисовывать нечего, но чистку записей всё равно надо сохранить —
+    // иначе удалённый блок остаётся в индексе до следующего рендера.
+    if (pruned) {
+      index.total = Object.keys(index.blocks).length;
+      index.failed = Object.values(index.blocks).filter((b) => b.error).length;
+      writeFileSync(indexPath, JSON.stringify(index, null, 2) + "\n");
+      console.log(`индекс обновлён: убрано ${pruned} записей`);
+    }
+    console.log("всё актуально");
+    return;
+  }
 
   const sheets = [];
   for (let i = 0; i < todo.length; i += SHEET_SIZE) sheets.push(todo.slice(i, i + SHEET_SIZE));
@@ -416,8 +560,16 @@ async function main() {
   const contexts = {};
 
   async function openBrowser() {
+    // `playwright-core` does not download a browser on npm install. Local
+    // Studio machines already have Chrome, so use it as an explicit fallback
+    // instead of making preview refresh depend on a separate 200MB download.
+    const bundledExecutable = chromium.executablePath();
+    const executablePath = existsSync(bundledExecutable)
+      ? bundledExecutable
+      : SYSTEM_CHROME_CANDIDATES.find((candidate) => existsSync(candidate));
     browser = await chromium.launch({
       headless: true,
+      ...(executablePath ? { executablePath } : {}),
       args: ["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"],
     });
     for (const w of WIDTHS) {
@@ -425,9 +577,7 @@ async function main() {
         viewport: { width: w.width, height: 900 }, deviceScaleFactor: 1, reducedMotion: "reduce",
       });
       await ctx.route(/^https?:\/\//, (route) =>
-        route.request().resourceType() === "image"
-          ? route.fulfill({ contentType: PLACEHOLDER_TYPE, body: IMAGE_PLACEHOLDER })
-          : route.abort());
+        route.request().resourceType() === "image" ? serveImage(route) : route.abort());
       contexts[w.name] = { ctx, page: await ctx.newPage() };
     }
   }
@@ -466,7 +616,7 @@ async function main() {
 
     let htmlPath;
     try {
-      htmlPath = buildSheet(sandbox, mailName, entries);
+      htmlPath = buildSheet(sandbox, mailName, entries, brand?.id || "");
     } catch (e) {
       if (retry && items.length > 1) {
         for (const one of items) await renderSheet([one], { retry: false });
@@ -516,7 +666,7 @@ async function main() {
         if (!m || m.error) { firstError ||= m?.error || "не удалось измерить блок"; continue; }
         const dir = path.join(outRoot, block.source);
         mkdirSync(dir, { recursive: true });
-        const file = path.join(dir, `${block.id}.${w.name}.png`);
+        const file = path.join(dir, `${block.id}${brand ? `.${brand.tag}` : ""}.${w.name}.png`);
         // Клип не должен вылезать за границы страницы — иначе playwright ругается.
         const clip = {
           x: m.box.x, y: m.box.y,
@@ -531,7 +681,7 @@ async function main() {
         shots[w.name] = {
           file: path.relative(repoRoot, file), width: clip.width, height: clip.height,
         };
-        colorsByWidth[w.name] = dominantColors(buf);
+        colorsByWidth[w.name] = dominantColors(buf, m.content);
       }
 
       if (!shots.desktop) {
@@ -547,6 +697,8 @@ async function main() {
         placement: block.placement || null,
         category: block.category || null,
         hash: t.hash,
+        rev: RENDER_REV,
+        ...(brand ? { brand: brand.tag } : {}),
         shots,
         signature: buildSignature(block, measuredByWidth.desktop[uid], colorsByWidth, shots),
       };
@@ -567,14 +719,14 @@ async function main() {
       { uid: "outer-txt", blockId: "iq-text-title", parentUid: secUid, slotId: "content", slots: {} },
     ];
     try {
-      const htmlPath = buildSheet(sandbox, mailName, entries);
+      const htmlPath = buildSheet(sandbox, mailName, entries, brand?.id || "");
       const shots = {}; const colorsByWidth = {};
       for (const w of WIDTHS) {
         const { page } = contexts[w.name];
         await page.goto(url.pathToFileURL(htmlPath).href, { waitUntil: "load", timeout: 30000 });
         const dir = path.join(outRoot, b.source);
         mkdirSync(dir, { recursive: true });
-        const file = path.join(dir, `${b.id}.${w.name}.png`);
+        const file = path.join(dir, `${b.id}${brand ? `.${brand.tag}` : ""}.${w.name}.png`);
         const buf = await page.screenshot({ path: file, fullPage: true });
         const dim = PNG.sync.read(buf);
         shots[w.name] = { file: path.relative(repoRoot, file), width: dim.width, height: dim.height };
@@ -582,7 +734,7 @@ async function main() {
       }
       index.blocks[t.key] = {
         id: b.id, source: b.source, label: b.label || b.id, placement: "outer",
-        category: b.category || null, hash: t.hash, shots,
+        category: b.category || null, hash: t.hash, rev: RENDER_REV, ...(brand ? { brand: brand.tag } : {}), shots,
         signature: buildSignature(b, { dom: {} }, colorsByWidth, shots),
       };
       done++;

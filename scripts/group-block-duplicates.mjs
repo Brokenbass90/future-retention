@@ -237,6 +237,8 @@ if (has("report")) {
 
 const items = [];
 for (const [key, entry] of Object.entries(index.blocks || {})) {
+  // Превью под бренд (ключ с «@») — тот же блок в другой теме, не дубликат.
+  if (key.includes("@")) continue;
   if (entry.error || !entry.shots?.desktop?.file) continue;
   const file = path.join(repoRoot, entry.shots.desktop.file);
   if (!existsSync(file)) continue;

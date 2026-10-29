@@ -1,0 +1,161 @@
+{
+  "id": "iq-combo-card-panel-list",
+  "label": "Комбо: Карта — заголовок, текст, панель с картинкой, список, кнопка",
+  "description": "Белая карта: заголовок, абзац, серая панель с иллюстрацией, список из двух пунктов и контурная кнопка. Нарезано из письма Triggers-First-Deposit-2-Made (IQ Option). Раскладывается на отдельные редактируемые блоки.",
+  "placement": "section",
+  "category": "content",
+  "version": 1,
+  "outlookSafe": true,
+  "pug": "table.row.brad-full.iq-combo-card-panel-list(role=\"presentation\")\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns(role=\"presentation\")\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.iq-combo-card-panel-list--title.pb16 {{ title }}\n                        p.iq-combo-card-panel-list--text.pb32 {{ body }}\n                        .iq-combo-card-panel-list--panel(style=\"background-image:url('{{ panel_image }}')\")\n                            .iq-combo-card-panel-list--copy\n                                p.iq-combo-card-panel-list--text {{ panel_text }}\n                            img.iq-combo-card-panel-list--mob-img(src=\"{{ panel_mobile_image }}\" alt=\"\")\n                        ul.iq-combo-card-panel-list--list\n                            li.iq-combo-card-panel-list--text.pb8 {{ item_1 }}\n                            li.iq-combo-card-panel-list--text {{ item_2 }}\n                        .h-40 &nbsp;\n                        table.iq-combo-card-panel-list--w280(align=\"center\" role=\"presentation\" style=\"border-collapse:initial\")\n                            tr\n                                td.iq-combo-card-panel-list--butt(style=\"padding:0\")\n                                    a.iq-combo-card-panel-list--butt-link(href=\"{{ cta_href }}\" universal=\"true\" target=\"_blank\") {{ cta_label }}",
+  "styl": ".iq-combo-card-panel-list\n  background-color #FFFFFF\n  border-collapse separate !important\n  border-radius 32px !important\n.iq-combo-card-panel-list--title\n  font-family: Helvetica, Arial, sans-serif !important\n  font-size 32px\n  font-weight 700\n  line-height 42px\n  color #393A44\n  margin 0\n  @media screen and (max-width: 600px)\n    font-size 28px !important\n    line-height 34px !important\n.iq-combo-card-panel-list--text\n  font-family: Helvetica, Arial, sans-serif !important\n  font-size 18px\n  font-weight 400\n  line-height 26px\n  color #393A44\n  letter-spacing 0\n  margin 0\n.iq-combo-card-panel-list--panel\n  background-color #F9F9F9\n  background-position center\n  background-repeat no-repeat\n  background-size cover !important\n  border-radius 24px\n  @media screen and (max-width: 600px)\n    background-image none !important\n.iq-combo-card-panel-list--copy\n  max-width 250px\n  display inline-block\n  padding 24px 10px 24px 32px\n  vertical-align top\n  @media screen and (max-width: 600px)\n    max-width 100% !important\n    display block !important\n    text-align center !important\n    padding 24px 24px 0 !important\n.iq-combo-card-panel-list--mob-img\n  float none\n  display inline-block\n  width 1px\n  max-width 0.1px\n  @media screen and (max-width: 600px)\n    display block !important\n    margin 0 auto !important\n    width 120px !important\n    max-width 120px !important\n.iq-combo-card-panel-list--list\n  margin 0\n  padding 32px 0 0 20px\n.iq-combo-card-panel-list--w280\n  width 100%\n  max-width 280px\n  @media screen and (max-width: 600px)\n    max-width 100% !important\n.iq-combo-card-panel-list--butt\n  background-color transparent\n  border 2px solid #FF7700\n  border-radius 12px !important\n.iq-combo-card-panel-list--butt-link\n  color #2F3749\n  display block\n  font-family Helvetica, Arial, sans-serif !important\n  font-size 18px\n  font-weight 700\n  line-height 27px\n  padding 16px 0\n  text-align center\n  text-decoration none",
+  "slots": [
+    {
+      "id": "title",
+      "kind": "text",
+      "label": "Заголовок",
+      "default": "Title text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "body",
+      "kind": "richText",
+      "label": "Текст",
+      "default": "Body text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "panel_text",
+      "kind": "richText",
+      "label": "Текст панели",
+      "default": "Panel text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "panel_image",
+      "kind": "image",
+      "label": "Фон панели (десктоп)",
+      "default": "https://fsms.quadcode.com/storage/public/db/cr/9b78g4ss707n6pdg/First-Deposit-Made-2-moeng-middle.png",
+      "uiGroup": "assets"
+    },
+    {
+      "id": "panel_mobile_image",
+      "kind": "image",
+      "label": "Картинка панели (телефон)",
+      "default": "https://fsms.quadcode.com/storage/public/db/cr/9b78g4ss707n6pe0/First-Deposit-Made-2-moeng-middle-mob.png",
+      "uiGroup": "assets"
+    },
+    {
+      "id": "item_1",
+      "kind": "richText",
+      "label": "Пункт 1",
+      "default": "First point",
+      "uiGroup": "content"
+    },
+    {
+      "id": "item_2",
+      "kind": "richText",
+      "label": "Пункт 2",
+      "default": "Second point",
+      "uiGroup": "content"
+    },
+    {
+      "id": "cta_label",
+      "kind": "text",
+      "label": "Текст кнопки",
+      "default": "Button text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "cta_href",
+      "kind": "url",
+      "label": "Ссылка кнопки",
+      "default": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7",
+      "uiGroup": "content",
+      "allowSystemPlaceholder": true
+    }
+  ],
+  "combo": true,
+  "tags": [
+    "combo",
+    "card",
+    "list",
+    "iq"
+  ],
+  "children": [
+    {
+      "id": "iq-section-card-border",
+      "role": "container",
+      "slots": {
+        "border": "none"
+      }
+    },
+    {
+      "id": "iq-middle-title",
+      "slotId": "content",
+      "role": "title",
+      "slots": {
+        "text": "Title text",
+        "align": "left"
+      }
+    },
+    {
+      "id": "iq-text-plain",
+      "slotId": "content",
+      "role": "body",
+      "slots": {
+        "text": "Body text",
+        "align": "left"
+      }
+    },
+    {
+      "id": "iq-spacer",
+      "slotId": "content",
+      "role": "spacer",
+      "slots": {
+        "height": "32"
+      }
+    },
+    {
+      "id": "iq-panel-bg",
+      "slotId": "content",
+      "role": "panel",
+      "slots": {
+        "text": "Panel text",
+        "background_image": "https://fsms.quadcode.com/storage/public/db/cr/9b78g4ss707n6pdg/First-Deposit-Made-2-moeng-middle.png",
+        "mobile_image": "https://fsms.quadcode.com/storage/public/db/cr/9b78g4ss707n6pe0/First-Deposit-Made-2-moeng-middle-mob.png"
+      }
+    },
+    {
+      "id": "iq-bullet-list",
+      "slotId": "content",
+      "role": "list",
+      "slots": {
+        "item_1": "First point",
+        "item_2": "Second point"
+      }
+    },
+    {
+      "id": "iq-spacer",
+      "slotId": "content",
+      "role": "spacer",
+      "slots": {
+        "height": "40"
+      }
+    },
+    {
+      "id": "iq-cta-button",
+      "slotId": "content",
+      "role": "cta",
+      "slots": {
+        "label": "Button text",
+        "href": "https://api.iqoption.com/v1/multi-links/open-asset?aff=7",
+        "background_color": "transparent",
+        "text_color": "#2F3749",
+        "border": "2px solid #FF7700",
+        "radius": "12px",
+        "align": "center"
+      }
+    }
+  ],
+  "scoped": true
+}

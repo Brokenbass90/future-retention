@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RetKit · связь с агентом</title>
+<style>
+  :root{color-scheme:dark}
+  body{margin:0;font:14px/1.45 Inter,system-ui,sans-serif;background:#0f1722;color:#dce6f4;padding:16px}
+  h1{font-size:15px;margin:0 0 10px}
+  .st{padding:9px 11px;border-radius:9px;background:#16212f;margin-bottom:12px}
+  .ok{color:#7ee2a8}.bad{color:#ffb4a8}
+  button{font:inherit;border:0;border-radius:8px;padding:9px 12px;cursor:pointer;background:#2b6cf6;color:#fff;width:100%;margin:5px 0}
+  button.sec{background:#223044;color:#dce6f4}
+  p{margin:6px 0;color:#9fb0c4;font-size:12.5px}
+</style></head>
+<body>
+  <h1>RetKit ↔ ваш агент</h1>
+  <div class="st" id="st">Подключаюсь к RetKit…</div>
+  <button id="copyPrompt">Скопировать для агента</button>
+  <p>Вставьте в чат своему Claude или Codex — он подключится сам или скажет, куда нажать.</p>
+  <p><b>Это окно не закрывайте</b> — через него агент работает с письмом в MoEngage. Сохраняете кампанию вы.</p>
+  <script src="/relay.js"></script>
+</body></html>
