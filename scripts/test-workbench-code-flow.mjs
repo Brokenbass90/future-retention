@@ -291,8 +291,17 @@ assert.doesNotMatch(discard, /return false/,
   "confirmDiscardHtmlDraft must not trap the user in the HTML view");
 assert.doesNotMatch(discard, /confirm\(/,
   "leaving the HTML view must never offer to throw the work away");
-assert.match(discard, /saveDetachedHtmlRevisions\(ctx, \{ keepEditing: true \}\)/,
-  "unsaved HTML must be flushed, not discarded");
+assert.match(discard, /saveLocaleHtmlEdit\(ctx, \{ explicit: true \}\)/,
+  "unsaved HTML must be flushed, not discarded (into TXT, or a manual version as a fallback)");
+assert.match(discard, /ctx\.htmlDirty = false;\s*\n\s*return true;\s*\n\}$/,
+  "after flushing, a second quick switch must not save the old buffer again into another locale");
+const saveLocaleEdit = functionSource("saveLocaleHtmlEdit");
+assert.match(saveLocaleEdit, /const captured = \{ locale, rawBuffer: cm\.getValue\(\)/,
+  "the locale and buffer are captured synchronously before any await");
+assert.match(saveLocaleEdit, /saveDetachedHtmlRevisions\(ctx, \{ keepEditing: true, captured \}\)/,
+  "the manual-version fallback saves the captured buffer into the captured locale");
+assert.match(functionSource("syncLocaleTextToTxt"), /planLocaleTextSync/,
+  "a text edit in a locale goes into that locale's TXT first");
 // Автосейв не имеет права перезаливать буфер: он срабатывает посреди набора
 // текста, и подмена содержимого выбросила бы курсор в начало файла.
 const saveFn = functionSource("saveDetachedHtmlRevisions");

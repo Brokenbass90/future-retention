@@ -78,7 +78,7 @@ const PAGE = (title, body) =>
   check("endpoint пишет header.pug", /app\/templates\/blocks\/header\.pug/.test(server));
   check("клиент отличает Original от локали", /function isOriginalHtmlLocale\(/.test(wb));
   check("правка Original идёт в Pug, а не в override",
-    /if \(isOriginalHtmlLocale\(ctx\)\) \{\s*\n\s*syncOriginalTextToPug\(ctx\)/.test(wb));
+    /if \(editorHtmlLocale\(ctx\) === HTML_BASE_LOCALE\) \{\s*\n\s*syncOriginalTextToPug\(ctx\)/.test(wb));
   check("после переноса письмо пересобирается",
     /syncOriginalTextToPug[\s\S]*rebuildSourceEmail/.test(wb));
 }

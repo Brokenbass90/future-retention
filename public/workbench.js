@@ -1028,11 +1028,19 @@ function isOriginalHtmlLocale(ctx = state.srcCtx) {
   return locale === HTML_BASE_LOCALE || locale === 'original';
 }
 
+function editorHtmlLocale(ctx = state.srcCtx) {
+  return ctx?.editorHtmlLocale || ctx?.activeHtmlLocale || HTML_BASE_LOCALE;
+}
+
+function editorBaseHtml(ctx = state.srcCtx) {
+  return ctx?.editorCompiledHtml != null && ctx?.editorHtmlLocale ? ctx.editorCompiledHtml : (ctx?.compiledHtml || '');
+}
+
 function htmlBufferHasRealEdits(ctx = state.srcCtx) {
   if (!ctx?.htmlEditMode || !cm) return false;
   const buffer = normalizeHtmlForCompare(stripPreviewArtifacts(cm.getValue()));
   if (!buffer) return false;
-  const compiled = normalizeHtmlForCompare(ctx.compiledHtml || '');
+  const compiled = normalizeHtmlForCompare(editorBaseHtml(ctx));
   return Boolean(compiled) && buffer !== compiled;
 }
 
@@ -1045,11 +1053,11 @@ function scheduleHtmlAutosave(ctx) {
     // тогда сохранять уже нечего и некуда.
     if (state.srcCtx !== ctx || !ctx.htmlEditMode || !ctx.htmlDirty) return;
     if (!htmlBufferIsSavable() || !htmlBufferHasRealEdits(ctx)) return;
-    if (isOriginalHtmlLocale(ctx)) {
+    if (editorHtmlLocale(ctx) === HTML_BASE_LOCALE) {
       syncOriginalTextToPug(ctx).catch(() => { /* тост покажет сама */ });
       return;
     }
-    saveDetachedHtmlRevisions(ctx, { keepEditing: true }).catch(() => { /* тост покажет сама */ });
+    saveLocaleHtmlEdit(ctx).catch(() => { /* тост покажет сама */ });
   }, HTML_AUTOSAVE_DELAY_MS);
 }
 
@@ -1099,8 +1107,11 @@ function confirmDiscardHtmlDraft() {
   // Локаль и содержимое захватываются синхронно, до первого await, поэтому
   // сохранение уедет в ПРАВИЛЬНУЮ локаль, даже если человек уже переключился.
   // Значит блокировать переход незачем.
-  if (isOriginalHtmlLocale(ctx)) syncOriginalTextToPug(ctx).catch(() => {});
-  else saveDetachedHtmlRevisions(ctx, { keepEditing: true }).catch(() => {});
+  if (editorHtmlLocale(ctx) === HTML_BASE_LOCALE) syncOriginalTextToPug(ctx).catch(() => {});
+  else saveLocaleHtmlEdit(ctx, { explicit: true }).catch(() => {});
+  // Снимок уже взят. До прихода новой локали в редакторе старый текст —
+  // второе переключение не должно сохранить его ещё раз (и в чужую локаль).
+  ctx.htmlDirty = false;
   return true;
 }
 
@@ -1613,6 +1624,10 @@ function renderCompiledLocaleControls() {
 function applyCompiledHtmlToEditor(ctx, payload, minified = false) {
   const effective = useCompiledHtml(ctx, payload);
   const rawHtml = String(effective.html || '');
+  // Чей HTML сейчас в редакторе. activeHtmlLocale при переключении меняется
+  // сразу, а текст новой локали приходит позже — сохранять по нему нельзя.
+  ctx.editorHtmlLocale = effective.locale || ctx.activeHtmlLocale || HTML_BASE_LOCALE;
+  ctx.editorCompiledHtml = rawHtml;
   ctx.htmlEditMode = false;
   ctx.htmlDirty = false;
   ctx.viewingCompiledHtml = true;
@@ -1854,7 +1869,7 @@ r.compiledViewEditHtmlBtn?.addEventListener('click', () => {
 async function syncOriginalTextToPug(ctx = state.srcCtx) {
   if (!ctx || !cm) return false;
   const after = stripPreviewArtifacts(cm.getValue());
-  const before = ctx.compiledHtml || '';
+  const before = editorBaseHtml(ctx);
   if (!after.trim() || !before.trim()) return false;
   try {
     const res = await fetch('/api/wb/sync-original-text', {
@@ -1888,16 +1903,107 @@ async function syncOriginalTextToPug(ctx = state.srcCtx) {
   }
 }
 
+function sameLocaleCode(a, b) {
+  const norm = value => String(value || '').toLowerCase().replace(/_/g, '-');
+  return norm(a) === norm(b);
+}
+
+/**
+ * Правка текста в HTML локали (EN, ES…) → в TXT этой локали.
+ *
+ * Раньше такая правка молча сохранялась ручной версией (override): локаль
+ * навсегда отвязывалась от Pug и TXT, и следующие плейсхолдеры, переводы и
+ * сборки до неё уже не доходили — «не применяется», «откатывается». Теперь
+ * изменённый текст ищется в TXT этой локали; нашёлся ровно в одном блоке —
+ * правим блок и пересобираем, локаль остаётся связанной.
+ *
+ * @returns 'synced' | 'unchanged' | { reason }
+ */
+async function syncLocaleTextToTxt(ctx = state.srcCtx) {
+  const api = window.RetkitLocaleTextSync;
+  if (!api || !ctx || !cm) return { reason: 'модуль синхронизации не загрузился' };
+  const locale = editorHtmlLocale(ctx);
+  const localeMeta = (ctx.htmlLocales || []).find(item => item.code === locale);
+  if (localeMeta?.detached || (locale === ctx.activeHtmlLocale && ctx.compiledHtmlDetached)) {
+    return { reason: 'у локали уже ручная версия', detached: true };
+  }
+  const afterRaw = cm.getValue();
+  const after = stripPreviewArtifacts(afterRaw);
+  const before = editorBaseHtml(ctx);
+  if (!before.trim() || !after.trim()) return { reason: 'нет собранного HTML для сравнения' };
+  const sources = [];
+  for (const ns of userNamespaces(state.namespaces)) {
+    const key = Object.keys(ns.locales || {}).find(code => sameLocaleCode(code, locale));
+    if (key && Array.isArray(ns.locales[key])) sources.push({ ns: ns.name, key, blocks: ns.locales[key] });
+  }
+  if (!sources.length) return { reason: `у ${locale.toUpperCase()} нет TXT в namespace` };
+  const plan = api.planLocaleTextSync({ beforeHtml: before, afterHtml: after, sources });
+  if (!plan.ok) return { reason: plan.reason };
+  if (!plan.updates.length) {
+    ctx.htmlDirty = false;
+    return 'unchanged';
+  }
+  for (const update of plan.updates) {
+    const ns = state.namespaces.find(item => item.name === update.ns);
+    if (!ns?.locales?.[update.key]) continue;
+    ns.locales[update.key][update.index] = update.after;
+    syncLocaleRawFromBlocks(ns, update.key);
+  }
+  persistNamespaceScope(ctx.brand, ctx.mail, state.namespaces);
+  try { renderLocalesBar(); } catch { /* панель локалей перерисуется сама */ }
+  ctx.htmlDirty = false;
+  // Буфер, который уже совпадает с новым TXT: после сборки его можно спокойно
+  // заменить собранным HTML — это не «черновик», правки в нём уже в TXT.
+  ctx.txtSyncedBuffer = afterRaw;
+  const where = plan.updates.map(update => `${update.ns}.block_${PH_NUM(update.index)}`).join(', ');
+  toast(`✓ Текст записан в TXT ${locale.toUpperCase()} (${where}) · пересобираю`, 'success', 2600);
+  await performSourceEmailBuild(ctx);
+  return 'synced';
+}
+
+async function saveLocaleHtmlEdit(ctx = state.srcCtx, options = {}) {
+  if (!ctx || !cm) return null;
+  const locale = editorHtmlLocale(ctx);
+  // Снимок берём СИНХРОННО, до первого await: при переключении локали
+  // activeHtmlLocale меняется сразу, а редактор ещё держит старый текст.
+  // Без снимка правка EN сохранялась как ручная версия ES — «летаю по
+  // локалям, и что-то откатывается».
+  const captured = { locale, rawBuffer: cm.getValue(), compiled: editorBaseHtml(ctx) };
+  const result = await syncLocaleTextToTxt(ctx);
+  if (result === 'synced' || result === 'unchanged') return result;
+  // Пока человек печатает тег или атрибут, вёрстка временно «не та». Не
+  // отвязываем локаль на полуслове: ручную версию делаем только по кнопке
+  // «Сохранить локаль» или если она уже ручная.
+  if (!options.explicit && !result?.detached) {
+    if (!ctx._lastTxtSyncReason || ctx._lastTxtSyncReason !== result?.reason) {
+      toast(`Правка ${locale.toUpperCase()} не ушла в TXT: ${result?.reason || 'не распознана'}. Чтобы сохранить как ручную версию локали — «Сохранить локаль»`, 'warning', 6000);
+    }
+    ctx._lastTxtSyncReason = result?.reason || '';
+    return null;
+  }
+  ctx._lastTxtSyncReason = '';
+  if (!result?.detached) {
+    toast(`${locale.toUpperCase()} сохранена ручной версией: ${result?.reason}. Pug и TXT её больше не обновляют — вернуть сборку: ↻`, 'warning', 7000);
+  }
+  return saveDetachedHtmlRevisions(ctx, { keepEditing: true, captured });
+}
+
 async function saveDetachedHtmlRevisions(ctx = state.srcCtx, options = {}) {
-  if (!ctx?.htmlEditMode || !ctx.htmlDirty || !cm) return null;
-  if (!htmlBufferIsSavable()) {
+  const captured = options.captured || null;
+  if (!cm || !ctx) return null;
+  if (!captured && (!ctx.htmlEditMode || !ctx.htmlDirty)) return null;
+  const capturedContent = captured ? stripPreviewArtifacts(captured.rawBuffer) : null;
+  if (captured ? !capturedContent.trim() : !htmlBufferIsSavable()) {
     toast('Пустой HTML не сохраняется. Верните код или нажмите «Собрать заново из Pug»', 'warning', 4000);
     return null;
   }
   // Последний рубеж: не создавать override для локали, в которой ничего не
   // меняли. Отвязанная локаль перестаёт пересобираться из Pug навсегда.
-  if (!options.force && !htmlBufferHasRealEdits(ctx)) {
-    ctx.htmlDirty = false;
+  const hasRealEdits = captured
+    ? normalizeHtmlForCompare(capturedContent) !== normalizeHtmlForCompare(captured.compiled || '')
+    : htmlBufferHasRealEdits(ctx);
+  if (!options.force && !hasRealEdits) {
+    if (!captured || ctx.activeHtmlLocale === captured.locale) ctx.htmlDirty = false;
     return null;
   }
   ctx.htmlSaveRequested = true;
@@ -1905,10 +2011,17 @@ async function saveDetachedHtmlRevisions(ctx = state.srcCtx, options = {}) {
 
   const operation = (async () => {
     let lastData = null;
-    while (ctx.htmlSaveRequested && ctx.htmlEditMode) {
+    let first = true;
+    let pinnedLocale = null;
+    while (ctx.htmlSaveRequested && (first ? (captured || ctx.htmlEditMode) : ctx.htmlEditMode)) {
+      // Повторные круги — только для той же локали: иначе текст редактора
+      // (уже другой локали) уехал бы в эту.
+      if (!first && ctx.activeHtmlLocale !== pinnedLocale) break;
       ctx.htmlSaveRequested = false;
-      const locale = ctx.activeHtmlLocale || HTML_BASE_LOCALE;
-      const rawBuffer = cm.getValue();
+      const locale = first && captured ? captured.locale : (ctx.activeHtmlLocale || HTML_BASE_LOCALE);
+      const rawBuffer = first && captured ? captured.rawBuffer : cm.getValue();
+      pinnedLocale = locale;
+      first = false;
       const content = stripPreviewArtifacts(rawBuffer);
       const snapshot = captureEditorRevision(ctx, 'htmlRevision', content);
       ++_compiledHtmlRequest;
@@ -1984,7 +2097,9 @@ async function saveDetachedHtmlRevisions(ctx = state.srcCtx, options = {}) {
 }
 
 r.compiledViewSaveHtmlBtn?.addEventListener('click', () => {
-  saveDetachedHtmlRevisions().catch(() => {});
+  const ctx = state.srcCtx;
+  if (ctx && isOriginalHtmlLocale(ctx)) { syncOriginalTextToPug(ctx).catch(() => {}); return; }
+  saveLocaleHtmlEdit(ctx, { explicit: true }).catch(() => {});
 });
 
 r.compiledPreflightBtn?.addEventListener('click', () => {
@@ -7606,15 +7721,22 @@ async function performSourceEmailBuild(ctx) {
     // ещё не значит, что человек что-то менял. Нет реальных правок и нет
     // override — просто подменяем HTML свежей сборкой (иначе --noadapt и любые
     // правки Pug «не видны»: вес и превью остаются от старого HTML).
-    const htmlDraftUntouched = ctx.htmlEditMode && !ctx.htmlOperation
-      && !ctx.htmlDirty && !htmlBufferHasRealEdits(ctx)
-      && !getActiveHtmlLocaleMeta(ctx)?.detached;
+    const activeDetached = Boolean(getActiveHtmlLocaleMeta(ctx)?.detached || ctx.compiledHtmlDetached);
+    const syncedToTxt = Boolean(ctx.txtSyncedBuffer) && cm?.getValue() === ctx.txtSyncedBuffer;
+    ctx.txtSyncedBuffer = null;
+    const htmlDraftUntouched = ctx.htmlEditMode && !ctx.htmlOperation && !activeDetached
+      && !ctx.htmlDirty && (syncedToTxt || !htmlBufferHasRealEdits(ctx));
+    let keepCursor = null;
     if (htmlDraftUntouched) {
       ctx.htmlEditMode = false;
+      try { keepCursor = { cursor: cm.getCursor(), scroll: cm.getScrollInfo() }; } catch { keepCursor = null; }
     }
     if (ctx.htmlEditMode || ctx.htmlOperation) {
-      if (state.srcCtx === ctx) toast(
-        `✓ Pug собран за ${data.duration}мс · HTML-черновик не затронут — в превью и весе старый HTML. Чтобы увидеть новую сборку, удалите ручную версию (↻)`,
+      const shown = (ctx.activeHtmlLocale || HTML_BASE_LOCALE) === HTML_BASE_LOCALE ? 'Original' : String(ctx.activeHtmlLocale).toUpperCase();
+      if (state.srcCtx === ctx && !ctx.htmlOperation) toast(
+        activeDetached
+          ? `✓ Собрано за ${data.duration}мс · у ${shown} ручная версия: Pug и TXT её не обновляют. Вернуть сборку — ↻`
+          : `✓ Собрано за ${data.duration}мс · в редакторе ${shown} несохранённая правка HTML, превью обновится после неё`,
         'warning', 6000,
       );
       setSourceBuildState(ctx, 'idle');
@@ -7633,8 +7755,12 @@ async function performSourceEmailBuild(ctx) {
         localization: htmlData.localization || data.localization || null,
       });
       if (isActiveContext) {
-        if (wasViewingHtml && !ctx.htmlEditMode) applyCompiledHtmlToEditor(ctx, htmlData, false);
-        else updatePreview();
+        if (wasViewingHtml && !ctx.htmlEditMode) {
+          applyCompiledHtmlToEditor(ctx, htmlData, false);
+          if (keepCursor) {
+            try { cm.setCursor(keepCursor.cursor); cm.scrollTo(keepCursor.scroll.left, keepCursor.scroll.top); } catch { /* курсор не критичен */ }
+          }
+        } else updatePreview();
         const lines = htmlData.html.split('\n').length;
         toast(`✓ HTML обновлён за ${data.duration}мс · ${lines} строк`, 'success');
       }
