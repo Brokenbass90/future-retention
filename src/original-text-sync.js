@@ -64,10 +64,16 @@ export function textEditsBetween(beforeHtml, afterHtml) {
   const after = visibleTextNodes(afterHtml);
   if (!before.length || before.length !== after.length) return [];
   const edits = [];
+  const countIn = (text, part) => (part ? String(text).split(part).length - 1 : 0);
   for (let i = 0; i < before.length; i += 1) {
     if (before[i] === after[i]) continue;
     if (!before[i] || !after[i]) continue;
-    edits.push({ from: before[i], to: after[i] });
+    // Какое по счёту это вхождение текста в письме и сколько их всего —
+    // чтобы одинаковые «Title text» в двух блоках не были тупиком.
+    let ordinal = 0;
+    for (let j = 0; j < i; j += 1) ordinal += countIn(before[j], before[i]);
+    const total = before.reduce((sum, node) => sum + countIn(node, before[i]), 0);
+    edits.push({ from: before[i], to: after[i], ordinal, total });
   }
   return edits;
 }
@@ -77,24 +83,48 @@ export function textEditsBetween(beforeHtml, afterHtml) {
  * чтобы интерфейс мог сказать правду: что перенеслось, а что нет и почему.
  */
 export function applyTextEditsToPug(pugSource, edits) {
-  let pug = String(pugSource || "");
+  const source = String(pugSource || "");
   const applied = [];
   const skipped = [];
+  const replacements = [];
+  const positionsOf = (text) => {
+    const out = [];
+    for (let at = source.indexOf(text); at >= 0; at = source.indexOf(text, at + text.length)) out.push(at);
+    return out;
+  };
   for (const edit of Array.isArray(edits) ? edits : []) {
     const from = String(edit?.from ?? "");
     const to = String(edit?.to ?? "");
     if (!from || !to || from === to) continue;
-    const occurrences = pug.split(from).length - 1;
-    if (occurrences === 0) {
+    const positions = positionsOf(from);
+    if (!positions.length) {
       skipped.push({ ...edit, reason: "в Pug нет такого текста — вероятно он приходит из локали или плейсхолдера" });
       continue;
     }
-    if (occurrences > 1) {
-      skipped.push({ ...edit, reason: `текст встречается в Pug ${occurrences} раза — какое из мест менять, неясно` });
+    let at = positions[0];
+    if (positions.length > 1) {
+      // Несколько одинаковых мест. Pug выводит текст в том же порядке, что и
+      // HTML, поэтому N-е вхождение в письме — N-е в Pug. Но только если число
+      // вхождений совпадает: иначе текст есть ещё где-то (миксин, комментарий),
+      // и порядок не доказывает ничего.
+      const total = Number(edit?.total);
+      const ordinal = Number(edit?.ordinal);
+      if (!Number.isInteger(ordinal) || total !== positions.length || ordinal < 0 || ordinal >= positions.length) {
+        skipped.push({ ...edit, reason: `текст встречается в Pug ${positions.length} раза, а в письме ${Number.isFinite(total) ? total : "?"} — какое из мест менять, неясно` });
+        continue;
+      }
+      at = positions[ordinal];
+    }
+    if (replacements.some((r) => at < r.at + r.length && r.at < at + from.length)) {
+      skipped.push({ ...edit, reason: "пересекается с другой правкой в том же месте Pug" });
       continue;
     }
-    pug = pug.replace(from, to);
+    replacements.push({ at, length: from.length, to });
     applied.push({ ...edit });
+  }
+  let pug = source;
+  for (const r of replacements.sort((a, b) => b.at - a.at)) {
+    pug = pug.slice(0, r.at) + r.to + pug.slice(r.at + r.length);
   }
   return { pug, applied, skipped };
 }

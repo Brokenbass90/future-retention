@@ -498,8 +498,44 @@ function normalizeWorkbenchNamespaceName(value, fallback = 'mail-namespace') {
   return cleaned || String(fallback || 'mail-namespace').replace(/[^A-Za-z0-9_-]+/g, '-').slice(0, 160) || 'mail-namespace';
 }
 
+const VALID_LOCALE_CODE_RE = /^[A-Za-z]{2}(?:[_-][A-Za-z]{2})?$/;
+
+/**
+ * Локаль, загруженная из файла «1589_cn_CN_approved.txt», раньше получала код
+ * «1589_cn_cn_approved». Сервер такой код отвергал, и падала вся сборка (422):
+ * плейсхолдеры не подставлялись ни в одной локали. Чиним код на месте.
+ */
+function ensureValidLocaleCodes(ns) {
+  if (!ns?.locales || typeof ns.locales !== 'object') return [];
+  const renamed = [];
+  for (const code of Object.keys(ns.locales)) {
+    if (VALID_LOCALE_CODE_RE.test(code)) continue;
+    // LANG_CODES объявлен ниже по файлу: до его инициализации не трогаем.
+    let next = '';
+    try { next = extractLocaleCode(code); } catch { continue; }
+    if (!VALID_LOCALE_CODE_RE.test(next) || ns.locales[next]) continue;
+    ns.locales[next] = ns.locales[code];
+    delete ns.locales[code];
+    for (const key of ['localeRaw', 'localeIssues']) {
+      if (ns[key] && typeof ns[key] === 'object' && code in ns[key]) {
+        ns[key][next] = ns[key][code];
+        delete ns[key][code];
+      }
+    }
+    renamed.push({ namespace: ns.name, from: code, to: next });
+  }
+  return renamed;
+}
+
 function ensureValidNamespaceNames(namespaces = state.namespaces) {
   const records = Array.isArray(namespaces) ? namespaces : [];
+  for (const ns of records) {
+    // В тестах функция бывает вырезана отдельно от соседей.
+    const fixed = typeof ensureValidLocaleCodes === 'function' ? ensureValidLocaleCodes(ns) : [];
+    if (fixed.length && typeof toast === 'function') {
+      try { toast(`Локаль «${fixed[0].from}» → «${fixed[0].to}»: имя файла не код локали`, 'info', 4000); } catch { /* до готовности UI */ }
+    }
+  }
   const used = new Set();
   const renamed = [];
   records.forEach((ns, index) => {
@@ -1891,8 +1927,14 @@ async function syncOriginalTextToPug(ctx = state.srcCtx) {
 
     ctx.htmlDirty = false;
     toast(`Перенёс в Pug: ${data.applied.length} · пересобираю все локали…`, 'info', 3000);
-    await rebuildSourceEmail({ keepSourceView: true, background: true });
+    const built = await rebuildSourceEmail({ keepSourceView: true, background: true });
     if (state.srcCtx !== ctx) return true;
+    if (built === false) {
+      // Pug уже сохранён, но HTML не собрался. Перезагрузить сейчас — значит
+      // показать СТАРУЮ сборку поверх правок человека («тексты затираются»).
+      toast(`Текст в Pug сохранён, но сборка упала: ${ctx.lastBuildError || 'см. сообщение выше'}. HTML не перезагружаю, правки на экране целы`, 'error', 9000);
+      return true;
+    }
     await refreshCodeWorkspace(ctx);
     await showCompiledHtml(false, ctx.activeHtmlLocale || HTML_BASE_LOCALE, { force: true });
     toast('Готово: текст в Pug, локали пересобраны', 'success', 3000);
@@ -3595,6 +3637,8 @@ const LANG_CODES = [
   'he','hi','hl','hr','hu','id','it','ja','ka','kk','ko','lt','lv','mk','ms',
   'nl','no','pl','pt','ro','ru','sk','sl','sq','sr','sv','th','tl','tr',
   'uk','ur','uz','vi','zh',
+  // так их называет email-base/vendor/data
+  'cn','ge','se',
 ];
 
 /**

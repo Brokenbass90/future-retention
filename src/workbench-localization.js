@@ -30,6 +30,20 @@ function localeBlocks(namespace, locale) {
   return typeof raw === "string" ? parseTxtBlocks(raw) : null;
 }
 
+/**
+ * «1589_cn_cn_approved» (имя TXT-файла, попавшее в код локали) → «cn».
+ * Берём первый двухбуквенный кусок; пусто — null.
+ */
+export function recoverLocaleCode(value) {
+  const raw = String(value || "").trim();
+  if (LOCALE_RE.test(raw)) return raw;
+  // Похожее на путь (../, /, \\) не чиним — это не имя файла, а попытка выйти из папки.
+  if (/[./\\]/.test(raw)) throw new Error(`Invalid locale: ${raw}`);
+  const tokens = raw.split(/[^A-Za-z0-9]+/).filter(Boolean);
+  const lang = tokens.find((token) => /^[A-Za-z]{2}$/.test(token));
+  return lang ? lang.toLowerCase() : null;
+}
+
 function normalizeLocale(value) {
   const locale = String(value || "").trim();
   if (!LOCALE_RE.test(locale)) throw new Error(`Invalid locale: ${locale || "(empty)"}`);
@@ -64,6 +78,8 @@ export function planWorkbenchLocaleSync(namespaces) {
   const seenNamespaces = new Set();
   const localeSet = new Set();
   const skippedBuiltins = [];
+  const skippedLocales = [];
+  const renamedLocales = [];
   let totalBytes = 0;
 
   for (const source of namespaces) {
@@ -85,7 +101,15 @@ export function planWorkbenchLocaleSync(namespaces) {
     }
 
     for (const rawLocale of localeCodes) {
-      const locale = normalizeLocale(rawLocale);
+      // Кривой код локали (имя файла) раньше ронял ВСЮ сборку (422): ни одна
+      // локаль не обновлялась, правки «не применялись». Чиним или пропускаем.
+      const recovered = recoverLocaleCode(rawLocale);
+      if (!recovered || (recovered !== rawLocale && localeCodes.has(recovered))) {
+        skippedLocales.push({ namespace, locale: String(rawLocale), reason: recovered ? `duplicate of ${recovered}` : "not a locale code" });
+        continue;
+      }
+      if (recovered !== rawLocale) renamedLocales.push({ namespace, from: String(rawLocale), to: recovered });
+      const locale = normalizeLocale(recovered);
       const blocks = localeBlocks(source, rawLocale);
       if (!Array.isArray(blocks)) continue;
       if (blocks.length > MAX_BLOCKS_PER_LOCALE) {
@@ -108,6 +132,8 @@ export function planWorkbenchLocaleSync(namespaces) {
     namespaces: [...seenNamespaces],
     locales: [...localeSet].sort(),
     skippedBuiltins,
+    skippedLocales,
+    renamedLocales,
     totalBytes,
   };
 }
