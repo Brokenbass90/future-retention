@@ -4731,6 +4731,24 @@ async function agentRelayLoop() {
           const live = outcome.applied ? await waitForLivePreview(15000) : null;
           if (outcome.applied) flashCanvasHint?.("Ваш агент поправил письмо — отменить: Ctrl+Z", 4000);
           reply = { ok: true, result: { ...outcome, preview: live ? { ok: live.ok !== false, error: live.error } : null } };
+        } else if (command.tool === "goto" || command.tool === "open_mail") {
+          // Агент открывает письмо сам. Холст с работой молча не выкидываем:
+          // без discard — честный отказ, агент спросит человека.
+          const args = command.args || {};
+          const url = String(args.url || "");
+          if (command.tool === "goto" && !/^\/(workbench|constructor)(\?|$)/.test(url)) reply = { ok: false, error: "goto: только страницы студии." };
+          else if (state.canvas.length && !args.discard) reply = { ok: false, error: `На холсте письмо «${$("mailName")?.value?.trim() || "без имени"}» (${state.canvas.length} блоков). Если его не нужно сохранять — повторите с discard=true; иначе пусть человек сначала нажмёт Save mail.` };
+          else if (command.tool === "goto") { reply = { ok: true, result: { started: true, url } }; setTimeout(() => { window.location.href = url; }, 60); }
+          else {
+            const check = await fetch(`/api/constructor/parse-email?brand=${encodeURIComponent(args.brand || "")}&mail=${encodeURIComponent(args.mail || "")}`).then((r) => r.json()).catch((e) => ({ ok: false, error: String(e?.message || e) }));
+            const blocked = parsedEmailLoadBlockReason(check);
+            if (blocked) reply = { ok: false, error: blocked + " (Для агента: откройте это письмо в «Коде» — page=\"code\".)" };
+            else if (!check?.ok || !Array.isArray(check.blocks) || !check.blocks.length) reply = { ok: false, error: "Письмо не разобралось на блоки: " + (check?.error || "пусто") };
+            else {
+              const loaded = await loadParsedEmail(args.brand, args.mail);
+              reply = loaded ? { ok: true, result: { opened: "Конструктор", brand: args.brand, mail: args.mail, blocks: state.canvas.length } } : { ok: false, error: "Конструктор не смог загрузить письмо." };
+            }
+          }
         } else if (command.tool === "to_code") {
           if (!state.canvas.length) reply = { ok: false, error: "Холст пуст — переносить в код нечего." };
           else { reply = { ok: true, result: { started: true, mailName: $("mailName")?.value?.trim() || "" } }; setTimeout(transferToCode, 60); }
@@ -5696,7 +5714,11 @@ async function transferToCode() {
   const typedName = (document.getElementById("mailName")?.value || "").trim();
   // Черновик «В код» лежит в общей служебной базе: без своей приставки у
   // двоих людей он назывался бы одинаково («draft») и перезаписывал друг друга.
-  const rawName = `${typedName || "draft"}-${browserWorkspaceId()}`;
+  // Письмо, вернувшееся из «Кода», уже носит приставку этого браузера: не
+  // клеим её второй раз (иначе каждый круг «В код → В конструктор» плодил
+  // новую копию: name-abc → name-abc-abc → …).
+  const workspaceSuffix = `-${browserWorkspaceId()}`;
+  const rawName = (typedName || "draft").endsWith(workspaceSuffix) ? typedName : `${typedName || "draft"}${workspaceSuffix}`;
   if (!/^[a-z0-9_-]+$/i.test(rawName)) { alert("Имя письма: только буквы, цифры, дефис, подчёркивание."); return; }
   // Opening the code workspace is not a permanent save/version action.
   // Persist the working copy in the hidden service base; the explicit

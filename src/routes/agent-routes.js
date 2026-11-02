@@ -279,9 +279,61 @@ export function registerAgentRoutes(router, deps) {
     const code = page("workbench");
     const moengage = page("moengage");
     const next = constructor.online || code.online
-      ? (constructor.online ? "Конструктор на связи: retkit_read_canvas." : "«Код» на связи: retkit_email_texts / retkit_build_mail.")
+      ? (constructor.online ? "Конструктор на связи: retkit_read_canvas."
+        : code.tab?.mail ? "«Код» на связи: retkit_email_texts / retkit_build_mail."
+          : "«Код» открыт без письма: попросите человека открыть письмо или Конструктор (retkit_open_studio даст ссылку).")
       : "Студия у человека не открыта: retkit_open_studio — даст ссылку.";
     sendJson(response, 200, { ok: true, result: { build: BUILD_ID, constructor, code, moengage, next } });
+  });
+
+  /**
+   * Агент открывает любое письмо сам — в уже открытой у человека вкладке
+   * студии (Конструктор или «Код»): та переходит на нужную страницу. Ссылку
+   * человеку даём, только если студия у него не открыта вовсе.
+   */
+  router.post("/api/agent/open-mail", async (request, response) => {
+    try {
+      const body = await readRequestBody(request);
+      const token = request.retkitActor?.token || "";
+      const page = body?.page === "code" ? "code" : "constructor";
+      const brand = String(body?.brand || "").replace(/[^A-Za-z0-9_-]/g, "");
+      const mail = String(body?.mail || "").replace(/[^A-Za-z0-9_.-]/g, "");
+      if (!brand || !mail) { sendJson(response, 200, { ok: false, error: "Нужны brand и mail (retkit_list_mails)." }); return; }
+      const discard = body?.discard === true;
+      const pagePath = page === "code" ? "/workbench" : "/constructor";
+      const url = `${pagePath}?brand=${encodeURIComponent(brand)}&mail=${encodeURIComponent(mail)}`;
+      const target = page === "code" ? "workbench" : "constructor";
+      const now = Date.now();
+      const via = relayOnline(token, now, target) ? target
+        : relayOnline(token, now, target === "workbench" ? "constructor" : "workbench") ? (target === "workbench" ? "constructor" : "workbench") : "";
+      if (!via) {
+        const origin = String(body?.publicUrl || studioOrigin(request) || "").replace(/\/+$/, "");
+        sendJson(response, 200, { ok: true, result: { url: origin + url, opened: false,
+          note: "Студия у человека не открыта: дайте ему эту ссылку (открыть вкладку может только он). Дальше всё делаете вы." } });
+        return;
+      }
+      // Конструктор открывает письмо на месте, без перехода страницы.
+      if (via === "constructor" && target === "constructor") {
+        const reply = await callRelay(token, "open_mail", { brand, mail, discard }, { channel: "constructor", timeoutMs: 40_000 });
+        sendJson(response, 200, reply);
+        return;
+      }
+      const before = relayStatus(token, target).lastPollAt || 0;
+      const started = await callRelay(token, "goto", { url, discard }, { channel: via, timeoutMs: 20_000 });
+      if (!started.ok) { sendJson(response, 200, started); return; }
+      const deadline = Date.now() + 25_000;
+      while (Date.now() < deadline) {
+        await new Promise((resolve) => setTimeout(resolve, 700));
+        const status = relayStatus(token, target);
+        if (status.online && status.lastPollAt > before && (target !== "workbench" || status.moengage?.mail)) {
+          sendJson(response, 200, { ok: true, result: { opened: page === "code" ? "Код" : "Конструктор", brand, mail, tab: status.moengage || null } });
+          return;
+        }
+      }
+      sendJson(response, 200, { ok: false, error: "Переход начат, но страница не вышла на связь за 25 секунд — спросите retkit_studio_status." });
+    } catch (error) {
+      sendJson(response, 200, { ok: false, error: error.message });
+    }
   });
 
   /**

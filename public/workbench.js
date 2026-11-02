@@ -12965,6 +12965,24 @@ async function agentWorkbenchRelayLoop() {
               locales: (ctx.htmlLocales || []).map(item => item.code) } };
           }
         }
+        else if (command.tool === 'goto') {
+          const url = String(command.args?.url || '');
+          const ctx = state.srcCtx || {};
+          if (!/^\/(workbench|constructor)(\?|$)/.test(url)) reply = { ok: false, error: 'goto: только страницы студии.' };
+          else if (ctx.modified && !command.args?.discard) reply = { ok: false, error: 'В «Коде» несохранённые правки письма ' + (ctx.mail || '') + '. Если это проба — повторите с discard=true; иначе пусть человек сохранит.' };
+          else {
+            let blocked = '';
+            const target = new URL(url, location.origin);
+            if (target.pathname.startsWith('/constructor') && target.searchParams.get('brand')) {
+              try {
+                const availability = await requestConstructorReturn(target.searchParams.get('brand'), target.searchParams.get('mail'));
+                if (!availability.canOpen) blocked = availability.blockedReason + ' (Для агента: откройте это письмо в «Коде» — page="code".)';
+              } catch (error) { blocked = 'Письмо не открывается в конструкторе: ' + (error?.message || error); }
+            }
+            if (blocked) reply = { ok: false, error: blocked };
+            else { reply = { ok: true, result: { started: true, url } }; setTimeout(() => { window.location.href = url; }, 60); }
+          }
+        }
         else if (command.tool === 'to_constructor') {
           const ctx = state.srcCtx || {};
           if (!ctx.brand || !ctx.mail) reply = { ok: false, error: 'В «Коде» открыт HTML не из базы — в конструктор его не увести.' };

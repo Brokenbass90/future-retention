@@ -26,3 +26,14 @@ for (const name of ["studio_status", "canvas_batch", "canvas_images", "open_in_c
 const relay = fs.readFileSync(new URL("../src/routes/relay-routes.js", import.meta.url), "utf8");
 assert.match(relay, /build: BUILD_ID/);
 console.log("✓ operator tools: status, canvas batch, image needs");
+
+// Агент открывает любое письмо сам, не теряя чужую работу.
+const cjs = fs.readFileSync(new URL("../public/constructor.js", import.meta.url), "utf8");
+const wbjs = fs.readFileSync(new URL("../public/workbench.js", import.meta.url), "utf8");
+assert.match(cjs, /command\.tool === "goto" \|\| command\.tool === "open_mail"/);
+assert.match(cjs, /state\.canvas\.length && !args\.discard/);
+assert.match(cjs, /endsWith\(workspaceSuffix\)/, "no double workspace suffix on round trips");
+assert.match(wbjs, /command\.tool === 'goto'/);
+assert.match(routes, /router\.post\("\/api\/agent\/open-mail"/);
+assert.ok(mcp.includes('"retkit_open_mail"'));
+console.log("✓ agent opens any mail itself");
