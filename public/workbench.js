@@ -12949,7 +12949,15 @@ async function agentWorkbenchRelayLoop() {
           // ждёт впустую. Поэтому несохранённые правки — честный отказ агенту,
           // а переход «без них» — только по явному discard.
           else if (ctx.modified && !command.args?.discard) reply = { ok: false, error: 'В «Коде» несохранённые правки — в конструктор они не попадут (конструктор строится из своей модели, а не из Pug). Если они нужны — пусть человек сохранит письмо; если это проба — повторите с discard=true.' };
-          else { reply = { ok: true, result: { started: true, brand: ctx.brand, mail: ctx.mail, discarded: Boolean(ctx.modified) } }; setTimeout(() => { void navigateBackToConstructor(ctx, null, { skipConfirm: true }); }, 60); }
+          else {
+            // Проверку «можно ли вернуться» делаем ДО ответа: иначе студия
+            // покажет человеку тост, а агент 25 секунд ждёт вкладку, которой не будет.
+            let availability = null;
+            try { availability = await requestConstructorReturn(ctx.brand, ctx.mail); }
+            catch (error) { availability = { canOpen: false, blockedReason: 'Не удалось проверить письмо: ' + (error?.message || error) }; }
+            if (!availability.canOpen) reply = { ok: false, error: availability.blockedReason + ' (Для агента: правки Pug/локалей/плейсхолдеров живут только в «Коде»; конструктор берёт свою модель письма. Дальше работайте в «Коде» или откройте в конструкторе копию письма.)' };
+            else { reply = { ok: true, result: { started: true, brand: ctx.brand, mail: ctx.mail, discarded: Boolean(ctx.modified) } }; setTimeout(() => { void navigateBackToConstructor(ctx, null, { skipConfirm: true }); }, 60); }
+          }
         }
         else reply = { ok: false, error: `Неизвестная команда: ${command.tool}` };
       } catch (error) {

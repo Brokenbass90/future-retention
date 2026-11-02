@@ -30,3 +30,9 @@ const routes = fs.readFileSync(new URL("../src/routes/agent-routes.js", import.m
 assert.match(routes, /discard: body\?\.discard === true/);
 assert.match(routes, /retkit_open_in_code/, "open-page points to in-studio navigation");
 console.log("✓ agent to_constructor never blocks on confirm()");
+
+// 4. Возврат в конструктор, заблокированный устаревшей моделью, — ответ агенту, а не тост.
+const toC2 = wb.slice(wb.indexOf("command.tool === 'to_constructor'"), wb.indexOf("Неизвестная команда"));
+assert.ok(toC2.indexOf("requestConstructorReturn") < toC2.indexOf("navigateBackToConstructor"), "check before navigating");
+assert.match(toC2, /availability\.blockedReason/);
+console.log("✓ blocked return to constructor is reported to the agent");
