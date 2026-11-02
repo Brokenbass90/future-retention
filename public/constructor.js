@@ -4708,9 +4708,17 @@ async function agentRelayLoop() {
   const post = (url, body) => fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
   for (;;) {
     try {
-      const response = await post("/api/relay/poll", { channel: "constructor", status: { mailName: $("mailName")?.value?.trim() || "", blocks: state.canvas.length } });
+      const response = await post("/api/relay/poll", { channel: "constructor", status: { mailName: $("mailName")?.value?.trim() || "", blocks: state.canvas.length, build: window.__retkitBuild || "" } });
       if (!response.ok) { await new Promise((r) => setTimeout(r, 10000)); continue; }
-      const command = (await response.json())?.command;
+      const polled = await response.json();
+      if (polled?.build) {
+        if (!window.__retkitBuild) window.__retkitBuild = polled.build;
+        else if (polled.build !== window.__retkitBuild && !window.__retkitBuildWarned) {
+          window.__retkitBuildWarned = true;
+          try { flashCanvasHint("Студия обновилась — сохраните письмо и обновите страницу (F5).", 15000); } catch {}
+        }
+      }
+      const command = polled?.command;
       if (!command) continue;
       let reply;
       try {

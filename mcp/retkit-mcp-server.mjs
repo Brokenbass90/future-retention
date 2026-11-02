@@ -274,7 +274,9 @@ const SERVER_INSTRUCTIONS = [
   "",
   "Переходы: retkit_open_in_code (холст → «Код») и retkit_open_in_constructor («Код» → холст) — ходите сами, человеку нажимать не нужно. Если нужного инструмента нет в вашем списке (клиент закешировал старый), вызывайте его через retkit_call.",
   "",
-  "Холст конструктора: retkit_read_canvas → retkit_update_canvas_block / remove / add / move (по uid). Правка видна у человека сразу.",
+  "Холст конструктора: retkit_read_canvas → retkit_update_canvas_block / remove / add / move (по uid), много правок — retkit_canvas_batch одним вызовом. Правка видна у человека сразу.",
+  "Состояние студии — retkit_studio_status (первым): что открыто, есть ли несохранённые правки, не нужна ли человеку F5 после деплоя.",
+  "Письмо по картинке от человека: разберите картинку на секции → retkit_find_blocks_by_look / retkit_block_preview → соберите холст через retkit_canvas_batch (тексты — с картинки) → retkit_see_email и сравните с картинкой → retkit_canvas_images и попросите у человека ссылки на недостающие картинки. Save mail нажимает человек.",
   "",
   "Письмо, открытое у человека в MoEngage, доступно через расширение RetKit: moengage_status (первым) → moengage_read_email → правка → moengage_write_email (с hash из чтения, после согласия человека). Замены во всех локалях — moengage_find_across_locales: вы готовите, нажимает человек. Сохранение кампании в MoEngage — всегда кнопка человека.",
   "",
@@ -1370,11 +1372,32 @@ server.registerTool(
       const listed = await studioFetch("/api/agent/tools");
       return asText([
         { name: "open_studio", browserOnly: false, params: ["page", "brand", "mail"] },
+        { name: "studio_status", browserOnly: false, params: [] },
+        { name: "open_in_code", browserOnly: true, params: [] },
+        { name: "open_in_constructor", browserOnly: true, params: ["discard"] },
+        { name: "canvas_batch", browserOnly: true, params: ["ops"] },
+        { name: "canvas_images", browserOnly: true, params: [] },
         ...(listed?.tools || []).map((t) => ({ name: t.name, browserOnly: t.browserOnly, params: Object.keys(t.parameters?.properties || {}) })),
       ]);
     }
     // Инструменты, которые живут в самом MCP-сервере (клиент мог закешировать
     // старый список и не видеть их по имени retkit_*).
+    if (tool === "studio_status") {
+      const data = await studioFetch("/api/agent/status");
+      if (data?.ok === false) throw new Error(data.error || "Студия не ответила");
+      return asText(data.result);
+    }
+    if (tool === "canvas_batch" || tool === "canvas_images") {
+      const body = tool === "canvas_batch" ? { tool: "batch", args: { ops: args.ops } } : { tool: "image_needs" };
+      const data = await studioFetch("/api/agent/canvas-call", { method: "POST", body });
+      if (data?.ok === false) throw new Error(data.error || "Конструктор не ответил");
+      return asText(data.result);
+    }
+    if (tool === "open_in_code" || tool === "open_in_constructor") {
+      const data = await studioFetch("/api/agent/navigate", { method: "POST", body: { to: tool === "open_in_code" ? "workbench" : "constructor", discard: args.discard === true || args.discard === "true" } });
+      if (data?.ok === false) throw new Error(data.error || "Переход не удался");
+      return asText(data.result);
+    }
     if (tool === "open_studio") {
       const data = await studioFetch("/api/agent/open-page", { method: "POST", body: { ...args, brand: args.brand || brand, mail: args.mail || mail, publicUrl: PUBLIC_URL } });
       if (data?.ok === false) throw new Error(data.error || "Не удалось открыть страницу");
@@ -1388,6 +1411,62 @@ server.registerTool(
       : await studioFetch("/api/agent/call", { method: "POST", body: { tool, args, context: { brand, mail, surface: "workbench", publicUrl: PUBLIC_URL } } });
     if (data?.ok === false && data?.error) throw new Error(data.error);
     return asText(data?.result ?? data);
+  }
+);
+
+server.registerTool(
+  "retkit_studio_status",
+  {
+    title: "Студия: что открыто у человека",
+    description:
+      "Первым делом в студии. Какие страницы у человека на связи (Конструктор, «Код», MoEngage), какое письмо " +
+      "открыто, есть ли несохранённые правки, какие локали, и не устарела ли вкладка после деплоя (тогда нужен F5). " +
+      "Не гадайте о состоянии по ошибкам — спросите здесь.",
+    inputSchema: {},
+    annotations: { readOnlyHint: true, openWorldHint: false },
+  },
+  async () => {
+    const data = await studioFetch("/api/agent/status");
+    if (data?.ok === false) throw new Error(data.error || "Студия не ответила");
+    return asText(data.result);
+  }
+);
+
+server.registerTool(
+  "retkit_canvas_batch",
+  {
+    title: "Конструктор: много правок одним вызовом",
+    description:
+      "Несколько правок холста за один вызов и одним пакетом на холсте: ops = [{tool, args}], tool — update_canvas_block, " +
+      "add_canvas_block, remove_canvas_block, move_canvas_block. Шаги видят друг друга (uid только что добавленного блока " +
+      "можно использовать дальше). Ошибка на шаге — ничего не применяется. Так собирают письмо по картинке и заполняют все поля разом.",
+    inputSchema: {
+      ops: z.array(z.object({ tool: z.string(), args: z.record(z.string(), z.any()).optional() })).min(1).max(80),
+    },
+    annotations: { openWorldHint: false },
+  },
+  async ({ ops }) => {
+    const data = await studioFetch("/api/agent/canvas-call", { method: "POST", body: { tool: "batch", args: { ops } } });
+    if (data?.ok === false) throw new Error(data.error || "Пакет не применён");
+    return asText(data.result);
+  }
+);
+
+server.registerTool(
+  "retkit_canvas_images",
+  {
+    title: "Конструктор: каких картинок не хватает",
+    description:
+      "Список мест письма на холсте, где картинка пустая или стоит образцовая картинка блока (фон hero, баннеры). " +
+      "После сборки письма по картинке вызовите и попросите у человека ссылки ровно на эти места; иконки соцсетей, " +
+      "сторов и логотип не в счёт.",
+    inputSchema: {},
+    annotations: { readOnlyHint: true, openWorldHint: false },
+  },
+  async () => {
+    const data = await studioFetch("/api/agent/canvas-call", { method: "POST", body: { tool: "image_needs" } });
+    if (data?.ok === false) throw new Error(data.error || "Конструктор не ответил");
+    return asText(data.result);
   }
 );
 

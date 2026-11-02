@@ -6,6 +6,7 @@
  * в заголовке; метка у них одна и та же, поэтому они находят друг друга.
  */
 import { pollRelay, resolveRelay, callRelay, relayStatus } from "../relay.js";
+import { BUILD_ID } from "../build-id.js";
 
 const RELAY_TOOLS = new Set([
   "status", "read_email", "write_email", "switch_locale", "find_across_locales", "validator",
@@ -19,7 +20,7 @@ export function registerRelayRoutes(router, { sendJson, readRequestBody }) {
     if (!token) { sendJson(response, 503, { ok: false, error: "Студия не узнала браузер" }); return; }
     const body = await readRequestBody(request).catch(() => ({}));
     const command = await pollRelay(token, body?.status || null, { channel: body?.channel });
-    sendJson(response, 200, { ok: true, command });
+    sendJson(response, 200, { ok: true, command, build: BUILD_ID });
   });
 
   router.post("/api/relay/result", async (request, response) => {

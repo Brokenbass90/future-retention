@@ -26,6 +26,8 @@ import { canvasSummaryFrom } from "../canvas-summary.js";
 import { normalizeConstructorCatalog } from "../constructor-catalog.js";
 import { extractEmailTexts } from "../email-texts.js";
 import { createHash } from "node:crypto";
+import { BUILD_ID } from "../build-id.js";
+import { imageNeedsFrom } from "../canvas-images.js";
 
 /** Черновик HTML-правок своего агента: правки копятся, а не перетирают друг друга. */
 const agentHtmlDrafts = new Map();
@@ -107,7 +109,16 @@ export function registerAgentRoutes(router, deps) {
       const body = await readRequestBody(request);
       const name = String(body?.tool || "").trim();
       const token = request.retkitActor?.token || "";
-      if (name !== "read_canvas" && !BROWSER_ONLY.has(name)) {
+      const batch = name === "batch" ? (Array.isArray(body?.args?.ops) ? body.args.ops : null) : null;
+      if (name === "batch" && (!batch || !batch.length)) {
+        sendJson(response, 400, { ok: false, error: "batch: нужен непустой ops — [{tool, args}, …]." });
+        return;
+      }
+      if (batch) {
+        const bad = batch.find((op) => !BROWSER_ONLY.has(String(op?.tool || "")) || op?.tool === "check_canvas_ready");
+        if (bad) { sendJson(response, 400, { ok: false, error: `batch: «${bad?.tool}» — не правка холста.` }); return; }
+      }
+      if (name !== "read_canvas" && name !== "batch" && name !== "image_needs" && !BROWSER_ONLY.has(name)) {
         sendJson(response, 400, { ok: false, error: `"${name}" — не инструмент холста.` });
         return;
       }
@@ -117,6 +128,10 @@ export function registerAgentRoutes(router, deps) {
       const summary = canvasSummaryFrom(canvas);
       if (name === "read_canvas") {
         sendJson(response, 200, { ok: true, result: { mailName: read.result?.mailName || "", blocks: summary } });
+        return;
+      }
+      if (name === "image_needs") {
+        sendJson(response, 200, { ok: true, result: imageNeedsFrom(summary, normalizeConstructorCatalog(read.result?.studio)) });
         return;
       }
       const ctx = {
@@ -134,7 +149,23 @@ export function registerAgentRoutes(router, deps) {
         pendingImages: [],
         html: "",
       };
-      const result = await TOOL_HANDLERS[name](body?.args && typeof body.args === "object" ? body.args : {}, ctx);
+      let result;
+      if (batch) {
+        // Все правки — в одном контексте: следующая видит предыдущие (и временные
+        // uid только что добавленных блоков), а на холст уходят одним пакетом.
+        const steps = [];
+        for (const [index, op] of batch.entries()) {
+          const step = await TOOL_HANDLERS[op.tool](op?.args && typeof op.args === "object" ? op.args : {}, ctx);
+          steps.push({ index, tool: op.tool, ...(step?.error ? { error: step.error } : { ok: true, uid: step?.uid ?? op?.args?.uid ?? null }) });
+          if (step?.error) {
+            sendJson(response, 200, { ok: false, error: `batch остановлен на шаге ${index} (${op.tool}): ${step.error}. Ничего не применено.`, result: { steps } });
+            return;
+          }
+        }
+        result = { steps };
+      } else {
+        result = await TOOL_HANDLERS[name](body?.args && typeof body.args === "object" ? body.args : {}, ctx);
+      }
       if (result?.error || !Array.isArray(ctx.canvasOps) || !ctx.canvasOps.length) {
         sendJson(response, 200, { ok: !result?.error, result });
         return;
@@ -224,6 +255,33 @@ export function registerAgentRoutes(router, deps) {
     } catch (error) {
       sendJson(response, 500, { ok: false, error: error.message });
     }
+  });
+
+  /**
+   * Одним взглядом: какие страницы студии у человека на связи, что в них
+   * открыто, есть ли несохранённые правки и не устарел ли JS вкладки после
+   * деплоя. Агенту не нужно угадывать состояние по ошибкам.
+   */
+  router.get("/api/agent/status", (request, response) => {
+    const token = request.retkitActor?.token || "";
+    const page = (channel) => {
+      const status = relayStatus(token, channel);
+      const tab = status.moengage || null;
+      const tabBuild = tab?.build || "";
+      return {
+        online: status.online,
+        lastSeenSecAgo: status.lastPollAt ? Math.round((Date.now() - status.lastPollAt) / 1000) : null,
+        ...(tab ? { tab: { ...tab, build: undefined } } : {}),
+        ...(status.online && tabBuild && tabBuild !== BUILD_ID ? { outdated: true, fix: "Вкладка открыта до обновления студии — попросите человека обновить её (F5)." } : {}),
+      };
+    };
+    const constructor = page("constructor");
+    const code = page("workbench");
+    const moengage = page("moengage");
+    const next = constructor.online || code.online
+      ? (constructor.online ? "Конструктор на связи: retkit_read_canvas." : "«Код» на связи: retkit_email_texts / retkit_build_mail.")
+      : "Студия у человека не открыта: retkit_open_studio — даст ссылку.";
+    sendJson(response, 200, { ok: true, result: { build: BUILD_ID, constructor, code, moengage, next } });
   });
 
   /**

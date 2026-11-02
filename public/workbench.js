@@ -10886,7 +10886,15 @@ r.validationClose.addEventListener('click', () => r.validationBar.classList.add(
 // TOAST
 // ═══════════════════════════════════════════════════════════════
 
+const recentToasts = new Map();
 function toast(msg, type='info', ms=3000) {
+  // Одно и то же сообщение дважды подряд — шум (сборка и предпросмотр
+  // сообщают об одной ошибке каждый): показываем один раз.
+  const toastKey = type + '|' + String(msg);
+  const now = Date.now();
+  if (now - (recentToasts.get(toastKey) || 0) < Math.max(ms, 4000)) return;
+  recentToasts.set(toastKey, now);
+  if (recentToasts.size > 50) recentToasts.clear();
   const icons = {success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'};
   const el = document.createElement('div');
   el.className = `toast ${type}`;
@@ -12919,14 +12927,29 @@ function showAgentProposal(payload) {
   return offered;
 }
 
+// Версия студии: первая увиденная — версия JS этой вкладки. Сменилась — был
+// деплой, а вкладка работает старым кодом: просим человека обновить страницу.
+function retkitNoteServerBuild(build) {
+  if (!build) return;
+  if (!window.__retkitBuild) { window.__retkitBuild = build; return; }
+  if (build === window.__retkitBuild || window.__retkitBuildWarned) return;
+  window.__retkitBuildWarned = true;
+  toast('Студия обновилась — сохраните работу и обновите страницу (F5), чтобы получить новую версию.', 'warning', 15000);
+}
+
 async function agentWorkbenchRelayLoop() {
   const post = (url, body) => fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   for (;;) {
     try {
       const ctx = state.srcCtx || {};
-      const response = await post('/api/relay/poll', { channel: 'workbench', status: { brand: ctx.brand || '', mail: ctx.mail || '' } });
+      const response = await post('/api/relay/poll', { channel: 'workbench', status: {
+        brand: ctx.brand || '', mail: ctx.mail || '', modified: Boolean(ctx.modified),
+        locales: (ctx.htmlLocales || []).map(item => item.code).slice(0, 60),
+        activeLocale: state.activeLocale || '', buildState: ctx.buildState || '', build: window.__retkitBuild || '' } });
       if (!response.ok) { await new Promise(res => setTimeout(res, 10000)); continue; }
-      const command = (await response.json())?.command;
+      const polled = await response.json();
+      retkitNoteServerBuild(polled?.build);
+      const command = polled?.command;
       if (!command) continue;
       let reply;
       try {
@@ -13048,3 +13071,64 @@ async function agentPlaceholderize({ namespace = '', refLocale = 'en' } = {}) {
     built: sourceMode && ctx ? ctx.buildState !== 'error' : undefined,
     note: 'Применено в исходник и пересобрано. Откат — «Отменить».' } };
 }
+
+// ─── Рабочая копия «В код» переживает деплой ────────────────────────────────
+// Копия лежит на диске сервера (X_preview), а на Heroku диск стирается при
+// деплое и перезапуске. Вкладка держит снимок копии и, если сервер ответил
+// «письма нет», возвращает её на диск и повторяет запрос. См. src/working-copy.js.
+(function setupWorkingCopyKeeper() {
+  const BRAND = 'X_preview';
+  const nativeFetch = window.fetch.bind(window);
+  const keyOf = (mail) => 'retkit.wc.' + mail;
+  const current = () => { const ctx = state.srcCtx || {}; return ctx.brand === BRAND && ctx.mail ? ctx.mail : ''; };
+  let lastSignature = '';
+  let restoring = null;
+
+  async function snapshotNow() {
+    const mail = current();
+    if (!mail) return;
+    try {
+      const response = await nativeFetch('/api/wb/working-copy?brand=' + BRAND + '&mail=' + encodeURIComponent(mail));
+      const data = await response.json();
+      if (!data?.ok) return;
+      const text = JSON.stringify(data);
+      const signature = text.length + ':' + text.slice(-200);
+      if (signature === lastSignature) return;
+      lastSignature = signature;
+      try { localStorage.setItem(keyOf(mail), text); } catch { /* полный storage — живём без снимка */ }
+    } catch { /* сеть — попробуем позже */ }
+  }
+
+  async function restore(mail) {
+    if (restoring) return restoring;
+    restoring = (async () => {
+      let snapshot = null;
+      try { snapshot = JSON.parse(localStorage.getItem(keyOf(mail)) || 'null'); } catch { snapshot = null; }
+      if (!snapshot?.files) return false;
+      const response = await nativeFetch('/api/wb/working-copy/restore', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ brand: BRAND, mail, snapshot }),
+      });
+      const data = await response.json().catch(() => null);
+      if (data?.ok) toast('Студия обновлялась и стёрла рабочую копию — вернул её из этой вкладки (' + data.files + ' файлов, ' + data.locales + ' локалей).', 'info', 6000);
+      return Boolean(data?.ok);
+    })().finally(() => { setTimeout(() => { restoring = null; }, 3000); });
+    return restoring;
+  }
+
+  window.fetch = async function retkitFetch(input, init) {
+    const response = await nativeFetch(input, init);
+    const mail = current();
+    if (response.status < 400 || !mail) return response;
+    let missing = false;
+    try { missing = /mail(?: app folder)? not found/i.test(String((await response.clone().json())?.error || '')); } catch { missing = false; }
+    if (!missing) return response;
+    if (!(await restore(mail))) return response;
+    return nativeFetch(input, init);
+  };
+
+  setTimeout(snapshotNow, 4000);
+  setInterval(() => { if (document.visibilityState === 'visible') void snapshotNow(); }, 45000);
+  window.addEventListener('beforeunload', () => { /* снимок уже свежий: интервал */ });
+  window.__retkitSnapshotWorkingCopy = snapshotNow;
+})();

@@ -147,6 +147,7 @@ import { registerWorkspaceRoutes } from "./src/routes/workspace-routes.js";
 import { registerMcpRoutes } from "./src/routes/mcp-routes.js";
 import { isMcpHttpRequest, handleMcpHttp } from "./src/routes/mcp-http.js";
 import { registerRelayRoutes } from "./src/routes/relay-routes.js";
+import { registerWorkingCopyRoutes } from "./src/working-copy.js";
 import { canvasSummaryFrom } from "./src/canvas-summary.js";
 import { registerShotRoutes } from "./src/routes/shot-routes.js";
 import { registerSourceRoutes } from "./src/routes/source-routes.js";
@@ -245,6 +246,7 @@ registerMcpRoutes(studioRouter, {
 registerShotRoutes(studioRouter, { sendJson, readRequestBody });
 registerLocaleToolsRoutes(studioRouter, { repoRoot: __dirname, sendJson, sendText: (...args) => sendText(...args), readRequestBody });
 registerRelayRoutes(studioRouter, { sendJson, readRequestBody });
+registerWorkingCopyRoutes(studioRouter, { repoRoot: __dirname, sendJson, readRequestBody });
 registerAgentThreadRoutes(studioRouter, { repoRoot: __dirname, sendJson });
 registerSourceRoutes(studioRouter, { repoRoot: __dirname, sendJson });
 registerAgentRoutes(studioRouter, {
