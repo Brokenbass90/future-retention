@@ -838,7 +838,9 @@ async function loadApiStatus() {
     }
 
     if (!state.settings.providerId || state.settings.providerId === "mock") {
-      state.settings.providerId = (payload.openAiConfigured || payload?.config?.openAiConfigured) ? "openai" : "mock";
+      const availableAiProvider = (Array.isArray(payload.providers) ? payload.providers : [])
+        .find((provider) => ["openai", "ollama"].includes(provider?.id) && provider?.available);
+      state.settings.providerId = availableAiProvider?.id || "mock";
     }
 
     if (!state.brief.category && payload.emailBase?.currentMail?.category) {
@@ -2099,16 +2101,16 @@ async function handleChatPaste(event) {
           state.messages.push({
             role: "assistant",
             content: [
-              "🎨 Вижу Figma ссылку! Чтобы студия могла открывать и нарезать макеты, нужно добавить Figma API токен.\n",
-              "**Как получить токен (1 минута):**",
-              "1. Открой figma.com → нажми на аватар (справа вверху) → **Settings**",
-              "2. Прокрути вниз до раздела **Personal access tokens**",
-              "3. Нажми **Generate new token** → дай имя (например «Studio») → скопируй токен",
-              "4. Открой файл `.env` в папке проекта и добавь строку:",
-              "   `FIGMA_API_TOKEN=figd_xxxxxxxxxxxxxxxxx`",
-              "5. Перезапусти студию (node server.js)\n",
-              "**Безопасность:** токен хранится только в `.env` на твоём компьютере, никуда не отправляется. Студия работает локально (localhost).\n",
-              "После настройки вставь ссылку ещё раз — студия автоматически откроет браузер фреймов."
+              "🎨 Вижу Figma ссылку! Чтобы студия открыла макет, у неё должен быть доступ. Путей два.\n",
+              "**Плагин — путь для рабочей Figma (токен не нужен):**",
+              "1. Figma desktop → Plugins → Development → **Import plugin from manifest…**",
+              "2. Выбрать `figma-plugin/manifest.json` в папке проекта",
+              "3. Выделить фрейм письма → Plugins → Development → **RetKit — Send frame to Studio**",
+              "4. Нажать «Отправить в студию» — макет приедет сюда сам\n",
+              "Плагин работает внутри Figma под твоим собственным доступом и шлёт макет на эту же машину. Наружу не уходит ничего.\n",
+              "**Токен — только для личного аккаунта:**",
+              "figma.com → аватар → Settings → Personal access tokens → Generate new token, потом строка `FIGMA_API_TOKEN=figd_…` в `.env` и перезапуск студии.\n",
+              "**Честно про безопасность токена:** в `.env` он лежит локально и никуда не отправляется, но сам токен открывает **все файлы Figma, которые видишь ты** — ограничить его одним файлом нельзя. Для макетов компании это лишнее: там плагин."
             ].join("\n")
           });
           renderAll();
@@ -6011,11 +6013,12 @@ function renderMessages() {
 }
 
 function renderStatus() {
-  const providerLabel = getSelectedProvider()?.label || state.settings.providerId;
+  const provider = getSelectedProvider();
+  const providerLabel = provider?.label || state.settings.providerId;
   const providerRuntime = getActiveProviderRuntime();
   const hasProviderIssue = Boolean(providerRuntime?.fallback && providerRuntime?.issueCode);
-  const isLive = state.settings.providerId === "openai"
-    && isOpenAiConfigured()
+  const isLive = ["openai", "ollama"].includes(state.settings.providerId)
+    && Boolean(provider?.available)
     && !hasProviderIssue;
   let statusText = "Генерирую...";
   if (!state.busy) {
@@ -6023,10 +6026,12 @@ function renderStatus() {
       statusText = `${providerLabel}: ${formatProviderIssue(providerRuntime)}`;
     } else if (state.settings.providerId === "openai" && !isOpenAiConfigured()) {
       statusText = `${providerLabel}: нет OPENAI_API_KEY, работает mock mode`;
+    } else if (state.settings.providerId === "ollama" && !provider?.available) {
+      statusText = `${providerLabel}: задай OLLAMA_MODEL или включи Studio AI, работает mock mode`;
     } else if (state.settings.providerId === "mock") {
       statusText = "Mock mode: без vision-разбора и без реального AI ответа";
     } else {
-      statusText = `${providerLabel}: ${isOpenAiConfigured() ? (state.api.model || state.api?.config?.openAiModel || "configured") : "demo mode"}`;
+      statusText = `${providerLabel}: ${provider?.status || "configured"}`;
     }
   }
 
@@ -7591,9 +7596,15 @@ function renderSettingsInfo() {
     : "Провайдер пока не определен.";
 
   refs.runtimeConfigInfo.textContent = config
-    ? config.openAiConfigured
-      ? `Runtime: ${config.openAiModel} active. .env: ${config.envFileLoaded ? config.envFilePath : "not found"}.${providerRuntime?.fallback ? ` Last provider issue: ${formatProviderIssue(providerRuntime)}.` : ""}${config.deepLConfigured ? " DeepL: ✓" : ""}`
-      : `Runtime: OpenAI key not loaded. Создай ${config.envFilePath} с OPENAI_API_KEY=... и перезапусти сервер.`
+    ? config.publicDemo
+      ? "Runtime: публичное демо — авторизация и AI-вызовы отключены, доступен Mock."
+      : !config.aiEnabled
+        ? "Runtime: AI-вызовы отключены через STUDIO_AI_ENABLED=0."
+        : config.openAiConfigured
+          ? `Runtime: ${config.openAiModel} active. .env: ${config.envFileLoaded ? config.envFilePath : "not found"}.${providerRuntime?.fallback ? ` Last provider issue: ${formatProviderIssue(providerRuntime)}.` : ""}${config.deepLConfigured ? " DeepL: ✓" : ""}`
+          : config.ollamaConfigured
+            ? `Runtime: Ollama ${config.ollamaModel} at ${config.ollamaBaseUrl}.${providerRuntime?.fallback ? ` Last provider issue: ${formatProviderIssue(providerRuntime)}.` : ""}`
+            : `Runtime: AI backend не настроен. Добавь OPENAI_API_KEY или OLLAMA_MODEL в ${config.envFilePath} и перезапусти сервер.`
     : "Runtime config недоступен.";
 
   // Show DeepL auto-translate button only when key is configured

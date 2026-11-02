@@ -1,0 +1,29 @@
+{
+  "id": "iqbr-section-header",
+  "label": "Секция: шапка письма (IQ Broker)",
+  "description": "Верхний ряд письма без фона и обводки. Внутрь кладётся логотип или что-то ещё — например бейдж с датой.",
+  "placement": "section",
+  "category": "header",
+  "version": 1,
+  "pug": "table.row\n    tr\n        td.wrapper.last.offset-by-one.pt0.iqbr-section-header--pt0\n            table.ten.columns\n                tr\n                    td.text-pad-small.iqbr-section-header--text-pad-small.pb0.iqbr-section-header--pb0\n                        //- {{ INNER_BLOCKS }}",
+  "styl": "@media screen and (max-width: 600px){.iqbr-section-header--text-pad-small{padding-left:20px !important;padding-right:20px !important}}\n.iqbr-section-header--pb0{padding-bottom:0 !important}\n.iqbr-section-header--pt0{padding-top:0}",
+  "slots": [],
+  "childSlots": [
+    {
+      "id": "content",
+      "marker": "INNER_BLOCKS",
+      "accepts": [
+        "inner",
+        "inline",
+        "both"
+      ]
+    }
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "iqbroker",
+    "header"
+  ],
+  "note": "Нарезано из email-base/X_IQBroker/mail-strategies. Семейные стили втянуты в блок и заскоуплены; ink-классы (.row/.columns/.wrapper) оставлены глобальными.",
+  "scoped": true
+}

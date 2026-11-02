@@ -182,6 +182,11 @@ async function buildPayload() {
   return {
     source: "figma-plugin",
     fileKey: figma.fileKey || "",
+    // Имя файла, а не фрейма. Чужой макет обычно приходит ссылкой на файл
+    // «только просмотр», а плагины в таком файле не запускаются вовсе —
+    // человек делает Duplicate и работает в копии. Студия должна знать, из
+    // какого файла взят макет, чтобы напомнить эту копию удалить.
+    fileName: (figma.root && figma.root.name) || "",
     nodeId: root.id,
     selectionName: root.name || "",
     pageName: figma.currentPage.name || "",

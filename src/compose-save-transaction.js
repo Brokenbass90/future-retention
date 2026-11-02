@@ -140,8 +140,13 @@ export async function beginComposeSaveTransaction({
   }
 
   let state = "active";
+  /** Копии, которые не удалось стереть и пришлось отодвинуть в сторону. */
+  const staleBackups = [];
 
   const transaction = {
+    get staleBackups() {
+      return [...staleBackups];
+    },
     destination: normalizedDestination,
     distDestination: normalizedDistDestination,
     backupPaths: Object.freeze(
@@ -166,8 +171,20 @@ export async function beginComposeSaveTransaction({
         try {
           await rm(entry.backup, { recursive: true, force: true });
           entry.backupPresent = false;
-        } catch (error) {
-          cleanupErrors.push(error);
+        } catch (removeError) {
+          // Удаление разрешено не везде: на смонтированных и синхронизируемых
+          // папках unlink запрещён. Письмо при этом уже сохранено, и объявлять
+          // успешное сохранение ошибкой нельзя — человек начнёт пересохранять
+          // и получит то же самое. Поэтому копию отодвигаем переименованием,
+          // а вызывающему отдаём предупреждение, а не провал.
+          try {
+            const aside = `${entry.backup}__stale-${Date.now()}`;
+            await rename(entry.backup, aside);
+            entry.backupPresent = false;
+            staleBackups.push(aside);
+          } catch {
+            cleanupErrors.push(removeError);
+          }
         }
       }
 

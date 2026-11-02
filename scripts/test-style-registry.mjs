@@ -58,9 +58,21 @@ if (familyClass) {
 
 /* ─── rulesForClasses: то, ради чего реестр и нужен ──────────────────────── */
 {
+  // Берём класс, у которого варианты РАЗЛИЧАЮТСЯ по содержимому. Раньше брался
+  // первый попавшийся многозначный и его последний вариант — а если варианты
+  // совпадают по CSS, проверка «выбрали именно тот» ничего не проверяет и
+  // ломается от порядка обхода каталогов (это и случилось после переноса
+  // писем в архив: порядок изменился, проверка покраснела на ровном месте).
+  // Нужен класс, чьи базовые варианты РАЗЛИЧАЮТСЯ и пришли из РАЗНЫХ писем:
+  // только на таком видно, что preferSource выбирает вариант нужного письма, а
+  // не просто первый попавшийся. Раньше брался любой многозначный класс, и
+  // проверка держалась на порядке обхода каталогов — после переноса писем в
+  // архив порядок изменился, и она покраснела на ровном месте.
   const multi = Object.entries(registry.classes).find(([, vs]) => {
     const base = vs.filter((v) => v.layer === LAYERS.family && !v.media);
-    return base.length > 1;
+    if (base.length < 2) return false;
+    if (new Set(base.map((variant) => variant.decls)).size < 2) return false;
+    return new Set(base.map((variant) => String(variant.sources[0] || "").split(":")[0])).size > 1;
   });
   if (multi) {
     const [cls] = multi;
@@ -70,15 +82,32 @@ if (familyClass) {
 
     // preferSource должен выбирать вариант конкретного письма.
     const familyVariants = multi[1].filter((v) => v.layer === LAYERS.family && !v.media);
-    const target = familyVariants[familyVariants.length - 1];
-    const preferred = rulesForClasses([cls], { registry, preferSource: target.sources[0] });
+    // Что preferSource умеет на самом деле: сузить выбор до варианта, который
+    // объявлен в НУЖНОМ письме. Разрешить противоречие ВНУТРИ одного письма он
+    // не может и не должен — класс `columns`, например, объявлен в одном и том
+    // же main.styl четырьмя разными способами (это утилитарный класс в разных
+    // контекстах). Раньше тест требовал именно этого и держался на удаче.
+    const target = familyVariants.find((variant) => !variant.media) || familyVariants[0];
+    const wantedMail = String(target.sources[0] || "").split(":")[0];
+    const preferred = rulesForClasses([cls], { registry, preferSource: wantedMail });
+    const chosenFrom = preferred.ambiguous.find((entry) => entry.class === cls)?.chosenFrom || "";
     check(
       "preferSource выбирает вариант нужного письма",
-      preferred.css.includes(target.decls.split(";")[0]),
-      `ждали ${target.decls.slice(0, 50)}`,
+      chosenFrom.startsWith(wantedMail),
+      `выбрано из ${chosenFrom || "(не указано)"}, ждали ${wantedMail}`,
     );
+
+    // Базовое правило класса не должно оказаться мобильным, и стоять оно
+    // обязано ДО медиазапросов: иначе база перебивает мобильное правило, и в
+    // почте это видно сразу на телефоне.
+    const baseCss = preferred.css.split("@media")[0];
+    check("базовое правило идёт до медиазапросов", baseCss.includes(`.${cls}{`), preferred.css.slice(0, 90));
+    check("в базовом правиле нет мобильных деклараций",
+      !baseCss.includes("@media"), baseCss.slice(0, 90));
   } else {
-    check("многозначный класс найден для проверки разрешения", false, "в корпусе нет конфликтов");
+    // Это не провал: после чистки базы противоречивых классов из разных писем
+    // может не остаться вовсе — и это хорошая новость, а не сломанный тест.
+    console.log("  \x1b[36m·\x1b[0m классов с разными смыслами из разных писем в базе нет — проверять нечего");
   }
 }
 

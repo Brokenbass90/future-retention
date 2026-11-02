@@ -41,7 +41,8 @@
     "divider",
     "utility",
     "outer-divider",
-    "combo-divider"
+    "combo-divider",
+    "iq"
   ],
   "scoped": true
 }

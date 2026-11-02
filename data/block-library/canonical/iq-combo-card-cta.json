@@ -4,7 +4,7 @@
   "description": "Белая карта с оранжевой рамкой: центрированный заголовок, абзац и кнопка CTA на 280px. Раскладывается на отдельные редактируемые блоки. Типовой финальный экран письма.",
   "placement": "section",
   "category": "cta",
-  "version": 1,
+  "version": 2,
   "source": "canonical",
   "outlookSafe": true,
   "combo": true,
@@ -46,8 +46,8 @@
       }
     }
   ],
-  "pug": "table.row.brad-full.white-bg.iq-combo-card-cta(role=\"presentation\" style=\"border:{{ border }}\")\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.iq-combo-card-cta--middle-title.center.pb32 {{ title }}\n                        p.iq-combo-card-cta--text.center.pb40 {{ body }}\n                        table.w280(align=\"center\" style=\"border-collapse: initial;\")\n                            tr\n                                td.butt.pb0\n                                    a.butt-link(href=\"{{ href }}\" universal=\"true\" target=\"_blank\") {{ label }}",
-  "styl": ".iq-combo-card-cta\n  border-collapse separate !important\n.iq-combo-card-cta--middle-title\n  font-family: Helvetica, Arial, sans-serif !important\n  font-size 32px\n  font-weight 700\n  line-height 42px\n  color #393A44\n  margin 0\n  @media screen and (max-width: 600px)\n    font-size 28px !important\n    line-height 34px !important\n.iq-combo-card-cta--text\n  font-family: Helvetica, Arial, sans-serif !important\n  font-size 18px\n  font-weight 400\n  line-height 26px\n  color #393A44\n  margin 0",
+  "pug": "table.row.brad-full.white-bg.iq-combo-card-cta(role=\"presentation\" style=\"border:{{ border }}\")\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.pb44.pt44\n                        p.iq-combo-card-cta--middle-title.center.pb32 {{ title }}\n                        p.iq-combo-card-cta--text.center.pb40 {{ body }}\n                        table.iq-combo-card-cta--w280(align=\"center\" role=\"presentation\" style=\"border-collapse:initial\")\n                            tr\n                                td.iq-combo-card-cta--butt(style=\"padding:0\")\n                                    a.iq-combo-card-cta--butt-link(href=\"{{ href }}\" universal=\"true\" target=\"_blank\") {{ label }}",
+  "styl": ".iq-combo-card-cta\n  border-collapse separate !important\n.iq-combo-card-cta--middle-title\n  font-family: Helvetica, Arial, sans-serif !important\n  font-size 32px\n  font-weight 700\n  line-height 42px\n  color #393A44\n  margin 0\n  @media screen and (max-width: 600px)\n    font-size 28px !important\n    line-height 34px !important\n.iq-combo-card-cta--text\n  font-family: Helvetica, Arial, sans-serif !important\n  font-size 18px\n  font-weight 400\n  line-height 26px\n  color #393A44\n  margin 0\n.iq-combo-card-cta--w280\n  width 100%\n  max-width 280px\n  @media screen and (max-width: 600px)\n    max-width 100% !important\n.iq-combo-card-cta--butt\n  background-color #FF7700\n  background-size cover\n  border-radius 16px !important\n  font-family Helvetica, Arial, sans-serif !important\n  font-size 18px !important\n  font-weight 700 !important\n  height auto\n  padding 0 !important\n.iq-combo-card-cta--butt-link\n  color #F9F9F9\n  display block\n  font-size 18px\n  font-weight 700\n  letter-spacing 0\n  line-height 27px\n  padding 16px 0\n  text-align center\n  text-decoration none\n  text-transform none",
   "slots": [
     {
       "id": "title",

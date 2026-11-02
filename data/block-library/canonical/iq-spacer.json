@@ -38,7 +38,8 @@
     "spacer",
     "divider",
     "utility",
-    "inner-divider"
+    "inner-divider",
+    "iq"
   ],
   "scoped": true
 }

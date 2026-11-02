@@ -1,0 +1,87 @@
+{
+  "id": "iq-socials-row",
+  "label": "Соцсети IQ Option (ссылки по локалям)",
+  "description": "Ряд иконок TikTok, Instagram, YouTube, Telegram. Ссылки берутся из локали (socials-3): у арабской, испанской, португальской и тайской — свои каналы. Нарезано из письма Triggers-First-Deposit-2-Made (IQ Option).",
+  "placement": "section",
+  "category": "footer",
+  "version": 1,
+  "outlookSafe": true,
+  "scoped": true,
+  "pug": "table.row.iq-socials-row(role=\"presentation\")\n    tr\n        td.wrapper.last(style=\"padding-top:{{ padding_top }}\")\n            table.twelve.columns(role=\"presentation\")\n                tr\n                    td.center.iq-socials-row--cell(align=\"center\")\n                        .iq-socials-row--socials.center\n                            a.iq-socials-row--link(href=\"{{ link_tiktok }}\" universal=\"true\" target=\"_blank\")\n                                img.iq-socials-row--icon(src=\"{{ icon_tiktok }}\" alt=\"TikTok\")\n                            a.iq-socials-row--link(href=\"{{ link_instagram }}\" universal=\"true\" target=\"_blank\")\n                                img.iq-socials-row--icon(src=\"{{ icon_instagram }}\" alt=\"Instagram\")\n                            a.iq-socials-row--link(href=\"{{ link_youtube }}\" universal=\"true\" target=\"_blank\")\n                                img.iq-socials-row--icon(src=\"{{ icon_youtube }}\" alt=\"YouTube\")\n                            a.iq-socials-row--link(href=\"{{ link_telegram }}\" universal=\"true\" target=\"_blank\")\n                                img.iq-socials-row--icon(src=\"{{ icon_telegram }}\" alt=\"Telegram\")",
+  "styl": ".iq-socials-row--cell\n  padding-bottom 0 !important\n.iq-socials-row--socials\n  display inline-block\n  font-size 0\n  margin 0 auto\n  @media screen and (max-width: 600px)\n    width 100% !important\n.iq-socials-row--link\n  display inline-block\n  vertical-align middle\n  margin 0 10px\n  @media screen and (max-width: 600px)\n    margin-bottom 10px !important\n.iq-socials-row--icon\n  float none !important\n  display inline-block\n  max-width 24px\n  width 24px",
+  "slots": [
+    {
+      "id": "link_tiktok",
+      "kind": "text",
+      "label": "Ссылка TikTok",
+      "default": "${{ socials-3.block_04 }}$",
+      "uiGroup": "content",
+      "allowSystemPlaceholder": true
+    },
+    {
+      "id": "link_instagram",
+      "kind": "text",
+      "label": "Ссылка Instagram",
+      "default": "${{ socials-3.block_01 }}$",
+      "uiGroup": "content",
+      "allowSystemPlaceholder": true
+    },
+    {
+      "id": "link_youtube",
+      "kind": "text",
+      "label": "Ссылка YouTube",
+      "default": "${{ socials-3.block_03 }}$",
+      "uiGroup": "content",
+      "allowSystemPlaceholder": true
+    },
+    {
+      "id": "link_telegram",
+      "kind": "text",
+      "label": "Ссылка Telegram",
+      "default": "${{ socials-3.block_05 }}$",
+      "uiGroup": "content",
+      "allowSystemPlaceholder": true
+    },
+    {
+      "id": "icon_tiktok",
+      "kind": "image",
+      "label": "Иконка TikTok",
+      "default": "https://fsms.quadcode.com/storage/public/d5/ka/q8fvhhge5gv5vatg/tiktok-logo.png",
+      "uiGroup": "assets"
+    },
+    {
+      "id": "icon_instagram",
+      "kind": "image",
+      "label": "Иконка Instagram",
+      "default": "https://fsms.iqoption.com/storage/public/cn/td/fri03qqv4qln7ve0/ig.png",
+      "uiGroup": "assets"
+    },
+    {
+      "id": "icon_youtube",
+      "kind": "image",
+      "label": "Иконка YouTube",
+      "default": "https://fsms.iqoption.com/storage/public/cn/td/gb285cee2vclvjq0/yt.png",
+      "uiGroup": "assets"
+    },
+    {
+      "id": "icon_telegram",
+      "kind": "image",
+      "label": "Иконка Telegram",
+      "default": "https://fsms.quadcode.com/storage/public/d5/ka/rf7vhhge5gv5vau0/tg.png",
+      "uiGroup": "assets"
+    },
+    {
+      "id": "padding_top",
+      "kind": "text",
+      "label": "Отступ сверху",
+      "default": "30px",
+      "uiGroup": "appearance"
+    }
+  ],
+  "tags": [
+    "socials",
+    "footer",
+    "per-locale",
+    "iq"
+  ]
+}

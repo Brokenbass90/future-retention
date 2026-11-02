@@ -62,7 +62,11 @@ assert.equal(client.includes("✓ AI применил изменения авт�
 assert.match(client, /if \(!localeAuditRequested && tool/, "audit responses must ignore tool mutations");
 assert.match(client, /showLocaleFixDiffPreview/, "locale proposals must have a diff preview");
 assert.match(client, /const localeOnlyMode = localePolicy\.hasLocaleContext && !explicitHtmlEdit/, "locale-only safety boundary must be enabled");
-assert.match(client, /localeOnlyMode \? \{ \.\.\.tool, editorHtml: undefined \}/, "locale-only tool results must discard editor HTML");
+assert.match(
+  client,
+  /localeOnlyMode \? \{ \.\.\.tool, editorHtml: undefined, editorSource: undefined \}/,
+  "locale-only tool results must discard both editor HTML and source edits",
+);
 assert.match(client, /if \(!localeOnlyMode && modHtml/, "locale-only responses must discard draft HTML");
 
 const server = await readFile(new URL("../server.js", import.meta.url), "utf8");

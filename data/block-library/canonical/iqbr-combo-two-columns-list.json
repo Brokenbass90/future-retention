@@ -1,0 +1,88 @@
+{
+  "id": "iqbr-combo-two-columns-list",
+  "label": "Комбо: Двойной блок со списками",
+  "description": "Две тёмные колонки: в каждой заголовок, картинка и список из трёх пунктов. На мобильном — друг под другом.",
+  "placement": "inner",
+  "category": "layout",
+  "version": 1,
+  "pug": ".iqbr-two-columns--left-block\n    .iqbr-two-columns--padding-block\n        p.iqbr-block-title--block-title(style=\"color:#ECECED;padding-bottom:16px\") Первый вариант\n        a(href=\"#\" universal=\"true\" target=\"_blank\")\n            img.center.iqbr-image--center(src=\"https://fsms.quadcode.com/storage/public/d5/th/oj0ggnfnh4cs7790/strategies-2.png\" alt=\"\" style=\"padding-bottom:16px\")\n        ul(style=\"margin: 0; padding: 0 0 0 20px;\")\n            li.iqbr-list-3--block-text\n                p.iqbr-list-3--block-text.iqbr-list-3--pb8 Первый пункт\n            li.iqbr-list-3--block-text\n                p.iqbr-list-3--block-text.iqbr-list-3--pb8 Второй пункт\n            li.iqbr-list-3--block-text\n                p.iqbr-list-3--block-text Третий пункт\n.iqbr-two-columns--right-block\n    .iqbr-two-columns--padding-block\n        p.iqbr-block-title--block-title(style=\"color:#ECECED;padding-bottom:16px\") Второй вариант\n        a(href=\"#\" universal=\"true\" target=\"_blank\")\n            img.center.iqbr-image--center(src=\"https://fsms.quadcode.com/storage/public/d5/th/oj7vhhgea139uk10/strategies-3.png\" alt=\"\" style=\"padding-bottom:16px\")\n        ul(style=\"margin: 0; padding: 0 0 0 20px;\")\n            li.iqbr-list-3--block-text\n                p.iqbr-list-3--block-text.iqbr-list-3--pb8 Первый пункт\n            li.iqbr-list-3--block-text\n                p.iqbr-list-3--block-text.iqbr-list-3--pb8 Второй пункт\n            li.iqbr-list-3--block-text\n                p.iqbr-list-3--block-text Третий пункт",
+  "styl": ".iqbr-two-columns--left-block{display:inline-block;vertical-align:top;width:234px;min-height:443px;background:#101314;border-radius:16px}\n@media screen and (max-width: 600px){.iqbr-two-columns--left-block{float:none !important;display:block !important;width:100% !important;margin-bottom:20px !important}}\n.iqbr-two-columns--padding-block{padding:24px}\n.iqbr-two-columns--right-block{display:inline-block;vertical-align:top;width:234px;min-height:443px;background:#101314;border-radius:16px;float:right}\n@media screen and (max-width: 600px){.iqbr-two-columns--right-block{float:none !important;display:block !important;width:100% !important}}\n.iqbr-block-title--block-title{font-family:Helvetica !important;font-style:normal;font-weight:700;font-size:24px;line-height:31px;color:#ececed}\n.iqbr-image--center{text-align:center;margin:0 auto}\n.iqbr-list-3--pb8{padding-bottom:8px}\n.iqbr-list-3--block-text{font-family:Helvetica !important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#ececed}",
+  "slots": [],
+  "combo": true,
+  "children": [
+    {
+      "id": "iqbr-two-columns",
+      "role": "cols",
+      "slots": {}
+    },
+    {
+      "id": "iqbr-block-title",
+      "parentRole": "cols",
+      "slotId": "left",
+      "role": "left-title",
+      "slots": {
+        "text": "Первый вариант",
+        "padding_bottom": "16px"
+      }
+    },
+    {
+      "id": "iqbr-image",
+      "parentRole": "cols",
+      "slotId": "left",
+      "role": "left-image",
+      "slots": {
+        "image": "https://fsms.quadcode.com/storage/public/d5/th/oj0ggnfnh4cs7790/strategies-2.png",
+        "padding_bottom": "16px"
+      }
+    },
+    {
+      "id": "iqbr-list-3",
+      "parentRole": "cols",
+      "slotId": "left",
+      "role": "left-list",
+      "slots": {
+        "item_1": "Первый пункт",
+        "item_2": "Второй пункт",
+        "item_3": "Третий пункт"
+      }
+    },
+    {
+      "id": "iqbr-block-title",
+      "parentRole": "cols",
+      "slotId": "right",
+      "role": "right-title",
+      "slots": {
+        "text": "Второй вариант",
+        "padding_bottom": "16px"
+      }
+    },
+    {
+      "id": "iqbr-image",
+      "parentRole": "cols",
+      "slotId": "right",
+      "role": "right-image",
+      "slots": {
+        "image": "https://fsms.quadcode.com/storage/public/d5/th/oj7vhhgea139uk10/strategies-3.png",
+        "padding_bottom": "16px"
+      }
+    },
+    {
+      "id": "iqbr-list-3",
+      "parentRole": "cols",
+      "slotId": "right",
+      "role": "right-list",
+      "slots": {
+        "item_1": "Первый пункт",
+        "item_2": "Второй пункт",
+        "item_3": "Третий пункт"
+      }
+    }
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "iqbroker",
+    "combo",
+    "layout"
+  ],
+  "note": "Рецепт: ставит готовый набор блоков IQ Broker. Разбирается и правится как обычные блоки. Собственная разметка нужна для превью и для вставки одним блоком."
+}

@@ -1,0 +1,44 @@
+{
+  "id": "iqbr-section-bordered",
+  "label": "Секция: карточка с обводкой (IQ Broker)",
+  "description": "Скруглённая карточка с обводкой. Внутрь кладутся заголовки, тексты, картинки, двойные блоки и кнопки.",
+  "placement": "section",
+  "category": "layout",
+  "version": 1,
+  "pug": "table.row.iqbr-section-bordered--brad-full(style=\"border:{{ border }};background-color:{{ background_color }}\")\n    tr\n        td.wrapper.last.offset-by-one\n            table.ten.columns\n                tr\n                    td.text-pad-small.iqbr-section-bordered--text-pad-small.iqbr-section-bordered--pb44.iqbr-section-bordered--pt44\n                        //- {{ INNER_BLOCKS }}",
+  "styl": ".iqbr-section-bordered--brad-full{border-radius:32px !important}\n@media screen and (max-width: 600px){.iqbr-section-bordered--text-pad-small{padding-left:20px !important;padding-right:20px !important}}\n.iqbr-section-bordered--pb44{padding-bottom:44px}\n.iqbr-section-bordered--pt44{padding-top:44px}",
+  "slots": [
+    {
+      "id": "border",
+      "kind": "text",
+      "label": "Обводка",
+      "default": "4px solid #1A1D1E",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "background_color",
+      "kind": "color",
+      "label": "Фон карточки",
+      "default": "#01080D",
+      "uiGroup": "appearance"
+    }
+  ],
+  "childSlots": [
+    {
+      "id": "content",
+      "marker": "INNER_BLOCKS",
+      "accepts": [
+        "inner",
+        "inline",
+        "both"
+      ]
+    }
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "iqbroker",
+    "layout"
+  ],
+  "note": "Нарезано из email-base/X_IQBroker/mail-strategies. Семейные стили втянуты в блок и заскоуплены; ink-классы (.row/.columns/.wrapper) оставлены глобальными.",
+  "scoped": true
+}

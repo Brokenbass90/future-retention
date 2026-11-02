@@ -75,8 +75,19 @@ try {
   assert.match(localizedAr, /background="https:\/\/img\.example\/ar-background\.png"/);
   assert.doesNotMatch(localizedAr, /(?:src|alt|href|background)="<bdi>/);
   assert.match(localizedAr, /<bdi>نص عربي ظاهر<\/bdi>/);
-  assert.match(localizedAr, /<html\b[^>]*><!--retkit-rtl:v2:text-->/);
-  assert.match(localizedAr, /align="left" style="float:left;padding-left:12px"/);
+  // По умолчанию сборка арабизирует полностью — режим document, как RTL Fix в расширении.
+  assert.match(localizedAr, /<!--retkit-rtl:v2:document-->/);
+
+  await execFileAsync(process.execPath, [
+    buildMailPath,
+    "--category", "X_Test",
+    "--mail", "demo",
+    "--locales", "ar",
+    "--rtl-mode", "text",
+  ], { cwd: root, maxBuffer: 2 * 1024 * 1024 });
+  const textAr = await readFile(path.join(root, "dist/X_Test/mail-demo/ar/index.html"), "utf8");
+  assert.match(textAr, /<html\b[^>]*><!--retkit-rtl:v2:text-->/);
+  assert.match(textAr, /align="left" style="float:left;padding-left:12px"/);
 
   await execFileAsync(process.execPath, [
     buildMailPath,

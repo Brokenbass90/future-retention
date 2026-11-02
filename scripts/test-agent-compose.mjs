@@ -15,7 +15,7 @@
 
 import { runAgent } from "../src/ai-agent.js";
 import { TOOL_HANDLERS } from "../src/ai-tools.js";
-import { existsSync, mkdirSync, rmSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, rmSync, readFileSync, writeFileSync, renameSync } from "node:fs";
 import path from "node:path";
 import url from "node:url";
 
@@ -161,12 +161,24 @@ async function main() {
   assert(readFileSync(distSentinel, "utf8") === "KEEP EXISTING DIST", "dist restored after failed forced compose");
 
   section("Cleanup");
+  // Убрать за собой обязательно, и не «по возможности»: тест проверяет, что
+  // агент СОЗДАЁТ письмо, а созданное письмо compose второй раз переписывать
+  // отказывается. Останется папка — следующий прогон упадёт не по делу.
+  // Поэтому если удалить нельзя (смонтированная ФС запрещает unlink),
+  // отодвигаем папку в сторону переименованием: оно разрешено всегда.
   for (const target of [TEST_DEST, TEST_DIST]) {
+    if (!existsSync(target)) continue;
     try {
       rmSync(target, { recursive: true, force: true });
       console.log("  removed " + dim(target));
-    } catch (e) {
-      console.log("  (could not remove test mail folder — manual cleanup needed)");
+    } catch {
+      try {
+        const aside = `${target}__leftover-${Date.now()}`;
+        renameSync(target, aside);
+        console.log("  (удалить нельзя — папка отодвинута в " + dim(aside) + ")");
+      } catch (e) {
+        console.log("  (не удалось убрать " + dim(target) + " — уберите вручную: " + e.code + ")");
+      }
     }
   }
 

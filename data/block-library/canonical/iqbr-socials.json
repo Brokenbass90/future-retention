@@ -1,0 +1,75 @@
+{
+  "id": "iqbr-socials",
+  "label": "Соцсети (IQ Broker)",
+  "description": "Четыре иконки соцсетей по центру: Facebook, Instagram, YouTube, X.",
+  "placement": "section",
+  "category": "footer",
+  "version": 1,
+  "pug": "table.row\n    tr\n        td.wrapper.last.pt0.iqbr-socials--pt0\n            table.twelve.columns\n                tr\n                    td.pb0.iqbr-socials--pb0.center.iqbr-socials--center(align=\"center\")\n                        .iqbr-socials--socials.center.iqbr-socials--center\n                            a(href=\"{{ facebook_href }}\" target=\"_blank\")\n                                img.iqbr-socials--soc-icon.iqbr-socials--fb(src=\"{{ facebook_icon }}\" alt=\"Facebook\")\n                            a(href=\"{{ instagram_href }}\" target=\"_blank\")\n                                img.iqbr-socials--soc-icon.iqbr-socials--twitter(src=\"{{ instagram_icon }}\" alt=\"Instagram\")\n                            a(href=\"{{ youtube_href }}\" target=\"_blank\")\n                                img.iqbr-socials--soc-icon.iqbr-socials--you(src=\"{{ youtube_icon }}\" alt=\"YouTube\")\n                            a(href=\"{{ x_href }}\" target=\"_blank\")\n                                img.iqbr-socials--soc-icon.iqbr-socials--ig(src=\"{{ x_icon }}\" alt=\"X\")",
+  "styl": ".iqbr-socials--center{text-align:center;margin:0 auto}\n.iqbr-socials--pb0{padding-bottom:0 !important}\n.iqbr-socials--pt0{padding-top:0}\n.iqbr-socials--ig{max-width:20px;margin-left:6px}\n@media screen and (max-width: 600px){.iqbr-socials--ig{width:20px !important}}\n.iqbr-socials--you{max-width:24px;margin:0 6px}\n@media screen and (max-width: 600px){.iqbr-socials--you{width:24px !important}}\n.iqbr-socials--twitter{max-width:24px;margin:0 6px}\n@media screen and (max-width: 600px){.iqbr-socials--twitter{width:24px !important}}\n.iqbr-socials--fb{max-width:24px;margin-right:6px}\n@media screen and (max-width: 600px){.iqbr-socials--fb{width:24px !important}}\n.iqbr-socials--socials{display:inline-block;font-size:0;margin:0 auto}\n@media screen and (max-width: 600px){.iqbr-socials--socials{width:100% !important}}\n.iqbr-socials--socials a{display:inline-block;vertical-align:middle;margin:0 10px}\n@media screen and (max-width: 600px){.iqbr-socials--socials a{margin-bottom:10px !important}}\n.iqbr-socials--soc-icon{float:none !important;max-width:24px}",
+  "slots": [
+    {
+      "id": "facebook_href",
+      "kind": "url",
+      "label": "Facebook",
+      "default": "https://www.facebook.com/iqbroker.global/",
+      "uiGroup": "content"
+    },
+    {
+      "id": "facebook_icon",
+      "kind": "image",
+      "label": "Иконка Facebook",
+      "default": "https://fsms.quadcode.com/storage/public/d5/su/7b8ggnfnh4cs7730/fb.png",
+      "uiGroup": "assets"
+    },
+    {
+      "id": "instagram_href",
+      "kind": "url",
+      "label": "Instagram",
+      "default": "https://www.instagram.com/iq_broker_official/",
+      "uiGroup": "content"
+    },
+    {
+      "id": "instagram_icon",
+      "kind": "image",
+      "label": "Иконка Instagram",
+      "default": "https://fsms.quadcode.com/storage/public/d5/su/7b8ggnfnh4cs772g/ig.png",
+      "uiGroup": "assets"
+    },
+    {
+      "id": "youtube_href",
+      "kind": "url",
+      "label": "YouTube",
+      "default": "https://www.youtube.com/@iqbroker",
+      "uiGroup": "content"
+    },
+    {
+      "id": "youtube_icon",
+      "kind": "image",
+      "label": "Иконка YouTube",
+      "default": "https://fsms.quadcode.com/storage/public/d5/su/7bfvhhgea139ujqg/yt.png",
+      "uiGroup": "assets"
+    },
+    {
+      "id": "x_href",
+      "kind": "url",
+      "label": "X (Twitter)",
+      "default": "https://x.com/iqbroker_off",
+      "uiGroup": "content"
+    },
+    {
+      "id": "x_icon",
+      "kind": "image",
+      "label": "Иконка X",
+      "default": "https://fsms.quadcode.com/storage/public/d5/su/7bfvhhgea139ujr0/tw.png",
+      "uiGroup": "assets"
+    }
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "iqbroker",
+    "footer"
+  ],
+  "note": "Нарезано из email-base/X_IQBroker/mail-strategies. Семейные стили втянуты в блок и заскоуплены; ink-классы (.row/.columns/.wrapper) оставлены глобальными.",
+  "scoped": true
+}
