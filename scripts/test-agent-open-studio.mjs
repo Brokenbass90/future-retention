@@ -10,7 +10,7 @@ assert.match(codeTabMissingError("https://studio.example"), /retkit_open_studio/
 assert.match(codeTabMissingError("https://studio.example"), /https:\/\/studio\.example/);
 assert.match(codeTabMissingError(), /localhost — другая студия/);
 assert.match(routes, /NEEDS_OPEN_MAIL\.has\(name\) && !live/, "no silent empty answers without the Code tab");
-assert.match(routes, /router\.post\("\/api\/agent\/open-page"/);
+assert.match(routes, /(?:router\.)?post\("\/api\/agent\/open-page"/);
 assert.match(routes, /callRelay\(token, "open_page"/, "the relay window shows the button");
 assert.match(relayPage, /command\.tool === "open_page"[\s\S]*showOpenPage/, "relay window handles open_page itself");
 assert.match(relayPage, /window\.open\(url, "retkit-studio"\)/);

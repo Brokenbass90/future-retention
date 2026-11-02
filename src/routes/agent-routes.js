@@ -79,8 +79,51 @@ const BROWSER_ONLY = new Set([
  * @param {() => boolean} deps.isReadOnly
  * @param {() => string} deps.apiKey — некоторым инструментам нужна модель
  */
+/**
+ * Heroku обрывает любой запрос, не ответивший за 30 секунд (H12 → 503). Долгие
+ * дела агента (сборка, разбор письма, переход страниц) этого не знают. Поэтому
+ * каждая ручка агента через 24 секунды отвечает «ещё выполняется, job=…», а
+ * настоящий ответ кладётся сюда и забирается через /api/agent/job.
+ */
+const AGENT_JOBS = new Map();
+const AGENT_RESPONSE_BUDGET_MS = 24_000;
+
 export function registerAgentRoutes(router, deps) {
-  const { repoRoot, sendJson, readRequestBody, isReadOnly, apiKey } = deps;
+  const { repoRoot, readRequestBody, isReadOnly, apiKey } = deps;
+  const rawSendJson = deps.sendJson;
+  const sendJson = (response, status, body) => {
+    if (response.__retkitJob) {
+      AGENT_JOBS.set(response.__retkitJob, { done: true, status, body, at: Date.now() });
+      return;
+    }
+    if (response.__retkitSent) return;
+    response.__retkitSent = true;
+    clearTimeout(response.__retkitTimer);
+    rawSendJson(response, status, body);
+  };
+  const post = (pathname, handler) => router.post(pathname, async (request, response, context) => {
+    response.__retkitTimer = setTimeout(() => {
+      if (response.__retkitSent) return;
+      const job = createHash("sha1").update(`${Date.now()}:${Math.random()}`).digest("hex").slice(0, 16);
+      for (const [id, entry] of AGENT_JOBS) if (Date.now() - entry.at > 10 * 60_000) AGENT_JOBS.delete(id);
+      AGENT_JOBS.set(job, { done: false, at: Date.now() });
+      response.__retkitSent = true;
+      response.__retkitJob = job;
+      rawSendJson(response, 200, { ok: true, result: { pending: true, job,
+        note: "Ещё выполняется в студии. Через 5–10 секунд заберите итог: retkit_job с этим job (или retkit_call tool=job, args={job})." } });
+    }, Number(deps.responseBudgetMs) || AGENT_RESPONSE_BUDGET_MS);
+    try { await handler(request, response, context); }
+    finally { clearTimeout(response.__retkitTimer); }
+  });
+
+  router.get("/api/agent/job", (request, response) => {
+    const id = new URL(request.url, "http://localhost").searchParams.get("id") || "";
+    const entry = AGENT_JOBS.get(id);
+    if (!entry) { rawSendJson(response, 200, { ok: false, error: "Такого job нет (или он старше 10 минут)." }); return; }
+    if (!entry.done) { rawSendJson(response, 200, { ok: true, result: { pending: true, job: id, note: "Всё ещё выполняется — спросите ещё раз через 5–10 секунд." } }); return; }
+    AGENT_JOBS.delete(id);
+    rawSendJson(response, entry.status || 200, entry.body);
+  });
 
   router.get("/api/agent/tools", (request, response) => {
     sendJson(response, 200, {
@@ -104,7 +147,7 @@ export function registerAgentRoutes(router, deps) {
    * отправляем получившиеся правки обратно во вкладку — она применяет их
    * так же, как правки оператора, с отменой по Ctrl+Z.
    */
-  router.post("/api/agent/canvas-call", async (request, response) => {
+  post("/api/agent/canvas-call", async (request, response) => {
     try {
       const body = await readRequestBody(request);
       const name = String(body?.tool || "").trim();
@@ -186,7 +229,7 @@ export function registerAgentRoutes(router, deps) {
    * кнопку, что человек («→ В код» / «В конструктор»), и ждёт, пока на том
    * конце откроется вкладка — тогда агент сразу может работать дальше.
    */
-  router.post("/api/agent/navigate", async (request, response) => {
+  post("/api/agent/navigate", async (request, response) => {
     try {
       const body = await readRequestBody(request);
       const to = body?.to === "constructor" ? "constructor" : "workbench";
@@ -212,7 +255,7 @@ export function registerAgentRoutes(router, deps) {
   });
 
   /** Плейсхолдеры по эталонной локали — в Pug открытого письма, сразу. */
-  router.post("/api/agent/placeholders", async (request, response) => {
+  post("/api/agent/placeholders", async (request, response) => {
     try {
       const body = await readRequestBody(request);
       const reply = await callRelay(request.retkitActor?.token || "", "wb_placeholders",
@@ -238,7 +281,7 @@ export function registerAgentRoutes(router, deps) {
    * синхронизирует локали на диск), и вернуть, что получилось: тексты
    * каждой просимой локали и неподставленные плейсхолдеры — проверка итога.
    */
-  router.post("/api/agent/build", async (request, response) => {
+  post("/api/agent/build", async (request, response) => {
     try {
       const body = await readRequestBody(request);
       const token = request.retkitActor?.token || "";
@@ -291,7 +334,7 @@ export function registerAgentRoutes(router, deps) {
    * вкладка зависла, устарела после деплоя или запуталась в старом состоянии.
    * Данные писем на сервере это не трогает.
    */
-  router.post("/api/agent/page-control", async (request, response) => {
+  post("/api/agent/page-control", async (request, response) => {
     try {
       const body = await readRequestBody(request);
       const token = request.retkitActor?.token || "";
@@ -330,7 +373,7 @@ export function registerAgentRoutes(router, deps) {
    * студии (Конструктор или «Код»): та переходит на нужную страницу. Ссылку
    * человеку даём, только если студия у него не открыта вовсе.
    */
-  router.post("/api/agent/open-mail", async (request, response) => {
+  post("/api/agent/open-mail", async (request, response) => {
     try {
       const body = await readRequestBody(request);
       const token = request.retkitActor?.token || "";
@@ -353,7 +396,7 @@ export function registerAgentRoutes(router, deps) {
       }
       // Конструктор открывает письмо на месте, без перехода страницы.
       if (via === "constructor" && target === "constructor") {
-        const reply = await callRelay(token, "open_mail", { brand, mail, discard }, { channel: "constructor", timeoutMs: 40_000 });
+        const reply = await callRelay(token, "open_mail", { brand, mail, discard }, { channel: "constructor", timeoutMs: 90_000 });
         sendJson(response, 200, reply);
         return;
       }
@@ -381,7 +424,7 @@ export function registerAgentRoutes(router, deps) {
    * окно связи (если открыто) показывает кнопку «Открыть …» и пробует открыть
    * само, а агент получает прямую ссылку, чтобы дать её человеку.
    */
-  router.post("/api/agent/open-page", async (request, response) => {
+  post("/api/agent/open-page", async (request, response) => {
     try {
       const body = await readRequestBody(request);
       const token = request.retkitActor?.token || "";
@@ -422,7 +465,7 @@ export function registerAgentRoutes(router, deps) {
   });
 
   /** Тексты открытого письма по порядку — вместо 25 КБ вёрстки. */
-  router.post("/api/agent/texts", async (request, response) => {
+  post("/api/agent/texts", async (request, response) => {
     try {
       const body = await readRequestBody(request);
       const token = request.retkitActor?.token || "";
@@ -443,7 +486,7 @@ export function registerAgentRoutes(router, deps) {
     }
   });
 
-  router.post("/api/agent/call", async (request, response) => {
+  post("/api/agent/call", async (request, response) => {
     try {
       const body = await readRequestBody(request);
       const name = String(body?.tool || "").trim();

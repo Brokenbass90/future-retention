@@ -275,6 +275,7 @@ const SERVER_INSTRUCTIONS = [
   "Переходы: retkit_open_in_code (холст → «Код») и retkit_open_in_constructor («Код» → холст) — ходите сами, человеку нажимать не нужно. Если нужного инструмента нет в вашем списке (клиент закешировал старый), вызывайте его через retkit_call.",
   "",
   "Холст конструктора: retkit_read_canvas → retkit_update_canvas_block / remove / add / move (по uid), много правок — retkit_canvas_batch одним вызовом. Правка видна у человека сразу.",
+  "Ответ pending + job — дело длиннее 25 секунд: заберите итог через retkit_job.",
   "Вкладка зависла или устарела после деплоя — retkit_studio_control (reload / reset).",
   "Любое письмо открывайте сами: retkit_open_mail (brand, mail, page constructor|code) — в открытой у человека вкладке, без его кликов.",
   "Состояние студии — retkit_studio_status (первым): что открыто, есть ли несохранённые правки, не нужна ли человеку F5 после деплоя.",
@@ -1377,6 +1378,7 @@ server.registerTool(
         { name: "studio_status", browserOnly: false, params: [] },
         { name: "open_mail", browserOnly: true, params: ["brand", "mail", "page", "discard"] },
         { name: "studio_control", browserOnly: true, params: ["action", "page", "discard"] },
+        { name: "job", browserOnly: false, params: ["job"] },
         { name: "open_in_code", browserOnly: true, params: [] },
         { name: "open_in_constructor", browserOnly: true, params: ["discard"] },
         { name: "canvas_batch", browserOnly: true, params: ["ops"] },
@@ -1386,6 +1388,11 @@ server.registerTool(
     }
     // Инструменты, которые живут в самом MCP-сервере (клиент мог закешировать
     // старый список и не видеть их по имени retkit_*).
+    if (tool === "job") {
+      const data = await studioFetch(`/api/agent/job?id=${encodeURIComponent(String(args.job || ""))}`);
+      if (data?.ok === false) throw new Error(data.error || "Операция не удалась");
+      return asText(data?.result ?? data);
+    }
     if (tool === "studio_control") {
       const data = await studioFetch("/api/agent/page-control", { method: "POST", body: { action: args.action, page: args.page, discard: args.discard === true || args.discard === "true" } });
       if (data?.ok === false) throw new Error(data.error || "Не удалось");
@@ -1443,6 +1450,23 @@ server.registerTool(
     const data = await studioFetch("/api/agent/status");
     if (data?.ok === false) throw new Error(data.error || "Студия не ответила");
     return asText(data.result);
+  }
+);
+
+server.registerTool(
+  "retkit_job",
+  {
+    title: "Студия: итог долгой операции",
+    description:
+      "Если инструмент студии ответил pending и job (дело заняло больше ~25 секунд — сборка, разбор письма, переход " +
+      "страниц), заберите итог здесь. Снова pending — подождите 5–10 секунд и повторите.",
+    inputSchema: { job: z.string() },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+  },
+  async ({ job }) => {
+    const data = await studioFetch(`/api/agent/job?id=${encodeURIComponent(job)}`);
+    if (data?.ok === false) throw new Error(data.error || "Операция не удалась");
+    return asText(data?.result ?? data);
   }
 );
 

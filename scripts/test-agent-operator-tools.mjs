@@ -34,12 +34,12 @@ assert.match(cjs, /command\.tool === "goto" \|\| command\.tool === "open_mail"/)
 assert.match(cjs, /state\.canvas\.length && !args\.discard/);
 assert.match(cjs, /endsWith\(workspaceSuffix\)/, "no double workspace suffix on round trips");
 assert.match(wbjs, /command\.tool === 'goto'/);
-assert.match(routes, /router\.post\("\/api\/agent\/open-mail"/);
+assert.match(routes, /(?:router\.)?post\("\/api\/agent\/open-mail"/);
 assert.ok(mcp.includes('"retkit_open_mail"'));
 console.log("✓ agent opens any mail itself");
 
 // Перезагрузка и сброс страниц студии агентом.
-assert.match(routes, /router\.post\("\/api\/agent\/page-control"/);
+assert.match(routes, /(?:router\.)?post\("\/api\/agent\/page-control"/);
 assert.match(cjs, /command\.tool === "reload" \|\| command\.tool === "reset"/);
 assert.ok(!/removeItem\(["']retkit-browser-id/.test(cjs), "reset keeps the link identity");
 assert.match(wbjs, /command\.tool === 'reload' \|\| command\.tool === 'reset'/);
