@@ -930,8 +930,10 @@ server.registerTool(
     annotations: { readOnlyHint: true, openWorldHint: false },
   },
   async ({ brand, limit = 100 }) => {
+    // Студия отдаёт { emails: [{ brand, mails: [{ name, built }] }] }. Раньше
+    // здесь читалось data.groups — поля нет, и агент всегда видел пустую базу.
     const data = await studioFetch("/api/wb/emails");
-    const groups = Array.isArray(data?.groups) ? data.groups : [];
+    const groups = Array.isArray(data?.emails) ? data.emails : (Array.isArray(data?.groups) ? data.groups : []);
     const mails = [];
     for (const group of groups) {
       if (brand && group.brand !== brand) continue;
