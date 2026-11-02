@@ -1202,6 +1202,9 @@ try {
           method: "POST",
           body: { tool: tool.name, args, context: { brand, mail, surface: "workbench", publicUrl: PUBLIC_URL } },
         });
+        // Ошибка студии — это ошибка, а не пустой ответ: раньше агент получал
+        // «{}» и думал, что локалей нет.
+        if (data?.ok === false) throw new Error(data.error || `Студия не выполнила ${tool.name}`);
         const content = [{ type: "text", text: JSON.stringify(data?.result ?? {}, null, 2).slice(0, 24000) }];
         // Снимок письма или блока приходит картинкой — показываем её, а не
         // пересказываем: ради этого всё и делалось.
@@ -1362,7 +1365,17 @@ server.registerTool(
   async ({ tool, args = {}, brand, mail }) => {
     if (tool === "list") {
       const listed = await studioFetch("/api/agent/tools");
-      return asText((listed?.tools || []).map((t) => ({ name: t.name, browserOnly: t.browserOnly, params: Object.keys(t.parameters?.properties || {}) })));
+      return asText([
+        { name: "open_studio", browserOnly: false, params: ["page", "brand", "mail"] },
+        ...(listed?.tools || []).map((t) => ({ name: t.name, browserOnly: t.browserOnly, params: Object.keys(t.parameters?.properties || {}) })),
+      ]);
+    }
+    // Инструменты, которые живут в самом MCP-сервере (клиент мог закешировать
+    // старый список и не видеть их по имени retkit_*).
+    if (tool === "open_studio") {
+      const data = await studioFetch("/api/agent/open-page", { method: "POST", body: { ...args, brand: args.brand || brand, mail: args.mail || mail, publicUrl: PUBLIC_URL } });
+      if (data?.ok === false) throw new Error(data.error || "Не удалось открыть страницу");
+      return asText(data.result);
     }
     const listed = await cachedToolList(STUDIO_URL, () => studioFetch("/api/agent/tools"));
     const known = (listed?.tools || []).find((t) => t.name === tool);

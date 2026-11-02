@@ -17,3 +17,6 @@ assert.match(relayPage, /window\.open\(url, "retkit-studio"\)/);
 assert.match(mcp, /"retkit_open_studio"/);
 assert.match(mcp, /publicUrl: PUBLIC_URL/);
 console.log("✓ agent can open the studio; clear error without the Code tab");
+assert.match(mcp, /if \(data\?\.ok === false\) throw new Error\(data\.error \|\| `Студия не выполнила/, "studio errors are not swallowed into {}");
+assert.match(mcp, /if \(tool === "open_studio"\)/, "retkit_call reaches open_studio even with a stale tool list");
+console.log("✓ errors surface; open_studio via retkit_call");
