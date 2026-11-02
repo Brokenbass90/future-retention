@@ -37,7 +37,20 @@
     setTimeout(() => { button.textContent = label; }, 1800);
   }
 
-  fetch("/api/mcp/link").then((r) => r.json()).then((data) => { if (data?.ok) link = data; }).catch(() => {});
+  // RetKit в MoEngage показывает статус агента и копирует текст «для агента»
+  // сам, поэтому окно связи передаёт ему ссылку и «когда агент заходил».
+  function sendLink() {
+    if (!target || target.closed || !link?.url) return;
+    try {
+      target.postMessage({ source: "retkit-relay", type: "link", prompt: agentPrompt(link.url),
+        lastSeenAt: Number(link.lastSeenAt || 0), lastClient: String(link.lastClient || "") }, targetOrigin);
+    } catch { /* окно MoEngage закрыли */ }
+  }
+  function refreshLink() {
+    return fetch("/api/mcp/link").then((r) => r.json()).then((data) => { if (data?.ok) { link = data; sendLink(); } }).catch(() => {});
+  }
+  refreshLink();
+  setInterval(refreshLink, 15000);
   $("copyPrompt").addEventListener("click", (e) => link && copy(agentPrompt(link.url), e.currentTarget, "Скопировать для агента"));
 
   window.addEventListener("message", (event) => {
@@ -45,7 +58,7 @@
     const msg = event.data;
     if (!msg || msg.source !== "retkit") return;
     target = event.source; targetOrigin = event.origin; lastSeenRetkit = Date.now();
-    if (msg.type === "hello") target.postMessage({ source: "retkit-relay", type: "hello-ack" }, targetOrigin);
+    if (msg.type === "hello") { target.postMessage({ source: "retkit-relay", type: "hello-ack" }, targetOrigin); sendLink(); }
     if (msg.type === "status") lastStatus = msg.status || null;
     if (msg.type === "result") {
       fetch("/api/relay/result", { method: "POST", headers: { "Content-Type": "application/json" },
