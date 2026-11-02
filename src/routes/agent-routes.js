@@ -57,7 +57,7 @@ export function codeTabMissingError(origin = "") {
   return "Во вкладке «Код» студии не открыто письмо (или вкладка не на связи с вашей ссылкой). " +
     "Откройте её сами: retkit_open_studio с page=\"code\" и brand/mail письма — человеку останется один клик. " +
     "Или попросите его открыть письмо в «Коде» студии" + (origin ? ` по адресу ${origin}` : "") +
-    " в том же браузере, где окно связи. Студия на localhost — другая студия: ваша ссылка туда не ведёт.";
+    " в том же браузере. Студия на localhost — другая студия: ваша ссылка туда не ведёт.";
 }
 
 const BROWSER_ONLY = new Set([
@@ -161,7 +161,7 @@ export function registerAgentRoutes(router, deps) {
       const to = body?.to === "constructor" ? "constructor" : "workbench";
       const from = to === "constructor" ? "workbench" : "constructor";
       const token = request.retkitActor?.token || "";
-      const started = await callRelay(token, to === "workbench" ? "to_code" : "to_constructor", {}, { channel: from, timeoutMs: 15_000 });
+      const started = await callRelay(token, to === "workbench" ? "to_code" : "to_constructor", { discard: body?.discard === true }, { channel: from, timeoutMs: 15_000 });
       if (!started.ok) { sendJson(response, 200, started); return; }
       const deadline = Date.now() + 25_000;
       // Старая вкладка ещё «на связи» несколько секунд: ждём именно новую.
@@ -248,6 +248,16 @@ export function registerAgentRoutes(router, deps) {
         sendJson(response, 200, { ok: true, result: { already: true, url, note: "Эта страница уже открыта у человека и на связи." } });
         return;
       }
+      // Студия уже открыта у человека, но на другой странице — переход делает
+      // сама студия (кнопки «→ В код» / «В конструктор»), это без клика человека.
+      const other = page === "code" ? "constructor" : "workbench";
+      if (relayOnline(token, Date.now(), other)) {
+        sendJson(response, 200, { ok: true, result: { url, label, studioOpen: other,
+          note: page === "code"
+            ? "Студия открыта в Конструкторе — переведите письмо сами: retkit_open_in_code."
+            : "Студия открыта в «Коде» — переведите письмо сами: retkit_open_in_constructor." } });
+        return;
+      }
       let shown = false;
       if (relayOnline(token, Date.now(), "moengage")) {
         const reply = await callRelay(token, "open_page", { url, label }, { channel: "moengage", timeoutMs: 10_000 });
@@ -256,7 +266,7 @@ export function registerAgentRoutes(router, deps) {
       sendJson(response, 200, { ok: true, result: { url, label, shownInRelayWindow: shown,
         note: shown
           ? "В окне связи у человека появилась кнопка «" + label + "» — ему остался один клик. Дождитесь, пока страница выйдет на связь, и повторите."
-          : "Окна связи нет — дайте человеку эту ссылку: откройте её в том же браузере." } });
+          : "Студия у человека не открыта, а открыть вкладку браузера может только он. Дайте ему эту ссылку (тот же браузер, где он вставлял ссылку агента); дальше всё делаете вы." } });
     } catch (error) {
       sendJson(response, 200, { ok: false, error: error.message });
     }

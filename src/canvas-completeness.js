@@ -54,6 +54,20 @@ export function demoValuesByBlock(blocks) {
   return map;
 }
 
+/** Слот — настройка, а не видимый текст: по имени или по виду значения. */
+const SETTING_SLOT = /(^|_)(href|url|link|src|img|image|icon|padding|margin|size|height|width|css|border|radius|color|colour|align|pt|pb|number|tail)(_|$)/i;
+export function looksLikeSetting(slotId, value) {
+  const id = String(slotId || "");
+  const text = String(value ?? "").trim();
+  if (SETTING_SLOT.test(id) && !/^(label|text|title|link_label)$/i.test(id)) return true;
+  if (/^(https?:|mailto:|tel:|#$|\/)/i.test(text)) return true;
+  if (/\$\{\{|\{\{/.test(text)) return true;
+  if (/^[\d\s.,%:;#-]*(px|em|%|pt)?[\d\s.,%pxem]*$/i.test(text)) return true;
+  if (/^[a-z-]+\s*:\s*[^\s]+;?$/i.test(text)) return true;
+  if (/^\d+px\s+(solid|dashed|dotted)\b/i.test(text)) return true;
+  return false;
+}
+
 /** Есть ли в строке кириллица. */
 const hasCyrillic = (value) => /[А-Яа-яЁё]/.test(String(value || ""));
 /** Есть ли латиница — слово, а не одинокая буква из адреса. */
@@ -81,6 +95,11 @@ export function checkCanvasReady({ canvas = [], blocks = [] } = {}) {
     kinds.set(String(block?.id || ""), byId);
   }
   const isVisibleText = (blockId, slotId, value) => {
+    // Ссылки, отступы, размеры, рамки, номера и подстановки — тоже не текст,
+    // даже когда у слота kind "text": клиент их не читает, а образцовые
+    // значения у них правильные (живой случай: 37 «недоделок» в письме, где
+    // реально недозаполнены были только подписи).
+    if (looksLikeSetting(slotId, value)) return false;
     const kind = kinds.get(blockId)?.get(slotId);
     if (kind !== undefined) return TEXT_KINDS.has(kind);
     // Блок каталогу неизвестен (свой, удалённый) — судим по значению: слово с

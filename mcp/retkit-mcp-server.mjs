@@ -1261,10 +1261,13 @@ for (const [name, to, title, description] of [
   ["retkit_open_in_code", "workbench", "Конструктор → Код",
     "Перенести письмо с холста конструктора во вкладку «Код» — та же кнопка «→ В код», что у человека. Ждёт, пока «Код» откроется; после этого работают инструменты вёрстки и локалей."],
   ["retkit_open_in_constructor", "constructor", "Код → Конструктор",
-    "Увести письмо, открытое в «Коде», обратно в конструктор — та же кнопка «В конструктор». Если в коде есть несохранённые правки, студия спросит человека."],
+    "Увести письмо, открытое в «Коде», обратно в конструктор — та же кнопка «В конструктор». Если в «Коде» несохранённые правки — вернёт отказ; для пробных правок повторите с discard=true (правки Pug в конструктор всё равно не переносятся)."],
 ]) {
-  server.registerTool(name, { title, description, inputSchema: {}, annotations: { openWorldHint: false } }, async () => {
-    const data = await studioFetch("/api/agent/navigate", { method: "POST", body: { to } });
+  const inputSchema = to === "constructor"
+    ? { discard: z.boolean().optional().describe("true — уйти, бросив несохранённые правки «Кода».") }
+    : {};
+  server.registerTool(name, { title, description, inputSchema, annotations: { openWorldHint: false } }, async (args = {}) => {
+    const data = await studioFetch("/api/agent/navigate", { method: "POST", body: { to, discard: args?.discard === true } });
     if (data?.ok === false) throw new Error(data.error || "Переход не удался");
     return asText(data.result);
   });

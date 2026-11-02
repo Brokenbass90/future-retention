@@ -117,7 +117,13 @@ export function extractPugTextCandidates(pugSource) {
       }
     }
 
-    const raw = trimmed.slice(tailAt).replace(/\s+$/, "");
+    let raw = trimmed.slice(tailAt).replace(/\s+$/, "");
+    // Неразрывные пробелы по краям — это вёрстка, а не текст локали: шаблон
+    // «{{ text }}&nbsp;» + ссылка. Плейсхолдер встаёт между ними, иначе
+    // «Note text Link» после подстановки слипается в «Note textLink».
+    const lead = /^(?:&nbsp;|&#160;|\s)+/i.exec(raw)?.[0].length || 0;
+    tailAt += lead;
+    raw = raw.slice(lead).replace(/(?:&nbsp;|&#160;|\s)+$/i, "");
     const normalized = normalizeVisibleCopy(raw);
     if (!normalized || EXISTING_TOKEN_RE.test(raw) || isOnlyPlaceholders(raw)) {
       offset += line.length;

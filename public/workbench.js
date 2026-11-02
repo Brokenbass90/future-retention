@@ -2457,12 +2457,12 @@ async function requestConstructorReturn(brand, mail) {
   return { canOpen: !blockedReason, blockedReason };
 }
 
-async function navigateBackToConstructor(ctx, btn) {
+async function navigateBackToConstructor(ctx, btn, { skipConfirm = false } = {}) {
   if (!ctx?.brand || !ctx?.mail) {
     toast('Сначала открой письмо из базы — тогда его можно увести в конструктор.', 'warning', 5000);
     return false;
   }
-  if (ctx.modified && !confirm('Есть несохранённые правки кода — они не попадут в конструктор.\n\nПерейти без сохранения?')) return false;
+  if (ctx.modified && !skipConfirm && !confirm('Есть несохранённые правки кода — они не попадут в конструктор.\n\nПерейти без сохранения?')) return false;
 
   if (btn) btn.disabled = true;
   try {
@@ -12945,7 +12945,11 @@ async function agentWorkbenchRelayLoop() {
         else if (command.tool === 'to_constructor') {
           const ctx = state.srcCtx || {};
           if (!ctx.brand || !ctx.mail) reply = { ok: false, error: 'В «Коде» открыт HTML не из базы — в конструктор его не увести.' };
-          else { reply = { ok: true, result: { started: true, brand: ctx.brand, mail: ctx.mail } }; setTimeout(() => { void navigateBackToConstructor(ctx, null); }, 60); }
+          // confirm() по просьбе агента вешает вкладку до клика человека, а агент
+          // ждёт впустую. Поэтому несохранённые правки — честный отказ агенту,
+          // а переход «без них» — только по явному discard.
+          else if (ctx.modified && !command.args?.discard) reply = { ok: false, error: 'В «Коде» несохранённые правки — в конструктор они не попадут (конструктор строится из своей модели, а не из Pug). Если они нужны — пусть человек сохранит письмо; если это проба — повторите с discard=true.' };
+          else { reply = { ok: true, result: { started: true, brand: ctx.brand, mail: ctx.mail, discarded: Boolean(ctx.modified) } }; setTimeout(() => { void navigateBackToConstructor(ctx, null, { skipConfirm: true }); }, 60); }
         }
         else reply = { ok: false, error: `Неизвестная команда: ${command.tool}` };
       } catch (error) {
