@@ -1,6 +1,6 @@
 /**
  * public/relay.js — окно связи между агентом и расширением RetKit в MoEngage.
- * Открывает его само расширение (кнопка «Агент»). Устройство — src/relay.js.
+ * Открывает его само расширение («Подключить AI» в панели AI). Устройство — src/relay.js.
  */
 (() => {
   "use strict";
@@ -69,7 +69,7 @@
   async function loop() {
     for (;;) {
       if (!retkitAlive()) {
-        show(target ? "RetKit отключился. Нажмите «Агент» в RetKit ещё раз." : "Жду RetKit… Откройте письмо в MoEngage → RetKit → «Агент».", false);
+        show(target ? "RetKit отключился. В RetKit внизу, в панели AI, нажмите «Окно связи»." : "Жду RetKit… Откройте письмо в MoEngage → RetKit → панель AI внизу → «Подключить AI».", false);
         await new Promise((r) => setTimeout(r, 1500));
         continue;
       }
