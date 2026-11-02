@@ -36,6 +36,30 @@ const hashOf = (text) => createHash("sha1").update(String(text || "")).digest("h
 // внешнему агенту через MCP менять его нечем. Поэтому весь набор канвас-
 // инструментов помечен как browserOnly — иначе MCP-клиент получал бы «ок» на
 // правку, которой никто не увидит.
+/** Инструменты, которым нужно письмо, открытое во вкладке «Код». */
+const NEEDS_OPEN_MAIL = new Set([
+  "read_open_html", "list_namespaces", "get_namespace_blocks", "analyze_email", "align_locales_to_reference",
+  "compare_locales", "placeholderize_html", "fix_locale_txt", "translate_locale_txt", "find_across_locales",
+  "replace_across_locales", "find_in_html", "replace_in_html", "create_locale", "normalize_locale_conventions",
+  "delete_locale", "edit_locale_block", "set_locale_blocks", "validate_html", "list_email_sections",
+  "insert_block", "remove_block", "see_email", "list_mail_files", "read_mail_file", "write_mail_file",
+]);
+
+function studioOrigin(request) {
+  const headers = request?.headers || {};
+  const host = String(headers["x-forwarded-host"] || headers.host || "").split(",")[0].trim();
+  const proto = String(headers["x-forwarded-proto"] || "").split(",")[0].trim() || (/^(localhost|127\.0\.0\.1)/.test(host) ? "http" : "https");
+  return host ? `${proto}://${host}` : "";
+}
+
+/** Что сказать агенту, если вкладка «Код» не на связи. */
+export function codeTabMissingError(origin = "") {
+  return "Во вкладке «Код» студии не открыто письмо (или вкладка не на связи с вашей ссылкой). " +
+    "Откройте её сами: retkit_open_studio с page=\"code\" и brand/mail письма — человеку останется один клик. " +
+    "Или попросите его открыть письмо в «Коде» студии" + (origin ? ` по адресу ${origin}` : "") +
+    " в том же браузере, где окно связи. Студия на localhost — другая студия: ваша ссылка туда не ведёт.";
+}
+
 const BROWSER_ONLY = new Set([
   "update_canvas_block",
   "add_canvas_block",
@@ -202,6 +226,42 @@ export function registerAgentRoutes(router, deps) {
     }
   });
 
+  /**
+   * Агент просит открыть страницу студии (Конструктор или письмо в «Коде»).
+   * Сам открыть вкладку браузер не даст никому, кроме человека. Поэтому:
+   * окно связи (если открыто) показывает кнопку «Открыть …» и пробует открыть
+   * само, а агент получает прямую ссылку, чтобы дать её человеку.
+   */
+  router.post("/api/agent/open-page", async (request, response) => {
+    try {
+      const body = await readRequestBody(request);
+      const token = request.retkitActor?.token || "";
+      const page = body?.page === "code" ? "code" : "constructor";
+      const origin = String(body?.publicUrl || studioOrigin(request) || "").replace(/\/+$/, "");
+      const brand = String(body?.brand || "").replace(/[^A-Za-z0-9_-]/g, "");
+      const mail = String(body?.mail || "").replace(/[^A-Za-z0-9_.-]/g, "");
+      const url = page === "code"
+        ? `${origin}/workbench.html${brand && mail ? `?brand=${encodeURIComponent(brand)}&mail=${encodeURIComponent(mail)}` : ""}`
+        : `${origin}/constructor.html`;
+      const label = page === "code" ? (mail ? `Открыть ${mail} в «Коде»` : "Открыть «Код»") : "Открыть Конструктор";
+      if (relayOnline(token, Date.now(), page === "code" ? "workbench" : "constructor") && !(page === "code" && brand && mail)) {
+        sendJson(response, 200, { ok: true, result: { already: true, url, note: "Эта страница уже открыта у человека и на связи." } });
+        return;
+      }
+      let shown = false;
+      if (relayOnline(token, Date.now(), "moengage")) {
+        const reply = await callRelay(token, "open_page", { url, label }, { channel: "moengage", timeoutMs: 10_000 });
+        shown = Boolean(reply?.ok);
+      }
+      sendJson(response, 200, { ok: true, result: { url, label, shownInRelayWindow: shown,
+        note: shown
+          ? "В окне связи у человека появилась кнопка «" + label + "» — ему остался один клик. Дождитесь, пока страница выйдет на связь, и повторите."
+          : "Окна связи нет — дайте человеку эту ссылку: откройте её в том же браузере." } });
+    } catch (error) {
+      sendJson(response, 200, { ok: false, error: error.message });
+    }
+  });
+
   /** Тексты открытого письма по порядку — вместо 25 КБ вёрстки. */
   router.post("/api/agent/texts", async (request, response) => {
     try {
@@ -212,6 +272,10 @@ export function registerAgentRoutes(router, deps) {
       if ((!brand || !mail) && relayOnline(token, Date.now(), "workbench")) {
         const got = await callRelay(token, "wb_context", {}, { channel: "workbench", timeoutMs: 15_000 });
         if (got.ok) { brand = brand || got.result.brand; mail = mail || got.result.mail; if (!brand || !mail) html = got.result.html || ""; }
+      }
+      if (!html && (!brand || !mail)) {
+        sendJson(response, 200, { ok: false, error: codeTabMissingError(body?.publicUrl || "") });
+        return;
       }
       if (!html) html = await readBuilt(brand, mail, body?.locale);
       sendJson(response, 200, { ok: true, result: { brand, mail, locale: body?.locale || "original", ...extractEmailTexts(html) } });
@@ -254,6 +318,12 @@ export function registerAgentRoutes(router, deps) {
       }
       const brand = String(live?.brand || given.brand || "").trim();
       const mail = String(live?.mail || given.mail || "").trim();
+      // Раньше без открытого «Кода» инструменты отвечали пустотой («0
+      // namespace») — агент думал, что локалей нет. Теперь говорим как есть.
+      if (NEEDS_OPEN_MAIL.has(name) && !live && (!brand || !mail) && request.retkitActor?.kind === "agent") {
+        sendJson(response, 200, { ok: false, error: codeTabMissingError(given.publicUrl || "") });
+        return;
+      }
       const liveNamespaces = Array.isArray(live?.namespaces) ? live.namespaces.map((n) => ({
         ...n,
         name: String(n.namespace || n.name || ""),

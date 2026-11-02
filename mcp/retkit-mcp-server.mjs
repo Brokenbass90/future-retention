@@ -62,6 +62,8 @@ async function cachedToolList(key, load) {
  */
 export async function createRetkitMcpServer(options = {}) {
 const STUDIO_URL = String(options.studioUrl || process.env.STUDIO_URL || "http://127.0.0.1:3000").replace(/\/+$/, "");
+// Адрес студии, который видит человек (Heroku), — для ссылок «откройте …».
+const PUBLIC_URL = String(options.publicUrl || process.env.STUDIO_PUBLIC_URL || STUDIO_URL).replace(/\/+$/, "");
 const STUDIO_USER = options.user ?? (process.env.STUDIO_USER || "");
 /**
  * Метка агента. Студия по ней понимает, что пишет не человек, а чей-то Клод:
@@ -1198,7 +1200,7 @@ try {
       async ({ brand, mail, ...args }) => {
         const data = await studioFetch("/api/agent/call", {
           method: "POST",
-          body: { tool: tool.name, args, context: { brand, mail, surface: "workbench" } },
+          body: { tool: tool.name, args, context: { brand, mail, surface: "workbench", publicUrl: PUBLIC_URL } },
         });
         const content = [{ type: "text", text: JSON.stringify(data?.result ?? {}, null, 2).slice(0, 24000) }];
         // Снимок письма или блока приходит картинкой — показываем её, а не
@@ -1228,6 +1230,29 @@ async function moengage(tool, args = {}) {
   return reply.result;
 }
 const asText = (value) => ({ content: [{ type: "text", text: typeof value === "string" ? value : JSON.stringify(value, null, 2) }] });
+
+server.registerTool(
+  "retkit_open_studio",
+  {
+    title: "Открыть Конструктор или письмо в «Коде»",
+    description:
+      "Открыть у человека страницу студии, если её нет: page=constructor — Конструктор, page=code с brand и mail — " +
+      "письмо во вкладке «Код». Вкладку браузер разрешает открыть только человеку, поэтому в окне связи RetKit у него " +
+      "появляется кнопка «Открыть …» (или откроется сразу), а вам возвращается прямая ссылка. Вызывайте, когда " +
+      "инструменты холста или «Кода» говорят, что страница не открыта.",
+    inputSchema: {
+      page: z.enum(["constructor", "code"]).describe("Что открыть."),
+      brand: z.string().optional().describe("Бренд письма для page=code, например X_IQ."),
+      mail: z.string().optional().describe("Письмо для page=code, например mail-welcome."),
+    },
+    annotations: { openWorldHint: false },
+  },
+  async ({ page, brand, mail }) => {
+    const data = await studioFetch("/api/agent/open-page", { method: "POST", body: { page, brand, mail, publicUrl: PUBLIC_URL } });
+    if (data?.ok === false) throw new Error(data.error || "Не удалось открыть страницу");
+    return asText(data.result);
+  }
+);
 
 for (const [name, to, title, description] of [
   ["retkit_open_in_code", "workbench", "Конструктор → Код",
@@ -1295,7 +1320,7 @@ server.registerTool(
     annotations: { readOnlyHint: true, openWorldHint: false },
   },
   async (args) => {
-    const data = await studioFetch("/api/agent/texts", { method: "POST", body: args });
+    const data = await studioFetch("/api/agent/texts", { method: "POST", body: { ...args, publicUrl: PUBLIC_URL } });
     if (data?.ok === false) throw new Error(data.error);
     return asText(data.result);
   }
@@ -1344,7 +1369,7 @@ server.registerTool(
     if (!known) throw new Error(`У студии нет инструмента «${tool}». Вызовите retkit_call с tool="list".`);
     const data = known.browserOnly
       ? await studioFetch("/api/agent/canvas-call", { method: "POST", body: { tool, args } })
-      : await studioFetch("/api/agent/call", { method: "POST", body: { tool, args, context: { brand, mail, surface: "workbench" } } });
+      : await studioFetch("/api/agent/call", { method: "POST", body: { tool, args, context: { brand, mail, surface: "workbench", publicUrl: PUBLIC_URL } } });
     if (data?.ok === false && data?.error) throw new Error(data.error);
     return asText(data?.result ?? data);
   }

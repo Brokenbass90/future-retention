@@ -19,7 +19,7 @@
  */
 import { createRetkitMcpServer } from "../../mcp/retkit-mcp-server.mjs";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
-import { mcpKeyFromUrl, verifyMcpKey, noteMcpSeen } from "../mcp-link.js";
+import { mcpKeyFromUrl, verifyMcpKey, noteMcpSeen, publicOrigin } from "../mcp-link.js";
 
 const MAX_BODY_BYTES = 4 * 1024 * 1024;
 
@@ -136,6 +136,7 @@ export async function handleMcpHttp(request, response, { port, env = process.env
   try {
     server = await createRetkitMcpServer({
       studioUrl: await selfUrl(request, port),
+      publicUrl: publicOrigin(request),
       user: String(env.APP_AUTH_USER || ""),
       password: String(env.APP_AUTH_PASSWORD || ""),
       token,

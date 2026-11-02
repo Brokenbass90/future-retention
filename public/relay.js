@@ -66,6 +66,27 @@
     }
   });
 
+  function showOpenPage({ url, label }) {
+    if (!/^https?:\/\//.test(String(url || ""))) return;
+    let box = $("openPage");
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "openPage";
+      box.style.cssText = "margin:10px 0;padding:10px;border-radius:9px;background:#1b2a44;border:1px solid #3b5ea8";
+      $("st").insertAdjacentElement("afterend", box);
+    }
+    box.replaceChildren();
+    const p = document.createElement("p");
+    p.style.cssText = "margin:0 0 8px;color:#dce6f4";
+    p.textContent = "Агент просит открыть страницу студии:";
+    const b = document.createElement("button");
+    b.textContent = label || "Открыть";
+    b.addEventListener("click", () => { window.open(url, "retkit-studio"); box.remove(); });
+    box.append(p, b);
+    // Браузер может разрешить и без клика — пробуем; не вышло — кнопка ждёт.
+    try { const w = window.open(url, "retkit-studio"); if (w) box.remove(); } catch { /* ждёт клика */ }
+  }
+
   async function loop() {
     for (;;) {
       if (!retkitAlive()) {
@@ -80,6 +101,13 @@
           body: JSON.stringify({ status: lastStatus }) });
         const data = await response.json();
         const command = data?.command;
+        if (command && command.tool === "open_page") {
+          // Это команда самому окну связи, а не RetKit в MoEngage.
+          showOpenPage(command.args || {});
+          fetch("/api/relay/result", { method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: command.id, ok: true, result: { shown: true } }) }).catch(() => {});
+          continue;
+        }
         if (command && retkitAlive()) target.postMessage({ source: "retkit-relay", type: "command", ...command }, targetOrigin);
         else if (command) fetch("/api/relay/result", { method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id: command.id, ok: false, error: "Вкладка MoEngage с RetKit закрыта" }) }).catch(() => {});
