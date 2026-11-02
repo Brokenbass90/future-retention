@@ -11455,7 +11455,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // тексты и плейсхолдеры в готовом письме. Поэтому открываем скомпилированный
   // HTML и сразу разрешаем правку — вкладка Pug остаётся рядом и открывается
   // кнопкой «← Вернуться к Pug» для тех, кому нужна вёрстка.
-  loadEmailFromBase(handoff.brand, handoff.mail, null, { initialView: 'html', editHtml: true })
+  // Рабочая копия могла исчезнуть с диска сервера (деплой/перезапуск):
+  // сначала вернём её из снимка этой вкладки, потом откроем.
+  const ready = handoff.brand === 'X_preview' && typeof window.__retkitRestoreWorkingCopy === 'function'
+    ? window.__retkitRestoreWorkingCopy(handoff.mail, { quietIfPresent: true }).catch(() => false)
+    : Promise.resolve(false);
+  ready.then(() => loadEmailFromBase(handoff.brand, handoff.mail, null, { initialView: 'html', editHtml: true }))
     .catch(() => {});
 });
 
@@ -12965,6 +12970,25 @@ async function agentWorkbenchRelayLoop() {
               locales: (ctx.htmlLocales || []).map(item => item.code) } };
           }
         }
+        else if (command.tool === 'reload' || command.tool === 'reset') {
+          const ctx = state.srcCtx || {};
+          if (ctx.modified && !command.args?.discard) reply = { ok: false, error: 'В «Коде» несохранённые правки письма ' + (ctx.mail || '') + '. Если это проба — повторите с discard=true; иначе пусть человек сохранит.' };
+          else {
+            const keep = command.tool === 'reload' && ctx.brand && ctx.mail ? '/workbench?brand=' + encodeURIComponent(ctx.brand) + '&mail=' + encodeURIComponent(ctx.mail) : '/workbench';
+            reply = { ok: true, result: { started: true, action: command.tool, reopens: keep !== '/workbench' ? ctx.mail : null } };
+            setTimeout(() => {
+              if (command.tool === 'reset') {
+                // Как кнопка «Сбросить всё», только без вопроса: агент уже спросил.
+                // Тему и снимки рабочих копий (retkit.wc.*) оставляем.
+                for (let i = localStorage.length - 1; i >= 0; i -= 1) {
+                  const k = localStorage.key(i);
+                  if (k && k.startsWith('wb-') && k !== 'wb-theme') { try { localStorage.removeItem(k); } catch {} }
+                }
+              }
+              window.location.href = keep;
+            }, 80);
+          }
+        }
         else if (command.tool === 'goto') {
           const url = String(command.args?.url || '');
           const ctx = state.srcCtx || {};
@@ -13128,7 +13152,7 @@ async function agentPlaceholderize({ namespace = '', refLocale = 'en' } = {}) {
         body: JSON.stringify({ brand: BRAND, mail, snapshot }),
       });
       const data = await response.json().catch(() => null);
-      if (data?.ok) toast('Студия обновлялась и стёрла рабочую копию — вернул её из этой вкладки (' + data.files + ' файлов, ' + data.locales + ' локалей).', 'info', 6000);
+      if (data?.ok && (data.files || data.locales)) toast('Студия обновлялась и стёрла рабочую копию — вернул её из этой вкладки (' + data.files + ' файлов, ' + data.locales + ' локалей).', 'info', 6000);
       return Boolean(data?.ok);
     })().finally(() => { setTimeout(() => { restoring = null; }, 3000); });
     return restoring;
@@ -13149,4 +13173,5 @@ async function agentPlaceholderize({ namespace = '', refLocale = 'en' } = {}) {
   setInterval(() => { if (document.visibilityState === 'visible') void snapshotNow(); }, 45000);
   window.addEventListener('beforeunload', () => { /* снимок уже свежий: интервал */ });
   window.__retkitSnapshotWorkingCopy = snapshotNow;
+  window.__retkitRestoreWorkingCopy = (mail) => restore(mail);
 })();

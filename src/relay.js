@@ -114,7 +114,8 @@ export function callRelay(token, tool, args = {}, { timeoutMs = 90_000, channel 
     const timer = setTimeout(() => {
       relay.pending.delete(id);
       relay.queue = relay.queue.filter((item) => item.id !== id);
-      resolve({ ok: false, error: "RetKit не ответил вовремя. Возможно, вкладка MoEngage закрыта или занята — попробуйте ещё раз." });
+      const where = channel === "constructor" ? "Вкладка Конструктора" : channel === "workbench" ? "Вкладка «Код»" : "RetKit в MoEngage";
+      resolve({ ok: false, error: `${where} не ответила вовремя (занята сборкой или разбором письма, либо закрыта). Проверьте retkit_studio_status и повторите.` });
     }, timeoutMs);
     relay.pending.set(id, { resolve, timer });
     relay.queue.push({ id, tool: String(tool || ""), args: args && typeof args === "object" ? args : {} });

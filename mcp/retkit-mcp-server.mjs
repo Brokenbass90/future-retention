@@ -275,6 +275,7 @@ const SERVER_INSTRUCTIONS = [
   "Переходы: retkit_open_in_code (холст → «Код») и retkit_open_in_constructor («Код» → холст) — ходите сами, человеку нажимать не нужно. Если нужного инструмента нет в вашем списке (клиент закешировал старый), вызывайте его через retkit_call.",
   "",
   "Холст конструктора: retkit_read_canvas → retkit_update_canvas_block / remove / add / move (по uid), много правок — retkit_canvas_batch одним вызовом. Правка видна у человека сразу.",
+  "Вкладка зависла или устарела после деплоя — retkit_studio_control (reload / reset).",
   "Любое письмо открывайте сами: retkit_open_mail (brand, mail, page constructor|code) — в открытой у человека вкладке, без его кликов.",
   "Состояние студии — retkit_studio_status (первым): что открыто, есть ли несохранённые правки, не нужна ли человеку F5 после деплоя.",
   "Письмо по картинке от человека: разберите картинку на секции → retkit_find_blocks_by_look / retkit_block_preview → соберите холст через retkit_canvas_batch (тексты — с картинки) → retkit_see_email и сравните с картинкой → retkit_canvas_images и попросите у человека ссылки на недостающие картинки. Save mail нажимает человек.",
@@ -1375,6 +1376,7 @@ server.registerTool(
         { name: "open_studio", browserOnly: false, params: ["page", "brand", "mail"] },
         { name: "studio_status", browserOnly: false, params: [] },
         { name: "open_mail", browserOnly: true, params: ["brand", "mail", "page", "discard"] },
+        { name: "studio_control", browserOnly: true, params: ["action", "page", "discard"] },
         { name: "open_in_code", browserOnly: true, params: [] },
         { name: "open_in_constructor", browserOnly: true, params: ["discard"] },
         { name: "canvas_batch", browserOnly: true, params: ["ops"] },
@@ -1384,6 +1386,11 @@ server.registerTool(
     }
     // Инструменты, которые живут в самом MCP-сервере (клиент мог закешировать
     // старый список и не видеть их по имени retkit_*).
+    if (tool === "studio_control") {
+      const data = await studioFetch("/api/agent/page-control", { method: "POST", body: { action: args.action, page: args.page, discard: args.discard === true || args.discard === "true" } });
+      if (data?.ok === false) throw new Error(data.error || "Не удалось");
+      return asText(data.result);
+    }
     if (tool === "open_mail") {
       const data = await studioFetch("/api/agent/open-mail", { method: "POST", body: { brand: args.brand || brand, mail: args.mail || mail, page: args.page, discard: args.discard === true || args.discard === "true", publicUrl: PUBLIC_URL } });
       if (data?.ok === false) throw new Error(data.error || "Не удалось открыть письмо");
@@ -1435,6 +1442,30 @@ server.registerTool(
   async () => {
     const data = await studioFetch("/api/agent/status");
     if (data?.ok === false) throw new Error(data.error || "Студия не ответила");
+    return asText(data.result);
+  }
+);
+
+server.registerTool(
+  "retkit_studio_control",
+  {
+    title: "Студия: перезагрузить или сбросить страницу",
+    description:
+      "Перезагрузить страницу студии у человека (action=reload — письмо в «Коде» откроется снова) или сбросить её " +
+      "локальные настройки (action=reset — как «Сбросить всё»: закрыть письмо, очистить холст/вкладки, тема и связь " +
+      "остаются). Для зависшей вкладки, устаревшей после деплоя (retkit_studio_status: outdated) или запутавшегося " +
+      "состояния. page: constructor | code | всё открытое. Несохранённая работа — отказ; спросите человека, потом discard=true. " +
+      "Письма на сервере не трогает.",
+    inputSchema: {
+      action: z.enum(["reload", "reset"]),
+      page: z.enum(["constructor", "code", "all"]).optional(),
+      discard: z.boolean().optional(),
+    },
+    annotations: { openWorldHint: false },
+  },
+  async ({ action, page, discard }) => {
+    const data = await studioFetch("/api/agent/page-control", { method: "POST", body: { action, page, discard: discard === true } });
+    if (data?.ok === false) throw new Error(data.error || "Не удалось");
     return asText(data.result);
   }
 );

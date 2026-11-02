@@ -287,6 +287,45 @@ export function registerAgentRoutes(router, deps) {
   });
 
   /**
+   * Перезагрузить страницу студии или сбросить её локальные настройки — когда
+   * вкладка зависла, устарела после деплоя или запуталась в старом состоянии.
+   * Данные писем на сервере это не трогает.
+   */
+  router.post("/api/agent/page-control", async (request, response) => {
+    try {
+      const body = await readRequestBody(request);
+      const token = request.retkitActor?.token || "";
+      const action = body?.action === "reset" ? "reset" : "reload";
+      const discard = body?.discard === true;
+      const wanted = body?.page === "code" ? ["workbench"] : body?.page === "constructor" ? ["constructor"] : ["constructor", "workbench"];
+      const online = wanted.filter((channel) => relayOnline(token, Date.now(), channel));
+      if (!online.length) { sendJson(response, 200, { ok: false, error: "Нужная страница студии не на связи — retkit_studio_status." }); return; }
+      const results = {};
+      for (const channel of online) {
+        const before = relayStatus(token, channel).lastPollAt || 0;
+        const started = await callRelay(token, action, { discard }, { channel, timeoutMs: 20_000 });
+        if (!started.ok) { results[channel] = { ok: false, error: started.error }; continue; }
+        // Старая вкладка ещё успевает опросить сервер перед уходом: ждём
+        // дольше этого окна и смотрим опрос уже новой страницы.
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        const reloadedAfter = Date.now();
+        let back = false;
+        const deadline = Date.now() + 25_000;
+        while (Date.now() < deadline && !back) {
+          await new Promise((resolve) => setTimeout(resolve, 700));
+          const status = relayStatus(token, channel);
+          back = status.online && status.lastPollAt > Math.max(before, reloadedAfter);
+        }
+        results[channel === "workbench" ? "code" : channel] = back ? { ok: true, action, ...(started.result || {}) } : { ok: false, error: "Страница перезагружается, но ещё не вышла на связь." };
+      }
+      const ok = Object.values(results).every((item) => item.ok);
+      sendJson(response, 200, ok ? { ok: true, result: results } : { ok: false, error: JSON.stringify(results) });
+    } catch (error) {
+      sendJson(response, 200, { ok: false, error: error.message });
+    }
+  });
+
+  /**
    * Агент открывает любое письмо сам — в уже открытой у человека вкладке
    * студии (Конструктор или «Код»): та переходит на нужную страницу. Ссылку
    * человеку даём, только если студия у него не открыта вовсе.
@@ -319,7 +358,7 @@ export function registerAgentRoutes(router, deps) {
         return;
       }
       const before = relayStatus(token, target).lastPollAt || 0;
-      const started = await callRelay(token, "goto", { url, discard }, { channel: via, timeoutMs: 20_000 });
+      const started = await callRelay(token, "goto", { url, discard }, { channel: via, timeoutMs: 45_000 });
       if (!started.ok) { sendJson(response, 200, started); return; }
       const deadline = Date.now() + 25_000;
       while (Date.now() < deadline) {

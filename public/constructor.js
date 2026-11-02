@@ -4731,6 +4731,22 @@ async function agentRelayLoop() {
           const live = outcome.applied ? await waitForLivePreview(15000) : null;
           if (outcome.applied) flashCanvasHint?.("Ваш агент поправил письмо — отменить: Ctrl+Z", 4000);
           reply = { ok: true, result: { ...outcome, preview: live ? { ok: live.ok !== false, error: live.error } : null } };
+        } else if (command.tool === "reload" || command.tool === "reset") {
+          // Перезагрузка страницы и сброс локальных настроек конструктора — по
+          // просьбе агента, когда вкладка зависла или устарела после деплоя.
+          // Метку браузера (retkit-browser-id) не трогаем: на ней держится связь.
+          const args = command.args || {};
+          if (command.tool === "reset" && state.canvas.length && !args.discard) {
+            reply = { ok: false, error: `Сброс очистит холст (${state.canvas.length} блоков). Если письмо не нужно — повторите с discard=true; иначе пусть человек нажмёт Save mail.` };
+          } else {
+            reply = { ok: true, result: { started: true, action: command.tool } };
+            setTimeout(() => {
+              if (command.tool === "reset") {
+                for (const key of ["retkit-constructor-canvas", BLOCK_CLIPBOARD_KEY]) { try { localStorage.removeItem(key); } catch {} }
+              }
+              window.location.href = "/constructor";
+            }, 80);
+          }
         } else if (command.tool === "goto" || command.tool === "open_mail") {
           // Агент открывает письмо сам. Холст с работой молча не выкидываем:
           // без discard — честный отказ, агент спросит человека.

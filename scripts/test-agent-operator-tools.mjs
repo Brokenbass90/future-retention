@@ -37,3 +37,12 @@ assert.match(wbjs, /command\.tool === 'goto'/);
 assert.match(routes, /router\.post\("\/api\/agent\/open-mail"/);
 assert.ok(mcp.includes('"retkit_open_mail"'));
 console.log("✓ agent opens any mail itself");
+
+// Перезагрузка и сброс страниц студии агентом.
+assert.match(routes, /router\.post\("\/api\/agent\/page-control"/);
+assert.match(cjs, /command\.tool === "reload" \|\| command\.tool === "reset"/);
+assert.ok(!/removeItem\(["']retkit-browser-id/.test(cjs), "reset keeps the link identity");
+assert.match(wbjs, /command\.tool === 'reload' \|\| command\.tool === 'reset'/);
+assert.match(wbjs, /__retkitRestoreWorkingCopy\(handoff\.mail/, "copy restored before opening a handoff");
+assert.ok(mcp.includes('"retkit_studio_control"'));
+console.log("✓ agent reloads / resets studio pages");
