@@ -37,6 +37,45 @@ import path from "node:path";
 // Shared smart find/replace (same file the Workbench ⌘F strip and RetKit for
 // MoEngage use): & == &amp;, image-by-file-name mode, built-ins never change.
 import "../public/replace-across.js";
+// Shared locale checker (same file RetKit for MoEngage ships): language, alphabet,
+// untranslated, empty/missing, {{vars}}, @@bold@@, draft junk, broken encoding.
+import "../public/locale-lint-data.js";
+import "../public/locale-lint.js";
+const LocaleLint = globalThis.RetKitLocaleLint;
+const lintSeen = new Map(); // namespace → fingerprint of the last full report
+
+/** Locale check of one or all own namespaces in ctx — compact text for the model. */
+function lintNamespaces(ctx, { namespace, refLocale, detail = "errors", locale } = {}) {
+  if (!LocaleLint) return { error: "locale-lint не загружен" };
+  const list = (ctx?.namespaces || []).filter((ns) => ns && !ns.builtin && ns.locales && typeof ns.locales === "object"
+    && (!namespace || ns.name === namespace || ns.namespace === namespace));
+  if (!list.length) return { error: namespace ? `namespace not found: ${namespace}` : "нет локалей — откройте письмо во вкладке «Код»" };
+  const reports = [];
+  let ok = true;
+  for (const ns of list) {
+    const name = ns.namespace || ns.name;
+    if (Object.keys(ns.locales).length < 2) { reports.push(`${name}: одна локаль — сравнивать не с чем`); continue; }
+    const refCode = refLocale || (ns.referenceLocale && ns.locales[ns.referenceLocale] ? ns.referenceLocale : undefined);
+    const result = LocaleLint.lint({ locales: ns.locales, refCode });
+    ok = ok && result.ok;
+    const key = `${name}|${refCode || ""}`;
+    const print = LocaleLint.fingerprint(ns.locales);
+    const unchanged = lintSeen.get(key) === print && detail !== "all" && !locale;
+    lintSeen.set(key, print);
+    reports.push(`[${name}] ${unchanged ? `unchanged · ${result.summary}` : LocaleLint.format(result, { detail, locale })}`);
+  }
+  return { ok, report: reports.join("\n") };
+}
+
+/** One summary line for tool results that change locales — the agent sees the verdict without a second call. */
+function lintSummaryFor(ctx, nsName) {
+  try {
+    const ns = (ctx?.namespaces || []).find((n) => n && (n.namespace === nsName || n.name === nsName));
+    if (!LocaleLint || !ns?.locales || Object.keys(ns.locales).length < 2) return undefined;
+    const result = LocaleLint.lint({ locales: ns.locales, refCode: ns.referenceLocale && ns.locales[ns.referenceLocale] ? ns.referenceLocale : undefined });
+    return result.ok ? result.summary : `${result.summary} — детали: lint_locales`;
+  } catch { return undefined; }
+}
 const ReplaceAcross = globalThis.RetKitReplaceAcross;
 import {
   composeEmailFromBlocks,
@@ -303,6 +342,28 @@ export const TOOL_DEFINITIONS = [
       properties: {
         namespace: { type: "string", description: "Namespace name (default: active namespace)." },
         refLocale: { type: "string", description: "Reference locale to align to (default: en* or first)." },
+      },
+      required: [],
+    },
+  },
+  {
+    type: "function",
+    name: "lint_locales",
+    description:
+      "Проверить КАЖДУЮ локаль письма против эталона (en): не тот язык или алфавит, непереведённый текст " +
+      "(как в en), пустые и пропавшие блоки, расхождение {{переменных}} и @@жирного@@, черновой мусор " +
+      "(lorem ipsum, TODO, ???, [text], «Title here»), сломанная кодировка. Без модели и сети, дёшево. " +
+      "Ответ компактный: строка-сводка «es 🔴2 · fr ✓ …», затем по строке на ошибку с номером блока " +
+      "(тот же порядок, что в get_namespace_blocks / set_locale_blocks). Все 🔴 исправьте сами; 🟡 — покажите человеку. " +
+      "Если с прошлой проверки ничего не менялось, ответ — unchanged.",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        namespace: { type: "string", description: "Namespace (по умолчанию — все свои namespace письма)." },
+        refLocale: { type: "string", description: "Эталон (по умолчанию en*)." },
+        detail: { type: "string", enum: ["summary", "errors", "all"], description: "summary — только сводка; errors (по умолчанию) — сводка и ошибки; all — и предупреждения." },
+        locale: { type: "string", description: "Показать строки только этой локали." },
       },
       required: [],
     },
@@ -1267,6 +1328,10 @@ export const TOOL_HANDLERS = {
     return { namespace: nsName, refCode, refBlockCount: refBlocks.length, locales: codes, updated, report };
   },
 
+  async lint_locales(args, ctx) {
+    return lintNamespaces(ctx, args);
+  },
+
   async compare_locales(args, ctx) {
     const ns = pickNamespace(ctx, args.namespace);
     if (!ns) return { error: `namespace not found: ${args.namespace}` };
@@ -1640,7 +1705,8 @@ export const TOOL_HANDLERS = {
       (u) => !(u.namespace === (ns.namespace || ns.name) && u.locale === code)
     );
     ctx.pendingLocaleUpdates.push({ namespace: ns.namespace || ns.name, locale: code, txt: serializeBlocks(blocks) });
-    return { namespace: ns.namespace || ns.name, locale: code, blocks: blocks.length, ...(created ? { createdNamespace: true } : {}), ...(warning ? { warning } : {}) };
+    const localeLint = lintSummaryFor(ctx, ns.namespace || ns.name);
+    return { namespace: ns.namespace || ns.name, locale: code, blocks: blocks.length, ...(created ? { createdNamespace: true } : {}), ...(warning ? { warning } : {}), ...(localeLint ? { localeLint } : {}) };
   },
 
   async edit_locale_block(args, ctx) {
@@ -1672,7 +1738,8 @@ export const TOOL_HANDLERS = {
       locale: code,
       txt: serializeBlocks(next),
     });
-    return { namespace: ns.namespace || ns.name, locale: code, index: i, before, after: text };
+    const localeLint = lintSummaryFor(ctx, ns.namespace || ns.name);
+    return { namespace: ns.namespace || ns.name, locale: code, index: i, before, after: text, ...(localeLint ? { localeLint } : {}) };
   },
 
   async list_canonical_blocks(_args, ctx) {

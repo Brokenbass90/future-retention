@@ -9,7 +9,7 @@ import { pollRelay, resolveRelay, callRelay, relayStatus } from "../relay.js";
 import { BUILD_ID } from "../build-id.js";
 
 const RELAY_TOOLS = new Set([
-  "status", "read_email", "write_email", "switch_locale", "find_across_locales", "validator",
+  "status", "read_email", "write_email", "switch_locale", "find_across_locales", "validator", "lint_locales",
 ]);
 
 export function registerRelayRoutes(router, { sendJson, readRequestBody }) {

@@ -18,7 +18,7 @@
  * браузер (открытый HTML, дерево канваса), у MCP — имя письма, по которому
  * студия читает то же самое с диска.
  */
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import { TOOL_DEFINITIONS, TOOL_HANDLERS } from "../ai-tools.js";
 import { callRelay, relayOnline, relayStatus } from "../relay.js";
@@ -41,7 +41,7 @@ const hashOf = (text) => createHash("sha1").update(String(text || "")).digest("h
 /** Инструменты, которым нужно письмо, открытое во вкладке «Код». */
 const NEEDS_OPEN_MAIL = new Set([
   "read_open_html", "list_namespaces", "get_namespace_blocks", "analyze_email", "align_locales_to_reference",
-  "compare_locales", "placeholderize_html", "fix_locale_txt", "translate_locale_txt", "find_across_locales",
+  "compare_locales", "lint_locales", "placeholderize_html", "fix_locale_txt", "translate_locale_txt", "find_across_locales",
   "replace_across_locales", "find_in_html", "replace_in_html", "create_locale", "normalize_locale_conventions",
   "delete_locale", "edit_locale_block", "set_locale_blocks", "validate_html", "list_email_sections",
   "insert_block", "remove_block", "see_email", "list_mail_files", "read_mail_file", "write_mail_file",
@@ -277,10 +277,45 @@ export function registerAgentRoutes(router, deps) {
   }
 
   /**
+   * Проверка собранных локалей (public/locale-lint.js — та же, что во вкладке
+   * «Код» и в RetKit для MoEngage): итог сборки, а не только словари.
+   */
+  async function lintBuiltLocales(brand, mail) {
+    const lint = globalThis.RetKitLocaleLint;
+    if (!lint) return undefined;
+    try {
+      const safe = (value) => String(value || "").replace(/[^A-Za-z0-9_.-]/g, "");
+      const base = path.join(repoRoot, "email-base", "dist", safe(brand), safe(mail));
+      const htmlByLocale = {};
+      for (const entry of await readdir(base, { withFileTypes: true })) {
+        if (!entry.isDirectory()) continue;
+        try { htmlByLocale[entry.name] = await readFile(path.join(base, entry.name, "index.html"), "utf8"); } catch {}
+      }
+      if (Object.keys(htmlByLocale).length < 2) return undefined;
+      return lint.format(lint.lintHtml({ htmlByLocale, refCode: "en" }), { detail: "errors", limit: 15 });
+    } catch { return undefined; }
+  }
+
+  /**
    * Собрать письмо так же, как кнопка «Собрать» во вкладке «Код» (она же
    * синхронизирует локали на диск), и вернуть, что получилось: тексты
    * каждой просимой локали и неподставленные плейсхолдеры — проверка итога.
    */
+  /**
+   * Проверка всех локалей письма в MoEngage (RetKit проходит по вкладкам —
+   * на 20+ локалях это дольше 30 секунд Heroku, поэтому через post с job).
+   */
+  post("/api/agent/moengage-lint", async (request, response) => {
+    try {
+      const body = await readRequestBody(request);
+      const args = { walk: body?.walk !== false, detail: String(body?.detail || "errors"), locale: String(body?.locale || "") };
+      const reply = await callRelay(request.retkitActor?.token || "", "lint_locales", args, { timeoutMs: 170_000 });
+      sendJson(response, 200, reply);
+    } catch (error) {
+      sendJson(response, 500, { ok: false, error: error.message });
+    }
+  });
+
   post("/api/agent/build", async (request, response) => {
     try {
       const body = await readRequestBody(request);
@@ -294,7 +329,8 @@ export function registerAgentRoutes(router, deps) {
         try { locales[code] = extractEmailTexts(await readBuilt(brand, mail, code)); }
         catch { locales[code] = { error: `локаль ${code} не собрана` }; }
       }
-      sendJson(response, 200, { ok: built.result.built, result: { ...built.result, locales } });
+      const localeLint = await lintBuiltLocales(brand, mail);
+      sendJson(response, 200, { ok: built.result.built, result: { ...built.result, locales, ...(localeLint ? { localeLint } : {}) } });
     } catch (error) {
       sendJson(response, 500, { ok: false, error: error.message });
     }

@@ -270,7 +270,7 @@ const SERVER_INSTRUCTIONS = [
   "",
   "Темы инструкций (retkit_studio_guide): emails — сборка писем; development — работа над кодом самой студии; architecture — устройство изнутри; blocks — формат блоков и слотов; locales — плейсхолдеры и переводы. Берите тему под задачу, а не всё сразу.",
   "",
-  "Локали и вёрстка письма в студии: письмо должно быть открыто у человека во вкладке «Код» — инструменты видят его оттуда; правки локалей и плейсхолдеры применяются там сразу (человек откатывает), прямая правка HTML приходит с diff на подтверждение. Флоу перевода: retkit_email_texts (тексты по порядку) → set_locale_blocks (язык письма и en) → retkit_place_placeholders (сам подберёт якорную локаль, пишет в Pug и пересобирает) → set_locale_blocks (переводы) → retkit_build_mail (проверить итог по локалям). Для писем из базы RTL на ar/ur делает сборка. Переводите сами, модель студии для этого не нужна: retkit_get_namespace_blocks (исходная локаль) → перевод → retkit_set_locale_blocks (вся локаль целиком, тот же порядок блоков). translate_locale_txt и create_locale с translate=true требуют ключа студии — не используйте их.",
+  "Локали и вёрстка письма в студии: письмо должно быть открыто у человека во вкладке «Код» — инструменты видят его оттуда; правки локалей и плейсхолдеры применяются там сразу (человек откатывает), прямая правка HTML приходит с diff на подтверждение. Флоу перевода: retkit_email_texts (тексты по порядку) → set_locale_blocks (язык письма и en) → retkit_place_placeholders (сам подберёт якорную локаль, пишет в Pug и пересобирает) → set_locale_blocks (переводы) → retkit_build_mail (проверить итог по локалям) → retkit_lint_locales (🔴 исправить самим, 🟡 показать человеку; сводка приходит и в ответах set_locale_blocks — поле localeLint). Для писем из базы RTL на ar/ur делает сборка. Переводите сами, модель студии для этого не нужна: retkit_get_namespace_blocks (исходная локаль) → перевод → retkit_set_locale_blocks (вся локаль целиком, тот же порядок блоков). translate_locale_txt и create_locale с translate=true требуют ключа студии — не используйте их.",
   "",
   "Переходы: retkit_open_in_code (холст → «Код») и retkit_open_in_constructor («Код» → холст) — ходите сами, человеку нажимать не нужно. Если нужного инструмента нет в вашем списке (клиент закешировал старый), вызывайте его через retkit_call.",
   "",
@@ -281,7 +281,7 @@ const SERVER_INSTRUCTIONS = [
   "Состояние студии — retkit_studio_status (первым): что открыто, есть ли несохранённые правки, не нужна ли человеку F5 после деплоя.",
   "Письмо по картинке от человека: разберите картинку на секции → retkit_find_blocks_by_look / retkit_block_preview → соберите холст через retkit_canvas_batch (тексты — с картинки) → retkit_see_email и сравните с картинкой → retkit_canvas_images и попросите у человека ссылки на недостающие картинки. Save mail нажимает человек.",
   "",
-  "Письмо, открытое у человека в MoEngage, доступно через расширение RetKit: moengage_status (первым) → moengage_read_email → правка → moengage_write_email (с hash из чтения, после согласия человека). Замены во всех локалях — moengage_find_across_locales: вы готовите, нажимает человек. Сохранение кампании в MoEngage — всегда кнопка человека.",
+  "Письмо, открытое у человека в MoEngage, доступно через расширение RetKit: moengage_status (первым) → moengage_read_email → правка → moengage_write_email (с hash из чтения, после согласия человека). Замены во всех локалях — moengage_find_across_locales: вы готовите, нажимает человек. Проверка всех локалей (язык, перевод, пропуски, мусор) — moengage_lint_locales. Сохранение кампании в MoEngage — всегда кнопка человека.",
   "",
   "Чего не делать: не публиковать черновик и не сохранять письмо без подтверждения человека; не трогать письмо, которое студия называет занятым (его сейчас правит человек или другой агент); не выдумывать id блоков и имена слотов — спрашивайте retkit_get_block.",
 ].join("\n");
@@ -1305,7 +1305,7 @@ server.registerTool(
     title: "Код: собрать письмо и проверить",
     description:
       "Собрать письмо, открытое во вкладке «Код» (та же кнопка «Собрать»: заодно записывает локали на диск), и " +
-      "вернуть итог по локалям: тексты по порядку и неподставленные ${{ }}$. Вызывайте после правок Pug, локалей " +
+      "вернуть итог по локалям: тексты по порядку, неподставленные ${{ }}$ и localeLint — проверку всех собранных локалей (🔴 исправить). Вызывайте после правок Pug, локалей " +
       "и плейсхолдеров — не сдавайте работу, не посмотрев результат. Для ar/ur RTL применяется сборкой сам.",
     inputSchema: { locales: z.array(z.string()).optional().describe("Какие локали показать: original, en, ar…") },
     annotations: { openWorldHint: false },
@@ -1657,6 +1657,32 @@ server.registerTool(
     annotations: { openWorldHint: false },
   },
   async ({ query, replacement }) => asText(await moengage("find_across_locales", { query, replacement }))
+);
+
+server.registerTool(
+  "moengage_lint_locales",
+  {
+    title: "MoEngage: проверить все локали",
+    description:
+      "Та же проверка локалей, что в студии (locale-lint): RetKit проходит по всем локалям письма в MoEngage и " +
+      "сверяет каждую с EN — не тот язык или алфавит, непереведённый текст, пропавший текст, разные {{переменные}}, " +
+      "черновой мусор (lorem ipsum, TODO, плейсхолдеры), сломанная кодировка. У человека вкладки локалей " +
+      "подсвечиваются красным/жёлтым. Ответ компактный: сводка и по строке на ошибку; без изменений — unchanged. " +
+      "walk=false — перепроверить только уже прочитанные локали (без переключения вкладок).",
+    inputSchema: {
+      walk: z.boolean().optional().describe("Пройти по всем локалям (по умолчанию true)."),
+      detail: z.enum(["summary", "errors", "all"]).optional().describe("summary | errors (по умолчанию) | all — с предупреждениями."),
+      locale: z.string().optional().describe("Показать строки только этой локали, например ES."),
+    },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+  },
+  async ({ walk, detail, locale }) => {
+    const reply = await studioFetch("/api/agent/moengage-lint", { method: "POST", body: { walk: walk !== false, detail: detail || "errors", locale: locale || "" } });
+    if (reply?.ok === false) throw new Error(reply.error || "RetKit не ответил");
+    const result = reply?.result ?? reply;
+    if (result?.pending) return asText(result); // >25 с: итог заберите через retkit_job
+    return asText(result?.report || result);
+  }
 );
 
 server.registerTool(

@@ -4787,6 +4787,11 @@ function renderLocaleKeyList(nsId, localeCode, count) {
     btn.className = 'locale-key-chip';
     btn.title = `Скопировать ключ ${ph}`;
     btn.innerHTML = `<span>block_${PH_NUM(i)}</span>`;
+    const lintHit = (state.localeLint?.[localeCode] || []).filter(x => x.ns === ns.name && x.block === i);
+    if (lintHit.length) {
+      btn.dataset.lint = lintHit.some(x => x.severity === 'error') ? 'error' : 'warn';
+      btn.title = `${lintHit.map(x => `${x.code}: ${x.message}`).join('\n')}\n— ${btn.title}`;
+    }
     btn.addEventListener('click', async () => {
       try {
         await navigator.clipboard.writeText(ph);
@@ -5601,12 +5606,39 @@ function validateLocales() {
     });
   });
 
+  // Same checker as RetKit for MoEngage (public/locale-lint.js): language and
+  // alphabet, untranslated text, empty/missing blocks, {{vars}}, @@bold@@,
+  // draft junk (lorem ipsum, TODO, placeholders), broken encoding.
+  state.localeLint = lintLocalesOfNamespaces();
+  for (const [code, list] of Object.entries(state.localeLint)) {
+    const hasError = list.some(i => i.severity === 'error');
+    if (hasError && localeStatus[code] !== 'error') { localeStatus[code] = 'error'; totalErrors++; }
+    else if (!hasError && (localeStatus[code] || 'ok') === 'ok') localeStatus[code] = 'warning';
+  }
+
   r.validateBadge.textContent = totalErrors;
   r.validateBadge.classList.toggle('hidden', totalErrors === 0);
+  state._localeStatus = localeStatus;
   applyLocaleValidationStyles(localeStatus);
 }
 
-function applyLocaleValidationStyles(localeStatus = {}) {
+/** { [locale]: [{ ns, block, code, severity, message, sample }] } for every own namespace. */
+function lintLocalesOfNamespaces() {
+  const lint = window.RetKitLocaleLint;
+  const out = {};
+  if (!lint) return out;
+  state.namespaces.forEach(ns => {
+    if (ns.builtin || !ns.locales || Object.keys(ns.locales).length < 2) return;
+    const refCode = ns.referenceLocale && ns.locales[ns.referenceLocale] ? ns.referenceLocale : undefined;
+    let result;
+    try { result = lint.lint({ locales: ns.locales, refCode }); }
+    catch (e) { console.warn('[locale-lint]', ns.name, e); return; }
+    for (const issue of result.issues) (out[issue.locale] ||= []).push({ ns: ns.name, ...issue });
+  });
+  return out;
+}
+
+function applyLocaleValidationStyles(localeStatus = state._localeStatus || {}) {
   r.localeTabs.querySelectorAll('.locale-tab[data-locale]').forEach(tab => {
     const code = tab.dataset.locale;
     if (code === 'original') return;
@@ -5614,6 +5646,13 @@ function applyLocaleValidationStyles(localeStatus = {}) {
     if (s === 'error')   tab.dataset.valid = 'error';
     else if (s === 'warning') tab.dataset.valid = 'warning';
     else delete tab.dataset.valid;
+    // Why the tab is red: the locale check, line by line (block_NN as in the editor).
+    const issues = state.localeLint?.[code] || [];
+    if (issues.length) {
+      const lines = issues.slice(0, 12).map(i => `${i.severity === 'error' ? '●' : '○'} ${i.block === null || i.block === undefined ? 'локаль' : (typeof i.block === 'number' ? `block_${PH_NUM(i.block)}` : i.block)} — ${i.code}: ${i.message}${i.sample ? ` «${i.sample}»` : ''}`);
+      if (issues.length > 12) lines.push(`… ещё ${issues.length - 12}`);
+      tab.title = `${code.toUpperCase()}: проверка локали\n${lines.join('\n')}`;
+    } else tab.removeAttribute('title');
   });
 }
 

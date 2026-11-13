@@ -267,6 +267,8 @@ svg { display: block; flex-shrink: 0; }
 .locale-tab[data-valid="error"]   { border-color: var(--danger); color: var(--danger); }
 .locale-tab[data-valid="error"].active { background: var(--danger); color: #fff; }
 .locale-tab[data-valid="warning"] { border-color: var(--warning); }
+.locale-key-chip[data-lint="error"] { border-color: var(--danger); color: var(--danger); }
+.locale-key-chip[data-lint="warn"] { border-color: var(--warning); }
 
 .locale-add-btn {
   display: flex;

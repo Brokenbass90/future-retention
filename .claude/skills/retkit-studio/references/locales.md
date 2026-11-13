@@ -66,6 +66,32 @@ email-base/dist/<BRAND>/mail-<name>/<LOCALE>/index.html          ← резул�
 - отказ от черновика не должен запирать вкладку — `confirmDiscardHtmlDraft()`
   не возвращает `false`.
 
+## Проверка локалей (locale-lint)
+
+Одна проверка на студию и RetKit для MoEngage: `public/locale-lint.js`
+(+ модели языков `public/locale-lint-data.js`). Источник —
+`retkit-moengage/src/shared/`, здесь байт-в-байт копия; разъезд ловит
+`scripts/test-locale-lint.mjs`. Без сети и ключей.
+
+Ловит в каждой локали против эталона (en): 🔴 пустые и пропавшие блоки,
+разные `{{переменные}}` / `%%var%%`, сломанный `@@жирный@@`, черновой мусор
+(lorem ipsum, TODO, `???`, `[text]`, «Title here», незакрытые `{{`), сломанную
+кодировку, непереведённый текст (как в en), не тот алфавит, не тот язык всей
+локали; 🟡 близкие языки (es/pt, id/ms, no/sv, ru/uk, ar/ur), длинный блок на
+другом языке, подозрительную длину.
+
+Агенту:
+- `retkit_lint_locales` — сводка «es 🔴2 · fr ✓ …» и по строке на ошибку с
+  номером блока (порядок как в `set_locale_blocks`). Ничего не менялось —
+  `unchanged`. `detail: all` — с предупреждениями.
+- `set_locale_blocks` и `edit_locale_block` сами кладут сводку в поле
+  `localeLint` — отдельный вызов не нужен, пока там нет 🔴.
+- Правило: после перевода 🔴 быть не должно — исправляйте сами; 🟡 покажите
+  человеку, молча не «чините» (на близких языках бывает ложная тревога).
+
+Человеку: вкладка локали красная/жёлтая, в подсказке — причины по блокам;
+в редакторе локали проблемные `block_NN` подсвечены.
+
 ## RTL
 
 Арабский и другие RTL-локали обрабатываются отдельным проходом сборки. Проверка
@@ -78,5 +104,6 @@ email-base/dist/<BRAND>/mail-<name>/<LOCALE>/index.html          ← резул�
 node scripts/test-original-text-sync.mjs      # перенос правки в Pug
 node scripts/test-build-mail-localization.mjs # подстановка словаря
 node scripts/test-locale-cross-check.mjs      # локали не разъехались
+node scripts/test-locale-lint.mjs             # проверка локалей + копия совпадает с RetKit
 node scripts/test-rtl.mjs
 ```
