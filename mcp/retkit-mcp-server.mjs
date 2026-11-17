@@ -274,7 +274,7 @@ const SERVER_INSTRUCTIONS = [
   "",
   "Переходы: retkit_open_in_code (холст → «Код») и retkit_open_in_constructor («Код» → холст) — ходите сами, человеку нажимать не нужно. Если нужного инструмента нет в вашем списке (клиент закешировал старый), вызывайте его через retkit_call.",
   "",
-  "Холст конструктора: retkit_read_canvas → retkit_update_canvas_block / remove / add / move (по uid), много правок — retkit_canvas_batch одним вызовом. Правка видна у человека сразу.",
+  "Холст конструктора: retkit_read_canvas → retkit_update_canvas_block / remove / add / move (по uid), много правок — retkit_canvas_batch одним вызовом. Правка видна у человека сразу. Локали в конструкторе: если retkit_read_canvas вернул locales (человек загрузил папку 📁), текст слота привязывается к строке локали значением ${{ <namespace>.block_NN }}$ (retkit_update_canvas_block; NN — номер в locales.referenceBlocks). Превью и «⬇ ZIP» подставляют каждую локаль сами; locales.lint — сводка проверки локалей.",
   "Ответ pending + job — дело длиннее 25 секунд: заберите итог через retkit_job.",
   "Вкладка зависла или устарела после деплоя — retkit_studio_control (reload / reset).",
   "Любое письмо открывайте сами: retkit_open_mail (brand, mail, page constructor|code) — в открытой у человека вкладке, без его кликов.",

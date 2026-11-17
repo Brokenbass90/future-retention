@@ -170,7 +170,9 @@ export function registerAgentRoutes(router, deps) {
       const canvas = Array.isArray(read.result?.canvas) ? read.result.canvas : [];
       const summary = canvasSummaryFrom(canvas);
       if (name === "read_canvas") {
-        sendJson(response, 200, { ok: true, result: { mailName: read.result?.mailName || "", blocks: summary } });
+        // Локали конструктора (если человек загрузил папку): набор, эталон и его
+        // строки — агент привязывает тексты слотов плейсхолдером ${{ ns.block_NN }}$.
+        sendJson(response, 200, { ok: true, result: { mailName: read.result?.mailName || "", blocks: summary, ...(read.result?.locales ? { locales: read.result.locales } : {}) } });
         return;
       }
       if (name === "image_needs") {

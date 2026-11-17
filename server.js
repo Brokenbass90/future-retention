@@ -17785,7 +17785,11 @@ const server = http.createServer(async (request, response) => {
         }
         const _skBrand = String(body?.sourceBrand||"").replace(/[^a-zA-Z0-9_]/g,""); const _skMail = String(body?.sourceMail||"").replace(/[^a-zA-Z0-9_-]/g,"");
         const _skPath = (_skBrand && _skMail && existsSync(path.join(__dirname,"email-base",_skBrand,_skMail))) ? path.join(__dirname,"email-base",_skBrand,_skMail) : undefined;
-        const previewKey = createPreviewBuildKey({ blocks, sourceBrand: _skBrand, sourceMail: _skMail });
+        // Constructor locales: build this locale (footer from vendor/data/<locale>);
+        // export=true — readable HTML without the canvas block markers (ZIP).
+        const previewLocale = resolveVendorLocale(body?.locale);
+        const exportMode = body?.export === true;
+        const previewKey = createPreviewBuildKey({ blocks, sourceBrand: _skBrand, sourceMail: _skMail, locale: previewLocale, exportMode });
         // Stable, content-derived temp names make duplicate requests share the
         // same build without leaking the constructor's ever-growing live token
         // into thousands of temp directories.
@@ -17803,12 +17807,12 @@ const server = http.createServer(async (request, response) => {
                 mailName: buildMailName,
                 blocks,
                 destRoot: tmpDir,
-                markBlocks: true,
+                markBlocks: !exportMode,
                 preserveSkeletonPreheader: Boolean(_skPath),
                 ...(_skPath ? { skeleton: _skPath } : {}),
               });
               const built = await new Promise((resolve) => {
-                const args = constructorBuildMailArgs({ brand, mailName: buildMailName, preview: true });
+                const args = constructorBuildMailArgs({ brand, mailName: buildMailName, preview: true, locale: previewLocale, pretty: exportMode });
                 const child = spawn(nodeBinary(), args, {
                   cwd: tmpDir,
                   env: buildSubprocessEnv,
@@ -17825,10 +17829,11 @@ const server = http.createServer(async (request, response) => {
                 error.stderr = built.stderr.slice(0, 800);
                 throw error;
               }
-              const distHtml = path.join(distDir, "en", "index.html");
+              const distHtml = path.join(distDir, previewLocale, "index.html");
+              const prettyHtml = path.join(distDir, previewLocale, "index.pretty.html");
               if (!existsSync(distHtml)) throw new Error("build succeeded but dist HTML missing");
-              const rawHtml = await readFile(distHtml, "utf8");
-              const html = sanitizeHtmlForIframePreview(rawHtml);
+              const rawHtml = await readFile(exportMode && existsSync(prettyHtml) ? prettyHtml : distHtml, "utf8");
+              const html = exportMode ? rawHtml : sanitizeHtmlForIframePreview(rawHtml);
               return {
                 html,
                 htmlLength: html.length,
@@ -17853,6 +17858,7 @@ const server = http.createServer(async (request, response) => {
           ok: true,
           mailName: requestedMailName,
           brand,
+          locale: previewLocale,
           ...coordinated.value,
           previewBuild: {
             cache: coordinated.cacheStatus,
@@ -19626,3 +19632,18 @@ server.listen(port, () => {
     }).catch(() => {});
   }, 15000).unref?.();
 });
+
+/**
+ * Locale code from the Constructor (file name of a locale: fr, sv, zh…) → the
+ * folder email-base/vendor/data uses (fr, se, cn…). Unknown → en.
+ */
+function resolveVendorLocale(raw) {
+  const code = String(raw || "").trim();
+  if (!/^[A-Za-z]{2}(?:_[A-Za-z]{2,4})?$/.test(code)) return "en";
+  const dataDir = path.join(__dirname, "email-base", "vendor", "data");
+  const aliases = { sv: "se", ka: "ge", zh: "cn", nb: "no" };
+  for (const candidate of [code, code.toLowerCase(), aliases[code.toLowerCase()], code.toLowerCase().split("_")[0]]) {
+    if (candidate && existsSync(path.join(dataDir, candidate))) return candidate;
+  }
+  return "en";
+}

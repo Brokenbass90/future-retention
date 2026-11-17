@@ -1964,3 +1964,39 @@ body.dragging-from-catalog .child-dropzone {
 .fm-match { margin: 6px 0 12px; padding-left: 18px; font-size: 12px; line-height: 1.7; }
 .fm-match code { font-size: 11px; padding: 1px 5px; border-radius: 4px; background: rgba(255,255,255,.06); }
 .fm-match .fm-nomatch { color: #c98a12; }
+
+/* ─── Локали в конструкторе (constructor-locales.js) ─── */
+.c-locales-bar { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-bottom: 1px solid var(--border, #263140); min-height: 34px; flex-wrap: nowrap; overflow: hidden; }
+.c-loc-btn { border: 1px solid var(--border, #334155); background: transparent; color: var(--text-2, #9fb0c6); border-radius: 6px; padding: 3px 8px; font-size: 12px; cursor: pointer; white-space: nowrap; }
+.c-loc-btn:hover { color: var(--text, #e5edf7); border-color: var(--accent, #4f7cff); }
+.c-loc-btn.ghost { border-color: transparent; }
+.c-loc-hint { color: var(--text-2, #9fb0c6); font-size: 11px; }
+.c-loc-name { color: var(--text-2, #9fb0c6); font: 11px ui-monospace, Menlo, monospace; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.c-loc-tabs { display: flex; gap: 2px; overflow-x: auto; flex: 1 1 auto; min-width: 0; scrollbar-width: thin; }
+.c-loc-tab { position: relative; border: 1px solid transparent; background: transparent; color: var(--text-2, #9fb0c6); border-radius: 6px; padding: 3px 9px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.c-loc-tab:hover { color: var(--text, #e5edf7); }
+.c-loc-tab.active { background: var(--accent, #4f7cff); color: #fff; }
+.c-loc-dot { position: absolute; top: 2px; right: 2px; width: 6px; height: 6px; border-radius: 50%; background: #ff4d5a; }
+.c-loc-dot.warn { background: #f4be63; }
+.c-loc-stat { color: var(--green, #72d6a0); font-size: 11px; white-space: nowrap; }
+.c-loc-stat.warn { color: #f4be63; }
+.c-loc-pick { display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 12px; }
+.c-loc-pick select { flex: 1 1 auto; min-width: 0; font-size: 12px; }
+
+/* ─── Свойства блока: выдвижная панель ─── */
+.workspace.insp-collapsed { grid-template-columns: minmax(250px, 290px) minmax(480px, 1fr) 0; }
+.workspace.insp-collapsed > .inspector { display: none; }
+@media (max-width: 1120px) { .workspace.insp-collapsed { grid-template-columns: 240px minmax(400px, 1fr) 0; } }
+.insp-toggle.active { background: var(--accent, #4f7cff); color: #fff; }
+.insp-toggle.has-selection:not(.active) { box-shadow: 0 0 0 2px var(--accent, #4f7cff); }
+.insp-header { display: flex; align-items: center; }
+.insp-close { margin-left: auto; border: 0; background: transparent; color: var(--text-2, #9fb0c6); font-size: 16px; cursor: pointer; padding: 2px 6px; }
+.insp-close:hover { color: var(--text, #e5edf7); }
+/* Строки локали: копировать плейсхолдер */
+.c-loc-strings { position: relative; }
+.c-loc-panel { position: absolute; z-index: 30; top: 30px; left: 0; width: min(560px, 70vw); max-height: 60vh; overflow: auto; background: var(--bg-1, #0f1722); border: 1px solid var(--border, #263140); border-radius: 10px; box-shadow: 0 12px 32px rgba(0,0,0,.35); padding: 6px; }
+.c-loc-row { display: grid; grid-template-columns: 74px 1fr; gap: 8px; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--border, #202b39); background: transparent; color: var(--text, #e5edf7); padding: 7px 6px; font-size: 12px; cursor: pointer; }
+.c-loc-row:hover { background: var(--surface-2, #182334); }
+.c-loc-row code { color: var(--accent, #7aa2ff); font-size: 11px; }
+.c-loc-row small { display: block; color: var(--text-2, #9fb0c6); }
+.c-loc-row.bad code { color: #ff8a92; }

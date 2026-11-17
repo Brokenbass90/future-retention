@@ -2633,6 +2633,7 @@ function bindEmailColorControls(body, entry, block) {
 }
 
 function renderInspector() {
+  document.getElementById("inspToggleBtn")?.classList.toggle("has-selection", Boolean(state.selectedUid));
   const body = $("inspectorBody");
   if (!state.selectedUid) {
     if ($("inspectorTitle")) $("inspectorTitle").textContent = "Свойства блока";
@@ -2749,6 +2750,17 @@ function renderInspector() {
         renderInspector();
       }
       scheduleLivePreview();
+    });
+  });
+  body.querySelectorAll("[data-locale-bind-for]").forEach((el) => {
+    el.addEventListener("change", () => {
+      const id = el.getAttribute("data-locale-bind-for");
+      pushCanvasUndo();
+      entry.slots[id] = window.RetKitConstructorLocales.valueForPick(el.value, entry.slots[id]);
+      markEntrySlotExplicit(entry, id);
+      renderInspector();
+      window.RetKitConstructorLocales.render();
+      scheduleLivePreview(0);
     });
   });
   body.querySelectorAll("[data-appearance-id]:not([data-email-color])").forEach((el) => {
@@ -2983,8 +2995,12 @@ function renderSlotControl(slot, current, block) {
   const placeholderButton = canUseSystemPlaceholder(block, slot)
     ? `<button type="button" class="ph-insert" data-ph-for="${escapeHtml(id)}" title="Вставить системный плейсхолдер">﹢ Системное поле</button>`
     : "";
+  // 🌐 Текст из локали (constructor-locales.js): только тексты контента.
+  const localePick = !isAppearance && slotInspectorGroup(slot) === "content"
+    ? (window.RetKitConstructorLocales?.slotPickerHtml(id, v, kind) || "")
+    : "";
   if (kind === "richText") {
-    return `<div class="${wrapClass}">${label}<textarea data-slot-id="${escapeHtml(id)}" maxlength="${slot.max || 1000}">${escapeHtml(v)}</textarea>${placeholderButton}</div>`;
+    return `<div class="${wrapClass}">${label}<textarea data-slot-id="${escapeHtml(id)}" maxlength="${slot.max || 1000}">${escapeHtml(v)}</textarea>${localePick}${placeholderButton}</div>`;
   }
   if (kind === "select") {
     // Вариант — строка или {value,label}. Подпись нужна там, где значение
@@ -3030,7 +3046,7 @@ function renderSlotControl(slot, current, block) {
       : appearanceRole === "spacing" ? "напр. 16px 24px"
         : "";
   const input = `<input type="text" data-slot-id="${escapeHtml(id)}" value="${escapeHtml(v)}" maxlength="${slot.max || 200}"${stylePlaceholder ? ` placeholder="${escapeHtml(stylePlaceholder)}"` : ""} />`;
-  return `<div class="${wrapClass}">${label}${isAppearance ? `<div class="insp-value-row">${input}${resetButton}</div>` : input}${placeholderButton}</div>`;
+  return `<div class="${wrapClass}">${label}${isAppearance ? `<div class="insp-value-row">${input}${resetButton}</div>` : input}${localePick}${placeholderButton}</div>`;
 }
 
 function setEntrySlotValue(entry, slotId, value) {
@@ -3486,12 +3502,13 @@ async function runLivePreview() {
   overlay?.classList.remove("hidden");
   setLiveStatus("сборка…");
   try {
-    const blocks = canvasToBlocks({ allowLocalAssets: true });
+    const previewLocale = window.RetKitConstructorLocales?.active || "original";
+    const blocks = localizeCanvasBlocks(canvasToBlocks({ allowLocalAssets: true }), previewLocale);
     const previewMailName = livePreviewRequestMailName($("mailName").value, token);
     const res = await fetch("/api/compose-preview", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mailName: previewMailName, blocks, ...campaignPayload(), ...sourceSkeletonPayload() }),
+      body: JSON.stringify({ mailName: previewMailName, blocks, locale: constructorBuildLocale(previewLocale), ...campaignPayload(), ...sourceSkeletonPayload() }),
     });
     const data = await res.json();
     if (token !== _livePreviewToken) return; // a newer build superseded us
@@ -3505,7 +3522,8 @@ async function runLivePreview() {
       settleLiveWaiters({ ok: false, error: String(data.error || res.status), stderr: String(data.stderr || "").slice(0, 600) });
       return;
     }
-    _lastLiveHtml = sanitizeIframePreviewHtml(data.html);
+    const localeHtml = window.RetKitConstructorLocales ? window.RetKitConstructorLocales.applyRtl(data.html, previewLocale) : data.html;
+    _lastLiveHtml = sanitizeIframePreviewHtml(localeHtml);
     stage?.classList.add("has-content");
     const frame = $("liveFrame");
     frame.onload = () => {
@@ -3516,7 +3534,7 @@ async function runLivePreview() {
     };
     frame.srcdoc = _lastLiveHtml;
     const warn = (data.warnings && data.warnings.length) ? ` · ⚠${data.warnings.length}` : "";
-    setLiveStatus(`${data.blocksUsed}/${data.totalBlocks} блоков${warn}`, "ok");
+    setLiveStatus(`${previewLocale !== "original" ? `${previewLocale.toUpperCase()} · ` : ""}${data.blocksUsed}/${data.totalBlocks} блоков${warn}`, "ok");
     // Весы считают собранное письмо, а не превью со служебной разметкой.
     if (typeof window !== "undefined") window.RetkitEmailWeight?.paint($("liveWeight"), data.html);
     settleLiveWaiters({
@@ -4696,7 +4714,100 @@ function agentCanvasContext() {
       // включая чужие бренды и черновые импорты, и пакет правок обрывался на
       // «блока нет в каталоге этого режима».
       studio: agentCatalogContext(),
+      locales: constructorLocalesForAgent(),
   };
+}
+
+/* ─── Локали в конструкторе (public/constructor-locales.js) ─────────────── */
+
+function slotKindOf(uid, slotId) {
+  const block = blockForEntry(entryByUid(uid));
+  return (block?.slots || []).find((slot) => slot.id === slotId)?.kind || "text";
+}
+
+/** Блоки сборки с текстами локали: ${{ ns.block_NN }}$ → строка этой локали. */
+function localizeCanvasBlocks(blocks, locale) {
+  const api = window.RetKitConstructorLocales;
+  return api ? api.localizeBlocks(blocks, locale, slotKindOf) : blocks;
+}
+
+function canvasTextSlots() {
+  const out = [];
+  for (const entry of state.canvas) {
+    const block = blockForEntry(entry);
+    for (const slot of block?.slots || []) {
+      out.push({
+        entry, slot,
+        value: entry.slots?.[slot.id] ?? slot.default ?? "",
+        kind: String(slot.kind || "text").toLowerCase(),
+        group: slotInspectorGroup(slot),
+      });
+    }
+  }
+  return out;
+}
+
+/** Что видит агент: набор, эталон, строки эталона и итог проверки. */
+function constructorLocalesForAgent() {
+  const api = window.RetKitConstructorLocales;
+  const data = api?.data;
+  if (!data) return null;
+  const ref = data.locales[data.ref] || [];
+  return {
+    namespace: data.name,
+    reference: data.ref,
+    locales: data.order,
+    active: api.active,
+    placeholder: "${{ " + data.name + ".block_NN }}$ — значение текстового слота; NN — номер строки эталона",
+    referenceBlocks: ref.slice(0, 120).map((text, i) => `block_${String(i).padStart(2, "0")}: ${String(text).slice(0, 140)}`),
+    bindings: api.bindingStats(canvasTextSlots()),
+    lint: api.lint ? api.lint.summary : null,
+  };
+}
+
+/** Локаль для сборки: Original = эталон; футер сборка берёт из vendor/data/<locale>. */
+function constructorBuildLocale(locale) {
+  const data = window.RetKitConstructorLocales?.data;
+  if (!data) return "en";
+  return locale === "original" ? data.ref : locale;
+}
+
+/** ZIP: читаемый (не минифицированный) HTML локали без служебных меток холста. */
+async function buildLocaleHtml(locale) {
+  const blocks = localizeCanvasBlocks(canvasToBlocks(), locale);
+  const res = await fetch("/api/compose-preview", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ mailName: `${$("mailName").value || "mail"}-${locale}`, blocks, locale: constructorBuildLocale(locale), export: true, ...campaignPayload(), ...sourceSkeletonPayload() }),
+  });
+  const data = await res.json();
+  if (!res.ok || !data.ok) throw new Error(`${locale}: ${data.error || res.status}`);
+  return data.html;
+}
+
+function mountConstructorLocales() {
+  const api = window.RetKitConstructorLocales;
+  if (!api) return;
+  api.mount({
+    onChange: () => { renderInspector(); scheduleLivePreview(0); },
+    toast: (text) => flashCanvasHint(text, 6000),
+    stats: () => api.bindingStats(canvasTextSlots()),
+    mailName: () => $("mailName")?.value?.trim() || "",
+    buildHtml: buildLocaleHtml,
+    autoBind: () => {
+      const candidates = canvasTextSlots().filter((item) => item.group === "content" && ["text", "richtext"].includes(item.kind));
+      const changes = candidates.map((item) => ({ item, next: api.autoBindValue(item.value) })).filter((change) => change.next);
+      if (!changes.length) return 0;
+      pushCanvasUndo();
+      for (const { item, next } of changes) {
+        item.entry.slots = item.entry.slots || {};
+        item.entry.slots[item.slot.id] = next;
+        markEntrySlotExplicit(item.entry, item.slot.id);
+      }
+      renderCanvas(); renderInspector(); scheduleLivePreview(0);
+      return changes.length;
+    },
+  });
 }
 
 /**
@@ -5864,3 +5975,38 @@ function openLinksDialog() {
 }
 
 document.getElementById("linksBtn")?.addEventListener("click", openLinksDialog);
+
+mountConstructorLocales();
+
+/* ─── Правая панель «Свойства блока»: выдвигается по кнопке ─────────────── */
+function mountInspectorToggle() {
+  const workspace = document.querySelector("main.workspace");
+  const header = document.querySelector(".preview-pane-header .preview-device-toggle");
+  if (!workspace || !header || document.getElementById("inspToggleBtn")) return;
+  const KEY = "retkit-constructor-inspector";
+  const apply = (open) => {
+    workspace.classList.toggle("insp-collapsed", !open);
+    button.classList.toggle("active", open);
+    button.title = open ? "Скрыть свойства блока" : "Показать свойства блока";
+    try { localStorage.setItem(KEY, open ? "open" : "closed"); } catch {}
+  };
+  const button = document.createElement("button");
+  button.type = "button";
+  button.id = "inspToggleBtn";
+  button.className = "dev-btn insp-toggle";
+  button.textContent = "⚙";
+  button.addEventListener("click", () => apply(workspace.classList.contains("insp-collapsed")));
+  header.appendChild(button);
+  const close = document.createElement("button");
+  close.type = "button";
+  close.className = "insp-close";
+  close.title = "Скрыть панель";
+  close.textContent = "⟩";
+  close.addEventListener("click", () => apply(false));
+  document.querySelector(".inspector .insp-header")?.appendChild(close);
+  let saved = "closed";
+  try { saved = localStorage.getItem(KEY) || "closed"; } catch {}
+  apply(saved === "open");
+}
+
+mountInspectorToggle();
