@@ -120,7 +120,7 @@
     save();
     relint();
     render();
-    host?.toast?.(`Локали «${name}»: ${codes.length}${rejected.length ? `, отвергнуто ${rejected.length}` : ''}. Нажмите «Расставить» — тексты, совпадающие с ${ref.toUpperCase()}, привяжутся сами; «📋 Строки» — плейсхолдеры в буфер.`);
+    host?.toast?.(`Локали «${name}»: ${codes.length}${rejected.length ? `, отвергнуто ${rejected.length}` : ''}. Клик по имени набора — block_00 в буфер; наведите на текст в письме и ⌘V.`);
     host?.onChange?.();
   }
 
@@ -262,9 +262,7 @@
         <button type="button" class="c-loc-name" data-act="copy-first" title="Клик — ${esc(token(data.name, 0))} в буфер; после вставки следующий ляжет сам">${esc(data.name)}</button>
         <div class="c-loc-tabs">${tabs}</div>
         <span class="c-loc-stat${stats.plain ? ' warn' : ''}" title="Тексты письма, привязанные к локалям">🔗 ${stats.bound}${stats.plain ? ` · без локали ${stats.plain}` : ''}</span>
-        <span class="c-loc-strings"><button type="button" class="c-loc-btn" data-act="strings" title="Строки локали: клик — плейсхолдер в буфер обмена, вставьте его в текст блока">📋 Строки</button></span>
         <button type="button" class="c-loc-btn" data-act="add-locale" title="Добавить локаль вручную: копия ${esc(data.ref.toUpperCase())}, дальше переводите в редакторе">＋ Локаль</button>
-        <button type="button" class="c-loc-btn" data-act="bind" title="Привязать тексты, которые совпадают с ${esc(data.ref.toUpperCase())}">⚡ Расставить</button>
         <button type="button" class="c-loc-btn" data-act="zip" title="Скачать ZIP: готовый HTML каждой локали">⬇ ZIP</button>
         <button type="button" class="c-loc-btn ghost" data-act="close" title="Убрать локали из конструктора">✕</button>`;
     }
