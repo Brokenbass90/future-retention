@@ -3665,6 +3665,10 @@ function wireIframeInteractions() {
   doc.addEventListener("dragleave", onIframeDragLeave);
   doc.addEventListener("keydown", onCanvasClipboardHotkey);
   doc.addEventListener("keydown", onCanvasDeleteHotkey);
+  // Навёл на текст в письме → ⌘V/Ctrl+V вставляет буфер (плейсхолдер или текст) в этот слот.
+  doc.addEventListener("mousemove", onIframeHoverText);
+  doc.addEventListener("mouseleave", clearHoverText);
+  doc.addEventListener("paste", onHoverPaste, true);
   _iframeWired = true;
 }
 
@@ -6010,3 +6014,81 @@ function mountInspectorToggle() {
 }
 
 mountInspectorToggle();
+
+/* ─── Вставка из буфера наведением: текст в письме → ⌘V / Ctrl+V ─────────── */
+let _hoverText = null; // { uid, slotId, el, label }
+
+const _hoverNorm = (value) => String(value || "")
+  .replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/@@/g, "")
+  .replace(/\s+/g, " ").trim().toLowerCase();
+
+/** Текстовый слот блока, который показан в элементе el превью. */
+function hoverSlotFor(el) {
+  const r = rangeForTarget(el);
+  const entry = r ? entryByUid(r.uid) : null;
+  const block = entry ? blockForEntry(entry) : null;
+  if (!block) return null;
+  const shown = _hoverNorm(el.textContent);
+  if (!shown) return null;
+  const api = window.RetKitConstructorLocales;
+  const locale = api?.active || "original";
+  let best = null;
+  for (const slot of block.slots || []) {
+    const kind = String(slot.kind || "text").toLowerCase();
+    if (!["text", "richtext"].includes(kind) || slotInspectorGroup(slot) !== "content") continue;
+    const raw = String(entry.slots?.[slot.id] ?? slot.default ?? "");
+    const value = _hoverNorm(api ? api.resolveText(raw, locale, { rich: kind === "richtext" }) : raw);
+    if (!value) continue;
+    const score = value === shown ? 3 : (value.includes(shown) ? 2 : (shown.includes(value) ? 1 : 0));
+    if (score && (!best || score > best.score || (score === best.score && value.length < best.length))) {
+      best = { uid: entry.uid, slotId: slot.id, label: slot.label || slot.id, score, length: value.length };
+    }
+  }
+  return best;
+}
+
+function clearHoverText() {
+  if (_hoverText?.el) { _hoverText.el.style.outline = _hoverText.outline || ""; _hoverText.el.removeAttribute("title"); }
+  _hoverText = null;
+}
+
+function onIframeHoverText(e) {
+  const el = e.target?.closest?.("p,a,h1,h2,h3,h4,h5,h6,li,span,b,strong,td,div");
+  if (_hoverText?.el === el) return;
+  clearHoverText();
+  if (!el || !String(el.textContent || "").trim()) return;
+  const hit = hoverSlotFor(el);
+  if (!hit) return;
+  _hoverText = { ...hit, el, outline: el.style.outline };
+  el.style.outline = "2px dashed #4f7cff";
+  el.setAttribute("title", `⌘V / Ctrl+V — вставить из буфера в «${hit.label}»`);
+}
+
+function isEditableTarget(target) {
+  const el = target?.closest?.("input,textarea,select,[contenteditable=''],[contenteditable='true']");
+  return Boolean(el);
+}
+
+function onHoverPaste(e) {
+  if (!_hoverText || isEditableTarget(e.target)) return;
+  const text = String(e.clipboardData?.getData("text/plain") || "").trim();
+  if (!text) return;
+  const entry = entryByUid(_hoverText.uid);
+  if (!entry) return;
+  e.preventDefault();
+  e.stopPropagation();
+  pushCanvasUndo();
+  entry.slots = entry.slots || {};
+  entry.slots[_hoverText.slotId] = text;
+  markEntrySlotExplicit(entry, _hoverText.slotId);
+  const label = _hoverText.label;
+  clearHoverText();
+  renderInspector();
+  window.RetKitConstructorLocales?.render();
+  scheduleLivePreview(0);
+  flashCanvasHint(`Вставлено в «${label}» — отменить: ⌘Z`, 2500);
+  window.RetKitConstructorLocales?.afterPaste(text);
+}
+
+// Фокус может быть и в самой студии (не в превью) — ловим вставку и здесь.
+document.addEventListener("paste", onHoverPaste, true);

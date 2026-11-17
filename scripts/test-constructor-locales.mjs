@@ -76,7 +76,22 @@ assert.ok(js.includes('localizeCanvasBlocks(canvasToBlocks({ allowLocalAssets: t
 assert.ok(js.includes('RetKitConstructorLocales.applyRtl(data.html, previewLocale)'), 'ar/ur preview is RTL');
 assert.ok(js.includes('locales: constructorLocalesForAgent()'), 'the agent sees the locales in read_canvas');
 assert.ok(/\nmountConstructorLocales\(\);\n/.test(js), 'locales mounted');
-assert.ok(js.trimEnd().endsWith('mountInspectorToggle();'), 'inspector panel toggles');
+assert.ok(/\nmountInspectorToggle\(\);\n/.test(js), 'inspector panel toggles');
+// Like the Code tab: ✎ editor per locale, block_NN chips copy the placeholder and arm the next one,
+// hover a text in the email + ⌘V/Ctrl+V pastes the clipboard into that slot.
+for (const fn of ['openEditor', 'copyPlaceholder', 'afterPaste']) assert.equal(typeof C[fn], 'function', fn);
+assert.ok(js.includes('doc.addEventListener("paste", onHoverPaste, true);') && js.includes('document.addEventListener("paste", onHoverPaste, true);'), 'hover paste in the preview and in the studio');
+assert.ok(js.includes('window.RetKitConstructorLocales?.afterPaste(text);'), 'next placeholder after a paste');
+{
+  const writes = [];
+  sandbox.navigator = { clipboard: { writeText: async (t) => { writes.push(t); } } };
+  assert.equal(await C.copyPlaceholder(0), true);
+  await C.afterPaste('${{ promo.block_00 }}$');
+  assert.deepEqual(writes, ['${{ promo.block_00 }}$', '${{ promo.block_01 }}$'], 'block_01 goes to the clipboard after block_00 was pasted');
+  await C.afterPaste('some other text');
+  await C.afterPaste('${{ promo.block_01 }}$');
+  assert.equal(writes.length, 2, 'a different paste disarms');
+}
 assert.ok(js.includes('locale: constructorBuildLocale(previewLocale)'), 'preview builds the locale (footer from vendor/data)');
 assert.ok(js.includes('export: true'), 'ZIP asks for readable HTML');
 assert.ok(typeof C.toggleStrings === 'function', 'strings panel copies placeholders');

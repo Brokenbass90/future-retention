@@ -2000,3 +2000,23 @@ body.dragging-from-catalog .child-dropzone {
 .c-loc-row code { color: var(--accent, #7aa2ff); font-size: 11px; }
 .c-loc-row small { display: block; color: var(--text-2, #9fb0c6); }
 .c-loc-row.bad code { color: #ff8a92; }
+
+/* Редактор локали ✎ */
+.c-loc-edit { margin-left: 5px; opacity: .55; font-weight: 400; }
+.c-loc-edit:hover { opacity: 1; }
+button.c-loc-name { border: 0; background: transparent; cursor: pointer; padding: 3px 4px; border-radius: 6px; }
+button.c-loc-name:hover { color: var(--text, #e5edf7); background: var(--surface-2, #182334); }
+.c-loc-editor-backdrop { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; }
+.c-loc-editor { width: min(980px, 94vw); height: min(720px, 88vh); display: flex; flex-direction: column; background: var(--bg-1, #0f1722); border: 1px solid var(--border, #263140); border-radius: 12px; overflow: hidden; }
+.c-loc-editor-head, .c-loc-editor-foot { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--border, #263140); }
+.c-loc-editor-foot { border-top: 1px solid var(--border, #263140); border-bottom: 0; justify-content: flex-end; }
+.c-loc-editor-head .ghost { margin-left: auto; }
+.c-loc-editor-body { flex: 1; display: grid; grid-template-columns: 96px 1fr; min-height: 0; }
+.c-loc-keys { overflow: auto; border-right: 1px solid var(--border, #263140); padding: 6px; display: flex; flex-direction: column; gap: 4px; }
+.c-loc-key { border: 1px solid var(--border, #334155); background: transparent; color: var(--accent, #7aa2ff); border-radius: 6px; padding: 3px 6px; font: 11px ui-monospace, Menlo, monospace; cursor: pointer; }
+.c-loc-key:hover { background: var(--surface-2, #182334); }
+.c-loc-text { width: 100%; height: 100%; resize: none; border: 0; outline: none; padding: 12px; background: var(--bg-0, #0b111a); color: var(--text, #e5edf7); font: 13px/1.55 ui-monospace, Menlo, monospace; }
+.c-loc-check { margin-right: auto; font-size: 12px; }
+.c-loc-check.ok { color: var(--green, #72d6a0); }
+.c-loc-check.bad { color: #ff8a92; }
+.c-loc-btn.primary { background: var(--accent, #4f7cff); border-color: transparent; color: #fff; }

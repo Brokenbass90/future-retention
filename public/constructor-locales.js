@@ -224,11 +224,12 @@
         const s = code === 'original' ? null : lint?.locales?.[code];
         const dot = s && s.status !== 'ok' ? `<i class="c-loc-dot ${s.status}"></i>` : '';
         const title = code === 'original' ? `Как в ${data.ref.toUpperCase()} (эталон)` : tabTitle(code, s);
-        return `<button type="button" class="c-loc-tab${code === active ? ' active' : ''}" data-loc="${esc(code)}" title="${esc(title)}">${code === 'original' ? 'Original' : esc(code.toUpperCase())}${dot}</button>`;
+        const pencil = code === 'original' ? '' : `<span class="c-loc-edit" data-edit="${esc(code)}" title="Редактировать тексты ${esc(code.toUpperCase())}">✎</span>`;
+        return `<button type="button" class="c-loc-tab${code === active ? ' active' : ''}" data-loc="${esc(code)}" title="${esc(title)}">${code === 'original' ? 'Original' : esc(code.toUpperCase())}${dot}${pencil}</button>`;
       }).join('');
       const stats = host?.stats?.() || { bound: 0, plain: 0 };
       bar.innerHTML = `<button type="button" class="c-loc-btn" data-act="folder" title="Загрузить другую папку">📁</button>
-        <span class="c-loc-name" title="Набор локалей">${esc(data.name)}</span>
+        <button type="button" class="c-loc-name" data-act="strings-name" title="Набор «${esc(data.name)}»: клик — список строк, плейсхолдеры в буфер">${esc(data.name)}</button>
         <div class="c-loc-tabs">${tabs}</div>
         <span class="c-loc-stat${stats.plain ? ' warn' : ''}" title="Тексты письма, привязанные к локалям">🔗 ${stats.bound}${stats.plain ? ` · без локали ${stats.plain}` : ''}</span>
         <span class="c-loc-strings"><button type="button" class="c-loc-btn" data-act="strings" title="Строки локали: клик — плейсхолдер в буфер обмена, вставьте его в текст блока">📋 Строки</button></span>
@@ -236,7 +237,11 @@
         <button type="button" class="c-loc-btn" data-act="zip" title="Скачать ZIP: готовый HTML каждой локали">⬇ ZIP</button>
         <button type="button" class="c-loc-btn ghost" data-act="close" title="Убрать локали из конструктора">✕</button>`;
     }
-    bar.querySelectorAll('[data-loc]').forEach((el) => el.addEventListener('click', () => setActive(el.dataset.loc)));
+    bar.querySelectorAll('[data-loc]').forEach((el) => el.addEventListener('click', (event) => {
+      const edit = event.target.closest('[data-edit]');
+      if (edit) { event.stopPropagation(); openEditor(edit.dataset.edit); return; }
+      setActive(el.dataset.loc);
+    }));
     bar.querySelector('[data-act="folder"]')?.addEventListener('click', () => document.getElementById('cLocalesFolder')?.click());
     bar.querySelector('[data-act="bind"]')?.addEventListener('click', () => {
       const n = host?.autoBind?.() || 0;
@@ -245,6 +250,7 @@
     });
     bar.querySelector('[data-act="zip"]')?.addEventListener('click', () => exportZip());
     bar.querySelector('[data-act="strings"]')?.addEventListener('click', (event) => { event.stopPropagation(); toggleStrings(); });
+    bar.querySelector('[data-act="strings-name"]')?.addEventListener('click', (event) => { event.stopPropagation(); toggleStrings(); });
     bar.querySelector('[data-act="close"]')?.addEventListener('click', () => {
       if (!confirm('Убрать локали из конструктора? Плейсхолдеры в тексте блоков останутся.')) return;
       data = null; active = 'original'; lint = null; save(); render(); host?.onChange?.();
@@ -272,15 +278,110 @@
     panel.addEventListener('click', async (event) => {
       const row = event.target.closest('[data-copy]');
       if (!row) return;
-      const value = token(data.name, Number(row.dataset.copy));
-      try { await navigator.clipboard.writeText(value); host?.toast?.(`Скопировано ${value} — вставьте в текст блока (можно посреди текста)`); }
-      catch { host?.toast?.(`Буфер недоступен. Плейсхолдер: ${value}`); }
+      await copyPlaceholder(Number(row.dataset.copy));
     });
     holder.appendChild(panel);
     const closeOnOutside = (event) => {
       if (!holder.contains(event.target)) { panel.remove(); document.removeEventListener('mousedown', closeOnOutside); }
     };
     setTimeout(() => document.addEventListener('mousedown', closeOnOutside), 0);
+  }
+
+  // ─── Плейсхолдер в буфер + «следующий сам» (как во вкладке «Код») ─────────
+
+  let armed = null; // { index } — после вставки в буфер ляжет следующий
+
+  async function copyPlaceholder(index) {
+    if (!data) return false;
+    const value = token(data.name, index);
+    try {
+      await navigator.clipboard.writeText(value);
+      armed = { index };
+      host?.toast?.(`В буфере ${value}. Наведите на текст в письме и нажмите ⌘V / Ctrl+V — следующий block_${pad(index + 1)} ляжет в буфер сам`);
+      return true;
+    } catch {
+      host?.toast?.(`Буфер недоступен. Плейсхолдер: ${value}`);
+      return false;
+    }
+  }
+
+  /** Вставили armed-плейсхолдер — кладём в буфер следующий. */
+  async function afterPaste(text) {
+    if (!data || !armed) return;
+    if (String(text || '').trim() !== token(data.name, armed.index)) { armed = null; return; }
+    const total = (data.locales[data.ref] || []).length;
+    const next = armed.index + 1;
+    if (next >= total) { armed = null; return; }
+    try {
+      await navigator.clipboard.writeText(token(data.name, next));
+      armed = { index: next };
+      host?.toast?.(`В буфере block_${pad(next)}: «${short((data.locales[data.ref] || [])[next], 50)}»`);
+    } catch { armed = null; }
+  }
+
+  // ─── Редактор локали: ✎ на вкладке (как во вкладке «Код») ───────────────
+
+  const serializeTxt = (blocks) => (blocks || []).map((b) => `{{${b}}}`).join('\n\n');
+
+  function openEditor(code) {
+    if (!data || !data.locales[code]) return;
+    document.getElementById('cLocEditor')?.remove();
+    const refCount = (data.locales[data.ref] || []).length;
+    const overlay = document.createElement('div');
+    overlay.id = 'cLocEditor';
+    overlay.className = 'c-loc-editor-backdrop';
+    overlay.innerHTML = `<div class="c-loc-editor" role="dialog">
+        <div class="c-loc-editor-head"><strong>${esc(code.toUpperCase())} — тексты «${esc(data.name)}»</strong>
+          <span class="c-loc-hint">Каждый блок — в {{ }}; @@жирный@@. Клик по block_NN — плейсхолдер в буфер.</span>
+          <button type="button" class="c-loc-btn ghost" data-ed="close" title="Закрыть без сохранения">✕</button></div>
+        <div class="c-loc-editor-body">
+          <div class="c-loc-keys">${Array.from({ length: Math.max(refCount, data.locales[code].length) }, (_, i) => `<button type="button" class="c-loc-key" data-key="${i}" title="${esc(short((data.locales[data.ref] || [])[i] ?? '', 80))}">block_${pad(i)}</button>`).join('')}</div>
+          <textarea class="c-loc-text" spellcheck="false">${esc(serializeTxt(data.locales[code]))}</textarea>
+        </div>
+        <div class="c-loc-editor-foot"><span class="c-loc-check"></span>
+          <button type="button" class="c-loc-btn" data-ed="download" title="Скачать ${esc(code)}.txt">⬇ TXT</button>
+          <button type="button" class="c-loc-btn primary" data-ed="save">Сохранить</button></div>
+      </div>`;
+    document.body.appendChild(overlay);
+    const area = overlay.querySelector('textarea');
+    const check = overlay.querySelector('.c-loc-check');
+    const parsedNow = () => parseLocale(area.value, `${code}.txt`);
+    const refresh = () => {
+      const blocks = parsedNow();
+      const trial = root.RetKitLocaleLint && data.ref !== code
+        ? root.RetKitLocaleLint.lint({ locales: { [data.ref]: data.locales[data.ref], [code]: blocks }, refCode: data.ref }) : null;
+      const errors = trial ? trial.issues.filter((x) => x.locale === code && x.severity === 'error') : [];
+      check.className = `c-loc-check ${errors.length || blocks.length !== refCount ? 'bad' : 'ok'}`;
+      check.textContent = `${blocks.length} из ${refCount} блоков${errors.length ? ` · 🔴 ${errors.length}: ${errors.slice(0, 2).map((x) => `${typeof x.block === 'number' ? `block_${pad(x.block)}` : 'локаль'} ${x.code}`).join(', ')}` : ' · ✓'}`;
+    };
+    let timer = null;
+    area.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(refresh, 250); });
+    refresh();
+    const close = () => { overlay.remove(); document.removeEventListener('keydown', onKey); };
+    const onKey = (event) => { if (event.key === 'Escape') close(); if ((event.metaKey || event.ctrlKey) && event.key === 's') { event.preventDefault(); saveNow(); } };
+    document.addEventListener('keydown', onKey);
+    const saveNow = () => {
+      const blocks = parsedNow();
+      if (!blocks.length) { host?.toast?.('Нет ни одного блока {{ }} — не сохранено'); return; }
+      data.locales[code] = blocks;
+      save(); relint(); render(); host?.onChange?.();
+      host?.toast?.(`${code.toUpperCase()}: сохранено ${blocks.length} блоков`);
+      close();
+    };
+    overlay.addEventListener('click', async (event) => {
+      if (event.target === overlay) { close(); return; }
+      const key = event.target.closest('[data-key]');
+      if (key) { await copyPlaceholder(Number(key.dataset.key)); return; }
+      const act = event.target.closest('[data-ed]')?.dataset.ed;
+      if (act === 'close') close();
+      if (act === 'save') saveNow();
+      if (act === 'download') {
+        const url = URL.createObjectURL(new Blob([area.value], { type: 'text/plain;charset=utf-8' }));
+        Object.assign(document.createElement('a'), { href: url, download: `${code}.txt` }).click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+    });
+    setTimeout(() => area.focus(), 30);
   }
 
   function tabTitle(code, s) {
@@ -371,7 +472,7 @@
 
   root.RetKitConstructorLocales = {
     mount, render, importFiles, localizeBlocks, resolveText, applyRtl, autoBindValue, bindingStats,
-    slotPickerHtml, valueForPick, setActive, exportZip, toggleStrings,
+    slotPickerHtml, valueForPick, setActive, exportZip, toggleStrings, openEditor, copyPlaceholder, afterPaste,
     get active() { return data ? active : 'original'; },
     get data() { return data ? JSON.parse(JSON.stringify(data)) : null; },
     get lint() { return lint; },
