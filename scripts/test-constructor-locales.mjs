@@ -107,4 +107,13 @@ assert.deepEqual(constructorBuildMailArgs({ brand: 'X_preview', mailName: 'm', p
 const { createPreviewBuildKey } = await import('../src/preview-build-coordinator.js');
 assert.notEqual(createPreviewBuildKey({ blocks: [1], locale: 'fr' }), createPreviewBuildKey({ blocks: [1] }), 'locale is part of the cache key');
 assert.equal(createPreviewBuildKey({ blocks: [1], locale: 'en' }), createPreviewBuildKey({ blocks: [1] }), 'en keeps old cache keys');
+// Editor highlight: pairs blue, broken red (like the Code tab).
+{
+  const h = C.highlightTxt('{{Hello @@world@@}}\n\n{{broken @@bold}}\n\n{{not closed');
+  assert.ok(h.includes('<span class="hl-ok">{{</span>Hello <span class="hl-at">@@</span><span class="hl-bold">world</span><span class="hl-at">@@</span><span class="hl-ok">}}</span>'), h);
+  assert.ok(h.includes('broken <span class="hl-bad">@@</span>bold'), 'odd @@ is red');
+  assert.ok(h.includes('<span class="hl-bad">{{</span>not closed'), 'unclosed {{ is red');
+  assert.ok(C.highlightTxt('a }} b').includes('<span class="hl-bad">}}</span>'), 'stray }} is red');
+  assert.ok(C.highlightTxt('<b>').includes('&lt;b&gt;'), 'text is escaped');
+}
 console.log('✓ constructor locales: folder import, auto-bind, per-locale preview/ZIP texts, picker, lint, wiring');

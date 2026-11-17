@@ -229,7 +229,7 @@
       }).join('');
       const stats = host?.stats?.() || { bound: 0, plain: 0 };
       bar.innerHTML = `<button type="button" class="c-loc-btn" data-act="folder" title="Загрузить другую папку">📁</button>
-        <button type="button" class="c-loc-name" data-act="strings-name" title="Набор «${esc(data.name)}»: клик — список строк, плейсхолдеры в буфер">${esc(data.name)}</button>
+        <button type="button" class="c-loc-name" data-act="copy-first" title="Клик — ${esc(token(data.name, 0))} в буфер; после вставки следующий ляжет сам">${esc(data.name)}</button>
         <div class="c-loc-tabs">${tabs}</div>
         <span class="c-loc-stat${stats.plain ? ' warn' : ''}" title="Тексты письма, привязанные к локалям">🔗 ${stats.bound}${stats.plain ? ` · без локали ${stats.plain}` : ''}</span>
         <span class="c-loc-strings"><button type="button" class="c-loc-btn" data-act="strings" title="Строки локали: клик — плейсхолдер в буфер обмена, вставьте его в текст блока">📋 Строки</button></span>
@@ -250,7 +250,7 @@
     });
     bar.querySelector('[data-act="zip"]')?.addEventListener('click', () => exportZip());
     bar.querySelector('[data-act="strings"]')?.addEventListener('click', (event) => { event.stopPropagation(); toggleStrings(); });
-    bar.querySelector('[data-act="strings-name"]')?.addEventListener('click', (event) => { event.stopPropagation(); toggleStrings(); });
+    bar.querySelector('[data-act="copy-first"]')?.addEventListener('click', (event) => { event.stopPropagation(); copyPlaceholder(0); });
     bar.querySelector('[data-act="close"]')?.addEventListener('click', () => {
       if (!confirm('Убрать локали из конструктора? Плейсхолдеры в тексте блоков останутся.')) return;
       data = null; active = 'original'; lint = null; save(); render(); host?.onChange?.();
@@ -321,6 +321,47 @@
 
   // ─── Редактор локали: ✎ на вкладке (как во вкладке «Код») ───────────────
 
+  /**
+   * Подсветка разметки локали (как в «Коде»): парные {{ }} и @@ @@ — синие,
+   * незакрытые, лишние или вложенные — красные; жирный текст между @@ — голубой.
+   */
+  function highlightTxt(text) {
+    const src = String(text || '');
+    const n = src.length;
+    const cls = new Array(n).fill('');
+    let open = -1;
+    for (let k = 0; k < n - 1; k += 1) {
+      const two = src[k] + src[k + 1];
+      if (two === '{{') {
+        if (open >= 0) { cls[open] = cls[open + 1] = 'hl-bad'; }
+        open = k; k += 1;
+      } else if (two === '}}') {
+        if (open < 0) { cls[k] = cls[k + 1] = 'hl-bad'; k += 1; continue; }
+        cls[open] = cls[open + 1] = cls[k] = cls[k + 1] = 'hl-ok';
+        const ats = [];
+        for (let j = open + 2; j < k - 1; j += 1) if (src[j] === '@' && src[j + 1] === '@') { ats.push(j); j += 1; }
+        for (let a = 0; a < ats.length; a += 1) {
+          const j = ats[a];
+          if (a === ats.length - 1 && ats.length % 2) { cls[j] = cls[j + 1] = 'hl-bad'; continue; }
+          cls[j] = cls[j + 1] = 'hl-at';
+          if (a % 2 === 0 && a + 1 < ats.length) for (let t = j + 2; t < ats[a + 1]; t += 1) cls[t] = 'hl-bold';
+        }
+        open = -1; k += 1;
+      }
+    }
+    if (open >= 0) cls[open] = cls[open + 1] = 'hl-bad';
+    let html = '';
+    let run = '';
+    let current = '';
+    const flush = () => { if (run) html += current ? `<span class="${current}">${esc(run)}</span>` : esc(run); run = ''; };
+    for (let k = 0; k < n; k += 1) {
+      if (cls[k] !== current) { flush(); current = cls[k]; }
+      run += src[k];
+    }
+    flush();
+    return html + (src.endsWith('\n') || !src ? ' ' : '');
+  }
+
   const serializeTxt = (blocks) => (blocks || []).map((b) => `{{${b}}}`).join('\n\n');
 
   function openEditor(code) {
@@ -336,7 +377,7 @@
           <button type="button" class="c-loc-btn ghost" data-ed="close" title="Закрыть без сохранения">✕</button></div>
         <div class="c-loc-editor-body">
           <div class="c-loc-keys">${Array.from({ length: Math.max(refCount, data.locales[code].length) }, (_, i) => `<button type="button" class="c-loc-key" data-key="${i}" title="${esc(short((data.locales[data.ref] || [])[i] ?? '', 80))}">block_${pad(i)}</button>`).join('')}</div>
-          <textarea class="c-loc-text" spellcheck="false">${esc(serializeTxt(data.locales[code]))}</textarea>
+          <div class="c-loc-hl-wrap"><pre class="c-loc-hl" aria-hidden="true"></pre><textarea class="c-loc-text" spellcheck="false">${esc(serializeTxt(data.locales[code]))}</textarea></div>
         </div>
         <div class="c-loc-editor-foot"><span class="c-loc-check"></span>
           <button type="button" class="c-loc-btn" data-ed="download" title="Скачать ${esc(code)}.txt">⬇ TXT</button>
@@ -345,6 +386,11 @@
     document.body.appendChild(overlay);
     const area = overlay.querySelector('textarea');
     const check = overlay.querySelector('.c-loc-check');
+    const hl = overlay.querySelector('.c-loc-hl');
+    const paint = () => { hl.innerHTML = highlightTxt(area.value); hl.scrollTop = area.scrollTop; hl.scrollLeft = area.scrollLeft; };
+    area.addEventListener('input', paint);
+    area.addEventListener('scroll', () => { hl.scrollTop = area.scrollTop; hl.scrollLeft = area.scrollLeft; });
+    paint();
     const parsedNow = () => parseLocale(area.value, `${code}.txt`);
     const refresh = () => {
       const blocks = parsedNow();
@@ -472,7 +518,7 @@
 
   root.RetKitConstructorLocales = {
     mount, render, importFiles, localizeBlocks, resolveText, applyRtl, autoBindValue, bindingStats,
-    slotPickerHtml, valueForPick, setActive, exportZip, toggleStrings, openEditor, copyPlaceholder, afterPaste,
+    slotPickerHtml, valueForPick, setActive, exportZip, toggleStrings, openEditor, copyPlaceholder, afterPaste, highlightTxt,
     get active() { return data ? active : 'original'; },
     get data() { return data ? JSON.parse(JSON.stringify(data)) : null; },
     get lint() { return lint; },

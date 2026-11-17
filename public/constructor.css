@@ -2015,7 +2015,17 @@ button.c-loc-name:hover { color: var(--text, #e5edf7); background: var(--surface
 .c-loc-keys { overflow: auto; border-right: 1px solid var(--border, #263140); padding: 6px; display: flex; flex-direction: column; gap: 4px; }
 .c-loc-key { border: 1px solid var(--border, #334155); background: transparent; color: var(--accent, #7aa2ff); border-radius: 6px; padding: 3px 6px; font: 11px ui-monospace, Menlo, monospace; cursor: pointer; }
 .c-loc-key:hover { background: var(--surface-2, #182334); }
-.c-loc-text { width: 100%; height: 100%; resize: none; border: 0; outline: none; padding: 12px; background: var(--bg-0, #0b111a); color: var(--text, #e5edf7); font: 13px/1.55 ui-monospace, Menlo, monospace; }
+.c-loc-hl-wrap { position: relative; min-height: 0; overflow: hidden; background: var(--bg-0, #0b111a); }
+.c-loc-hl, .c-loc-text { position: absolute; inset: 0; margin: 0; padding: 12px; border: 0; box-sizing: border-box; font: 13px/1.55 ui-monospace, Menlo, monospace; letter-spacing: 0; tab-size: 4; white-space: pre-wrap; overflow-wrap: break-word; word-break: normal; overflow: auto; }
+.c-loc-hl { color: var(--text, #e5edf7); pointer-events: none; }
+/* Одинаковая ширина строк у подсветки и поля: полосы прокрутки скрыты у обоих. */
+.c-loc-hl, .c-loc-text { scrollbar-width: none; }
+.c-loc-hl::-webkit-scrollbar, .c-loc-text::-webkit-scrollbar { display: none; }
+.c-loc-text { width: 100%; height: 100%; resize: none; outline: none; background: transparent; color: transparent; caret-color: var(--text, #e5edf7); }
+.c-loc-text::selection { background: rgba(79,124,255,.35); color: transparent; }
+.c-loc-hl .hl-ok, .c-loc-hl .hl-at { color: #4f8cff; }
+.c-loc-hl .hl-bold { color: #9cc2ff; }
+.c-loc-hl .hl-bad { color: #fff; background: #d6303d; border-radius: 2px; }
 .c-loc-check { margin-right: auto; font-size: 12px; }
 .c-loc-check.ok { color: var(--green, #72d6a0); }
 .c-loc-check.bad { color: #ff8a92; }
