@@ -3527,6 +3527,7 @@ async function runLivePreview() {
     stage?.classList.add("has-content");
     const frame = $("liveFrame");
     frame.onload = () => {
+      closeTextBar();
       sizeIframeToContent();
       indexIframeBlocks();
       wireIframeInteractions();
@@ -3698,6 +3699,12 @@ function onIframeClick(e) {
   e.preventDefault();
   const uid = entryByUid(r.uid)?.uid ?? r.uid;
   if (uid != null) selectCanvas(uid);
+  // Клик по тексту выбирает сам текст (замена / плейсхолдер / удаление),
+  // клик мимо текста или с Alt — только блок, как раньше.
+  const el = e.altKey ? null : textElementFrom(e.target);
+  const hit = el ? hoverSlotFor(el) : null;
+  if (hit) openTextBar(hit, el);
+  else closeTextBar();
 }
 
 /**
@@ -6052,8 +6059,12 @@ function clearHoverText() {
   _hoverText = null;
 }
 
+function textElementFrom(target) {
+  return target?.closest?.("p,a,h1,h2,h3,h4,h5,h6,li,span,b,strong,td,div") || null;
+}
+
 function onIframeHoverText(e) {
-  const el = e.target?.closest?.("p,a,h1,h2,h3,h4,h5,h6,li,span,b,strong,td,div");
+  const el = textElementFrom(e.target);
   if (_hoverText?.el === el) return;
   clearHoverText();
   if (!el || !String(el.textContent || "").trim()) return;
@@ -6070,25 +6081,134 @@ function isEditableTarget(target) {
 }
 
 function onHoverPaste(e) {
-  if (!_hoverText || isEditableTarget(e.target)) return;
+  const target = _hoverText || _textSel;
+  if (!target || isEditableTarget(e.target)) return;
   const text = String(e.clipboardData?.getData("text/plain") || "").trim();
   if (!text) return;
-  const entry = entryByUid(_hoverText.uid);
-  if (!entry) return;
   e.preventDefault();
   e.stopPropagation();
-  pushCanvasUndo();
-  entry.slots = entry.slots || {};
-  entry.slots[_hoverText.slotId] = text;
-  markEntrySlotExplicit(entry, _hoverText.slotId);
-  const label = _hoverText.label;
+  if (!applyTextValue(target, text)) return;
+  const label = target.label;
   clearHoverText();
-  renderInspector();
-  window.RetKitConstructorLocales?.render();
-  scheduleLivePreview(0);
+  closeTextBar();
   flashCanvasHint(`Вставлено в «${label}» — отменить: ⌘Z`, 2500);
-  window.RetKitConstructorLocales?.afterPaste(text);
 }
 
 // Фокус может быть и в самой студии (не в превью) — ловим вставку и здесь.
 document.addEventListener("paste", onHoverPaste, true);
+
+/* ─── Выбранный текст в письме: своя панель, а не панель блока ─────────────
+ * Клик по тексту в превью → над ним панель: поле с текстом (в Original — значение
+ * слота, можно вписать плейсхолдер; в локали — строка этой локали), 📋 вставить
+ * из буфера, 🌐 привязать к строке эталона, 🗑 удалить текст. ⌘V при выбранном
+ * тексте вставляет буфер в него. Блок по-прежнему выделяется кликом мимо текста
+ * или Alt+клик. */
+let _textSel = null; // { uid, slotId, label, el }
+
+/** Куда идёт правка: строка локали (если текст привязан и открыта локаль) или слот. */
+function textTarget(sel) {
+  const entry = entryByUid(sel.uid);
+  if (!entry) return null;
+  const block = blockForEntry(entry);
+  const slot = (block?.slots || []).find((s) => s.id === sel.slotId);
+  const api = window.RetKitConstructorLocales;
+  const raw = String(entry.slots?.[sel.slotId] ?? slot?.default ?? "");
+  const locale = api?.active || "original";
+  const index = api ? api.tokenIndex(raw) : -1;
+  if (api && locale !== "original" && index >= 0) {
+    return { kind: "locale", entry, locale, index, value: api.resolveText(raw, locale), raw };
+  }
+  return { kind: "slot", entry, value: raw, raw, locale, bound: index >= 0 };
+}
+
+function applyTextValue(sel, value) {
+  const target = textTarget(sel);
+  if (!target) return false;
+  const api = window.RetKitConstructorLocales;
+  const text = String(value ?? "");
+  // Плейсхолдер из буфера всегда идёт в слот (привязка), даже на вкладке локали.
+  const isToken = /^\$\{\{[\s\S]*\}\}\$$/.test(text.trim());
+  if (target.kind === "locale" && !isToken) {
+    return api.setLocaleString(target.locale, target.index, text);
+  }
+  pushCanvasUndo();
+  target.entry.slots = target.entry.slots || {};
+  target.entry.slots[sel.slotId] = text;
+  markEntrySlotExplicit(target.entry, sel.slotId);
+  renderInspector();
+  api?.render();
+  scheduleLivePreview(0);
+  api?.afterPaste(text);
+  return true;
+}
+
+function closeTextBar() {
+  document.getElementById("cTextBar")?.remove();
+  if (_textSel?.el) _textSel.el.style.outline = _textSel.outline || "";
+  _textSel = null;
+}
+
+function openTextBar(hit, el) {
+  closeTextBar();
+  clearHoverText();
+  _textSel = { ...hit, el, outline: el.style.outline };
+  el.style.outline = "2px solid #4f7cff";
+  const target = textTarget(_textSel);
+  if (!target) return;
+  const api = window.RetKitConstructorLocales;
+  const where = target.kind === "locale"
+    ? `${target.locale.toUpperCase()} · block_${String(target.index).padStart(2, "0")} — правка только этой локали`
+    : (target.locale !== "original" ? "не привязан к локали — правка во всех языках" : (target.bound ? "Original · плейсхолдер" : "Original"));
+  const strings = api?.refStrings?.() || [];
+  const bar = document.createElement("div");
+  bar.id = "cTextBar";
+  bar.className = "c-textbar";
+  bar.innerHTML = `<div class="c-tb-head"><b>${escapeHtml(hit.label)}</b> <span>${escapeHtml(where)}</span>
+      <button type="button" class="c-tb-x" data-tb="close" title="Закрыть (Esc)">✕</button></div>
+    <div class="c-tb-row">
+      <textarea class="c-tb-input" rows="2" spellcheck="false">${escapeHtml(target.value)}</textarea>
+      <button type="button" class="c-tb-btn primary" data-tb="apply" title="Применить (Enter)">✓</button>
+    </div>
+    <div class="c-tb-row">
+      <button type="button" class="c-tb-btn" data-tb="paste" title="Вставить из буфера обмена (⌘V)">📋 Из буфера</button>
+      ${strings.length && target.kind !== "locale" ? `<select class="c-tb-select" data-tb="bind" title="Заменить на строку локали"><option value="">🌐 строка локали…</option>${strings.map((x) => `<option value="${x.index}">${escapeHtml(x.label)}</option>`).join("")}</select>` : ""}
+      <button type="button" class="c-tb-btn" data-tb="clear" title="${target.kind === "locale" ? "Очистить строку этой локали" : "Удалить текст"}">🗑</button>
+      <button type="button" class="c-tb-btn ghost" data-tb="block" title="Работать с блоком целиком">⬚ Блок</button>
+    </div>`;
+  document.body.appendChild(bar);
+  // Над текстом (или под ним, если сверху нет места).
+  const frame = $("liveFrame");
+  const fr = frame.getBoundingClientRect();
+  const er = el.getBoundingClientRect();
+  const top = fr.top + er.top - bar.offsetHeight - 8;
+  bar.style.left = `${Math.max(8, Math.min(window.innerWidth - bar.offsetWidth - 8, fr.left + er.left))}px`;
+  bar.style.top = `${top > 8 ? top : fr.top + er.bottom + 8}px`;
+  const input = bar.querySelector(".c-tb-input");
+  const done = (ok) => { if (ok) { const label = hit.label; closeTextBar(); flashCanvasHint(`Изменено: «${label}» — отменить: ⌘Z`, 2200); } };
+  input.addEventListener("keydown", (ev) => {
+    if (ev.key === "Enter" && !ev.shiftKey) { ev.preventDefault(); done(applyTextValue(_textSel, input.value)); }
+    if (ev.key === "Escape") closeTextBar();
+  });
+  bar.addEventListener("change", (ev) => {
+    if (ev.target.matches('[data-tb="bind"]') && ev.target.value !== "") done(applyTextValue(_textSel, api.token(Number(ev.target.value))));
+  });
+  bar.addEventListener("click", async (ev) => {
+    const act = ev.target.closest("[data-tb]")?.dataset.tb;
+    if (!act || act === "bind") return;
+    if (act === "close") closeTextBar();
+    if (act === "apply") done(applyTextValue(_textSel, input.value));
+    if (act === "clear") done(applyTextValue(_textSel, ""));
+    if (act === "block") closeTextBar();
+    if (act === "paste") {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text) done(applyTextValue(_textSel, text.trim()));
+      } catch { flashCanvasHint("Буфер недоступен для чтения — нажмите ⌘V / Ctrl+V", 3000); }
+    }
+  });
+}
+
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && _textSel && !isEditableTarget(e.target)) closeTextBar(); });
+document.addEventListener("mousedown", (e) => {
+  if (_textSel && !e.target.closest?.("#cTextBar")) closeTextBar();
+});

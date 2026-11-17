@@ -81,7 +81,14 @@ assert.ok(/\nmountInspectorToggle\(\);\n/.test(js), 'inspector panel toggles');
 // hover a text in the email + ⌘V/Ctrl+V pastes the clipboard into that slot.
 for (const fn of ['openEditor', 'copyPlaceholder', 'afterPaste']) assert.equal(typeof C[fn], 'function', fn);
 assert.ok(js.includes('doc.addEventListener("paste", onHoverPaste, true);') && js.includes('document.addEventListener("paste", onHoverPaste, true);'), 'hover paste in the preview and in the studio');
-assert.ok(js.includes('window.RetKitConstructorLocales?.afterPaste(text);'), 'next placeholder after a paste');
+assert.ok(js.includes('api?.afterPaste(text);'), 'next placeholder after a paste');
+// Click on a text selects the TEXT (own bar), not only the block; in a locale tab it edits that locale's string.
+assert.ok(js.includes('if (hit) openTextBar(hit, el);'), 'text-level selection');
+assert.ok(js.includes('return api.setLocaleString(target.locale, target.index, text);'), 'locale tab edits the locale string');
+assert.equal(C.tokenIndex('${{ promo.block_02 }}$'), 2);
+assert.equal(C.tokenIndex('Hi ${{ promo.block_02 }}$'), -1, 'mixed text is not a single binding');
+assert.equal(C.setLocaleString('fr', 1, 'Votre code est @@prêt@@ !'), true);
+assert.equal(C.resolveText('${{ promo.block_01 }}$', 'fr'), 'Votre code est prêt !');
 {
   const writes = [];
   sandbox.navigator = { clipboard: { writeText: async (t) => { writes.push(t); } } };

@@ -430,6 +430,28 @@
     setTimeout(() => area.focus(), 30);
   }
 
+  /** Номер строки, если значение слота — ровно один плейсхолдер этого набора. */
+  function tokenIndex(value) {
+    if (!data) return -1;
+    const m = String(value || '').trim().match(/^\$\{\{\s*([A-Za-z0-9_-]+)\.block_(\d+)\s*\}\}\$$/);
+    return m && m[1] === data.name ? Number(m[2]) : -1;
+  }
+
+  /** Правка одной строки одной локали (из письма, не открывая редактор). */
+  function setLocaleString(code, index, text) {
+    if (!data || !data.locales[code] || index < 0) return false;
+    const blocks = data.locales[code].slice();
+    while (blocks.length <= index) blocks.push('');
+    blocks[index] = String(text ?? '');
+    data.locales[code] = blocks;
+    save(); relint(); render(); host?.onChange?.();
+    return true;
+  }
+
+  function refStrings() {
+    return data ? (data.locales[data.ref] || []).map((t, i) => ({ index: i, label: `block_${pad(i)} · ${short(t)}` })) : [];
+  }
+
   function tabTitle(code, s) {
     if (!s) return code.toUpperCase();
     const issues = (lint?.issues || []).filter((x) => x.locale === code).slice(0, 10)
@@ -519,6 +541,7 @@
   root.RetKitConstructorLocales = {
     mount, render, importFiles, localizeBlocks, resolveText, applyRtl, autoBindValue, bindingStats,
     slotPickerHtml, valueForPick, setActive, exportZip, toggleStrings, openEditor, copyPlaceholder, afterPaste, highlightTxt,
+    tokenIndex, setLocaleString, refStrings, token: (i) => (data ? token(data.name, i) : ''),
     get active() { return data ? active : 'original'; },
     get data() { return data ? JSON.parse(JSON.stringify(data)) : null; },
     get lint() { return lint; },
