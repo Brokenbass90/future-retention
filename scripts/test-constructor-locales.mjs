@@ -123,4 +123,22 @@ assert.equal(createPreviewBuildKey({ blocks: [1], locale: 'en' }), createPreview
   assert.ok(C.highlightTxt('a }} b').includes('<span class="hl-bad">}}</span>'), 'stray }} is red');
   assert.ok(C.highlightTxt('<b>').includes('&lt;b&gt;'), 'text is escaped');
 }
+// Add by hand: a locale starts as a copy of the reference; a new line goes to every locale.
+{
+  sandbox.prompt = () => 'de';
+  C.addLocale();
+  assert.deepEqual(plain(C.data.locales.de), plain(C.data.locales.en), 'DE starts as a copy of EN');
+  assert.ok(C.lint.issues.some((x) => x.locale === 'de' && x.code === 'untranslated'), 'copy shows up as untranslated until translated');
+  sandbox.prompt = () => 'Brand new line';
+  await C.addString();
+  assert.equal(C.data.locales.en.at(-1), 'Brand new line');
+  assert.equal(C.data.locales.fr.at(-1), '', 'other locales get an empty line — flagged');
+  assert.ok(C.lint.issues.some((x) => x.locale === 'fr' && x.code === 'empty'));
+  sandbox.prompt = () => 'x1';
+  C.addLocale();
+  assert.ok(!C.data.locales.x1, 'not a locale code — refused');
+  // Issues are marked on their block in the editor.
+  const marked = C.highlightTxt('{{ok}}\n\n{{bad}}', new Map([[1, 'error']]));
+  assert.ok(marked.includes('<span class="hl-issue-error">bad</span>'), marked);
+}
 console.log('✓ constructor locales: folder import, auto-bind, per-locale preview/ZIP texts, picker, lint, wiring');

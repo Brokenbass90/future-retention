@@ -218,7 +218,8 @@
     if (!bar) return;
     if (!data) {
       bar.innerHTML = `<button type="button" class="c-loc-btn" data-act="folder" title="Загрузить папку с локалями (en.txt, fr.txt… или JSON из базы)">📁 Локали</button>
-        <span class="c-loc-hint">Загрузите папку — письмо можно будет смотреть и выгружать на всех языках</span>`;
+        <button type="button" class="c-loc-btn" data-act="new-set" title="Начать локали с нуля: вписать тексты EN руками">＋ Новый набор</button>
+        <span class="c-loc-hint">Загрузите папку или начните с нуля — письмо можно будет смотреть и выгружать на всех языках</span>`;
     } else {
       const tabs = ['original', ...data.order].map((code) => {
         const s = code === 'original' ? null : lint?.locales?.[code];
@@ -233,6 +234,7 @@
         <div class="c-loc-tabs">${tabs}</div>
         <span class="c-loc-stat${stats.plain ? ' warn' : ''}" title="Тексты письма, привязанные к локалям">🔗 ${stats.bound}${stats.plain ? ` · без локали ${stats.plain}` : ''}</span>
         <span class="c-loc-strings"><button type="button" class="c-loc-btn" data-act="strings" title="Строки локали: клик — плейсхолдер в буфер обмена, вставьте его в текст блока">📋 Строки</button></span>
+        <button type="button" class="c-loc-btn" data-act="add-locale" title="Добавить локаль вручную: копия ${esc(data.ref.toUpperCase())}, дальше переводите в редакторе">＋ Локаль</button>
         <button type="button" class="c-loc-btn" data-act="bind" title="Привязать тексты, которые совпадают с ${esc(data.ref.toUpperCase())}">⚡ Расставить</button>
         <button type="button" class="c-loc-btn" data-act="zip" title="Скачать ZIP: готовый HTML каждой локали">⬇ ZIP</button>
         <button type="button" class="c-loc-btn ghost" data-act="close" title="Убрать локали из конструктора">✕</button>`;
@@ -249,6 +251,8 @@
       render();
     });
     bar.querySelector('[data-act="zip"]')?.addEventListener('click', () => exportZip());
+    bar.querySelector('[data-act="add-locale"]')?.addEventListener('click', () => addLocale());
+    bar.querySelector('[data-act="new-set"]')?.addEventListener('click', () => newSet());
     bar.querySelector('[data-act="strings"]')?.addEventListener('click', (event) => { event.stopPropagation(); toggleStrings(); });
     bar.querySelector('[data-act="copy-first"]')?.addEventListener('click', (event) => { event.stopPropagation(); copyPlaceholder(0); });
     bar.querySelector('[data-act="close"]')?.addEventListener('click', () => {
@@ -272,10 +276,11 @@
     const bad = new Set((lint?.issues || []).filter((x) => x.locale === (shown || data.ref) && typeof x.block === 'number').map((x) => x.block));
     const panel = document.createElement('div');
     panel.className = 'c-loc-panel';
-    panel.innerHTML = ref.map((text, i) => `<button type="button" class="c-loc-row${bad.has(i) ? ' bad' : ''}" data-copy="${i}" title="Скопировать ${esc(token(data.name, i))}">
+    panel.innerHTML = `<button type="button" class="c-loc-row add" data-add-string="1"><code>＋</code><span>Новая строка во все локали — плейсхолдер сразу в буфер</span></button>` + ref.map((text, i) => `<button type="button" class="c-loc-row${bad.has(i) ? ' bad' : ''}" data-copy="${i}" title="Скопировать ${esc(token(data.name, i))}">
         <code>block_${pad(i)}</code><span>${esc(short(text, 120))}${shown ? `<small>${esc(shown.toUpperCase())}: ${esc(short(local[i] ?? '— нет строки —', 120))}</small>` : ''}</span></button>`).join('')
       || '<div class="c-loc-hint">В эталоне нет строк</div>';
     panel.addEventListener('click', async (event) => {
+      if (event.target.closest('[data-add-string]')) { panel.remove(); await addString(); return; }
       const row = event.target.closest('[data-copy]');
       if (!row) return;
       await copyPlaceholder(Number(row.dataset.copy));
@@ -325,11 +330,12 @@
    * Подсветка разметки локали (как в «Коде»): парные {{ }} и @@ @@ — синие,
    * незакрытые, лишние или вложенные — красные; жирный текст между @@ — голубой.
    */
-  function highlightTxt(text) {
+  function highlightTxt(text, issues) {
     const src = String(text || '');
     const n = src.length;
     const cls = new Array(n).fill('');
     let open = -1;
+    let blockIdx = 0; // как в parseLocale: блоки по порядку закрытых {{ }}
     for (let k = 0; k < n - 1; k += 1) {
       const two = src[k] + src[k + 1];
       if (two === '{{') {
@@ -346,6 +352,9 @@
           cls[j] = cls[j + 1] = 'hl-at';
           if (a % 2 === 0 && a + 1 < ats.length) for (let t = j + 2; t < ats[a + 1]; t += 1) cls[t] = 'hl-bold';
         }
+        const sev = issues?.get?.(blockIdx);
+        if (sev) for (let t = open + 2; t < k; t += 1) if (!cls[t] || cls[t] === 'hl-bold') cls[t] = `${cls[t] ? `${cls[t]} ` : ''}hl-issue-${sev}`;
+        blockIdx += 1;
         open = -1; k += 1;
       }
     }
@@ -365,7 +374,7 @@
   const serializeTxt = (blocks) => (blocks || []).map((b) => `{{${b}}}`).join('\n\n');
 
   function openEditor(code) {
-    if (!data || !data.locales[code]) return;
+    if (!data || !data.locales[code] || typeof document === 'undefined') return;
     document.getElementById('cLocEditor')?.remove();
     const refCount = (data.locales[data.ref] || []).length;
     const overlay = document.createElement('div');
@@ -379,6 +388,7 @@
           <div class="c-loc-keys">${Array.from({ length: Math.max(refCount, data.locales[code].length) }, (_, i) => `<button type="button" class="c-loc-key" data-key="${i}" title="${esc(short((data.locales[data.ref] || [])[i] ?? '', 80))}">block_${pad(i)}</button>`).join('')}</div>
           <div class="c-loc-hl-wrap"><pre class="c-loc-hl" aria-hidden="true"></pre><textarea class="c-loc-text" spellcheck="false">${esc(serializeTxt(data.locales[code]))}</textarea></div>
         </div>
+        <div class="c-loc-issues"></div>
         <div class="c-loc-editor-foot"><span class="c-loc-check"></span>
           <button type="button" class="c-loc-btn" data-ed="download" title="Скачать ${esc(code)}.txt">⬇ TXT</button>
           <button type="button" class="c-loc-btn primary" data-ed="save">Сохранить</button></div>
@@ -387,18 +397,40 @@
     const area = overlay.querySelector('textarea');
     const check = overlay.querySelector('.c-loc-check');
     const hl = overlay.querySelector('.c-loc-hl');
-    const paint = () => { hl.innerHTML = highlightTxt(area.value); hl.scrollTop = area.scrollTop; hl.scrollLeft = area.scrollLeft; };
+    let issueMap = new Map();
+    const paint = () => { hl.innerHTML = highlightTxt(area.value, issueMap); hl.scrollTop = area.scrollTop; hl.scrollLeft = area.scrollLeft; };
     area.addEventListener('input', paint);
     area.addEventListener('scroll', () => { hl.scrollTop = area.scrollTop; hl.scrollLeft = area.scrollLeft; });
     paint();
     const parsedNow = () => parseLocale(area.value, `${code}.txt`);
+    const issuesBox = overlay.querySelector('.c-loc-issues');
+    // Валидаторы как в «Коде»: число строк против эталона + та же проверка локалей
+    // (язык и алфавит, непереведённое, мусор, переменные) — на лету, до сохранения.
     const refresh = () => {
       const blocks = parsedNow();
-      const trial = root.RetKitLocaleLint && data.ref !== code
-        ? root.RetKitLocaleLint.lint({ locales: { [data.ref]: data.locales[data.ref], [code]: blocks }, refCode: data.ref }) : null;
-      const errors = trial ? trial.issues.filter((x) => x.locale === code && x.severity === 'error') : [];
-      check.className = `c-loc-check ${errors.length || blocks.length !== refCount ? 'bad' : 'ok'}`;
-      check.textContent = `${blocks.length} из ${refCount} блоков${errors.length ? ` · 🔴 ${errors.length}: ${errors.slice(0, 2).map((x) => `${typeof x.block === 'number' ? `block_${pad(x.block)}` : 'локаль'} ${x.code}`).join(', ')}` : ' · ✓'}`;
+      const refBlocks = code === data.ref ? blocks : (data.locales[data.ref] || []);
+      const trialLocales = { ...data.locales, [code]: blocks };
+      let mine = [];
+      if (root.RetKitLocaleLint) {
+        try { mine = root.RetKitLocaleLint.lint({ locales: trialLocales, refCode: data.ref }).issues.filter((x) => x.locale === code); } catch {}
+      }
+      issueMap = new Map();
+      for (const x of mine) if (typeof x.block === 'number') issueMap.set(x.block, x.severity === 'error' || issueMap.get(x.block) === 'error' ? 'error' : 'warn');
+      const errors = mine.filter((x) => x.severity === 'error');
+      const warns = mine.length - errors.length;
+      const langBad = mine.find((x) => x.block === null && /wrong_(lang|script)/.test(x.code));
+      const info = root.RetKitLocaleLint?.langOf?.(code);
+      const countOk = blocks.length === refBlocks.length;
+      check.className = `c-loc-check ${errors.length || !countOk ? 'bad' : warns ? 'warn' : 'ok'}`;
+      check.textContent = [
+        code === data.ref ? `${blocks.length} строк (эталон)` : `${countOk ? '✓' : '✗'} строк ${blocks.length} из ${refBlocks.length}`,
+        info?.lang || info?.script ? (langBad ? `✗ язык: ${langBad.message}` : '✓ язык') : 'язык не проверяется',
+        errors.length ? `🔴 ${errors.length}` : '',
+        warns ? `🟡 ${warns}` : '',
+      ].filter(Boolean).join(' · ');
+      issuesBox.innerHTML = mine.slice(0, 6).map((x) => `<div class="${x.severity}">${x.severity === 'error' ? '●' : '○'} ${typeof x.block === 'number' ? `block_${pad(x.block)}` : 'локаль'} — ${esc(x.code)}: ${esc(x.message)}${x.sample ? ` «${esc(x.sample)}»` : ''}</div>`).join('')
+        + (mine.length > 6 ? `<div>… ещё ${mine.length - 6}</div>` : '');
+      paint();
     };
     let timer = null;
     area.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(refresh, 250); });
@@ -450,6 +482,43 @@
 
   function refStrings() {
     return data ? (data.locales[data.ref] || []).map((t, i) => ({ index: i, label: `block_${pad(i)} · ${short(t)}` })) : [];
+  }
+
+  // ─── Добавить вручную: набор, локаль, строку ──────────────────────────────
+
+  function newSet() {
+    const name = safeName(prompt('Имя набора локалей (из него плейсхолдеры: ${{ имя.block_00 }}$):', safeName(host?.mailName?.() || 'mail-locales')) || '');
+    if (!name) return;
+    data = { name, ref: 'en', locales: { en: [] }, order: ['en'] };
+    active = 'original';
+    save(); relint(); render(); host?.onChange?.();
+    openEditor('en');
+  }
+
+  function addLocale() {
+    if (!data) return;
+    const raw = prompt(`Код новой локали (fr, de, es, ar, pt_BR…). Начнётся как копия ${data.ref.toUpperCase()} — переводите строки в редакторе.`, '');
+    const code = String(raw || '').trim().replace('-', '_').replace(/^([a-z]{2})_([a-z]{2})$/i, (m, a, b) => `${a.toLowerCase()}_${b.toUpperCase()}`).replace(/^([A-Z]{2})$/, (m) => m.toLowerCase());
+    if (!code) return;
+    if (!/^[a-z]{2}(?:_[A-Z]{2})?$/.test(code)) { host?.toast?.(`«${raw}» — не код локали: две латинские буквы, например fr или pt_BR`); return; }
+    if (!data.locales[code]) {
+      data.locales[code] = (data.locales[data.ref] || []).slice();
+      data.order = [...data.order.filter((c) => c !== code), code];
+      save(); relint(); render(); host?.onChange?.();
+      const known = root.RetKitLocaleLint?.langOf?.(code);
+      host?.toast?.(`${code.toUpperCase()} добавлена копией ${data.ref.toUpperCase()}${known?.lang || known?.script ? '' : ' (язык этой локали проверка не знает — проверит только строки и мусор)'}`);
+    }
+    openEditor(code);
+  }
+
+  /** Новая строка во все локали (в эталоне — текст, в остальных пусто → подсветится). */
+  async function addString() {
+    if (!data) return;
+    const text = prompt(`Текст новой строки (${data.ref.toUpperCase()}):`, '');
+    if (!text) return;
+    for (const code of Object.keys(data.locales)) data.locales[code] = [...data.locales[code], code === data.ref ? text : ''];
+    save(); relint(); render(); host?.onChange?.();
+    await copyPlaceholder(data.locales[data.ref].length - 1);
   }
 
   function tabTitle(code, s) {
@@ -541,7 +610,7 @@
   root.RetKitConstructorLocales = {
     mount, render, importFiles, localizeBlocks, resolveText, applyRtl, autoBindValue, bindingStats,
     slotPickerHtml, valueForPick, setActive, exportZip, toggleStrings, openEditor, copyPlaceholder, afterPaste, highlightTxt,
-    tokenIndex, setLocaleString, refStrings, token: (i) => (data ? token(data.name, i) : ''),
+    tokenIndex, setLocaleString, refStrings, addLocale, newSet, addString, token: (i) => (data ? token(data.name, i) : ''),
     get active() { return data ? active : 'original'; },
     get data() { return data ? JSON.parse(JSON.stringify(data)) : null; },
     get lint() { return lint; },
