@@ -5882,6 +5882,7 @@ async function transferToCode() {
     }
     if (res.status === 200 && d.ok) {
       const mid = d.mail || ("mail-" + rawName);
+      handOffLocalesToCode(brand, mid);
       window.location.href = "/workbench?brand=" + encodeURIComponent(brand) + "&mail=" + encodeURIComponent(mid);
     } else {
       alert("Не удалось перенести:\n" + (d.error || "unknown") + (d.stderr ? "\n\n" + d.stderr.slice(0, 300) : ""));
@@ -5989,6 +5990,39 @@ function openLinksDialog() {
 document.getElementById("linksBtn")?.addEventListener("click", openLinksDialog);
 
 mountConstructorLocales();
+
+/**
+ * «→ В код» с локалями: набор конструктора кладётся туда, где «Код» хранит
+ * локали этого письма (localStorage `wb-namespaces:<brand>/<mail>`, тот же
+ * браузер и origin). Плейсхолдеры ${{ набор.block_NN }}$ уже в Pug — «Код»
+ * откроет письмо и сразу подставит все локали, как будто папку загрузили там.
+ */
+function handOffLocalesToCode(brand, mail) {
+  const data = window.RetKitConstructorLocales?.data;
+  if (!data || !brand || !mail) return false;
+  try {
+    const key = `wb-namespaces:${encodeURIComponent(brand)}/${encodeURIComponent(mail)}`;
+    let scoped = [];
+    try { scoped = JSON.parse(localStorage.getItem(key) || "[]"); } catch {}
+    if (!Array.isArray(scoped)) scoped = [];
+    const previous = scoped.find((ns) => ns && ns.name === data.name);
+    const localeRaw = {};
+    for (const [code, blocks] of Object.entries(data.locales)) localeRaw[code] = (blocks || []).map((b) => `{{${b}}}`).join("\n\n");
+    const ns = {
+      id: previous?.id || `ns-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
+      name: data.name,
+      locales: JSON.parse(JSON.stringify(data.locales)),
+      localeRaw,
+      localeIssues: {},
+      referenceLocale: data.ref,
+    };
+    localStorage.setItem(key, JSON.stringify([...scoped.filter((x) => x && x.name !== data.name), ns]));
+    return true;
+  } catch (error) {
+    console.warn("[constructor-locales] handoff to Code failed", error);
+    return false;
+  }
+}
 
 /* ─── Правая панель «Свойства блока»: выдвигается по кнопке ─────────────── */
 function mountInspectorToggle() {

@@ -142,4 +142,22 @@ assert.equal(createPreviewBuildKey({ blocks: [1], locale: 'en' }), createPreview
   const marked = C.highlightTxt('{{ok}}\n\n{{bad}}', new Map([[1, 'error']]));
   assert.ok(marked.includes('<span class="hl-issue-error">bad</span>'), marked);
 }
+// «→ В код» carries the locales into the Code tab's storage for that very mail.
+assert.ok(js.includes('handOffLocalesToCode(brand, mid);\n      window.location.href = "/workbench?brand="'), 'handoff before navigation');
+{
+  const wb = fs.readFileSync(new URL('../public/workbench.js', import.meta.url), 'utf8');
+  assert.ok(wb.includes("const LS_NAMESPACES_SCOPE_PREFIX = 'wb-namespaces:';"), 'Code tab still reads wb-namespaces:<brand>/<mail>');
+  assert.ok(wb.includes('`${LS_NAMESPACES_SCOPE_PREFIX}${encodeURIComponent(safeBrand)}/${encodeURIComponent(safeMail)}`'), 'same key format');
+  const fnSrc = js.slice(js.indexOf('function handOffLocalesToCode'), js.indexOf('/* ─── Правая панель'));
+  const store2 = new Map();
+  const ctx = { console, JSON, Math, Date, Object, Array, localStorage: { getItem: (k) => store2.get(k) ?? null, setItem: (k, v) => store2.set(k, v) }, window: { RetKitConstructorLocales: C } };
+  vm.createContext(ctx);
+  vm.runInContext(fnSrc + '\nthis.ok = handOffLocalesToCode("X_preview", "mail-test-abc");', ctx);
+  assert.equal(ctx.ok, true);
+  const saved = JSON.parse(store2.get('wb-namespaces:X_preview/mail-test-abc'));
+  assert.equal(saved[0].name, 'promo');
+  assert.equal(saved[0].referenceLocale, 'en');
+  assert.deepEqual(Object.keys(saved[0].locales).sort(), Object.keys(C.data.locales).sort());
+  assert.ok(saved[0].localeRaw.fr.startsWith('{{Bonjour'), 'TXT for the Code editor');
+}
 console.log('✓ constructor locales: folder import, auto-bind, per-locale preview/ZIP texts, picker, lint, wiring');
