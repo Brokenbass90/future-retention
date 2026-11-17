@@ -3528,6 +3528,7 @@ async function runLivePreview() {
     const frame = $("liveFrame");
     frame.onload = () => {
       closeTextBar();
+      try { window.RetKitConstructorLocales?.markTokens(frame.contentDocument); } catch {}
       sizeIframeToContent();
       indexIframeBlocks();
       wireIframeInteractions();

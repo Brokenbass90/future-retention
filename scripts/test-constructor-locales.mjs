@@ -47,7 +47,8 @@ assert.equal(C.autoBindValue('${{ promo.block_00 }}$'), null, 'already bound');
 const blocks = [{ uid: 'a', slots: { title: '${{ promo.block_00 }}$', body: '${{ promo.block_01 }}$', color: '#fff' } }];
 const kindOf = (uid, id) => (id === 'body' ? 'richText' : 'text');
 assert.deepEqual(plain(C.localizeBlocks(blocks, 'fr', kindOf))[0].slots, { title: 'Bonjour !', body: 'Votre code est <b>prêt</b>', color: '#fff' });
-assert.equal(plain(C.localizeBlocks(blocks, 'original', kindOf))[0].slots.title, 'Hello!', 'Original shows the reference text');
+assert.equal(plain(C.localizeBlocks(blocks, 'original', kindOf))[0].slots.title, '${{ promo.block_00 }}$', 'Original shows the placeholders themselves');
+assert.equal(plain(C.localizeBlocks(blocks, 'en', kindOf))[0].slots.title, 'Hello!', 'EN tab shows the reference text');
 assert.equal(C.resolveText('${{ other.block_00 }}$', 'fr'), '${{ other.block_00 }}$', 'foreign namespaces untouched');
 
 // Binding stats and the inspector picker.

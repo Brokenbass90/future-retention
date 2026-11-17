@@ -134,8 +134,9 @@
 
   /** Текст слота на локали: плейсхолдеры этого набора → строки локали. */
   function resolveText(value, code, { rich = false } = {}) {
-    if (!data || typeof value !== 'string' || !value.includes('${{')) return value;
-    const locale = data.locales[code === 'original' ? data.ref : code] || data.locales[data.ref] || [];
+    // Original — само письмо: плейсхолдеры видны как есть, чтобы было видно, где какой.
+    if (!data || code === 'original' || typeof value !== 'string' || !value.includes('${{')) return value;
+    const locale = data.locales[code] || data.locales[data.ref] || [];
     return value.replace(TOKEN_RE, (m, ns, n) => {
       if (ns !== data.name) return m;
       const text = locale[Number(n)];
@@ -158,6 +159,34 @@
       }
       return changed ? { ...b, slots } : b;
     });
+  }
+
+  /** Original: плейсхолдеры в превью — синие плашки с номером строки и её текстом в подсказке. */
+  function markTokens(doc) {
+    if (!data || !doc?.body || active !== 'original') return 0;
+    const ref = data.locales[data.ref] || [];
+    const walker = doc.createTreeWalker(doc.body, 4 /* NodeFilter.SHOW_TEXT */);
+    const nodes = [];
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) if (node.nodeValue.includes('${{')) nodes.push(node);
+    let count = 0;
+    for (const node of nodes) {
+      const parts = node.nodeValue.split(/(\$\{\{\s*[A-Za-z0-9_.-]+\s*\}\}\$)/);
+      if (parts.length < 2) continue;
+      const frag = doc.createDocumentFragment();
+      for (const part of parts) {
+        const m = part.match(/^\$\{\{\s*([A-Za-z0-9_-]+)\.block_(\d+)\s*\}\}\$$/);
+        if (!m) { if (part) frag.appendChild(doc.createTextNode(part)); continue; }
+        const chip = doc.createElement('span');
+        chip.textContent = part;
+        const own = m[1] === data.name;
+        chip.title = own ? `block_${m[2]} · ${data.ref.toUpperCase()}: ${ref[Number(m[2])] ?? '— нет строки —'}` : 'плейсхолдер другого набора';
+        chip.setAttribute('style', `background:${own ? '#e8efff' : '#fff1e0'};color:${own ? '#1d4ed8' : '#9a4b00'};border:1px solid ${own ? '#9db7ff' : '#f2c08a'};border-radius:4px;padding:0 3px;font:600 0.85em ui-monospace,Menlo,monospace;white-space:nowrap`);
+        frag.appendChild(chip);
+        count += 1;
+      }
+      node.parentNode.replaceChild(frag, node);
+    }
+    return count;
   }
 
   function applyRtl(html, code) {
@@ -224,7 +253,7 @@
       const tabs = ['original', ...data.order].map((code) => {
         const s = code === 'original' ? null : lint?.locales?.[code];
         const dot = s && s.status !== 'ok' ? `<i class="c-loc-dot ${s.status}"></i>` : '';
-        const title = code === 'original' ? `Как в ${data.ref.toUpperCase()} (эталон)` : tabTitle(code, s);
+        const title = code === 'original' ? 'Письмо с плейсхолдерами: видно, где какой block_NN' : tabTitle(code, s);
         const pencil = code === 'original' ? '' : `<span class="c-loc-edit" data-edit="${esc(code)}" title="Редактировать тексты ${esc(code.toUpperCase())}">✎</span>`;
         return `<button type="button" class="c-loc-tab${code === active ? ' active' : ''}" data-loc="${esc(code)}" title="${esc(title)}">${code === 'original' ? 'Original' : esc(code.toUpperCase())}${dot}${pencil}</button>`;
       }).join('');
@@ -551,7 +580,7 @@
   function valueForPick(index, previous) {
     if (index === '' || index === null || index === undefined) {
       // Отвязать: оставить текст эталона, чтобы поле не стало пустым.
-      return resolveText(String(previous || ''), 'original');
+      return resolveText(String(previous || ''), data.ref);
     }
     return token(data.name, Number(index));
   }
@@ -610,7 +639,7 @@
   root.RetKitConstructorLocales = {
     mount, render, importFiles, localizeBlocks, resolveText, applyRtl, autoBindValue, bindingStats,
     slotPickerHtml, valueForPick, setActive, exportZip, toggleStrings, openEditor, copyPlaceholder, afterPaste, highlightTxt,
-    tokenIndex, setLocaleString, refStrings, addLocale, newSet, addString, token: (i) => (data ? token(data.name, i) : ''),
+    markTokens, tokenIndex, setLocaleString, refStrings, addLocale, newSet, addString, token: (i) => (data ? token(data.name, i) : ''),
     get active() { return data ? active : 'original'; },
     get data() { return data ? JSON.parse(JSON.stringify(data)) : null; },
     get lint() { return lint; },
