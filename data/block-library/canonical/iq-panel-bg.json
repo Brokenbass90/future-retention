@@ -1,0 +1,67 @@
+{
+  "id": "iq-panel-bg",
+  "label": "Панель с фоновой картинкой (текст слева)",
+  "description": "Серая панель: на десктопе иллюстрация фоном, текст слева; на телефоне фон убирается и под текстом появляется картинка. Нарезано из письма Triggers-First-Deposit-2-Made (IQ Option).",
+  "placement": "inner",
+  "category": "content",
+  "version": 1,
+  "outlookSafe": true,
+  "scoped": true,
+  "pug": ".iq-panel-bg--panel(style=\"background-image:url('{{ background_image }}');background-color:{{ background_color }};border-radius:{{ radius }}\")\n    .iq-panel-bg--copy\n        p.iq-panel-bg--text {{ text }}\n    a(href=\"{{ image_href }}\" universal=\"true\" target=\"_blank\")\n        img.iq-panel-bg--mob-img(src=\"{{ mobile_image }}\" alt=\"\")",
+  "styl": ".iq-panel-bg--panel\n  background-position center\n  background-repeat no-repeat\n  background-size cover !important\n  border-radius 24px\n  @media screen and (max-width: 600px)\n    background-image none !important\n.iq-panel-bg--copy\n  max-width 250px\n  display inline-block\n  padding 24px 10px 24px 32px\n  vertical-align top\n  @media screen and (max-width: 600px)\n    max-width 100% !important\n    display block !important\n    margin 0 auto !important\n    text-align center !important\n    padding 24px 24px 0 !important\n    width auto !important\n.iq-panel-bg--text\n  font-family: Helvetica, Arial, sans-serif !important\n  font-size 18px\n  font-weight 400\n  line-height 26px\n  color #393A44\n  letter-spacing 0\n  @media screen and (max-width: 600px)\n    text-align center !important\n.iq-panel-bg--mob-img\n  float none\n  display inline-block\n  width 1px\n  max-width 0.1px\n  vertical-align middle\n  @media screen and (max-width: 600px)\n    display block !important\n    margin 0 auto !important\n    padding 0 !important\n    width 120px !important\n    max-width 120px !important",
+  "slots": [
+    {
+      "id": "text",
+      "kind": "richText",
+      "label": "Текст панели",
+      "default": "Panel text",
+      "uiGroup": "content"
+    },
+    {
+      "id": "background_image",
+      "kind": "image",
+      "label": "Фон (десктоп)",
+      "default": "https://fsms.quadcode.com/storage/public/db/cr/9b78g4ss707n6pdg/First-Deposit-Made-2-moeng-middle.png",
+      "uiGroup": "assets"
+    },
+    {
+      "id": "mobile_image",
+      "kind": "image",
+      "label": "Картинка для телефона",
+      "default": "https://fsms.quadcode.com/storage/public/db/cr/9b78g4ss707n6pe0/First-Deposit-Made-2-moeng-middle-mob.png",
+      "uiGroup": "assets"
+    },
+    {
+      "id": "image_href",
+      "kind": "url",
+      "label": "Ссылка картинки",
+      "default": "#",
+      "uiGroup": "content"
+    },
+    {
+      "id": "background_color",
+      "kind": "color",
+      "label": "Цвет панели",
+      "default": "#F9F9F9",
+      "uiGroup": "appearance"
+    },
+    {
+      "id": "radius",
+      "kind": "select",
+      "label": "Скругление",
+      "default": "24px",
+      "uiGroup": "appearance",
+      "options": [
+        "0",
+        "12px",
+        "16px",
+        "24px",
+        "32px"
+      ]
+    }
+  ],
+  "tags": [
+    "panel",
+    "iq"
+  ]
+}

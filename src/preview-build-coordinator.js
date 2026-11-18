@@ -14,12 +14,15 @@ function positiveInteger(value, fallback, { min = 1, max = Number.MAX_SAFE_INTEG
  * fingerprint. The generated HTML does not depend on the constructor's
  * monotonically increasing live-preview token.
  */
-export function createPreviewBuildKey({ blocks, sourceBrand = "", sourceMail = "", version = 1 } = {}) {
+export function createPreviewBuildKey({ blocks, sourceBrand = "", sourceMail = "", locale = "en", exportMode = false, version = 1 } = {}) {
   const serialized = JSON.stringify({
     version,
     blocks: Array.isArray(blocks) ? blocks : [],
     sourceBrand: String(sourceBrand || ""),
     sourceMail: String(sourceMail || ""),
+    // Same blocks on another locale / as an export are different builds.
+    ...(locale && locale !== "en" ? { locale: String(locale) } : {}),
+    ...(exportMode ? { exportMode: true } : {}),
   });
   return createHash("sha256").update(serialized).digest("hex");
 }

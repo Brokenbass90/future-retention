@@ -4,7 +4,7 @@
   "description": "Комбо (рецепт) 234: прозрачный ряд pt68 — серая сноска, сноска со ссылкой на Policy, кнопки App Store / Google Play. После сторов — секция соцсетей со встроенными ссылками по локалям. Раскладывается на отдельные блоки.",
   "placement": "section",
   "category": "footer",
-  "version": 3,
+  "version": 4,
   "combo": true,
   "tags": [
     "combo",
@@ -97,7 +97,7 @@
       "slots": {}
     },
     {
-      "id": "iq-footer-socials",
+      "id": "iq-socials-row",
       "role": "socials",
       "slots": {}
     }

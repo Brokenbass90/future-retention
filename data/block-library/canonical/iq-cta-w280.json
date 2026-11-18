@@ -1,13 +1,13 @@
 {
   "id": "iq-cta-w280",
   "label": "Кнопка CTA (w280, оранжевая)",
-  "description": "table.w280 с td.butt и a.butt-link — фирменная оранжевая кнопка 233.",
+  "description": "Email-safe CTA шириной до 280px: фон и скругление на ячейке, один вертикальный padding только на ссылке.",
   "placement": "inner",
   "category": "cta",
-  "version": 3,
+  "version": 4,
   "outlookSafe": true,
-  "pug": "table.iq-cta-w280--w280.iq-cta-w280(align=\"{{ align }}\" role=\"presentation\")\n    tr\n        td.butt.iq-cta-w280--butt.pb0\n            a.iq-cta-w280--butt-link(href=\"{{ href }}\" universal=\"true\" target=\"_blank\") {{ label }}",
-  "styl": ".iq-cta-w280--w280\n  width 100%\n  max-width 280px\n  @media screen and (max-width: 600px)\n    max-width 100% !important\n.iq-cta-w280--butt\n  background-size cover\n  background-color #FF7700\n  font-size 18px !important\n  font-weight 700 !important\n  border-radius: 16px !important\n  text-transform: none\n  font-family: Helvetica !important\n  height auto\n.iq-cta-w280--butt-link\n  font-size 18px\n  line-height 27px\n  font-weight 700\n  text-transform none\n  text-decoration: none\n  color #F9F9F9\n  display block\n  padding: 16px 0 16px\n  text-align center\n  letter-spacing 0px",
+  "pug": "table.iq-cta-w280--w280.iq-cta-w280(align=\"{{ align }}\" role=\"presentation\")\n    tr\n        td.iq-cta-w280--butt(style=\"padding:0\")\n            a.iq-cta-w280--butt-link(href=\"{{ href }}\" universal=\"true\" target=\"_blank\") {{ label }}",
+  "styl": ".iq-cta-w280--w280\n  width 100%\n  max-width 280px\n  @media screen and (max-width: 600px)\n    max-width 100% !important\n.iq-cta-w280--butt\n  background-size cover\n  background-color #FF7700\n  font-size 18px !important\n  font-weight 700 !important\n  border-radius: 16px !important\n  text-transform: none\n  font-family: Helvetica !important\n  height auto\n  padding 0 !important\n.iq-cta-w280--butt-link\n  font-size 18px\n  line-height 27px\n  font-weight 700\n  text-transform none\n  text-decoration: none\n  color #F9F9F9\n  display block\n  padding: 16px 0\n  text-align center\n  letter-spacing 0px",
   "slots": [
     {
       "id": "label",
@@ -37,5 +37,8 @@
       "uiGroup": "appearance"
     }
   ],
-  "scoped": true
+  "scoped": true,
+  "tags": [
+    "iq"
+  ]
 }

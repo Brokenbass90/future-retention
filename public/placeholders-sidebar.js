@@ -25,6 +25,10 @@
   'use strict';
 
   const LS_KEY = 'placeholders-sidebar-collapsed';
+  // Свой регэксп тут больше не живёт: он знал только про переводы, и панель
+  // не показывала ни {{ContentBlock['…']}}, ни {{embedded.…}} — человеку
+  // казалось, что студия не заметила половину текста. Виды описаны в
+  // public/placeholders.js (зеркало src/placeholders.js).
   const PLACEHOLDER_RE = /\$\{\{\s*([\w-]+)\.([\w-]+)\s*\}\}\$/g;
   let panel, listEl, badgeEl, toggleBtn, hostMounted = false;
   let debounceTimer = null;
@@ -41,19 +45,34 @@
   function scanPlaceholders() {
     const text = (window.cm && typeof window.cm.getValue === 'function')
       ? window.cm.getValue() : '';
-    const out = [];
-    PLACEHOLDER_RE.lastIndex = 0;
-    let m;
-    while ((m = PLACEHOLDER_RE.exec(text)) !== null) {
-      out.push({
-        n: out.length + 1,
-        namespace: m[1],
-        blockId: m[2],
-        raw: m[0],
-        index: m.index,
-      });
+    const shared = window.RetkitPlaceholders;
+    if (!shared) {
+      // Общий модуль не подключён — работаем как раньше, только по переводам.
+      const out = [];
+      PLACEHOLDER_RE.lastIndex = 0;
+      let m;
+      while ((m = PLACEHOLDER_RE.exec(text)) !== null) {
+        out.push({ n: out.length + 1, namespace: m[1], blockId: m[2], raw: m[0], index: m.index });
+      }
+      return out;
     }
-    return out;
+    return shared.findPlaceholders(text)
+      // Служебная разметка — не плейсхолдер письма, в списке ей делать нечего.
+      .filter((entry) => entry.dialect !== 'style')
+      .map((entry, i) => {
+        // У перевода ключ составной: namespace.blockId. У переменных платформы
+        // неймспейса нет — показываем вид, чтобы человек понимал, кто подставит.
+        const parts = entry.dialect === 'translate' ? String(entry.key).split('.') : [];
+        return {
+          n: i + 1,
+          dialect: entry.dialect,
+          title: entry.title,
+          namespace: entry.dialect === 'translate' ? (parts.slice(0, -1).join('.') || parts[0] || '') : entry.title,
+          blockId: entry.dialect === 'translate' ? (parts[parts.length - 1] || '') : entry.key,
+          raw: entry.text,
+          index: entry.index,
+        };
+      });
   }
 
   /** Look up the value of a placeholder in the active locale. */

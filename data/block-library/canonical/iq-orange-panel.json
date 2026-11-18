@@ -46,5 +46,8 @@
       "allowSystemPlaceholder": true
     }
   ],
-  "scoped": true
+  "scoped": true,
+  "tags": [
+    "iq"
+  ]
 }
