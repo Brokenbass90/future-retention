@@ -2052,3 +2052,6 @@ button.c-loc-name:hover { color: var(--text, #e5edf7); background: var(--surface
 .c-loc-issues .warn { color: #f4be63; }
 .c-loc-check.warn { color: #f4be63; }
 .c-loc-row.add code { color: var(--green, #72d6a0); }
+
+.rtl-toggle { font-size: 11px; padding-inline: 8px; white-space: nowrap; }
+.rtl-toggle.active { background: var(--accent, #4f7cff); color: #fff; }

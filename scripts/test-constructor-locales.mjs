@@ -74,7 +74,7 @@ for (const src of ['/locale-lint-data.js', '/locale-lint.js', '/rtl-core.js', '/
   assert.ok(html.indexOf(src) > 0 && html.indexOf(src) < html.indexOf('/constructor.js"'), `${src} before constructor.js`);
 }
 assert.ok(js.includes('localizeCanvasBlocks(canvasToBlocks({ allowLocalAssets: true }), previewLocale)'), 'preview builds the chosen locale');
-assert.ok(js.includes('RetKitConstructorLocales.applyRtl(data.html, previewLocale)'), 'ar/ur preview is RTL');
+assert.ok(js.includes('applyConstructorRtl(data.html, previewLocale)'), 'ar/ur preview is RTL');
 assert.ok(js.includes('locales: constructorLocalesForAgent()'), 'the agent sees the locales in read_canvas');
 assert.ok(/\nmountConstructorLocales\(\);\n/.test(js), 'locales mounted');
 assert.ok(/\nmountInspectorToggle\(\);\n/.test(js), 'inspector panel toggles');
@@ -148,7 +148,7 @@ assert.ok(js.includes('handOffLocalesToCode(brand, mid);\n      window.location.
   const wb = fs.readFileSync(new URL('../public/workbench.js', import.meta.url), 'utf8');
   assert.ok(wb.includes("const LS_NAMESPACES_SCOPE_PREFIX = 'wb-namespaces:';"), 'Code tab still reads wb-namespaces:<brand>/<mail>');
   assert.ok(wb.includes('`${LS_NAMESPACES_SCOPE_PREFIX}${encodeURIComponent(safeBrand)}/${encodeURIComponent(safeMail)}`'), 'same key format');
-  const fnSrc = js.slice(js.indexOf('function handOffLocalesToCode'), js.indexOf('/* ─── Правая панель'));
+  const fnSrc = js.slice(js.indexOf('function handOffLocalesToCode'), js.indexOf('/* ─── Арабизация'));
   const store2 = new Map();
   const ctx = { console, JSON, Math, Date, Object, Array, localStorage: { getItem: (k) => store2.get(k) ?? null, setItem: (k, v) => store2.set(k, v) }, window: { RetKitConstructorLocales: C } };
   vm.createContext(ctx);
@@ -159,5 +159,24 @@ assert.ok(js.includes('handOffLocalesToCode(brand, mid);\n      window.location.
   assert.equal(saved[0].referenceLocale, 'en');
   assert.deepEqual(Object.keys(saved[0].locales).sort(), Object.keys(C.data.locales).sort());
   assert.ok(saved[0].localeRaw.fr.startsWith('{{Bonjour'), 'TXT for the Code editor');
+}
+// Arabization in the constructor: ar/ur tabs always RTL, ⇄ RTL forces it for the rest; ZIP follows the same rule.
+{
+  assert.ok(js.includes('const localeHtml = applyConstructorRtl(data.html, previewLocale);'), 'preview goes through the RTL rule');
+  assert.ok(js.includes('applyRtl: applyConstructorRtl,'), 'ZIP uses the same rule');
+  assert.ok(/\nmountRtlToggle\(\);\n/.test(js), '⇄ RTL button mounted');
+  const fnSrc = js.slice(js.indexOf('const RTL_FORCE_KEY'), js.indexOf('function paintRtlToggle'));
+  const calls = [];
+  const ctx = { localStorage: { getItem: () => 'off', setItem() {} }, window: { RetKitRtlCore: { applyRtl: (h, o) => { calls.push(o); return `<!-- retkit-rtl:v2:x -->${h}`; } } }, String };
+  vm.createContext(ctx);
+  vm.runInContext(fnSrc + '\nthis.api = { applyConstructorRtl, constructorRtlLang, force: (v) => { _forceRtl = v; } };', ctx);
+  assert.equal(ctx.api.constructorRtlLang('ar_KW'), 'ar');
+  assert.equal(ctx.api.constructorRtlLang('fr'), '');
+  assert.equal(ctx.api.applyConstructorRtl('<p>x</p>', 'fr'), '<p>x</p>', 'fr stays LTR');
+  ctx.api.force(true);
+  assert.equal(ctx.api.constructorRtlLang('original'), 'ar', 'forced RTL for Original');
+  const once = ctx.api.applyConstructorRtl('<p>x</p>', 'ur');
+  assert.equal(calls.at(-1).lang, 'ur');
+  assert.equal(ctx.api.applyConstructorRtl(once, 'ur'), once, 'already arabized — not again');
 }
 console.log('✓ constructor locales: folder import, auto-bind, per-locale preview/ZIP texts, picker, lint, wiring');

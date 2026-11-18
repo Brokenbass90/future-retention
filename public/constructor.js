@@ -3522,7 +3522,8 @@ async function runLivePreview() {
       settleLiveWaiters({ ok: false, error: String(data.error || res.status), stderr: String(data.stderr || "").slice(0, 600) });
       return;
     }
-    const localeHtml = window.RetKitConstructorLocales ? window.RetKitConstructorLocales.applyRtl(data.html, previewLocale) : data.html;
+    const localeHtml = applyConstructorRtl(data.html, previewLocale);
+    paintRtlToggle(previewLocale);
     _lastLiveHtml = sanitizeIframePreviewHtml(localeHtml);
     stage?.classList.add("has-content");
     const frame = $("liveFrame");
@@ -4806,6 +4807,7 @@ function mountConstructorLocales() {
     stats: () => api.bindingStats(canvasTextSlots()),
     mailName: () => $("mailName")?.value?.trim() || "",
     buildHtml: buildLocaleHtml,
+    applyRtl: applyConstructorRtl,
     autoBind: () => {
       const candidates = canvasTextSlots().filter((item) => item.group === "content" && ["text", "richtext"].includes(item.kind));
       const changes = candidates.map((item) => ({ item, next: api.autoBindValue(item.value) })).filter((change) => change.next);
@@ -6023,6 +6025,59 @@ function handOffLocalesToCode(brand, mail) {
     return false;
   }
 }
+
+/* ─── Арабизация (RTL) в конструкторе ─────────────────────────────────────
+ * Вкладки ar / ur / fa / he локалей всегда показываются справа налево (как
+ * сборка в «Коде»). Кнопка ⇄ RTL включает арабизацию и для остального —
+ * например, когда тексты на холсте сами арабские. Движок тот же, что у «Кода»
+ * и RetKit для MoEngage (/rtl-core.js, режим document: dir/lang, зеркальные
+ * стороны inline и в <style>). Уже арабизированное письмо повторно не трогаем. */
+const RTL_FORCE_KEY = "retkit-constructor-rtl";
+let _forceRtl = (() => { try { return localStorage.getItem(RTL_FORCE_KEY) === "on"; } catch { return false; } })();
+
+function constructorRtlLang(locale) {
+  const lang = String(locale === "original" ? "" : locale || "").toLowerCase().split(/[_-]/)[0];
+  if (/^(?:ar|ur|fa|he)$/.test(lang)) return lang;
+  return _forceRtl ? "ar" : "";
+}
+
+function applyConstructorRtl(html, locale) {
+  const lang = constructorRtlLang(locale);
+  if (!lang || !html || !window.RetKitRtlCore?.applyRtl) return html;
+  if (/<!--\s*retkit-rtl:v2:/i.test(html)) return html; // уже арабизировано
+  try { return window.RetKitRtlCore.applyRtl(html, { mode: "document", lang }); } catch { return html; }
+}
+
+function paintRtlToggle(locale = window.RetKitConstructorLocales?.active || "original") {
+  const button = document.getElementById("rtlToggleBtn");
+  if (!button) return;
+  const byLocale = /^(?:ar|ur|fa|he)$/.test(String(locale === "original" ? "" : locale).toLowerCase().split(/[_-]/)[0]);
+  button.classList.toggle("active", byLocale || _forceRtl);
+  button.title = byLocale
+    ? `${String(locale).toUpperCase()}: справа налево автоматически`
+    : (_forceRtl ? "Арабизация включена для всего письма — нажмите, чтобы выключить" : "Арабизация: показать письмо справа налево (для арабских текстов на холсте)");
+}
+
+function mountRtlToggle() {
+  const header = document.querySelector(".preview-pane-header .preview-device-toggle");
+  if (!header || document.getElementById("rtlToggleBtn")) return;
+  const button = document.createElement("button");
+  button.type = "button";
+  button.id = "rtlToggleBtn";
+  button.className = "dev-btn rtl-toggle";
+  button.textContent = "⇄ RTL";
+  button.addEventListener("click", () => {
+    _forceRtl = !_forceRtl;
+    try { localStorage.setItem(RTL_FORCE_KEY, _forceRtl ? "on" : "off"); } catch {}
+    paintRtlToggle();
+    scheduleLivePreview(0);
+    flashCanvasHint(_forceRtl ? "Арабизация включена: справа налево, стороны отзеркалены" : "Арабизация выключена (локали ar/ur — по-прежнему справа налево)", 2500);
+  });
+  header.insertBefore(button, header.firstChild);
+  paintRtlToggle();
+}
+
+mountRtlToggle();
 
 /* ─── Правая панель «Свойства блока»: выдвигается по кнопке ─────────────── */
 function mountInspectorToggle() {

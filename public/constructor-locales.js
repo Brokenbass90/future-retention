@@ -612,7 +612,7 @@
         const code = data.order[i];
         if (button) button.textContent = `⬇ ${i + 1}/${data.order.length}`;
         const html = await host.buildHtml(code);
-        zip.file(`${mail}/${code}/index.html`, applyRtl(html, code));
+        zip.file(`${mail}/${code}/index.html`, host.applyRtl ? host.applyRtl(html, code) : applyRtl(html, code));
       }
       const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
       const url = URL.createObjectURL(blob);
