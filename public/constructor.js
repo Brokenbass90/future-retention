@@ -5038,7 +5038,7 @@ $("paletteParentBtn")?.addEventListener("click", () => {
   if (selected?.parentUid != null) selectCanvas(selected.parentUid);
 });
 
-$("previewBtn").addEventListener("click", preview);
+$("previewBtn")?.addEventListener("click", preview);
 $("saveBtn").addEventListener("click", save);
 $("previewClose").addEventListener("click", () => $("previewModal").classList.add("hidden"));
 document.addEventListener("keydown", (e) => {

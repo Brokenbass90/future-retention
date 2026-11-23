@@ -105,7 +105,7 @@ const check = (name, cond, extra = "") => {
   const html = readFileSync(path.join(REPO, "public", "constructor.html"), "utf8");
   const js = readFileSync(path.join(REPO, "public", "constructor.js"), "utf8");
   check("в шапке есть поле метки кампании", html.includes('id="campaignName"'));
-  check("есть кнопка списка ссылок", html.includes('id="linksBtn"'));
+  check("лишних кнопок Ссылки/Preview в шапке нет", !html.includes('id="linksBtn"') && !html.includes('id="previewBtn"'));
   check("метка уходит во все пути сборки",
     (js.match(/campaignPayload\(\)/g) || []).length >= 4,
     String((js.match(/campaignPayload\(\)/g) || []).length));
