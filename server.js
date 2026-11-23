@@ -3,6 +3,7 @@ import { timingSafeEqual } from "node:crypto";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawn } from "node:child_process";
+import { APP_VERSION } from "./src/app-version.js";
 import { fileURLToPath } from "node:url";
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { cp, mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
@@ -246,6 +247,8 @@ registerMcpRoutes(studioRouter, {
 registerShotRoutes(studioRouter, { sendJson, readRequestBody });
 registerLocaleToolsRoutes(studioRouter, { repoRoot: __dirname, sendJson, sendText: (...args) => sendText(...args), readRequestBody });
 registerRelayRoutes(studioRouter, { sendJson, readRequestBody });
+// Версия студии для подписи у логотипа (public/app-version.js): Heroku или localhost.
+studioRouter.get("/api/version", (request, response) => { sendJson(response, 200, { ok: true, ...APP_VERSION }); });
 registerWorkingCopyRoutes(studioRouter, { repoRoot: __dirname, sendJson, readRequestBody });
 registerAgentThreadRoutes(studioRouter, { repoRoot: __dirname, sendJson });
 registerSourceRoutes(studioRouter, { repoRoot: __dirname, sendJson });

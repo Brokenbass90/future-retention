@@ -4782,3 +4782,8 @@ body:has(.ph-sidebar:not(.collapsed):not(.hidden)) .workspace {
 .locale-lint-row:hover { background: var(--surface-2); }
 .locale-lint-ignore { margin-left: auto; border: 1px solid var(--border); background: transparent; color: var(--text-2); border-radius: 6px; font-size: 11px; padding: 1px 7px; cursor: pointer; white-space: nowrap; }
 .locale-lint-ignore:hover { color: var(--text); border-color: var(--accent); }
+
+/* Версия студии у логотипа */
+.app-version { margin-left: 8px; padding: 2px 8px; border-radius: 999px; font: 600 11px/1.5 ui-monospace, Menlo, monospace; white-space: nowrap; border: 1px solid; }
+.app-version.is-local { color: #16a34a; border-color: rgba(22,163,74,.45); background: rgba(22,163,74,.08); }
+.app-version.is-heroku { color: #7c3aed; border-color: rgba(124,58,237,.45); background: rgba(124,58,237,.08); }

@@ -371,17 +371,26 @@ function stripEmptyAtRules(cssText) {
   return root.toString();
 }
 
+// Один язык — две папки в vendor/data: zh/cn (китайский), sv/se (шведский),
+// ka/ge (грузинский). Чего нет в своей папке (например footer_upload у zh),
+// берём из парной — иначе футер в этой локали оставался с ${{ … }}$.
+const LOCALE_DATA_ALIASES = { zh: 'cn', cn: 'zh', sv: 'se', se: 'sv', ka: 'ge', ge: 'ka' };
+
 function buildTranslationIndex(langDirAbs, locale) {
-  const base = path.join(langDirAbs, locale);
   const out = new Map();
-  if (!fs.existsSync(base)) return out;
-  const files = fs.readdirSync(base).filter((f) => f.endsWith('.json'));
-  for (const f of files) {
-    try {
-      const json = fs.readJsonSync(path.join(base, f));
-      out.set(path.basename(f, '.json'), json);
-    } catch (e) {
-      // ignore broken JSON files
+  const alias = LOCALE_DATA_ALIASES[String(locale || '').toLowerCase()];
+  for (const dir of [locale, alias].filter(Boolean)) {
+    const base = path.join(langDirAbs, dir);
+    if (!fs.existsSync(base)) continue;
+    const files = fs.readdirSync(base).filter((f) => f.endsWith('.json'));
+    for (const f of files) {
+      const name = path.basename(f, '.json');
+      if (out.has(name)) continue; // своя папка важнее парной
+      try {
+        out.set(name, fs.readJsonSync(path.join(base, f)));
+      } catch (e) {
+        // ignore broken JSON files
+      }
     }
   }
   return out;
