@@ -189,4 +189,15 @@ assert.ok(js.includes('handOffLocalesToCode(brand, mid);\n      window.location.
   C.setIgnored([]);
   assert.equal(C.lint.issues.length, before, 'Показать скрытые brings it back');
 }
+// Письмо без локалей: ZIP одной локали, язык угадывается по тексту.
+{
+  assert.equal(C.guessLocale('Здравствуйте! Ваш код подтверждения ниже, никому его не сообщайте.'), 'ru');
+  assert.equal(C.guessLocale('Hello! Your confirmation code is below, please do not share it with anyone.'), 'en');
+  assert.equal(C.guessLocale('ок'), '', 'too short — no guess');
+  const src = fs.readFileSync(new URL('../public/constructor-locales.js', import.meta.url), 'utf8');
+  assert.ok(src.includes('data-act="zip-single"'), 'single-locale ZIP button without a set');
+  const cjs = fs.readFileSync(new URL('../public/constructor.js', import.meta.url), 'utf8');
+  assert.ok(cjs.includes('canvasText: () =>'), 'host gives canvas text for the guess');
+  assert.ok(/if \(!data\) return !locale \|\| locale === "original" \? "en" : locale;/.test(cjs), 'build uses chosen locale without a set');
+}
 console.log('✓ constructor locales: folder import, auto-bind, per-locale preview/ZIP texts, picker, lint, wiring');

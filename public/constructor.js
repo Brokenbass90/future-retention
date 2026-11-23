@@ -4781,7 +4781,7 @@ function constructorLocalesForAgent() {
 /** Локаль для сборки: Original = эталон; футер сборка берёт из vendor/data/<locale>. */
 function constructorBuildLocale(locale) {
   const data = window.RetKitConstructorLocales?.data;
-  if (!data) return "en";
+  if (!data) return !locale || locale === "original" ? "en" : locale;
   return locale === "original" ? data.ref : locale;
 }
 
@@ -4807,6 +4807,10 @@ function mountConstructorLocales() {
     stats: () => api.bindingStats(canvasTextSlots()),
     mailName: () => $("mailName")?.value?.trim() || "",
     buildHtml: buildLocaleHtml,
+    canvasText: () => canvasTextSlots()
+      .filter((item) => item.group === "content" && ["text", "richtext"].includes(item.kind))
+      .map((item) => String(item.value || "").replace(/<[^>]+>/g, " "))
+      .join(" \n "),
     applyRtl: applyConstructorRtl,
     autoBind: () => {
       const candidates = canvasTextSlots().filter((item) => item.group === "content" && ["text", "richtext"].includes(item.kind));

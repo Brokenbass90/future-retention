@@ -260,6 +260,7 @@
     if (!data) {
       bar.innerHTML = `<button type="button" class="c-loc-btn" data-act="folder" title="Загрузить папку с локалями (en.txt, fr.txt… или JSON из базы)">📁 Локали</button>
         <button type="button" class="c-loc-btn" data-act="new-set" title="Начать локали с нуля: вписать тексты EN руками">＋ Новый набор</button>
+        <button type="button" class="c-loc-btn" data-act="zip-single" title="Скачать ZIP с готовым читаемым HTML этого письма (одна локаль; язык определю по тексту, футер — на нём)">⬇ ZIP</button>
         <span class="c-loc-hint">Загрузите папку или начните с нуля — письмо можно будет смотреть и выгружать на всех языках</span>`;
     } else {
       const tabs = ['original', ...data.order].map((code) => {
@@ -290,6 +291,7 @@
       render();
     });
     bar.querySelector('[data-act="zip"]')?.addEventListener('click', () => exportZip());
+    bar.querySelector('[data-act="zip-single"]')?.addEventListener('click', () => exportSingleZip());
     bar.querySelector('[data-act="add-locale"]')?.addEventListener('click', () => addLocale());
     bar.querySelector('[data-act="new-set"]')?.addEventListener('click', () => newSet());
     bar.querySelector('[data-act="strings"]')?.addEventListener('click', (event) => { event.stopPropagation(); toggleStrings(); });
@@ -671,6 +673,50 @@
     }
   }
 
+  /** Язык письма по его текстам: двухбуквенный код локали или ''. */
+  function guessLocale(text) {
+    const L = root.RetKitLocaleLint;
+    if (!L?.detect || String(text || '').trim().length < 20) return '';
+    const ranked = L.detect(text);
+    const iso3 = ranked?.[0]?.[0];
+    if (!iso3) return '';
+    for (const code of ['en', 'ru', 'de', 'es', 'fr', 'it', 'pt', 'tr', 'ar', 'th', 'vi', 'id', 'ms', 'ko', 'ja', 'zh', 'pl', 'uk', 'nl', 'se', 'no', 'hi', 'ka']) {
+      if (L.langOf(code)?.lang === iso3) return code;
+    }
+    return '';
+  }
+
+  /**
+   * Письмо без локалей: один язык. ZIP с <mail>/<locale>/index.html —
+   * тот же читаемый (не минифицированный) HTML, что и при работе с локалями.
+   */
+  async function exportSingleZip() {
+    if (!host?.buildHtml) return;
+    const guessed = guessLocale(host.canvasText?.() || '') || 'en';
+    const answer = prompt('Язык письма (код локали: en, ru, fr, ar…) — по нему футер и RTL:', guessed);
+    if (answer === null) return;
+    const code = String(answer).trim().toLowerCase() || guessed;
+    if (!/^[a-z]{2,3}(?:[_-][a-z0-9]{2,4})?$/.test(code)) { host?.toast?.(`Непонятный код локали: ${code}`); return; }
+    const button = document.getElementById('cLocalesBar')?.querySelector('[data-act="zip-single"]');
+    try {
+      if (button) button.textContent = '⬇ …';
+      const JSZip = await loadJsZip();
+      const zip = new JSZip();
+      const mail = safeName(host.mailName?.() || 'mail');
+      const html = await host.buildHtml(code);
+      zip.file(`${mail}/${code}/index.html`, host.applyRtl ? host.applyRtl(html, code) : applyRtl(html, code));
+      const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
+      const url = URL.createObjectURL(blob);
+      Object.assign(document.createElement('a'), { href: url, download: `${mail}-${code}.zip` }).click();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+      host?.toast?.(`ZIP: ${code.toUpperCase()}`);
+    } catch (error) {
+      host?.toast?.(`ZIP не собран: ${error.message}`);
+    } finally {
+      if (button) button.textContent = '⬇ ZIP';
+    }
+  }
+
   // ─── Подключение ─────────────────────────────────────────────────────────
 
   function mount(callbacks) {
@@ -681,7 +727,7 @@
 
   root.RetKitConstructorLocales = {
     mount, render, importFiles, localizeBlocks, resolveText, applyRtl, autoBindValue, bindingStats,
-    slotPickerHtml, valueForPick, setActive, exportZip, toggleStrings, openEditor, copyPlaceholder, afterPaste, highlightTxt,
+    slotPickerHtml, valueForPick, setActive, exportZip, exportSingleZip, guessLocale, toggleStrings, openEditor, copyPlaceholder, afterPaste, highlightTxt,
     markTokens, tokenIndex, setLocaleString, ignoredKeys, setIgnored, refStrings, addLocale, newSet, addString, token: (i) => (data ? token(data.name, i) : ''),
     get active() { return data ? active : 'original'; },
     get data() { return data ? JSON.parse(JSON.stringify(data)) : null; },
