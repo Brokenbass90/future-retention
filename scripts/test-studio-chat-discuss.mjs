@@ -76,7 +76,7 @@ function mountChat(options = {}) {
     return { ok: true, json: async () => ({ openAiConfigured: true }) };
   };
   window.fetch = sandbox.fetch;
-  const chat = new StudioChat({ surface: "constructor", buildContext: () => ({}), ...options });
+  const chat = new StudioChat({ surface: "workbench", buildContext: () => ({}), ...options });
   return { chat, document, window, sandbox, sent };
 }
 
@@ -145,6 +145,18 @@ const realWantsSetup = loadWantsSetup();
     document.querySelectorAll(".chat-panel").length === 1);
   check("и оно снова открыто",
     document.querySelector(".chat-panel").classList.contains("open") === true);
+}
+
+/* ─── 3b. В конструкторе поля нет: текст уходит в буфер для своего агента ── */
+{
+  const { chat, sandbox } = mountChat({ surface: "constructor" });
+  const copied = [];
+  sandbox.navigator = { clipboard: { writeText: async (t) => { copied.push(t); } } };
+  chat.discuss({ text: "Блок «Шапка» (id: iq-header-01) в этом письме." });
+  check("в конструкторе текст ушёл в буфер", /iq-header-01/.test(copied.join("")), JSON.stringify(copied));
+  check("в конструкторе подсказка вставить в окно агента", /окно своего Claude или Codex/.test(chat.log?.textContent || ""));
+  await new Promise((r) => setTimeout(r, 20));
+  check("в конструкторе поле ввода спрятано", chat.root.querySelector(".chat-form").style.display === "none");
 }
 
 /* ─── 4. Меню действительно ведёт сюда ───────────────────────────────────── */

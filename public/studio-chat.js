@@ -220,7 +220,7 @@
         this.addImages([...(e.dataTransfer?.files || [])].filter((f) => f.type.startsWith("image/")));
       });
 
-      this.loadThread();
+      if (this.surface !== "constructor") this.loadThread();
       this.open();
       this.applyAgentOnlyMode();
     }
@@ -232,8 +232,12 @@
      * идёт в Claude или Codex, а правки агента видны прямо на холсте и в коде.
      */
     async applyAgentOnlyMode() {
-      let aiEnabled = true;
-      try { aiEnabled = (await (await fetch("/healthz")).json())?.aiEnabled !== false; } catch { return; }
+      // В конструкторе разговор идёт только в окне своего Claude или Codex:
+      // поле ввода здесь лишнее. Остаются индикатор и подключение.
+      let aiEnabled = this.surface !== "constructor";
+      if (aiEnabled) {
+        try { aiEnabled = (await (await fetch("/healthz")).json())?.aiEnabled !== false; } catch { return; }
+      }
       if (aiEnabled || !this.root) return;
       this.root.classList.add("agent-only");
       const form = this.root.querySelector(".chat-form");
@@ -437,6 +441,17 @@
       this.mount();
       this.open();
       const text = String(subject?.text || "").trim();
+      if (text && this.surface === "constructor") {
+        // Поля ввода здесь нет: разговор идёт в окне своего агента.
+        // Отдаём текст в буфер — человеку остаётся вставить его туда.
+        try { navigator.clipboard?.writeText(text).catch(() => {}); } catch {}
+        const note = el("div", "chat-msg assistant");
+        note.textContent = "Скопировал в буфер — вставьте в окно своего Claude или Codex (Ctrl/Cmd+V). " +
+          "Агент видит холст сам.";
+        this.log?.appendChild(note);
+        if (this.log) this.log.scrollTop = this.log.scrollHeight;
+        return true;
+      }
       if (!text || !this.input) return false;
       const current = String(this.input.value || "");
       if (current.includes(text)) {
