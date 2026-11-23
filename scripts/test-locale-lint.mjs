@@ -239,5 +239,9 @@ console.log('✓ locale-lint: clean / raw copy / alphabet / language / close lan
   assert.ok(again.report.includes('unchanged'), again.report);
   const set = await TOOL_HANDLERS.set_locale_blocks({ namespace: 'promo', locale: 'fr', blocks: es.slice() }, ctx);
   assert.ok(String(set.localeLint || '').includes('fr'), JSON.stringify(set));
+  assert.ok(wb.includes('ignore: localeLintIgnored(ns.name)') && wb.includes('retkit-lint-ignore:ns:'), 'Code tab: ignore list per locale set');
+  assert.ok(wb.includes('renderLocaleLintList();') && wb.includes('function revealLocaleLintIssue(x)'), 'Code tab: issue list with jump to the block');
+  const cl = fs.readFileSync(new URL('../public/constructor-locales.js', import.meta.url), 'utf8');
+  assert.ok(cl.includes('`retkit-lint-ignore:ns:${name}`'), 'constructor shares the same ignore list');
   console.log('✓ locale-lint: Code tab wiring, lint_locales (report → unchanged), set_locale_blocks carries the summary');
 }

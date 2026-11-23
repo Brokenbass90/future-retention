@@ -4774,3 +4774,11 @@ body:has(.ph-sidebar:not(.collapsed):not(.hidden)) .workspace {
   font-size: 12px;
   gap: 3px;
 }
+
+/* Проверка локалей в панели аудита */
+.locale-lint-results:empty { display: none; }
+.locale-lint-results { margin-bottom: 12px; }
+.locale-lint-row { cursor: pointer; }
+.locale-lint-row:hover { background: var(--surface-2); }
+.locale-lint-ignore { margin-left: auto; border: 1px solid var(--border); background: transparent; color: var(--text-2); border-radius: 6px; font-size: 11px; padding: 1px 7px; cursor: pointer; white-space: nowrap; }
+.locale-lint-ignore:hover { color: var(--text); border-color: var(--accent); }

@@ -5620,6 +5620,78 @@ function validateLocales() {
   r.validateBadge.classList.toggle('hidden', totalErrors === 0);
   state._localeStatus = localeStatus;
   applyLocaleValidationStyles(localeStatus);
+  renderLocaleLintList();
+}
+
+// «Не ошибка» — по набору локалей; тот же ключ у конструктора (один origin).
+function localeLintIgnored(nsName) {
+  try { const list = JSON.parse(localStorage.getItem(`retkit-lint-ignore:ns:${nsName}`) || '[]'); return Array.isArray(list) ? list : []; } catch { return []; }
+}
+function setLocaleLintIgnored(nsName, list) {
+  try { localStorage.setItem(`retkit-lint-ignore:ns:${nsName}`, JSON.stringify([...new Set(list.filter(Boolean))])); } catch {}
+  validateLocales();
+}
+
+/**
+ * Список ошибок локалей в панели «HTML-аудит» (сверху): клик — локаль в превью
+ * и её редактор на этом блоке; «игнор» — скрыть случай во всех локалях набора.
+ */
+function renderLocaleLintList() {
+  const panel = document.getElementById('panel-validate');
+  if (!panel) return;
+  let box = document.getElementById('localeLintResults');
+  if (!box) {
+    box = document.createElement('div');
+    box.id = 'localeLintResults';
+    box.className = 'validate-results locale-lint-results';
+    panel.insertBefore(box, document.getElementById('validateResults'));
+    box.addEventListener('click', (e) => {
+      const ign = e.target.closest('[data-lint-ignore]');
+      const all = Object.values(state.localeLint || {}).flat();
+      if (ign) { const x = all[Number(ign.dataset.lintIgnore)]; if (x) setLocaleLintIgnored(x.ns, [...localeLintIgnored(x.ns), x.key]); return; }
+      const unhide = e.target.closest('[data-lint-unhide]');
+      if (unhide) { setLocaleLintIgnored(unhide.dataset.lintUnhide, []); return; }
+      const row = e.target.closest('[data-lint-issue]');
+      if (row) revealLocaleLintIssue(all[Number(row.dataset.lintIssue)]);
+    });
+  }
+  const all = Object.values(state.localeLint || {}).flat();
+  const hiddenNs = state.namespaces.filter(ns => !ns.builtin && localeLintIgnored(ns.name).length);
+  if (!all.length && !hiddenNs.length) { box.innerHTML = ''; return; }
+  const rows = all.slice(0, 80).map((x, n) => `<div class="validate-item ${x.severity === 'error' ? 'error' : 'warn'} locale-lint-row" data-lint-issue="${n}" title="Открыть локаль на этом месте">
+      <span class="validate-icon">${x.severity === 'error' ? '❌' : '⚠️'}</span>
+      <div class="validate-text"><b>${escapeHtml(String(x.locale).toUpperCase())}</b> ${typeof x.block === 'number' ? `block_${PH_NUM(x.block)}` : 'локаль'} — ${escapeHtml(x.code)}: ${escapeHtml(x.message)}${x.sample ? ` «${escapeHtml(x.sample)}»` : ''}</div>
+      <button type="button" class="locale-lint-ignore" data-lint-ignore="${n}" title="Это не ошибка — скрыть этот случай во всех локалях набора">☐ игнор</button>
+    </div>`).join('');
+  const hidden = hiddenNs.map(ns => `<div class="validate-item ok" style="opacity:.75"><div class="validate-text">«${escapeHtml(ns.name)}»: скрыто как «не ошибка» — ${localeLintIgnored(ns.name).length}</div><button type="button" class="locale-lint-ignore" data-lint-unhide="${escapeHtml(ns.name)}">Показать скрытые</button></div>`).join('');
+  box.innerHTML = `<div style="margin-bottom:8px;font-size:11.5px;color:var(--text-2)">Проверка локалей: <strong style="color:var(--danger)">${all.filter(x => x.severity === 'error').length}</strong> ошибок · <strong style="color:#f59e0b">${all.filter(x => x.severity !== 'error').length}</strong> предупреждений</div>${rows}${all.length > 80 ? `<div class="validate-item">… ещё ${all.length - 80}</div>` : ''}${hidden}`;
+}
+
+function revealLocaleLintIssue(x) {
+  if (!x) return;
+  const ns = state.namespaces.find(n => n.name === x.ns);
+  if (!ns || !ns.locales?.[x.locale]) return;
+  try { activateLocale(x.locale); } catch {}
+  openLocaleEdit(x.locale);
+  if (state._editNsId !== ns.id) { state._editNsId = ns.id; loadLocaleIntoLocaleCM(ns.id, x.locale); }
+  if (typeof x.block !== 'number') return;
+  setTimeout(() => {
+    if (!cmLocale) return;
+    const text = cmLocale.getValue();
+    const re = /\{\{([\s\S]*?)\}\}/g;
+    let m; let i = 0;
+    while ((m = re.exec(text)) !== null) {
+      if (i === x.block) {
+        const from = cmLocale.posFromIndex(m.index + 2);
+        const to = cmLocale.posFromIndex(m.index + m[0].length - 2);
+        cmLocale.setSelection(from, to);
+        cmLocale.scrollIntoView({ from, to }, 120);
+        cmLocale.focus();
+        return;
+      }
+      i += 1;
+    }
+  }, 120);
 }
 
 /** { [locale]: [{ ns, block, code, severity, message, sample }] } for every own namespace. */
@@ -5631,7 +5703,7 @@ function lintLocalesOfNamespaces() {
     if (ns.builtin || !ns.locales || Object.keys(ns.locales).length < 2) return;
     const refCode = ns.referenceLocale && ns.locales[ns.referenceLocale] ? ns.referenceLocale : undefined;
     let result;
-    try { result = lint.lint({ locales: ns.locales, refCode }); }
+    try { result = lint.lint({ locales: ns.locales, refCode, ignore: localeLintIgnored(ns.name) }); }
     catch (e) { console.warn('[locale-lint]', ns.name, e); return; }
     for (const issue of result.issues) (out[issue.locale] ||= []).push({ ns: ns.name, ...issue });
   });
@@ -5651,7 +5723,7 @@ function applyLocaleValidationStyles(localeStatus = state._localeStatus || {}) {
     if (issues.length) {
       const lines = issues.slice(0, 12).map(i => `${i.severity === 'error' ? '●' : '○'} ${i.block === null || i.block === undefined ? 'локаль' : (typeof i.block === 'number' ? `block_${PH_NUM(i.block)}` : i.block)} — ${i.code}: ${i.message}${i.sample ? ` «${i.sample}»` : ''}`);
       if (issues.length > 12) lines.push(`… ещё ${issues.length - 12}`);
-      tab.title = `${code.toUpperCase()}: проверка локали\n${lines.join('\n')}`;
+      tab.title = `${code.toUpperCase()}: проверка локали (список, переход и «игнор» — внизу, панель «HTML-аудит»)\n${lines.join('\n')}`;
     } else tab.removeAttribute('title');
   });
 }

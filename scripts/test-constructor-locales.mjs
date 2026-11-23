@@ -179,4 +179,14 @@ assert.ok(js.includes('handOffLocalesToCode(brand, mid);\n      window.location.
   assert.equal(calls.at(-1).lang, 'ur');
   assert.equal(ctx.api.applyConstructorRtl(once, 'ur'), once, 'already arabized — not again');
 }
+// «игнор»: hide one case in every locale of the set (same list as the Code tab).
+{
+  const before = C.lint.issues.length;
+  const key = JSON.parse(JSON.stringify(C.lint.issues))[0].key;
+  C.setIgnored([key]);
+  assert.ok(C.lint.issues.length < before && C.lint.ignored >= 1, 'ignored case disappears');
+  assert.ok(store.get('retkit-lint-ignore:ns:promo').includes(key), 'stored per set');
+  C.setIgnored([]);
+  assert.equal(C.lint.issues.length, before, 'Показать скрытые brings it back');
+}
 console.log('✓ constructor locales: folder import, auto-bind, per-locale preview/ZIP texts, picker, lint, wiring');

@@ -126,10 +126,22 @@
 
   // ─── Проверка и подстановка ───────────────────────────────────────────────
 
+  // «Не ошибка» — по набору локалей; тот же ключ читает вкладка «Код» (один origin).
+  const ignoreKey = (name) => `retkit-lint-ignore:ns:${name}`;
+  function ignoredKeys() {
+    if (!data) return [];
+    try { const list = JSON.parse(root.localStorage?.getItem(ignoreKey(data.name)) || '[]'); return Array.isArray(list) ? list : []; } catch { return []; }
+  }
+  function setIgnored(list) {
+    if (!data) return;
+    try { root.localStorage?.setItem(ignoreKey(data.name), JSON.stringify([...new Set(list.filter(Boolean))])); } catch {}
+    relint(); render(); host?.onChange?.();
+  }
+
   function relint() {
     lint = null;
     if (!data || !root.RetKitLocaleLint || Object.keys(data.locales).length < 2) return;
-    try { lint = root.RetKitLocaleLint.lint({ locales: data.locales, refCode: data.ref }); } catch (e) { console.warn('[constructor-locales]', e); }
+    try { lint = root.RetKitLocaleLint.lint({ locales: data.locales, refCode: data.ref, ignore: ignoredKeys() }); } catch (e) { console.warn('[constructor-locales]', e); }
   }
 
   /** Текст слота на локали: плейсхолдеры этого набора → строки локали. */
@@ -425,6 +437,7 @@
     const check = overlay.querySelector('.c-loc-check');
     const hl = overlay.querySelector('.c-loc-hl');
     let issueMap = new Map();
+    let shownIssues = [];
     const paint = () => { hl.innerHTML = highlightTxt(area.value, issueMap); hl.scrollTop = area.scrollTop; hl.scrollLeft = area.scrollLeft; };
     area.addEventListener('input', paint);
     area.addEventListener('scroll', () => { hl.scrollTop = area.scrollTop; hl.scrollLeft = area.scrollLeft; });
@@ -439,7 +452,7 @@
       const trialLocales = { ...data.locales, [code]: blocks };
       let mine = [];
       if (root.RetKitLocaleLint) {
-        try { mine = root.RetKitLocaleLint.lint({ locales: trialLocales, refCode: data.ref }).issues.filter((x) => x.locale === code); } catch {}
+        try { mine = root.RetKitLocaleLint.lint({ locales: trialLocales, refCode: data.ref, ignore: ignoredKeys() }).issues.filter((x) => x.locale === code); } catch {}
       }
       issueMap = new Map();
       for (const x of mine) if (typeof x.block === 'number') issueMap.set(x.block, x.severity === 'error' || issueMap.get(x.block) === 'error' ? 'error' : 'warn');
@@ -455,8 +468,12 @@
         errors.length ? `🔴 ${errors.length}` : '',
         warns ? `🟡 ${warns}` : '',
       ].filter(Boolean).join(' · ');
-      issuesBox.innerHTML = mine.slice(0, 6).map((x) => `<div class="${x.severity}">${x.severity === 'error' ? '●' : '○'} ${typeof x.block === 'number' ? `block_${pad(x.block)}` : 'локаль'} — ${esc(x.code)}: ${esc(x.message)}${x.sample ? ` «${esc(x.sample)}»` : ''}</div>`).join('')
-        + (mine.length > 6 ? `<div>… ещё ${mine.length - 6}</div>` : '');
+      // Клик по строке — к этому блоку в тексте; «игнор» — скрыть случай во всех локалях набора.
+      shownIssues = mine;
+      const hidden = ignoredKeys().length;
+      issuesBox.innerHTML = mine.slice(0, 30).map((x, n) => `<div class="${x.severity} c-loc-issue" data-issue="${n}">${x.severity === 'error' ? '●' : '○'} ${typeof x.block === 'number' ? `block_${pad(x.block)}` : 'локаль'} — ${esc(x.code)}: ${esc(x.message)}${x.sample ? ` «${esc(x.sample)}»` : ''}<button type="button" class="c-loc-ign" data-ignore="${n}" title="Это не ошибка — скрыть этот случай во всех локалях набора">☐ игнор</button></div>`).join('')
+        + (mine.length > 30 ? `<div>… ещё ${mine.length - 30}</div>` : '')
+        + (hidden ? `<div class="c-loc-hidden">Скрыто как «не ошибка»: ${hidden} <button type="button" class="c-loc-ign" data-unhide="1">Показать скрытые</button></div>` : '');
       paint();
     };
     let timer = null;
@@ -475,6 +492,15 @@
     };
     overlay.addEventListener('click', async (event) => {
       if (event.target === overlay) { close(); return; }
+      const ign = event.target.closest('[data-ignore]');
+      if (ign) { const x = shownIssues[Number(ign.dataset.ignore)]; if (x) { setIgnored([...ignoredKeys(), x.key]); refresh(); } return; }
+      if (event.target.closest('[data-unhide]')) { setIgnored([]); refresh(); return; }
+      const row = event.target.closest('[data-issue]');
+      if (row) {
+        const x = shownIssues[Number(row.dataset.issue)];
+        if (x && typeof x.block === 'number') selectBlock(area, x.block);
+        return;
+      }
       const key = event.target.closest('[data-key]');
       if (key) { await copyPlaceholder(Number(key.dataset.key)); return; }
       const act = event.target.closest('[data-ed]')?.dataset.ed;
@@ -546,6 +572,25 @@
     for (const code of Object.keys(data.locales)) data.locales[code] = [...data.locales[code], code === data.ref ? text : ''];
     save(); relint(); render(); host?.onChange?.();
     await copyPlaceholder(data.locales[data.ref].length - 1);
+  }
+
+  /** Выделить в редакторе n-й блок {{ … }} и прокрутить к нему. */
+  function selectBlock(area, n) {
+    const re = /\{\{([\s\S]*?)\}\}/g;
+    let m; let i = 0;
+    while ((m = re.exec(area.value)) !== null) {
+      if (i === n) {
+        area.focus();
+        area.setSelectionRange(m.index + 2, m.index + m[0].length - 2);
+        const before = area.value.slice(0, m.index).split('\n').length - 1;
+        const lineHeight = parseFloat(getComputedStyle(area).lineHeight) || 20;
+        area.scrollTop = Math.max(0, before * lineHeight - area.clientHeight / 3);
+        area.dispatchEvent(new Event('scroll'));
+        return true;
+      }
+      i += 1;
+    }
+    return false;
   }
 
   function tabTitle(code, s) {
@@ -637,7 +682,7 @@
   root.RetKitConstructorLocales = {
     mount, render, importFiles, localizeBlocks, resolveText, applyRtl, autoBindValue, bindingStats,
     slotPickerHtml, valueForPick, setActive, exportZip, toggleStrings, openEditor, copyPlaceholder, afterPaste, highlightTxt,
-    markTokens, tokenIndex, setLocaleString, refStrings, addLocale, newSet, addString, token: (i) => (data ? token(data.name, i) : ''),
+    markTokens, tokenIndex, setLocaleString, ignoredKeys, setIgnored, refStrings, addLocale, newSet, addString, token: (i) => (data ? token(data.name, i) : ''),
     get active() { return data ? active : 'original'; },
     get data() { return data ? JSON.parse(JSON.stringify(data)) : null; },
     get lint() { return lint; },
