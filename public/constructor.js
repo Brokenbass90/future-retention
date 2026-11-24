@@ -2665,6 +2665,17 @@ function renderInspector() {
   const appearanceBindings = commonAppearanceBindings(block);
   const commonSlotIds = new Set(appearanceBindings.map((binding) => binding.slot?.id).filter(Boolean));
   if (appearanceBindings.length) html += renderCommonAppearance(block, entry, appearanceBindings);
+  // Жирность текста — для блоков с текстом (400 / 700 / как в блоке).
+  const hasText = (block.slots || []).some((slot) => ["text", "richtext"].includes(String(slot.kind || "").toLowerCase()) && slotInspectorGroup(slot) === "content");
+  if (hasText && placementOf(block) !== "outer") {
+    const w = String(entry.appearance?.font_weight || "");
+    html += `<section class="insp-group" data-group="weight"><div class="insp-group-title"><span>B</span>Жирность текста</div>
+      <div class="insp-weight" role="group">
+        <button type="button" data-weight="" class="${w ? "" : "active"}">как в блоке</button>
+        <button type="button" data-weight="400" class="${w === "400" ? "active" : ""}" style="font-weight:400">Обычный 400</button>
+        <button type="button" data-weight="700" class="${w === "700" ? "active" : ""}" style="font-weight:700">Жирный 700</button>
+      </div></section>`;
+  }
   const groups = { content: [], assets: [], appearance: [], advanced: [] };
   for (const slot of block.slots || []) {
     if (commonSlotIds.has(slot.id)) continue;
@@ -2698,6 +2709,16 @@ function renderInspector() {
     </div>
   `;
   body.innerHTML = html;
+  body.querySelectorAll("[data-weight]").forEach((btn) => btn.addEventListener("click", () => {
+    pushCanvasUndo();
+    if (!entry.appearance || typeof entry.appearance !== "object") entry.appearance = {};
+    if (btn.dataset.weight) entry.appearance.font_weight = btn.dataset.weight;
+    else delete entry.appearance.font_weight;
+    if (!Object.keys(entry.appearance).length) delete entry.appearance;
+    saveCanvasState();
+    renderInspector();
+    scheduleLivePreview(200);
+  }));
   // Wire up change handlers.
   body.querySelectorAll("[data-slot-id]:not([data-email-color])").forEach((el) => {
     el.addEventListener("focus", () => {
@@ -4860,8 +4881,11 @@ function syncPreheaderInput() {
   if (!input) return;
   const entry = preheaderEntry();
   input.disabled = !entry;
-  if (!entry) { input.value = ""; input.placeholder = "прехедер (нет обёртки)"; return; }
-  input.placeholder = "прехедер";
+  // Полоса локалей рисуется позже строки — держим строку прехедера под ней.
+  const row = $("preheaderRow"), bar = $("cLocalesBar");
+  if (row && bar && bar.nextElementSibling !== row) bar.insertAdjacentElement("afterend", row);
+  if (!entry) { input.value = ""; input.placeholder = "нет обёртки письма — прехедер живёт в ней"; return; }
+  input.placeholder = "скрытая строка рядом с темой во входящих — текст или ${{ набор.block_NN }}$";
   const value = String(entry.slots?.preheader || "");
   if (document.activeElement !== input && input.value !== value) input.value = value;
   const api = window.RetKitConstructorLocales;
@@ -4871,6 +4895,19 @@ function syncPreheaderInput() {
     : "Прехедер — скрытая строка рядом с темой во входящих. Текст или плейсхолдер локали ${{ набор.block_NN }}$ — тогда в каждой локали свой.";
 }
 function mountPreheaderInput() {
+  // Строка над письмом: сразу под полосой локалей — там, где читатель увидит
+  // письмо во входящих: тема/прехедер → тело.
+  if (!$("preheaderRow")) {
+    const header = document.querySelector(".preview-pane-header");
+    if (!header) return;
+    const row = document.createElement("div");
+    row.id = "preheaderRow";
+    row.className = "preheader-row";
+    row.innerHTML = `<label for="preheaderInput">Прехедер</label>
+      <input id="preheaderInput" class="preheader-input" spellcheck="false" placeholder="скрытая строка рядом с темой во входящих — текст или \${{ набор.block_NN }}\$" />`;
+    const bar = $("cLocalesBar");
+    (bar || header).insertAdjacentElement("afterend", row);
+  }
   const input = $("preheaderInput");
   if (!input) return;
   let timer = 0;

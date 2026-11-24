@@ -332,7 +332,10 @@ const APPEARANCE_CSS = Object.freeze({
   border: "border",
   radius: "border-radius",
   padding: "padding",
+  font_weight: "font-weight",
 });
+// Жирность текста из инспектора: только 400/700 и только на текстовые узлы.
+const TEXT_NODE_RE = /^\s*(?:p|h[1-6]|li|span|a|div)(?=[.#(\s]|$)/i;
 
 function safeAppearanceCssValue(raw) {
   const value = String(raw ?? "").trim().slice(0, 180);
@@ -417,6 +420,9 @@ export function applyBlockAppearanceToPug(pug, appearance = {}) {
     if (clean[key]) add(rootIndex, `${APPEARANCE_CSS[key]}:${clean[key]}`);
   }
   if (clean.padding) add(paddingIndex, `${APPEARANCE_CSS.padding}:${clean.padding}`);
+  if (/^(?:400|700)$/.test(clean.font_weight || "")) {
+    lines.forEach((line, index) => { if (TEXT_NODE_RE.test(line)) add(index, `font-weight:${clean.font_weight} !important`); });
+  }
   for (const [index, declarations] of byLine) {
     lines[index] = addInlineStyleToPugLine(lines[index], declarations);
   }

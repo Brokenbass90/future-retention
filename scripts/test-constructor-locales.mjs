@@ -216,8 +216,6 @@ assert.ok(js.includes('handOffLocalesToCode(brand, mid);\n      window.location.
   assert.equal(C.preheaderIndexFromTxt('Assunto: X\nPreheader: {{Retire}}\n\n{{Rescisão}}'), 0);
   assert.equal(C.preheaderIndexFromTxt('{{A}}\n{{B}}\nPreheader: {{C}}'), 2);
   assert.equal(C.preheaderIndexFromTxt('Subject: X\n{{A}}'), -1);
-  const html = fs.readFileSync(new URL('../public/constructor.html', import.meta.url), 'utf8');
-  assert.ok(html.includes('id="preheaderInput"'), 'поле «прехедер» в шапке');
   const cjs = fs.readFileSync(new URL('../public/constructor.js', import.meta.url), 'utf8');
   assert.ok(cjs.includes('onImported: (data) =>') && cjs.includes('setPreheader(api.token(data.preheaderBlock))'), 'автопривязка прехедера при загрузке папки');
   assert.ok(cjs.includes('markEntrySlotExplicit(entry, "preheader")'), 'прехедер — явный слот обёртки');

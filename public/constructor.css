@@ -2067,3 +2067,13 @@ button.c-loc-name:hover { color: var(--text, #e5edf7); background: var(--surface
 .app-version { margin-left: 8px; padding: 2px 8px; border-radius: 999px; font: 600 11px/1.5 ui-monospace, Menlo, monospace; white-space: nowrap; border: 1px solid; }
 .app-version.is-local { color: #16a34a; border-color: rgba(22,163,74,.45); background: rgba(22,163,74,.08); }
 .app-version.is-heroku { color: #7c3aed; border-color: rgba(124,58,237,.45); background: rgba(124,58,237,.08); }
+
+/* Прехедер над письмом (скрытая строка рядом с темой во входящих) */
+.preheader-row{display:flex;align-items:center;gap:10px;padding:6px 14px;border-bottom:1px solid var(--line, #1f2937);background:var(--panel, #0f1722)}
+.preheader-row label{font:600 12px/1 system-ui,sans-serif;color:#8a98ad;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.preheader-row .preheader-input{flex:1;min-width:0;padding:6px 10px;border-radius:8px;border:1px solid #2a3647;background:#0b1220;color:#e6edf7;font:13px/1.3 ui-monospace,Menlo,monospace}
+.preheader-row .preheader-input:disabled{opacity:.5}
+/* Жирность текста в инспекторе */
+.insp-weight{display:flex;gap:6px;margin-top:6px}
+.insp-weight button{flex:1;padding:7px 0;border-radius:8px;border:1px solid #2a3647;background:#152030;color:#e6edf7;cursor:pointer;font:600 12px system-ui,sans-serif}
+.insp-weight button.active{background:#2563eb;border-color:#2563eb}

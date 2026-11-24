@@ -2,7 +2,7 @@ const BLOCK_ID_RE = /^[a-z0-9][a-z0-9_-]{0,63}$/i;
 const MARKER_RE = /^[A-Z][A-Z0-9_]{0,63}$/;
 const SOURCE_RE = /^[a-z][a-z0-9_-]{0,39}$/i;
 const ROLE_RE = /^[a-z][a-z0-9_-]{0,63}$/i;
-const APPEARANCE_KEYS = new Set(["background_color", "border", "radius", "padding"]);
+const APPEARANCE_KEYS = new Set(["background_color", "border", "radius", "padding", "font_weight"]);
 
 export const BLOCK_PLACEMENTS = Object.freeze([
   "outer",
