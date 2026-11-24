@@ -4849,6 +4849,12 @@ function exposeConstructorToUcc() {
         const html = applyConstructorRtl(await buildLocaleHtml(code), code);
         out.push({ code: toUcc(code), html, subject: data?.subjects?.[code] || "" });
       }
+      // В UCC — читаемый код (на случай, если сборка отдала компактный HTML).
+      try {
+        const res = await fetch("/api/wb/pretty-html", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ items: out }) });
+        const pretty = await res.json();
+        if (res.ok && pretty.ok && Array.isArray(pretty.items)) return { name, locales: pretty.items };
+      } catch {}
       return { name, locales: out };
     },
   };

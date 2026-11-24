@@ -5,11 +5,12 @@ import assert from "node:assert/strict";
 const js = readFileSync(new URL("../public/workbench.js", import.meta.url), "utf8");
 const block = js.slice(js.indexOf("(function exposeStudioExport()"));
 assert.ok(block.length > 100, "блок моста есть");
-assert.match(block, /window\.RetKitStudioExport = \{ info, allLocales \}/, "наружу отдаются info и allLocales");
+assert.match(block, /window\.RetKitStudioExport = \{ info, allLocales: async \(\) => prettify\(await allLocales\(\)\) \}/, "наружу отдаются info и allLocales (читаемый HTML)");
 assert.match(block, /\/api\/wb\/code-html\?brand=/, "письмо из базы — готовый HTML с сервера");
 assert.match(block, /applyNamespaceLocale\(html, ns\.name, blocks, false\)/, "HTML с плейсхолдерами — подстановка без служебной обёртки");
 assert.match(block, /zh: 'cn', sv: 'se'/, "коды локалей как в UCC");
-assert.ok(!/method:\s*'POST'|method:\s*"POST"/.test(block), "студия ничего не пишет");
+assert.ok(!/method:\s*'(PUT|DELETE|PATCH)'/.test(block), "студия ничего не пишет");
+assert.match(block, /\/api\/wb\/pretty-html/, "в UCC уходит читаемый (не минифицированный) HTML");
 console.log("✓ studio → UCC: info/allLocales, оба режима «Кода», коды UCC, только чтение");
 
 // Тема из txt локали: «Subject:/Assunto:/Тема:» первой строкой; такие подписи — не «текст вне блоков».
@@ -32,4 +33,11 @@ console.log("✓ studio → UCC: info/allLocales, оба режима «Кода
   assert.match(js, /\.bottom-tool-btn\[data-panel\]/, "кнопка не открывает пустую панель");
   assert.match(js, /window\.__retkitUccBridge/, "кнопка зовёт мост userscript");
   console.log("✓ кнопка «Перенести в UCC» в студии");
+}
+
+{
+  const { prettyHtml } = await import("../src/routes/locale-tools-routes.js");
+  const out = prettyHtml('<table><tr><td><p>Hi</p></td></tr></table>');
+  assert.ok(out.split("\n").length > 4, "компактный HTML раскладывается по строкам");
+  console.log("✓ /api/wb/pretty-html: читаемый HTML для UCC");
 }

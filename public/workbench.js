@@ -13373,7 +13373,16 @@ async function agentPlaceholderize({ namespace = '', refLocale = 'en' } = {}) {
     return { name: fileName(), locales: out };
   }
 
-  window.RetKitStudioExport = { info, allLocales };
+  /** В UCC — читаемый код: сервер прогоняет HTML через тот же beautify, что index.pretty.html. */
+  async function prettify(result) {
+    try {
+      const res = await fetch('/api/wb/pretty-html', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ items: result.locales }) });
+      const data = await res.json();
+      if (res.ok && data.ok && Array.isArray(data.items)) return { ...result, locales: data.items };
+    } catch {}
+    return result;
+  }
+  window.RetKitStudioExport = { info, allLocales: async () => prettify(await allLocales()) };
 
   // Кнопка «Перенести в UCC» в нижней панели. Само окно переноса рисует userscript
   // RetKit UCC Export (он один умеет ходить в UCC с входом человека) — window.__retkitUccBridge.

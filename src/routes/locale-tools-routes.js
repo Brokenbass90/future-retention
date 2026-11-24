@@ -9,9 +9,37 @@
  */
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { createRequire } from "node:module";
 import { placeholderizeByOrder, PlaceholderOrderError } from "../placeholder-order.js";
 
+const require = createRequire(import.meta.url);
+/** Читаемый HTML (не минифицированный) — те же настройки, что у index.pretty.html сборки. */
+export function prettyHtml(html) {
+  const source = String(html || "");
+  try {
+    const { html: beautify } = require("js-beautify");
+    return beautify(source, { indent_size: 2, preserve_newlines: true, max_preserve_newlines: 2, wrap_line_length: 120, end_with_newline: true });
+  } catch {
+    return source;
+  }
+}
+
 export function registerLocaleToolsRoutes(router, { repoRoot, sendJson, sendText, readRequestBody }) {
+  // POST /api/wb/pretty-html { html } | { items: [{ code, html }] } — для переноса в UCC:
+  // в UCC уходит читаемый код, не минифицированный.
+  router.post("/api/wb/pretty-html", async (request, response) => {
+    try {
+      const body = await readRequestBody(request);
+      if (Array.isArray(body?.items)) {
+        sendJson(response, 200, { ok: true, items: body.items.map((item) => ({ ...item, html: prettyHtml(item?.html) })) });
+      } else {
+        sendJson(response, 200, { ok: true, html: prettyHtml(body?.html) });
+      }
+    } catch (error) {
+      sendJson(response, 400, { ok: false, error: error.message });
+    }
+  });
+
   router.post("/api/wb/placeholderize-order", async (request, response) => {
     try {
       const { source = "", kind = "pug", refLocaleTxt = "", namespace = "" } = await readRequestBody(request);
