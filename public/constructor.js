@@ -4833,12 +4833,71 @@ function exposeConstructorToUcc() {
   };
 }
 
+/* ─── Прехедер ────────────────────────────────────────────────────────────
+ * Скрытая строка рядом с темой во входящих. Живёт в слоте `preheader` обёртки
+ * письма (outer). Поле в шапке пишет прямо туда: текст или плейсхолдер локали —
+ * тогда превью, ZIP, «→ В код» и UCC подставляют текст каждой локали. */
+function preheaderEntry() {
+  return state.canvas.find((entry) => {
+    if (entry.parentUid != null) return false;
+    const block = blockForEntry(entry);
+    return block?.placement === "outer" && (block.slots || []).some((slot) => slot.id === "preheader");
+  }) || null;
+}
+function setPreheader(value) {
+  const entry = preheaderEntry();
+  if (!entry) return false;
+  entry.slots = { ...(entry.slots || {}), preheader: String(value || "") };
+  markEntrySlotExplicit(entry, "preheader");
+  saveCanvasState();
+  syncPreheaderInput();
+  if (state.selectedUid === entry.uid) renderInspector();
+  scheduleLivePreview(300);
+  return true;
+}
+function syncPreheaderInput() {
+  const input = $("preheaderInput");
+  if (!input) return;
+  const entry = preheaderEntry();
+  input.disabled = !entry;
+  if (!entry) { input.value = ""; input.placeholder = "прехедер (нет обёртки)"; return; }
+  input.placeholder = "прехедер";
+  const value = String(entry.slots?.preheader || "");
+  if (document.activeElement !== input && input.value !== value) input.value = value;
+  const api = window.RetKitConstructorLocales;
+  const shown = api?.data && /\$\{\{/.test(value) ? api.resolveText(value, api.data.ref) : "";
+  input.title = shown
+    ? `Прехедер (${api.data.ref.toUpperCase()}): ${shown}\nВ каждой локали — свой текст.`
+    : "Прехедер — скрытая строка рядом с темой во входящих. Текст или плейсхолдер локали ${{ набор.block_NN }}$ — тогда в каждой локали свой.";
+}
+function mountPreheaderInput() {
+  const input = $("preheaderInput");
+  if (!input) return;
+  let timer = 0;
+  input.addEventListener("input", () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => { pushCanvasUndo(); setPreheader(input.value); }, 350);
+  });
+  syncPreheaderInput();
+  setInterval(syncPreheaderInput, 1500); // обёртку могли сменить/удалить на холсте
+}
+
 function mountConstructorLocales() {
   exposeConstructorToUcc();
+  mountPreheaderInput();
   const api = window.RetKitConstructorLocales;
   if (!api) return;
   api.mount({
-    onChange: () => { renderInspector(); scheduleLivePreview(0); },
+    onChange: () => { renderInspector(); scheduleLivePreview(0); syncPreheaderInput(); },
+    // Папка локалей: если в txt есть строка «Preheader: {{…}}», прехедер письма
+    // сам привязывается к этому блоку (когда поле прехедера ещё пустое).
+    onImported: (data) => {
+      if (data?.preheaderBlock == null) return;
+      const entry = preheaderEntry();
+      if (!entry || String(entry.slots?.preheader || "").trim()) return;
+      setPreheader(api.token(data.preheaderBlock));
+      flashCanvasHint(`Прехедер привязан к ${data.name}.block_${String(data.preheaderBlock).padStart(2, "0")} (строка «Preheader:» в txt)`, 5000);
+    },
     toast: (text) => flashCanvasHint(text, 6000),
     stats: () => api.bindingStats(canvasTextSlots()),
     mailName: () => $("mailName")?.value?.trim() || "",

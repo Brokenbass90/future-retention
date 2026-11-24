@@ -103,6 +103,18 @@
     return '';
   }
 
+  /** Номер блока, который идёт строкой «Preheader: {{…}}» в txt (или -1). */
+  function preheaderIndexFromTxt(text) {
+    const lines = String(text || '').replace(/\r\n?/g, '\n').split('\n');
+    let count = 0;
+    for (const line of lines) {
+      const label = line.match(/^\s*([\p{L}][\p{L}\p{M} ]{0,29}):\s*\{\{/u);
+      if (label && /^(pre-?header|прехедер|preheader text)$/i.test(label[1].trim())) return count;
+      count += (line.match(/\{\{/g) || []).length;
+    }
+    return -1;
+  }
+
   async function importFiles(fileList) {
     const files = [...(fileList || [])].filter((f) => /\.(txt|json)$/i.test(f.name));
     if (!files.length) { host?.toast?.('В папке нет .txt / .json локалей'); return; }
@@ -110,6 +122,7 @@
     const name = safeName(first.includes('/') ? first.split('/')[0] : 'mail-locales');
     const locales = {};
     const subjects = {};
+    const preheaders = {};
     const rejected = [];
     for (const file of files) {
       const text = await file.text();
@@ -121,7 +134,11 @@
         const blocks = parseLocale(text, file.name);
         if (blocks.length) {
           locales[localeCodeOf(file.name)] = blocks;
-          if (/\.txt$/i.test(file.name)) subjects[localeCodeOf(file.name)] = subjectFromTxt(text);
+          if (/\.txt$/i.test(file.name)) {
+            subjects[localeCodeOf(file.name)] = subjectFromTxt(text);
+            const pre = preheaderIndexFromTxt(text);
+            if (pre >= 0) preheaders[localeCodeOf(file.name)] = pre;
+          }
         }
         else rejected.push(`${file.name}: нет блоков {{ }}`);
       } catch (error) { rejected.push(`${file.name}: ${error.message}`); }
@@ -130,13 +147,14 @@
     if (!codes.length) { host?.toast?.(`Локали не загружены. ${rejected.join('; ')}`); return; }
     const ref = codes.includes('en') ? 'en' : codes.find((c) => /^en/.test(c)) || codes[0];
     const order = [ref, ...codes.filter((c) => c !== ref).sort()];
-    data = { name, ref, locales, order, subjects };
+    data = { name, ref, locales, order, subjects, preheaderBlock: preheaders[ref] ?? Object.values(preheaders)[0] ?? null };
     active = 'original';
     save();
     relint();
     render();
     host?.toast?.(`Локали «${name}»: ${codes.length}${rejected.length ? `, отвергнуто ${rejected.length}` : ''}. Клик по имени набора — block_00 в буфер; наведите на текст в письме и ⌘V.`);
     host?.onChange?.();
+    host?.onImported?.(data);
   }
 
   // ─── Проверка и подстановка ───────────────────────────────────────────────
@@ -749,7 +767,7 @@
 
   root.RetKitConstructorLocales = {
     mount, render, importFiles, localizeBlocks, resolveText, applyRtl, autoBindValue, bindingStats,
-    slotPickerHtml, valueForPick, setActive, exportZip, exportSingleZip, guessLocale, subjectFromTxt, toggleStrings, openEditor, copyPlaceholder, afterPaste, highlightTxt,
+    slotPickerHtml, valueForPick, setActive, exportZip, exportSingleZip, guessLocale, subjectFromTxt, preheaderIndexFromTxt, toggleStrings, openEditor, copyPlaceholder, afterPaste, highlightTxt,
     markTokens, tokenIndex, setLocaleString, ignoredKeys, setIgnored, refStrings, addLocale, newSet, addString, token: (i) => (data ? token(data.name, i) : ''),
     get active() { return data ? active : 'original'; },
     get data() { return data ? JSON.parse(JSON.stringify(data)) : null; },

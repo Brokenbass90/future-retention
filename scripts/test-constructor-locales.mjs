@@ -206,9 +206,20 @@ assert.ok(js.includes('handOffLocalesToCode(brand, mid);\n      window.location.
   assert.equal(C.subjectFromTxt('{{a}}'), '');
   const src = fs.readFileSync(new URL('../public/constructor-locales.js', import.meta.url), 'utf8');
   assert.equal((src.match(/data-act="to-ucc" id="toUccBtn"/g) || []).length, 2, 'кнопка «→ UCC» и с набором, и без');
-  assert.ok(src.includes('data = { name, ref, locales, order, subjects }'), 'темы локалей сохраняются при загрузке папки');
+  assert.ok(src.includes('data = { name, ref, locales, order, subjects,'), 'темы локалей сохраняются при загрузке папки');
   const cjs = fs.readFileSync(new URL('../public/constructor.js', import.meta.url), 'utf8');
   assert.ok(cjs.includes('window.RetKitStudioExport = {') && cjs.includes('exposeConstructorToUcc();'), 'конструктор отдаёт локали мосту');
   assert.ok(cjs.includes('applyConstructorRtl(await buildLocaleHtml(code), code)'), 'HTML как в ZIP: читаемый + RTL');
+}
+// Прехедер: строка «Preheader: {{…}}» в txt → номер блока; поле в шапке; автопривязка.
+{
+  assert.equal(C.preheaderIndexFromTxt('Assunto: X\nPreheader: {{Retire}}\n\n{{Rescisão}}'), 0);
+  assert.equal(C.preheaderIndexFromTxt('{{A}}\n{{B}}\nPreheader: {{C}}'), 2);
+  assert.equal(C.preheaderIndexFromTxt('Subject: X\n{{A}}'), -1);
+  const html = fs.readFileSync(new URL('../public/constructor.html', import.meta.url), 'utf8');
+  assert.ok(html.includes('id="preheaderInput"'), 'поле «прехедер» в шапке');
+  const cjs = fs.readFileSync(new URL('../public/constructor.js', import.meta.url), 'utf8');
+  assert.ok(cjs.includes('onImported: (data) =>') && cjs.includes('setPreheader(api.token(data.preheaderBlock))'), 'автопривязка прехедера при загрузке папки');
+  assert.ok(cjs.includes('markEntrySlotExplicit(entry, "preheader")'), 'прехедер — явный слот обёртки');
 }
 console.log('✓ constructor locales: folder import, auto-bind, per-locale preview/ZIP texts, picker, lint, wiring');

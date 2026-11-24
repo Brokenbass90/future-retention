@@ -244,6 +244,15 @@ try {
   const preheaderPug = readFileSync(path.join(result.destDir, "app", "templates", "helpers", "preheader.pug"), "utf8");
   assert.match(preheaderPug, /Reusable preview/, "fresh constructor compose writes the reusable outer preheader value");
   assert.doesNotMatch(preheaderPug, /welcome-broker|\$\{\{\s*[a-z0-9_.-]+\s*\}\}\$/i, "fresh constructor compose never inherits a campaign namespace from the default skeleton");
+  const tokenResult = composeEmailFromBlocks({
+    brand: "X_outer_test", mailName: "preheader-token", destRoot: outerTmp,
+    blocks: [
+      { uid: "outer", id: "iq-outer-wrapper", parentUid: null, slotId: "root", slots: { preheader: "${{ fraud-2.block_00 }}$" } },
+      { uid: "section", id: "iq-section", parentUid: "outer", slotId: "sections", slots: {} },
+    ],
+  });
+  const tokenPug = readFileSync(path.join(tokenResult.destDir, "app", "templates", "helpers", "preheader.pug"), "utf8");
+  assert.match(tokenPug, /\$\{\{ fraud-2\.block_00 \}\}\$/, "плейсхолдер локали, поставленный человеком в прехедер, сохраняется — «Код» подставит текст каждой локали");
   const headerPug = readFileSync(result.headerPugPath, "utf8");
   assert.doesNotMatch(headerPug, /(?:padding-top|padding-right|padding-bottom|padding-left)\s*:\s*(?:;|["'])/i, "empty optional CSS overrides are removed instead of emitting property: ;");
 } finally {

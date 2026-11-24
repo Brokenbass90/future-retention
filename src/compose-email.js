@@ -1320,11 +1320,11 @@ export function composeEmailFromBlocks({
     )
   );
   if (!preserveSkeletonPreheader || explicitOuterPreheader) {
-    let preheaderText = String(outerContext?.slotValues?.preheader ?? "").trim();
-    if (/\$\{\{\s*[a-z0-9_.-]+\s*\}\}\$/i.test(preheaderText)) {
-      warnings.push("outer preheader campaign placeholder was removed from a reusable constructor mail");
-      preheaderText = "";
-    }
+    // Плейсхолдер локали (${{ ns.block_NN }}$) в прехедере человек ставит сам — поле
+    // «Прехедер» конструктора или автопривязка по строке «Preheader:» из txt. Его
+    // сохраняем: «Код» и сборка подставят текст каждой локали. Чужой namespace из
+    // скелета сюда не попадает — слот берётся только из обёртки на холсте.
+    const preheaderText = String(outerContext?.slotValues?.preheader ?? "").trim();
     const hiddenFill = "\u00a0".repeat(120);
     const preheaderPug = `div.preheader= ${JSON.stringify(`${preheaderText}${preheaderText ? " " : ""}${hiddenFill}`)}\n`;
     const helperDir = path.join(destDir, "app", "templates", "helpers");
