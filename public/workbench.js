@@ -8935,7 +8935,7 @@ $('exportAllZipBtn')?.addEventListener('click', async () => {
 // BOTTOM BAR PANELS
 // ═══════════════════════════════════════════════════════════════
 
-document.querySelectorAll('.bottom-tool-btn').forEach(btn =>
+document.querySelectorAll('.bottom-tool-btn[data-panel]').forEach(btn =>
   btn.addEventListener('click', () => togglePanel(btn.dataset.panel, btn))
 );
 $('bottomBarToggle').addEventListener('click', closePanel);
@@ -13374,4 +13374,20 @@ async function agentPlaceholderize({ namespace = '', refLocale = 'en' } = {}) {
   }
 
   window.RetKitStudioExport = { info, allLocales };
+
+  // Кнопка «Перенести в UCC» в нижней панели. Само окно переноса рисует userscript
+  // RetKit UCC Export (он один умеет ходить в UCC с входом человека) — window.__retkitUccBridge.
+  document.getElementById('toUccBtn')?.addEventListener('click', () => {
+    const bridge = window.__retkitUccBridge;
+    const meta = info();
+    if (!meta || !meta.locales.length) {
+      toast('Откройте письмо с локалями (HTML + папка локалей или письмо из базы) — тогда его можно перенести в UCC', 'warning');
+      return;
+    }
+    if (!bridge?.openFromStudio) {
+      toast('Нужен RetKit UCC Export 0.13+ в Tampermonkey (с доступом к localhost:3000). Поставьте/обновите его и обновите страницу.', 'warning');
+      return;
+    }
+    bridge.openFromStudio();
+  });
 })();

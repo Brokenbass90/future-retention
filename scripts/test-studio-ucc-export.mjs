@@ -25,3 +25,11 @@ console.log("✓ studio → UCC: info/allLocales, оба режима «Кода
   assert.match(block, /subject = subjectFromTxt\(ns\.localeRaw\?\.\[code\]\)/, "тема уходит в UCC");
   console.log("✓ тема из txt (Subject/Assunto/Тема) уходит в UCC; подписи не считаются текстом вне блоков");
 }
+
+{
+  const html = readFileSync(new URL("../public/workbench.html", import.meta.url), "utf8");
+  assert.match(html, /id="toUccBtn"[\s\S]*Перенести в UCC/, "кнопка «Перенести в UCC» в нижней панели");
+  assert.match(js, /\.bottom-tool-btn\[data-panel\]/, "кнопка не открывает пустую панель");
+  assert.match(js, /window\.__retkitUccBridge/, "кнопка зовёт мост userscript");
+  console.log("✓ кнопка «Перенести в UCC» в студии");
+}
