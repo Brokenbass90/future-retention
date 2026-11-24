@@ -13286,3 +13286,71 @@ async function agentPlaceholderize({ namespace = '', refLocale = 'en' } = {}) {
   window.__retkitSnapshotWorkingCopy = snapshotNow;
   window.__retkitRestoreWorkingCopy = (mail) => restore(mail);
 })();
+
+// ═══════════════════════════════════════════════════════════════
+// МОСТ В UCC: локали письма для userscript «RetKit UCC Export»
+// ═══════════════════════════════════════════════════════════════
+// Скрипт в Tampermonkey (на localhost:3000) показывает кнопку «→ UCC» и
+// переносит готовый HTML каждой локали в письмо UCC (INT или PROD) — там
+// помощник вставляет локаль за локалью, Save жмёт человек. Студия только
+// отдаёт HTML: ничего не сохраняет и никуда не ходит сама.
+(function exposeStudioExport() {
+  // Коды студии → коды UCC (UCC пишет cn/se/no).
+  const UCC_CODE = { zh: 'cn', sv: 'se', nb: 'no' };
+  const toUcc = (code) => UCC_CODE[String(code).toLowerCase()] || String(code).toLowerCase();
+  const fileName = () => String(state.files?.find(f => f.id === state.activeFileId)?.name || '').replace(/\.html?$/i, '');
+
+  function rawCodes() {
+    const set = new Set();
+    for (const ns of state.namespaces || []) {
+      if (ns.builtin) continue;
+      for (const code of Object.keys(ns.locales || {})) set.add(code);
+    }
+    return [...set];
+  }
+  function srcCodes(ctx) {
+    return (ctx.htmlLocales || []).map(item => item.code).filter(code => code && code !== HTML_BASE_LOCALE);
+  }
+
+  function info() {
+    const ctx = state.srcCtx;
+    if (ctx) return { mode: 'mail', name: ctx.mail || '', locales: srcCodes(ctx).map(toUcc) };
+    if (!cm) return null;
+    return { mode: 'html', name: fileName(), locales: rawCodes().map(toUcc) };
+  }
+
+  async function allLocales() {
+    const ctx = state.srcCtx;
+    if (ctx) {
+      // Письмо из базы: готовый HTML каждой локали собирает сервер (как превью «Кода»).
+      const out = [];
+      for (const code of srcCodes(ctx)) {
+        const res = await fetch(`/api/wb/code-html?brand=${encodeURIComponent(ctx.brand)}&mail=${encodeURIComponent(ctx.mail)}&locale=${encodeURIComponent(code)}`);
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok || typeof data.html !== 'string') throw new Error(`${code}: ${data.error || 'HTML не найден'}`);
+        out.push({ code: toUcc(code), html: data.html });
+      }
+      return { name: ctx.mail || '', locales: out };
+    }
+    if (!cm) throw new Error('Письмо не открыто');
+    // HTML с плейсхолдерами: берём исходник (в редакторе может быть открыта локаль)
+    // и подставляем каждую локаль сами — как превью, но без служебных скриптов.
+    const source = (_originalEditorBackup ?? cm.getValue()).trim();
+    if (!source) throw new Error('Пустой HTML');
+    const brand = state.activeBrandId ? state.brands.find(b => b.id === state.activeBrandId) : null;
+    const out = [];
+    for (const code of rawCodes()) {
+      let html = source;
+      for (const ns of state.namespaces || []) {
+        const blocks = ns.locales?.[code];
+        if (blocks) html = applyNamespaceLocale(html, ns.name, blocks, false);
+      }
+      if (brand) html = applyBrandTokens(html, brand);
+      if (isRtlLocale(code)) html = applyRtl(html, { lang: String(code).toLowerCase().split(/[_-]/)[0] });
+      out.push({ code: toUcc(code), html });
+    }
+    return { name: fileName(), locales: out };
+  }
+
+  window.RetKitStudioExport = { info, allLocales };
+})();
