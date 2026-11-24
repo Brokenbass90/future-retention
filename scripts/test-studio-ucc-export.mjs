@@ -11,3 +11,17 @@ assert.match(block, /applyNamespaceLocale\(html, ns\.name, blocks, false\)/, "HT
 assert.match(block, /zh: 'cn', sv: 'se'/, "коды локалей как в UCC");
 assert.ok(!/method:\s*'POST'|method:\s*"POST"/.test(block), "студия ничего не пишет");
 console.log("✓ studio → UCC: info/allLocales, оба режима «Кода», коды UCC, только чтение");
+
+// Тема из txt локали: «Subject:/Assunto:/Тема:» первой строкой; такие подписи — не «текст вне блоков».
+{
+  const start = js.indexOf("const TXT_LABEL_LINE_RE");
+  const end = js.indexOf("function parseTxtDetailed");
+  const fn = new Function(`${js.slice(start, end)}; return { subjectFromTxt, TXT_LABEL_LINE_RE };`)();
+  assert.equal(fn.subjectFromTxt("Assunto: Seu contrato foi rescindido\nPreheader: {{Retire}}\n\n{{Rescisão}}"), "Seu contrato foi rescindido");
+  assert.equal(fn.subjectFromTxt("Тема: Привет\n{{Текст}}"), "Привет");
+  assert.equal(fn.subjectFromTxt("{{Только блоки}}"), "");
+  assert.ok(fn.TXT_LABEL_LINE_RE.test("Preheader: "));
+  assert.ok(!fn.TXT_LABEL_LINE_RE.test("Por meio deste e-mail, informamos: x"), "обычная фраза с двоеточием — не подпись");
+  assert.match(block, /subject = subjectFromTxt\(ns\.localeRaw\?\.\[code\]\)/, "тема уходит в UCC");
+  console.log("✓ тема из txt (Subject/Assunto/Тема) уходит в UCC; подписи не считаются текстом вне блоков");
+}

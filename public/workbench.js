@@ -3707,6 +3707,19 @@ function findTxtDelimiterIssues(text) {
   return issues;
 }
 
+// Подпись в txt локали: «Subject: …», «Assunto: …», «Preheader: {{…}}» — короткое слово(а) и двоеточие.
+const TXT_LABEL_LINE_RE = /^\s*[\p{L}][\p{L}\p{M} ]{0,29}:(\s|$)/u;
+/** Тема письма из txt локали: первая подпись вида «Слово: текст» вне {{}} (Subject/Assunto/Тема…). */
+function subjectFromTxt(raw) {
+  const text = String(raw || '').replace(/\r\n?/g, '\n');
+  for (const line of text.split('\n')) {
+    if (line.includes('{{')) continue;
+    const m = line.match(/^\s*[\p{L}][\p{L}\p{M} ]{0,29}:\s*(.+?)\s*$/u);
+    if (m && m[1]) return m[1];
+  }
+  return '';
+}
+
 function parseTxtDetailed(text) {
   const normalized = String(text || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
   const issues = findTxtDelimiterIssues(normalized);
@@ -3754,7 +3767,8 @@ function parseTxtDetailed(text) {
   const outsideRaw = normalized.replace(/\{\{[\s\S]*?\}\}/g, '');
   const outside = outsideRaw
     .split('\n')
-    .filter(line => !/^\s*subject\s*:/i.test(line))
+    // «Subject:» на любом языке (Assunto:, Тема:, Asunto:…) и «Preheader:» перед блоком — служебные подписи.
+    .filter(line => !TXT_LABEL_LINE_RE.test(line))
     .join('\n')
     .trim();
   if (outside) {
@@ -13347,7 +13361,14 @@ async function agentPlaceholderize({ namespace = '', refLocale = 'en' } = {}) {
       }
       if (brand) html = applyBrandTokens(html, brand);
       if (isRtlLocale(code)) html = applyRtl(html, { lang: String(code).toLowerCase().split(/[_-]/)[0] });
-      out.push({ code: toUcc(code), html });
+      // Тема — из txt локали («Subject:/Assunto:/Тема: …» первой строкой).
+      let subject = '';
+      for (const ns of state.namespaces || []) {
+        if (ns.builtin) continue;
+        subject = subjectFromTxt(ns.localeRaw?.[code]);
+        if (subject) break;
+      }
+      out.push({ code: toUcc(code), html, subject });
     }
     return { name: fileName(), locales: out };
   }
