@@ -200,4 +200,15 @@ assert.ok(js.includes('handOffLocalesToCode(brand, mid);\n      window.location.
   assert.ok(cjs.includes('canvasText: () =>'), 'host gives canvas text for the guess');
   assert.ok(/if \(!data\) return !locale \|\| locale === "original" \? "en" : locale;/.test(cjs), 'build uses chosen locale without a set');
 }
+// Мост в UCC: тема из txt, кнопка «→ UCC», RetKitStudioExport в конструкторе.
+{
+  assert.equal(C.subjectFromTxt('Assunto: Seu contrato foi rescindido\nPreheader: {{x}}\n{{a}}'), 'Seu contrato foi rescindido');
+  assert.equal(C.subjectFromTxt('{{a}}'), '');
+  const src = fs.readFileSync(new URL('../public/constructor-locales.js', import.meta.url), 'utf8');
+  assert.equal((src.match(/data-act="to-ucc" id="toUccBtn"/g) || []).length, 2, 'кнопка «→ UCC» и с набором, и без');
+  assert.ok(src.includes('data = { name, ref, locales, order, subjects }'), 'темы локалей сохраняются при загрузке папки');
+  const cjs = fs.readFileSync(new URL('../public/constructor.js', import.meta.url), 'utf8');
+  assert.ok(cjs.includes('window.RetKitStudioExport = {') && cjs.includes('exposeConstructorToUcc();'), 'конструктор отдаёт локали мосту');
+  assert.ok(cjs.includes('applyConstructorRtl(await buildLocaleHtml(code), code)'), 'HTML как в ZIP: читаемый + RTL');
+}
 console.log('✓ constructor locales: folder import, auto-bind, per-locale preview/ZIP texts, picker, lint, wiring');

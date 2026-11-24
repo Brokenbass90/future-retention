@@ -4798,7 +4798,43 @@ async function buildLocaleHtml(locale) {
   return data.html;
 }
 
+/**
+ * Мост в UCC (userscript RetKit UCC Export): готовый HTML и тема каждой локали письма.
+ * Без набора локалей — одна локаль, язык угадывается по тексту (как «⬇ ZIP»).
+ */
+function exposeConstructorToUcc() {
+  const UCC_CODE = { zh: "cn", sv: "se", nb: "no" };
+  const toUcc = (code) => { const base = String(code).toLowerCase().split(/[_-]/)[0]; return UCC_CODE[base] || base; };
+  const api = () => window.RetKitConstructorLocales;
+  const canvasText = () => canvasTextSlots()
+    .filter((item) => item.group === "content" && ["text", "richtext"].includes(item.kind))
+    .map((item) => String(item.value || "").replace(/<[^>]+>/g, " ")).join(" \n ");
+  let singleCode = "";
+  window.RetKitStudioExport = {
+    info() {
+      if (!state.canvas.length) return { mode: "constructor", name: "", locales: [] };
+      const data = api()?.data;
+      const name = $("mailName")?.value?.trim() || data?.name || "";
+      if (data) return { mode: "constructor", name, locales: data.order.map(toUcc) };
+      singleCode = singleCode || api()?.guessLocale?.(canvasText()) || "en";
+      return { mode: "constructor", name, locales: [toUcc(singleCode)] };
+    },
+    async allLocales() {
+      const data = api()?.data;
+      const name = $("mailName")?.value?.trim() || data?.name || "";
+      const codes = data ? data.order : [singleCode || api()?.guessLocale?.(canvasText()) || "en"];
+      const out = [];
+      for (const code of codes) {
+        const html = applyConstructorRtl(await buildLocaleHtml(code), code);
+        out.push({ code: toUcc(code), html, subject: data?.subjects?.[code] || "" });
+      }
+      return { name, locales: out };
+    },
+  };
+}
+
 function mountConstructorLocales() {
+  exposeConstructorToUcc();
   const api = window.RetKitConstructorLocales;
   if (!api) return;
   api.mount({

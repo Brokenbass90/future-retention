@@ -87,9 +87,20 @@
     const re = /\{\{([\s\S]*?)\}\}/g;
     let m;
     const normalized = String(text || '').replace(/\r\n?/g, '\n')
-      .split('\n').filter((line) => !/^\s*subject\s*:/i.test(line)).join('\n');
+      .split('\n').filter((line) => !LABEL_LINE_RE.test(line) || line.includes('{{')).join('\n');
     while ((m = re.exec(normalized)) !== null) blocks.push(m[1].trim());
     return blocks;
+  }
+
+  // «Subject: …», «Assunto: …», «Тема: …» — подпись первой строкой txt: тема письма для UCC.
+  const LABEL_LINE_RE = /^\s*[\p{L}][\p{L}\p{M} ]{0,29}:(\s|$)/u;
+  function subjectFromTxt(text) {
+    for (const line of String(text || '').replace(/\r\n?/g, '\n').split('\n')) {
+      if (line.includes('{{')) continue;
+      const m = line.match(/^\s*[\p{L}][\p{L}\p{M} ]{0,29}:\s*(.+?)\s*$/u);
+      if (m && m[1]) return m[1];
+    }
+    return '';
   }
 
   async function importFiles(fileList) {
@@ -98,6 +109,7 @@
     const first = files[0].webkitRelativePath || '';
     const name = safeName(first.includes('/') ? first.split('/')[0] : 'mail-locales');
     const locales = {};
+    const subjects = {};
     const rejected = [];
     for (const file of files) {
       const text = await file.text();
@@ -107,7 +119,10 @@
       }
       try {
         const blocks = parseLocale(text, file.name);
-        if (blocks.length) locales[localeCodeOf(file.name)] = blocks;
+        if (blocks.length) {
+          locales[localeCodeOf(file.name)] = blocks;
+          if (/\.txt$/i.test(file.name)) subjects[localeCodeOf(file.name)] = subjectFromTxt(text);
+        }
         else rejected.push(`${file.name}: нет блоков {{ }}`);
       } catch (error) { rejected.push(`${file.name}: ${error.message}`); }
     }
@@ -115,7 +130,7 @@
     if (!codes.length) { host?.toast?.(`Локали не загружены. ${rejected.join('; ')}`); return; }
     const ref = codes.includes('en') ? 'en' : codes.find((c) => /^en/.test(c)) || codes[0];
     const order = [ref, ...codes.filter((c) => c !== ref).sort()];
-    data = { name, ref, locales, order };
+    data = { name, ref, locales, order, subjects };
     active = 'original';
     save();
     relint();
@@ -260,6 +275,7 @@
     if (!data) {
       bar.innerHTML = `<button type="button" class="c-loc-btn" data-act="folder" title="Загрузить папку с локалями (en.txt, fr.txt… или JSON из базы)">📁 Локали</button>
         <button type="button" class="c-loc-btn" data-act="new-set" title="Начать локали с нуля: вписать тексты EN руками">＋ Новый набор</button>
+        <button type="button" class="c-loc-btn" data-act="to-ucc" id="toUccBtn" title="Перенести письмо в UCC (INT или PROD). Нужен userscript RetKit UCC Export">→ UCC</button>
         <button type="button" class="c-loc-btn" data-act="zip-single" title="Скачать ZIP с готовым читаемым HTML этого письма (одна локаль; язык определю по тексту, футер — на нём)">⬇ ZIP</button>
         <span class="c-loc-hint">Загрузите папку или начните с нуля — письмо можно будет смотреть и выгружать на всех языках</span>`;
     } else {
@@ -276,6 +292,7 @@
         <div class="c-loc-tabs">${tabs}</div>
         <span class="c-loc-stat${stats.plain ? ' warn' : ''}" title="Тексты письма, привязанные к локалям">🔗 ${stats.bound}${stats.plain ? ` · без локали ${stats.plain}` : ''}</span>
         <button type="button" class="c-loc-btn" data-act="add-locale" title="Добавить локаль вручную: копия ${esc(data.ref.toUpperCase())}, дальше переводите в редакторе">＋ Локаль</button>
+        <button type="button" class="c-loc-btn" data-act="to-ucc" id="toUccBtn" title="Перенести письмо и все локали в UCC (INT или PROD): локали создадутся, код и тема сохранятся">→ UCC</button>
         <button type="button" class="c-loc-btn" data-act="zip" title="Скачать ZIP: готовый HTML каждой локали">⬇ ZIP</button>
         <button type="button" class="c-loc-btn ghost" data-act="close" title="Убрать локали из конструктора">✕</button>`;
     }
@@ -292,6 +309,11 @@
     });
     bar.querySelector('[data-act="zip"]')?.addEventListener('click', () => exportZip());
     bar.querySelector('[data-act="zip-single"]')?.addEventListener('click', () => exportSingleZip());
+    bar.querySelector('[data-act="to-ucc"]')?.addEventListener('click', () => {
+      const bridge = root.__retkitUccBridge;
+      if (!bridge?.openFromStudio) { host?.toast?.('Нужен RetKit UCC Export 0.13+ в Tampermonkey (доступ к localhost:3000). Поставьте/обновите и обновите страницу.'); return; }
+      bridge.openFromStudio();
+    });
     bar.querySelector('[data-act="add-locale"]')?.addEventListener('click', () => addLocale());
     bar.querySelector('[data-act="new-set"]')?.addEventListener('click', () => newSet());
     bar.querySelector('[data-act="strings"]')?.addEventListener('click', (event) => { event.stopPropagation(); toggleStrings(); });
@@ -727,7 +749,7 @@
 
   root.RetKitConstructorLocales = {
     mount, render, importFiles, localizeBlocks, resolveText, applyRtl, autoBindValue, bindingStats,
-    slotPickerHtml, valueForPick, setActive, exportZip, exportSingleZip, guessLocale, toggleStrings, openEditor, copyPlaceholder, afterPaste, highlightTxt,
+    slotPickerHtml, valueForPick, setActive, exportZip, exportSingleZip, guessLocale, subjectFromTxt, toggleStrings, openEditor, copyPlaceholder, afterPaste, highlightTxt,
     markTokens, tokenIndex, setLocaleString, ignoredKeys, setIgnored, refStrings, addLocale, newSet, addString, token: (i) => (data ? token(data.name, i) : ''),
     get active() { return data ? active : 'original'; },
     get data() { return data ? JSON.parse(JSON.stringify(data)) : null; },
