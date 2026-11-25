@@ -28,7 +28,12 @@ const browserIsRtlLocaleWithoutIntl = new Function(
 )({});
 const s = wbSrc.indexOf("function applyRtl(html,");
 const e = wbSrc.indexOf("// ─── Preview click → editor highlight", s);
-const browser = new Function(wbSrc.slice(s, e) + "; return applyRtl;")();
+// Браузер больше не держит свою копию: applyRtl в workbench.js — обёртка над
+// window.RetKitRtlCore (тот же email-base/tools/rtl.js, раздаётся как /rtl-core.js).
+// Обёртка по умолчанию делает document; кейсы ниже про text, поэтому режим text
+// передаём явно, а document проверяем отдельно.
+const wbApply = new Function("window", wbSrc.slice(s, e) + "; return applyRtl;")({ RetKitRtlCore: coreModule });
+const browser = (html, opts = {}) => wbApply(html, typeof opts === "string" ? { mode: opts } : { mode: "text", ...opts });
 
 let pass = 0, fail = 0;
 function check(name, cond) {
@@ -161,14 +166,22 @@ for (const [caseName, html] of Object.entries(CASES)) {
 
 check(
   "server wrapper parity (text)",
-  serverRtl.applyLocaleDirectionToHtml(CASES.inlinedFramework, "ar") === core(CASES.inlinedFramework),
+  serverRtl.applyLocaleDirectionToHtml(CASES.inlinedFramework, "ar", undefined, { mode: "text" }) === core(CASES.inlinedFramework),
 );
+// Без явного режима сервер и браузер делают document — как сборка базы и RTL Fix.
+for (const [caseName, html] of Object.entries(CASES)) {
+  const doc = core(html, { mode: "document", lang: "ar" });
+  check(`default is document (server): ${caseName}`, serverRtl.applyLocaleDirectionToHtml(html, "ar") === doc);
+  check(`default is document (browser): ${caseName}`, wbApply(html) === doc);
+}
+check("server default: text-marked HTML is left as is",
+  serverRtl.applyLocaleDirectionToHtml(core(CASES.inlinedFramework), "ar") === core(CASES.inlinedFramework));
 check(
   "server wrapper parity (mirror)",
   serverRtl.applyLocaleDirectionToHtml(CASES.inlinedFramework, "ar", undefined, { mode: "mirror" })
     === core(CASES.inlinedFramework, { mode: "mirror" }),
 );
-const serverTextApplied = serverRtl.applyLocaleDirectionToHtml(CASES.inlinedFramework, "ar");
+const serverTextApplied = serverRtl.applyLocaleDirectionToHtml(CASES.inlinedFramework, "ar", undefined, { mode: "text" });
 const serverModeConflict = captureError(() => serverRtl.applyLocaleDirectionToHtml(
   serverTextApplied,
   "ar",

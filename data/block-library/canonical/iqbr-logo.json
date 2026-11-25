@@ -1,0 +1,40 @@
+{
+  "id": "iqbr-logo",
+  "label": "Логотип IQ Broker",
+  "description": "Логотип со ссылкой, по центру, с отступами сверху и снизу.",
+  "placement": "inner",
+  "category": "header",
+  "version": 1,
+  "pug": "a(href=\"{{ href }}\" universal=\"true\" target=\"_blank\")\n    img.logo.iqbr-logo--logo.center.iqbr-logo--center(src=\"{{ logo }}\" alt=\"{{ alt }}\")",
+  "styl": ".iqbr-logo--center{text-align:center;margin:0 auto}\n.iqbr-logo--logo{float:none;max-width:146px;padding-top:32px;padding-bottom:28px}\n@media screen and (max-width: 600px){.iqbr-logo--logo{margin:0 auto !important}}",
+  "slots": [
+    {
+      "id": "logo",
+      "kind": "image",
+      "label": "Логотип",
+      "default": "https://fsms.quadcode.com/storage/public/d5/ss/e6gggnfnh4cs771g/logo-broker.png",
+      "uiGroup": "assets"
+    },
+    {
+      "id": "href",
+      "kind": "url",
+      "label": "Ссылка логотипа",
+      "default": "https://api.trade.iqbroker.com/v1/multi-links/open-asset?aff=7",
+      "uiGroup": "content"
+    },
+    {
+      "id": "alt",
+      "kind": "text",
+      "label": "Alt логотипа",
+      "default": "IQ Broker",
+      "uiGroup": "content"
+    }
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "iqbroker",
+    "header"
+  ],
+  "note": "Нарезано из email-base/X_IQBroker/mail-strategies. Семейные стили втянуты в блок и заскоуплены; ink-классы (.row/.columns/.wrapper) оставлены глобальными.",
+  "scoped": true
+}

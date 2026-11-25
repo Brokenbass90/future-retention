@@ -1,0 +1,39 @@
+{
+  "id": "iq-bullet-list",
+  "label": "Список (2 пункта)",
+  "description": "Маркированный список из двух пунктов обычным текстом. Нарезано из письма Triggers-First-Deposit-2-Made (IQ Option).",
+  "placement": "inner",
+  "category": "text",
+  "version": 1,
+  "outlookSafe": true,
+  "scoped": true,
+  "pug": "ul.iq-bullet-list(style=\"padding:{{ padding }}\")\n    li.iq-bullet-list--item.iq-bullet-list--pb8 {{ item_1 }}\n    li.iq-bullet-list--item {{ item_2 }}",
+  "styl": ".iq-bullet-list\n  margin 0\n  padding 0 0 0 20px\n.iq-bullet-list--item\n  font-family: Helvetica, Arial, sans-serif !important\n  font-size 18px\n  font-weight 400\n  line-height 26px\n  color #393A44\n  letter-spacing 0\n.iq-bullet-list--pb8\n  padding-bottom 8px",
+  "slots": [
+    {
+      "id": "item_1",
+      "kind": "richText",
+      "label": "Пункт 1",
+      "default": "First point",
+      "uiGroup": "content"
+    },
+    {
+      "id": "item_2",
+      "kind": "richText",
+      "label": "Пункт 2",
+      "default": "Second point",
+      "uiGroup": "content"
+    },
+    {
+      "id": "padding",
+      "kind": "text",
+      "label": "Отступы списка",
+      "default": "32px 0 0 20px",
+      "uiGroup": "appearance"
+    }
+  ],
+  "tags": [
+    "list",
+    "iq"
+  ]
+}

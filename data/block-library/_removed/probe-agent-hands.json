@@ -1,0 +1,76 @@
+{
+  "id": "probe-agent-hands",
+  "label": "Проба рук агента",
+  "description": "",
+  "placement": "inner",
+  "category": "text",
+  "version": 1,
+  "source": "user",
+  "pug": "table.probe-hands--box(role=\"presentation\" width=\"100%\")\n    tr\n        td(style=\"padding:{{ padding }};text-align:{{ align }}\")\n            p.probe-agent-hands--probe-hands--text(style=\"color:{{ text_color }}\") {{ text }}\n",
+  "styl": ".probe-agent-hands--probe-hands--text\n    margin 0\n    font-size 15px\n    line-height 1.5",
+  "slots": [
+    {
+      "id": "text",
+      "kind": "text",
+      "label": "Текст",
+      "default": "Проба"
+    },
+    {
+      "id": "text_color",
+      "kind": "color",
+      "label": "Цвет",
+      "default": ""
+    },
+    {
+      "id": "align",
+      "kind": "select",
+      "label": "Выравнивание",
+      "default": "left",
+      "options": [
+        "left",
+        "center",
+        "right"
+      ]
+    },
+    {
+      "id": "padding",
+      "kind": "text",
+      "label": "Отступы",
+      "default": "0"
+    }
+  ],
+  "tags": [],
+  "createdAt": "2026-09-14T17:34:11.230Z",
+  "scoped": true,
+  "review": {
+    "status": "candidate",
+    "sourceHash": "c919292f1478cb99c64dce11ba02347cfe6ed0daca1cda2db31100f4d72c026c",
+    "deterministic": {
+      "passed": true,
+      "validatorVersion": 3,
+      "sourceHash": "c919292f1478cb99c64dce11ba02347cfe6ed0daca1cda2db31100f4d72c026c",
+      "checkedAt": "2026-09-14T17:34:32.153Z",
+      "checks": {
+        "schema": true,
+        "tokenContract": true,
+        "security": true,
+        "portablePug": true,
+        "pugCompile": true,
+        "stylusCompile": true,
+        "emailSafe": true,
+        "desktop": true,
+        "mobile": true,
+        "rtl": true,
+        "dependencies": true
+      },
+      "errors": [],
+      "warnings": [
+        "классы без CSS: probe-hands--box — опиши их в styl блока или убери из разметки"
+      ]
+    },
+    "ai": {
+      "status": "not-requested",
+      "note": "Source changed; stale optional AI advisory was cleared. Deterministic validation remains the release gate."
+    }
+  }
+}

@@ -1,0 +1,55 @@
+/* Полоса «письмо занято». Видна сразу при открытии, а не при сохранении:
+   узнать, что письмо чужое, лучше до часа работы, чем после. */
+.mail-lease-banner {
+  position: fixed;
+  left: 50%;
+  top: 12px;
+  transform: translateX(-50%);
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: min(760px, calc(100vw - 32px));
+  padding: 10px 14px;
+  border: 1px solid rgba(245, 158, 11, .45);
+  border-radius: 10px;
+  background: #2a2113;
+  color: #f7e7c8;
+  font: 13px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, .45);
+}
+
+.mail-lease-text { flex: 1 1 auto; min-width: 0; }
+.mail-lease-text b { color: #fff; }
+
+.mail-lease-actions {
+  display: flex;
+  gap: 7px;
+  flex: 0 0 auto;
+}
+.mail-lease-actions button {
+  border: 1px solid rgba(255, 255, 255, .22);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, .06);
+  color: inherit;
+  padding: 6px 11px;
+  font: 500 12px/1 inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.mail-lease-actions button:hover { background: rgba(255, 255, 255, .14); }
+.mail-lease-actions button[data-lease="steal"] { border-color: rgba(248, 81, 73, .5); }
+
+@media (max-width: 640px) {
+  .mail-lease-banner { flex-direction: column; align-items: flex-start; }
+  .mail-lease-actions { flex-wrap: wrap; }
+}
+
+/* Полоса черновика: тот же приём, другой смысл — не «нельзя», а «это копия».
+   Поэтому не тревожный жёлтый, а спокойный синий. */
+.mail-draft-banner {
+  border-color: rgba(37, 99, 235, .5);
+  background: #131c2e;
+  color: #dbe6ff;
+}
+.mail-draft-banner .mail-lease-text b { color: #fff; }

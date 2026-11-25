@@ -1,0 +1,92 @@
+{
+  "id": "iqbr-combo-two-columns-compare",
+  "label": "Комбо: Двойной блок «плюс и минус»",
+  "description": "Две колонки со сценариями: картинка, текст под пунктиром и итог — зелёный слева, красный справа.",
+  "placement": "inner",
+  "category": "layout",
+  "version": 1,
+  "pug": ".iqbr-two-columns--left-block\n    .iqbr-two-columns--padding-block\n        p.iqbr-block-title--block-title(style=\"color:#ECECED;padding-bottom:16px\") Как надо\n        a(href=\"#\" universal=\"true\" target=\"_blank\")\n            img.center.iqbr-image--center(src=\"https://fsms.quadcode.com/storage/public/d5/th/oj8ggnfnh4cs779g/strategies-5.png\" alt=\"\" style=\"padding-bottom:16px\")\n        p.iqbr-block-note--block-text.iqbr-block-note--pb16.iqbr-block-note--bb-dash Что происходит в этом сценарии.\n        p.iqbr-block-note--block-subtitle.iqbr-block-note--pt16.iqbr-block-note--pb8 Итог\n        p.iqbr-block-note--block-gray Результат:\n            span(style=\"color:#3BA581\") &nbsp;+10%\n.iqbr-two-columns--right-block\n    .iqbr-two-columns--padding-block\n        p.iqbr-block-title--block-title(style=\"color:#ECECED;padding-bottom:16px\") Как не надо\n        a(href=\"#\" universal=\"true\" target=\"_blank\")\n            img.center.iqbr-image--center(src=\"https://fsms.quadcode.com/storage/public/d5/th/oj7vhhgea139uk0g/strategies-6.png\" alt=\"\" style=\"padding-bottom:16px\")\n        p.iqbr-block-note--block-text.iqbr-block-note--pb16.iqbr-block-note--bb-dash Что происходит в этом сценарии.\n        p.iqbr-block-note--block-subtitle.iqbr-block-note--pt16.iqbr-block-note--pb8 Итог\n        p.iqbr-block-note--block-gray Результат:\n            span(style=\"color:#E72828\") &nbsp;−10%",
+  "styl": ".iqbr-two-columns--left-block{display:inline-block;vertical-align:top;width:234px;min-height:443px;background:#101314;border-radius:16px}\n@media screen and (max-width: 600px){.iqbr-two-columns--left-block{float:none !important;display:block !important;width:100% !important;margin-bottom:20px !important}}\n.iqbr-two-columns--padding-block{padding:24px}\n.iqbr-two-columns--right-block{display:inline-block;vertical-align:top;width:234px;min-height:443px;background:#101314;border-radius:16px;float:right}\n@media screen and (max-width: 600px){.iqbr-two-columns--right-block{float:none !important;display:block !important;width:100% !important}}\n.iqbr-block-title--block-title{font-family:Helvetica !important;font-style:normal;font-weight:700;font-size:24px;line-height:31px;color:#ececed}\n.iqbr-image--center{text-align:center;margin:0 auto}\n.iqbr-block-note--bb-dash{border-bottom:1px dashed #3a3f40}\n.iqbr-block-note--pb8{padding-bottom:8px}\n.iqbr-block-note--pb16{padding-bottom:16px}\n.iqbr-block-note--pt16{padding-top:16px}\n.iqbr-block-note--block-text{font-family:Helvetica !important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#ececed}\n.iqbr-block-note--block-subtitle{font-family:Helvetica !important;font-style:normal;font-weight:700;font-size:18px;line-height:27px;color:#ececed}\n.iqbr-block-note--block-gray{font-family:Helvetica !important;font-style:normal;font-weight:400;font-size:18px;line-height:27px;color:#a6a6ab}",
+  "slots": [],
+  "combo": true,
+  "children": [
+    {
+      "id": "iqbr-two-columns",
+      "role": "cols",
+      "slots": {}
+    },
+    {
+      "id": "iqbr-block-title",
+      "parentRole": "cols",
+      "slotId": "left",
+      "role": "left-title",
+      "slots": {
+        "text": "Как надо",
+        "padding_bottom": "16px"
+      }
+    },
+    {
+      "id": "iqbr-image",
+      "parentRole": "cols",
+      "slotId": "left",
+      "role": "left-image",
+      "slots": {
+        "image": "https://fsms.quadcode.com/storage/public/d5/th/oj8ggnfnh4cs779g/strategies-5.png",
+        "padding_bottom": "16px"
+      }
+    },
+    {
+      "id": "iqbr-block-note",
+      "parentRole": "cols",
+      "slotId": "left",
+      "role": "left-note",
+      "slots": {
+        "text": "Что происходит в этом сценарии.",
+        "subtitle": "Итог",
+        "note": "Результат:",
+        "accent": "+10%",
+        "accent_color": "#3BA581"
+      }
+    },
+    {
+      "id": "iqbr-block-title",
+      "parentRole": "cols",
+      "slotId": "right",
+      "role": "right-title",
+      "slots": {
+        "text": "Как не надо",
+        "padding_bottom": "16px"
+      }
+    },
+    {
+      "id": "iqbr-image",
+      "parentRole": "cols",
+      "slotId": "right",
+      "role": "right-image",
+      "slots": {
+        "image": "https://fsms.quadcode.com/storage/public/d5/th/oj7vhhgea139uk0g/strategies-6.png",
+        "padding_bottom": "16px"
+      }
+    },
+    {
+      "id": "iqbr-block-note",
+      "parentRole": "cols",
+      "slotId": "right",
+      "role": "right-note",
+      "slots": {
+        "text": "Что происходит в этом сценарии.",
+        "subtitle": "Итог",
+        "note": "Результат:",
+        "accent": "−10%",
+        "accent_color": "#E72828"
+      }
+    }
+  ],
+  "outlookSafe": true,
+  "tags": [
+    "iqbroker",
+    "combo",
+    "layout"
+  ],
+  "note": "Рецепт: ставит готовый набор блоков IQ Broker. Разбирается и правится как обычные блоки. Собственная разметка нужна для превью и для вставки одним блоком."
+}
