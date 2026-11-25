@@ -4942,18 +4942,26 @@ function mountTopbarMenus() {
   });
 }
 
-/* ─── Тема письма ─────────────────────────────────────────────────────────
- * Над письмом рядом с прехедером. Своя тема письма (state.mailSubject); если
- * в txt локали есть «Subject:/Assunto:/Тема:», в UCC уходит тема локали. */
+/* ─── Subject ─────────────────────────────────────────────────────────────
+ * Над письмом рядом с Preheader. Загружены локали — поле показывает Subject
+ * открытой локали (первая строка txt: Subject:/Assunto:/Тема:…), Original —
+ * эталонной; правка пишется в эту локаль. Без локалей — один Subject письма. */
+function subjectLocaleCode() {
+  const api = window.RetKitConstructorLocales;
+  if (!api?.data) return "";
+  return api.active === "original" ? api.data.ref : api.active;
+}
 function syncSubjectInput() {
   const input = $("subjectInput");
   if (!input) return;
-  if (document.activeElement !== input && input.value !== (state.mailSubject || "")) input.value = state.mailSubject || "";
   const api = window.RetKitConstructorLocales;
-  const code = api?.data ? (api.active === "original" ? api.data.ref : api.active) : "";
-  const fromTxt = code ? api.data.subjects?.[code] : "";
-  input.placeholder = fromTxt ? `${code.toUpperCase()} из txt: ${fromTxt}` : "тема письма во входящих";
-  input.title = fromTxt ? `В UCC у ${code.toUpperCase()} уйдёт тема из txt: «${fromTxt}». Поле — тема для локалей без своей.` : "Тема письма во входящих";
+  const code = subjectLocaleCode();
+  const value = code ? String(api.data.subjects?.[code] ?? "") : String(state.mailSubject || "");
+  if (document.activeElement !== input && input.value !== value) input.value = value;
+  input.placeholder = code ? `Subject ${code.toUpperCase()} — в txt его нет, впишите` : "Subject письма во входящих";
+  input.title = code
+    ? `Subject локали ${code.toUpperCase()}${api.active === "original" ? " (эталон)" : ""} — уходит в UCC и MoEngage. Переключите вкладку локали — увидите её Subject.`
+    : "Subject письма во входящих — уходит в UCC и MoEngage";
 }
 
 function mountPreheaderInput() {
@@ -4965,15 +4973,19 @@ function mountPreheaderInput() {
     const row = document.createElement("div");
     row.id = "preheaderRow";
     row.className = "preheader-row";
-    row.innerHTML = `<label for="subjectInput">Тема</label>
+    row.innerHTML = `<label for="subjectInput">Subject</label>
       <input id="subjectInput" class="preheader-input" spellcheck="false" placeholder="тема письма во входящих" />
-      <label for="preheaderInput">Прехедер</label>
+      <label for="preheaderInput">Preheader</label>
       <input id="preheaderInput" class="preheader-input" spellcheck="false" placeholder="скрытая строка рядом с темой во входящих — текст или \${{ набор.block_NN }}\$" />`;
     const bar = $("cLocalesBar");
     (bar || header).insertAdjacentElement("afterend", row);
   }
   const subject = $("subjectInput");
-  subject?.addEventListener("input", () => { state.mailSubject = subject.value; saveCanvasState(); });
+  subject?.addEventListener("input", () => {
+    const code = subjectLocaleCode();
+    if (code) window.RetKitConstructorLocales.setSubject(code, subject.value);
+    else { state.mailSubject = subject.value; saveCanvasState(); }
+  });
   const input = $("preheaderInput");
   if (!input) return;
   let timer = 0;
@@ -4993,7 +5005,7 @@ function mountConstructorLocales() {
   const api = window.RetKitConstructorLocales;
   if (!api) return;
   api.mount({
-    onChange: () => { renderInspector(); scheduleLivePreview(0); syncPreheaderInput(); },
+    onChange: () => { renderInspector(); scheduleLivePreview(0); syncPreheaderInput(); syncSubjectInput(); },
     // Папка локалей: если в txt есть строка «Preheader: {{…}}», прехедер письма
     // сам привязывается к этому блоку (когда поле прехедера ещё пустое).
     onImported: (data) => {

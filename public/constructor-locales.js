@@ -287,6 +287,13 @@
     return bar;
   }
 
+  /** Subject локали (из txt или вписанный вручную в поле Subject над письмом). */
+  function setSubject(code, text) {
+    if (!data || !code) return;
+    data.subjects = { ...(data.subjects || {}), [code]: String(text || '') };
+    save();
+  }
+
   /** «Локали ▾»: загрузить папку, новый набор, добавить/убрать — одно меню вместо ряда кнопок. */
   function localesMenu(hasData) {
     return `<span class="c-loc-menu-wrap tb-menu-wrap">
@@ -784,7 +791,7 @@
 
   root.RetKitConstructorLocales = {
     mount, render, importFiles, localizeBlocks, resolveText, applyRtl, autoBindValue, bindingStats,
-    slotPickerHtml, valueForPick, setActive, exportZip, exportSingleZip, guessLocale, subjectFromTxt, preheaderIndexFromTxt, toggleStrings, openEditor, copyPlaceholder, afterPaste, highlightTxt,
+    slotPickerHtml, valueForPick, setActive, exportZip, exportSingleZip, guessLocale, subjectFromTxt, preheaderIndexFromTxt, setSubject, toggleStrings, openEditor, copyPlaceholder, afterPaste, highlightTxt,
     markTokens, tokenIndex, setLocaleString, ignoredKeys, setIgnored, refStrings, addLocale, newSet, addString, token: (i) => (data ? token(data.name, i) : ''),
     get active() { return data ? active : 'original'; },
     get data() { return data ? JSON.parse(JSON.stringify(data)) : null; },

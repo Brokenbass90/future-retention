@@ -17,3 +17,16 @@ assert.ok(!html.includes('id="preheaderInput"'), "в шапке поля бол�
 const schema = readFileSync(new URL("../src/block-library-schema.js", import.meta.url), "utf8");
 assert.match(schema, /"font_weight"/, "«Сохранить как мой блок» принимает жирность");
 console.log("✓ прехедер над письмом; жирность 400/700 на текстовых узлах блока");
+
+// Subject: поле подписано по-английски, берётся из локали и пишется в неё.
+{
+  const fs = await import('node:fs');
+  const js = fs.readFileSync(new URL('../public/constructor.js', import.meta.url), 'utf8');
+  const loc = fs.readFileSync(new URL('../public/constructor-locales.js', import.meta.url), 'utf8');
+  const assert = (await import('node:assert/strict')).default;
+  assert.ok(js.includes('<label for="subjectInput">Subject</label>'), 'label Subject');
+  assert.ok(js.includes('<label for="preheaderInput">Preheader</label>'), 'label Preheader');
+  assert.ok(js.includes('RetKitConstructorLocales.setSubject(code, subject.value)'), 'subject edit → locale');
+  assert.ok(/function setSubject\(code, text\)/.test(loc) && /preheaderIndexFromTxt, setSubject/.test(loc), 'setSubject exported');
+  console.log('ok subject label + per-locale subject');
+}
