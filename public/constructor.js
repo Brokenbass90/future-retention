@@ -4926,6 +4926,11 @@ function mountTopbarMenus() {
     if (bridge?.openFromStudio) { bridge.openFromStudio(); return; }
     alert(`Перенос в UCC: на этой странице (${location.host}) не запущен RetKit UCC Export (нужна версия 0.13.2+).\n\n1. Tampermonkey → RetKit UCC Export: версия 0.13.2+ и включён.\n2. Chrome/Arc: chrome://extensions → Tampermonkey → «Allow User Scripts».\n3. Обновите страницу (Cmd+Shift+R).`);
   });
+  $("toMoBtn")?.addEventListener("click", () => {
+    const bridge = window.__retkitUccBridge;
+    if (bridge?.openMoFromStudio) { bridge.openMoFromStudio(); return; }
+    alert(`Перенос в MoEngage: на этой странице (${location.host}) не запущен RetKit UCC Export (нужна версия 0.14+).\n\n1. Tampermonkey → RetKit UCC Export 0.14+ и включён.\n2. В MoEngage откройте письмо на шаге Content (нужен и RetKit for MoEngage).\n3. Обновите страницу (Cmd+Shift+R).`);
+  });
   $("exportZipBtn")?.addEventListener("click", () => {
     const api = window.RetKitConstructorLocales;
     if (!api) return;

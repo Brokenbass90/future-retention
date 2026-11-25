@@ -41,3 +41,11 @@ console.log("✓ studio → UCC: info/allLocales, оба режима «Кода
   assert.ok(out.split("\n").length > 4, "компактный HTML раскладывается по строкам");
   console.log("✓ /api/wb/pretty-html: читаемый HTML для UCC");
 }
+
+{
+  const html = readFileSync(new URL("../public/workbench.html", import.meta.url), "utf8");
+  const chtml = readFileSync(new URL("../public/constructor.html", import.meta.url), "utf8");
+  assert.ok(html.includes('id="toMoBtn"') && chtml.includes('id="toMoBtn"'), "«Перенести в MoEngage» в «Коде» и в конструкторе");
+  assert.match(js, /bridge\?\.openMoFromStudio/, "кнопка зовёт мост MoEngage");
+  console.log("✓ кнопки «Перенести в MoEngage»");
+}
