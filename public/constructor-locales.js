@@ -329,7 +329,13 @@
     bar.querySelector('[data-act="zip-single"]')?.addEventListener('click', () => exportSingleZip());
     bar.querySelector('[data-act="to-ucc"]')?.addEventListener('click', () => {
       const bridge = root.__retkitUccBridge;
-      if (!bridge?.openFromStudio) { host?.toast?.('Нужен RetKit UCC Export 0.13+ в Tampermonkey (доступ к localhost:3000). Поставьте/обновите и обновите страницу.'); return; }
+      if (!bridge?.openFromStudio) {
+        // Окно переноса рисует userscript — без него кнопке нечего открыть. Говорим громко, а не подсказкой внизу.
+        const msg = `Перенос в UCC: на этой странице (${location.host}) не запущен RetKit UCC Export (нужна версия 0.13.2+).\n\n1. Tampermonkey → RetKit UCC Export: версия 0.13.2 и включён.\n2. Если версия старая — переустановите по ссылке из инструкции.\n3. Chrome/Arc: chrome://extensions → Tampermonkey → «Allow User Scripts» включён, доступ к сайтам — «На всех сайтах».\n4. Обновите страницу (Cmd+Shift+R).`;
+        console.warn('[RetKit → UCC]', msg);
+        (root.alert || ((m) => host?.toast?.(m)))(msg);
+        return;
+      }
       bridge.openFromStudio();
     });
     bar.querySelector('[data-act="add-locale"]')?.addEventListener('click', () => addLocale());

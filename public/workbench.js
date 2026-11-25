@@ -13394,7 +13394,9 @@ async function agentPlaceholderize({ namespace = '', refLocale = 'en' } = {}) {
       return;
     }
     if (!bridge?.openFromStudio) {
-      toast('Нужен RetKit UCC Export 0.13+ в Tampermonkey (с доступом к localhost:3000). Поставьте/обновите его и обновите страницу.', 'warning');
+      const msg = `Перенос в UCC: на этой странице (${location.host}) не запущен RetKit UCC Export (нужна версия 0.13.2+).\n\n1. Tampermonkey → RetKit UCC Export: версия 0.13.2 и включён.\n2. Если версия старая — переустановите по ссылке из инструкции.\n3. Chrome/Arc: chrome://extensions → Tampermonkey → «Allow User Scripts» включён, доступ к сайтам — «На всех сайтах».\n4. Обновите страницу (Cmd+Shift+R).`;
+      console.warn('[RetKit → UCC]', msg);
+      alert(msg);
       return;
     }
     bridge.openFromStudio();
