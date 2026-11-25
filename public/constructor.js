@@ -4847,7 +4847,7 @@ function exposeConstructorToUcc() {
       const out = [];
       for (const code of codes) {
         const html = applyConstructorRtl(await buildLocaleHtml(code), code);
-        out.push({ code: toUcc(code), html, subject: data?.subjects?.[code] || "" });
+        out.push({ code: toUcc(code), html, subject: data?.subjects?.[code] || state.mailSubject || "" });
       }
       // В UCC — читаемый код (на случай, если сборка отдала компактный HTML).
       try {
@@ -4900,6 +4900,57 @@ function syncPreheaderInput() {
     ? `Прехедер (${api.data.ref.toUpperCase()}): ${shown}\nВ каждой локали — свой текст.`
     : "Прехедер — скрытая строка рядом с темой во входящих. Текст или плейсхолдер локали ${{ набор.block_NN }}$ — тогда в каждой локали свой.";
 }
+/* ─── Меню шапки: ⚙ и «Выгрузить ▾» ─────────────────────────────────────── */
+function mountTopbarMenus() {
+  const pairs = [["settingsMenuBtn", "settingsMenu"], ["exportMenuBtn", "exportMenu"]];
+  const closeAll = (except) => pairs.forEach(([, m]) => { if (m !== except) $(m)?.classList.add("hidden"); });
+  for (const [btnId, menuId] of pairs) {
+    $(btnId)?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const menu = $(menuId);
+      const willOpen = menu?.classList.contains("hidden");
+      closeAll(menuId);
+      menu?.classList.toggle("hidden", !willOpen);
+    });
+  }
+  // Пункты-действия закрывают меню; поле метки кампании — нет.
+  document.querySelectorAll(".tb-menu .tb-menu-item").forEach((el) => el.addEventListener("click", () => closeAll()));
+  const closeEvery = () => document.querySelectorAll(".tb-menu").forEach((m) => m.classList.add("hidden"));
+  document.addEventListener("mousedown", (e) => {
+    if (e.target.closest?.(".tb-menu-wrap")) return;
+    closeEvery();
+  });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeEvery(); });
+  $("toUccBtn")?.addEventListener("click", () => {
+    const bridge = window.__retkitUccBridge;
+    if (bridge?.openFromStudio) { bridge.openFromStudio(); return; }
+    alert(`Перенос в UCC: на этой странице (${location.host}) не запущен RetKit UCC Export (нужна версия 0.13.2+).\n\n1. Tampermonkey → RetKit UCC Export: версия 0.13.2+ и включён.\n2. Chrome/Arc: chrome://extensions → Tampermonkey → «Allow User Scripts».\n3. Обновите страницу (Cmd+Shift+R).`);
+  });
+  $("exportZipBtn")?.addEventListener("click", () => {
+    const api = window.RetKitConstructorLocales;
+    if (!api) return;
+    if (api.data) api.exportZip(); else api.exportSingleZip();
+  });
+  // ⌘S / Ctrl+S — сохранить в базу.
+  document.addEventListener("keydown", (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") { e.preventDefault(); $("saveBtn")?.click(); }
+  });
+}
+
+/* ─── Тема письма ─────────────────────────────────────────────────────────
+ * Над письмом рядом с прехедером. Своя тема письма (state.mailSubject); если
+ * в txt локали есть «Subject:/Assunto:/Тема:», в UCC уходит тема локали. */
+function syncSubjectInput() {
+  const input = $("subjectInput");
+  if (!input) return;
+  if (document.activeElement !== input && input.value !== (state.mailSubject || "")) input.value = state.mailSubject || "";
+  const api = window.RetKitConstructorLocales;
+  const code = api?.data ? (api.active === "original" ? api.data.ref : api.active) : "";
+  const fromTxt = code ? api.data.subjects?.[code] : "";
+  input.placeholder = fromTxt ? `${code.toUpperCase()} из txt: ${fromTxt}` : "тема письма во входящих";
+  input.title = fromTxt ? `В UCC у ${code.toUpperCase()} уйдёт тема из txt: «${fromTxt}». Поле — тема для локалей без своей.` : "Тема письма во входящих";
+}
+
 function mountPreheaderInput() {
   // Строка над письмом: сразу под полосой локалей — там, где читатель увидит
   // письмо во входящих: тема/прехедер → тело.
@@ -4909,11 +4960,15 @@ function mountPreheaderInput() {
     const row = document.createElement("div");
     row.id = "preheaderRow";
     row.className = "preheader-row";
-    row.innerHTML = `<label for="preheaderInput">Прехедер</label>
+    row.innerHTML = `<label for="subjectInput">Тема</label>
+      <input id="subjectInput" class="preheader-input" spellcheck="false" placeholder="тема письма во входящих" />
+      <label for="preheaderInput">Прехедер</label>
       <input id="preheaderInput" class="preheader-input" spellcheck="false" placeholder="скрытая строка рядом с темой во входящих — текст или \${{ набор.block_NN }}\$" />`;
     const bar = $("cLocalesBar");
     (bar || header).insertAdjacentElement("afterend", row);
   }
+  const subject = $("subjectInput");
+  subject?.addEventListener("input", () => { state.mailSubject = subject.value; saveCanvasState(); });
   const input = $("preheaderInput");
   if (!input) return;
   let timer = 0;
@@ -4922,12 +4977,14 @@ function mountPreheaderInput() {
     timer = setTimeout(() => { pushCanvasUndo(); setPreheader(input.value); }, 350);
   });
   syncPreheaderInput();
-  setInterval(syncPreheaderInput, 1500); // обёртку могли сменить/удалить на холсте
+  syncSubjectInput();
+  setInterval(() => { syncPreheaderInput(); syncSubjectInput(); }, 1500); // обёртку могли сменить/удалить на холсте
 }
 
 function mountConstructorLocales() {
   exposeConstructorToUcc();
   mountPreheaderInput();
+  mountTopbarMenus();
   const api = window.RetKitConstructorLocales;
   if (!api) return;
   api.mount({
@@ -5878,6 +5935,7 @@ function saveCanvasState() {
       canvas: state.canvas,
       sourceSkeleton: state.sourceSkeleton || null,
       mailName: document.getElementById("mailName")?.value || "",
+      mailSubject: state.mailSubject || "",
       parsedDefs,
       _uidCounter: state._uidCounter,
       schemaVersion: 2,
@@ -5904,6 +5962,7 @@ function restoreCanvasState() {
       setRailMode(d.railMode || "blocks");
       const nameInput = document.getElementById("mailName");
       if (nameInput && d.mailName) nameInput.value = d.mailName;
+      state.mailSubject = String(d.mailSubject || "");
       renderCanvas(); renderInspector(); syncPaletteToSelection(); scheduleLivePreview();
     }
   } catch (e) { /* ignore */ }
@@ -6207,7 +6266,7 @@ function mountRtlToggle() {
   button.type = "button";
   button.id = "rtlToggleBtn";
   button.className = "dev-btn rtl-toggle";
-  button.textContent = "⇄ RTL";
+  button.textContent = "⇆ RTL";
   button.addEventListener("click", () => {
     _forceRtl = !_forceRtl;
     try { localStorage.setItem(RTL_FORCE_KEY, _forceRtl ? "on" : "off"); } catch {}
@@ -6215,7 +6274,8 @@ function mountRtlToggle() {
     scheduleLivePreview(0);
     flashCanvasHint(_forceRtl ? "Арабизация включена: справа налево, стороны отзеркалены" : "Арабизация выключена (локали ar/ur — по-прежнему справа налево)", 2500);
   });
-  header.insertBefore(button, header.firstChild);
+  // Рядом с «десктоп / мобайл»: это третий вид превью, а не отдельный режим.
+  header.appendChild(button);
   paintRtlToggle();
 }
 

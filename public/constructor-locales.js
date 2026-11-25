@@ -287,38 +287,49 @@
     return bar;
   }
 
+  /** «Локали ▾»: загрузить папку, новый набор, добавить/убрать — одно меню вместо ряда кнопок. */
+  function localesMenu(hasData) {
+    return `<span class="c-loc-menu-wrap tb-menu-wrap">
+        <button type="button" class="c-loc-btn" data-act="menu" aria-haspopup="true">Локали ▾</button>
+        <span class="tb-menu hidden" data-loc-menu role="menu" style="left:0;right:auto">
+          <button type="button" class="tb-menu-item" data-act="folder">📁 Загрузить папку…</button>
+          <button type="button" class="tb-menu-item" data-act="new-set">＋ Новый набор (тексты с нуля)</button>
+          ${hasData ? `<button type="button" class="tb-menu-item" data-act="add-locale">＋ Добавить локаль</button>
+          <span class="tb-menu-sep"></span>
+          <button type="button" class="tb-menu-item danger" data-act="close">✕ Убрать локали из письма</button>` : ''}
+        </span>
+      </span>`;
+  }
+
   function render() {
     const bar = ensureBar();
     if (!bar) return;
     if (!data) {
-      bar.innerHTML = `<button type="button" class="c-loc-btn" data-act="folder" title="Загрузить папку с локалями (en.txt, fr.txt… или JSON из базы)">📁 Локали</button>
-        <button type="button" class="c-loc-btn" data-act="new-set" title="Начать локали с нуля: вписать тексты EN руками">＋ Новый набор</button>
-        <button type="button" class="c-loc-btn" data-act="to-ucc" id="toUccBtn" title="Перенести письмо в UCC (INT или PROD). Нужен userscript RetKit UCC Export">→ UCC</button>
-        <button type="button" class="c-loc-btn" data-act="zip-single" title="Скачать ZIP с готовым читаемым HTML этого письма (одна локаль; язык определю по тексту, футер — на нём)">⬇ ZIP</button>
-        <span class="c-loc-hint">Загрузите папку или начните с нуля — письмо можно будет смотреть и выгружать на всех языках</span>`;
+      bar.innerHTML = `${localesMenu(false)}
+        <span class="c-loc-hint">Локали не загружены — письмо на одном языке. «Локали ▾» → загрузить папку или начать набор</span>`;
     } else {
       const tabs = ['original', ...data.order].map((code) => {
         const s = code === 'original' ? null : lint?.locales?.[code];
         const dot = s && s.status !== 'ok' ? `<i class="c-loc-dot ${s.status}"></i>` : '';
         const title = code === 'original' ? 'Письмо с плейсхолдерами: видно, где какой block_NN' : tabTitle(code, s);
         const pencil = code === 'original' ? '' : `<span class="c-loc-edit" data-edit="${esc(code)}" title="Редактировать тексты ${esc(code.toUpperCase())}">✎</span>`;
-        return `<button type="button" class="c-loc-tab${code === active ? ' active' : ''}" data-loc="${esc(code)}" title="${esc(title)}">${code === 'original' ? 'Original' : esc(code.toUpperCase())}${dot}${pencil}</button>`;
+        const rtl = /^(?:ar|ur|fa|he)$/.test(String(code).toLowerCase().split(/[_-]/)[0]) ? ' <span class="c-loc-rtl" title="Справа налево — включается само">⇆</span>' : '';
+        return `<button type="button" class="c-loc-tab${code === active ? ' active' : ''}" data-loc="${esc(code)}" title="${esc(title)}">${code === 'original' ? 'Original' : esc(code.toUpperCase())}${rtl}${dot}${pencil}</button>`;
       }).join('');
       const stats = host?.stats?.() || { bound: 0, plain: 0 };
-      bar.innerHTML = `<button type="button" class="c-loc-btn" data-act="folder" title="Загрузить другую папку">📁</button>
+      bar.innerHTML = `${localesMenu(true)}
         <button type="button" class="c-loc-name" data-act="copy-first" title="Клик — ${esc(token(data.name, 0))} в буфер; после вставки следующий ляжет сам">${esc(data.name)}</button>
         <div class="c-loc-tabs">${tabs}</div>
-        <span class="c-loc-stat${stats.plain ? ' warn' : ''}" title="Тексты письма, привязанные к локалям">🔗 ${stats.bound}${stats.plain ? ` · без локали ${stats.plain}` : ''}</span>
-        <button type="button" class="c-loc-btn" data-act="add-locale" title="Добавить локаль вручную: копия ${esc(data.ref.toUpperCase())}, дальше переводите в редакторе">＋ Локаль</button>
-        <button type="button" class="c-loc-btn" data-act="to-ucc" id="toUccBtn" title="Перенести письмо и все локали в UCC (INT или PROD): локали создадутся, код и тема сохранятся">→ UCC</button>
-        <button type="button" class="c-loc-btn" data-act="zip" title="Скачать ZIP: готовый HTML каждой локали">⬇ ZIP</button>
-        <button type="button" class="c-loc-btn ghost" data-act="close" title="Убрать локали из конструктора">✕</button>`;
+        <span class="c-loc-stat${stats.plain ? ' warn' : ''}" title="Тексты письма, привязанные к локалям">🔗 ${stats.bound}${stats.plain ? ` · без локали ${stats.plain}` : ''}</span>`;
     }
     bar.querySelectorAll('[data-loc]').forEach((el) => el.addEventListener('click', (event) => {
       const edit = event.target.closest('[data-edit]');
       if (edit) { event.stopPropagation(); openEditor(edit.dataset.edit); return; }
       setActive(el.dataset.loc);
     }));
+    const menu = bar.querySelector('[data-loc-menu]');
+    bar.querySelector('[data-act="menu"]')?.addEventListener('click', (e) => { e.stopPropagation(); menu?.classList.toggle('hidden'); });
+    menu?.querySelectorAll('.tb-menu-item').forEach((el) => el.addEventListener('click', () => menu.classList.add('hidden')));
     bar.querySelector('[data-act="folder"]')?.addEventListener('click', () => document.getElementById('cLocalesFolder')?.click());
     bar.querySelector('[data-act="bind"]')?.addEventListener('click', () => {
       const n = host?.autoBind?.() || 0;

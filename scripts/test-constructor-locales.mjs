@@ -205,7 +205,9 @@ assert.ok(js.includes('handOffLocalesToCode(brand, mid);\n      window.location.
   assert.equal(C.subjectFromTxt('Assunto: Seu contrato foi rescindido\nPreheader: {{x}}\n{{a}}'), 'Seu contrato foi rescindido');
   assert.equal(C.subjectFromTxt('{{a}}'), '');
   const src = fs.readFileSync(new URL('../public/constructor-locales.js', import.meta.url), 'utf8');
-  assert.equal((src.match(/data-act="to-ucc" id="toUccBtn"/g) || []).length, 2, 'кнопка «→ UCC» и с набором, и без');
+  const chtml = fs.readFileSync(new URL('../public/constructor.html', import.meta.url), 'utf8');
+  assert.ok(/id="toUccBtn"[^>]*>⇄ Перенести в UCC/.test(chtml), '«⇄ Перенести в UCC» в меню «Выгрузить ▾»');
+  assert.ok(src.includes('function localesMenu(hasData)'), 'локали — одно меню «Локали ▾»');
   assert.ok(src.includes('data = { name, ref, locales, order, subjects,'), 'темы локалей сохраняются при загрузке папки');
   const cjs = fs.readFileSync(new URL('../public/constructor.js', import.meta.url), 'utf8');
   assert.ok(cjs.includes('window.RetKitStudioExport = {') && cjs.includes('exposeConstructorToUcc();'), 'конструктор отдаёт локали мосту');

@@ -1517,7 +1517,7 @@ body.dragging-from-catalog .child-dropzone {
    Активный бренд — рабочий контекст: цель сохранения, фирменные цвета,
    подсветка в базе писем. Высота вынесена в переменную, потому что
    .workspace считает свою высоту вычитанием и молча ломается от правки. */
-:root { --topbar-h: 48px; --brandbar-h: 38px; }
+:root { --topbar-h: 48px; --brandbar-h: 0px; } /* бренд и набор теперь в шапке */
 .brandbar {
   display: flex;
   align-items: center;
@@ -2077,3 +2077,24 @@ button.c-loc-name:hover { color: var(--text, #e5edf7); background: var(--surface
 .insp-weight{display:flex;gap:6px;margin-top:6px}
 .insp-weight button{flex:1;padding:7px 0;border-radius:8px;border:1px solid #2a3647;background:#152030;color:#e6edf7;cursor:pointer;font:600 12px system-ui,sans-serif}
 .insp-weight button.active{background:#2563eb;border-color:#2563eb}
+
+/* Шапка: письмо + бренд слева, ↶ ⚙ «Выгрузить ▾» справа */
+.topbar-left .mail-name{width:170px}
+.topbar-left .brandbar-picker{display:flex;align-items:center}
+.btn-icon{min-width:34px;padding-inline:8px !important;font-size:15px}
+.tb-menu-wrap{position:relative}
+.tb-menu{position:absolute;right:0;top:calc(100% + 8px);min-width:280px;background:#111a27;border:1px solid #2a3647;border-radius:12px;box-shadow:0 18px 40px rgba(0,0,0,.5);padding:6px;z-index:1000;display:flex;flex-direction:column;gap:2px}
+.tb-menu.hidden{display:none}
+.tb-menu-item{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;text-align:left;padding:9px 10px;border:0;border-radius:8px;background:transparent;color:#e6edf7;font:500 13px system-ui,sans-serif;cursor:pointer}
+.tb-menu-item:hover,.tb-menu-item:focus-visible{background:#1d2a3d;outline:none}
+.tb-menu-item span,.tb-menu-item kbd{color:#8a98ad;font:12px system-ui,sans-serif}
+.tb-menu-item.danger{color:#fca5a5}
+.tb-menu-sep{height:1px;background:#1e293b;margin:4px 6px}
+.tb-menu-field{display:flex;flex-direction:column;gap:6px;padding:8px 10px;color:#8a98ad;font:600 11px system-ui,sans-serif;text-transform:uppercase;letter-spacing:.05em}
+.tb-menu-field .mail-name{width:100%;box-sizing:border-box;text-transform:none;letter-spacing:0}
+/* Над письмом: тема и прехедер — «как во входящих» */
+.preheader-row{display:grid !important;grid-template-columns:96px minmax(0,1fr);row-gap:6px}
+.preheader-row label{align-self:center}
+.c-locales-bar{overflow:visible;position:relative;z-index:5}
+.dev-btn.rtl-toggle{width:auto;min-width:58px}
+.c-loc-rtl{color:#93c5fd;font-weight:400}

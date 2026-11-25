@@ -75,7 +75,7 @@ const browser = new Function([
 
 /* ─── Полоса подключена и размечена ──────────────────────────────────────── */
 {
-  for (const id of ["brandBar", "brandTabs", "brandAddBtn", "brandThemeBtn"]) {
+  for (const id of ["brandTabs", "brandAddBtn", "brandThemeBtn"]) {
     check(`в разметке есть #${id}`, constructorHtml.includes(`id="${id}"`));
   }
   const barAt = constructorHtml.indexOf('src="/brand-bar.js"');
