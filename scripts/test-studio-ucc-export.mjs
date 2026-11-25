@@ -29,7 +29,9 @@ console.log("✓ studio → UCC: info/allLocales, оба режима «Кода
 
 {
   const html = readFileSync(new URL("../public/workbench.html", import.meta.url), "utf8");
-  assert.match(html, /id="toUccBtn"[\s\S]*Перенести в UCC/, "кнопка «Перенести в UCC» в нижней панели");
+  assert.match(html, /id="exportMenuBtn"[\s\S]*id="exportMenu"[\s\S]*id="toUccBtn"[\s\S]*В UCC[\s\S]*id="toMoBtn"/, "«Выгрузить ▾» в шапке: В UCC и В MoEngage");
+  assert.ok(!/bottom-bar-tools[\s\S]*id="toUccBtn"/.test(html.slice(html.indexOf("bottom-bar-tools"))), "в нижней панели переноса больше нет");
+  assert.match(html, /data-open-panel="export"[\s\S]*data-open-panel="pdf"/, "TXT и PDF — в меню «Выгрузить»");
   assert.match(js, /\.bottom-tool-btn\[data-panel\]/, "кнопка не открывает пустую панель");
   assert.match(js, /window\.__retkitUccBridge/, "кнопка зовёт мост userscript");
   console.log("✓ кнопка «Перенести в UCC» в студии");

@@ -36,6 +36,18 @@
   </div>
   <div class="topbar-right">
     <a class="icon-btn" href="/constructor" title="Открыть DnD-конструктор" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;padding:0 10px;width:auto;font-size:13px;">🎨 Конструктор</a>
+    <div class="wb-menu-wrap">
+      <button class="wb-export-btn" id="exportMenuBtn" type="button" aria-haspopup="menu" aria-expanded="false" title="Перенести письмо в UCC / MoEngage, TXT, PDF">Выгрузить <span aria-hidden="true">▾</span></button>
+      <div class="wb-menu hidden" id="exportMenu" role="menu">
+        <div class="wb-menu-title">Перенести</div>
+        <button class="wb-menu-item" id="toUccBtn" type="button" role="menuitem" title="Письмо или пресет UCC — все локали с кодом и Subject. Нужен RetKit UCC Export 0.16+ в Tampermonkey.">⇄ В UCC <span>письмо или пресет</span></button>
+        <button class="wb-menu-item" id="toMoBtn" type="button" role="menuitem" title="В открытое письмо MoEngage (шаг Content). Футер — блоками MoEngage.">→ В MoEngage <span>открытое письмо</span></button>
+        <div class="wb-menu-sep"></div>
+        <div class="wb-menu-title">Скачать</div>
+        <button class="wb-menu-item" type="button" role="menuitem" data-open-panel="export">⬇ Тексты локалей <span>TXT</span></button>
+        <button class="wb-menu-item" type="button" role="menuitem" data-open-panel="pdf">⬇ PDF</button>
+      </div>
+    </div>
     <button class="icon-btn" id="themeToggleBtn" title="Тема">
       <svg id="themeIconDark" width="16" height="16" viewBox="0 0 16 16" fill="none">
         <path d="M8 1v1M8 14v1M1 8h1M14 8h1M3.05 3.05l.71.71M12.24 12.24l.71.71M3.05 12.95l.71-.71M12.24 3.76l.71-.71M11 8a3 3 0 11-6 0 3 3 0 016 0z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -385,7 +397,7 @@
         HTML-аудит
         <span class="validate-badge hidden" id="validateBadge">0</span>
       </button>
-      <button class="bottom-tool-btn" data-panel="export">
+      <button class="bottom-tool-btn moved-to-menu" data-panel="export" hidden>
         <svg width="14" height="14" viewBox="0 0 15 15" fill="none"><path d="M7.5 1v9M4 7l3.5 4L11 7M1 13h13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
         Экспорт TXT
       </button>
@@ -401,17 +413,9 @@
         <svg width="14" height="14" viewBox="0 0 15 15" fill="none"><path d="M1 3h13v9a1 1 0 01-1 1H2a1 1 0 01-1-1V3z" stroke="currentColor" stroke-width="1.4"/><path d="M1 3l6.5 5L14 3" stroke="currentColor" stroke-width="1.4"/></svg>
         База писем
       </button>
-      <button class="bottom-tool-btn" data-panel="pdf">
+      <button class="bottom-tool-btn moved-to-menu" data-panel="pdf" hidden>
         <svg width="14" height="14" viewBox="0 0 15 15" fill="none"><path d="M3 1h6l3 3v10H3V1z" stroke="currentColor" stroke-width="1.4"/><path d="M9 1v3h3M5 7h5M5 9.5h3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
         PDF
-      </button>
-      <button class="bottom-tool-btn to-ucc-btn" id="toUccBtn" type="button" title="Перенести письмо и все локали в UCC (INT или PROD). Нужен userscript RetKit UCC Export в Tampermonkey.">
-        <svg width="14" height="14" viewBox="0 0 15 15" fill="none"><path d="M2 7.5h10M8.5 4l3.5 3.5L8.5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Перенести в UCC
-      </button>
-      <button class="bottom-tool-btn to-ucc-btn" id="toMoBtn" type="button" title="Залить локали в открытое письмо MoEngage (футер — блоками MoEngage). Нужен userscript RetKit UCC Export.">
-        <svg width="14" height="14" viewBox="0 0 15 15" fill="none"><path d="M2 7.5h10M8.5 4l3.5 3.5L8.5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Перенести в MoEngage
       </button>
     </div>
     <div class="bottom-bar-toggle" id="bottomBarToggle">

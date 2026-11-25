@@ -13386,6 +13386,29 @@ async function agentPlaceholderize({ namespace = '', refLocale = 'en' } = {}) {
 
   // Кнопка «Перенести в UCC» в нижней панели. Само окно переноса рисует userscript
   // RetKit UCC Export (он один умеет ходить в UCC с входом человека) — window.__retkitUccBridge.
+  // «Выгрузить ▾» в шапке: перенос в UCC / MoEngage и скачивание (TXT, PDF — открывают свои панели).
+  (function mountExportMenu() {
+    const btn = document.getElementById('exportMenuBtn');
+    const menu = document.getElementById('exportMenu');
+    if (!btn || !menu) return;
+    const close = () => { menu.classList.add('hidden'); btn.setAttribute('aria-expanded', 'false'); };
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const open = menu.classList.contains('hidden');
+      menu.classList.toggle('hidden', !open);
+      btn.setAttribute('aria-expanded', String(open));
+    });
+    menu.addEventListener('click', (e) => {
+      const item = e.target.closest('.wb-menu-item');
+      if (!item) return;
+      close();
+      const panel = item.dataset.openPanel;
+      if (panel) document.querySelector(`.bottom-tool-btn[data-panel="${panel}"]`)?.click();
+    });
+    document.addEventListener('mousedown', (e) => { if (!menu.contains(e.target) && !btn.contains(e.target)) close(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+  })();
+
   document.getElementById('toMoBtn')?.addEventListener('click', () => {
     const meta = info();
     if (!meta || !meta.locales.length) { toast('Откройте письмо с локалями — тогда его можно перенести в MoEngage', 'warning'); return; }

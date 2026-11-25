@@ -4787,3 +4787,19 @@ body:has(.ph-sidebar:not(.collapsed):not(.hidden)) .workspace {
 .app-version { margin-left: 8px; padding: 2px 8px; border-radius: 999px; font: 600 11px/1.5 ui-monospace, Menlo, monospace; white-space: nowrap; border: 1px solid; }
 .app-version.is-local { color: #16a34a; border-color: rgba(22,163,74,.45); background: rgba(22,163,74,.08); }
 .app-version.is-heroku { color: #7c3aed; border-color: rgba(124,58,237,.45); background: rgba(124,58,237,.08); }
+
+/* ─── «Выгрузить ▾» в шапке (как в конструкторе) ─────────────────────────── */
+.wb-menu-wrap{position:relative;display:inline-flex}
+.wb-export-btn{height:30px;padding:0 12px;border:0;border-radius:8px;background:var(--accent);color:#fff;font:600 13px var(--font);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background var(--transition)}
+.wb-export-btn:hover,.wb-export-btn[aria-expanded="true"]{background:var(--accent-hover)}
+.wb-export-btn span{font-size:10px;opacity:.85}
+.wb-menu{position:absolute;right:0;top:calc(100% + 8px);min-width:290px;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow-lg);padding:6px;z-index:2000;display:flex;flex-direction:column;gap:2px}
+.wb-menu.hidden{display:none}
+.wb-menu-title{padding:6px 10px 2px;color:var(--text-2);font:600 11px var(--font);text-transform:uppercase;letter-spacing:.05em}
+.wb-menu-item{display:flex;justify-content:space-between;align-items:center;gap:14px;width:100%;text-align:left;padding:9px 10px;border:0;border-radius:8px;background:transparent;color:var(--text);font:500 13px var(--font);cursor:pointer}
+.wb-menu-item:hover,.wb-menu-item:focus-visible{background:var(--accent-glow);outline:none}
+.wb-menu-item span{color:var(--text-2);font:12px var(--font)}
+.wb-menu-sep{height:1px;background:var(--border);margin:4px 6px}
+.bottom-tool-btn[hidden]{display:none !important}
+.wb-menu{min-width:320px}
+.wb-menu-item{white-space:nowrap}
